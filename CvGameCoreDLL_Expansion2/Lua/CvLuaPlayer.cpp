@@ -10224,7 +10224,7 @@ int CvLuaPlayer::lGetApproachTowardsUsGuess(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetApproachTowardsUsGuess(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12563,7 +12563,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::vector<Opinion> aOpinions;
 	int iValue;
 
-	int iVisibleApproach = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetApproachTowardsUsGuess(pkPlayer->GetID());
+	int iVisibleApproach = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetVisibleApproachTowardsUs(pkPlayer->GetID());
 	
 	if(pkPlayer->getTeam() == GET_PLAYER(eWithPlayer).getTeam())
 	{

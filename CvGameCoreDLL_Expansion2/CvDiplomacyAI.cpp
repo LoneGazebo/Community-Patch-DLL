@@ -2853,7 +2853,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	
 	// Our guess as to other players' diplomatic stances
 	//DoUpdateOpinionTowardsUsGuesses();
-	DoUpdateTrueApproachTowardsUsGuesses();
+	DoUpdateApproachTowardsUsGuesses();
 	DoEstimateOtherPlayerOpinions();
 	DoEstimateOtherPlayerApproaches();
 	LogOtherPlayerGuessStatus();
@@ -4006,17 +4006,8 @@ MajorCivOpinionTypes CvDiplomacyAI::GetMajorCivOtherPlayerOpinion(PlayerTypes eP
 	{
 		return GetPlayer()->GetDiplomacyAI()->GetOpinionTowardsUsGuess(ePlayer);
 	}
-	else
-	{
-		if ((MajorCivOpinionTypes) m_ppaaeOtherPlayerMajorCivOpinion[ePlayer][eWithPlayer] == NO_MAJOR_CIV_OPINION)
-		{
-			return MAJOR_CIV_OPINION_NEUTRAL;
-		}
-		else
-		{
+
 	return (MajorCivOpinionTypes) m_ppaaeOtherPlayerMajorCivOpinion[ePlayer][eWithPlayer];
-}
-	}
 }
 
 /// Sets what our guess is as to what a player's Diplomatic Opinion is of another player
@@ -4034,110 +4025,7 @@ void CvDiplomacyAI::SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTyp
 /// What is our guess as to other players' Approaches towards everyone else?
 void CvDiplomacyAI::DoEstimateOtherPlayerApproaches()
 {
-	// Make share opinion requests of the other AI
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		bool bShareOpinionAccepted = false;
-		bool bShareOpinionAcceptable = false;
-		bool bAcceptable = false;
-		
-		if (!IsPlayerValid(ePlayer, true))
-			continue;
-		
-		if (ePlayer == GetPlayer()->GetID())
-			continue;
-		
-		for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
-			
-			if (!IsPlayerValid(eLoopPlayer, true))
-				continue;
-			
-			if (eLoopPlayer == GetPlayer()->GetID())
-				continue;
-			
-			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-			}
-			else
-			{
-				SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-			}
-		}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
-		{
-			if (GET_PLAYER(ePlayer).isHuman())
-				continue;
-			
-			if (IsAtWar(ePlayer))
-				continue;
-			
-			bShareOpinionAccepted = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAccepted(GetPlayer()->GetID());
-			bShareOpinionAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAcceptable(GetPlayer()->GetID());
-			
-			if (bShareOpinionAccepted)
-			{
-				bAcceptable = true;
-			}
-			// Already accepted the ability to share opinion?
-			else if ((bShareOpinionAccepted && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(GetPlayer()->GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend(GetPlayer()->GetID())))
-			{
-				bAcceptable = true;
-			}
-			else
-			{
-				bAcceptable = false;
-			}
-			
-			if (bAcceptable)
-			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(GetPlayer()->GetID(), true);
-				
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivOpinion(GetPlayer()->GetID()) >= MAJOR_CIV_OPINION_FRIEND && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(GetPlayer()->GetID(), /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
-				{
-					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
-						
-						if (!IsPlayerValid(eLoopPlayer, true))
-							continue;
-						
-						if (eLoopPlayer == GetPlayer()->GetID())
-							continue;
-						
-						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-						{
-							SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false));
-						}
-					}
-				}
-				else
-				{
-					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
-						
-						if (!IsPlayerValid(eLoopPlayer, true))
-							continue;
-						
-						if (eLoopPlayer == GetPlayer()->GetID())
-							continue;
-						
-						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-						{
-							SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true));
-						}
-					}
-				}
-			}
-		}
-#endif
-	}
+	return;
 }
 
 /// Updates our general Diplomatic Approach towards each major civilization we've met
@@ -7707,6 +7595,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//--------------------------------//
 
 	////////////////////////////////////
+	// CUSTOM DLL MOD BONUS/PENALTY
+	////////////////////////////////////
+
+	// Modders can add flat weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+
+	////////////////////////////////////
 	// LUA BONUS/PENALTY
 	////////////////////////////////////
 
@@ -7745,7 +7639,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
-	if (!bFirstPass && bUpdate && vPlayersToUpdate.size() > 1)
+	if (!bFirstPass && vPlayersToUpdate.size() > 1)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 		{
@@ -8054,7 +7948,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//--------------------------------//
 
 	////////////////////////////////////
-	// MODDER BONUS/PENALTY
+	// CUSTOM DLL MOD BONUS/PENALTY
+	////////////////////////////////////
+
+	// Modders can add % weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+
+	////////////////////////////////////
+	// LUA BONUS/PENALTY
 	////////////////////////////////////
 
 	// Modders can add % weight to approaches based on custom conditions here.
@@ -9886,7 +9786,7 @@ bool CvDiplomacyAI::IsHasActiveGoldQuest()
 }
 
 /// Returns ePlayer's visible Diplomatic Approach towards us
-MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlayer)
+MajorCivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9900,7 +9800,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlay
 }
 
 /// Returns our guess as to another player's true Diplomatic Approach towards us
-MajorCivApproachTypes CvDiplomacyAI::GetTrueApproachTowardsUsGuess(PlayerTypes ePlayer)
+MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9927,7 +9827,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetTrueApproachTowardsUsGuess(PlayerTypes e
 }
 
 /// Sets our guess as to another player's true Diplomatic Approach towards us
-void CvDiplomacyAI::SetTrueApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
+void CvDiplomacyAI::SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9937,7 +9837,7 @@ void CvDiplomacyAI::SetTrueApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivA
 }
 
 /// Returns how long we've thought ePlayer has had his true Diplomatic Approach towards us
-int CvDiplomacyAI::GetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9945,7 +9845,7 @@ int CvDiplomacyAI::GetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer) con
 }
 
 /// Sets how long we've thought ePlayer has had his true Diplomatic Approach towards us
-void CvDiplomacyAI::SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9954,291 +9854,15 @@ void CvDiplomacyAI::SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, in
 }
 
 /// Changes how long we've thought ePlayer has had his true Diplomatic Approach towards us
-void CvDiplomacyAI::ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange)
 {
-	SetTrueApproachTowardsUsGuessCounter(ePlayer, GetTrueApproachTowardsUsGuessCounter(ePlayer) + iChange);
+	SetApproachTowardsUsGuessCounter(ePlayer, GetApproachTowardsUsGuessCounter(ePlayer) + iChange);
 }
 
 /// See if there's anything we need to change with our guesses as to other players' true Diplomatic Approaches towards us
-void CvDiplomacyAI::DoUpdateTrueApproachTowardsUsGuesses(bool bNoIncrement /* = false */)
+void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 {
-	PlayerTypes eLoopPlayer;
-	MajorCivApproachTypes eVisibleApproach;
-	MajorCivApproachTypes eTrueApproachGuess;
-	AggressivePostureTypes eMilitaryAggressivePosture;
-	AggressivePostureTypes eLastTurnMilitaryAggressivePosture;
-	bool bAtWar = false;
-	bool bHuman = false;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (IsPlayerValid(eLoopPlayer))
-		{
-			eVisibleApproach = GetApproachTowardsUsGuess(eLoopPlayer);
-			eTrueApproachGuess = GetTrueApproachTowardsUsGuess(eLoopPlayer);
-			eMilitaryAggressivePosture = GetMilitaryAggressivePosture(eLoopPlayer);
-			eLastTurnMilitaryAggressivePosture = GetLastTurnMilitaryAggressivePosture(eLoopPlayer);
-			bAtWar = GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam());
-			bHuman = GET_PLAYER(eLoopPlayer).isHuman();
-			
-			// If they're at war with us, then their approach is WAR for all practical purposes
-			if (bAtWar && eTrueApproachGuess != MAJOR_CIV_APPROACH_WAR)
-			{
-				SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-				SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-				continue;
-			}
-
-#if defined(MOD_BALANCE_CORE)
-			// If we just made peace, reset any guess for the WAR approach
-			else if (eTrueApproachGuess == MAJOR_CIV_APPROACH_WAR && (GetNumWarsFought(eLoopPlayer) > 0 && GetPlayerNumTurnsAtPeace(eLoopPlayer) <= 1))
-			{
-				SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);	
-			}
-#endif
-
-			// If their military deployment is very threatening and we haven't made peace recently + they aren't an AFRAID AI, assume they mean WAR
-			else if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH)
-			{
-				if (eTrueApproachGuess != MAJOR_CIV_APPROACH_WAR && (bHuman || (!bHuman && eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID)))
-				{
-#if defined(MOD_BALANCE_CORE)
-					if (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0)
-					{
-#endif
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-						SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						continue;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
-				}
-			}
-			
-			else
-			{
-				// Use visible approach for AI players
-				if (!bHuman)
-				{
-					// Are they now AFRAID of us? Then they're being honest.
-					if (eVisibleApproach == MAJOR_CIV_APPROACH_AFRAID && eTrueApproachGuess != MAJOR_CIV_APPROACH_AFRAID)
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_AFRAID);
-						SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						continue;
-					}
-					
-					// They can't be FRIENDLY or DECEPTIVE if their visible approach isn't FRIENDLY
-					else if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY && (eTrueApproachGuess == MAJOR_CIV_APPROACH_FRIENDLY || eTrueApproachGuess == MAJOR_CIV_APPROACH_DECEPTIVE))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-					
-					// For HOSTILE, reset the guess if it doesn't match the visible approach, *unless* they denounced us (in which case we assume the worst)
-					else if (eVisibleApproach != MAJOR_CIV_APPROACH_HOSTILE && eTrueApproachGuess == MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-						{
-							SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-						}
-					}
-							
-					// For AFRAID or GUARDED, reset the guess if it doesn't match the visible approach
-					else if (eVisibleApproach != eTrueApproachGuess && (eTrueApproachGuess == MAJOR_CIV_APPROACH_AFRAID || eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-				}
-				
-				// Human player
-				else
-				{
-					// Reset any guess for the FRIENDLY approach if we have no DoF/DP, they haven't resurrected us, and no recent assist bonus
-					if (eTrueApproachGuess == MAJOR_CIV_APPROACH_FRIENDLY && !IsDoFAccepted(eLoopPlayer) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()) && !WasResurrectedBy(eLoopPlayer) && GetRecentAssistValue(eLoopPlayer) >= 0)
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-					
-					// Reset any guess for the FRIENDLY or DECEPTIVE approach if there's been a denouncement either way
-					else if ((eTrueApproachGuess == MAJOR_CIV_APPROACH_FRIENDLY || eTrueApproachGuess == MAJOR_CIV_APPROACH_DECEPTIVE) && (IsDenouncedPlayer(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID())))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-					
-					// Reset any guess for the GUARDED approach if they denounced us
-					else if (eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-					
-					// Reset any guess for the GUARDED approach if they befriended us or made a DP
-					else if (eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED && (IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam())))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-					
-					// Reset any guess for the GUARDED approach if we've no longer denounced them/gone to war recently, and they don't have soldiers guarding the border
-					else if (eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED && !IsDenouncedPlayer(eLoopPlayer) && eMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_MEDIUM)
-#if defined(MOD_BALANCE_CORE)
-					{
-						if (GetNumWarsFought(eLoopPlayer) > 0)
-						{
-							if (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 30)
-							{
-								SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-							}
-						}
-						else
-#endif
-						{
-							SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-						}
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
-					
-				}
-			}
-			
-			if (!bNoIncrement)
-			ChangeTrueApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-
-			// We have no guess, or it's been a while since our last guess...let's make a new one if we can!
-			if (GetTrueApproachTowardsUsGuess(eLoopPlayer) == MAJOR_CIV_APPROACH_NEUTRAL || GetTrueApproachTowardsUsGuessCounter(eLoopPlayer) > 30)
-			{
-				// Reset the counter so we don't run this check again next turn
-				SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 0);
-				
-				// At war?
-				if (bAtWar)
-				{
-					SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					continue;
-				}
-				
-				// AI player, make a new guess based on visible approach
-				if (!bHuman)
-				{	
-					// If not AFRAID, haven't recently made peace and their military deployment is extremely threatening, assume WAR
-#if defined(MOD_BALANCE_CORE)
-					if (eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID && eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH && (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0))
-#else
-	                if (eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID && eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH)
-#endif
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					}
-
-					else
-					{
-						// If they've denounced us, assume they're *at least* HOSTILE, regardless of visible approach
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-						{
-							SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_HOSTILE);
-						}
-						
-						// FRIENDLY? Let's not make the same mistake twice...
-						else if (eVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY)
-						{
-							// Untrustworthy?
-							if (IsUntrustworthyFriend(eLoopPlayer))
-							{
-								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() > 0)
-								{
-									SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-								}
-								else
-								{
-									SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
-								}
-							}
-							else
-							{
-								SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-							}
-						}
-						else
-						{
-							SetTrueApproachTowardsUsGuess(eLoopPlayer, eVisibleApproach);
-						}
-					}
-				}
-				
-				// Human player, make a new guess based on our current status
-				else
-				{	
-					// Their military deployment is extremely threatening, assume WAR
-#if defined(MOD_BALANCE_CORE)
-					if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH && (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0))
-#else
-					if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH)
-#endif
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					}
-					
-					// If they denounced us, assume HOSTILE
-					else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_HOSTILE);
-					}
-					
-					// If we denounced them, assume GUARDED
-					else if (IsDenouncedPlayer(eLoopPlayer))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_GUARDED);
-					}
-					
-					// They resurrected us, assume FRIENDLY
-					else if (WasResurrectedBy(eLoopPlayer))
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-					}
-					
-					// We're friends or we've made a Defensive Pact, assume FRIENDLY
-					else if (IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()))
-					{
-						// ...unless they're untrustworthy
-						if (IsUntrustworthyFriend(eLoopPlayer))
-						{
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() > 0)
-							{
-								SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-							}
-							else
-							{
-								SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
-							}
-						}
-						else
-						{
-							SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-						}
-					}
-#if defined(MOD_BALANCE_CORE)
-					// We've gone to war recently, assume GUARDED
-					else if (GetNumWarsFought(eLoopPlayer) > 0 && GetPlayerNumTurnsAtPeace(eLoopPlayer) <= 30)
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_GUARDED);
-					}
-#endif
-					// They have soldiers guarding the border, assume GUARDED
-					else if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_GUARDED);
-					}
-					
-					// We have no guess
-					else
-					{
-						SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-					}
-				}
-			}
-		}
-	}
+	return;
 }
 
 /// What is our guess as to what a player's Diplomatic Approach is towards another player?
@@ -10251,19 +9875,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivOtherPlayerApproach(PlayerTypes 
 	
 	if (eWithPlayer == GetPlayer()->GetID())
 	{
-		return GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer);
+		return GetPlayer()->GetDiplomacyAI()->GetApproachTowardsUsGuess(ePlayer);
 	}
-	else
-	{
-		if ((MajorCivApproachTypes) m_ppaaeOtherPlayerMajorCivApproach[ePlayer][eWithPlayer] == NO_MAJOR_CIV_APPROACH)
-		{
-			return MAJOR_CIV_APPROACH_NEUTRAL;
-		}
-		else
-		{
-			return (MajorCivApproachTypes) m_ppaaeOtherPlayerMajorCivApproach[ePlayer][eWithPlayer];
-		}
-	}
+
+	return (MajorCivApproachTypes) m_ppaaeOtherPlayerMajorCivApproach[ePlayer][eWithPlayer];
 }
 
 /// Sets what our guess is as to what a player's Diplomatic Approach is towards another player
@@ -10675,9 +10290,6 @@ void CvDiplomacyAI::DoTestDemandReady()
 		pDeal->SetToPlayer(eDemandTarget);
 
 		DoMakeDemand(eDemandTarget, eStatement, pDeal);
-		
-		GET_PLAYER(eDemandTarget).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_HOSTILE);
-		GET_PLAYER(eDemandTarget).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 	}
 }
 
@@ -13007,8 +12619,6 @@ void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 				{
 					// This will be updated on turn cycling, but for now we're "shocked and disappointed!"
 					SetWarGoal(eLoopPlayer, WAR_GOAL_PEACE);
-					SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 0);
 				}
 
 				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
@@ -14841,15 +14451,15 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
 	{
 		if (GetPlayer()->isHuman()) // don't decide for the human if backstabbing a DP is okay
-	{
-		return true;
-	}
+		{
+			return true;
+		}
 		else
 		{
-			if (GetDefensivePactValue(ePlayer) > 0 && GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE/* && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/)
-	{
-		return true;
-	}
+			if (GetDefensivePactValue(ePlayer) > 0 && GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				return true;
+			}
 		}
 	}
 	
@@ -23577,8 +23187,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
-				DoUpdateTrueApproachTowardsUsGuesses(true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 
 				LogDoF(ePlayer);
 			}
@@ -23611,8 +23219,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
-				DoUpdateTrueApproachTowardsUsGuesses(true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 
 				LogDoF(ePlayer);
 			}
@@ -23646,8 +23252,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
-				DoUpdateTrueApproachTowardsUsGuesses(true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 
 				LogDoF(ePlayer);
 			}
@@ -23680,9 +23284,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateOpinions();
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();				
-				DoUpdateTrueApproachTowardsUsGuesses(true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);			
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();	
 
 				LogDoF(ePlayer);
 			}
@@ -23717,8 +23319,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
-				DoUpdateTrueApproachTowardsUsGuesses(true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 
 				LogDoF(ePlayer);
 			}
@@ -23776,7 +23376,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Update opinions and approaches
 		if (!GET_PLAYER(ePlayer).isHuman())
 		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 			
@@ -23793,7 +23392,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 		}
 
-		DoUpdateTrueApproachTowardsUsGuesses(true);
 		DoUpdateOpinions();
 		DoUpdateMajorCivApproaches();
 		
@@ -24039,8 +23637,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 							ChangeNumTimesCoopWarDenied(ePlayer, 2);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 							
 							// Bump down the target player's opinion of the asker
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(GetPlayer()->GetID(), 1);
@@ -24055,8 +23651,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 									if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(eAgainstPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eAgainstPlayer).getTeam()))
 									{
 										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 										
 										// Penalty to opinion for the asker
 										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(GetPlayer()->GetID(), 1);
@@ -24659,27 +24253,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				else
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlotterPlayer, 0);
-					
-					if (eIntrigueType == INTRIGUE_TYPE_BUILDING_ARMY || eIntrigueType == INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY || eIntrigueType == INTRIGUE_TYPE_ARMY_SNEAK_ATTACK || eIntrigueType == INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK)
-					{
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlotterPlayer, MAJOR_CIV_APPROACH_WAR);
-					}
-					else if (eIntrigueType == INTRIGUE_TYPE_DECEPTION)
-					{
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(ePlotterPlayer, 1);
-						
-						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetApproachTowardsUsGuess(ePlotterPlayer) == MAJOR_CIV_APPROACH_FRIENDLY &&
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlotterPlayer) != MAJOR_CIV_APPROACH_WAR &&
-							GET_PLAYER(ePlotterPlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0)
-						{
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlotterPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
-						}
-						else
-						{
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlotterPlayer, MAJOR_CIV_APPROACH_WAR);
-						}
-					}
 				}
 #endif
 			}
@@ -24717,8 +24290,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_INSULT)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_HOSTILE);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_HOSTILE);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
 		if(bHuman)
 		{
@@ -24731,8 +24304,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_COMPLIMENT)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_FRIENDLY);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_FRIENDLY);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
 		if(bHuman)
 		{
@@ -24745,8 +24318,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_BOOT_KISSING)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_AFRAID);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_AFRAID);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 
 		if(bHuman)
 		{
@@ -32749,7 +32322,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}		
 #endif
 				// Update opinions and approaches
-				DoUpdateTrueApproachTowardsUsGuesses(true);
 				DoUpdateOpinions();
 				DoUpdateMajorCivApproaches();
 			}
@@ -33384,7 +32956,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}		
 #endif
 			// Update opinions and approaches
-			DoUpdateTrueApproachTowardsUsGuesses(true);
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 
@@ -33455,7 +33026,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			
 			// Update opinions and approaches
-			DoUpdateTrueApproachTowardsUsGuesses(true);
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 			
@@ -33679,13 +33249,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				
 				// If player is offended, AI should take note as penalty to assistance.
 				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, 300);
-				
-				// Reset the approach guess counter, and if the approach guess isn't already WAR, assume they're HOSTILE
-				if (GetTrueApproachTowardsUsGuess(eFromPlayer) != MAJOR_CIV_APPROACH_WAR)
-				{
-					SetTrueApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_HOSTILE);
-				}
-				SetTrueApproachTowardsUsGuessCounter(eFromPlayer, 0);
 			}
 			if(bActivePlayer)
 			{
@@ -33820,8 +33383,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -200);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eFromPlayer, 0);
 					
 					// Bump down the target player's opinion of the asker
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eFromPlayer, 1);
@@ -33836,8 +33397,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(eAgainstPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eAgainstPlayer).getTeam()))
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eFromPlayer, 0);
 								
 								// Penalty to opinion for the asker
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eFromPlayer, 1);
@@ -33908,8 +33467,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -200);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 					
 					// Bump down the target player's opinion of the asker
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(GetPlayer()->GetID(), 1);
@@ -33924,8 +33481,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(eAgainstPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eAgainstPlayer).getTeam()))
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eFromPlayer, 0);
 								
 								// Penalty to opinion for the asker
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(GetPlayer()->GetID(), 1);
@@ -34268,29 +33823,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
 			GET_PLAYER(eFromPlayer).GetEspionage()->MarkRecentIntrigueAsShared(eMyPlayer, ePlottingPlayer, eIntrigueType);
-#if defined(MOD_BALANCE_CORE)
-			if(eIntrigueType == INTRIGUE_TYPE_BUILDING_ARMY || eIntrigueType == INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY || eIntrigueType == INTRIGUE_TYPE_ARMY_SNEAK_ATTACK || eIntrigueType == INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK)
-			{
-				SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_WAR);
-			}
-			else if(eIntrigueType == INTRIGUE_TYPE_DECEPTION)
-			{
-				ChangeNumTimesTheyPlottedAgainstUs(ePlottingPlayer, 1);
-				
-				if (GetApproachTowardsUsGuess(ePlottingPlayer) == MAJOR_CIV_APPROACH_FRIENDLY &&
-					GetTrueApproachTowardsUsGuess(ePlottingPlayer) != MAJOR_CIV_APPROACH_WAR &&
-					GET_PLAYER(ePlottingPlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0)
-				{
-				SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
-				}
-				else
-				{
-					SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_WAR);
-				}
-			}
-			
-				SetTrueApproachTowardsUsGuessCounter(ePlottingPlayer, 0);
-#endif
+
 			if (bActivePlayer)
 			{
 #if !defined(NO_ACHIEVEMENTS)
@@ -34407,7 +33940,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				bool bAcceptable = false;
 
 				// Already accepted the ability to share opinion? Good, then continue onward.
-				if ((IsShareOpinionAccepted(eFromPlayer) && !IsActHostileTowardsHuman(eFromPlayer) && !IsUntrustworthyFriend(eFromPlayer)/* && GetTrueApproachTowardsUsGuess(eFromPlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/) || bDebug)
+				if ((IsShareOpinionAccepted(eFromPlayer) && !IsActHostileTowardsHuman(eFromPlayer) && !IsUntrustworthyFriend(eFromPlayer)) || bDebug)
 				{
 					bAcceptable = true;
 				}
@@ -34442,8 +33975,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					}
 					else if (bAcceptable) // don't set it as accepted for future requests if in debug mode, or we're just telling them we're at war
 					{
-					SetShareOpinionAccepted(eFromPlayer, true);
-					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, true);
+						SetShareOpinionAccepted(eFromPlayer, true);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, true);
 					}
 
 					if(bActivePlayer)
@@ -36985,17 +36518,6 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 		}
 	}
 
-	// Assume the human is HOSTILE only if we don't already think they want war OR if we gave them what they wanted
-	if (eDemand == DEMAND_RESPONSE_ACCEPT)
-	{
-		SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_HOSTILE);
-	}
-	else if (GetTrueApproachTowardsUsGuess(ePlayer) != MAJOR_CIV_APPROACH_WAR)
-	{
-		SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_HOSTILE);
-	}
-	SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
-
 	// If we accepted, see how long it'll be before we might agree to another demand
 	if (eDemand == DEMAND_RESPONSE_ACCEPT)
 	{
@@ -37397,7 +36919,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 		return false;
 	
 	// If player is plotting against us, always say no
-	if (/*GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE ||*/GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
+	if (GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
 		return false;
 	
 	// If player has broken or ignored a spying promise, always say no
@@ -37560,7 +37082,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 			bCancel = true;
 
 		// No DoFs if they're untrustworthy
-		if (IsUntrustworthyFriend(ePlayer)/* || GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE*/)
+		if (IsUntrustworthyFriend(ePlayer))
 			bCancel = true;
 	
 		// No DoFs if we're hostile or want war
@@ -37592,11 +37114,6 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
 					bCancel = true;
-
-				/*
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-					bCancel = true;
-				*/
 
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend(ePlayer))
 					bCancel = true;
@@ -38554,13 +38071,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eMyPlayer);
 	}
 	
-	// Reset the approach guess counter, and if the approach guess isn't already WAR, assume they're HOSTILE
-	if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eMyPlayer) != MAJOR_CIV_APPROACH_WAR)
-	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eMyPlayer, MAJOR_CIV_APPROACH_HOSTILE);
-	}
-	GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eMyPlayer, 0);
-	
 	// Update opinions and approaches
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
@@ -38576,7 +38086,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 
 	if (!GetPlayer()->isHuman())
 	{
-		DoUpdateTrueApproachTowardsUsGuesses(true);
 		DoUpdateOpinions();
 		DoUpdateMajorCivApproaches();
 	}
@@ -51659,12 +51168,6 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	// Backstabber?
 	if (IsUntrustworthyFriend(ePlayer))
 		return false;
-	
-	// Plotting against us? Don't give them strategic information.
-	/*
-	if (GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
-		return false;
-	*/
 
 	// If we act hostile, it's not acceptable
 	if(IsActHostileTowardsHuman(ePlayer))

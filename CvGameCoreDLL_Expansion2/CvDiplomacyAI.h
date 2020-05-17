@@ -162,14 +162,14 @@ public:
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
+	MajorCivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer);
 	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer);
-	MajorCivApproachTypes GetTrueApproachTowardsUsGuess(PlayerTypes ePlayer);
-	void SetTrueApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
-	int GetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
-	void SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
-	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
+	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
+	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
+	void ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
-	void DoUpdateTrueApproachTowardsUsGuesses(bool bNoIncrement = false);
+	void DoUpdateApproachTowardsUsGuesses();
 	void DoEstimateOtherPlayerApproaches();
 
 	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
