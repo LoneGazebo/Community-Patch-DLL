@@ -43315,6 +43315,12 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 /// Is this a bad target to steal from?
 bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
 {
+	if (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT)
+	{
+		if (pPlot == NULL)
+			return true;
+	}
+	
 	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER || ePlayer == GetPlayer()->GetID() || !GET_PLAYER(ePlayer).isAlive())
 		return false;
 
@@ -43336,10 +43342,6 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 			}
 			break;
 		case THEFT_TYPE_PLOT: // America UA
-			if (pPlot == NULL)
-			{
-				return true;
-			}
 			// Steal Natural Wonders and other teams' embassies, the City-State's feelings be damned!
 			if (pPlot->IsNaturalWonder(false))
 			{
@@ -43388,7 +43390,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
 	// We want to know whether they can still see the plot *after* we plunder the caravan, so check for > 1
 	bool bPlotIsVisibleToOtherTeam = false;
-	if (eTheftType == THEFT_TYPE_TRADE_ROUTE && pPlot != NULL)
+	if (eTheftType == THEFT_TYPE_TRADE_ROUTE)
 	{
 		bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
 	}
@@ -43426,9 +43428,6 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		break;
 
 	case THEFT_TYPE_TRADE_ROUTE: // Morocco UA
-		if (pPlot == NULL)
-			return true;
-
 		if (eTrueApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 			return true;
 		
