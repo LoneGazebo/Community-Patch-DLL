@@ -1995,8 +1995,6 @@ private:
 
 		short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
-		bool m_abPlayerVassalagePeacefullyRevokedVassal[MAX_MAJOR_CIVS];
-		bool m_abPlayerVassalageForcefullyRevokedVassal[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[MAX_MAJOR_CIVS];
 
@@ -2023,9 +2021,6 @@ private:
 
 	short* m_paiPlayerVassalageFailedProtectValue;
 	short* m_paiPlayerVassalageProtectValue;
-
-	bool* m_pabPlayerVassalagePeacefullyRevokedVassal;
-	bool* m_pabPlayerVassalageForcefullyRevokedVassal;
 
 	short* m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage;
 	short* m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage;

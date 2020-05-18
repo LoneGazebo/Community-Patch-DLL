@@ -178,8 +178,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiHelpRequestTooSoonNumTurns()
 	, m_aiPlayerVassalageFailedProtectValue()
 	, m_aiPlayerVassalageProtectValue()
-	, m_abPlayerVassalagePeacefullyRevokedVassal()
-	, m_abPlayerVassalageForcefullyRevokedVassal()
 	, m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage()
 	, m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage()
 	, m_aiNumTimesDemandedWhenVassal()
@@ -431,9 +429,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiPlayerVassalageFailedProtectValue(NULL),
 	m_paiPlayerVassalageProtectValue(NULL),
 
-	m_pabPlayerVassalagePeacefullyRevokedVassal(NULL),
-	m_pabPlayerVassalageForcefullyRevokedVassal(NULL),
-
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage(NULL),
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage(NULL),
 	m_paiNumTimesDemandedWhenVassal(NULL),
@@ -684,8 +679,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 	m_paiPlayerVassalageFailedProtectValue = &m_pDiploData->m_aiPlayerVassalageFailedProtectValue[0];
 	m_paiPlayerVassalageProtectValue = &m_pDiploData->m_aiPlayerVassalageProtectValue[0];
-	m_pabPlayerVassalagePeacefullyRevokedVassal = &m_pDiploData->m_abPlayerVassalagePeacefullyRevokedVassal[0];
-	m_pabPlayerVassalageForcefullyRevokedVassal = &m_pDiploData->m_abPlayerVassalageForcefullyRevokedVassal[0];
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage = &m_pDiploData->m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[0];
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = &m_pDiploData->m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[0];
 	m_paiNumTimesDemandedWhenVassal = &m_pDiploData->m_aiNumTimesDemandedWhenVassal[0];
@@ -1035,8 +1028,6 @@ void CvDiplomacyAI::Uninit()
 	m_paiHelpRequestTooSoonNumTurns = NULL;
 	m_paiPlayerVassalageFailedProtectValue = NULL;
 	m_paiPlayerVassalageProtectValue = NULL;
-	m_pabPlayerVassalagePeacefullyRevokedVassal = NULL;
-	m_pabPlayerVassalageForcefullyRevokedVassal = NULL;
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage = NULL;
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = NULL;
 	m_paiNumTimesDemandedWhenVassal = NULL;
@@ -1270,8 +1261,6 @@ void CvDiplomacyAI::Reset()
 		m_paiHelpRequestTooSoonNumTurns[iI] = -1;
 		m_paiPlayerVassalageFailedProtectValue[iI] = 0;
 		m_paiPlayerVassalageProtectValue[iI] = 0;
-		m_pabPlayerVassalagePeacefullyRevokedVassal[iI] = false;
-		m_pabPlayerVassalageForcefullyRevokedVassal[iI] = false;
 		m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[iI] = -1;
 		m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[iI] = -1;
 		m_paiNumTimesDemandedWhenVassal[iI] = 0;
@@ -1997,8 +1986,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiHelpRequestTooSoonNumTurns, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageFailedProtectValue, short, MAX_MAJOR_CIVS, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageProtectValue, short, MAX_MAJOR_CIVS, 0);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerVassalagePeacefullyRevokedVassal, bool, MAX_MAJOR_CIVS, false);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerVassalageForcefullyRevokedVassal, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS, 0);
@@ -2417,8 +2404,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiHelpRequestTooSoonNumTurns, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageFailedProtectValue, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageProtectValue, short, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerVassalagePeacefullyRevokedVassal, bool, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerVassalageForcefullyRevokedVassal, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS);
