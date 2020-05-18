@@ -10975,10 +10975,7 @@ int CvLuaPlayer::lGetRecentAssistValue(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsGaveAssistanceTo(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsGaveAssistanceTo(eOtherPlayer);
+	const bool bValue = false;
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -13777,15 +13774,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 	// TRAITOR END
-
-	//iValue = pDiploAI->GetRequestsRefusedScore(eWithPlayer);
-	//if (iValue != 0)
-	//{
-	//	Opinion kOpinion;
-	//	kOpinion.m_iValue = iValue;
-	//	kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_REFUSED_REQUESTS");
-	//	aOpinions.push_back(kOpinion);
-	//}
 
 	iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
 	if (iValue != 0)

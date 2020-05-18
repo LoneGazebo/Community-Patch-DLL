@@ -254,8 +254,8 @@ public:
 	bool DeclareWar(TeamTypes eTeam);
 
 	// War Face: If we're planning for war, how are we acting towards ePlayer?
-	WarFaceTypes GetWarFaceWithPlayer(PlayerTypes ePlayer) const;
-	void SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eFace);
+	WarFaceTypes GetWarFace(PlayerTypes ePlayer) const;
+	void SetWarFace(PlayerTypes ePlayer, WarFaceTypes eFace);
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
@@ -504,7 +504,6 @@ public:
 	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
 	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
 
-	bool IsGaveAssistanceTo(PlayerTypes ePlayer) const;
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	bool IsNukedBy(PlayerTypes ePlayer) const;
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer) const;

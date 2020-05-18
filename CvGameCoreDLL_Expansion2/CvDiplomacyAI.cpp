@@ -3630,8 +3630,6 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += iTraitorOpinion;
 	// End TraitorOpinion bit
 
-	//iOpinionWeight += GetRequestsRefusedScore(ePlayer);
-
 	//////////////////////////////////////
 	// DENOUNCING
 	//////////////////////////////////////
@@ -8308,7 +8306,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// WAR FACE
 	////////////////////////////////////
 
-	WarFaceTypes eWarFace = GetWarFaceWithPlayer(ePlayer);
+	WarFaceTypes eWarFace = GetWarFace(ePlayer);
 
 	// If we're going to war then update how we're acting
 	if (eApproach == MAJOR_CIV_APPROACH_WAR)
@@ -8384,7 +8382,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Only log and update the war face if an update happened
 	if (bUpdate)
 	{
-		SetWarFaceWithPlayer(ePlayer, eWarFace); 
+		SetWarFace(ePlayer, eWarFace); 
 		LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 		LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 	}
@@ -8420,7 +8418,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8453,7 +8451,7 @@ void CvDiplomacyAI::DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8527,7 +8525,7 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8608,7 +8606,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8682,7 +8680,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePla
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8707,7 +8705,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bo
 		// War Face
 		else if (eApproach == MAJOR_CIV_APPROACH_WAR)
 		{
-			switch (GetWarFaceWithPlayer(ePlayer))
+			switch (GetWarFace(ePlayer))
 			{
 			case WAR_FACE_HOSTILE:
 				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
@@ -12154,7 +12152,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 
 
 /// If we're planning war with ePlayer, how are we acting towards him?
-WarFaceTypes CvDiplomacyAI::GetWarFaceWithPlayer(PlayerTypes ePlayer) const
+WarFaceTypes CvDiplomacyAI::GetWarFace(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12162,7 +12160,7 @@ WarFaceTypes CvDiplomacyAI::GetWarFaceWithPlayer(PlayerTypes ePlayer) const
 }
 
 /// Sets how we're acting while we prepare for our war against ePlayer
-void CvDiplomacyAI::SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eWarFace)
+void CvDiplomacyAI::SetWarFace(PlayerTypes ePlayer, WarFaceTypes eWarFace)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -16514,12 +16512,6 @@ void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 {
 		m_paiAssistValue[ePlayer] = iMaxOpinionValue;
 	}
-}
-
-/// Unused vanilla value
-bool CvDiplomacyAI::IsGaveAssistanceTo(PlayerTypes /*ePlayer*/) const
-{
-	return false;
 }
 
 /// Returns if this player has been nuked by ePlayer
@@ -23372,9 +23364,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
 				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
 				}
 			}
 		}
@@ -33016,9 +33008,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 			
-			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFaceWithPlayer(eFromPlayer) != WAR_FACE_HOSTILE)
+			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFace(eFromPlayer) != WAR_FACE_HOSTILE)
 			{
-				SetWarFaceWithPlayer(eFromPlayer, WAR_FACE_GUARDED);
+				SetWarFace(eFromPlayer, WAR_FACE_GUARDED);
 			}
 			else if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 			{
@@ -38062,9 +38054,9 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
 	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
 	}
 	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 	{
@@ -46287,7 +46279,7 @@ void CvDiplomacyAI::LogStatus()
 					else
 						strOutBuf += ", ";
 
-					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false), GetWarFaceWithPlayer(eLoopPlayer));
+					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false), GetWarFace(eLoopPlayer));
 					LogOpinion(strOutBuf, eLoopPlayer);
 				}
 				// Minor Civ
