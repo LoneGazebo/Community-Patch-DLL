@@ -1113,7 +1113,6 @@ protected:
 	static int lGetRecentTradeValue(lua_State* L);
 	static int lGetCommonFoeValue(lua_State* L);
 	static int lGetRecentAssistValue(lua_State* L);
-	static int lIsGaveAssistanceTo(lua_State* L);
 	static int lIsHasPaidTributeTo(lua_State* L);
 	static int lIsNukedBy(lua_State* L);
 	static int lIsCapitalCapturedBy(lua_State* L);

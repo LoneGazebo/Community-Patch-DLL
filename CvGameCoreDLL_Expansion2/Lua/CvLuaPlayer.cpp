@@ -1047,7 +1047,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetRecentTradeValue);
 	Method(GetCommonFoeValue);
 	Method(GetRecentAssistValue);
-	Method(IsGaveAssistanceTo);
 	Method(IsHasPaidTributeTo);
 	Method(IsNukedBy);
 	Method(IsCapitalCapturedBy);
@@ -10970,14 +10969,6 @@ int CvLuaPlayer::lGetRecentAssistValue(lua_State* L)
 	const int iValue = pkPlayer->GetDiplomacyAI()->GetRecentAssistValue(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lIsGaveAssistanceTo(lua_State* L)
-{
-	const bool bValue = false;
-
-	lua_pushboolean(L, bValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
