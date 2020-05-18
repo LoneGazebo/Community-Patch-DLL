@@ -1819,8 +1819,6 @@ private:
 		bool m_abFriendDeclaredWarOnUs[MAX_MAJOR_CIVS];
 		short m_aiDenouncedPlayerCounter[MAX_MAJOR_CIVS];
 
-		short m_aiNumRequestsRefused[MAX_MAJOR_CIVS];
-
 		short m_aiNumCiviliansReturnedToMe[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMe[MAX_MAJOR_CIVS];
 		short m_aiResurrectedOnTurn[MAX_MAJOR_CIVS];
@@ -1956,8 +1954,6 @@ private:
 		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerWarDamageLevel[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerWarValueLost[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerLastRoundWarValueLost[REALLY_MAX_PLAYERS];
@@ -2183,7 +2179,6 @@ private:
 	bool* m_pabOfferingGift;
 	bool* m_pabOfferedGift;
 #endif
-	short* m_paiNumRequestsRefused;
 
 	short* m_paiNumCiviliansReturnedToMe;
 	short* m_paiNumLandmarksBuiltForMe;
