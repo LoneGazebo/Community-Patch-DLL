@@ -1000,7 +1000,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWeDenouncedFriendCount);
 	Method(IsFriendDeclaredWarOnUs);
 	Method(GetWeDeclaredWarOnFriendCount);
-	//Method(IsWorkingAgainstPlayerAccepted);
 	Method(GetCoopWarAcceptedState);
 	Method(GetNumWarsFought);
 
@@ -10458,21 +10457,7 @@ int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-////------------------------------------------------------------------------------
-////void IsWorkingAgainstPlayerAccepted(PlayerTypes eWithPlayer, eAgainstPlayer);
-//int CvLuaPlayer::lIsWorkingAgainstPlayerAccepted(lua_State* L)
-//{
-//	CvPlayerAI* pkPlayer = GetInstance(L);
-//	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
-//	PlayerTypes eAgainstPlayer = (PlayerTypes) lua_tointeger(L, 3);
-//
-//	const bool bAccepted = pkPlayer->GetDiplomacyAI()->IsWorkingAgainstPlayerAccepted(eWithPlayer, eAgainstPlayer);
-//
-//	lua_pushboolean(L, bAccepted);
-//	return 1;
-//}
 //------------------------------------------------------------------------------
-//void GetCoopWarAcceptedState(PlayerTypes eWithPlayer, eAgainstPlayer);
 int CvLuaPlayer::lGetCoopWarAcceptedState(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
