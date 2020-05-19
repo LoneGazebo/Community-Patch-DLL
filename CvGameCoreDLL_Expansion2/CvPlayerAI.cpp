@@ -2675,7 +2675,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
 			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != m_eID)
 			{
-				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CITADEL))
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{
 					bGoodCandidate = false;
 					break;
@@ -2755,7 +2755,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
 			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != BARBARIAN_PLAYER && eOtherPlayer != GetID())
 			{
-				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CITADEL))
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
 				{
 					iScore = 0;
 					break;

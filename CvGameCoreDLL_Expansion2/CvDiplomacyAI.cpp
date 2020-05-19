@@ -1400,7 +1400,7 @@ void CvDiplomacyAI::Reset()
 #endif
 	}
 
-	m_eMajorDiploType = NO_MAJOR_DIPLO_TYPE;
+	m_eDiploPersonalityType = NO_DIPLO_PERSONALITY_TYPE;
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_eCSWarTarget = NO_PLAYER;
 	m_eCSBullyTarget = NO_PLAYER;
@@ -1861,7 +1861,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabPlayerBrokenCoopWarPromise(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 	kStream >> wrapm_pabPlayerBrokenCoopWarPromise;
 
-	kStream >> m_eMajorDiploType;
+	kStream >> m_eDiploPersonalityType;
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
 
@@ -2338,7 +2338,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 
-	kStream << m_eMajorDiploType;
+	kStream << m_eDiploPersonalityType;
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
 
@@ -2635,7 +2635,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 	}
 
 	if (!GetPlayer()->isHuman())
-		DoInitializeMajorDiploType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
+		DoInitializeDiploPersonalityType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
 
 	LogPersonality();
 }
@@ -2662,7 +2662,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 }
 
 /// Decide what victory condition we will be extra sensitive to for this game
-void CvDiplomacyAI::DoInitializeMajorDiploType()
+void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
 	// Failsafe
 	if (!GetPlayer()->isMajorCiv())
@@ -2701,18 +2701,18 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 
 	bool bTie = false;
 	int iBestWeight = 0;
-	MajorDiploTypes eBestDiploType = NO_MAJOR_DIPLO_TYPE;
+	DiploPersonalityTypes eBestPersonality = NO_DIPLO_PERSONALITY_TYPE;
 	
 	if (iConquestWeight > iBestWeight)
 	{
 		iBestWeight = iConquestWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
 	}
 
 	if (iDiplomacyWeight > iBestWeight)
 	{
 		iBestWeight = iDiplomacyWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
 		bTie = false;
 	}
 	else if (iDiplomacyWeight == iBestWeight)
@@ -2723,7 +2723,7 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	if (iCultureWeight > iBestWeight)
 	{
 		iBestWeight = iCultureWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
 		bTie = false;
 	}
 	else if (iCultureWeight == iBestWeight)
@@ -2734,7 +2734,7 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	if (iScienceWeight > iBestWeight)
 	{
 		iBestWeight = iScienceWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
 		bTie = false;
 	}
 	else if (iScienceWeight == iBestWeight)
@@ -2748,24 +2748,24 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
 		}
 		else
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
 		}
 	}
 #endif
 
-	SetMajorDiploType(eBestDiploType);
+	SetDiploPersonalityType(eBestPersonality);
 }
 
 
@@ -21137,39 +21137,39 @@ int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApp
 }
 
 /// What victory condition are we extra sensitive to for this game?
-MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
+DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
 {
-	return (MajorDiploTypes) m_eMajorDiploType;
+	return (DiploPersonalityTypes) m_eDiploPersonalityType;
 }
 
 /// Sets what victory condition we will be extra sensitive to for this game
-void CvDiplomacyAI::SetMajorDiploType(MajorDiploTypes eMajorDiploType)
+void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType)
 {
-	m_eMajorDiploType = eMajorDiploType;
+	m_eDiploPersonalityType = eDiploPersonalityType;
 }
 
 /// Is this player a natural conqueror?
 bool CvDiplomacyAI::IsConqueror() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CONQUEROR);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CONQUEROR);
 }
 
 /// Is this player a natural diplomat?
 bool CvDiplomacyAI::IsDiplomat() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_DIPLOMAT);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_DIPLOMAT);
 }
 
 /// Is this player naturally cultural?
 bool CvDiplomacyAI::IsCultural() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CULTURAL);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CULTURAL);
 }
 
 /// Is this player naturally scientific?
 bool CvDiplomacyAI::IsScientist() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_SCIENTIFIC);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_SCIENTIST);
 }
 
 
@@ -43299,7 +43299,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	{
 		switch (eTheftType)
 		{
-		case THEFT_TYPE_CITADEL:
+		case THEFT_TYPE_CULTURE_BOMB:
 			if (GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_FRIENDLY || GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_PROTECTIVE || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetPlayer()->GetID())
 			{
 				return true;
@@ -43362,7 +43362,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	// Additional conditions depend on the type of theft we'd be doing
 	switch (eTheftType)
 	{
-	case THEFT_TYPE_CITADEL:
+	case THEFT_TYPE_CULTURE_BOMB:
 		if (IsPlayerNoSettleRequestAccepted(ePlayer))
 			return true;
 		
