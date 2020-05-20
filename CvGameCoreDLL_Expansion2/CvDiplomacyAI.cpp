@@ -86,7 +86,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_abFriendDenouncedUs()
 	, m_abFriendDeclaredWarOnUs()
 	, m_aiDenouncedPlayerCounter()
-	, m_aiNumRequestsRefused()
 	, m_aiNumCiviliansReturnedToMe()
 	, m_aiNumLandmarksBuiltForMe()
 	, m_aiResurrectedOnTurn()
@@ -150,8 +149,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_apaiOtherPlayerMajorCivApproachCounter()
 	, m_apaeOtherPlayerLandDisputeLevel()
 	, m_apaeOtherPlayerVictoryDisputeLevel()
-	, m_apaeOtherPlayerWonderDisputeLevel()
-	, m_apaeOtherPlayerMinorCivDisputeLevel()
 	, m_apaeOtherPlayerWarDamageLevel()
 	, m_apaiOtherPlayerWarValueLost()
 	, m_apaiOtherPlayerLastRoundWarValueLost()
@@ -181,8 +178,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiHelpRequestTooSoonNumTurns()
 	, m_aiPlayerVassalageFailedProtectValue()
 	, m_aiPlayerVassalageProtectValue()
-	, m_abPlayerVassalagePeacefullyRevokedVassal()
-	, m_abPlayerVassalageForcefullyRevokedVassal()
 	, m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage()
 	, m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage()
 	, m_aiNumTimesDemandedWhenVassal()
@@ -311,7 +306,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabFriendDenouncedUs(NULL),
 	m_pabFriendDeclaredWarOnUs(NULL),
 	m_paiDenouncedPlayerCounter(NULL),
-	m_paiNumRequestsRefused(NULL),
 
 	m_paiNumCiviliansReturnedToMe(NULL),
 	m_paiNumLandmarksBuiltForMe(NULL),
@@ -434,9 +428,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 
 	m_paiPlayerVassalageFailedProtectValue(NULL),
 	m_paiPlayerVassalageProtectValue(NULL),
-
-	m_pabPlayerVassalagePeacefullyRevokedVassal(NULL),
-	m_pabPlayerVassalageForcefullyRevokedVassal(NULL),
 
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage(NULL),
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage(NULL),
@@ -581,8 +572,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabFriendDeclaredWarOnUs = &m_pDiploData->m_abFriendDeclaredWarOnUs[0];
 	m_paiDenouncedPlayerCounter = &m_pDiploData->m_aiDenouncedPlayerCounter[0];
 
-	m_paiNumRequestsRefused = &m_pDiploData->m_aiNumRequestsRefused[0];
-
 	m_paiNumCiviliansReturnedToMe = &m_pDiploData->m_aiNumCiviliansReturnedToMe[0];
 	m_paiNumLandmarksBuiltForMe = &m_pDiploData->m_aiNumLandmarksBuiltForMe[0];
 	m_paiResurrectedOnTurn = &m_pDiploData->m_aiResurrectedOnTurn[0];
@@ -690,8 +679,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 	m_paiPlayerVassalageFailedProtectValue = &m_pDiploData->m_aiPlayerVassalageFailedProtectValue[0];
 	m_paiPlayerVassalageProtectValue = &m_pDiploData->m_aiPlayerVassalageProtectValue[0];
-	m_pabPlayerVassalagePeacefullyRevokedVassal = &m_pDiploData->m_abPlayerVassalagePeacefullyRevokedVassal[0];
-	m_pabPlayerVassalageForcefullyRevokedVassal = &m_pDiploData->m_abPlayerVassalageForcefullyRevokedVassal[0];
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage = &m_pDiploData->m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[0];
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = &m_pDiploData->m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[0];
 	m_paiNumTimesDemandedWhenVassal = &m_pDiploData->m_aiNumTimesDemandedWhenVassal[0];
@@ -920,7 +907,6 @@ void CvDiplomacyAI::Uninit()
 	m_pabFriendDenouncedUs = NULL;
 	m_pabFriendDeclaredWarOnUs = NULL;
 	m_paiDenouncedPlayerCounter = NULL;
-	m_paiNumRequestsRefused = NULL;
 
 	m_paiNumCiviliansReturnedToMe = NULL;
 	m_paiNumLandmarksBuiltForMe = NULL;
@@ -1042,8 +1028,6 @@ void CvDiplomacyAI::Uninit()
 	m_paiHelpRequestTooSoonNumTurns = NULL;
 	m_paiPlayerVassalageFailedProtectValue = NULL;
 	m_paiPlayerVassalageProtectValue = NULL;
-	m_pabPlayerVassalagePeacefullyRevokedVassal = NULL;
-	m_pabPlayerVassalageForcefullyRevokedVassal = NULL;
 	m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage = NULL;
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = NULL;
 	m_paiNumTimesDemandedWhenVassal = NULL;
@@ -1200,7 +1184,6 @@ void CvDiplomacyAI::Reset()
 		m_pabFriendDenouncedUs[iI] = false;
 		m_pabFriendDeclaredWarOnUs[iI] = false;
 		m_paiDenouncedPlayerCounter[iI] = -1;
-		m_paiNumRequestsRefused[iI] = 0;
 
 		m_paiNumCiviliansReturnedToMe[iI] = 0;
 		m_paiNumLandmarksBuiltForMe[iI] = 0;
@@ -1278,8 +1261,6 @@ void CvDiplomacyAI::Reset()
 		m_paiHelpRequestTooSoonNumTurns[iI] = -1;
 		m_paiPlayerVassalageFailedProtectValue[iI] = 0;
 		m_paiPlayerVassalageProtectValue[iI] = 0;
-		m_pabPlayerVassalagePeacefullyRevokedVassal[iI] = false;
-		m_pabPlayerVassalageForcefullyRevokedVassal[iI] = false;
 		m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[iI] = -1;
 		m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[iI] = -1;
 		m_paiNumTimesDemandedWhenVassal[iI] = 0;
@@ -1419,7 +1400,7 @@ void CvDiplomacyAI::Reset()
 #endif
 	}
 
-	m_eMajorDiploType = NO_MAJOR_DIPLO_TYPE;
+	m_eDiploPersonalityType = NO_DIPLO_PERSONALITY_TYPE;
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_eCSWarTarget = NO_PLAYER;
 	m_eCSBullyTarget = NO_PLAYER;
@@ -1697,9 +1678,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabFriendDeclaredWarOnUs(MAX_MAJOR_CIVS, m_pabFriendDeclaredWarOnUs);
 	kStream >> wrapm_pabFriendDeclaredWarOnUs;
 
-	ArrayWrapper<short> wrapm_paiNumRequestsRefused(MAX_MAJOR_CIVS, m_paiNumRequestsRefused);
-	kStream >> wrapm_paiNumRequestsRefused;
-
 	ArrayWrapper<short> wrapm_paiNumCiviliansReturnedToMe(MAX_MAJOR_CIVS, m_paiNumCiviliansReturnedToMe);
 	kStream >> wrapm_paiNumCiviliansReturnedToMe;
 
@@ -1883,7 +1861,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabPlayerBrokenCoopWarPromise(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 	kStream >> wrapm_pabPlayerBrokenCoopWarPromise;
 
-	kStream >> m_eMajorDiploType;
+	kStream >> m_eDiploPersonalityType;
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
 
@@ -2008,8 +1986,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiHelpRequestTooSoonNumTurns, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageFailedProtectValue, short, MAX_MAJOR_CIVS, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageProtectValue, short, MAX_MAJOR_CIVS, 0);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerVassalagePeacefullyRevokedVassal, bool, MAX_MAJOR_CIVS, false);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerVassalageForcefullyRevokedVassal, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS, 0);
@@ -2298,8 +2274,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDenouncedPlayerCounter);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabFriendDeclaredWarOnUs);
 
-	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumRequestsRefused);
-
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumCiviliansReturnedToMe);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMe);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiResurrectedOnTurn);
@@ -2364,7 +2338,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 
-	kStream << m_eMajorDiploType;
+	kStream << m_eDiploPersonalityType;
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
 
@@ -2430,8 +2404,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiHelpRequestTooSoonNumTurns, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageFailedProtectValue, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageProtectValue, short, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerVassalagePeacefullyRevokedVassal, bool, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerVassalageForcefullyRevokedVassal, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS);
@@ -2663,7 +2635,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 	}
 
 	if (!GetPlayer()->isHuman())
-		DoInitializeMajorDiploType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
+		DoInitializeDiploPersonalityType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
 
 	LogPersonality();
 }
@@ -2690,7 +2662,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 }
 
 /// Decide what victory condition we will be extra sensitive to for this game
-void CvDiplomacyAI::DoInitializeMajorDiploType()
+void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
 	// Failsafe
 	if (!GetPlayer()->isMajorCiv())
@@ -2729,18 +2701,18 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 
 	bool bTie = false;
 	int iBestWeight = 0;
-	MajorDiploTypes eBestDiploType = NO_MAJOR_DIPLO_TYPE;
+	DiploPersonalityTypes eBestPersonality = NO_DIPLO_PERSONALITY_TYPE;
 	
 	if (iConquestWeight > iBestWeight)
 	{
 		iBestWeight = iConquestWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
 	}
 
 	if (iDiplomacyWeight > iBestWeight)
 	{
 		iBestWeight = iDiplomacyWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
 		bTie = false;
 	}
 	else if (iDiplomacyWeight == iBestWeight)
@@ -2751,7 +2723,7 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	if (iCultureWeight > iBestWeight)
 	{
 		iBestWeight = iCultureWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
 		bTie = false;
 	}
 	else if (iCultureWeight == iBestWeight)
@@ -2762,7 +2734,7 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	if (iScienceWeight > iBestWeight)
 	{
 		iBestWeight = iScienceWeight;
-		eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+		eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
 		bTie = false;
 	}
 	else if (iScienceWeight == iBestWeight)
@@ -2776,24 +2748,24 @@ void CvDiplomacyAI::DoInitializeMajorDiploType()
 	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
 		}
 		else
 		{
-			eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+			eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
 		}
 	}
 #endif
 
-	SetMajorDiploType(eBestDiploType);
+	SetDiploPersonalityType(eBestPersonality);
 }
 
 
@@ -3642,8 +3614,6 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iTraitorOpinion = max(iTraitorOpinion, GetFriendDeclaredWarOnUsScore(ePlayer));
 	iOpinionWeight += iTraitorOpinion;
 	// End TraitorOpinion bit
-
-	//iOpinionWeight += GetRequestsRefusedScore(ePlayer);
 
 	//////////////////////////////////////
 	// DENOUNCING
@@ -8321,7 +8291,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// WAR FACE
 	////////////////////////////////////
 
-	WarFaceTypes eWarFace = GetWarFaceWithPlayer(ePlayer);
+	WarFaceTypes eWarFace = GetWarFace(ePlayer);
 
 	// If we're going to war then update how we're acting
 	if (eApproach == MAJOR_CIV_APPROACH_WAR)
@@ -8397,7 +8367,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Only log and update the war face if an update happened
 	if (bUpdate)
 	{
-		SetWarFaceWithPlayer(ePlayer, eWarFace); 
+		SetWarFace(ePlayer, eWarFace); 
 		LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 		LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 	}
@@ -8433,7 +8403,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8466,7 +8436,7 @@ void CvDiplomacyAI::DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8540,7 +8510,7 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8621,7 +8591,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer)
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8695,7 +8665,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePla
 
 	// Update approach/war face and log.
 	SetMajorCivApproach(ePlayer, eApproach);
-	SetWarFaceWithPlayer(ePlayer, eWarFace);
+	SetWarFace(ePlayer, eWarFace);
 	LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
 	LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 }
@@ -8720,7 +8690,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bo
 		// War Face
 		else if (eApproach == MAJOR_CIV_APPROACH_WAR)
 		{
-			switch (GetWarFaceWithPlayer(ePlayer))
+			switch (GetWarFace(ePlayer))
 			{
 			case WAR_FACE_HOSTILE:
 				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
@@ -12167,7 +12137,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 
 
 /// If we're planning war with ePlayer, how are we acting towards him?
-WarFaceTypes CvDiplomacyAI::GetWarFaceWithPlayer(PlayerTypes ePlayer) const
+WarFaceTypes CvDiplomacyAI::GetWarFace(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12175,7 +12145,7 @@ WarFaceTypes CvDiplomacyAI::GetWarFaceWithPlayer(PlayerTypes ePlayer) const
 }
 
 /// Sets how we're acting while we prepare for our war against ePlayer
-void CvDiplomacyAI::SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eWarFace)
+void CvDiplomacyAI::SetWarFace(PlayerTypes ePlayer, WarFaceTypes eWarFace)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -16527,12 +16497,6 @@ void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 {
 		m_paiAssistValue[ePlayer] = iMaxOpinionValue;
 	}
-}
-
-/// Unused vanilla value
-bool CvDiplomacyAI::IsGaveAssistanceTo(PlayerTypes /*ePlayer*/) const
-{
-	return false;
 }
 
 /// Returns if this player has been nuked by ePlayer
@@ -21173,39 +21137,39 @@ int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApp
 }
 
 /// What victory condition are we extra sensitive to for this game?
-MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
+DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
 {
-	return (MajorDiploTypes) m_eMajorDiploType;
+	return (DiploPersonalityTypes) m_eDiploPersonalityType;
 }
 
 /// Sets what victory condition we will be extra sensitive to for this game
-void CvDiplomacyAI::SetMajorDiploType(MajorDiploTypes eMajorDiploType)
+void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType)
 {
-	m_eMajorDiploType = eMajorDiploType;
+	m_eDiploPersonalityType = eDiploPersonalityType;
 }
 
 /// Is this player a natural conqueror?
 bool CvDiplomacyAI::IsConqueror() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CONQUEROR);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CONQUEROR);
 }
 
 /// Is this player a natural diplomat?
 bool CvDiplomacyAI::IsDiplomat() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_DIPLOMAT);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_DIPLOMAT);
 }
 
 /// Is this player naturally cultural?
 bool CvDiplomacyAI::IsCultural() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CULTURAL);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CULTURAL);
 }
 
 /// Is this player naturally scientific?
 bool CvDiplomacyAI::IsScientist() const
 {
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_SCIENTIFIC);
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_SCIENTIST);
 }
 
 
@@ -23385,9 +23349,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
 				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
 				}
 			}
 		}
@@ -33029,9 +32993,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 			
-			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFaceWithPlayer(eFromPlayer) != WAR_FACE_HOSTILE)
+			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFace(eFromPlayer) != WAR_FACE_HOSTILE)
 			{
-				SetWarFaceWithPlayer(eFromPlayer, WAR_FACE_GUARDED);
+				SetWarFace(eFromPlayer, WAR_FACE_GUARDED);
 			}
 			else if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 			{
@@ -38075,9 +38039,9 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
 	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
 	}
 	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 	{
@@ -43315,6 +43279,12 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 /// Is this a bad target to steal from?
 bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
 {
+	if (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT)
+	{
+		if (pPlot == NULL)
+			return true;
+	}
+	
 	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER || ePlayer == GetPlayer()->GetID() || !GET_PLAYER(ePlayer).isAlive())
 		return false;
 
@@ -43329,17 +43299,13 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	{
 		switch (eTheftType)
 		{
-		case THEFT_TYPE_CITADEL:
+		case THEFT_TYPE_CULTURE_BOMB:
 			if (GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_FRIENDLY || GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_PROTECTIVE || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetPlayer()->GetID())
 			{
 				return true;
 			}
 			break;
 		case THEFT_TYPE_PLOT: // America UA
-			if (pPlot == NULL)
-			{
-				return true;
-			}
 			// Steal Natural Wonders and other teams' embassies, the City-State's feelings be damned!
 			if (pPlot->IsNaturalWonder(false))
 			{
@@ -43388,7 +43354,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
 	// We want to know whether they can still see the plot *after* we plunder the caravan, so check for > 1
 	bool bPlotIsVisibleToOtherTeam = false;
-	if (eTheftType == THEFT_TYPE_TRADE_ROUTE && pPlot != NULL)
+	if (eTheftType == THEFT_TYPE_TRADE_ROUTE)
 	{
 		bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
 	}
@@ -43396,7 +43362,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	// Additional conditions depend on the type of theft we'd be doing
 	switch (eTheftType)
 	{
-	case THEFT_TYPE_CITADEL:
+	case THEFT_TYPE_CULTURE_BOMB:
 		if (IsPlayerNoSettleRequestAccepted(ePlayer))
 			return true;
 		
@@ -43426,9 +43392,6 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		break;
 
 	case THEFT_TYPE_TRADE_ROUTE: // Morocco UA
-		if (pPlot == NULL)
-			return true;
-
 		if (eTrueApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 			return true;
 		
@@ -46301,7 +46264,7 @@ void CvDiplomacyAI::LogStatus()
 					else
 						strOutBuf += ", ";
 
-					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false), GetWarFaceWithPlayer(eLoopPlayer));
+					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false), GetWarFace(eLoopPlayer));
 					LogOpinion(strOutBuf, eLoopPlayer);
 				}
 				// Minor Civ

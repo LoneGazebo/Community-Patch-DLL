@@ -1000,7 +1000,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWeDenouncedFriendCount);
 	Method(IsFriendDeclaredWarOnUs);
 	Method(GetWeDeclaredWarOnFriendCount);
-	//Method(IsWorkingAgainstPlayerAccepted);
 	Method(GetCoopWarAcceptedState);
 	Method(GetNumWarsFought);
 
@@ -1047,7 +1046,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetRecentTradeValue);
 	Method(GetCommonFoeValue);
 	Method(GetRecentAssistValue);
-	Method(IsGaveAssistanceTo);
 	Method(IsHasPaidTributeTo);
 	Method(IsNukedBy);
 	Method(IsCapitalCapturedBy);
@@ -10459,21 +10457,7 @@ int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-////------------------------------------------------------------------------------
-////void IsWorkingAgainstPlayerAccepted(PlayerTypes eWithPlayer, eAgainstPlayer);
-//int CvLuaPlayer::lIsWorkingAgainstPlayerAccepted(lua_State* L)
-//{
-//	CvPlayerAI* pkPlayer = GetInstance(L);
-//	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
-//	PlayerTypes eAgainstPlayer = (PlayerTypes) lua_tointeger(L, 3);
-//
-//	const bool bAccepted = pkPlayer->GetDiplomacyAI()->IsWorkingAgainstPlayerAccepted(eWithPlayer, eAgainstPlayer);
-//
-//	lua_pushboolean(L, bAccepted);
-//	return 1;
-//}
 //------------------------------------------------------------------------------
-//void GetCoopWarAcceptedState(PlayerTypes eWithPlayer, eAgainstPlayer);
 int CvLuaPlayer::lGetCoopWarAcceptedState(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -10970,17 +10954,6 @@ int CvLuaPlayer::lGetRecentAssistValue(lua_State* L)
 	const int iValue = pkPlayer->GetDiplomacyAI()->GetRecentAssistValue(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lIsGaveAssistanceTo(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsGaveAssistanceTo(eOtherPlayer);
-
-	lua_pushboolean(L, bValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -13777,15 +13750,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 	// TRAITOR END
-
-	//iValue = pDiploAI->GetRequestsRefusedScore(eWithPlayer);
-	//if (iValue != 0)
-	//{
-	//	Opinion kOpinion;
-	//	kOpinion.m_iValue = iValue;
-	//	kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_REFUSED_REQUESTS");
-	//	aOpinions.push_back(kOpinion);
-	//}
 
 	iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
 	if (iValue != 0)

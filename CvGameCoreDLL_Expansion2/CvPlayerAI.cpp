@@ -2675,7 +2675,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
 			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != m_eID)
 			{
-				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CITADEL))
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{
 					bGoodCandidate = false;
 					break;
@@ -2755,38 +2755,20 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
 			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != BARBARIAN_PLAYER && eOtherPlayer != GetID())
 			{
-				if(GET_PLAYER(eOtherPlayer).isMinorCiv())
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
 				{
-					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
-					// if we're friendly or protective, don't count the tile (but accept it as collateral damage)
-					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from minors is nice
-						iWeightFactor += 3;
-					}
+					iScore = 0;
+					break;
+				}
+				else if (GET_PLAYER(eOtherPlayer).isMinorCiv())
+				{
+					// grabbing tiles away from minors is nice
+					iWeightFactor += 3;
 				}
 				else
 				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
-
-					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
-
-					// don't count the tile if we're not hostile (but accept it as collateral damage)
-					if(!bTicked && !bTickedAboutLand)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from majors is really nice
-						iWeightFactor += 4;
-					}
+					// grabbing tiles away from majors is really nice
+					iWeightFactor += 4;
 				}
 			}
 

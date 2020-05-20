@@ -95,7 +95,7 @@ public:
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
 	
-	void DoInitializeMajorDiploType();
+	void DoInitializeDiploPersonalityType();
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -254,8 +254,8 @@ public:
 	bool DeclareWar(TeamTypes eTeam);
 
 	// War Face: If we're planning for war, how are we acting towards ePlayer?
-	WarFaceTypes GetWarFaceWithPlayer(PlayerTypes ePlayer) const;
-	void SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eFace);
+	WarFaceTypes GetWarFace(PlayerTypes ePlayer) const;
+	void SetWarFace(PlayerTypes ePlayer, WarFaceTypes eFace);
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
@@ -504,7 +504,6 @@ public:
 	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
 	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
 
-	bool IsGaveAssistanceTo(PlayerTypes ePlayer) const;
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
 	bool IsNukedBy(PlayerTypes ePlayer) const;
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer) const;
@@ -632,8 +631,8 @@ public:
 	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
 	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
 
-	MajorDiploTypes GetMajorDiploType() const;
-	void SetMajorDiploType(MajorDiploTypes eMajorDiploType);
+	DiploPersonalityTypes GetDiploPersonalityType() const;
+	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
 	bool IsConqueror() const;
 	bool IsDiplomat() const;
 	bool IsCultural() const;
@@ -1819,8 +1818,6 @@ private:
 		bool m_abFriendDeclaredWarOnUs[MAX_MAJOR_CIVS];
 		short m_aiDenouncedPlayerCounter[MAX_MAJOR_CIVS];
 
-		short m_aiNumRequestsRefused[MAX_MAJOR_CIVS];
-
 		short m_aiNumCiviliansReturnedToMe[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMe[MAX_MAJOR_CIVS];
 		short m_aiResurrectedOnTurn[MAX_MAJOR_CIVS];
@@ -1956,8 +1953,6 @@ private:
 		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerWarDamageLevel[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerWarValueLost[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerLastRoundWarValueLost[REALLY_MAX_PLAYERS];
@@ -2000,8 +1995,6 @@ private:
 
 		short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
-		bool m_abPlayerVassalagePeacefullyRevokedVassal[MAX_MAJOR_CIVS];
-		bool m_abPlayerVassalageForcefullyRevokedVassal[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[MAX_MAJOR_CIVS];
 
@@ -2028,9 +2021,6 @@ private:
 
 	short* m_paiPlayerVassalageFailedProtectValue;
 	short* m_paiPlayerVassalageProtectValue;
-
-	bool* m_pabPlayerVassalagePeacefullyRevokedVassal;
-	bool* m_pabPlayerVassalageForcefullyRevokedVassal;
 
 	short* m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage;
 	short* m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage;
@@ -2068,7 +2058,7 @@ private:
 	char* m_paeApproachTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuessCounter;
 
-	char m_eMajorDiploType;
+	char m_eDiploPersonalityType;
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
@@ -2183,7 +2173,6 @@ private:
 	bool* m_pabOfferingGift;
 	bool* m_pabOfferedGift;
 #endif
-	short* m_paiNumRequestsRefused;
 
 	short* m_paiNumCiviliansReturnedToMe;
 	short* m_paiNumLandmarksBuiltForMe;
