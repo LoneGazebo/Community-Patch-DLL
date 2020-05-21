@@ -6807,6 +6807,7 @@ void CvReligionAI::DoTurn()
 				m_aFaithPriorities.push_back(pLoopCity->GetID(), iFaith);
 			}
 		}
+
 		if (m_aFaithPriorities.size() > 0)
 		{
 			m_aFaithPriorities.SortItems();
@@ -7220,7 +7221,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		if (pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(pUnit->GetReligionData()->GetReligion(),pUnit))
 			continue;
 
-		int iScore = ScoreCityForInquisitor(pLoopCity, pUnit->GetReligionData()->GetReligion());
+		int iScore = ScoreCityForInquisitor(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
 		if (iScore>0)
 			vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
 	}
@@ -7462,14 +7463,14 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 
 /// Spend faith if already have an enhanced religion
 #if defined(MOD_BALANCE_CORE)
-void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
+bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 {
 	if(pCity == NULL)
-		return;
+		return false;
 
 	ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
 	if(eReligion == NO_RELIGION)
-		return;
+		return false;
 
 	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion, pCity, true);
 	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
@@ -7490,7 +7491,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return;
+				return true;
 			}
 			else
 			{
@@ -7502,7 +7503,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return;
+				return false;
 			}
 		}
 	}
@@ -7533,7 +7534,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								strLogMsg += strFaith;
 								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 							}
-							return;
+							return true;
 						}
 						else
 						{
@@ -7545,7 +7546,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								strLogMsg += strFaith;
 								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 							}
-							return;
+							return false;
 						}
 					}
 				}
@@ -7583,7 +7584,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								strLogMsg += strFaith;
 								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 							}
-							return;
+							return true;
 						}
 						else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType()) <= iPurchaseAmount)
 						{
@@ -7595,13 +7596,15 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 								strLogMsg += strFaith;
 								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 							}
-							return;
+							return false;
 						}
 					}
 				}
 			}
 		}
 	}
+
+	return false;
 }
 #endif
 
@@ -7758,31 +7761,45 @@ bool CvReligionAI::DoFaithPurchases()
 	if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(m_pPlayer) && GetDesiredFaithGreatPerson() != NO_UNIT)
 	{
 		UnitTypes eGPType = GetDesiredFaithGreatPerson();
-		if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligionWeFounded : NO_RELIGION))
-		{
-			if (GC.getLogging())
-			{
-				CvString strLogMsg = strPlayer + ", Bought a Great Person, as it is the Industrial age.";
-				strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-				CvString strFaith;
-				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-				strLogMsg += strFaith;
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-			}
-		}
-		else
-		{
-			if (GC.getLogging())
-			{
-				CvString strLogMsg = strPlayer + ", Waiting to buy a Great Person, as it is the Industrial age.";
-				strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-				CvString strFaith;
-				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-				strLogMsg += strFaith;
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-			}
 
-			return true; //do not allow any other faith purchases
+		//check if it's worth the wait
+		//eventually the waiting time will be short enough after we run out of other stuff to buy
+		CvCity* pCapital = m_pPlayer->getCapitalCity();
+		if (pCapital)
+		{
+			int iFaithPerTurn = m_pPlayer->GetTotalFaithPerTurn();
+			int iFaithStored = m_pPlayer->GetFaith();
+			int iFaithNeeded = pCapital->GetFaithPurchaseCost(eGPType, true);
+			int iTurnsRemaining = (iFaithNeeded - iFaithStored) / max(1, iFaithPerTurn);
+			if (iTurnsRemaining < 23)
+			{
+				if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligionWeFounded : NO_RELIGION))
+				{
+					if (GC.getLogging())
+					{
+						CvString strLogMsg = strPlayer + ", Bought a Great Person, as it is the Industrial age. ";
+						strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+						CvString strFaith;
+						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+						strLogMsg += strFaith;
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+				}
+				else
+				{
+					if (GC.getLogging())
+					{
+						CvString strLogMsg = strPlayer + ", Waiting to buy a Great Person, as it is the Industrial age ";
+						strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
+						CvString strFaith;
+						strFaith.Format(", Faith: %d, Turns left: %d", m_pPlayer->GetFaith(), iTurnsRemaining);
+						strLogMsg += strFaith;
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+
+					return true; //do not allow any other faith purchases
+				}
+			}
 		}
 	}
 
@@ -10886,7 +10903,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	int iNumNeeded = 0;
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (m_pPlayer->GetReligionAI()->ScoreCityForInquisitor(pCity, eReligion) > 0)
+		if (m_pPlayer->GetReligionAI()->ScoreCityForInquisitor(pCity, NULL, eReligion) > 0)
 			iNumNeeded++;
 	}
 
