@@ -7174,7 +7174,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
 				{
-					int iScore = ScoreCityForMissionary(pLoopCity, pUnit->GetReligionData()->GetReligion());
+					int iScore = ScoreCityForMissionary(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
 					if (iScore>0)
 						vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
 				}
@@ -10510,8 +10510,12 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 }
 
 /// AI's evaluation of this city as a target for a missionary
-int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, ReligionTypes eMyReligion)
+int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion)
 {
+	if (pCity == NULL)
+	{
+		return 0;
+	}
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eMyReligion)->IsLocalReligion())
@@ -10561,17 +10565,19 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, ReligionTypes eMyReligio
 		}
 	}
 
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+	if (!pMyReligion)
+	{
+		return 0;
+	}
+
 	//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
 	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
 	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if (pMyReligion)
+		if (pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
 		{
-			if(pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
-			{
-				return 0;
-			}
+			return 0;
 		}
 	}
 
@@ -10583,8 +10589,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, ReligionTypes eMyReligio
 		}
 	}
 
-	// Base score based on distance (will be 100 for owned cities)
-	int iScore = max(10,100 - 2*m_pPlayer->GetCityDistanceInPlots(pCity->plot()));
+	// Base score based on distance
+	CvCity* pHolyCity = pMyReligion->GetHolyCity();
+	int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
+	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
+	int iScore = max(10, 100 - 2 * iDistToHolyCity - iDistToUnit);
 
 	// Better score if city owner isn't starting a religion and can easily be converted to our side
 	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
@@ -10599,7 +10608,8 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, ReligionTypes eMyReligio
 	// In the early game there is little accumulated pressure and conversion is easy
 	int iPressureFromUnit = iMissionaryStrength * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
 	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
-	int iImpactPercent = (iPressureFromUnit * 100) / iTotalPressure;
+	// Freshly founded cities have zero accumulated pressure, so limit the impact to a sane value
+	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
 
 	//see if our missionary can make a dent
 	int iOurPressure = pCity->GetCityReligions()->GetPressure(eMyReligion);
@@ -10639,7 +10649,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, ReligionTypes eMyReligio
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
-int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, ReligionTypes eMyReligion)
+int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion)
 {
 	if (pCity == NULL)
 		return 0;
@@ -10664,15 +10674,25 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, ReligionTypes eMyReligio
 	if(pCity->getOwner() != m_pPlayer->GetID())
 		return 0;
 
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+	if (!pMyReligion)
+		return 0;
+
 	int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
 	int iThreshold = pCity->getPopulation() / 3;
 
 	//Looking to remove heresy?
 	if (iNumOtherFollowers>iThreshold)
 	{
+		// Base score 100 to make sure heresy removal is preferred over defensive use
+		CvCity* pHolyCity = pMyReligion->GetHolyCity();
+		int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
+		int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
+		int iScore = max(10, 100 - 2 * iDistToHolyCity - iDistToUnit);
+
 		// How much impact would using the inquistor have?
-		// Add 100 to make sure heresy removal is preferred over defensive use
-		int iScore = 10 * iNumOtherFollowers + 100;
+		iScore += 3 * iNumOtherFollowers;
 		
 		// More pressing if majority is another religion
 		if (pCity->GetCityReligions()->GetReligiousMajority() != eMyReligion)
@@ -10699,7 +10719,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, ReligionTypes eMyReligio
 			int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
 			int iPressureFromUnit = iMissionaryStrength * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
 			int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalPressure());
-			int iImpactPercent = (iPressureFromUnit * 100) / iTotalPressure;
+			int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
 
 			if (iImpactPercent > 10)
 				iScore += 5;
@@ -10810,7 +10830,7 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 				}
 			}
 
-			if (m_pPlayer->GetReligionAI()->ScoreCityForMissionary(pCity, eReligion) > 0)
+			if (m_pPlayer->GetReligionAI()->ScoreCityForMissionary(pCity, NULL, eReligion) > 0)
 				return true;
 		}
 	}
