@@ -542,7 +542,7 @@ private:
 	void PlotHealMoves(bool bFirstPass);
 	void PlotBarbarianAttacks();
 	void PlotBarbarianCampDefense();
-	void PlotBarbarianMoves();
+	void PlotBarbarianRoaming();
 
 ///------------------------------
 //	unify these?
@@ -605,7 +605,7 @@ private:
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals(bool bFirstPass);
-	void ExecuteBarbarianMoves();
+	void ExecuteBarbarianRoaming();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
@@ -637,11 +637,9 @@ private:
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns, bool bMustBeSafePath = false);
 
-	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
-	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);
-	CvPlot* FindBestBarbarianSeaMove(CvUnit* pUnit);
+	CvPlot* FindBestBarbarianLandTarget(CvUnit* pUnit);
+	CvPlot* FindBestBarbarianSeaTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
-	CvPlot* FindBarbarianGankTradeRouteTarget(CvUnit* pUnit);
 	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, bool bAllowDefensiveTargets=false);
 	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);

@@ -4810,6 +4810,8 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 				if (bCombat)
 				{
 					//for neutral units, treat embarked as civilian because we can stack
+					//fixme: unfortunately it also depends the combination of civilian/combat units whether stacking is possible
+					//but we don't know that here. who the fuck made up these rules?
 					if (!pLoopUnit->IsCanDefend() || pLoopUnit->isEmbarked())
 						continue;
 				}
