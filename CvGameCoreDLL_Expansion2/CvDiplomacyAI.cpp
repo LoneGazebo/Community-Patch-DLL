@@ -16057,20 +16057,20 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	fAverageNumPlots /= max(1, iNumPlayers);
 
 	// Do they have way more cities than the average player in the game?
-	if ((iNumCities*100) < (iMedianNumCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()))
+	if ((iNumCities*100) > (iMedianNumCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
-		if (iNumCities < (fAverageNumCities * 1.5))
+		if (iNumCities > (fAverageNumCities * 1.5))
 		{
 			return true;
 		}
 	}
 
 	// Do they have way more land than the average player in the game?
-	if ((iNumPlots*100) < (iMedianNumPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD()))
+	if ((iNumPlots*100) > (iMedianNumPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
-		if (iNumPlots < (fAverageNumPlots * 1.5))
+		if (iNumPlots > (fAverageNumPlots * 1.5))
 		{
 			return true;
 		}
@@ -16089,9 +16089,9 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 	if (IsTeammate(ePlayer))
 		return false;
 
-    // One or two Wonders is always okay.
+    // Up to three Wonders is always okay.
 	int iNumWonders = GET_PLAYER(ePlayer).GetWondersConstructed();
-	if (iNumWonders <= 2)
+	if (iNumWonders <= 3)
 		return false;
 
 	if (ePlayer != GetPlayer()->GetID())
@@ -16144,10 +16144,10 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 	fAverageNumWonders /= max(1, iNumPlayers);
 
 	// Must have built several more Wonders than the median player in this game
-	if (iNumWonders < (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
+	if (iNumWonders > (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
-		if (iNumWonders < fAverageNumWonders * 1.5)
+		if (iNumWonders > (fAverageNumWonders * 1.5))
 			return true;
 	}
 
