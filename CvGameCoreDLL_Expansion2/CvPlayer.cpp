@@ -16279,7 +16279,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 
 	CvAssertMsg(pkUnitEntry, "This should never be hit");
-	if(pkUnitEntry == NULL)
+	if (pkUnitEntry == NULL)
 		return 0;
 
 	UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitEntry->GetUnitClassType();
@@ -16287,13 +16287,13 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 	CvAssert(pkUnitClassInfo);
-	if(pkUnitClassInfo == NULL)
+	if (pkUnitClassInfo == NULL)
 		return 0;
 
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
 
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
-	iProductionNeeded *= 100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier();
+	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
 	iProductionNeeded /= 100;
 
 	if (pkUnitEntry->GetProductionCostPerEra() != 0)
@@ -16305,7 +16305,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 		}
 	}
 
-	if(isMinorCiv())
+	if (isMinorCiv())
 	{
 		iProductionNeeded *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 		iProductionNeeded /= 100;
@@ -16341,9 +16341,9 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded /= 100;
 #endif
 
-	if (!isHuman() && !IsAITeammateOfHuman() && !isBarbarian() && bCombat)
+	if (!isHuman() && !isBarbarian() && bCombat)
 	{
-		if(isWorldUnitClass(eUnitClass))
+		if (isWorldUnitClass(eUnitClass))
 		{
 			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldTrainPercent();
 			iProductionNeeded /= 100;
@@ -16363,12 +16363,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	return std::max(1, iProductionNeeded);
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eTheBuilding);
-	if(pkBuildingInfo == NULL)
+	if (pkBuildingInfo == NULL)
 	{
 		//This should never happen.
 		return 1;
@@ -16377,32 +16376,32 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 	int iProductionNeeded = pkBuildingInfo->GetProductionCost();
 	int iProductionModifier = 0;
 
-	if(pkBuildingInfo->GetNumCityCostMod() > 0 && getNumCities() > 0)
+	if (pkBuildingInfo->GetNumCityCostMod() > 0 && getNumCities() > 0)
 	{
 		iProductionModifier += (pkBuildingInfo->GetNumCityCostMod() * getNumCities());
 	}
 #if defined(MOD_BALANCE_CORE_WONDER_COST_INCREASE)
-	if(MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 	{
 		int iLoop;
-		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if(pLoopCity->getNumWorldWonders() > 0)
+			if (pLoopCity->getNumWorldWonders() > 0)
 			{
-				for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 				{
 					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if(pkeBuildingInfo == NULL)
+					if (pkeBuildingInfo == NULL)
 					{
 						//This should never happen.
 						continue;
 					}
 				
 					// Has this Building
-					if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						if(isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 						{
 							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
 								continue;
@@ -16438,44 +16437,49 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 	}
 #endif
 
-	if(isMinorCiv())
+	if (isMinorCiv())
 	{
-		iProductionModifier += GC.getMINOR_CIV_PRODUCTION_PERCENT() - 100;
+		iProductionNeeded *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
+		iProductionNeeded /= 100;
 	}
 
-	iProductionModifier += GC.getBUILDING_PRODUCTION_PERCENT() - 100;
+	iProductionNeeded *= GC.getBUILDING_PRODUCTION_PERCENT();
+	iProductionNeeded /= 100;
 
-	iProductionModifier += GC.getGame().getGameSpeedInfo().getConstructPercent() - 100;
+	iProductionNeeded *= GC.getGame().getGameSpeedInfo().getConstructPercent();
+	iProductionNeeded /= 100;
 
-	iProductionModifier += GC.getGame().getStartEraInfo().getConstructPercent() - 100;
+	iProductionNeeded *= GC.getGame().getStartEraInfo().getConstructPercent();
+	iProductionNeeded /= 100;
 
-	if(pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
+	if (pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
 	{
 		CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkBuildingInfo->GetPrereqAndTech());
-		if(pkTechInfo)
+		if (pkTechInfo)
 		{
 			// Loop through all eras and apply Building production mod based on how much time has passed
 			int iTotalEraMod = 0;
 			EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
 
-			if(eBuildingUnlockedEra < GetCurrentEra())
+			if (eBuildingUnlockedEra < GetCurrentEra())
 			{
-				for(int iLoop = eBuildingUnlockedEra; iLoop < GetCurrentEra(); iLoop++)
+				for (int iLoop = eBuildingUnlockedEra; iLoop < GetCurrentEra(); iLoop++)
 				{
 					CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
 					CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
 
-					if(iLoop >= 0 && iLoop < GC.getNumEraInfos())
+					if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
 					{
 						CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
-						if(pkEraInfo)
+						if (pkEraInfo)
 						{
 							iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
 						}
 					}
 				}
 
-				iProductionModifier += iTotalEraMod;
+				iProductionNeeded *= (100 - iTotalEraMod);
+				iProductionNeeded /= 100;
 			}
 		}
 	}
@@ -16497,27 +16501,36 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			}
 		}
 
-		iProductionModifier += iTotalEraMod;
+		iProductionNeeded *= (100 - iTotalEraMod);
+		iProductionNeeded /= 100;
 	}
 
-	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
-		if(isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
-			iProductionModifier += GC.getGame().getHandicapInfo().getAIWorldConstructPercent() - 100;
+			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
+			iProductionNeeded /= 100;
 		}
 		else
 		{
-			iProductionModifier += GC.getGame().getHandicapInfo().getAIConstructPercent() - 100;
+			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
+			iProductionNeeded /= 100;
 		}
 
 		if (MOD_BALANCE_CORE_DIFFICULTY)
 		{
 			if (!isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
-				iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
+			{
+				iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+				iProductionNeeded /= 100;
+			}
 		}
 		else
-			iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
+		{
+			iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+			iProductionNeeded /= 100;
+		}
 	}
 
 	iProductionNeeded *= (100 + iProductionModifier);
@@ -16526,15 +16539,12 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 	return std::max(1, iProductionNeeded);
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 {
-	int iProductionNeeded;
+	int iProductionNeeded = GC.getProjectInfo(eProject)->GetProductionCost();
 
-	iProductionNeeded = GC.getProjectInfo(eProject)->GetProductionCost();
-
-	if(isMinorCiv())
+	if (isMinorCiv())
 	{
 		iProductionNeeded *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 		iProductionNeeded /= 100;
@@ -16549,9 +16559,9 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	iProductionNeeded *= GC.getGame().getStartEraInfo().getCreatePercent();
 	iProductionNeeded /= 100;
 
-	if (!isHuman() && !IsAITeammateOfHuman() && !isBarbarian() && !GC.getProjectInfo(eProject)->IsRepeatable())
+	if (!isHuman() && !isBarbarian() && !GC.getProjectInfo(eProject)->IsRepeatable())
 	{
-		if(isWorldProject(eProject))
+		if (isWorldProject(eProject))
 		{
 			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldCreatePercent();
 			iProductionNeeded /= 100;
@@ -16576,17 +16586,16 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 int CvPlayer::getProductionNeeded(SpecialistTypes eSpecialist) const
 {
 	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if(pkSpecialistInfo == NULL)
+	if (pkSpecialistInfo == NULL)
 	{
-		//This should never happen! If this does, fix the calling function!
+		// This should never happen! If this does, fix the calling function!
 		CvAssert(pkSpecialistInfo);
 		return 0;
 	}
 
-	int iProductionNeeded;
-	iProductionNeeded = pkSpecialistInfo->getCost();
+	int iProductionNeeded = pkSpecialistInfo->getCost();
 
-	if(isMinorCiv())
+	if (isMinorCiv())
 	{
 		iProductionNeeded *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 		iProductionNeeded /= 100;
@@ -17872,7 +17881,7 @@ int CvPlayer::GetNumUnitsSupplied() const
 		}
 #endif
 
-		if (!isMinorCiv() && !isHuman() && !IsAITeammateOfHuman())
+		if (!isMinorCiv() && !isHuman())
 		{
 			int iMod = (100 + GC.getGame().getHandicapInfo().getAIUnitSupplyPercent());
 			iFreeUnits *= iMod;
@@ -22380,14 +22389,14 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 		iUnhappiness += getUnhappinessFromCityJFDSpecial();
 	}
 
-	if(MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
+	if (MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
 	{
 		iUnhappiness += GetUnhappinessFromWarWeariness();
 	}
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 	{
 		// AI gets reduced Unhappiness on higher levels
-		if (!isHuman() && !IsAITeammateOfHuman())
+		if (!isHuman())
 		{
 			iUnhappiness *= GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
 			iUnhappiness /= 100;
@@ -46842,7 +46851,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	iThreshold *= GC.getGame().getStartEraInfo().getGrowthPercent();
 	iThreshold /= 100;
 
-	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 		iThreshold /= 100;
