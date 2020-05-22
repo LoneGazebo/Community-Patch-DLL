@@ -16089,7 +16089,7 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 	if (IsTeammate(ePlayer))
 		return false;
 
-    // Up to three Wonders is always okay.
+    // Up to two Wonders is always okay.
 	int iNumWonders = GET_PLAYER(ePlayer).GetWondersConstructed();
 	if (iNumWonders <= 2)
 		return false;
