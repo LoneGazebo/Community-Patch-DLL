@@ -640,7 +640,7 @@ private:
 	CvPlot* FindBestBarbarianLandTarget(CvUnit* pUnit);
 	CvPlot* FindBestBarbarianSeaTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
-	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE);
+	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffensive);
 	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
