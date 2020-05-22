@@ -601,8 +601,8 @@
 			<AIBarbarianBonus>25</AIBarbarianBonus>
 			<BarbCampGold>15</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>9</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>10</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_AI_DEFAULT</Type>
