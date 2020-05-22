@@ -2517,138 +2517,37 @@ TeamTypes CvDiplomacyAI::GetTeam() const
 	return m_pPlayer->getTeam();
 }
 
+// ************************************
+// Personality Values
+// ************************************
 
-/// Initializes Personality Members for this player (XML value + random element)
-void CvDiplomacyAI::DoInitializePersonality()
-{
-	// AI Player
-	if(!GetPlayer()->isHuman())
-	{
-		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
-
-		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness());
-		CvAssertMsg(m_iVictoryCompetitiveness >= 0, "DIPLOMACY_AI: Victory Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness());
-		CvAssertMsg(m_iWonderCompetitiveness >= 0, "DIPLOMACY_AI: Victory Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivCompetitiveness());
-		CvAssertMsg(m_iMinorCivCompetitiveness >= 0, "DIPLOMACY_AI: Minor Civ Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iBoldness = GetRandomPersonalityWeight(playerLeaderInfo.GetBoldness());
-		CvAssertMsg(m_iBoldness >= 0, "DIPLOMACY_AI: Boldness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDiploBalance = GetRandomPersonalityWeight(playerLeaderInfo.GetDiploBalance());
-		CvAssertMsg(m_iDiploBalance >= 0, "DIPLOMACY_AI: DiploBalance Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iWarmongerHate = GetRandomPersonalityWeight(playerLeaderInfo.GetWarmongerHate());
-		CvAssertMsg(m_iWarmongerHate >= 0, "DIPLOMACY_AI: WarmongerHate Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDenounceWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDenounceWillingness());
-		CvAssertMsg(m_iDenounceWillingness >= 0, "DIPLOMACY_AI: DenounceWillingness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDoFWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDoFWillingness());
-		CvAssertMsg(m_iDoFWillingness >= 0, "DIPLOMACY_AI: DoFWillingness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iLoyalty = GetRandomPersonalityWeight(playerLeaderInfo.GetLoyalty());
-		CvAssertMsg(m_iLoyalty >= 0, "DIPLOMACY_AI: Loyalty Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iNeediness = GetRandomPersonalityWeight(playerLeaderInfo.GetNeediness());
-		CvAssertMsg(m_iNeediness >= 0, "DIPLOMACY_AI: Neediness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iForgiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetForgiveness());
-		CvAssertMsg(m_iForgiveness >= 0, "DIPLOMACY_AI: Forgiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iChattiness = GetRandomPersonalityWeight(playerLeaderInfo.GetChattiness());
-		CvAssertMsg(m_iChattiness >= 0, "DIPLOMACY_AI: Chattiness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iMeanness = GetRandomPersonalityWeight(playerLeaderInfo.GetMeanness());
-		CvAssertMsg(m_iMeanness >= 0, "DIPLOMACY_AI: Meanness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
-		{
-			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMajorCivApproachBias(iApproachLoop));
-			CvAssertMsg(m_paiPersonalityMajorCivApproachBiases[iApproachLoop] >= 0, "DIPLOMACY_AI: Personality Approach weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-		}
-
-		for(int iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
-		{
-			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivApproachBias(iApproachLoop));
-			CvAssertMsg(m_paiPersonalityMinorCivApproachBiases[iApproachLoop] >= 0, "DIPLOMACY_AI: Personality Approach weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-		}
-	}
-	// Human player
-	else
-	{
-		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-
-		m_iVictoryCompetitiveness = iDefaultFlavorValue;
-		CvAssertMsg(m_iVictoryCompetitiveness >= 0, "DIPLOMACY_AI: Victory Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iWonderCompetitiveness = iDefaultFlavorValue;
-		CvAssertMsg(m_iWonderCompetitiveness >= 0, "DIPLOMACY_AI: Wonder Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iMinorCivCompetitiveness = iDefaultFlavorValue;
-		CvAssertMsg(m_iMinorCivCompetitiveness >= 0, "DIPLOMACY_AI: Minor Civ Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iBoldness = iDefaultFlavorValue;
-		CvAssertMsg(m_iBoldness >= 0, "DIPLOMACY_AI: Boldness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDiploBalance = iDefaultFlavorValue;
-		CvAssertMsg(m_iDiploBalance >= 0, "DIPLOMACY_AI: DiploBalance Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iWarmongerHate = iDefaultFlavorValue;
-		CvAssertMsg(m_iWarmongerHate >= 0, "DIPLOMACY_AI: WarmongerHate Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDenounceWillingness = iDefaultFlavorValue;
-		CvAssertMsg(m_iDenounceWillingness >= 0, "DIPLOMACY_AI: DenounceWillingness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iDoFWillingness = iDefaultFlavorValue;
-		CvAssertMsg(m_iDoFWillingness >= 0, "DIPLOMACY_AI: DoFWillingness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iLoyalty = iDefaultFlavorValue;
-		CvAssertMsg(m_iLoyalty >= 0, "DIPLOMACY_AI: Loyalty Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iNeediness = iDefaultFlavorValue;
-		CvAssertMsg(m_iNeediness >= 0, "DIPLOMACY_AI: Neediness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iForgiveness = iDefaultFlavorValue;
-		CvAssertMsg(m_iForgiveness >= 0, "DIPLOMACY_AI: Forgiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iChattiness = iDefaultFlavorValue;
-		CvAssertMsg(m_iChattiness >= 0, "DIPLOMACY_AI: Chattiness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		m_iMeanness = iDefaultFlavorValue;
-		CvAssertMsg(m_iMeanness >= 0, "DIPLOMACY_AI: Meanness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-		for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
-		{
-			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = iDefaultFlavorValue;
-			CvAssertMsg(m_paiPersonalityMajorCivApproachBiases[iApproachLoop] >= 0, "DIPLOMACY_AI: Personality Approach weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-		}
-
-		for(int iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
-		{
-			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = iDefaultFlavorValue;
-			CvAssertMsg(m_paiPersonalityMinorCivApproachBiases[iApproachLoop] >= 0, "DIPLOMACY_AI: Personality Approach weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-		}
-	}
-
-	if (!GetPlayer()->isHuman())
-		DoInitializeDiploPersonalityType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
-
-	LogPersonality();
-}
 
 /// Returns a personality weight with a small random element
-int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
+int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue)
 {
-	int iMin = /*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
+	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
+	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
 	int iPlusMinus = /*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE();
 
+	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		iPlusMinus *= 2;
+	}
+
+	// Error handling to prevent out of bounds values
+	CvAssertMsg(iMin >= 1 && iMin <= 20, "DIPLOMACY AI: Personality Flavor Minimum Value is out of bounds.");
+	CvAssertMsg(iMax >= 1 && iMax <= 20, "DIPLOMACY AI: Personality Flavor Maximum Value is out of bounds.");
+	if (iMin < 1 || iMin > 20)
+	{
+		iMin = 1;
+	}
+	if (iMax < 1 || iMax > 20)
+	{
+		iMax = 10;
+	}
+
 	//maybe we should use the real RNG here? anyway include the player ID which should be somewhat random at least
-	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue + GetPlayer()->GetID());
+	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue + (int) GetPlayer()->GetID());
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
 	//for stupid settings, try to make it so that we don't cluster at the extreme values
@@ -2658,23 +2557,150 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 		iRtnValue = iMax - ((iRtnValue-iMax) % (iMax-iMin));
 
 	//if that didn't help, clamp it down hard
-	return range(iRtnValue,iMin,iMax);
+	return std::max(iMin, std::min(iMax, iRtnValue));
 }
 
-/// Decide what victory condition we will be extra sensitive to for this game
+//	-----------------------------------------------------------------------------------------------
+
+/// Initializes Personality Members for this player (XML value + random element)
+void CvDiplomacyAI::DoInitializePersonality()
+{
+	// AI Player
+	if (!GetPlayer()->isHuman())
+	{
+		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
+
+		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness());
+		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness());
+		m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivCompetitiveness());
+		m_iBoldness = GetRandomPersonalityWeight(playerLeaderInfo.GetBoldness());
+		m_iDiploBalance = GetRandomPersonalityWeight(playerLeaderInfo.GetDiploBalance());
+		m_iWarmongerHate = GetRandomPersonalityWeight(playerLeaderInfo.GetWarmongerHate());
+		m_iDenounceWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDenounceWillingness());
+		m_iDoFWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDoFWillingness());
+		m_iLoyalty = GetRandomPersonalityWeight(playerLeaderInfo.GetLoyalty());
+		m_iNeediness = GetRandomPersonalityWeight(playerLeaderInfo.GetNeediness());
+		m_iForgiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetForgiveness());
+		m_iChattiness = GetRandomPersonalityWeight(playerLeaderInfo.GetChattiness());
+		m_iMeanness = GetRandomPersonalityWeight(playerLeaderInfo.GetMeanness());
+
+		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+		{
+			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMajorCivApproachBias(iApproachLoop));
+		}
+
+		for (int iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
+		{
+			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivApproachBias(iApproachLoop));
+		}
+
+		// Now that we've picked our flavors, select a Diplo Personality.
+		DoInitializeDiploPersonalityType();
+	}
+	// Human player
+	else
+	{
+		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+
+		// Error handling to prevent out of bounds values
+		CvAssertMsg(iDefaultFlavorValue >= 1 && iDefaultFlavorValue <= 20, "DIPLOMACY AI: Default Flavor Value is out of bounds.");
+		if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
+		{
+			iDefaultFlavorValue = 5;
+		}
+
+		m_iVictoryCompetitiveness = iDefaultFlavorValue;
+		m_iWonderCompetitiveness = iDefaultFlavorValue;
+		m_iMinorCivCompetitiveness = iDefaultFlavorValue;
+		m_iBoldness = iDefaultFlavorValue;
+		m_iDiploBalance = iDefaultFlavorValue;
+		m_iWarmongerHate = iDefaultFlavorValue;
+		m_iDenounceWillingness = iDefaultFlavorValue;
+		m_iDoFWillingness = iDefaultFlavorValue;
+		m_iLoyalty = iDefaultFlavorValue;
+		m_iNeediness = iDefaultFlavorValue;
+		m_iForgiveness = iDefaultFlavorValue;
+		m_iChattiness = iDefaultFlavorValue;
+		m_iMeanness = iDefaultFlavorValue;
+
+		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+		{
+			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = iDefaultFlavorValue;
+		}
+
+		for (int iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
+		{
+			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = iDefaultFlavorValue;
+		}
+	}
+
+	LogPersonality();
+}
+
+//	-----------------------------------------------------------------------------------------------
+
+/// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and some other things)
 void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
-	// Failsafe
-	if (!GetPlayer()->isMajorCiv())
-		return;
-	
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	CvPlayerAI& kPlayer = GET_PLAYER(eMyPlayer);
-	
-	int iConquestWeight = GetBoldness() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	int iDiplomacyWeight = GetDiploBalance() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	int iCultureWeight = GetWonderCompetitiveness() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	int iScienceWeight = (10 - GetDoFWillingness()) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+
+	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
+	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+
+	// Error handling to prevent out of bounds values
+	CvAssertMsg(iMin >= 1 && iMin <= 20, "DIPLOMACY AI: Personality Flavor Minimum Value is out of bounds.");
+	CvAssertMsg(iMax >= 1 && iMax <= 20, "DIPLOMACY AI: Personality Flavor Maximum Value is out of bounds.");
+	if (iMin < 1 || iMin > 20)
+	{
+		iMin = 1;
+	}
+	if (iMax < 1 || iMax > 20)
+	{
+		iMax = 10;
+	}
+
+	int iConquerorWeight = 0;
+	int iDiplomatWeight = 0;
+	int iCulturalWeight = 0;
+	int iScientistWeight = 0;
+
+	int ID = (int) GetPlayer()->GetID();
+	int iRandom = 4;
+
+	// Add more randomness if Random Personalities is active
+	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		iRandom *= 2;
+	}
+
+	// Weight for conquest
+	iConquerorWeight += GetBoldness();
+	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
+	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))));
+	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"))));
+	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
+
+	// Weight for diplomacy
+	iDiplomatWeight += GetDoFWillingness();
+	iDiplomatWeight += GetLoyalty();
+	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))));
+	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"))));
+	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() + GetLoyalty() + ID);
+
+	// Weight for culture
+	iCulturalWeight += GetWonderCompetitiveness();
+	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
+	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"))));
+	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
+
+	// Weight for science
+	iScientistWeight += GetDiploBalance();
+	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
+	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"))));
+	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"))));
+	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
 
 #if defined(MOD_BALANCE_CORE)
 	// Add weight for leader traits
@@ -2682,19 +2708,19 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
-			iConquestWeight += 2;
+			iConquerorWeight += 4;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			iDiplomacyWeight += 2;
+			iDiplomatWeight += 4;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
-			iCultureWeight += 2;
+			iCulturalWeight += 4;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
-			iScienceWeight += 2;
+			iScientistWeight += 4;
 		}
 	}
 #endif
@@ -2703,41 +2729,41 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	int iBestWeight = 0;
 	DiploPersonalityTypes eBestPersonality = NO_DIPLO_PERSONALITY_TYPE;
 	
-	if (iConquestWeight > iBestWeight)
+	if (iConquerorWeight > iBestWeight)
 	{
-		iBestWeight = iConquestWeight;
-		eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
+		iBestWeight = iConquerorWeight;
+		eBestPersonality = DIPLO_PERSONALITY_CONQUEROR;
 	}
 
-	if (iDiplomacyWeight > iBestWeight)
+	if (iDiplomatWeight > iBestWeight)
 	{
-		iBestWeight = iDiplomacyWeight;
-		eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
+		iBestWeight = iDiplomatWeight;
+		eBestPersonality = DIPLO_PERSONALITY_DIPLOMAT;
 		bTie = false;
 	}
-	else if (iDiplomacyWeight == iBestWeight)
+	else if (iDiplomatWeight == iBestWeight)
 	{
 		bTie = true;
 	}
 
-	if (iCultureWeight > iBestWeight)
+	if (iCulturalWeight > iBestWeight)
 	{
-		iBestWeight = iCultureWeight;
-		eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
+		iBestWeight = iCulturalWeight;
+		eBestPersonality = DIPLO_PERSONALITY_CULTURAL;
 		bTie = false;
 	}
-	else if (iCultureWeight == iBestWeight)
+	else if (iCulturalWeight == iBestWeight)
 	{
 		bTie = true;
 	}
 
-	if (iScienceWeight > iBestWeight)
+	if (iScientistWeight > iBestWeight)
 	{
-		iBestWeight = iScienceWeight;
-		eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
+		iBestWeight = iScientistWeight;
+		eBestPersonality = DIPLO_PERSONALITY_SCIENTIST;
 		bTie = false;
 	}
-	else if (iScienceWeight == iBestWeight)
+	else if (iScientistWeight == iBestWeight)
 	{
 		bTie = true;
 	}
@@ -2748,24 +2774,160 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_TYPE_CONQUEROR;
+			eBestPersonality = DIPLO_PERSONALITY_CONQUEROR;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_TYPE_DIPLOMAT;
+			eBestPersonality = DIPLO_PERSONALITY_DIPLOMAT;
 		}
 		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_TYPE_CULTURAL;
+			eBestPersonality = DIPLO_PERSONALITY_CULTURAL;
 		}
 		else
 		{
-			eBestPersonality = DIPLO_PERSONALITY_TYPE_SCIENTIST;
+			eBestPersonality = DIPLO_PERSONALITY_SCIENTIST;
 		}
 	}
 #endif
 
 	SetDiploPersonalityType(eBestPersonality);
+}
+
+//	-----------------------------------------------------------------------------------------------
+
+/// How much does this AI get angry when they think another player is going for the same victory type?
+int CvDiplomacyAI::GetVictoryCompetitiveness() const
+{
+	return (int) m_iVictoryCompetitiveness;
+}
+
+/// How much does this AI get angry when they're beaten to a World Wonder?
+int CvDiplomacyAI::GetWonderCompetitiveness() const
+{
+	return (int) m_iWonderCompetitiveness;
+}
+
+/// How does this AI get angry when another player is befriending "their" minor civs?
+int CvDiplomacyAI::GetMinorCivCompetitiveness() const
+{
+	return (int) m_iMinorCivCompetitiveness;
+}
+
+/// How likely is this player to go for World Conquest?
+int CvDiplomacyAI::GetBoldness() const
+{
+	return (int) m_iBoldness;
+}
+
+/// How much does this leader want to maintain a balance of power in the world?
+int CvDiplomacyAI::GetDiploBalance() const
+{
+	return (int) m_iDiploBalance;
+}
+
+/// How much does this AI get angry when someone's being a warmonger?
+int CvDiplomacyAI::GetWarmongerHate() const
+{
+	return (int) m_iWarmongerHate;
+}
+
+/// How much is this AI willing to work with someone AGAINST another player?
+int CvDiplomacyAI::GetDenounceWillingness() const
+{
+	return (int) m_iDenounceWillingness;
+}
+
+/// How much is this AI willing to work WITH someone?
+int CvDiplomacyAI::GetDoFWillingness() const
+{
+	return (int) m_iDoFWillingness;
+}
+
+/// How willing is this AI to backstab its friends?
+int CvDiplomacyAI::GetLoyalty() const
+{
+	return (int) m_iLoyalty;
+}
+
+/// How much does this AI want the support of its friends in rough times?
+int CvDiplomacyAI::GetNeediness() const
+{
+	return (int) m_iNeediness;
+}
+
+/// How willing is this AI to overlook transgressions between friends?
+int CvDiplomacyAI::GetForgiveness() const
+{
+	return (int) m_iForgiveness;
+}
+
+/// How much does this AI like to pop up and talk?
+int CvDiplomacyAI::GetChattiness() const
+{
+	return (int) m_iChattiness;
+}
+
+/// How much does this AI like to talk smack?
+int CvDiplomacyAI::GetMeanness() const
+{
+	return (int) m_iMeanness;
+}
+
+/// What is this AI's bias towards a particular Major Civ Approach?
+int CvDiplomacyAI::GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const
+{
+	CvAssertMsg(eApproach >= 0 && eApproach < NUM_MAJOR_CIV_APPROACHES, "DIPLOMACY AI: Trying to query invalid Major Civ Approach for personality bias.");
+	if (eApproach < 0 || eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
+
+	return (int) m_paiPersonalityMajorCivApproachBiases[(int)eApproach];
+}
+
+/// What is this AI's bias towards a particular Minor Civ Approach?
+int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const
+{
+	CvAssertMsg(eApproach >= 0 && eApproach < NUM_MINOR_CIV_APPROACHES, "DIPLOMACY AI: Trying to query invalid Minor Civ Approach for personality bias.");
+	if (eApproach < 0 || eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
+
+	return (int) m_paiPersonalityMinorCivApproachBiases[(int)eApproach];
+}
+
+//	-----------------------------------------------------------------------------------------------
+
+/// What is this AI's Diplomatic Personality Type?
+DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
+{
+	return (DiploPersonalityTypes) m_eDiploPersonalityType;
+}
+
+/// Sets this AI's Diplomatic Personality Type
+void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonality)
+{
+	m_eDiploPersonalityType = eDiploPersonality;
+}
+
+/// Does this AI have the personality of a conqueror?
+bool CvDiplomacyAI::IsConqueror() const
+{
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_CONQUEROR);
+}
+
+/// Does this AI have the personality of a diplomat?
+bool CvDiplomacyAI::IsDiplomat() const
+{
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_DIPLOMAT);
+}
+
+/// Does this AI have a cultural personality?
+bool CvDiplomacyAI::IsCultural() const
+{
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_CULTURAL);
+}
+
+/// Does this AI have the personality of a scientist?
+bool CvDiplomacyAI::IsScientist() const
+{
+	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_SCIENTIST);
 }
 
 
@@ -21039,145 +21201,8 @@ bool CvDiplomacyAI::IsHideNeutralOpinionValues() const
 
 
 // ************************************
-// Personality Members
-// ************************************
-
-/// How much is this player annoyed when he thinks another player is going for the same victory type?
-int CvDiplomacyAI::GetVictoryCompetitiveness() const
-{
-	return m_iVictoryCompetitiveness;
-}
-
-/// How annoyed does this player get when beaten to a World Wonder?
-int CvDiplomacyAI::GetWonderCompetitiveness() const
-{
-	return m_iWonderCompetitiveness;
-}
-
-/// How annoyed does this player get when another player is befriending "their" minor civs?
-int CvDiplomacyAI::GetMinorCivCompetitiveness() const
-{
-	return m_iMinorCivCompetitiveness;
-}
-
-/// How likely is this player to go for World Conquest?
-int CvDiplomacyAI::GetBoldness() const
-{
-	return m_iBoldness;
-}
-
-/// How much does this leader want to maintain a balance of power in the world?
-int CvDiplomacyAI::GetDiploBalance() const
-{
-	return m_iDiploBalance;
-}
-
-/// How much does this AI get angry when someone's being a warmonger?
-int CvDiplomacyAI::GetWarmongerHate() const
-{
-	return m_iWarmongerHate;
-}
-
-/// How much is this AI willing to work with someone AGAINST another player?
-int CvDiplomacyAI::GetDenounceWillingness() const
-{
-	return m_iDenounceWillingness;
-}
-
-/// How much is this AI willing to work WITH someone?
-int CvDiplomacyAI::GetDoFWillingness() const
-{
-	return m_iDoFWillingness;
-}
-
-/// How willing is this AI to backstab its friends?
-int CvDiplomacyAI::GetLoyalty() const
-{
-	return m_iLoyalty;
-}
-
-/// How much does this AI want the support of its friends in rough times?
-int CvDiplomacyAI::GetNeediness() const
-{
-	return m_iNeediness;
-}
-
-/// How willing is this AI to overlook transgressions between friends?
-int CvDiplomacyAI::GetForgiveness() const
-{
-	return m_iForgiveness;
-}
-
-/// How much does this AI like to pop up and talk?
-int CvDiplomacyAI::GetChattiness() const
-{
-	return m_iChattiness;
-}
-
-/// How much does this AI like to talk smack?
-int CvDiplomacyAI::GetMeanness() const
-{
-	return m_iMeanness;
-}
-
-/// What is our bias towards a particular Major Civ Approach?
-int CvDiplomacyAI::GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const
-{
-	CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Trying to queury invalid Major Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eApproach < NUM_MAJOR_CIV_APPROACHES, "DIPLOMACY_AI: Trying to queury invalid Major Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_paiPersonalityMajorCivApproachBiases[eApproach];
-}
-
-/// What is our bias towards a particular Minor Civ Approach?
-int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const
-{
-	CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Trying to queury invalid Minor Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eApproach < NUM_MINOR_CIV_APPROACHES, "DIPLOMACY_AI: Trying to queury invalid Minor Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_paiPersonalityMinorCivApproachBiases[eApproach];
-}
-
-/// What victory condition are we extra sensitive to for this game?
-DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
-{
-	return (DiploPersonalityTypes) m_eDiploPersonalityType;
-}
-
-/// Sets what victory condition we will be extra sensitive to for this game
-void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType)
-{
-	m_eDiploPersonalityType = eDiploPersonalityType;
-}
-
-/// Is this player a natural conqueror?
-bool CvDiplomacyAI::IsConqueror() const
-{
-	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CONQUEROR);
-}
-
-/// Is this player a natural diplomat?
-bool CvDiplomacyAI::IsDiplomat() const
-{
-	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_DIPLOMAT);
-}
-
-/// Is this player naturally cultural?
-bool CvDiplomacyAI::IsCultural() const
-{
-	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_CULTURAL);
-}
-
-/// Is this player naturally scientific?
-bool CvDiplomacyAI::IsScientist() const
-{
-	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_TYPE_SCIENTIST);
-}
-
-
-
-// ************************************
 // Evaluation of Other Players' Tendencies
 // ************************************
-
 
 
 /// ePlayer made peace with someone, so figure out what that means
