@@ -5771,7 +5771,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaTarget(CvUnit* pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = MAX_INT;
 
-	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange); //assume 3 moves per turn
+	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	ReachablePlots movePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
