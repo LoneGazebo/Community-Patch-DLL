@@ -31350,7 +31350,7 @@ int CvPlayer::GetDiversity(DomainTypes eDomain) const
 
 int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 {
-	if (ePlayer == NO_PLAYER)
+	if (!isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv())
 		return 0;
 
 	int iResistance = GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(ePlayer);
