@@ -39954,12 +39954,6 @@ bool CvDiplomacyAI::IsPlayerAgreeNotToConvert(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
-	
-	if (IsVassal(ePlayer))
-	{
-		return true;
-	}
-	
 	return m_pabPlayerAgreedNotToConvert[ePlayer];
 }
 
@@ -40135,12 +40129,6 @@ bool CvDiplomacyAI::IsPlayerAgreeNotToDig(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
-	
-	if (IsVassal(ePlayer))
-	{
-		return true;
-	}
-	
 	return m_pabPlayerAgreedNotToDig[ePlayer];
 }
 
@@ -43279,17 +43267,15 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 /// Is this a bad target to steal from?
 bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
 {
-	if (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT)
+	// Failsafe
+	if (pPlot == NULL)
 	{
-		if (pPlot == NULL)
+		if (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT)
 			return true;
 	}
-	
+
 	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER || ePlayer == GetPlayer()->GetID() || !GET_PLAYER(ePlayer).isAlive())
 		return false;
-
-	if (IsTeammate(ePlayer))
-		return true;
 
 	if (IsAtWar(ePlayer))
 		return false;
@@ -43325,7 +43311,14 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		return false;
 	}
 
+	// Exception for religious conversion: Never a bad target if they haven't created a religion.
+	if (eTheftType == THEFT_TYPE_CONVERSION && !GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion())
+		return false;
+
 	// If any of the below conditions are true, never steal from this player
+	if (IsTeammate(ePlayer))
+		return true;
+
 	if (IsDoFAccepted(ePlayer))
 		return true;
 
@@ -43348,7 +43341,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	if (eTrueApproach == MAJOR_CIV_APPROACH_AFRAID)
 		return true;
 
-	if (GetMajorCivOpinion(ePlayer) >= MAJOR_CIV_OPINION_FRIEND && eTrueApproach >= MAJOR_CIV_APPROACH_NEUTRAL)
+	if (eOpinion >= MAJOR_CIV_OPINION_FRIEND && eTrueApproach >= MAJOR_CIV_APPROACH_FRIENDLY)
 		return true;
 
 	// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
@@ -43379,6 +43372,26 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		}
 		
 		return true;
+		break;
+
+	case THEFT_TYPE_CONVERSION:
+		if (IsPlayerAgreeNotToConvert(ePlayer))
+			return true;
+
+		if (IsVassal(ePlayer))
+			return true;
+
+		return false;
+		break;
+
+	case THEFT_TYPE_ARTIFACT:
+		if (IsPlayerAgreeNotToDig(ePlayer))
+			return true;
+
+		if (IsVassal(ePlayer))
+			return true;
+
+		return false;
 		break;
 
 	case THEFT_TYPE_SPY:

@@ -10598,9 +10598,18 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 		}
 	}
 
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	// Major civ - promised not to convert, or bad target?
+	if (GET_PLAYER(pCity->getOwner()).isMajorCiv())
 	{
-		if (m_pPlayer->GetDiplomacyAI()->IsPlayerAgreeNotToConvert(pCity->getOwner()))
+		if (m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pCity->getOwner(), THEFT_TYPE_CONVERSION, pCity->plot()))
+		{
+			return 0;
+		}
+	}
+	// Minor civ - Barbarians expected?
+	else if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	{
+		if (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_HORDE) || GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_REBELLION))
 		{
 			return 0;
 		}
