@@ -16091,7 +16091,7 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 
     // Up to three Wonders is always okay.
 	int iNumWonders = GET_PLAYER(ePlayer).GetWondersConstructed();
-	if (iNumWonders <= 3)
+	if (iNumWonders <= 2)
 		return false;
 
 	if (ePlayer != GetPlayer()->GetID())
