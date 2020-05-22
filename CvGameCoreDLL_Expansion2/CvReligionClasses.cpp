@@ -7771,7 +7771,7 @@ bool CvReligionAI::DoFaithPurchases()
 			int iFaithStored = m_pPlayer->GetFaith();
 			int iFaithNeeded = pCapital->GetFaithPurchaseCost(eGPType, true);
 			int iTurnsRemaining = (iFaithNeeded - iFaithStored) / max(1, iFaithPerTurn);
-			if (iTurnsRemaining < 23)
+			if (iTurnsRemaining < max(13,23-iFlavorReligion))
 			{
 				if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligionWeFounded : NO_RELIGION))
 				{
