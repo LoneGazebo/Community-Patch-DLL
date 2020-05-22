@@ -11874,7 +11874,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if(!isHuman() && !GET_PLAYER(getOwner()).IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 		iCost /= 100;
@@ -12087,7 +12087,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if(!isHuman() && !GET_PLAYER(getOwner()).IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iCost *= GC.getGame().getHandicapInfo().getAIConstructPercent();
 		iCost /= 100;

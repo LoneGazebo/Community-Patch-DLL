@@ -199,9 +199,12 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 
 	// Initialize AI constants from XML
 	m_iRecruitRange = GC.getAI_TACTICAL_RECRUIT_RANGE();
-	m_iLandBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianLandTargetRange();
-	m_iSeaBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+	m_iLandBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianLandTargetRange());
+	if (MOD_BALANCE_CORE_DIFFICULTY)
+		m_iSeaBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange());
+	else
+		m_iSeaBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange() / 2);
 }
 
 /// Deallocate memory created in initialize

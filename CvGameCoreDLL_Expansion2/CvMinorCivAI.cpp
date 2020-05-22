@@ -4610,22 +4610,22 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		int iCoastal = 0;
 		int iPlayers = 0;
 		bool bCoastal = false;
-		if(GetPlayer()->getStartingPlot() != NULL)
+		if (GetPlayer()->getStartingPlot() != NULL)
 		{
-			if(GetPlayer()->getStartingPlot()->isCoastalLand())
+			if (GetPlayer()->getStartingPlot()->isCoastalLand())
 			{
-				if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
+				if (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
 					bCoastal = true;
 				}
 				else
 				{
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-						if(GET_PLAYER(ePlayer).isAlive())
+						if (GET_PLAYER(ePlayer).isAlive())
 						{
-							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
+							if (GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
 							{
 								iCoastal++;
 							}
@@ -4633,21 +4633,15 @@ void CvMinorCivAI::DoPickUniqueUnit()
 						}
 					}
 					//If more than half of all players are on the coast, we should give out boats too.
-					if(iCoastal > (iPlayers / 2))
+					if (iCoastal > (iPlayers / 2))
 					{
 						bCoastal = true;
 					}
 				}
 			}
 		}
-		if(bCoastal)
-		{
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, /*bCoastal*/ true);
-		}
-		else
-		{
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true , /*bCoastal*/ false);
-		}
+
+		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, bCoastal);
 #else
 		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true);
 #endif
@@ -14367,13 +14361,13 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed());
 
 	// If we're biasing the result then decrease the number of turns
-	if(bBias)
+	if (bBias)
 	{
 		iNumTurns *= /*50*/ GC.getUNIT_SPAWN_BIAS_MULTIPLIER();
 		iNumTurns /= 100;
 	}
 
-	SetUnitSpawnCounter(ePlayer, iNumTurns);
+	SetUnitSpawnCounter(ePlayer, std::max(1, iNumTurns));
 }
 
 // How long before we spawn a free unit for ePlayer?
@@ -14696,17 +14690,17 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 {
 	// Not friends
-	if(!IsFriends(ePlayer))
+	if (!IsFriends(ePlayer))
 		return 0;
 
 	// This guy isn't militaristic
-	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
+	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
 
-	int iNumTurns = /*19*/ GC.getFRIENDS_BASE_TURNS_UNIT_SPAWN() * 100;
+	int iNumTurns = /*19*/ (GC.getFRIENDS_BASE_TURNS_UNIT_SPAWN() * 100);
 
 	// If relations are at allied level then reduce spawn counter
-	if(IsAllies(ePlayer))
+	if (IsAllies(ePlayer))
 		iNumTurns += /*-3*/ (GC.getALLIES_EXTRA_TURNS_UNIT_SPAWN() * 100);
 
 	// Modify for Game Speed
@@ -14716,9 +14710,9 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	// Modify for policies
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iPolicyMod = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER);
-	if(iPolicyMod > 0)
+	if (iPolicyMod > 0)
 	{
-		if(GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()))
+		if (GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()))
 		{
 			iNumTurns *= 100;
 			iNumTurns /= (100 + iPolicyMod);
@@ -14732,11 +14726,11 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 {
 	// Not friends
-	if(!IsFriends(ePlayer))
+	if (!IsFriends(ePlayer))
 		return 0;
 
 	// This guy isn't militaristic
-	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
+	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
 
 	int iNumTurns = GetSpawnBaseTurns(ePlayer) * 100;
@@ -14746,6 +14740,7 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 
 	return iNumTurns / 100;
 }
+
 #if defined(MOD_BALANCE_CORE)
 /// Has this minor been married by us already?
 bool CvMinorCivAI::IsMarried(PlayerTypes eMajor) const
