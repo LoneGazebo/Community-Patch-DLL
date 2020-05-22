@@ -14606,7 +14606,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iPrice = int(iPrice * fMultiplier);
 	}
 
-	if(!isHuman() && !kPlayer.IsAITeammateOfHuman() && !isBarbarian())
+	if(!isHuman() && !isBarbarian())
 	{
 		iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
 		iPrice /= 100;
@@ -15253,7 +15253,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
-	if(!kPlayer.isHuman() && !kPlayer.IsAITeammateOfHuman() && !kPlayer.isBarbarian())
+	if (!kPlayer.isHuman() && !kPlayer.isBarbarian())
 	{
 		Modifiers += GC.getGame().getHandicapInfo().getAIWorkRateModifier();
 	}

@@ -1013,7 +1013,7 @@ public:
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
 #if defined(MOD_BALANCE_CORE)
-	int getAIResistanceCap() const;
+	int getResistanceCap() const;
 	int getAIDifficultyBonusBase() const;
 	int getAIDifficultyBonusEarly() const;
 	int getAIDifficultyBonusMid() const;

@@ -11874,7 +11874,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if(!isHuman() && !GET_PLAYER(getOwner()).IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 		iCost /= 100;
@@ -11890,7 +11890,12 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
-				int iReligionCostMod = pkUnitInfo->IsSpreadReligion() ? pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this) : pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
+				int iReligionCostMod = 0;
+				
+				if (pkUnitInfo->IsSpreadReligion())
+					iReligionCostMod = pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this);
+				else if (pkUnitInfo->IsRemoveHeresy())
+					iReligionCostMod = pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
 
 				if(iReligionCostMod != 0)
 				{
@@ -12082,7 +12087,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if(!isHuman() && !GET_PLAYER(getOwner()).IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iCost *= GC.getGame().getHandicapInfo().getAIConstructPercent();
 		iCost /= 100;

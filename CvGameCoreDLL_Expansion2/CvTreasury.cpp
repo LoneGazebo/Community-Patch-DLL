@@ -604,7 +604,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		dFinalCost /= 100;
 	}
 	// AI bonus for unit maintenance costs
-	else if(!m_pPlayer->IsAITeammateOfHuman())
+	else
 	{
 		dFinalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
 		dFinalCost /= 100;
@@ -647,7 +647,7 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 	iSupply *= playerHandicap.getUnitCostPercent();
 	iSupply /= 100;
 
-	if(!m_pPlayer->isHuman() && !m_pPlayer->IsAITeammateOfHuman() && !m_pPlayer->isBarbarian())
+	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
 	{
 		//iSupply *= gameHandicap->getAIUnitSupplyPercent();	// This is no longer valid
 		//iSupply /= 100;
@@ -790,7 +790,7 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 		iMaintenance /= 100;
 	}
 	// AI bonus for Building maintenance costs
-	else if(!m_pPlayer->IsAITeammateOfHuman())
+	else
 	{
 		iMaintenance *= GC.getGame().getHandicapInfo().getAIBuildingCostPercent();
 		iMaintenance /= 100;

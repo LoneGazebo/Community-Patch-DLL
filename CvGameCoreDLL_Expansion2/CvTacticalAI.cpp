@@ -199,9 +199,12 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 
 	// Initialize AI constants from XML
 	m_iRecruitRange = GC.getAI_TACTICAL_RECRUIT_RANGE();
-	m_iLandBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianLandTargetRange();
-	m_iSeaBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
+	m_iLandBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianLandTargetRange());
+	if (MOD_BALANCE_CORE_DIFFICULTY)
+		m_iSeaBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange());
+	else
+		m_iSeaBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange() / 2);
 }
 
 /// Deallocate memory created in initialize
@@ -5744,7 +5747,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 	// combat units look at all offensive targets within x turns
 	if (pUnit->IsCanDefend())
 	{
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2);
 
 		// alternatively explore
 		if (pBestMovePlot == NULL)
@@ -5753,11 +5756,11 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 
 	// by default go back to camp
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 
 	// or maybe there is a barbarian city
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 
 	return pBestMovePlot;
 }
@@ -5978,16 +5981,15 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 }
 #endif
 
-/// Find a multi-turn target for a land unit to wander towards
-CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType, bool bAllowDefensiveTargets)
+// Find a faraway target for a unit to wander towards
+// Can be either a specific type or any offensive type
+// Returns the closest matching target that is reachable for the unit
+CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType)
 {
 	if (pUnit == NULL)
 		return NULL;
 
-	CvPlot* pBestMovePlot = NULL;
-	int iBestValue = 0;
-
-	vector<OptionWithScore<CvPlot*>> farawayCandidates;
+	vector<OptionWithScore<CvPlot*>> candidates;
 
 	// Loop through all appropriate targets to find the closest
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
@@ -6007,25 +6009,16 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalT
 				bTypeMatch = !TacticalAIHelpers::IsSuicideMeleeAttack(pUnit, GC.getMap().plotUnchecked(target.GetTargetX(), target.GetTargetY()));
 			}
 
-
 			if (target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT ||
 				target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE ||
+				(target.GetTargetType() == AI_TACTICAL_TARGET_TRADE_UNIT_LAND && pUnit->getDomainType()==DOMAIN_LAND) ||
+				(target.GetTargetType() == AI_TACTICAL_TARGET_TRADE_UNIT_SEA && pUnit->getDomainType()==DOMAIN_SEA) ||
  				target.GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
  				target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN ||
  				target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN ||
 				target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN )
 			{
 				bTypeMatch = true;
-			}
-
-			if (bAllowDefensiveTargets)
-			{
-				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
-					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||
-					target.GetTargetType() == AI_TACTICAL_TARGET_DEFENSIVE_BASTION)
-				{
-					bTypeMatch = true;
-				}
 			}
 		}
 		else if(target.GetTargetType() ==  eType)
@@ -6040,7 +6033,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalT
 			if (!pPlot)
 				continue;
 
-			if (plotDistance(target.GetTargetX(), target.GetTargetY(),pUnit->getX(),pUnit->getY()) > iMaxTurns*2)
+			if (plotDistance(target.GetTargetX(), target.GetTargetY(),pUnit->getX(),pUnit->getY()) > iMaxTurns*3)
 				continue;
 
 			//can't do anything if we would need to embark
@@ -6059,37 +6052,22 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalT
 			if (pUnit->plot() == pPlot)
 				return pPlot;
 
-			//how long would it take to go to the target
-			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn();
-			ReachablePlots::iterator it = reachablePlots.find(pPlot->GetPlotIndex());
-			if (it == reachablePlots.end())
-			{
-				farawayCandidates.push_back(OptionWithScore<CvPlot*>(pPlot, plotDistance(*pPlot, *pUnit->plot())));
-				continue;
-			}
-
-			int iValue = target.GetAuxIntData() / max(1,it->iTurns);
-			if (iValue > iBestValue || (!GC.getGame().isGameMultiPlayer() && iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pPlot) == 0))
-			{
-				pBestMovePlot = pPlot;
-				iBestValue = iValue;
-			}
+			candidates.push_back(OptionWithScore<CvPlot*>(pPlot, plotDistance(*pPlot, *pUnit->plot())));
 		}
 	}
 
-	if (pBestMovePlot)
-		return pBestMovePlot;
-
 	//second round. default sort order is descending
-	std::sort(farawayCandidates.begin(), farawayCandidates.end());
-	if (!farawayCandidates.empty())
+	std::sort(candidates.begin(), candidates.end());
+	std::reverse(candidates.begin(), candidates.end());
+
+	for (size_t i=0; i<candidates.size(); i++)
 	{
-		CvPlot* pPlot = farawayCandidates.back().option;
+		CvPlot* pPlot = candidates[i].option;
 		if ( pUnit->TurnsToReachTarget(pPlot,0,iMaxTurns) < INT_MAX )
 			return pPlot;
 	}
 
-	return pBestMovePlot;
+	return NULL;
 }
 
 

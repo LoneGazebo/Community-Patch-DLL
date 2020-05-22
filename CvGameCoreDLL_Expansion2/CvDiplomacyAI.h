@@ -93,7 +93,7 @@ public:
 	TeamTypes GetTeam() const;
 
 	void DoInitializePersonality();
-	int GetRandomPersonalityWeight(int iOriginalValue) const;
+	int GetRandomPersonalityWeight(int iOriginalValue);
 	
 	void DoInitializeDiploPersonalityType();
 
