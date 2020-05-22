@@ -31358,16 +31358,11 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 		return 0;
 
 	iResistance /= 10;
-
 	iResistance *= GetCurrentEra();
 
-	int iHandicapCap = 50;
-	if (GET_PLAYER(ePlayer).isHuman())
-	{
-		iHandicapCap = GC.getGame().getHandicapInfo().getAIResistanceCap();
-	}
+	int iHandicapCap = std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
 
-	return min(iHandicapCap, iResistance);
+	return std::min(iHandicapCap, iResistance);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
