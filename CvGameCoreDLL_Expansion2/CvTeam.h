@@ -50,7 +50,7 @@ public:
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER);
+	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER, bool bIgnorePeaceTreaty = false);
 	void declareWar(TeamTypes eTeam, bool bDefensivePact = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 #else

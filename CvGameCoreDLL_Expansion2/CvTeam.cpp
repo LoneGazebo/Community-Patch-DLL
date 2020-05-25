@@ -1237,7 +1237,7 @@ void CvTeam::changeCorporationsEnabledCount(int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
+bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer, bool bIgnorePeaceTreaty /* = false */)
 {
 #else
 bool CvTeam::canDeclareWar(TeamTypes eTeam) const
@@ -1265,7 +1265,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 		return false;
 	}
 
-	if(isForcePeace(eTeam))
+	if(!bIgnorePeaceTreaty && isForcePeace(eTeam))
 	{
 		return false;
 	}
@@ -1275,10 +1275,6 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 		return false;
 	}
 
-	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
-	{
-		return false;
-	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
