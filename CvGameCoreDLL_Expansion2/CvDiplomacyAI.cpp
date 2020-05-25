@@ -7549,10 +7549,21 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			if (GetMajorCivOpinion(ePlayer) < MAJOR_CIV_OPINION_NEUTRAL)
 			{
 				int iDifficultyBonus = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase(); // ranges from 0 to 9
-				iDifficultyBonus = std::max(0, std::min(10, iDifficultyBonus)); // protect against a modder setting this too low/high
 
 				int iOpinionFactor = (int) GetMajorCivOpinion(ePlayer);
-				iDifficultyBonus -= (iOpinionFactor * 2); // Unforgivable: 0, Enemy: -2, Competitor: -4
+				iOpinionFactor *= 2; // Unforgivable: 0, Enemy: 2, Competitor: 4
+
+				// Protect against a modder setting this too low/high
+				if (iDifficultyBonus < 0)
+				{
+					iDifficultyBonus = 0;
+				}
+				else if (iDifficultyBonus > 10)
+				{
+					iDifficultyBonus = 10;
+				}
+
+				iDifficultyBonus -= iOpinionFactor;
 
 				if (iDifficultyBonus > 0)
 				{
@@ -7837,7 +7848,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	bool bCanAttackUs = false;
 	bool bWantsConquest = false;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (GET_TEAM(eTeam).canDeclareWar(eMyTeam, ePlayer, /*bIgnorePeaceTreaty*/ true) || GET_TEAM(eTeam).isAtWar(eMyTeam))
+	if (GET_TEAM(eTeam).canDeclareWar(eMyTeam, ePlayer) || GET_TEAM(eTeam).isAtWar(eMyTeam))
 #else
 	if (GET_TEAM(eTeam).canDeclareWar(eMyTeam) || GET_TEAM(eTeam).isAtWar(eMyTeam))
 #endif
