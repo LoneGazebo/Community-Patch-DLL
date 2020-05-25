@@ -2695,7 +2695,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				//no escort
 				if (pCivilian->plot() == pOperation->GetMusterPlot())
 					pOperation->CheckTransitionToNextStage();
-				else
+				else if (pCivilian->GetDanger(pOperation->GetMusterPlot())<INT_MAX)
 					//continue moving. if this should fail, we just freeze and wait for better times
 					ExecuteMoveToPlot(pCivilian,pOperation->GetMusterPlot());
 			}
