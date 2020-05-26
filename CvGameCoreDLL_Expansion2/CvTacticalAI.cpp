@@ -2695,7 +2695,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				//no escort
 				if (pCivilian->plot() == pOperation->GetMusterPlot())
 					pOperation->CheckTransitionToNextStage();
-				else
+				else if (pCivilian->GetDanger(pOperation->GetMusterPlot())<INT_MAX)
 					//continue moving. if this should fail, we just freeze and wait for better times
 					ExecuteMoveToPlot(pCivilian,pOperation->GetMusterPlot());
 			}
@@ -5747,7 +5747,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 	// combat units look at all offensive targets within x turns
 	if (pUnit->IsCanDefend())
 	{
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange);
 
 		// alternatively explore
 		if (pBestMovePlot == NULL)
@@ -5756,11 +5756,11 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 
 	// by default go back to camp
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 
 	// or maybe there is a barbarian city
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange/2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 
 	return pBestMovePlot;
 }
@@ -5771,7 +5771,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaTarget(CvUnit* pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = MAX_INT;
 
-	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange/3); //assume 3 moves per turn
+	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	ReachablePlots movePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
