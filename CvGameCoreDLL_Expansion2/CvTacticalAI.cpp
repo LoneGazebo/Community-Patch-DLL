@@ -879,8 +879,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... friendly improvement?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
-					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
-					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
+					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody())
 				{
 					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isBorderCity())
 					{
@@ -4231,7 +4230,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			continue;
 
 		//any cities we can reinforce?
-		CvPlot* pTarget = FindNearbyTarget(pUnit, 12, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+		CvPlot* pTarget = FindNearbyTarget(pUnit, 12, false);
 		if (!pTarget)
 			continue;
 
@@ -5747,20 +5746,16 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 	// combat units look at all offensive targets within x turns
 	if (pUnit->IsCanDefend())
 	{
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, true);
 
 		// alternatively explore
 		if (pBestMovePlot == NULL)
 			pBestMovePlot = FindBarbarianExploreTarget(pUnit);
 	}
 
-	// by default go back to camp
+	// by default go back to camp or so
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-
-	// or maybe there is a barbarian city
-	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, false);
 
 	return pBestMovePlot;
 }
@@ -5984,7 +5979,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 // Find a faraway target for a unit to wander towards
 // Can be either a specific type or any offensive type
 // Returns the closest matching target that is reachable for the unit
-CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType)
+CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffensive)
 {
 	if (pUnit == NULL)
 		return NULL;
@@ -5998,9 +5993,8 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalT
 
 		// Is the target of an appropriate type?
 		bool bTypeMatch = false;
-		if(eType == AI_TACTICAL_TARGET_NONE)
+		if(bOffensive)
 		{
-			//offensive targets
 			if (target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 				target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 				target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
@@ -6021,9 +6015,13 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalT
 				bTypeMatch = true;
 			}
 		}
-		else if(target.GetTargetType() ==  eType)
+		else //defensive targets
 		{
-			bTypeMatch = true;
+			if (target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
+				(pUnit->isBarbarian() && target.GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP))
+			{
+				bTypeMatch = true;
+			}
 		}
 
 		// Is this unit near enough?

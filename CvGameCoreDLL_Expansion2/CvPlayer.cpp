@@ -48143,12 +48143,18 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
+		//if we want offshore expansion, distance is less important
+		if (bWantOffshore && bOffshore)
+			iScale = max(50,min(100,iScale*2));
+
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
 		if (bNewContinent)
 		{
+			//there may already be other players here, also minors ... 
+			//but this is complex to check, so simply force a coastal plot to avoid isolated cities
 			if (!pPlot->isCoastalLand())
-				iScale = 1;
+				continue;
 		}
 		else
 		{
@@ -48162,6 +48168,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				int iRatio = (100 * iTheirDistance) / iOurDistance;
 				if (iRatio < 100 && iTheirDistance < 5)
 				{
+					iRatio = min(80, iRatio);
+
 					//square it, ie exaggerate the effect
 					iScale *= iRatio;
 					iScale /= 100;
@@ -48171,11 +48179,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			}
 		}
 
-		//if we want offshore expansion, distance is less important
-		if (bWantOffshore && bOffshore)
-			iScale = max(50,min(100,iScale*2));
-
-		//bonus if the plot is in a desirable (large) area
+		//bonus if the plot is in a desirable area with lots of free space
 		if (pPlot->getArea() == iBestArea)
 			iScale *= 4;
 		if (pPlot->getArea() == iSecondBestArea)
