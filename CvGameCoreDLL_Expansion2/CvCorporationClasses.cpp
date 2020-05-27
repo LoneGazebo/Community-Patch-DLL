@@ -1564,8 +1564,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 	RecalculateNumFranchises();
 }
 
-// Clear our Corporation from foriegn cities
-void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly)
+// Clear our Corporation from foreign cities
+void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /* = false */, bool bFromEmbargo /* = false */)
 {
 	if (!HasFoundedCorporation())
 		return;
@@ -1593,6 +1593,15 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly)
 
 		if (bMinorsOnly && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			continue;
+
+		// don't clear franchises between masters and vassals if it's from a World Congress embargo
+		if (bFromEmbargo)
+		{
+			if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			{
+				continue;
+			}
+		}
 
 		int iLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))

@@ -1622,7 +1622,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		CvAssertMsg(eTargetPlayer != NO_PLAYER, "Making an embargo on NO_PLAYER. Please send Anton your save file and version.");
 		// Refresh trade routes
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer);
-		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities();
+		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true);
 
 		CvCity* pLoopCity;
 		int iLoop;
@@ -11500,7 +11500,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer);
 			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer);
-			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ true);
+			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 			{
 				iScore += 30;
@@ -11513,7 +11513,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				iScore += 30;
 			}
-			else if (eOpinion < MAJOR_CIV_OPINION_ALLY)
+			else if (eOpinion == MAJOR_CIV_OPINION_ALLY)
 			{
 				iScore += -400;
 			}
