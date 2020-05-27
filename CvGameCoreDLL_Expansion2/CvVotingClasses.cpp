@@ -1621,7 +1621,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	{
 		CvAssertMsg(eTargetPlayer != NO_PLAYER, "Making an embargo on NO_PLAYER. Please send Anton your save file and version.");
 		// Refresh trade routes
-		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer);
+		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer, true);
 		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true);
 
 		CvCity* pLoopCity;

@@ -1228,7 +1228,7 @@ void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
 
 //	--------------------------------------------------------------------------------
 //  Reset all Civ to Civ trade routes involving ePlayer.  Trade routes involving city-states are not reset.
-void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
+void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo /* = false */)
 {
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
@@ -1250,6 +1250,14 @@ void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
 			}
 			else if (bMatchesOrigin || bMatchesDest)
 			{
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (MOD_DIPLOMACY_CIV4_FEATURES && bFromEmbargo)
+				{
+					// Master/vassal trade routes aren't cancelled by an embargo
+					if (GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()) || GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()))
+						continue;
+				}
+#endif
 				// if the destination was wiped, the origin gets a trade unit back
 				if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())
 				{
