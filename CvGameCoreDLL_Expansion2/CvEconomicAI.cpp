@@ -797,12 +797,6 @@ void CvEconomicAI::DoTurn()
 #else
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(m_pPlayer);
 #endif
-				else if(strStrategyName == "ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY")
@@ -3625,10 +3619,12 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			break;
 		}
 	}
+
 	if(!bCoastal && pPlayer->getNumCities()<5)
 	{
 		return true;
 	}
+
 	// Over 75% of territory on our landmass full? Time to look elsewhere.
 	if(pPlayer->getCapitalCity() != NULL)
 	{
@@ -3638,13 +3634,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		int iNumTiles = max(1,pArea->getNumTiles());
 
 		int iOwnageRatio = iNumOwnedTiles * 100 / iNumTiles;
-		if(iOwnageRatio >= GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
-		{
-			return false;
-		}
-		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
-		if(iBestArea == pArea->GetID())
+		if(iOwnageRatio < GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
 		{
 			return true;
 		}
@@ -3937,102 +3927,47 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		return false;
 
 	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
-	int iBestArea = -1;
-	int iSecondBestArea = -1;
-	bool bIsSafe = false;
-	int iNumAreas = pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
-	if(iNumAreas == 0)
-	{
-		return false;
-	}
-
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-		int iInitialSettlerArea = pLoopUnit->getArea();
-		int iFinalArea = -1;
-		bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-						
-		// CASE 1: we can go offshore
-		if (bCanEmbark)
-		{				
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, false, bIsSafe);
-
-			if(pBestSettle == NULL)
-			{
-				//second chance
-				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, false, bIsSafe);
-
-				//last chance - failsafe
-				if(pBestSettle == NULL)
-					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
-
-				if(pBestSettle == NULL)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("We have settlers, but no good areas to settle!");
-						pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-					return false;
-				}
-				else
-				{
-					iFinalArea = pBestSettle->getArea();
-				}
-			}
-			else
-			{
-				iFinalArea = iBestArea;
-			}
-
-			if(pBestSettle != NULL && iFinalArea != -1)
-			{
-				CvString msg = CvString::format("Best settle plot (with embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
-				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-
-				//conquistador!
-				if(pLoopUnit->IsCombatUnit()) 
-				{
-					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iFinalArea);
-					return true;
-				}
-				else
-				{
-					pPlayer->addAIOperation(bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
-					return true;
-				}
-			}
-		}
-		else // we can't embark yet
+		
+		//allow any area ...
+		bool bIsSafe = false;
+		CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
+		if(pBestSettle == NULL)
 		{
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, false, bIsSafe);
-			if(pBestSettle == NULL)
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("We have settlers, but no good areas to settle!");
-					pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-				return false;
-			}
-			else
-			{
-				if(pLoopUnit->IsCombatUnit())
-				{
-					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iInitialSettlerArea);
-				}
-				else
-				{
-					CvString msg = CvString::format("Best settle plot (no embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
-					pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+			CvString strLogString = CvString::format("No good plot to settle for unit %d!", pLoopUnit->GetID());
+			pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+			continue;
+		}
 
-					pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
-					return true;
-				}
-			}
+		CvString msg = CvString::format("Best settle plot for unit %d is %d,%d - value %d", pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
+		pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+
+		//could be a conquistador ...
+		AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
+		if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
+			return true;
+
+		CvString strLogString = CvString::format("Best settle plot is not reachable for unit %d!", pLoopUnit->GetID());
+		pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+
+		//ok, seems we cannot reach our preferred plot. do it the slow way ...
+		vector<int> vBestAreas = pPlayer->GetBestSettleAreas();
+		for (size_t i = 1; i < vBestAreas.size(); i++)
+		{
+			bool bIsSafe = false;
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
+			if (!pBestSettle)
+				continue;
+
+			CvString msg = CvString::format("Trying alternative settle plot for unit %d at %d,%d - value %d", pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
+			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+
+			//could be a conquistador ...
+			AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
+			if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
+				return true;
 		}
 	}
 
@@ -4443,6 +4378,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	{
 		return false;
 	}
+
 	int iLoopCity = 0;
 	bool bCoastal = false;
 	CvCity* pLoopCity = NULL;
@@ -4458,6 +4394,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	{
 		return false;
 	}
+
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
@@ -4503,8 +4440,11 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 		}
 	}
 
+	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+
 	//do this last, potentially expensive!
-	if (pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()) )
+	if(iFlavorGrowth<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()))
 	{
 		return true;
 	}
@@ -4512,84 +4452,6 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	return false;
 
 }
-
-
-/// Is there a lot more room on a known island other than our current landmass?
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-#else
-bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* pPlayer)
-#endif
-{
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
-	{
-		return false;
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	if(pPlayer->getCapitalCity() == NULL)
-	{
-		return false;
-	}
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-	if(!pPlayer->CanCrossOcean() || CannotMinorCiv(pPlayer, eStrategy))
-#else
-	if(!pPlayer->CanCrossOcean() || pPlayer->isMinorCiv())
-#endif
-	{
-		return false;
-	}
-	EconomicAIStrategyTypes eOffshoreExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
-#endif
-
-	// Only run this if we are running "ExpandToOtherContinents"
-	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-	{
-		if(!pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-		{
-			return false;
-		}
-	}
-
-	MilitaryAIStrategyTypes eStrategyLosingAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-	if(eStrategyLosingAtWar != NO_MILITARYAISTRATEGY)
-	{
-		if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyLosingAtWar))
-		{
-			return false;
-		}
-	}
-	// if we are at war probably shouldn't (unless the map is an offshore expansion map)
-	if(eOffshoreExpansion != NO_ECONOMICAISTRATEGY && !pPlayer->GetEconomicAI()->IsUsingStrategy(eOffshoreExpansion))
-	{
-		MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-		if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
-		{
-			if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
-			{
-				return false;
-			}
-		}
-	}
-
-	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-
-	if (iFlavorGrowth < iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->IsEmpireUnhappy())
-	{
-		// If the other area is clearly better
-		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
-		if ((iBestArea != pPlayer->getCapitalCity()->getArea() && iBestArea != -1))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 
 /// Are we mostly on the coast?
 bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)

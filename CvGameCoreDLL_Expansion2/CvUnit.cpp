@@ -28756,23 +28756,33 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 	if(!m_kLastPath.empty())
 	{
-		// if we should end our turn there this turn, but can't move into that tile
-		if(m_kLastPath.front().m_iMoves == 0 && !canMoveInto(*pPathPlot,iFlags|MOVEFLAG_DESTINATION))  
+		bool bCanEndTurnInNextPlot = canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION);
+
+		if (!bCanEndTurnInNextPlot)
 		{
-			// this is a bit tricky
-			// we want to see if this move would be a capture move
-			// Since we can't move into the tile, there may be an enemy unit there
-			// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
-			// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
-			const CvUnit* pDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-			if(!pDefender && !pPathPlot->isEnemyCity(*this) && canMoveInto(*pPathPlot, MOVEFLAG_ATTACK))
+			// if we should end our turn there this turn, but can't move into that tile
+			if (m_kLastPath.front().m_iMoves == 0)
 			{
-				// Turn on ability to move into enemy units in this case so we can capture civilians
-				iFlags |= MOVEFLAG_IGNORE_STACKING;
+				// this is a bit tricky
+				// we want to see if this move would be a capture move
+				// Since we can't move into the tile, there may be an enemy unit there
+				// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
+				// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
+				const CvUnit* pDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+				if (!pDefender && !pPathPlot->isEnemyCity(*this) && canMoveInto(*pPathPlot, MOVEFLAG_ATTACK))
+				{
+					// Turn on ability to move into enemy units in this case so we can capture civilians
+					iFlags |= MOVEFLAG_IGNORE_STACKING;
+				}
+				else
+					bRejectMove = true;
 			}
-			else
+
+			//failsafe for stacking with neutral
+			bool bCanEndTurnInCurrentPlot = canMoveInto(*plot(), iFlags | MOVEFLAG_DESTINATION);
+			if (!bCanEndTurnInCurrentPlot)
 				bRejectMove = true;
-			}
+		}
 
 		if(bRejectMove)
 		{

@@ -479,7 +479,7 @@ void CvHomelandAI::FindHomelandTargets()
 						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
 						if (iThreat > 0)
 							iWeight += iThreat;
-						}
+					}
 
 					if (iWeight > 0)
 					{
@@ -491,6 +491,20 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
+		}
+	}
+
+	//we also want to guard our workers!
+	int iUnitLoop = 0;
+	for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if (pLoopUnit->IsWork() && pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && !pLoopUnit->isEmbarked())
+		{
+			newTarget.SetTargetType(AI_HOMELAND_TARGET_WORKER);
+			newTarget.SetTargetX(pLoopUnit->getX());
+			newTarget.SetTargetY(pLoopUnit->getY());
+			newTarget.SetAuxIntData(123);
+			m_TargetedSentryPoints.push_back(newTarget);
 		}
 	}
 

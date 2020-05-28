@@ -47837,20 +47837,23 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
-	// Check if there are good plots to settle somewhere
-	int iFirstArea, iSecondArea;
-	if (iAreaID==-1)
-		return GetBestSettleAreas(iFirstArea, iSecondArea) > 0; 
-	else
-	{
-		GetBestSettleAreas(iFirstArea, iSecondArea);
-		return (iFirstArea == iAreaID || iSecondArea == iAreaID);
-	}
-}
+	UpdatePlotFoundValues();
 
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iCurrentValue = m_viPlotFoundValues[iI];
+		if (iCurrentValue > 0)
+		{
+			if (iAreaID == -1 || pPlot->getArea() == iAreaID)
+				return true;
+		}
+	}
+
+	return false;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// How long ago did this guy last settle a city?
@@ -47876,93 +47879,61 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Find best continents to settle next two cities; returns number found over minimum
-int CvPlayer::GetBestSettleAreas(int& iFirstArea, int& iSecondArea)
+vector<int> CvPlayer::GetBestSettleAreas()
 {
 	//lazy update
-	updatePlotFoundValues();
+	UpdatePlotFoundValues();
 
-	CvArea* pLoopArea;
-	int iLoop;
-	float fBestScore = 0;	//default score of each area is zero, so we have to be better
-	float fSecondBestScore = 0;
-	int iBestArea = -1;
-	int iSecondBestArea = -1;
-	int iNumFound = 0;
+	//find best city site for each area
+	map<int,CvPlot*> bestSitePerArea;
+	map<int,int> bestScorePerArea;
 
-	CvMap& theMap = GC.getMap();
+	//far away sites get a penalty
+	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
+	int iMaxSettleDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset;
 
-	// Find best two scores above minimum
-	for(pLoopArea = theMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = theMap.nextArea(&iLoop))
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		if(pLoopArea->isWater())
-			continue;
-
-		float fScore = (float)pLoopArea->getTotalFoundValue();
-		if (fScore <= 0)
-			continue;
-
-		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-		if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iCurrentValue = m_viPlotFoundValues[iI];
+		if (iCurrentValue > 0)
 		{
-			if (GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+			int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot);
+			int iDistanceScaler = max(20,MapToPercent( iCityDistance, iMaxSettleDistance, 0 ));
+			int iValue = (iCurrentValue*iDistanceScaler) / 100;
+
+			if (bestScorePerArea.find(pPlot->getArea()) == bestScorePerArea.end())
 			{
-				if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
-				{
-					fScore *= 2;
-				}
+				bestScorePerArea[pPlot->getArea()] = iValue;
+				bestSitePerArea[pPlot->getArea()] = pPlot;
 			}
-		}
-		EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-		if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-		{
-			if (GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents))
+			else if (iValue > bestScorePerArea[pPlot->getArea()])
 			{
-				if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
-				{
-					fScore *= 2;
-				}
+				bestScorePerArea[pPlot->getArea()] = iCityDistance;
+				bestSitePerArea[pPlot->getArea()] = pPlot;
 			}
-		}
 
-		int nEnemyCities = 0, nMyCities = 0;
-		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
-		{
-			if(iPlayer!=GetID())
-				nEnemyCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
-			else
-				nMyCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
-		}
-
-		//if we don't have any cities there but our potential enemies do, be careful
-		if (nEnemyCities>0 && nMyCities==0)
-			fScore *= 0.50f;
-
-		iNumFound++;
-		if(fScore > fBestScore)
-		{
-			// Already have a best area?  If so demote to 2nd
-			if(fBestScore > 0)
-			{
-				fSecondBestScore = fBestScore;
-				iSecondBestArea = iBestArea;
-			}
-			iBestArea = pLoopArea->GetID();
-			fBestScore = fScore;
-		}
-
-		else if(fScore > fSecondBestScore)
-		{
-			iSecondBestArea = pLoopArea->GetID();
-			fSecondBestScore = fScore;
 		}
 	}
 
-	// Return data
-	iFirstArea = iBestArea;
-	iSecondArea = iSecondBestArea;
+	vector<int> result;
+	vector<OptionWithScore<CvPlot*>> sites;
 
-	return iNumFound;
+	for (map<int, int>::iterator it = bestScorePerArea.begin(); it != bestScorePerArea.end(); ++it)
+		sites.push_back( OptionWithScore<CvPlot*>(bestSitePerArea[it->first],it->second) );
+
+	if (!sites.empty())
+	{
+		//sort descending!
+		std::sort(sites.begin(), sites.end());
+
+		//take the better half
+		for (size_t i = 0; i < sites.size(); i++)
+			if (sites[i].score > sites[0].score / 2)
+				result.push_back(sites[i].option->getArea());
+	}
+
+	return result;
 }
 
 //	--------------------------------------------------------------------------------
@@ -47992,14 +47963,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	PlayerTypes eOwner = pUnit ? pUnit->getOwner() : GetID();
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
-	int iBestArea, iSecondBestArea;
-	//call this the sneaky way cause it's not const
-	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestArea, iSecondBestArea);
-	if(iNumSettleAreas == 0)
-	{
-		return NULL;
-	}
-
 	//in case we're not getting the cached data, we need to prepare some things
 	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
 	if (bLogging)
@@ -48016,7 +47979,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	}
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
+	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. 
 	int iMaxSettleDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset; //plot value at max distance or greater is scaled to zero
@@ -48026,8 +47989,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) || GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
+	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
 	bool bCanEmbark = GET_TEAM(getTeam()).canEmbark() || GetPlayerTraits()->IsEmbarkedAllWater();
 
 	CvMap& kMap = GC.getMap();
@@ -48125,31 +48087,22 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			continue;
 		}
 
+		//important: take into account distance from existing cities!
+		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot);
+		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
+
 		//check for new continent
 		const CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
 		const CvCity* pCapital = getCapitalCity();
 
-		//ignore if not interesting
+		//if we want offshore expansion, manipulate the distance scaler
 		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
-		if (bWantOffshore && !bOffshore)
-			continue;
-
-		//take into account distance from existing cities
-		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
-
-		//however, if we ever have a settler very far away, don't wander around forever ...
-		if (pUnit && GetCityDistanceInEstimatedTurns(pUnit->plot()) * 2 > iMaxSettleDistance)
-			iRelevantDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-
-		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
-
-		//if we want offshore expansion, distance is less important
 		if (bWantOffshore && bOffshore)
-			iScale = max(50,min(100,iScale*2));
+			iScale = max(42, iScale);
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
-		if (bNewContinent)
+		if (bNewContinent && getNumCities()>0)
 		{
 			//there may already be other players here, also minors ... 
 			//but this is complex to check, so simply force a coastal plot to avoid isolated cities
@@ -48178,12 +48131,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				}
 			}
 		}
-
-		//bonus if the plot is in a desirable area with lots of free space
-		if (pPlot->getArea() == iBestArea)
-			iScale *= 4;
-		if (pPlot->getArea() == iSecondBestArea)
-			iScale *= 2;
 
 		if (iScale==0)
 		{
@@ -50715,18 +50662,13 @@ void CvPlayer::computeAveragePlotFoundValue()
 	OutputDebugString(CvString::format("Average city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), iAvg, m_iReferenceFoundValue.get()).c_str());
 }
 
-void CvPlayer::updatePlotFoundValues()
+void CvPlayer::UpdatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
 
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
 	m_viPlotFoundValues = std::vector<int>(GC.getMap().numPlots(), -1);
-
-	// Set all area fertilities to 0
-	int iLoop = 0;
-	for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-		pLoopArea->setTotalFoundValue(0);
 
 	//don't need to update if never going to settle
 	if (isBarbarian() || isMinorCiv())
@@ -50772,73 +50714,29 @@ void CvPlayer::updatePlotFoundValues()
 			continue;
 
 		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
-		int iValue = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots);
-		if (iValue > m_iReferenceFoundValue)
-			m_viPlotFoundValues[iI] = iValue;
+		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots) - m_iReferenceFoundValue;
 	}
 
-	std::map<int,int> minDistancePerArea;
-	std::map<int,int> countPerArea;
-
-	// second pass: non-maxima suppression and aggregation
+	// second pass: thresholding and non-maxima suppression
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue < m_iReferenceFoundValue)
+		if (iCurrentValue < 0)
 			continue;
 
-		for (int iCount = RING0_PLOTS; iCount<RING3_PLOTS; iCount++)
+		for (int iCount = RING0_PLOTS; iCount < RING2_PLOTS; iCount++)
 		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iCount);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot, iCount);
 			if (pLoopPlot == NULL)
 				continue;
 
 			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iCurrentValue)
 			{
 				//this is not a local maximum
-				pPlot = NULL;
+				m_viPlotFoundValues[iI] = 0;
 				break;
 			}
-		}
-
-		if (pPlot)
-		{
-			CvArea* pLoopArea = GC.getMap().getArea(pPlot->getArea());
-			if (pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
-			{
-				//one supercity counts more than two mediocre ones
-				int iAddValue = (int)pow((float)iCurrentValue-m_iReferenceFoundValue,1.5f);
-				int newValue = pLoopArea->getTotalFoundValue() + iAddValue;
-				pLoopArea->setTotalFoundValue(newValue);
-				
-				//track the distance from our existing cities
-				int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot);
-				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
-					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
-				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])
-					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
-
-				//track the number of cities we could found there
-				if (countPerArea.find(pLoopArea->GetID())==countPerArea.end())
-					countPerArea[pLoopArea->GetID()] = 1;
-				else
-					countPerArea[pLoopArea->GetID()]++;
-			}
-		}
-	}
-
-	//try to make it so that we settle close areas first and try to correct the bias towards large areas
-	for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-	{
-		if (pLoopArea->getTotalFoundValue()>0)
-		{
-			//take care with overflow here
-			float fDistScale = 0.5f + MapToPercent( minDistancePerArea[pLoopArea->GetID()],30,10 )/200.f;
-			float fCountScale = 1/sqrt( (float)countPerArea[pLoopArea->GetID()] );
-
-			pLoopArea->setTotalFoundValue( int(pLoopArea->getTotalFoundValue() * fDistScale) );
-			pLoopArea->setTotalFoundValue( int(pLoopArea->getTotalFoundValue() * fCountScale) );
 		}
 	}
 
@@ -50848,7 +50746,7 @@ void CvPlayer::updatePlotFoundValues()
 int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
 	//lazy update
-	updatePlotFoundValues();
+	UpdatePlotFoundValues();
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 

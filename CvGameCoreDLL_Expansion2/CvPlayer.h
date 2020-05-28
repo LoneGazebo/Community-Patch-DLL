@@ -2604,9 +2604,9 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	bool HaveGoodSettlePlot(int iAreaID);
+	vector<int> GetBestSettleAreas();
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -2840,7 +2840,7 @@ public:
 #endif
 
 	virtual void computeAveragePlotFoundValue();
-	virtual void updatePlotFoundValues();
+	virtual void UpdatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);

@@ -9990,7 +9990,7 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 //void AI_updateFoundValues(bool bStartingLoc);
 int CvLuaPlayer::lAI_updateFoundValues(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::updatePlotFoundValues);
+	return BasicLuaMethod(L, &CvPlayer::UpdatePlotFoundValues);
 }
 //------------------------------------------------------------------------------
 //int AI_foundValue(int iX, int iY, int iMinUnitRange/* = -1*/, bool bStartingLoc/* = false*/);
