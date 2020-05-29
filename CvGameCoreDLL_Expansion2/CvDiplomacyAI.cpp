@@ -1383,8 +1383,8 @@ void CvDiplomacyAI::Reset()
 		m_paeWarDamageLevel[iI] = NO_WAR_DAMAGE_LEVEL_VALUE;
 		m_paiWarValueLost[iI] = 0;
 
-		m_paeMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
-		m_paeLastTurnMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
+		m_paeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
+		m_paeLastTurnMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 		m_paeExpansionAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
 		m_paePlotBuyingAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
 
@@ -20873,39 +20873,32 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 {
 	// Loop through all (known) Players
 	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		DoUpdateOnePlayerMilitaryAggressivePosture(eLoopPlayer);
+		if (IsPlayerValid(eLoopPlayer))
+			DoUpdateOnePlayerMilitaryAggressivePosture(eLoopPlayer);
+		else
+			SetMilitaryAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
 	}
 }
 
 /// Updates how aggressively a player's military Units are positioned in relation to us
 void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (!IsPlayerValid(ePlayer))
-		return;
+	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function DoUpdateOnePlayerMilitaryAggressivePosture.");
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 
 	// We're allowing them Open Borders? We shouldn't care.
-	if (GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
 	}
 
 	// We're working together, so don't worry about it
-	if (IsDoFAccepted(ePlayer))
-	{
-		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-		return;
-	}
-	
-	// We have a Defensive Pact, so don't worry about it.
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
+	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
@@ -20917,15 +20910,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
 	}
-	
-	bool bIgnoreOtherWars = false;
-	
-	// For humans (Move Troops request) or if at war with them, ignore other wars the player may be waging
-	if (GetPlayer()->isHuman() || IsAtWar(ePlayer))
-		bIgnoreOtherWars = true;
 
 	AggressivePostureTypes eAggressivePosture;
-	AggressivePostureTypes eLastTurnAggressivePosture;
 
 	int iUnitValueOnMyHomeFront;
 	int iValueToAdd;
@@ -20938,9 +20924,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	PlayerTypes eLoopOtherPlayer;
 
 	// Keep a record of last turn
-	eLastTurnAggressivePosture = GetMilitaryAggressivePosture(ePlayer);
-	if(eLastTurnAggressivePosture != NO_AGGRESSIVE_POSTURE_TYPE)
-		SetLastTurnMilitaryAggressivePosture(ePlayer, eLastTurnAggressivePosture);
+	SetLastTurnMilitaryAggressivePosture(ePlayer, GetMilitaryAggressivePosture(ePlayer));
 
 	iUnitValueOnMyHomeFront = 0;
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -20950,69 +20934,77 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	TeamTypes eOurTeam = GetTeam();
 	PlayerTypes eOurPlayerID = GetPlayer()->GetID();
 
+	// For humans (Move Troops request) or if at war with them, ignore other wars the player may be waging
+	bool bIgnoreOtherWars = (GetPlayer()->isHuman() || IsAtWar(ePlayer));
+
 	// Loop through the other guy's units
-	for(pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
+	for (pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 	{
 		// Don't be scared of noncombat Units!
-		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
+		if (!pLoopUnit->IsCombatUnit() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
-			CvPlot* pUnitPlot = pLoopUnit->plot();
-			// Can we actually see this Unit's Plot?  No cheating!
-			if(pUnitPlot->isVisible(eOurTeam))
-			{
-				// On our home front
-				if(pUnitPlot->IsCloseToBorder(eOurPlayerID))
-				{
-					// At war with someone?  Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
-					if(bIsAtWarWithSomeone && !bIgnoreOtherWars)
-					{
-						// Loop through all players...
-						for(iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
-						{
-							eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+			continue;
+		}
 
-							// Don't look at us or see if this player is at war with himself
-							if(eLoopOtherPlayer != ePlayer && eLoopOtherPlayer != eOurPlayerID)
+		CvPlot* pUnitPlot = pLoopUnit->plot();
+		// Can we actually see this Unit?  No cheating!
+		if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false))
+		{
+			continue;
+		}
+
+		// Must be on our home front
+		if (!pUnitPlot->IsCloseToBorder(eOurPlayerID))
+		{
+			continue;
+		}
+
+		// At war with someone?  Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
+		if (bIsAtWarWithSomeone && !bIgnoreOtherWars)
+		{
+			// Loop through all players...
+			for (iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
+			{
+				eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+
+				// Don't look at us or see if this player is at war with himself
+				if (eLoopOtherPlayer != ePlayer && eLoopOtherPlayer != eOurPlayerID)
+				{
+					// At war with this player?
+					if (kTeam.isAtWar(GET_PLAYER(eLoopOtherPlayer).getTeam()))
+					{
+						if (GET_PLAYER(eLoopOtherPlayer).isAlive())
+						{
+							if (pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
 							{
-								// At war with this player?
-								if(kTeam.isAtWar(GET_PLAYER(eLoopOtherPlayer).getTeam()))
-								{
-									if(GET_PLAYER(eLoopOtherPlayer).isAlive())
-									{
-										if(pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
-										{
-											continue;
-										}
-									}
-								}
+								continue;
 							}
 						}
 					}
-
-					iValueToAdd = 10;
-
-					// If the Unit is in the other player's territory, halve its "aggression value," since he may just be defending himself
-					if(pLoopUnit->plot()->isOwned())
-					{
-						if(pLoopUnit->plot()->getOwner() == ePlayer)
-							iValueToAdd /= 2;
-					}
-
-					// Maybe look at Unit Power here instead?
-					iUnitValueOnMyHomeFront += iValueToAdd;
 				}
 			}
 		}
+
+		iValueToAdd = 10;
+
+		// If the Unit is in the other player's territory, halve its "aggression value," since he may just be defending himself
+		if (pUnitPlot->isOwned() && pUnitPlot->getOwner() == ePlayer)
+		{
+			iValueToAdd /= 2;
+		}
+
+		// Maybe look at Unit Power here instead?
+		iUnitValueOnMyHomeFront += iValueToAdd;
 	}
 
 	// So how threatening is he being?
-	if(iUnitValueOnMyHomeFront >= /*80*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE())
+	if (iUnitValueOnMyHomeFront >= /*80*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE())
 		eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
-	else if(iUnitValueOnMyHomeFront >= /*50*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH())
+	else if (iUnitValueOnMyHomeFront >= /*50*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH())
 		eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-	else if(iUnitValueOnMyHomeFront >= /*30*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM())
+	else if (iUnitValueOnMyHomeFront >= /*30*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM())
 		eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
-	else if(iUnitValueOnMyHomeFront >= /*10*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW())
+	else if (iUnitValueOnMyHomeFront >= /*10*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW())
 		eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
 	else
 		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
