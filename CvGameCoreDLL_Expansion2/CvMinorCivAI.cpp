@@ -6956,6 +6956,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if(!IsEverFriends(ePlayer))
 			return false;
 
+		// Otherwise it's too easy and the logic becomes to complex with lighthouses
+		if (pMinorsCapital->isCoastal())
+			return false;
+
 		// Cannot already have a route
 		if (GET_PLAYER(ePlayer).IsCapitalConnectedToPlayer(GetPlayer()->GetID()))
 			return false;

@@ -47898,7 +47898,8 @@ vector<int> CvPlayer::GetBestSettleAreas()
 		int iCurrentValue = m_viPlotFoundValues[iI];
 		if (iCurrentValue > 0)
 		{
-			int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot);
+			//same scaling as in GetBestSettlePlot!
+			int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
 			int iDistanceScaler = max(20,MapToPercent( iCityDistance, iMaxSettleDistance, 0 ));
 			int iValue = (iCurrentValue*iDistanceScaler) / 100;
 
@@ -48088,7 +48089,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		}
 
 		//important: take into account distance from existing cities!
-		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot);
+		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//check for new continent
@@ -48107,29 +48108,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			//there may already be other players here, also minors ... 
 			//but this is complex to check, so simply force a coastal plot to avoid isolated cities
 			if (!pPlot->isCoastalLand())
-				continue;
-		}
-		else
-		{
-			//on a settled continent we want our territory to be contiguous, unless there is lots of free space
-			CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
-			if (pClosestCity && pClosestCity->getOwner() != GetID())
-			{
-				//todo: there is already distance check in PlotFoundValue() ...
-				int iTheirDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot, true);
-				int iOurDistance = GetCityDistanceInEstimatedTurns(pPlot);
-				int iRatio = (100 * iTheirDistance) / iOurDistance;
-				if (iRatio < 100 && iTheirDistance < 5)
-				{
-					iRatio = min(80, iRatio);
-
-					//square it, ie exaggerate the effect
-					iScale *= iRatio;
-					iScale /= 100;
-					iScale *= iRatio;
-					iScale /= 100;
-				}
-			}
+				iScale = 0;
 		}
 
 		if (iScale==0)

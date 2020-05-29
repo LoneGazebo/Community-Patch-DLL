@@ -3927,51 +3927,41 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		return false;
 
 	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
+	vector<int> vBestAreas = pPlayer->GetBestSettleAreas();
+	bool bStartedOp = false;
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-		
-		//allow any area ...
-		bool bIsSafe = false;
-		CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
-		if(pBestSettle == NULL)
-		{
-			CvString strLogString = CvString::format("No good plot to settle for unit %d!", pLoopUnit->GetID());
-			pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-			continue;
-		}
 
-		CvString msg = CvString::format("Best settle plot for unit %d is %d,%d - value %d", pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
-		pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+		//try the available areas one after another
+		vector<int> vSearchAreas;
+		vSearchAreas.push_back(-1); //global search first
+		vSearchAreas.insert(vSearchAreas.end(), vBestAreas.begin(), vBestAreas.end());
 
-		//could be a conquistador ...
-		AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
-		if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
-			return true;
-
-		CvString strLogString = CvString::format("Best settle plot is not reachable for unit %d!", pLoopUnit->GetID());
-		pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-
-		//ok, seems we cannot reach our preferred plot. do it the slow way ...
-		vector<int> vBestAreas = pPlayer->GetBestSettleAreas();
-		for (size_t i = 1; i < vBestAreas.size(); i++)
+		for (size_t i = 0; i < vSearchAreas.size(); i++)
 		{
 			bool bIsSafe = false;
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], false, bIsSafe);
 			if (!pBestSettle)
 				continue;
 
-			CvString msg = CvString::format("Trying alternative settle plot for unit %d at %d,%d - value %d", pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
+			CvString msg = CvString::format("Trying settle plot for unit %d at %d,%d - area %d, value %d", 
+				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), pBestSettle->getFoundValue(pPlayer->GetID()));
 			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
 			//could be a conquistador ...
 			AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
 			if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
-				return true;
+			{
+				//may fail if there is no path ...
+				pPlayer->GetHomelandAI()->LogHomelandMessage("Success!");
+				bStartedOp = true;
+				break;
+			}
 		}
 	}
 
-	return false;
+	return bStartedOp;
 }
 
 
