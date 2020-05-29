@@ -20880,7 +20880,10 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 		if (IsPlayerValid(eLoopPlayer))
 			DoUpdateOnePlayerMilitaryAggressivePosture(eLoopPlayer);
 		else
+		{
 			SetMilitaryAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
+			SetLastTurnMilitaryAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
+		}
 	}
 }
 
@@ -20890,8 +20893,15 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function DoUpdateOnePlayerMilitaryAggressivePosture.");
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	// Keep a record of last turn
+	SetLastTurnMilitaryAggressivePosture(ePlayer, GetMilitaryAggressivePosture(ePlayer));
+
 	// We're allowing them Open Borders? We shouldn't care.
-	if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(eTeam))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
@@ -20922,13 +20932,9 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 
 	int iOtherPlayerLoop;
 	PlayerTypes eLoopOtherPlayer;
-
-	// Keep a record of last turn
-	SetLastTurnMilitaryAggressivePosture(ePlayer, GetMilitaryAggressivePosture(ePlayer));
+	TeamTypes eLoopOtherTeam;
 
 	iUnitValueOnMyHomeFront = 0;
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
 
 	TeamTypes eOurTeam = GetTeam();
@@ -20953,7 +20959,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 			continue;
 		}
 
-		// Must be on our home front
+		// Must be close to us
 		if (!pUnitPlot->IsCloseToBorder(eOurPlayerID))
 		{
 			continue;
@@ -20966,20 +20972,15 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 			for (iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
 			{
 				eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+				eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
 
-				// Don't look at us or see if this player is at war with himself
-				if (eLoopOtherPlayer != ePlayer && eLoopOtherPlayer != eOurPlayerID)
+				// At war with this player?
+				if (IsPlayerValid(eLoopOtherPlayer) && eLoopOtherTeam != eTeam && kTeam.isAtWar(eLoopOtherTeam))
 				{
-					// At war with this player?
-					if (kTeam.isAtWar(GET_PLAYER(eLoopOtherPlayer).getTeam()))
+					// Is the unit close to the other player?
+					if (pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
 					{
-						if (GET_PLAYER(eLoopOtherPlayer).isAlive())
-						{
-							if (pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
-							{
-								continue;
-							}
-						}
+						continue;
 					}
 				}
 			}
@@ -20988,7 +20989,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		iValueToAdd = 10;
 
 		// If the Unit is in the other player's territory, halve its "aggression value," since he may just be defending himself
-		if (pUnitPlot->isOwned() && pUnitPlot->getOwner() == ePlayer)
+		if (pUnitPlot->getOwner() == ePlayer)
 		{
 			iValueToAdd /= 2;
 		}
