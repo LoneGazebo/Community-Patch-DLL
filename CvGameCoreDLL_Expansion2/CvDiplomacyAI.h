@@ -88,14 +88,56 @@ public:
 
 	void update();
 
+	// ************************************
+	// Pointers
+	// ************************************
+
 	CvPlayer* GetPlayer();
 	const CvPlayer* GetPlayer() const;
 	TeamTypes GetTeam() const;
 
-	void DoInitializePersonality();
+	// ************************************
+	// Helper Functions
+	// ************************************
+
+	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
+	bool IsAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsTeammate(PlayerTypes eOtherPlayer) const;
+	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
+	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+
+	// ************************************
+	// Personality Values
+	// ************************************
+
 	int GetRandomPersonalityWeight(int iOriginalValue);
-	
+	void DoInitializePersonality();
 	void DoInitializeDiploPersonalityType();
+
+	int GetVictoryCompetitiveness() const;
+	int GetWonderCompetitiveness() const;
+	int GetMinorCivCompetitiveness() const;
+	int GetBoldness() const;
+	int GetDiploBalance() const;
+	int GetWarmongerHate() const;
+	int GetDenounceWillingness() const;
+	int GetDoFWillingness() const;
+	int GetLoyalty() const;
+	int GetNeediness() const;
+	int GetForgiveness() const;
+	int GetChattiness() const;
+	int GetMeanness() const;
+
+	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
+	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
+
+	DiploPersonalityTypes GetDiploPersonalityType() const;
+	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -136,7 +178,7 @@ public:
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
-	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateAlwaysWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
 	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
@@ -609,34 +651,6 @@ public:
 	// Purely visual stuff
 	bool IsShowBaseOpinionScore() const;
 	bool IsHideNeutralOpinionValues() const;
-
-	/////////////////////////////////////////////////////////
-	// Personality Members
-	/////////////////////////////////////////////////////////
-
-	int GetVictoryCompetitiveness() const;
-	int GetWonderCompetitiveness() const;
-	int GetMinorCivCompetitiveness() const;
-	int GetBoldness() const;
-	int GetDiploBalance() const;
-	int GetWarmongerHate() const;
-	int GetDenounceWillingness() const;
-	int GetDoFWillingness() const;
-	int GetLoyalty() const;
-	int GetNeediness() const;
-	int GetForgiveness() const;
-	int GetChattiness() const;
-	int GetMeanness() const;
-
-	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
-	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
-
-	DiploPersonalityTypes GetDiploPersonalityType() const;
-	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
-	bool IsConqueror() const;
-	bool IsDiplomat() const;
-	bool IsCultural() const;
-	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -1566,7 +1580,6 @@ public:
 	bool IsCloseToDiploVictory() const;
 #endif
 
-	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
 	bool HasMetValidMinorCiv() const;
 
 	// Messages sent to other players about protected Minor Civs
@@ -1625,11 +1638,6 @@ public:
 
 private:
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
-
-	bool IsAtWar(PlayerTypes eOtherPlayer) const;
-	bool IsTeammate(PlayerTypes eOtherPlayer) const;
-	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
-	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
 
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 

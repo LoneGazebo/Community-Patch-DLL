@@ -1406,19 +1406,19 @@ void CvDiplomacyAI::Reset()
 	m_eCSBullyTarget = NO_PLAYER;
 	m_bDemandReady = false;
 
-	m_iVictoryCompetitiveness = -1;
-	m_iWonderCompetitiveness = -1;
-	m_iMinorCivCompetitiveness = -1;
-	m_iBoldness = -1;
-	m_iDiploBalance = -1;
-	m_iWarmongerHate = -1;
-	m_iDenounceWillingness = -1;
-	m_iDoFWillingness = -1;
-	m_iLoyalty = -1;
-	m_iNeediness = -1;
-	m_iForgiveness = -1;
-	m_iChattiness = -1;
-	m_iMeanness = -1;
+	m_iVictoryCompetitiveness = 0;
+	m_iWonderCompetitiveness = 0;
+	m_iMinorCivCompetitiveness = 0;
+	m_iBoldness = 0;
+	m_iDiploBalance = 0;
+	m_iWarmongerHate = 0;
+	m_iDenounceWillingness = 0;
+	m_iDoFWillingness = 0;
+	m_iLoyalty = 0;
+	m_iNeediness = 0;
+	m_iForgiveness = 0;
+	m_iChattiness = 0;
+	m_iMeanness = 0;
 
 	for(iI = 0; iI < NUM_MAJOR_CIV_APPROACHES; iI++)
 	{
@@ -2501,7 +2501,16 @@ void CvDiplomacyAI::update()
 	}
 #endif
 }
+
 //	-----------------------------------------------------------------------------------------------
+//	-----------------------------------------------------------------------------------------------
+//	-----------------------------------------------------------------------------------------------
+
+// ************************************
+// Pointers
+// ************************************
+
+
 /// Returns the Player object this class is associated with
 CvPlayer* CvDiplomacyAI::GetPlayer()
 {
@@ -2516,6 +2525,100 @@ TeamTypes CvDiplomacyAI::GetTeam() const
 {
 	return m_pPlayer->getTeam();
 }
+
+
+// ************************************
+// Helper Functions
+// ************************************
+
+
+/// Helper function: is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
+bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
+{
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// Alive?
+	if(!GET_PLAYER(eOtherPlayer).isAlive())
+	{
+		return false;
+	}
+
+	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
+	if(GET_PLAYER(eOtherPlayer).getNumCities() == 0 || eOtherPlayer == BARBARIAN_PLAYER)
+	{
+		return false;
+	}
+
+	// A player we've met?
+	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+	{
+		return false;
+	}
+
+	// Teammate?
+	if(!bMyTeamIsValid)
+	{
+		if (GetPlayer()->GetDiplomacyAI()->IsTeammate(eOtherPlayer))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//	-----------------------------------------------------------------------------------------------
+
+/// Helper function to determine if we're at war with a player
+bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAtWar.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+
+	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
+}
+
+/// Helper function to determine if we're always at war with a player
+bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAtWar.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+
+	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam()) return false;
+	if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam())) return true;
+	if (!GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam())) return false;
+
+	return (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer)));
+}
+
+/// Helper function to determine if a player is a teammate
+bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsTeammate.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS || eOtherPlayer == GetPlayer()->GetID()) return false;
+
+	return (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam());
+}
+
+/// Helper function to determine if a player's team has a Defensive Pact with our team
+bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasDefensivePact.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+	return (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
+}
+
+/// Helper function to determine if a player's team has a Research Agreement with our team
+bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasResearchAgreement.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+	return (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam()));
+}
+
 
 // ************************************
 // Personality Values
@@ -2679,28 +2782,28 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))));
 	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"))));
-	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
+	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
 
 	// Weight for diplomacy
 	iDiplomatWeight += GetDoFWillingness();
 	iDiplomatWeight += GetLoyalty();
 	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))));
 	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"))));
-	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() + GetLoyalty() + ID);
+	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() * GetLoyalty() + ID);
 
 	// Weight for culture
 	iCulturalWeight += GetWonderCompetitiveness();
 	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
 	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"))));
 	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
-	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
+	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
 
 	// Weight for science
 	iScientistWeight += GetDiploBalance();
 	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
 	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"))));
 	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"))));
-	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() + GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
+	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
 
 #if defined(MOD_BALANCE_CORE)
 	// Add weight for leader traits
@@ -3083,28 +3186,17 @@ void CvDiplomacyAI::DoCounters()
 
 	// Loop through all (known) Players
 	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer))
 		{
-			bool bAtWar = GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam());
-			bool bPermaWar = false;
-			bool bMultiplayer = false;
-			
-			if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
-				bMultiplayer = true;
-			
-			if (bAtWar)
-			{
-				if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
-					bPermaWar = true;
-			}
+			bool bAtWar = IsAtWar(eLoopPlayer);
 			
 			// War Counter
 #if defined(MOD_BALANCE_CORE)
-			if(bAtWar)
+			if (bAtWar)
 			{
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
 				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
@@ -3116,17 +3208,12 @@ void CvDiplomacyAI::DoCounters()
 				SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
 				ChangePlayerNumTurnsAtPeace(eLoopPlayer, 1);
 			}
-#else
-			if(bAtWar)
-				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
-			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
-				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
 #endif
 
 			///////////////////////////////
 			// Major Civs only!
 			///////////////////////////////
-			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				// Trade value counter
 				ChangeRecentTradeValue(eLoopPlayer, /*-2*/ -GC.getDEAL_VALUE_PER_TURN_DECAY());
@@ -4165,7 +4252,6 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 {
 	std::vector<PlayerTypes> vPlayersToUpdate;
 	std::map<PlayerTypes, MajorCivApproachTypes> oldApproaches;
-	bool bPermaWar = (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE));
 	bool bHuman = GetPlayer()->isHuman();
 	bool bNoCities = GetPlayer()->getCapitalCity() == NULL;
 
@@ -4187,9 +4273,9 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
-			else if (bPermaWar && IsAtWar(eLoopPlayer))
+			else if (IsAlwaysAtWar(eLoopPlayer))
 			{
-				DoUpdatePermaWarApproachTowardsMajorCiv(eLoopPlayer);
+				DoUpdateAlwaysWarApproachTowardsMajorCiv(eLoopPlayer);
 				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
 				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
@@ -8571,7 +8657,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer)
 }
 
 /// Updates our Diplomatic Approach towards a Major Civ that we're at permanent war with
-void CvDiplomacyAI::DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer)
+void CvDiplomacyAI::DoUpdateAlwaysWarApproachTowardsMajorCiv(PlayerTypes ePlayer)
 {
 	// Permanent war means ONLY WAR!
 	MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_WAR;
@@ -43733,42 +43819,6 @@ bool CvDiplomacyAI::IsCloseToDiploVictory() const
 }
 #endif
 
-/// Helper function: is this a valid player to be looking at? (e.g. are they alive, do we know them, etc.)
-bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
-{
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	// Alive?
-	if(!GET_PLAYER(eOtherPlayer).isAlive())
-	{
-		return false;
-	}
-
-	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
-	if(GET_PLAYER(eOtherPlayer).getNumCities() == 0 || eOtherPlayer == BARBARIAN_PLAYER)
-	{
-		return false;
-	}
-
-	// A player we've met?
-	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
-	{
-		return false;
-	}
-
-	// Teammate?
-	if(!bMyTeamIsValid)
-	{
-		if (GetPlayer()->GetDiplomacyAI()->IsTeammate(eOtherPlayer))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 /// Are there any valid minor civs that this player has met?
 bool CvDiplomacyAI::HasMetValidMinorCiv() const
 {
@@ -44804,52 +44854,9 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	SetOtherPlayerWarmongerAmountTimes100(eKilledPlayer, 0);
 }
 
-// ************************************
-// PRIVATE
-// ************************************
-
-
-
-/// Helper function to determine if we're at war with a player
-bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAtWar.");
-
-	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
-}
-
-/// Helper function to determine if a player is a teammate
-bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsTeammate.");
-	
-	if (eOtherPlayer == GetPlayer()->GetID())
-	{
-		return false;
-	}
-
-	return (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam());
-}
-
-/// Helper function to determine if a player's team has a Defensive Pact with our team
-bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasDefensivePact.");
-
-	return (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
-}
-
-/// Helper function to determine if a player's team has a Research Agreement with our team
-bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasResearchAgreement.");
-
-	return (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam()));
-}
-
 
 // ************************************
-// LOGGING
+// LOGGING (PRIVATE FUNCTIONS)
 // ************************************
 
 
