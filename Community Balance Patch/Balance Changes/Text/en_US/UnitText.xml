@@ -638,7 +638,7 @@
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_RANGE_STRENGTH] Ranged Combat Strength per [COLOR_NEGATIVE_TEXT] Adjacent Friendly Unit[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength if adjacent to a [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
