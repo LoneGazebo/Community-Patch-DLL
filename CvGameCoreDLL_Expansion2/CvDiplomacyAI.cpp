@@ -2587,9 +2587,9 @@ bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
 
 	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam()) return false;
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam())) return true;
-	if (!GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam())) return false;
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR)) return true;
 
-	return (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer)));
+	return (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer));
 }
 
 /// Helper function to determine if a player is a teammate
