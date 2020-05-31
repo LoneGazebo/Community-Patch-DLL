@@ -3297,7 +3297,7 @@ bool CvUnit::isActionRecommended(int iAction)
 	{
 		if(canFound(pPlot))
 		{
-			if(pPlot->isBestAdjacentFound(getOwner()))
+			if(pPlot->isBestAdjacentFoundValue(getOwner()))
 			{
 				return true;
 			}

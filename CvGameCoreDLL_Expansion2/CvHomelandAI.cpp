@@ -462,32 +462,29 @@ void CvHomelandAI::FindHomelandTargets()
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
-					int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
-					if (iDistance > 3)
-						continue;
-
-					int iWeight = iDistance;
-					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-						iWeight += 23;
-
-					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(),true))
-						iWeight += 42;
-
-					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
+					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(m_pPlayer->getTeam(), DOMAIN_SEA, true);
+					if (iSuspiciousNeighbors > 0)
 					{
-						//More cities = more threat.
-						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
-						if (iThreat > 0)
-							iWeight += iThreat;
-					}
+						int iWeight = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot) + iSuspiciousNeighbors*2;
+						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							iWeight += 23;
 
-					if (iWeight > 0)
-					{
-						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
-						newTarget.SetTargetX(pLoopPlot->getX());
-						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxIntData(iWeight);
-						m_TargetedNavalSentryPoints.push_back(newTarget);
+						if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
+						{
+							//More cities = more threat.
+							int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
+							if (iThreat > 0)
+								iWeight += iThreat;
+						}
+
+						if (iWeight > 0)
+						{
+							newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
+							newTarget.SetTargetX(pLoopPlot->getX());
+							newTarget.SetTargetY(pLoopPlot->getY());
+							newTarget.SetAuxIntData(iWeight);
+							m_TargetedNavalSentryPoints.push_back(newTarget);
+						}
 					}
 				}
 			}
@@ -498,7 +495,12 @@ void CvHomelandAI::FindHomelandTargets()
 	int iUnitLoop = 0;
 	for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (pLoopUnit->IsWork() && pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && !pLoopUnit->isEmbarked())
+		//a bit redundant, but let's play it safe
+		if (pLoopUnit->IsWork() && 
+			pLoopUnit->getDomainType() == DOMAIN_LAND && 
+			pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && 
+			pLoopUnit->isNativeDomain(pLoopUnit->plot()) &&
+			pLoopUnit->plot()->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(),true))
 		{
 			newTarget.SetTargetType(AI_HOMELAND_TARGET_WORKER);
 			newTarget.SetTargetX(pLoopUnit->getX());
@@ -5604,8 +5606,10 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 	// Loop through all points in copy
 	for(std::vector<CvHomelandTarget>::iterator it = tempPoints.begin(); it != tempPoints.end(); ++it)
 	{
-		//always take forts
-		if(it->GetTargetType() == AI_HOMELAND_TARGET_FORT)
+		CvPlot* pPlot = GC.getMap().plotUnchecked(it->GetTargetX(), it->GetTargetY());
+
+		//always use fortifications and shadow potential enemies
+		if(it->GetTargetType() == AI_HOMELAND_TARGET_FORT || pPlot->isNeutralUnitAdjacent(m_pPlayer->GetID(),true,true,true))
 		{
 			m_TargetedSentryPoints.push_back(*it);
 		}
@@ -5642,22 +5646,31 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 	m_TargetedNavalSentryPoints.clear();
 
 	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
+	for(std::vector<CvHomelandTarget>::iterator it = tempPoints.begin(); it != tempPoints.end(); ++it)
 	{
-		bool bFoundAdjacent = false;
-		// Is it adjacent to a point in the main list?
-		for(it2 = m_TargetedNavalSentryPoints.begin(); it2 != m_TargetedNavalSentryPoints.end(); ++it2)
-		{
-			if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
-			{
-				bFoundAdjacent = true;
-				break;
-			}
-		}
-		if(!bFoundAdjacent)
+		CvPlot* pPlot = GC.getMap().plotUnchecked(it->GetTargetX(), it->GetTargetY());
+
+		//always guard improvements and shadow potential enemies
+		if (pPlot->getImprovementType() != NO_IMPROVEMENT|| pPlot->isNeutralUnitAdjacent(m_pPlayer->GetID(), true, true, true))
 		{
 			m_TargetedNavalSentryPoints.push_back(*it);
+		}
+		else
+		{
+			bool bFoundAdjacent = false;
+			// Is it adjacent to a point in the main list?
+			for (std::vector<CvHomelandTarget>::iterator it2 = m_TargetedNavalSentryPoints.begin(); it2 != m_TargetedNavalSentryPoints.end(); ++it2)
+			{
+				if (plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
+				{
+					bFoundAdjacent = true;
+					break;
+				}
+			}
+			if (!bFoundAdjacent)
+			{
+				m_TargetedNavalSentryPoints.push_back(*it);
+			}
 		}
 	}
 }
@@ -5706,8 +5719,8 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				}
 				break;
 			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
-				// No ranged units as sentries
-				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && (pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA) || pLoopUnit->isUnitAI(UNITAI_ASSAULT_SEA)))
+				// No ranged units as sentries (that would be assault_sea)
+				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
 				{
 					bSuitableUnit = true;
 				}

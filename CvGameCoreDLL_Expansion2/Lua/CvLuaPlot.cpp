@@ -1764,7 +1764,7 @@ int CvLuaPlot::lGetFoundValue(lua_State* L)
 //bool isBestAdjacentFound(PlayerTypes eIndex);
 int CvLuaPlot::lIsBestAdjacentFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::isBestAdjacentFound);
+	return BasicLuaMethod(L, &CvPlot::isBestAdjacentFoundValue);
 }
 //------------------------------------------------------------------------------
 //int getPlayerCityRadiusCount(PlayerTypes eIndex);

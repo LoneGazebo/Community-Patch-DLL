@@ -3672,22 +3672,22 @@ CvCity* CvPlot::GetAdjacentCity() const
 
 //	--------------------------------------------------------------------------------
 /// Number of adjacent tiles owned by another team (or unowned)
-int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const
+int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bool bCountUnowned) const
 {
 	int iRtnValue = 0;
 
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GetPlotIndex());
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
 		if(pAdjacentPlot != NULL)
 		{
-			if(bIgnoreWater && pAdjacentPlot->isWater())
+			if(eDomain!=NO_DOMAIN && pAdjacentPlot->getDomain()!=eDomain)
 			{
 				continue;
 			}
 
-			if(pAdjacentPlot->getTeam() != eTeam)
+			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()))
 			{
 				iRtnValue++;
 			}
@@ -4826,6 +4826,20 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 			}
 		}
 		while(pUnitNode != NULL);
+	}
+
+	return false;
+}
+
+bool CvPlot::isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if (pAdjacentPlot != NULL)
+			if (pAdjacentPlot->isNeutralUnit(ePlayer, bCombat, bCheckVisibility, bIgnoreMinors))
+				return true;
 	}
 
 	return false;
@@ -10903,7 +10917,7 @@ int CvPlot::getFoundValue(PlayerTypes eIndex)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
+bool CvPlot::isBestAdjacentFoundValue(PlayerTypes eIndex)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
 	int iPlotValue = getFoundValue(eIndex);
