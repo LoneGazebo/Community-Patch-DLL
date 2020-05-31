@@ -21319,11 +21319,11 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 	int iThirdPlayerLoop;
 
 	PlayerTypes ePeacePlayer;
-	for(int iPeacePlayerLoop = 0; iPeacePlayerLoop < MAX_CIV_PLAYERS; iPeacePlayerLoop++)
+	for (int iPeacePlayerLoop = 0; iPeacePlayerLoop < MAX_CIV_PLAYERS; iPeacePlayerLoop++)
 	{
 		ePeacePlayer = (PlayerTypes) iPeacePlayerLoop;
 
-		if(GET_PLAYER(ePeacePlayer).getTeam() == eOtherTeam)
+		if (GET_PLAYER(ePeacePlayer).getTeam() == eOtherTeam)
 		{
 			// In case we had an ongoing operation, kill it
 			SetArmyInPlaceForAttack(ePeacePlayer, false);
@@ -21331,19 +21331,15 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 			SetWantsSneakAttack(ePeacePlayer, false);
 #endif
 
-			if(!GET_PLAYER(ePeacePlayer).isMinorCiv())
+			if (!GET_PLAYER(ePeacePlayer).isMinorCiv())
 			{
 				// If we made peace, reset coop war and working against status
-				for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++)
+				for (iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++)
 				{
 					eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
 
 					SetCoopWarAcceptedState(eThirdPlayer, ePeacePlayer, NO_COOP_WAR_STATE);
 				}
-
-				// If we made peace with someone, set our Approach with them to Neutral to bias against another war
-				if(GetMajorCivApproach(ePeacePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
-					SetMajorCivApproach(ePeacePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 			}
 			else
 			{
