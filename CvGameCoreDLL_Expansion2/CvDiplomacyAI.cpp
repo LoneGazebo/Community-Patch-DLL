@@ -6576,7 +6576,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 			// Is this a player we have relations with?
-			if (IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+			if (IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer))
 				{
