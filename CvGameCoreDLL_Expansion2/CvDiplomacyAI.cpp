@@ -7634,7 +7634,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			// If we don't view them favorably, increase hostility based on game difficulty
 			if (GetMajorCivOpinion(ePlayer) < MAJOR_CIV_OPINION_NEUTRAL)
 			{
-				int iDifficultyBonus = max(10, min(0, GC.getGame().getHandicapInfo().getAIDifficultyBonusBase())); // normally ranges from 0 to 9
+				int iDifficultyBonus = min(10, max(0, GC.getGame().getHandicapInfo().getAIDifficultyBonusBase())); // normally ranges from 0 to 9
 				iDifficultyBonus -= ((int) GetMajorCivOpinion(ePlayer) * 2); // Unforgivable: -0, Enemy: -2, Competitor: -4
 
 				if (iDifficultyBonus > 0)
