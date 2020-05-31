@@ -9881,8 +9881,15 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		}
 	}
 
+	// Always at war? Only Ignore and Conquest are viable approaches.
+	if (IsAlwaysAtWar(ePlayer))
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] = 0;
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] = 0;
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
+	}
 	// bully viability?
-	if (viApproachWeights[MINOR_CIV_APPROACH_BULLY] > 0)
+	else if (viApproachWeights[MINOR_CIV_APPROACH_BULLY] > 0)
 	{
 		int iBullyScore = 0;
 		if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
