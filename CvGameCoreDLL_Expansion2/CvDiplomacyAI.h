@@ -2283,19 +2283,19 @@ private:
 
 	// Personality Members
 
-	int m_iVictoryCompetitiveness;
-	int m_iWonderCompetitiveness;
-	int m_iMinorCivCompetitiveness;
-	int m_iBoldness;
-	int m_iDiploBalance;
-	int m_iWarmongerHate;
-	int m_iDenounceWillingness;
-	int m_iDoFWillingness;
-	int m_iLoyalty;
-	int m_iNeediness;
-	int m_iForgiveness;
-	int m_iChattiness;
-	int m_iMeanness;
+	char m_iVictoryCompetitiveness;
+	char m_iWonderCompetitiveness;
+	char m_iMinorCivCompetitiveness;
+	char m_iBoldness;
+	char m_iDiploBalance;
+	char m_iWarmongerHate;
+	char m_iDenounceWillingness;
+	char m_iDoFWillingness;
+	char m_iLoyalty;
+	char m_iNeediness;
+	char m_iForgiveness;
+	char m_iChattiness;
+	char m_iMeanness;
 
 	char* m_paiPersonalityMajorCivApproachBiases;
 	char* m_paiPersonalityMinorCivApproachBiases;
