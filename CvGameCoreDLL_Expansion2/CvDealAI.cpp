@@ -1675,30 +1675,34 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 		if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
 		{
-			int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
-			int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true, true);
 			//we don't want resources that won't get us a bonus.
-			bool bBad = false;
-			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
+			int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true);
+			//FIXME: does this make sense?
+			if (iNumResourceOwned == 0 && iNumResourceImported > 0)
 			{
-				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 1)
+				bool bBad = false;
+				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 				{
-					bBad = true;
-					
-					if (GET_PLAYER(eOtherPlayer).isHuman())
+					if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0)
 					{
-						return 5;
-					}
-					else
-					{
-						return INT_MAX;
+						bBad = true;
+
+						if (GET_PLAYER(eOtherPlayer).isHuman())
+						{
+							return 5;
+						}
+						else
+						{
+							return INT_MAX;
+						}
 					}
 				}
-			}
-			if (!bBad)
-			{
-				iItemValue *= (100 + GetPlayer()->GetMonopolyPercent(eResource));
-				iItemValue /= 100;
+				if (!bBad)
+				{
+					iItemValue *= (100 + GetPlayer()->GetMonopolyPercent(eResource));
+					iItemValue /= 100;
+				}
 			}
 		}
 		
@@ -5067,22 +5071,26 @@ void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontC
 					{
 						if(GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
 						{
-							int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
-							int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true, true);
 							//we don't want resources that won't get us a bonus.
-							bool bBad = false;
-							for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+							int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
+							int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true);
+							//FIXME: does this make sense?
+							if (iNumResourceOwned == 0 && iNumResourceImported > 0)
 							{
-								if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 0)
+								bool bBad = false;
+								for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 								{
-									bBad = true;
-									break;
+									if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0)
+									{
+										bBad = true;
+										break;
+									}
 								}
-							}
-							if (!bBad)
-							{
-								iItemValue *= (125 + GetPlayer()->GetMonopolyPercent(eResource));
-								iItemValue /= 100;
+								if (!bBad)
+								{
+									iItemValue *= (125 + GetPlayer()->GetMonopolyPercent(eResource));
+									iItemValue /= 100;
+								}
 							}
 						}
 					}

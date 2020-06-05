@@ -406,7 +406,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumResourceTotal("CvPlayer::m_paiNumResourceTotal", m_syncArchive)
 	, m_paiResourceGiftedToMinors("CvPlayer::m_paiResourceGiftedToMinors", m_syncArchive)
 	, m_paiResourceExport("CvPlayer::m_paiResourceExport", m_syncArchive)
-	, m_paiResourceImport("CvPlayer::m_paiResourceImport", m_syncArchive)
+	, m_paiResourceImportFromMajor("CvPlayer::m_paiResourceImport", m_syncArchive)
 	, m_paiResourceFromMinors("CvPlayer::m_paiResourceFromMinors", m_syncArchive)
 	, m_paiResourcesSiphoned("CvPlayer::m_paiResourcesSiphoned", m_syncArchive)
 	, m_paiImprovementCount("CvPlayer::m_paiImprovementCount", m_syncArchive)
@@ -1119,7 +1119,7 @@ void CvPlayer::uninit()
 	m_paiNumResourceTotal.clear();
 	m_paiResourceGiftedToMinors.clear();
 	m_paiResourceExport.clear();
-	m_paiResourceImport.clear();
+	m_paiResourceImportFromMajor.clear();
 	m_paiResourceFromMinors.clear();
 	m_paiResourcesSiphoned.clear();
 	m_paiImprovementCount.clear();
@@ -1990,8 +1990,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiResourceExport.clear();
 		m_paiResourceExport.resize(GC.getNumResourceInfos(), 0);
 
-		m_paiResourceImport.clear();
-		m_paiResourceImport.resize(GC.getNumResourceInfos(), 0);
+		m_paiResourceImportFromMajor.clear();
+		m_paiResourceImportFromMajor.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceFromMinors.clear();
 		m_paiResourceFromMinors.resize(GC.getNumResourceInfos(), 0);
@@ -18793,11 +18793,15 @@ int CvPlayer::GetYieldPerTurnFromResources(YieldTypes eYield, bool bExported, bo
 			{
 				iExport++;
 			}
-			if(getResourceImport(eResourceLoop) > 0)
+			if(getResourceImportFromMajor(eResourceLoop) > 0)
 			{
 				iImport++;
 			}
 			else if(getResourceFromMinors(eResourceLoop) > 0)
+			{
+				iImport++;
+			}
+			else if(getResourceFromCSAlliances(eResourceLoop) > 0)
 			{
 				iImport++;
 			}
@@ -38059,7 +38063,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	return iTotalNumResource;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, bool bIncludeMinors) const
+int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -38166,15 +38170,12 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 		}
 	}
 #endif
-	if (bIncludeMinors && !IsCSResourcesCountMonopolies())
-		bIncludeMinors = false;
-
-	if (bIncludeImport || bIncludeMinors)
-		iTotalNumResource += getResourceFromMinors(eIndex);
 
 	if(bIncludeImport)
 	{
-		iTotalNumResource += getResourceImport(eIndex);
+		iTotalNumResource += getResourceFromCSAlliances(eIndex);
+		iTotalNumResource += getResourceFromMinors(eIndex);
+		iTotalNumResource += getResourceImportFromMajor(eIndex);
 		iTotalNumResource += getResourceSiphoned(eIndex);
 	}
 
@@ -38509,10 +38510,16 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			if (iTotalNumResource > 0)
 			{
-				int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
+				int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+				if (IsCSResourcesCountMonopolies())
+				{
+					iOwnedNumResource += getResourceFromMinors(eResource);
+					iOwnedNumResource += getResourceFromCSAlliances(eResource);
+				}
+
 				if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 				{
-					iOwnedNumResource += getResourceImport(eResource);
+					iOwnedNumResource += getResourceImportFromMajor(eResource);
 				}
 				
 				if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
@@ -38720,10 +38727,16 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 /// Get the monopoly percentage owned for eResource.
 int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 {
-	int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
+	int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+	if (IsCSResourcesCountMonopolies())
+	{
+		iOwnedNumResource += getResourceFromMinors(eResource);
+		iOwnedNumResource += getResourceFromCSAlliances(eResource);
+	}
+
 	if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 	{
-		iOwnedNumResource += getResourceImport(eResource);
+		iOwnedNumResource += getResourceImportFromMajor(eResource);
 	}
 	int iTotalNumResource = GC.getMap().getNumResources(eResource);
 
@@ -38955,23 +38968,23 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getResourceImport(ResourceTypes eIndex) const
+int CvPlayer::getResourceImportFromMajor(ResourceTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiResourceImport[eIndex];
+	return m_paiResourceImportFromMajor[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
+void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
-		m_paiResourceImport.setAt(eIndex, m_paiResourceImport[eIndex] + iChange);
-		CvAssert(getResourceImport(eIndex) >= 0);
+		m_paiResourceImportFromMajor.setAt(eIndex, m_paiResourceImportFromMajor[eIndex] + iChange);
+		CvAssert(getResourceImportFromMajor(eIndex) >= 0);
 
 		CalculateNetHappiness();
 

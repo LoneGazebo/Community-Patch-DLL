@@ -203,8 +203,6 @@ function UpdateScreen()
     Controls.ResourcesAvailableToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_RESOURCES_AVAILBLE"));
 	
 	local iTotalNumResources = 0;
-
-	print("iTotalNumResources: " .. iTotalNumResources);
 	
     Controls.ResourcesAvailableStack:DestroyAllChildren();
 	for pResource in GameInfo.Resources() do
@@ -220,18 +218,13 @@ function UpdateScreen()
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesAvailableStack );
 		        
-				-- Make it a dash instead of a zero, so it stands out more
-				if (iNum == 0) then
-					iNum = "-";
-				end
-		        
 				instance.ResourceName:SetText( Locale.ConvertTextKey(pResource.Description) );
 				instance.ResourceValue:SetText( iNum );
 			end
 		end
 	end
 
-	print("iTotalNumResources: " .. iTotalNumResources);
+	Controls.ResourcesAvailableValue:SetText(iTotalNumResources);
 
     if ( iTotalNumResources > 0 ) then
         Controls.ResourcesAvailableToggle:SetDisabled( false );
@@ -252,7 +245,7 @@ function UpdateScreen()
     Controls.ResourcesImportedStack:DestroyAllChildren();
 	for pResource in GameInfo.Resources() do
 		local iResourceID = pResource.ID;
-		local iNum = pPlayer:GetResourceImport(iResourceID);
+		local iNum = pPlayer:GetResourceImport(iResourceID) + pPlayer:GetResourceFromMinors(iResourceID);
 		
 		if (iNum > 0) then
 			-- Only Luxuries or Strategic Resources
@@ -263,16 +256,13 @@ function UpdateScreen()
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesImportedStack );
 		        
-				-- Make it a dash instead of a zero, so it stands out more
-				if (iNum == 0) then
-					iNum = "-";
-				end
-		        
 				instance.ResourceName:SetText( Locale.ConvertTextKey(pResource.Description) );
 				instance.ResourceValue:SetText( iNum );
 			end
 		end
 	end
+
+	Controls.ResourcesImportedValue:SetText(iTotalNumResources);
 
     if ( iTotalNumResources > 0 ) then
         Controls.ResourcesImportedToggle:SetDisabled( false );
@@ -305,16 +295,13 @@ function UpdateScreen()
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesExportedStack );
 		        
-				-- Make it a dash instead of a zero, so it stands out more
-				if (iNum == 0) then
-					iNum = "-";
-				end
-		        
 				instance.ResourceName:SetText( Locale.ConvertTextKey(pResource.Description) );
 				instance.ResourceValue:SetText( iNum );
 			end
 		end
 	end
+
+	Controls.ResourcesExportedValue:SetText(iTotalNumResources);
 
     if ( iTotalNumResources > 0 ) then
         Controls.ResourcesExportedToggle:SetDisabled( false );
@@ -346,16 +333,13 @@ function UpdateScreen()
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesLocalStack );
 		        
-				-- Make it a dash instead of a zero, so it stands out more
-				if (iNum == 0) then
-					iNum = "-";
-				end
-		        
 				instance.ResourceName:SetText( Locale.ConvertTextKey(pResource.Description) );
 				instance.ResourceValue:SetText( iNum );
 			end
 		end
 	end
+
+	Controls.ResourcesLocalValue:SetText(iTotalNumResources);
 
     if ( iTotalNumResources > 0 ) then
         Controls.ResourcesLocalToggle:SetDisabled( false );

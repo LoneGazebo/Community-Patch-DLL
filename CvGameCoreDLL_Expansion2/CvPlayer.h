@@ -2178,7 +2178,7 @@ public:
 
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
-	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true, bool bIncludeMinors = false) const;
+	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
@@ -2223,8 +2223,8 @@ public:
 	int getResourceExport(ResourceTypes eIndex) const;
 	void changeResourceExport(ResourceTypes eIndex, int iChange);
 
-	int getResourceImport(ResourceTypes eIndex) const;
-	void changeResourceImport(ResourceTypes eIndex, int iChange);
+	int getResourceImportFromMajor(ResourceTypes eIndex) const;
+	void changeResourceImportFromMajor(ResourceTypes eIndex, int iChange);
 
 	int getResourceFromMinors(ResourceTypes eIndex) const;
 	void changeResourceFromMinors(ResourceTypes eIndex, int iChange);
@@ -3540,8 +3540,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceGiftedToMinors;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceExport;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceImport;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceExport; //always to majors
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceImportFromMajor;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourcesSiphoned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;

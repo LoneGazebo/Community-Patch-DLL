@@ -9540,7 +9540,18 @@ int CvLuaPlayer::lGetResourceExport(lua_State* L)
 //int getResourceImport(ResourceTypes  iIndex);
 int CvLuaPlayer::lGetResourceImport(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getResourceImport);
+	//we have to sum up several types of import here
+	//everything except GetResourceFromMinors because that has it's own method
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+
+	int iSum = 
+		pkPlayer->getResourceImportFromMajor(eResource) + 
+		pkPlayer->getResourceFromCSAlliances(eResource) + 
+		pkPlayer->getResourceSiphoned(eResource);
+	
+	lua_pushinteger(L, iSum);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getResourceFromMinors(ResourceTypes  iIndex);
