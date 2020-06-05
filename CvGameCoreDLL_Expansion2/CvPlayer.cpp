@@ -20529,7 +20529,7 @@ int CvPlayer::GetEmpireHappinessFromCities() const
 	int iTotal = 0;
 	int iLoop;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		iTotal += pLoopCity->GetLocalHappiness(0,false); 
+		iTotal += pLoopCity->GetLocalHappiness(0,true); 
 
 	return iTotal;
 }

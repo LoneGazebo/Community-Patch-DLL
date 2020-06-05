@@ -480,6 +480,7 @@ public:
 	int getTotalLandScored() const;
 	void changeTotalLandScored(int iChange);
 
+	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
 

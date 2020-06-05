@@ -4315,6 +4315,7 @@ int CvLuaCity::lGetHappinessFromBuildings(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetLocalHappiness(lua_State* L)
 {
+	//careful, lua supplies its own default parameters for int (0) and bool (false)
 	return BasicLuaMethod(L, &CvCity::GetLocalHappiness);
 }
 //------------------------------------------------------------------------------

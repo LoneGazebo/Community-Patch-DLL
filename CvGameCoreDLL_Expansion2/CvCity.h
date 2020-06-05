@@ -862,7 +862,7 @@ public:
 	void UpdateHappinessFromBuildingClasses();
 	int GetHappinessFromBuildingClasses() const;
 
-	int GetLocalHappiness(int iPopMod = 0, bool bIncludeEmpireContributions = true) const;
+	int GetLocalHappiness(int iPopMod = 0, bool bExcludeEmpireContributions = false) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void setHappinessDelta(int iValue);	
 	int getHappinessDelta(bool bStatic = false) const;

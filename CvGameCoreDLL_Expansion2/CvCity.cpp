@@ -21792,7 +21792,7 @@ int CvCity::GetHappinessFromBuildingClasses() const
 	return m_iBuildingClassHappiness;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::GetLocalHappiness(int iPopMod, bool bIncludeEmpireContributions) const
+int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	bool bPuppetIgnore = kPlayer.GetPlayerTraits()->IsNoAnnexing();
@@ -21807,7 +21807,7 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bIncludeEmpireContributions) con
 
 	//these two are guaranteed not to exceed the population cap
 	//see DistributeHappinessToCities()
-	if (bIncludeEmpireContributions)
+	if (!bExcludeEmpireContributions)
 	{
 		iLocalHappiness += GetHappinessFromEmpire();
 		iLocalHappiness += GetLuxuryHappinessFromEmpire();

@@ -29,63 +29,6 @@
 							<!-- Spacer -->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0"/>
 
-							<!-- Total Happiness -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="TotalHappiness">
-								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TOTAL_EMPIRE_AVERAGE"  ToolTip="TXT_KEY_TOTAL_EMPIRE_AVERAGE_TT"/>
-								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="TotalHappinessValue"  ToolTip="TXT_KEY_TOTAL_EMPIRE_AVERAGE_TT"/>
-							</Box>
-							
-							<!-- Trade Route Happiness -->
-							<Button Size="270,24" Anchor="C,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="TradeRouteToggle" String="TXT_KEY_EO_TRADE_ROUTES">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="TradeRouteValue"/>
-								<ShowOnMouseOver>
-									<AlphaAnim Anchor="C,C" Size="210,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-										<Grid Size="210,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-									</AlphaAnim>
-								</ShowOnMouseOver>
-							</Button>
-							<Stack Anchor="L,C" ID="TradeRouteStack"/>
-							<!-- Handicap Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="HandicapHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_AD_SETUP_HANDICAP"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="HandicapHappinessValue"/>
-							</Box>
-							<!-- Luxury Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="LuxuryHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_LUXURY_HAPPINESS_INFORMATION"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="LuxuryHappinessValue"/>
-							</Box>
-							<!-- Minor Civ Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="MinorCivHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TOPIC_CITYSTATE"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="MinorCivHappinessValue"/>
-							</Box>
-							<!-- Event Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="EventHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_RECENT_EVENT_INFORMATION"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="EventHappinessValue"/>
-							</Box>
-							<!--Religion-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="Religion">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_PEDIA_CATEGORY_15_LABEL"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="ReligionHappinessValue"/>
-							</Box>
-							<!-- Natural Wonders -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="NaturalWonders">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_ADVISOR_DISCOVERED_NATURAL_WONDER_DISPLAY"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="NaturalWondersValue"/>
-							</Box>
-							<!-- LeagueHappiness -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="LeagueHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_LEAGUES"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="LeagueHappinessValue"/>
-							</Box>
-							<!-- END -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="VassalHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_VASSALS"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="VassalHappinessValue"/>
-							</Box>
-							<!-- C4DF -->
 						</Stack>
 					</ScrollPanel>
 				</Box>
@@ -114,22 +57,6 @@
 							<!-- Spacer -->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0"/>
 
-							<!-- Total Unhappiness -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="TotalUnhappiness">
-								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS" ToolTip="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS_TT"/>
-								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="TotalUnhappinessValue" ToolTip="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS_TT"/>
-							</Box>
-							
-							<!-- Public Opinion -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="PublicOpinionUnhappiness">
-							<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" ID="PublicOpinionUnhappinessTitle" String="TXT_KEY_EO_PUBLIC_OPINION_UNHAPPINESS"/>
-							<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="PoblicOpinionUnhappinessValue"/>
-							</Box>
-							<!-- War Weariness -->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="PublicOpinionWar">
-							<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" ID="PublicOpinionWarTitle" String="TXT_KEY_WAR_WEARINESS_SUPPLY"/>
-							<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="PublicOpinionWarValue"/>
-							</Box>
 						</Stack>
 					</ScrollPanel>
 				</Box>
