@@ -21792,7 +21792,7 @@ int CvCity::GetHappinessFromBuildingClasses() const
 	return m_iBuildingClassHappiness;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::GetLocalHappiness(int iPopMod) const
+int CvCity::GetLocalHappiness(int iPopMod, bool bIncludeEmpireContributions) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	bool bPuppetIgnore = kPlayer.GetPlayerTraits()->IsNoAnnexing();
@@ -21805,11 +21805,15 @@ int CvCity::GetLocalHappiness(int iPopMod) const
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
 		iLocalHappiness *= 2;
 
+	//these two are guaranteed not to exceed the population cap
+	//see DistributeHappinessToCities()
+	if (bIncludeEmpireContributions)
+	{
+		iLocalHappiness += GetHappinessFromEmpire();
+		iLocalHappiness += GetLuxuryHappinessFromEmpire();
+	}
+
 	iLocalHappiness += GetBaseHappinessFromBuildings();
-
-	iLocalHappiness += GetHappinessFromEmpire();
-	iLocalHappiness += GetLuxuryHappinessFromEmpire();
-
 	iLocalHappiness += GetHappinessFromPolicies(iPopMod);
 	iLocalHappiness += GetHappinessFromReligion();
 	iLocalHappiness += GetHappinessFromBuildingClasses();
@@ -21825,9 +21829,9 @@ int CvCity::GetLocalHappiness(int iPopMod) const
 
 		iLocalHappiness += iCrime + iDevelopment;
 	}
-	int iLocalHappinessCap = getPopulation() + iPopMod;
 
 	// India has unique way to compute local happiness cap
+	int iLocalHappinessCap = getPopulation() + iPopMod;
 	if(kPlayer.GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 	{
 		// 0.67 per population, rounded up

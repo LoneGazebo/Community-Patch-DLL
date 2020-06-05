@@ -358,6 +358,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetHappiness);
 	Method(GetEmpireHappinessForCity);
 	Method(GetEmpireUnhappinessForCity);
+	Method(GetEmpireHappinessFromCities);
 	Method(GetBonusHappinessFromLuxuriesFlat);
 	Method(GetBonusHappinessFromLuxuriesFlatForUI);
 	Method(GetHandicapHappiness);
@@ -3827,23 +3828,21 @@ int CvLuaPlayer::lDoesUnitPassFaithPurchaseCheck(lua_State* L)
 //int GetHappiness();
 int CvLuaPlayer::lGetHappiness(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetHappiness);
+	return BasicLuaMethod(L, &CvPlayer::GetHappiness);
 }
 //------------------------------------------------------------------------------
 //void SetHappiness(int iNewValue);
 int CvLuaPlayer::lSetHappiness(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::SetHappiness);
+	return BasicLuaMethod(L, &CvPlayer::SetHappiness);
 }
 
 //------------------------------------------------------------------------------
-//void SetHappiness(int iNewValue);
 int CvLuaPlayer::lGetEmpireHappinessForCity(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetEmpireHappinessForCity);
+	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessForCity);
 }
 //------------------------------------------------------------------------------
-//void SetHappiness(int iNewValue);
 int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -3851,6 +3850,13 @@ int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetEmpireHappinessFromCities(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessFromCities);
+}
+
 int CvLuaPlayer::lGetHappinessForGAP(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessForGAP);

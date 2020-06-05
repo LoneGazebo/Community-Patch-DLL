@@ -20523,26 +20523,39 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 	}
 }
 
-int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
+//sum up the local happiness sources in each city
+int CvPlayer::GetEmpireHappinessFromCities() const
 {
-	if (pCity != NULL && pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
-		return 0;
+	int iTotal = 0;
+	int iLoop;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		iTotal += pLoopCity->GetLocalHappiness(0,false); 
 
-	if (getCapitalCity() == NULL)
-		return 0;
-
-	return pCity != NULL ? (pCity->GetHappinessFromEmpire() + pCity->GetLuxuryHappinessFromEmpire()) : (getCapitalCity()->GetHappinessFromEmpire() + getCapitalCity()->GetLuxuryHappinessFromEmpire());
+	return iTotal;
 }
 
+//deprecated!!!
+int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
+{
+	if (pCity == NULL)
+		return 0;
+
+	if (pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+		return 0;
+
+	return pCity->GetHappinessFromEmpire() + pCity->GetLuxuryHappinessFromEmpire();
+}
+
+//deprecated!!!
 int CvPlayer::GetEmpireUnhappinessForCity(CvCity* pCity) const
 { 
-	if (pCity != NULL && pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+	if (pCity == NULL)
 		return 0;
 
-	if (getCapitalCity() == NULL)
+	if (pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
 		return 0;
 
-	return pCity != NULL ? pCity->GetUnhappinessFromEmpire() : getCapitalCity()->GetUnhappinessFromEmpire();
+	return pCity->GetUnhappinessFromEmpire();
 }
 
 //	--------------------------------------------------------------------------------
@@ -23022,10 +23035,7 @@ int CvPlayer::getHappinessFromCitizenNeeds() const
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			iHappiness += pLoopCity->GetLocalHappiness();
-		}
+		iHappiness += pLoopCity->GetLocalHappiness();
 	}
 	return iHappiness;
 }
@@ -23035,10 +23045,7 @@ int CvPlayer::getUnhappinessFromCitizenNeeds() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			iUnhappiness += pLoopCity->getUnhappinessAggregated();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessAggregated();
 	}
 	return iUnhappiness;
 }
@@ -23049,13 +23056,10 @@ int CvPlayer::getUnhappinessFromCityCulture() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromCulture();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromCulture();
 	}
 	return iUnhappiness;
 }
@@ -23065,13 +23069,10 @@ int CvPlayer::getUnhappinessFromCityScience() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromScience();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromScience();
 	}
 	return iUnhappiness;
 }
@@ -23081,13 +23082,10 @@ int CvPlayer::getUnhappinessFromCityDefense() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromDefense();
-		}		
+		iUnhappiness += pLoopCity->getUnhappinessFromDefense();
 	}
 	return iUnhappiness;
 }
@@ -23097,13 +23095,10 @@ int CvPlayer::getUnhappinessFromCityGold() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromGold();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromGold();
 	}
 	return iUnhappiness;
 }
@@ -23113,13 +23108,10 @@ int CvPlayer::getUnhappinessFromCityConnection() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromConnection();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromConnection();
 	}
 	return iUnhappiness;
 }
@@ -23129,13 +23121,10 @@ int CvPlayer::getUnhappinessFromCityPillaged() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
 	}
 	return iUnhappiness;
 }
@@ -23145,13 +23134,10 @@ int CvPlayer::getUnhappinessFromCityStarving() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromStarving();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromStarving();
 	}
 	return iUnhappiness;
 }
@@ -23161,13 +23147,10 @@ int CvPlayer::getUnhappinessFromCityMinority() const
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getUnhappinessFromReligion();
-		}
+		iUnhappiness += pLoopCity->getUnhappinessFromReligion();
 	}
 	return iUnhappiness;
 }
@@ -23178,13 +23161,10 @@ int CvPlayer::getUnhappinessFromCityJFDSpecial() const
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
 
-			iUnhappiness += pLoopCity->getJFDSpecialUnhappinessSources();
-		}
+		iUnhappiness += pLoopCity->getJFDSpecialUnhappinessSources();
 	}
 
 	iUnhappiness += (GetUnhappinessFromCitySpecialists(NULL, NULL) / 100);

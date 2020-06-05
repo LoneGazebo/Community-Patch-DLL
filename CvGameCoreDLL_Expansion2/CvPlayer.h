@@ -619,6 +619,7 @@ public:
 	void DoUpdateLuxuryHappiness();
 	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
 	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
+	int GetEmpireHappinessFromCities() const;
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
 	void SetUnhappiness(int iNewValue);
