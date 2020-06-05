@@ -2535,31 +2535,30 @@ TeamTypes CvDiplomacyAI::GetTeam() const
 /// Helper function: is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
 bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
 {
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
 	// Alive?
-	if(!GET_PLAYER(eOtherPlayer).isAlive())
+	if (!GET_PLAYER(eOtherPlayer).isAlive())
 	{
 		return false;
 	}
 
 	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
-	if(GET_PLAYER(eOtherPlayer).getNumCities() == 0 || eOtherPlayer == BARBARIAN_PLAYER)
+	if (GET_PLAYER(eOtherPlayer).getNumCities() == 0)
 	{
 		return false;
 	}
 
 	// A player we've met?
-	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
 	{
 		return false;
 	}
 
 	// Teammate?
-	if(!bMyTeamIsValid)
+	if (!bMyTeamIsValid)
 	{
-		if (GetPlayer()->GetDiplomacyAI()->IsTeammate(eOtherPlayer))
+		if (GET_PLAYER(eOtherPlayer).getTeam() == GetPlayer()->getTeam())
 		{
 			return false;
 		}
@@ -2582,14 +2581,15 @@ bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
 /// Helper function to determine if we're always at war with a player
 bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
 {
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAtWar.");
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer <= MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAlwaysAtWar.");
+	if (eOtherPlayer < 0 || eOtherPlayer > MAX_CIV_PLAYERS) return false;
 
 	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam()) return false;
+	if (eOtherPlayer == BARBARIAN_PLAYER) return true;
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam())) return true;
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR)) return true;
 
-	return (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer));
+	return GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer);
 }
 
 /// Helper function to determine if a player is a teammate
@@ -2598,7 +2598,7 @@ bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer) const
 	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsTeammate.");
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS || eOtherPlayer == GetPlayer()->GetID()) return false;
 
-	return (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam());
+	return GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam();
 }
 
 /// Helper function to determine if a player's team has a Defensive Pact with our team
@@ -2607,7 +2607,7 @@ bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer) const
 	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasDefensivePact.");
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 
-	return (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
+	return GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Helper function to determine if a player's team has a Research Agreement with our team
@@ -2616,8 +2616,40 @@ bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
 	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasResearchAgreement.");
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 
-	return (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam()));
+	return GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam());
 }
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+/// Helper function to determine if we're a player's vassal
+bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsVassal.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+	return GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam());
+}
+
+/// Helper function to determine if we're a player's master
+bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsMaster.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
+}
+
+/// Helper function to determine if vassalage with this player is voluntary (functions in either direction)
+bool CvDiplomacyAI::IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsVassalageVoluntary.");
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+	if (IsVassal(eOtherPlayer) && GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(eOtherPlayer).getTeam())) return true;
+	if (IsMaster(eOtherPlayer) && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVoluntaryVassal(GetPlayer()->getTeam())) return true;
+	
+	return false;
+}
+#endif
 
 
 // ************************************
@@ -53012,23 +53044,6 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 
 	// Set the tax.
 	kMyTeam.DoApplyVassalTax(ePlayer, iNewTaxValue);
-}
-
-bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	return GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam());
-}
-
-/// Helper function to determine how many vassals ePlayer has
-int CvDiplomacyAI::GetNumVassals(PlayerTypes eOtherPlayer) const
-{
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals();
 }
 
 /// Log Global State

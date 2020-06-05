@@ -33851,6 +33851,19 @@ bool CvPlayer::isMajorCiv() const
 }
 #endif
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsVassalOfSomeone() const
+{
+	return GET_TEAM(getTeam()).IsVassalOfSomeone();
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNumVassals() const
+{
+	return GET_TEAM(getTeam()).GetNumVassals();
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Has this player betrayed a Minor Civ he was bullying by declaring war on him?

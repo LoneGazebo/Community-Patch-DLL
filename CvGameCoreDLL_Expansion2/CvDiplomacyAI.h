@@ -106,6 +106,11 @@ public:
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
 	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassal(PlayerTypes eOtherPlayer) const;
+	bool IsMaster(PlayerTypes eOtherPlayer) const;
+	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
+#endif
 
 	// ************************************
 	// Personality Values
@@ -1708,10 +1713,6 @@ private:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
 	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
-
-	bool IsVassal(PlayerTypes eOtherPlayer) const;
-	int GetNumVassals(PlayerTypes eOtherPlayer) const;
-	
 	//void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
 #endif
 
