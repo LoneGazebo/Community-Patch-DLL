@@ -5181,8 +5181,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 			{
-				int iStrengthFactor = ((int) GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 3);
-				iStrengthFactor *= 2; // Strong: +2, Powerful: +4, Immense: +6
+				int iStrengthFactor = ((int) GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 3) * 2); // Strong: +2, Powerful: +4, Immense: +6
 				
 				// Proximity is important
 				switch (GetPlayer()->GetProximityToPlayer(eLoopPlayer))
@@ -8429,16 +8428,19 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (!bNoOldApproach && !bIgnoreApproachCurve)
 		{
 			float fAlpha = 0.10f;
-			int  iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * (1 - fAlpha)));
+			int iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * (1 - fAlpha)));
 
 			// If the value changed, make sure it goes up/down by at least one
-			if ((iApproachValue > iLastTurnValue) && (iAverage == iLastTurnValue))
+			if (iAverage == iLastTurnValue)
 			{
-				iAverage++;
-			}
-			else if ((iApproachValue < iLastTurnValue) && (iAverage == iLastTurnValue))
-			{
-				iAverage--;
+				if (iApproachValue > iLastTurnValue)
+				{
+					iAverage++;
+				}
+				else if (iApproachValue < iLastTurnValue)
+				{
+					iAverage--;
+				}
 			}
 
 			viApproachWeights[eLoopApproach] = iAverage;
@@ -16389,10 +16391,6 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 
 		// Only major civs who have built Wonders are counted
 		if (!pPlayer->isMajorCiv() || pPlayer->GetWondersConstructed() <= 0)
-			continue;
-
-		// For the mean, exclude the player we're looking at
-		if (eLoopPlayer == ePlayer)
 			continue;
 
 		iNumPlayers++;
