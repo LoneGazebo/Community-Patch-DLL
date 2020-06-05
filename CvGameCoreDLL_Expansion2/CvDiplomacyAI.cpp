@@ -38663,6 +38663,12 @@ bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 	return (IsDenouncedPlayer(ePlayer) && GetDenouncedPlayerCounter(ePlayer) == 1);
 }
 
+/// Have we been denounced by ePlayer?
+bool CvDiplomacyAI::IsDenouncedByPlayer(PlayerTypes ePlayer) const
+{
+	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID());
+}
+
 /// How many turns has it been since we denounced ePlayer?
 short CvDiplomacyAI::GetDenouncedPlayerCounter(PlayerTypes ePlayer) const
 {

@@ -1066,6 +1066,7 @@ public:
 	bool IsDenouncedPlayer(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue);
 	bool IsDenouncingPlayer(PlayerTypes ePlayer) const;
+	bool IsDenouncedByPlayer(PlayerTypes ePlayer) const;
 
 	short GetDenouncedPlayerCounter(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue);
