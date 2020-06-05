@@ -194,6 +194,7 @@ public:
 
 	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
+	PlayerTypes GetPlayerWithHighestApproachValue(MajorCivApproachTypes eApproach) const;
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
@@ -923,8 +924,8 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
-	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer);
 	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
 	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
@@ -1532,6 +1533,7 @@ public:
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
 	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
 	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
+	int GetMutualDenouncementScore(PlayerTypes ePlayer);
 	int GetDenouncedUsScore(PlayerTypes ePlayer);
 	int GetDenouncedThemScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
@@ -1585,8 +1587,6 @@ public:
 	bool IsCloseToCultureVictory() const;
 	bool IsCloseToDiploVictory() const;
 #endif
-
-	bool HasMetValidMinorCiv() const;
 
 	// Messages sent to other players about protected Minor Civs
 	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);

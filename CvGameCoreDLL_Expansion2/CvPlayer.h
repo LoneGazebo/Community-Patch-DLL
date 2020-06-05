@@ -1796,6 +1796,8 @@ public:
 	bool IsVassalOfSomeone() const;
 	int GetNumVassals() const;
 #endif
+	int GetNumValidMajorsMet(bool bUseDoFBuffer) const;
+	bool HasMetValidMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 

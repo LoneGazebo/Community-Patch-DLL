@@ -13757,22 +13757,33 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 	// TRAITOR END
 
-	iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
+	iValue = pDiploAI->GetMutualDenouncementScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US");
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT");
 		aOpinions.push_back(kOpinion);
 	}
-
-	iValue = pDiploAI->GetDenouncedThemScore(eWithPlayer);
-	if (iValue != 0)
+	else
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM");
-		aOpinions.push_back(kOpinion);
+		iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiploAI->GetDenouncedThemScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 	// Denouncing a teammate's friend should be visible but with no penalty
