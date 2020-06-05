@@ -6129,7 +6129,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	int iReligiosityScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion());
 	
-	if (iGameEra != 3 && iGameEra != 4) // Religion matters most in the Medieval and Renaissance Eras!
+	if (iGameEra != 2 && iGameEra != 3) // Religion matters most in the Medieval and Renaissance Eras!
 		iReligiosityScore /= 2;
 
 	if (eMyReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
@@ -17688,6 +17688,9 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 /// Updates our valuation of potential friends, DPs or enemies
 void CvDiplomacyAI::DoRelationshipPairing()
 {
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return;
+
 	int iNumValidMajorsMet = GetPlayer()->GetNumValidMajorsMet(/*bUseDoFBuffer*/ true);
 	bool bMetValidMinor = GetPlayer()->HasMetValidMinorCiv();
 	int iEra = GetPlayer()->GetCurrentEra();
@@ -17699,7 +17702,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		int iEnemyWeight = GetMeanness();
 		int iDPWeight = GetDiploBalance();
@@ -17707,6 +17710,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 		if (IsPlayerValid(ePlayer))
 		{
+			if (IsAlwaysAtWar(ePlayer))
+			{
+				m_paiCompetitorValue[ePlayer] = 0;
+				m_paiDoFValue[ePlayer] = 0;
+				m_paiDefensivePactValue[ePlayer] = 0;
+				continue;
+			}
+
 			//Let's build the competitor list first.
 			MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 			MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
@@ -19219,7 +19230,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					//War? Are we threatened?
 					if (GET_PLAYER(ePlayer).IsAtWarWith(eOtherPlayer))
 					{
-						if (GetPlayer()->IsAtWarWith(eOtherPlayer))
+						if (IsAtWar(eOtherPlayer))
 						{
 							iDPWeight += 5;
 							iDoFWeight += 5;
@@ -19244,7 +19255,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						{
 							// If we hate this neighbor, however, let's add weight against the neighbor instead.
 							if ((GetPlayer()->IsAtWarWith(ePlayer) || eApproach <= MAJOR_CIV_APPROACH_HOSTILE || eOpinion <= MAJOR_CIV_OPINION_ENEMY ||
-								IsDenouncedPlayer(ePlayer)) && !GetPlayer()->IsAtWarWith(eOtherPlayer) && (eOpinion < GetMajorCivOpinion(eOtherPlayer)))
+								IsDenouncedPlayer(ePlayer)) && !IsAtWar(eOtherPlayer) && (eOpinion < GetMajorCivOpinion(eOtherPlayer)))
 							{
 								iDPWeight += -5;
 								iDoFWeight += -5;
@@ -19331,7 +19342,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				}
 			}
 
-			if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			if (GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(ePlayer).IsVassalOfSomeone())
 			{
 				if (iDPWeight > 0)
 					iDPWeight = 0;
@@ -19364,7 +19375,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// At war with them? Then they're not a potential friend or DP!
-			if (GetPlayer()->IsAtWarWith(ePlayer))
+			if (IsAtWar(ePlayer))
 			{
 				if (iDPWeight > 0)
 					iDPWeight = 0;
@@ -19373,10 +19384,10 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iDoFWeight = 0;
 			}
 
-		//Total it up and add it to the pool of values.
-		m_paiCompetitorValue[ePlayer] = iEnemyWeight;
-		m_paiDoFValue[ePlayer] = iDoFWeight;
-		m_paiDefensivePactValue[ePlayer] = iDPWeight;
+			//Total it up and add it to the pool of values.
+			m_paiCompetitorValue[ePlayer] = iEnemyWeight;
+			m_paiDoFValue[ePlayer] = iDoFWeight;
+			m_paiDefensivePactValue[ePlayer] = iDPWeight;
 		}
 	}
 	
@@ -25779,7 +25790,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	}
 
 	// AT WAR
-	else if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+	else if (!IsAlwaysAtWar(ePlayer))
 	{
 		//	OFFERS - all members but ePlayer passed by address
 		DoPeaceOffer(ePlayer, eStatement, pDeal);
@@ -38542,17 +38553,17 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 {
 	// Can't denounce with a civ you're at war with
-	if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+	if (IsAtWar(ePlayer) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 	{
 		return false;
 	}
 
 	// If we've already denounced, it's no good
-	if(IsDenouncedPlayer(ePlayer))
+	if (IsDenouncedPlayer(ePlayer))
 		return false;
 
 	// If we're friends, return false - this is handled in IsDenounceFriendAcceptable
-	if(IsDoFAccepted(ePlayer))
+	if (IsDoFAccepted(ePlayer))
 		return false;
 
 	int iTurn = GC.getGame().getGameTurn();
@@ -38568,10 +38579,10 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		// Do not denounce a vassal of ours 
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 		{
 			return false;
 		}
@@ -38580,7 +38591,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 
-	if(iWeight > 25)
+	if (iWeight > 25)
 		return true;
 
 	return false;
