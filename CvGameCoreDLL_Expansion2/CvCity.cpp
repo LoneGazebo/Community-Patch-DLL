@@ -24311,7 +24311,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 
 					if (kPlayer.GetHappinessFromLuxury(eResource) > 0)
 					{
-						if ((kPlayer.getNumResourceTotal(eResource, true, kPlayer.IsCSResourcesCountMonopolies()) + kPlayer.getResourceExport(eResource)) > 0)
+						if ((kPlayer.getNumResourceTotal(eResource, true) + kPlayer.getResourceExport(eResource)) > 0)
 							iNumBonuses++;
 					}
 				}
