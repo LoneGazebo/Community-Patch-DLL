@@ -33878,7 +33878,7 @@ int CvPlayer::GetNumVassals() const
 /// How many (valid) major civs has this player met?
 int CvPlayer::GetNumValidMajorsMet(bool bJustMetBuffer) const
 {
-	int iJustMetBuffer = 10; // in turns (this is set to 10 to match the approach curve in CvDiplomacyAI::GetBestApproachTowardsMajorCiv)
+	int iJustMetBuffer = 10; // in turns (this is set to 10 to match the approach curve in CvDiplomacyAI::SelectBestApproachTowardsMajorCiv)
 	int iNumPlayers = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
