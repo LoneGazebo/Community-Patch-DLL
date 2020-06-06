@@ -4725,7 +4725,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 
 		// Multipliers?
-		if (bDiplomat)
+		if ((iEra >= 3 && IsGoingForDiploVictory()) || bDiplomat)
 		{
 			iNumWarQuests *= 2;
 			iNumHostileQuests *= 2;
