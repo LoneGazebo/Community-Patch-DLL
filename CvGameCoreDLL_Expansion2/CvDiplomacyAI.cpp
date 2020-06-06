@@ -38755,23 +38755,26 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Are there any quests that should influence our decision?
-	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	if (!IsCloseToDiploVictory())
 	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if (IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !IsAtWar(eMinor) && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_BULLY && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_CONQUEST)
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			CvPlayer* pMinor = &GET_PLAYER(eMinor);
-			CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-			if (pMinor && pMinorCivAI)
+			PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+			if (IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !IsAtWar(eMinor) && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_BULLY && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_CONQUEST)
 			{
-				if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if (pMinor && pMinorCivAI)
 				{
-					iWeight += 2;
-
-					if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
-						iWeight += 3;
-					else if (IsDiplomat())
+					if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
+					{
 						iWeight += 2;
+
+						if (IsGoingForDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+							iWeight += 3;
+						else if (IsDiplomat())
+							iWeight += 2;
+					}
 				}
 			}
 		}
