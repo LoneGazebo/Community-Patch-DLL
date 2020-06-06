@@ -1100,7 +1100,6 @@ local function UpdateUnitActions( unit )
 		Controls.WorkerText:SetHide( hasPromotion )
 		Controls.PromotionText:SetHide( not hasPromotion )
 		Controls.PromotionAnimation:SetHide( not hasPromotion )
-		Controls.EditButton:SetHide( not hasPromotion )
 		Controls.WorkerActionStack:SetWrapWidth( recommendedBuild and 232 or math_ceil( numBuildActions / math_ceil( numBuildActions / 5 ) ) * g_actionButtonSpacing )
 		Controls.WorkerActionStack:CalculateSize()
 		local x, y = Controls.WorkerActionStack:GetSizeVal()
@@ -1454,7 +1453,6 @@ local function OnEditNameClick()
 			}
 	end
 end
-Controls.EditButton:RegisterCallback( Mouse.eLClick, OnEditNameClick )
 Controls.UnitNameButton:RegisterCallback( Mouse.eRClick, OnEditNameClick )
 
 ------------------------------------------------------
