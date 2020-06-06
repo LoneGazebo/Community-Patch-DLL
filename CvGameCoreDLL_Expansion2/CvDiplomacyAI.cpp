@@ -20304,7 +20304,7 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 	int iMinorCivDisputeWeight;
 
 	// Personality factors in quite a bit here, which is why we square the value
-	int iPersonalityMod = GetMinorCivCompetitiveness() * GetMinorCivCompetitiveness();	// Ranges from 0 to 100
+	int iPersonalityMod = GetMinorCivCompetitiveness() * GetMinorCivCompetitiveness();	// Ranges from 1 to 100
 
 	int iMinorCivLoop;
 	PlayerTypes eMinor;
@@ -38577,17 +38577,6 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 		}
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		// Do not denounce a vassal of ours 
-		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
-		{
-			return false;
-		}
-	}
-#endif
-
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 
 	if (iWeight > 25)
@@ -38601,92 +38590,143 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 {
 	int iWeight = 0;
 
-	// Base Personality value; ranges from 0 to 10 (ish)
+	// Base Personality value; ranges from 1 to 10
 	iWeight += GetDenounceWillingness();
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Vassal treatment view
-	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		// This guy is our master
-		if(GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
+		// This guy is our vassal - never denounce!
+		if (IsMaster(ePlayer))
 		{
-			if (GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+			return 0;
+		}
+		// This guy is our master
+		else if (IsVassal(ePlayer))
+		{
+			// Voluntary vassals have a huge weight against denouncing
+			if (IsVoluntaryVassalage(ePlayer))
 			{
-				iWeight += -50;
+				iWeight -= 50;
 			}
-			VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
+
+			switch (GetVassalTreatmentLevel(ePlayer))
+			{
 			// Content vassals have a huge weight against denouncing
-			if(eVassalTreatment == VASSAL_TREATMENT_CONTENT)
-				iWeight += -50;
+			case VASSAL_TREATMENT_CONTENT:
+				iWeight -= 50;
+				break;
 			// Disagree? Let's not upset things...
-			else if(eVassalTreatment == VASSAL_TREATMENT_DISAGREE)
-				iWeight += -15;
+			case VASSAL_TREATMENT_DISAGREE:
+				iWeight -= 15;
+				break;
 			// Mistreated: Small bonus
-			else if(eVassalTreatment == VASSAL_TREATMENT_MISTREATED)
+			case VASSAL_TREATMENT_MISTREATED:
 				iWeight += 2;
+				break;
 			// Unhappy: Medium bonus
-			else if(eVassalTreatment == VASSAL_TREATMENT_UNHAPPY)
+			case VASSAL_TREATMENT_UNHAPPY:
 				iWeight += 5;
+				break;
 			// Enslaved: Big bonus
-			else if(eVassalTreatment == VASSAL_TREATMENT_ENSLAVED)
+			case VASSAL_TREATMENT_ENSLAVED:
 				iWeight += 10;
+				break;
+			}
 		}
 		// If this guy is a vassal of someone else, reduce the weight to make us less likely to denounce them
-		else if (GET_PLAYER(ePlayer).IsVassalOfSomeone() && !IsMaster(ePlayer))
+		else if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		{
 			iWeight -= 8;
 		}
 	}
 #endif
 
-	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-
+	switch (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false))
+	{
 	// Hostile: Bonus
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE)
+	case MAJOR_CIV_APPROACH_HOSTILE:
 		iWeight += 6;
+		break;
 	// Afraid: Penalty
-	else if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
-		iWeight += -10;
-#if defined(MOD_BALANCE_CORE)
+	case MAJOR_CIV_APPROACH_AFRAID:
+		iWeight -= 10;
+		break;
 	// Let's not upset things
-	else if(eApproach == MAJOR_CIV_APPROACH_NEUTRAL)
-		iWeight += -8;
-	else if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
-		iWeight += -15;
-	//Slight bump if guarded
-	else if(eApproach == MAJOR_CIV_APPROACH_GUARDED)
-		iWeight += 1;
-	//Do NOT reveal if deceptive
-	else if(eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
-		iWeight += -25;
-#endif
+	case MAJOR_CIV_APPROACH_NEUTRAL:
+		iWeight -= 8;
+		break;
+	case MAJOR_CIV_APPROACH_FRIENDLY:
+		iWeight -= 15;
+		break;
+	// Slight bump if guarded
+	case MAJOR_CIV_APPROACH_GUARDED:
+		iWeight++;
+		break;
+	// Do NOT reveal if deceptive
+	case MAJOR_CIV_APPROACH_DECEPTIVE:
+		iWeight -= 25;
+		break;
+	// War - depends on war face
+	case MAJOR_CIV_APPROACH_WAR:
+		switch (GetWarFace(ePlayer))
+		{
+		// Higher bump than true HOSTILE
+		case WAR_FACE_HOSTILE:
+			iWeight += 8;
+			break;
+		// Slightly higher bump than true GUARDED
+		case WAR_FACE_GUARDED:
+			iWeight += 2;
+			break;
+		// Avoid upsetting things, but lower weight than true NEUTRAL
+		case WAR_FACE_NEUTRAL:
+			iWeight -= 4;
+			break;
+		// Do NOT reveal if pretending to be FRIENDLY
+		case WAR_FACE_FRIENDLY:
+			iWeight -= 25;
+			break;
+		}
+		break;
+	}
 
-	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
-
+	switch (GetMajorCivOpinion(ePlayer))
+	{
 	// Unforgivable: Big Bonus
-	if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+	case MAJOR_CIV_OPINION_UNFORGIVABLE:
 		iWeight += 10;
+		break;
 	// Enemy: Bonus
-	else if(eOpinion == MAJOR_CIV_OPINION_ENEMY)
+	case MAJOR_CIV_OPINION_ENEMY:
 		iWeight += 5;
+		break;
 	// Competitor: Small Bonus
-	else if(eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+	case MAJOR_CIV_OPINION_COMPETITOR:
 		iWeight += 2;
+		break;
+	// Let's not upset things
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		iWeight -= 2;
+		break;
 	// Good Relations: Penalty
-	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
-		iWeight += -10;
-	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
-		iWeight += -25;
-	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
-		iWeight += -50;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+		iWeight -= 10;
+		break;
+	case MAJOR_CIV_OPINION_FRIEND:
+		iWeight -= 25;
+		break;
+	case MAJOR_CIV_OPINION_ALLY:
+		iWeight -= 50;
+		break;
+	}
 
-#if defined(MOD_BALANCE_CORE)
-	if(GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	if (GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 	{
 		iWeight += 4;
 	}
-	if(GetVictoryBlockLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	if (GetVictoryBlockLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 	{
 		iWeight += 4;
 	}
@@ -38698,7 +38738,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight += 5;
 	}
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{
 		iWeight -= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts();
 	}
@@ -38710,48 +38750,59 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight += 10;
 	}
-#endif
 
-	MajorCivApproachTypes eThirdPartyApproach;
+	// Backstabber: Huge bonus!
+	if (IsUntrustworthyFriend(ePlayer))
+	{
+		iWeight += 25;
+	}
 
-	// Look for other players we like or are strong, and add a bonus if they've denounced this guy, or are at war with him
+	// Look for other players we like or are strong, and modify our willingness to denounce based on this
 	PlayerTypes eThirdParty;
 	CvDiplomacyAI* pThirdPartyDiplo;
-	for(int iThirdParty = 0; iThirdParty < MAX_MAJOR_CIVS; iThirdParty++)
+	for (int iThirdParty = 0; iThirdParty < MAX_MAJOR_CIVS; iThirdParty++)
 	{
 		eThirdParty = (PlayerTypes) iThirdParty;
 		pThirdPartyDiplo = GET_PLAYER(eThirdParty).GetDiplomacyAI();
 
-		// War or Denounced ePlayer, so we know eThirdParty doesn't like him
-		if(!pThirdPartyDiplo->IsDenouncedPlayer(ePlayer)) // && !pThirdPartyDiplo->IsAtWar(ePlayer))
-			continue;
-
-		// We must not be on bad relations with eThirdParty
-		if(GetMajorCivOpinion(eThirdParty) <= MAJOR_CIV_OPINION_COMPETITOR)
-			continue;
-
-		// If we're hostile or planning war, we don't care about this guy
-		eThirdPartyApproach = GetMajorCivApproach(eThirdParty, /*bHideTrueFeelings*/ false);
-		if(eThirdPartyApproach == MAJOR_CIV_APPROACH_HOSTILE || eThirdPartyApproach == MAJOR_CIV_APPROACH_WAR)
-			continue;
-
-		// We're close to this guy who's at war - want to gain favor
-		if(GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS)
-			iWeight += 1;
-
-		// Are they strong?
-		if(GetPlayerMilitaryStrengthComparedToUs(eThirdParty) > STRENGTH_AVERAGE)
-			iWeight += (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) - STRENGTH_AVERAGE);	// Ex: if they're immense, this will add 3 to the weight
-
-		// Are we friends with them?
-		if(IsDoFAccepted(eThirdParty))
-			iWeight += 4;
-#if defined(MOD_BALANCE_CORE)
-		if(GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).IsHasDefensivePact(GetPlayer()->getTeam()))
+		// Third party has strong positive or negative relations with this player
+		if (pThirdPartyDiplo->IsDoFAccepted(ePlayer) || pThirdPartyDiplo->IsHasDefensivePact(ePlayer) || pThirdPartyDiplo->IsTeammate(ePlayer) ||
+			pThirdPartyDiplo->IsDenouncedPlayer(ePlayer) || pThirdPartyDiplo->IsAtWar(ePlayer))
 		{
-			iWeight += 3;
+			// Ignore if we hate the third party
+			if (GetMajorCivOpinion(eThirdParty) <= MAJOR_CIV_OPINION_ENEMY)
+				continue;
+			if (GetMajorCivApproach(eThirdParty, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
+				continue;
+			if (IsTeamUntrustworthy(GET_PLAYER(eThirdParty).getTeam()))
+				continue;
+
+			int iMod = 0;
+
+			// We're close to this guy who's at war - want to gain favor
+			if (GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS)
+				iMod += 1;
+
+			// Are they strong?
+			if (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) > STRENGTH_AVERAGE)
+				iMod += (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) - STRENGTH_AVERAGE);	// Ex: if they're immense, this will add 3 to the weight
+
+			// Are we friends with them?
+			if (IsDoFAccepted(eThirdParty))
+				iMod += 4;
+
+			if (IsHasDefensivePact(eThirdParty))
+				iMod += 4;
+
+			if (pThirdPartyDiplo->IsDenouncedPlayer(ePlayer) || pThirdPartyDiplo->IsAtWar(ePlayer))
+			{
+				iWeight += iMod;
+			}
+			else
+			{
+				iWeight -= iMod;
+			}
 		}
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Are there any quests that should influence our decision?
@@ -38782,7 +38833,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 #endif
 
 	// Used when friends are asking us to denounce someone
-	if(bBias)
+	if (bBias)
 		iWeight += 3;
 
 	return iWeight;
