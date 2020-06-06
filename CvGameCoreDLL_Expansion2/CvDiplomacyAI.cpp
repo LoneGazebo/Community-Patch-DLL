@@ -17690,7 +17690,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		return;
 
-	int iNumValidMajorsMet = GetPlayer()->GetNumValidMajorsMet(/*bUseDoFBuffer*/ true);
+	int iNumValidMajorsMet = GetPlayer()->GetNumValidMajorsMet(/*bJustMetBuffer*/ true);
 	bool bMetValidMinor = GetPlayer()->HasMetValidMinorCiv();
 	int iEra = GetPlayer()->GetCurrentEra();
 

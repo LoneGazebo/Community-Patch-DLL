@@ -33867,9 +33867,9 @@ int CvPlayer::GetNumVassals() const
 
 //	--------------------------------------------------------------------------------
 /// How many (valid) major civs has this player met?
-int CvPlayer::GetNumValidMajorsMet(bool bUseDoFBuffer) const
+int CvPlayer::GetNumValidMajorsMet(bool bJustMetBuffer) const
 {
-	int iDoFBuffer = /*20*/ GC.getDOF_TURN_BUFFER();
+	int iJustMetBuffer = 10; // in turns (this is set to 10 to match the approach curve in CvDiplomacyAI::GetBestApproachTowardsMajorCiv)
 	int iNumPlayers = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -33878,7 +33878,7 @@ int CvPlayer::GetNumValidMajorsMet(bool bUseDoFBuffer) const
 
 		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 		{
-			if (bUseDoFBuffer && GET_TEAM(getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(eLoopPlayer).getTeam()) < iDoFBuffer)
+			if (bJustMetBuffer && GET_TEAM(getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(eLoopPlayer).getTeam()) < iJustMetBuffer)
 				continue;
 		
 			iNumPlayers++;
