@@ -4368,7 +4368,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-			if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
+			if (!vPlayersToReevaluate.empty() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
 			{
 				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
 			}
@@ -4382,7 +4382,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-			if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
+			if (!vPlayersToReevaluate.empty() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
 			{
 				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
 			}
