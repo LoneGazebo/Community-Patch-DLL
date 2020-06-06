@@ -4372,7 +4372,6 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 		MajorCivApproachTypes eApproach = GetBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ true, /*bUpdate*/ true, vPlayersToUpdate, oldApproaches, bIgnoreApproachCurve);
 		SetMajorCivApproach(vPlayersToUpdate.front(), eApproach);
 	}
-	return;
 }
 
 /// What is the best Diplomatic Approach to take towards a major civilization?
@@ -38634,8 +38633,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 				iWeight += 10;
 		}
 		// If this guy is a vassal of someone else, reduce the weight to make us less likely to denounce them
-		else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone() &&
-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != m_pPlayer->getTeam())
+		else if (GET_PLAYER(ePlayer).IsVassalOfSomeone() && !IsMaster(ePlayer))
 		{
 			iWeight -= 8;
 		}
@@ -38658,7 +38656,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight += -15;
 	//Slight bump if guarded
 	else if(eApproach == MAJOR_CIV_APPROACH_GUARDED)
-		iWeight += +1;
+		iWeight += 1;
 	//Do NOT reveal if deceptive
 	else if(eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 		iWeight += -25;
@@ -38683,10 +38681,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
 		iWeight += -50;
 
-	// We are at war
-	if(IsAtWar(ePlayer))
-		iWeight += 2;
-
 #if defined(MOD_BALANCE_CORE)
 	if(GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 	{
@@ -38710,11 +38704,12 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 	if (WasResurrectedBy(ePlayer))
 	{
-		iWeight += -20;
+		iWeight -= 25;
 	}
-
 	if (GetBiggestCompetitor() == ePlayer)
+	{
 		iWeight += 10;
+	}
 #endif
 
 	MajorCivApproachTypes eThirdPartyApproach;
@@ -38758,6 +38753,30 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		}
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Are there any quests that should influence our decision?
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if (IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !IsAtWar(eMinor) && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_BULLY && GetMinorCivApproach(eMinor) != MINOR_CIV_APPROACH_CONQUEST)
+		{
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+			if (pMinor && pMinorCivAI)
+			{
+				if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
+				{
+					iWeight += 2;
+
+					if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+						iWeight += 3;
+					else if (IsDiplomat())
+						iWeight += 2;
+				}
+			}
+		}
+	}
+#endif
 
 	// Used when friends are asking us to denounce someone
 	if(bBias)
