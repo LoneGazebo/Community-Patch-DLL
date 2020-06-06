@@ -1792,6 +1792,12 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalOfSomeone() const;
+	int GetNumVassals() const;
+#endif
+	int GetNumValidMajorsMet(bool bJustMetBuffer) const;
+	bool HasMetValidMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 

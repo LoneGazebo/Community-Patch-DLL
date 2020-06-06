@@ -101,11 +101,17 @@ public:
 	// ************************************
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
+	vector<PlayerTypes> GetAllValidMajorCivs() const;
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
 	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassal(PlayerTypes eOtherPlayer) const;
+	bool IsMaster(PlayerTypes eOtherPlayer) const;
+	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
+#endif
 
 	// ************************************
 	// Personality Values
@@ -173,15 +179,15 @@ public:
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
+	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
 	void DoUpdateAlwaysWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfWeHaveNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfTheyHaveNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
@@ -189,6 +195,7 @@ public:
 
 	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
+	PlayerTypes GetPlayerWithHighestApproachValue(MajorCivApproachTypes eApproach) const;
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
@@ -918,8 +925,8 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
-	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer);
 	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
 	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
@@ -1061,6 +1068,7 @@ public:
 	bool IsDenouncedPlayer(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue);
 	bool IsDenouncingPlayer(PlayerTypes ePlayer) const;
+	bool IsDenouncedByPlayer(PlayerTypes ePlayer) const;
 
 	short GetDenouncedPlayerCounter(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue);
@@ -1526,6 +1534,7 @@ public:
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
 	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
 	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
+	int GetMutualDenouncementScore(PlayerTypes ePlayer);
 	int GetDenouncedUsScore(PlayerTypes ePlayer);
 	int GetDenouncedThemScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
@@ -1579,8 +1588,6 @@ public:
 	bool IsCloseToCultureVictory() const;
 	bool IsCloseToDiploVictory() const;
 #endif
-
-	bool HasMetValidMinorCiv() const;
 
 	// Messages sent to other players about protected Minor Civs
 	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);
@@ -1708,10 +1715,6 @@ private:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
 	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
-
-	bool IsVassal(PlayerTypes eOtherPlayer) const;
-	int GetNumVassals(PlayerTypes eOtherPlayer) const;
-	
 	//void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
 #endif
 

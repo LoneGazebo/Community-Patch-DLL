@@ -6196,10 +6196,10 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
 	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
@@ -6697,10 +6697,10 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
 	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
@@ -8075,13 +8075,13 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -9984,12 +9984,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 #endif
 			// Update diplo stuff.
-			pDiploAI->DoUpdateOpinions();
-			pDiploAI->DoUpdateMajorCivApproaches();
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				vector<PlayerTypes> v = pDiploAI->GetAllValidMajorCivs();
+				pDiploAI->DoUpdateOpinions();
+				pDiploAI->DoUpdateMajorCivApproaches(v);
+			}
 			if (!isHuman())
 			{
+				vector<PlayerTypes> v;
 				GetDiplomacyAI()->DoUpdateOpinions();
-				GetDiplomacyAI()->DoUpdateMajorCivApproaches(/*bIgnoreApproachCurve*/ true);
+				GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 			}
 		}
 	}
@@ -23771,7 +23776,7 @@ int CvPlayer::TestDefensePactsToVotes(int iChange)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
-			iDefensePactsToVotes += GET_TEAM(getTeam()).GetNumVassals();
+			iDefensePactsToVotes += GetNumVassals();
 		}
 #endif
 	}
@@ -33855,6 +33860,57 @@ bool CvPlayer::isMajorCiv() const
 }
 #endif
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsVassalOfSomeone() const
+{
+	return GET_TEAM(getTeam()).IsVassalOfSomeone();
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNumVassals() const
+{
+	return GET_TEAM(getTeam()).GetNumVassals();
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+/// How many (valid) major civs has this player met?
+int CvPlayer::GetNumValidMajorsMet(bool bJustMetBuffer) const
+{
+	int iJustMetBuffer = 10; // in turns (this is set to 10 to match the approach curve in CvDiplomacyAI::SelectBestApproachTowardsMajorCiv)
+	int iNumPlayers = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		{
+			if (bJustMetBuffer && GET_TEAM(getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(eLoopPlayer).getTeam()) < iJustMetBuffer)
+				continue;
+		
+			iNumPlayers++;
+		}
+	}
+
+	return iNumPlayers;
+}
+
+//	--------------------------------------------------------------------------------
+/// Has this player met any (valid) minor civs?
+bool CvPlayer::HasMetValidMinorCiv() const
+{
+	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+			return true;
+	}
+	
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 /// Has this player betrayed a Minor Civ he was bullying by declaring war on him?
@@ -49735,7 +49791,7 @@ void CvPlayer::DoVassalLevy()
 		}
 		if (aExtraUnits.size() > 0)
 		{
-			int iTotal = GET_TEAM(getTeam()).GetNumVassals() * 2;
+			int iTotal = GetNumVassals() * 2;
 			for (int iK = 0; iK < iTotal; iK++)
 			{
 				int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), GC.getGame().GetCultureAverage() + iK);

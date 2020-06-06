@@ -3319,8 +3319,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				{
 					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 					{
+						vector<PlayerTypes> v;
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 					}
 				}
 			}
@@ -4025,8 +4026,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
+								vector<PlayerTypes> v;
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 							}
 						}
 					}
@@ -4311,8 +4313,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
+								vector<PlayerTypes> v;
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 							}
 						}
 					}
