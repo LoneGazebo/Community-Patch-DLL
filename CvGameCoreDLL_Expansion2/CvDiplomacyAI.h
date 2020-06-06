@@ -179,14 +179,14 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
 	void DoUpdateAlwaysWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfWeHaveNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfTheyHaveNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
