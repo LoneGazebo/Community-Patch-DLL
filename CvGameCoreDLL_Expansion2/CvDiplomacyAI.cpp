@@ -38781,7 +38781,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight -= 5;
 	}
 	// Resurrected them: Penalty
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetPlayer()->GetID())
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetPlayer()->GetID()))
 	{
 		iWeight -= 5;
 	}
@@ -38843,7 +38843,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Are there any quests that should influence our decision? Ignore if we're already close to a non-domination victory, we shouldn't be making additional enemies over City-States.
-	if (!IsCloseToScienceVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
+	if (!IsCloseToSSVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
 	{
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
