@@ -38762,7 +38762,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	// Close to victory: Bonus based on difficulty level
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 	{
-		iWeight += (GC.getGame().getHandicapInfo().getAIDeclareWarProb() / 10);
+		iWeight += (GC.getGame().getHandicapInfo().getAIDeclareWarProb() / 20);
 	}
 
 	// Resurrected us: Huge penalty!
