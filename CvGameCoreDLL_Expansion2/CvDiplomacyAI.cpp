@@ -38551,11 +38551,9 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 /// Does this player feel it's time to denounce ePlayer?
 bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 {
-	// Can't denounce with a civ you're at war with
+	// Can't denounce a civ you're at war with
 	if (IsAtWar(ePlayer) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-	{
 		return false;
-	}
 
 	// If we've already denounced, it's no good
 	if (IsDenouncedPlayer(ePlayer))
@@ -38740,21 +38738,52 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{
-		iWeight -= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts();
-	}
-	if (WasResurrectedBy(ePlayer))
-	{
-		iWeight -= 25;
+		iWeight -= (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts()*2);
 	}
 	if (GetBiggestCompetitor() == ePlayer)
 	{
 		iWeight += 10;
+	}
+	else if (IsMajorCompetitor(ePlayer))
+	{
+		iWeight += 2;
 	}
 
 	// Backstabber: Huge bonus!
 	if (IsUntrustworthyFriend(ePlayer))
 	{
 		iWeight += 25;
+	}
+	// Their teammate is untrustworthy: Bonus
+	else if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+	{
+		iWeight += 5;
+	}
+	// Close to victory: Bonus based on difficulty level
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+	{
+		iWeight += (GC.getGame().getHandicapInfo().getAIDeclareWarProb() / 10);
+	}
+
+	// Resurrected us: Huge penalty!
+	if (WasResurrectedBy(ePlayer))
+	{
+		iWeight -= 25;
+	}
+	// Liberated our capital: Big penalty
+	if (IsPlayerLiberatedCapital(ePlayer))
+	{
+		iWeight -= 10;
+	}
+	// Liberated cities: Penalty
+	if (GetNumCitiesLiberatedBy(ePlayer) > 0)
+	{
+		iWeight -= 5;
+	}
+	// Resurrected them: Penalty
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetPlayer()->GetID())
+	{
+		iWeight -= 5;
 	}
 
 	// Look for other players we like or are strong, and modify our willingness to denounce based on this
@@ -38777,22 +38806,30 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 			if (IsTeamUntrustworthy(GET_PLAYER(eThirdParty).getTeam()))
 				continue;
 
+			// Third party is close to victory? Don't be a pawn.
+			if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+				continue;
+
 			int iMod = 0;
 
 			// We're close to this guy who's at war - want to gain favor
 			if (GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS)
-				iMod += 1;
+				iMod++;
+
+			// Do we like this guy?
+			iMod += (GetMajorCivOpinion(eThirdParty) - MAJOR_CIV_OPINION_NEUTRAL); // Ex: if opinion is Ally, this will add 3 to the weight; if Competitor, will subtract 1
 
 			// Are they strong?
 			if (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) > STRENGTH_AVERAGE)
-				iMod += (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) - STRENGTH_AVERAGE);	// Ex: if they're immense, this will add 3 to the weight
+				iMod += (GetPlayerMilitaryStrengthComparedToUs(eThirdParty) - STRENGTH_AVERAGE); // Ex: if they're immense, this will add 3 to the weight
 
 			// Are we friends with them?
 			if (IsDoFAccepted(eThirdParty))
 				iMod += 4;
 
+			// Do we have a DP with them?
 			if (IsHasDefensivePact(eThirdParty))
-				iMod += 4;
+				iMod += 2;
 
 			if (pThirdPartyDiplo->IsDenouncedPlayer(ePlayer) || pThirdPartyDiplo->IsAtWar(ePlayer))
 			{
@@ -38805,8 +38842,8 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	// Are there any quests that should influence our decision?
-	if (!IsCloseToDiploVictory())
+	// Are there any quests that should influence our decision? Ignore if we're already close to a non-domination victory, we shouldn't be making additional enemies over City-States.
+	if (!IsCloseToScienceVictory() && !IsCloseToCultureVictory() && !IsCloseToDiploVictory())
 	{
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
