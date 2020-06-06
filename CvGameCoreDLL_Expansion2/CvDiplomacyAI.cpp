@@ -4396,7 +4396,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	else if (vPlayersToUpdate.size() == 1)
 	{
 		// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-		if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
+		if (!vPlayersToReevaluate.empty() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
 		{
 			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
 		}
