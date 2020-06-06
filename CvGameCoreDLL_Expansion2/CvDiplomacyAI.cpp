@@ -38771,7 +38771,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight -= 25;
 	}
 	// Defensive Pact: Big penalty
-	if (IsHasDefensivePact(ePlayer))
+	if (IsHasDefensivePact(ePlayer) && GetDefensivePactValue(ePlayer) > 0)
 	{
 		iWeight -= 10;
 	}
