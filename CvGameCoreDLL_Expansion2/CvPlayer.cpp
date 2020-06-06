@@ -9984,12 +9984,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 #endif
 			// Update diplo stuff.
-			pDiploAI->DoUpdateOpinions();
-			pDiploAI->DoUpdateMajorCivApproaches();
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				vector<PlayerTypes> v = pDiploAI->GetAllValidMajorCivs();
+				pDiploAI->DoUpdateOpinions();
+				pDiploAI->DoUpdateMajorCivApproaches(v);
+			}
 			if (!isHuman())
 			{
+				vector<PlayerTypes> v;
 				GetDiplomacyAI()->DoUpdateOpinions();
-				GetDiplomacyAI()->DoUpdateMajorCivApproaches(/*bIgnoreApproachCurve*/ true);
+				GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 			}
 		}
 	}

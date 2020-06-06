@@ -2567,6 +2567,20 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 	return true;
 }
 
+/// Helper function: returns a vector with all valid major civs
+vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
+{
+	vector<PlayerTypes> result;
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iPlayer;
+		if (IsPlayerValid(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv())
+			result.push_back(ePlayer);
+	}
+	
+	return result;
+}
+
 //	-----------------------------------------------------------------------------------------------
 
 /// Helper function to determine if we're at war with a player
@@ -3142,8 +3156,9 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	*/
 
 	// Player Opinion & Approach
+	vector<PlayerTypes> v;
 	DoUpdateOpinions();
-	DoUpdateMajorCivApproaches();
+	DoUpdateMajorCivApproaches(v);
 	DoUpdateMinorCivApproaches();
 
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
@@ -4286,7 +4301,7 @@ void CvDiplomacyAI::DoEstimateOtherPlayerApproaches()
 }
 
 /// Updates our general Diplomatic Approach towards each major civilization we've met
-void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = false */)
+void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate)
 {
 	std::vector<PlayerTypes> vPlayersToUpdate;
 	std::map<PlayerTypes, MajorCivApproachTypes> oldApproaches;
@@ -4350,26 +4365,50 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 	if (vPlayersToUpdate.size() > 1)
 	{
 		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record (but do not update) the approach weights in a map; they will be used in the second pass.
-		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); ++it)
+		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
-			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, bIgnoreApproachCurve);
+			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
+			if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
+			{
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
+			}
+			else
+			{
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ false);
+			}
 		}
 
 		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player and update/log the (possibly new) approach and weights.
-		for (std::vector<PlayerTypes>::iterator it2 = vPlayersToUpdate.begin(); it2 != vPlayersToUpdate.end(); ++it2)
+		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
-			SelectBestApproachTowardsMajorCiv(*it2, /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, bIgnoreApproachCurve);
+			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
+			if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
+			{
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
+			}
+			else
+			{
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ false);
+			}
 		}
 	}
+	// There's only one player to update, so we only need one pass of the function
 	else if (vPlayersToUpdate.size() == 1)
 	{
-		// There's only one player to update, so we only need one pass of the function
-		SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, bIgnoreApproachCurve);
+		// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
+		if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
+		{
+			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
+		}
+		else
+		{
+			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ false);
+		}
 	}
 }
 
 /// What is the best Diplomatic Approach to take towards a major civilization?
-void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve /* = false */)
+void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve)
 {
 	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && ePlayer != GetPlayer()->GetID(), "DIPLOMACY AI: Invalid Player Index when calling function GetBestApproachTowardsMajorCiv.");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || ePlayer == GetPlayer()->GetID()) return;
@@ -21681,16 +21720,17 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 					}
 #endif
+					vector<PlayerTypes> v;
 					// Update opinions and approaches
 					if (!GetPlayer()->isHuman())
 					{
 						DoUpdateOpinions();
-						DoUpdateMajorCivApproaches();
+						DoUpdateMajorCivApproaches(v);
 					}
 					if (!GET_PLAYER(ePlayer).isHuman())
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 					}
 				}
 			}
@@ -22695,8 +22735,9 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 			GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, 0);
 		}
 #endif
+		vector<PlayerTypes> v;
 		DoUpdateOpinions();
-		DoUpdateMajorCivApproaches();
+		DoUpdateMajorCivApproaches(v);
 	}
 	// Minor civ
 	else
@@ -23390,10 +23431,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_FRIENDS);	
 #endif
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 
 				LogDoF(ePlayer);
 			}
@@ -23422,10 +23464,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), true);
 				
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 
 				LogDoF(ePlayer);
 			}
@@ -23455,10 +23498,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_BATTLE_BROTHERS);
 				
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 
 				LogDoF(ePlayer);
 			}
@@ -23488,10 +23532,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_ALLIES);
 
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();	
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 
 				LogDoF(ePlayer);
 			}
@@ -23522,10 +23567,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_FRIENDS);		
 #endif
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 
 				LogDoF(ePlayer);
 			}
@@ -23579,12 +23625,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true);
 		LogBrokenDoF(ePlayer);
 #endif
+		vector<PlayerTypes> v;
 
 		// Update opinions and approaches
 		if (!GET_PLAYER(ePlayer).isHuman())
 		{
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 			
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 			{
@@ -23600,7 +23647,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 
 		DoUpdateOpinions();
-		DoUpdateMajorCivApproaches();
+		DoUpdateMajorCivApproaches(v);
 		
 		// Other players' reactions
 		PlayerTypes eLoopPlayer;
@@ -32529,8 +32576,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}		
 #endif
 				// Update opinions and approaches
+				vector<PlayerTypes> v;
 				DoUpdateOpinions();
-				DoUpdateMajorCivApproaches();
+				DoUpdateMajorCivApproaches(v);
 			}
 
 			if(bActivePlayer)
@@ -33163,8 +33211,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}		
 #endif
 			// Update opinions and approaches
+			vector<PlayerTypes> v;
 			DoUpdateOpinions();
-			DoUpdateMajorCivApproaches();
+			DoUpdateMajorCivApproaches(v);
 
 			if (bActivePlayer)
 			{
@@ -33233,8 +33282,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			
 			// Update opinions and approaches
+			vector<PlayerTypes> v;
 			DoUpdateOpinions();
-			DoUpdateMajorCivApproaches();
+			DoUpdateMajorCivApproaches(v);
 			
 			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFace(eFromPlayer) != WAR_FACE_HOSTILE)
 			{
@@ -38279,8 +38329,9 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	}
 	
 	// Update opinions and approaches
+	vector<PlayerTypes> v;
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 	
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
 	{
@@ -38294,7 +38345,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	if (!GetPlayer()->isHuman())
 	{
 		DoUpdateOpinions();
-		DoUpdateMajorCivApproaches();
+		DoUpdateMajorCivApproaches(v);
 	}
 	
 	// Other players' reactions
