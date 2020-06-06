@@ -17940,7 +17940,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			// Do they have the highest value of all players for certain approaches?
-			if (iNumValidMajorsMet > 1)
+			if (iNumValidMajorsMet > 1 && GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) >= 10)
 			{
 				int iMod = iEra + iNumValidMajorsMet;
 
