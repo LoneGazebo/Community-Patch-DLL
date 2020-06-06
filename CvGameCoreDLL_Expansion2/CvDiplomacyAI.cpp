@@ -38770,6 +38770,11 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight -= 25;
 	}
+	// Defensive Pact: Big penalty
+	if (IsHasDefensivePact(ePlayer))
+	{
+		iWeight -= 10;
+	}
 	// Liberated our capital: Big penalty
 	if (IsPlayerLiberatedCapital(ePlayer))
 	{
@@ -38798,6 +38803,21 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		if (pThirdPartyDiplo->IsDoFAccepted(ePlayer) || pThirdPartyDiplo->IsHasDefensivePact(ePlayer) || pThirdPartyDiplo->IsTeammate(ePlayer) ||
 			pThirdPartyDiplo->IsDenouncedPlayer(ePlayer) || pThirdPartyDiplo->IsAtWar(ePlayer))
 		{
+			// Teammate?
+			if (IsTeammate(eThirdParty))
+			{
+				// Big bonus to denouncing a non-friend if a teammate denounced them
+				if (pThirdPartyDiplo->IsDenouncedPlayer(ePlayer))
+				{
+					iWeight += 10;
+				}
+				// Never denounce our teammates' friends or DPs
+				else
+				{
+					return 0;
+				}
+			}
+	
 			// Ignore if we hate the third party
 			if (GetMajorCivOpinion(eThirdParty) <= MAJOR_CIV_OPINION_ENEMY)
 				continue;
