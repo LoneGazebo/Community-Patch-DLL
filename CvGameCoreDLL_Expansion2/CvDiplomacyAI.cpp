@@ -3275,7 +3275,13 @@ void CvDiplomacyAI::DoCounters()
 					int iMin = MIN(-GetRecentAssistValue(eLoopPlayer), /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY());
 					ChangeRecentAssistValue(eLoopPlayer, iMin);
 				}
-				
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eLoopPlayer))
+				{
+					ChangeVassalProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_PROTECTED_PER_TURN_DECAY());
+					ChangeVassalFailedProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_FAILED_PROTECT_PER_TURN_DECAY());
+				}
+#endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				// Forgive backstabbing penalties after a time.
 				int iDealDuration = GC.getGame().GetDealDuration();
@@ -20779,7 +20785,7 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 /// Every turn we're at peace war damage goes down a bit
 void CvDiplomacyAI::DoWarDamageDecay()
 {
-	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
 		return;
 
 	int iValue;
@@ -20791,27 +20797,22 @@ void CvDiplomacyAI::DoWarDamageDecay()
 	// Loop through all (known) Players
 	TeamTypes eLoopTeam;
 	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if(IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true))
+		if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true))
 		{
 			// Update war damage we've suffered
-			if(!IsAtWar(eLoopPlayer))
+			if (!IsAtWar(eLoopPlayer))
 			{
 				iValue = GetWarValueLost(eLoopPlayer);
 
-				if(iValue > 0)
+				if (iValue > 0)
 				{
-					// Go down by 1/20th every turn at peace
-#if defined(MOD_BALANCE_CORE)
-					// 1/10th instead.
+					// Go down by 1/10th every turn at peace
 					iValue /= 10;
-#else
-					iValue /= 20;
-#endif
 
 					// Make sure it's changing by at least 1
 					iValue = max(1, iValue);
@@ -20821,25 +20822,20 @@ void CvDiplomacyAI::DoWarDamageDecay()
 			}
 
 			// Update war damage other players have suffered from our viewpoint
-			for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_CIV_PLAYERS; iThirdPlayerLoop++)
+			for (iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_CIV_PLAYERS; iThirdPlayerLoop++)
 			{
 				eLoopThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
 				eLoopThirdTeam = GET_PLAYER(eLoopThirdPlayer).getTeam();
 
 				// These two players not at war?
-				if(!GET_TEAM(eLoopThirdTeam).isAtWar(eLoopTeam))
+				if (!GET_TEAM(eLoopThirdTeam).isAtWar(eLoopTeam))
 				{
 					iValue = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer);
 
-					if(iValue > 0)
+					if (iValue > 0)
 					{
-						// Go down by 1/20th every turn at peace
-#if defined(MOD_BALANCE_CORE)
-						// 1/10th instead.
+						// Go down by 1/10th every turn at peace
 						iValue /= 10;
-#else
-						iValue /= 20;
-#endif
 
 						// Make sure it's changing by at least 1
 						iValue = max(1, iValue);
@@ -20847,13 +20843,12 @@ void CvDiplomacyAI::DoWarDamageDecay()
 						ChangeOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer, -iValue);
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				// Update war damage we've suffered while at war (slower, but necessary to bring chance of white peace)
 				else
 				{
 					iValue = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer);
 
-					if(iValue > 0)
+					if (iValue > 0)
 					{
 						// Go down by 1/50 every turn at war
 						iValue /= 50;
@@ -20864,8 +20859,6 @@ void CvDiplomacyAI::DoWarDamageDecay()
 						ChangeOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer, -iValue);
 					}
 				}
-#endif
-
 			}
 		}
 	}
@@ -51781,7 +51774,7 @@ CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer) const
 		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TAX", -iScore) + "[ENDCOLOR]";
 		
 		// Protection of them
-		iScore = GetVassalFailedProtectScore(ePlayer) - GetVassalProtectScore(ePlayer);
+		iScore = GetVassalFailedProtectScore(ePlayer) + GetVassalProtectScore(ePlayer);
 		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
 		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_PROTECT", -iScore) + "[ENDCOLOR]";
 		
@@ -51811,7 +51804,7 @@ int CvDiplomacyAI::GetVassalTreatedScore(PlayerTypes ePlayer) const
 
 	iOpinionWeight += GetVassalDemandScore(ePlayer);
 	iOpinionWeight += GetVassalTaxScore(ePlayer);
-	iOpinionWeight -= GetVassalProtectScore(ePlayer);
+	iOpinionWeight += GetVassalProtectScore(ePlayer);
 	iOpinionWeight += GetVassalFailedProtectScore(ePlayer);
 	iOpinionWeight += GetVassalTradeRouteScore(ePlayer);
 	iOpinionWeight += GetVassalReligionScore(ePlayer);
@@ -52000,7 +51993,7 @@ int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 	int iOpinionWeight = 0;
 
 	// Vassals, friends and teammates aren't too concerned
-	if (IsVassal(ePlayer) || IsDoFAccepted(ePlayer) || GetPlayer()->GetDiplomacyAI()->IsTeammate(ePlayer))
+	if (IsVassal(ePlayer) || IsDoFAccepted(ePlayer) || IsTeammate(ePlayer))
 	{
 		return 0;
 	}
@@ -52028,7 +52021,7 @@ int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 int CvDiplomacyAI::GetSameMasterScore(PlayerTypes ePlayer) const
 {
 	// Redundant for teammates
-	if (GetPlayer()->GetDiplomacyAI()->IsTeammate(ePlayer))
+	if (IsTeammate(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -52048,10 +52041,10 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
-	if(IsVassal(ePlayer))
+	if (IsVassal(ePlayer))
 	{
 		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT());
-		if(iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX())
+		if (iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
 		}
@@ -52065,10 +52058,10 @@ int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
-	if(IsVassal(ePlayer))
+	if (IsVassal(ePlayer))
 	{
-		int iWeightChange =  GetVassalFailedProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT());
-		if(iWeightChange > GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX())
+		int iWeightChange = GetVassalFailedProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT());
+		if (iWeightChange > /*50*/ GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();
 		}
@@ -52086,7 +52079,7 @@ int CvDiplomacyAI::GetVassalProtectValue(PlayerTypes ePlayer) const
 
 void CvDiplomacyAI::ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -52095,11 +52088,11 @@ void CvDiplomacyAI::ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange)
 		short iMaxOpinionValue = GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT() * -(GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX());
 
 		// Must be between 0 and maximum possible boost to opinion
-		if(m_paiPlayerVassalageProtectValue[ePlayer] < 0)
+		if (m_paiPlayerVassalageProtectValue[ePlayer] < 0)
 		{
 			m_paiPlayerVassalageProtectValue[ePlayer] = 0;
 		}
-		else if(m_paiPlayerVassalageProtectValue[ePlayer] > iMaxOpinionValue)
+		else if (m_paiPlayerVassalageProtectValue[ePlayer] > iMaxOpinionValue)
 		{
 			m_paiPlayerVassalageProtectValue[ePlayer] = iMaxOpinionValue;
 		}
@@ -52108,7 +52101,7 @@ void CvDiplomacyAI::ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange)
 
 void CvDiplomacyAI::ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -52117,11 +52110,11 @@ void CvDiplomacyAI::ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iCha
 		short iMaxOpinionValue = GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();
 
 		// Must be between 0 and maximum possible boost to opinion
-		if(m_paiPlayerVassalageFailedProtectValue[ePlayer] < 0)
+		if (m_paiPlayerVassalageFailedProtectValue[ePlayer] < 0)
 		{
 			m_paiPlayerVassalageFailedProtectValue[ePlayer] = 0;
 		}
-		else if(m_paiPlayerVassalageFailedProtectValue[ePlayer] > iMaxOpinionValue)
+		else if (m_paiPlayerVassalageFailedProtectValue[ePlayer] > iMaxOpinionValue)
 		{
 			m_paiPlayerVassalageFailedProtectValue[ePlayer] = iMaxOpinionValue;
 		}

@@ -2380,24 +2380,25 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			_freea(pkOldUnits);
 	}
 	// If a player killed this Unit...
-	if(ePlayer != NO_PLAYER)
+	if (ePlayer != NO_PLAYER)
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(IsCombatUnit())
+		if (IsCombatUnit())
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
-		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
+		if (!GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
 		{
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
 			int iValue = getUnitInfo().GetPower();
+			int iCivValue = 0;
 
 			int iTypicalPower = GET_PLAYER(ePlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 
-			if(iTypicalPower > 0)
+			if (iTypicalPower > 0)
 			{
 				iValue = iValue* /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
 			}
@@ -2405,19 +2406,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			{
 				iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 			}
-#if defined(MOD_BALANCE_CORE)
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if (iEra < 0)
-				iEra = 0;
 
-			// AI cares less about lost workers / etc in lategame
-			int iEraFactor = 8 - iEra;
-			if (iEraFactor <= 0)
-				iEraFactor = 1;
-
-			int iCivValue = 0;
 			if (IsCivilianUnit() && pPlot && !pPlot->isCity()) // Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
 			{
+				// AI cares less about lost workers / etc in lategame
+				int iEraFactor = max(8 - GET_PLAYER(getOwner()).GetCurrentEra(), 1);
+
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
 					if (IsGreatPerson())
@@ -2443,58 +2437,90 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
-#endif
-			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
-			if (iWarscoremod != 0)
+			if (!isBarbarian())
 			{
-				iValue *= (iWarscoremod + 100);
-				iValue /= 100;
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+
+				int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
+				if (iWarscoremod != 0)
+				{
+					iValue *= (iWarscoremod + 100);
+					iValue /= 100;
+				}
+				// My viewpoint
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(ePlayer, iValue);
+				// Bad guy's viewpoint
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(getOwner(), ePlayer, iValue);
 			}
-			// My viewpoint
-			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(ePlayer, iValue);
-			// Bad guy's viewpoint
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(getOwner(), ePlayer, iValue);
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				//CvCity* pLoopCity;
-				//int iCityLoop;
-				//bool bNearLoserCity = false;
-				bool bInMyTerritory = false;
-				PlayerTypes eLoopPlayer;
+			if (MOD_DIPLOMACY_CIV4_FEATURES && (iValue > 0 || iCivValue > 0)) 
+			{
+				iCivValue *= 10;
 
-				TeamTypes eMaster =  GET_TEAM(getTeam()).GetMaster();
-
-				// Check to see if Master failed to protect one of our units...
-				if(eMaster != NO_TEAM) {
-					// Unit killed inside my territory
-					if(plot()->getOwner() == getOwner()) {
-						bInMyTerritory = true;
-					}
-					/*
-					// Unit killed near one of my cities
-					else if(plot()->getOwner() != ePlayer) {
-						// Loop through loser's cities.
-						for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+				// Unit belongs to us - did our Master fail to protect one of our units?
+				if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).IsVassalOfSomeone())
+				{
+					// Unit was killed inside my territory
+					if (pPlot->getOwner() == getOwner())
+					{
+						// Loop through all masters and penalize them
+						PlayerTypes eLoopPlayer;
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							if(plotDistance(plot()->getX(), plot()->getY(), pLoopCity->getX(), pLoopCity->getY()) <= GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
 							{
-								bNearLoserCity = true;
-								break;
+								if (iCivValue > 0)
+									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+								else
+									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
 							}
 						}
 					}
-					*/
-
-					// Something actually happened to warrant this check
-					if(bInMyTerritory/* || bNearLoserCity*/) {
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+					// Unit was killed in our master's territory
+					else if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(pPlot->getOwner()) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(pPlot->getOwner()))
+					{
+						// Penalize the master whose territory we're in
+						if (iCivValue > 0)
+							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(plot()->getOwner(), iCivValue);
+						else
+							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(plot()->getOwner(), iValue);
+					}
+					// Unit killed in neutral territory near one of the vassal's cities (currently disabled)
+					else if (pPlot->getOwner() == NO_PLAYER && GET_PLAYER(getOwner()).GetCityDistanceInPlots(pPlot) <= /*0*/ GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
+					{
+						// Loop through all masters and penalize them
+						PlayerTypes eLoopPlayer;
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
-								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							if (GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+							{
+								if (iCivValue > 0)
+									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iCivValue);
+								else
+									GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							}
+						}
+					}
+				}
+				// Did the killer protect some of his vassals? They should be grateful if a combat unit or Settler was killed.
+				if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetNumVassals() > 0 && (iCivValue == 0 || isFound() || IsFoundAbroad()))
+				{
+					PlayerTypes eLoopPlayer;
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer))
+						{
+							// Unit killed in the vassal's territory or near one of the vassal's cities
+							if (pPlot->getOwner() == eLoopPlayer || GET_PLAYER(eLoopPlayer).GetCityDistanceInPlots(pPlot) <= /*5*/ GC.getVASSALAGE_PROTECTED_CITY_DISTANCE())
+							{
+								if (iCivValue > 0)
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(ePlayer, iCivValue);
+								else
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(ePlayer, iValue);
 							}
 						}
 					}
