@@ -293,7 +293,7 @@ private:
 
 	void ExecuteWorkerMoves();
 	void ExecuteMovesToSafestPlot();
-	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves = false);
+	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn = false);
 
 	void ExecuteHeals();
 	void ExecuteWriterMoves();

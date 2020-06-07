@@ -322,8 +322,6 @@ public:
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
 
-	bool CanStackUnitHere(const CvUnit* pUnit) const;
-
 	bool isFighting() const;
 	bool isUnitFighting() const;
 	bool isCityFighting() const;
@@ -340,10 +338,6 @@ public:
 	void SetTradeUnitRoute(bool bActive);
 	bool IsTradeUnitRoute() const;
 #endif
-
-	bool isValidDomainForLocation(const CvUnit& unit) const;
-	bool isValidDomainForAction(const CvUnit& unit) const;
-
 
 	inline int getX() const
 	{

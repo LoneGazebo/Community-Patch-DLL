@@ -4371,13 +4371,13 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	// More than one player to update - use approach prioritization for more strategic diplomacy
 	if (vPlayersToUpdate.size() > 1)
 	{
-		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record the approach weights using SetPlayerApproachValue; they will be used in the second pass.
+		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record (but do not update) the approach weights in a map; they will be used in the second pass.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
 		}
 
-		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player (using approach prioritization via GetPlayerApproachValue) and update/log the (possibly new) approach and weights.
+		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player and update/log the (possibly new) approach and weights.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
@@ -4578,7 +4578,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iBias = GetPersonalityMajorCivApproachBias(eLoopApproach);
 		viApproachWeightsPersonality.push_back(iBias);
 		
-		// Add 1x bias for each approach to reflect personality weight
+		// Initial personality weight
 		viApproachWeights[eLoopApproach] += iBias;
 	}
 
@@ -8586,7 +8586,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iApproachValue > 0)
 				bAllZero = false;
 
-			if (!bFirstPass) // We're re-evaluating this player (or evaluating them for the first time), so use this turn's value as the average
+			if (!bFirstPass) // ignoring the approach curve for some reason, so just use this turn's value as the average
 			{
 				GetPlayer()->SetApproachScratchValue(ePlayer, eLoopApproach, iApproachValue);
 			}
@@ -10041,19 +10041,15 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	else if (viApproachWeights[MINOR_CIV_APPROACH_BULLY] > 0)
 	{
 		int iBullyScore = 0;
-		if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
-			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyValue(GetPlayer()->GetID(), false);
+			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyScore(GetPlayer()->GetID(), false);
 			if (iBullyScore > 0)
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 5);
-			else
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
-		}
-		else
-		{
-			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyMetric(GetPlayer()->GetID(), false);
-			if (iBullyScore > 0)
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 10);
+			{
+				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+					viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 5);
+				else
+					viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 10);
+			}
 			else
 				viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
 		}
@@ -26549,7 +26545,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-					iValue = pMinor->GetMinorCivAI()->CalculateBullyValue(eID, true);
+					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, true);
+
 				if (iValue <= 0)
 					continue;
 
@@ -26691,7 +26688,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-					iValue = pMinor->GetMinorCivAI()->CalculateBullyValue(eID, false);
+					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, false);
+
 				if (iValue <= 0)
 					continue;
 

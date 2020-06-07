@@ -2922,14 +2922,14 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 
 //	---------------------------------------------------------------------------
 /// Find one unit to move to target, starting with high priority list
-void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves)
+void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn)
 {
 	if (!pUnit || !pTarget)
 		return;
 
 	AI_PERF_FORMAT("Homeland-ExecuteMove-perf.csv", ("ExecuteMoveToTarget, %d, %d, Turn %03d, %s", pTarget->getX(), pTarget->getY(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	if(pUnit->plot() == pTarget && pTarget->CanStackUnitHere(pUnit))
+	if(pUnit->plot() == pTarget && pUnit->canEndTurnAtPlot(pTarget))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
@@ -2949,7 +2949,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 	}
 
 	//don't actually call finish moves, it will prevent healing
-	if(bFinishMoves)
+	if(bEndTurn)
 		UnitProcessed(pUnit->GetID());
 }
 

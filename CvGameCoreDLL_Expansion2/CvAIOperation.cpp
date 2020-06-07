@@ -3007,12 +3007,12 @@ bool CvAIOperationBullyCityState::DoTurn()
 		SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
 		ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(GetTargetPlot(), data);
 
-		//taken from CalculateBullyMetric
+		//taken from CalculateBullyScore
 		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
 		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
 
 		CvString strMsg;
-		strMsg.Format("%s, local power ratio %d, unit bullying metric %d", GET_PLAYER(m_eEnemy).getName(), iLocalPowerRatio, GET_PLAYER(m_eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_eOwner,true));
+		strMsg.Format("%s, local power ratio %d, unit bullying metric %d", GET_PLAYER(m_eEnemy).getName(), iLocalPowerRatio, GET_PLAYER(m_eEnemy).GetMinorCivAI()->CalculateBullyScore(m_eOwner,true));
 		LogOperationSpecialMessage(strMsg);
 
 		if (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner))
@@ -3965,7 +3965,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		return false;
 
 	//don't recruit if currently healing
-	if (pLoopUnit->shouldHeal())
+	if (pLoopUnit->shouldHeal(false))
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())

@@ -9316,7 +9316,7 @@ void CvGame::updateMoves()
 								{
 									if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 									{
-										if (!pLoopUnit->plot()->CanStackUnitHere(pLoopUnit))
+										if (!pLoopUnit->canEndTurnAtPlot(pLoopUnit->plot()))
 										{
 											if(pLoopUnitInner->IsFortified() && !pLoopUnit->IsFortified())
 											{
@@ -9390,9 +9390,7 @@ void CvGame::updateMoves()
 //	-----------------------------------------------------------------------------------------------
 void CvGame::updateTimers()
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
@@ -9438,9 +9436,7 @@ void CvGame::UpdatePlayers()
 //	-----------------------------------------------------------------------------------------------
 void CvGame::testAlive()
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		GET_PLAYER((PlayerTypes)iI).verifyAlive();
 	}

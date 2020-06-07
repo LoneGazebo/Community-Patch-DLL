@@ -524,11 +524,12 @@ void CvBarbarians::DoCamps()
 				iNumCampsInExistence++;
 			}
 
-			//Discount all owned plots.
-			if (pLoopPlot->getOwner() != NO_PLAYER)
+			//No water obviously
+			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 
-			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
+			//Discount all owned plots.
+			if (pLoopPlot->isOwned() || pLoopPlot->isAdjacentOwned())
 				continue;
 
 			// No camps on 1-tile islands

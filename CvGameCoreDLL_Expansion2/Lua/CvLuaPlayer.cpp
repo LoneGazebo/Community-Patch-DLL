@@ -8840,7 +8840,7 @@ int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
 
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
-		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ false);
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, /*bForUnit*/ false);
 		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor, iScore);
 		lua_pushboolean(L, bResult);
 		return 1;
@@ -8873,7 +8873,7 @@ int CvLuaPlayer::lCanMajorBullyUnit(lua_State* L)
 
 	if (iTargetVal > 0)
 	{
-		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ true);
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, /*bForUnit*/ true);
 		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor, (iScore - iTargetVal));
 		lua_pushboolean(L, bResult);
 		return 1;
@@ -8906,7 +8906,7 @@ int CvLuaPlayer::lGetMajorBullyValue(lua_State* L)
 	bool bForUnit = luaL_optbool(L, 3, false);
 
 	//since this is just for UI, flip it to positive.
-	const int iValue = abs(pkPlayer->GetMinorCivAI()->CalculateBullyValue(eMajor, bForUnit));
+	const int iValue = abs(pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, bForUnit));
 
 	lua_pushinteger(L, iValue);
 	return 1;

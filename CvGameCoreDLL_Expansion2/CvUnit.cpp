@@ -2365,11 +2365,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 					else
 					{
-						if(pPlot->isValidDomainForLocation(*pLoopUnit))
-						{
-							pLoopUnit->setCapturingPlayer(getCapturingPlayer());	// KWG: Creating a new captured cargo, but how does its transport (this) then get attached to the new cargo?
-						}
-
+						pLoopUnit->setCapturingPlayer(getCapturingPlayer());	// KWG: Creating a new captured cargo, but how does its transport (this) then get attached to the new cargo?
 						pLoopUnit->kill(false, ePlayer);
 					}
 				}
@@ -5111,7 +5107,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) GC.getPLOT_UNIT_LIMIT() > 0)
 #endif
 		{
-			if (!plot.CanStackUnitHere(this))
+			if (!CanStackUnitAtPlot(&plot))
 			{
 				return FALSE;
 			}
@@ -5463,17 +5459,15 @@ bool CvUnit::jumpToNearestValidPlot()
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 12);
 	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
 
-	//for performance reasons, start with a small search range and gradually increase it
 	CvPlot* pBestPlot = NULL;
 	vector<SPlotWithScore> candidates;
 	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
-
-		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//plot must be empty even of civilians
-		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
+		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
 			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
@@ -5485,6 +5479,10 @@ bool CvUnit::jumpToNearestValidPlot()
 			//avoid embarkation
 			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
 				iValue += 10000;
+
+			//avoid isolated unowned plots ...
+			if (pLoopPlot->getTeam() != getTeam() && !pLoopPlot->isAdjacentTeam(getTeam()))
+				iValue += 5000;
 
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
@@ -5584,7 +5582,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
 			continue;
 
-		if(pLoopPlot->isValidDomainForLocation(*this) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
+		if(isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
 		{
 			//need to check for invisible units as well ...
 			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -5973,7 +5971,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		return false;
 	}
 
-	if(!pPlot->isValidDomainForLocation(*this) && NULL == pTransport)
+	if(!isNativeDomain(pPlot) && NULL == pTransport)
 	{
 		return false;
 	}
@@ -6438,14 +6436,13 @@ void CvUnit::load()
 bool CvUnit::canUnload() const
 {
 	VALIDATE_OBJECT
-	CvPlot& kPlot = *(plot());
 
 	if(getTransportUnit() == NULL)
 	{
 		return false;
 	}
 
-	if(!kPlot.isValidDomainForLocation(*this))
+	if(!isNativeDomain(plot()))
 	{
 		return false;
 	}
@@ -6524,7 +6521,7 @@ bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 	VALIDATE_OBJECT
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-		if (!pPlot->CanStackUnitHere(this))
+		if (!canEndTurnAtPlot(pPlot))
 		{
 			return false;
 		}
@@ -6546,7 +6543,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-		if (!pPlot->CanStackUnitHere(this))
+		if (!canEndTurnAtPlot(pPlot))
 		{
 			return false;
 		}
@@ -6559,7 +6556,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canFortify(const CvPlot* pPlot) const
 {
-	if (!pPlot->CanStackUnitHere(this))
+	if (!canEndTurnAtPlot(pPlot))
 	{
 		return false;
 	}
@@ -7618,7 +7615,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	VALIDATE_OBJECT
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-		if (!pPlot->CanStackUnitHere(this))
+		if (!canEndTurnAtPlot(pPlot))
 		{
 			return false;
 		}
@@ -7952,7 +7949,7 @@ void CvUnit::DoAttrition()
 		return;
 	}
 #endif
-	if(!IsInFriendlyTerritory())
+	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
@@ -13374,13 +13371,13 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		return false;
 	}
 
+	bool bValidBuildPlot = isNativeDomain(pPlot);
+	
 #if defined(MOD_AI_SECONDARY_WORKERS)
-	bool bValidBuildPlot = pPlot->isValidDomainForAction(*this) ||
-						  (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
-	if(!bValidBuildPlot)
-#else
-	if(!pPlot->isValidDomainForAction(*this))
+	bValidBuildPlot |= (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
 #endif
+
+	if(!bValidBuildPlot)
 	{
 		return false;
 	}
@@ -14310,7 +14307,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	// Show the upgrade, but don't actually allow it
 	if(!bOnlyTestVisible)
 	{
-		if (!pPlot->CanStackUnitHere(this))
+		if (!canEndTurnAtPlot(pPlot))
 			return false;
 
 #if defined(MOD_GLOBAL_CS_UPGRADES)
@@ -14922,28 +14919,21 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	return true;
 }
 
-bool CvUnit::isMatchingDomain(const CvPlot* pPlot) const
+bool CvUnit::canEndTurnAtPlot(const CvPlot * pPlot) const
 {
-	switch (getDomainType())
-	{
-	case DOMAIN_LAND:
-		return pPlot->needsEmbarkation(this)==isEmbarked() || isCargo();
-		break;
-	case DOMAIN_AIR:
-		return true;
-		break;
-	case DOMAIN_SEA:
-		return pPlot->isWater();
-		break;
-	case DOMAIN_HOVER:
-		return true;
-		break;
-	case DOMAIN_IMMOBILE:
+	if (!pPlot)
 		return false;
-		break;
-	}
 
-	return true;
+	if (isDelayedDeath())
+		return true;
+
+	if (isCargo())
+		return true;
+
+	if (isInCombat())
+		return true;
+
+	return canMoveInto(*pPlot, MOVEFLAG_DESTINATION);
 }
 
 //	---------------------------------------------------------------------------
@@ -16990,7 +16980,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 	if(getDomainType() != DOMAIN_AIR)
 	{
-		if(!pPlot->isValidDomainForLocation(*this) && isMatchingDomain(pPlot))
+		if(!isNativeDomain(pPlot))
 		{
 			return false;
 		}
@@ -21021,6 +21011,10 @@ void CvUnit::restoreFullMoves()
 }
 
 //	--------------------------------------------------------------------------------
+// do not call this to end the turn for a unit!
+// it will not heal and not receive fortification bonuses!
+// use SetTurnProcessed() instead
+//	--------------------------------------------------------------------------------
 void CvUnit::finishMoves()
 {
 	VALIDATE_OBJECT
@@ -21052,76 +21046,6 @@ void CvUnit::SetImmobile(bool bValue)
 	}
 }
 
-//	--------------------------------------------------------------------------------
-/// Is this Unit in friendly territory? (ours or someone we have Open Borders with)
-bool CvUnit::IsInFriendlyTerritory() const
-{
-	VALIDATE_OBJECT
-	return plot()->IsFriendlyTerritory(getOwner());
-}
-
-//	--------------------------------------------------------------------------------
-/// Is this Unit under ranged fire from an enemy unit that can do it significant damage?
-bool CvUnit::IsUnderEnemyRangedAttack() const
-{
-	PlayerTypes eLoopPlayer;
-	int iTotalDamage = 0;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
-		if(kPlayer.isAlive())
-		{
-			if (atWar(getTeam(), kPlayer.getTeam()))
-			{
-				int iLoop;
-				CvCity *pLoopCity;
-				for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-				{
-					if(pLoopCity->canRangeStrikeAt(getX(), getY()))
-					{
-						return true;
-					}
-				}
-
-				CvUnit *pLoopUnit;
-				for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-				{
-					if(pLoopUnit)
-					{
-						if(!pLoopUnit->IsCanAttack())
-						{
-							continue;
-						}
-
-						if(pLoopUnit->IsCanAttackRanged())
-						{
-							// Are we in range?
-							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= pLoopUnit->GetRange())
-							{
-								// Do we have LOS to the target?
-								if(pLoopUnit->canRangeStrikeAt(getX(), getY()))
-								{
-									// Will we do any damage
-									int iExpectedDamage = pLoopUnit->GetRangeCombatDamage(this, NULL, false);
-									iTotalDamage += iExpectedDamage;
-									if (iTotalDamage > healRate(plot()))
-									{
-										return true;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Is this Unit in foreign territory?
@@ -21129,19 +21053,11 @@ bool CvUnit::IsInForeignOwnedTerritory() const
 {
 	VALIDATE_OBJECT
 		
-	if (plot()->isOwned() && plot()->getOwner() != getOwner())
+	if (plot()->isOwned() && plot()->getTeam() != getTeam())
 	{
 		return true;
 	}
 	return false;
-}
-//	--------------------------------------------------------------------------------
-/// Is this Unit in the specified player's territory?
-bool CvUnit::IsInPlayerTerritory(PlayerTypes ePlayer) const
-{
-	VALIDATE_OBJECT
-
-	return plot()->getOwner() == ePlayer;
 }
 #endif
 
@@ -27236,7 +27152,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 				if (pEndTurnPlot == &swapPlot)
 				{
-					if (!swapPlot.CanStackUnitHere(this))
+					if (!CanStackUnitAtPlot(&swapPlot))
 					{
 						const IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;
@@ -27485,14 +27401,111 @@ bool CvUnit::canRangeStrike() const
 		return false;
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
+	//this concerns not only embarked units but also ships in harbor!
     if(!isNativeDomain(plot()))
         return false;
 #endif
 
-	if (!plot()->CanStackUnitHere(this))
+	if (!canEndTurnAtPlot(plot()))
 		return false;
 
 	return true;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::CanStackUnitAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	//trade is always ok
+	if (isTrade())
+		return true;
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	if (getNumberStackingUnits() == -1)
+		return true;
+#endif
+
+	int iNumUnitsOfSameType = 0;
+
+	CvTeam& kUnitTeam = GET_TEAM(getTeam());
+	const IDInfo* pUnitNode = pPlot->headUnitNode();
+	while(pUnitNode != NULL)
+	{
+		const CvUnit*  pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
+		{
+			//ignore the unit if it's already in the plot
+			if (pLoopUnit == this)
+				continue;
+
+			if (pLoopUnit->getNumberStackingUnits() == -1)
+				continue;
+
+			// Don't include an enemy unit, or else it won't let us attack it :)
+			if (kUnitTeam.isAtWar(pLoopUnit->getTeam()))
+				continue;
+
+			// Units of the same type OR Units belonging to different civs
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+			if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*this,pPlot->needsEmbarkation(this))))
+#else
+			if(pUnit->getOwner() != pLoopUnit->getOwner() || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+#endif
+			{
+#if defined(MOD_GLOBAL_STACKING_RULES)
+				if(!MOD_GLOBAL_STACKING_RULES)
+				{
+					if(!pLoopUnit->isCargo())
+					{
+						iNumUnitsOfSameType++;
+					}
+				}
+				else
+				{
+					if(MOD_GLOBAL_STACKING_RULES)
+					{
+						if(!pLoopUnit->isCargo())
+						{
+							if(!pLoopUnit->IsStackingUnit() && !IsStackingUnit())
+							{
+								iNumUnitsOfSameType++;
+							}
+							if(pLoopUnit->IsStackingUnit())
+							{
+								iNumUnitsOfSameType++;
+								// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
+								// Also don't want plot unit limit to be exceeded if we are embarked. Rules are different there strict 1 UPT unless it's a sea improvement that allows it.
+								if(IsStackingUnit() && !isEmbarked())
+								{
+									iNumUnitsOfSameType++;
+								}
+							}
+						}
+					}
+				}
+
+#else
+				// We should allow as many cargo units as we want
+				if(!pLoopUnit->isCargo())
+				{
+					// Unit is the same domain & combat type, not allowed more than the limit
+					iNumUnitsOfSameType++;
+				}
+#endif
+			}
+		}
+	}
+
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	return iNumUnitsOfSameType < pPlot->getUnitLimit();
+#else
+	return iNumUnitsOfSameType < GC.getPLOT_UNIT_LIMIT();
+#endif
 }
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
@@ -28805,9 +28818,15 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			}
 
 			//failsafe for stacking with neutral
-			bool bCanEndTurnInCurrentPlot = canMoveInto(*plot(), iFlags | MOVEFLAG_DESTINATION);
-			if (!bCanEndTurnInCurrentPlot)
-				bRejectMove = true;
+			CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
+			if (pTurnDest && !pTurnDest->isVisible(getTeam()))
+			{
+				//if the turn destination is visible we know we can stay there ...
+				//in case it's invisible, we have to move carefully to not end up in an impossible situation
+				bool bCanEndTurnInCurrentPlot = canMoveInto(*plot(), iFlags | MOVEFLAG_DESTINATION);
+				if (!bCanEndTurnInCurrentPlot)
+					bRejectMove = true;
+			}
 		}
 
 		if(bRejectMove)
@@ -29587,7 +29606,7 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(!pPlot->isValidDomainForAction(*this))
+	if(!isNativeDomain(pPlot))
 	{
 		return false;
 	}
@@ -30060,7 +30079,7 @@ bool CvUnit::DoFallBack(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isMatchingDomain(pDestPlot))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			return true;

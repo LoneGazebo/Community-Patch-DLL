@@ -3005,7 +3005,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (pUnit->isDelayedDeath())
+		if (pUnit->isDelayedDeath() || pUnit->GetCurrHitPoints()<pUnit->GetMaxHitPoints()/2)
 		{
 			pUnit = pArmy->GetNextUnit(pUnit);
 			continue;
@@ -4084,7 +4084,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		}
 
 		if (!pUnit->TurnProcessed())
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN|CvUnit::MOVEFLAG_NO_EMBARK);
 	}
 
 	return bSuccess;
@@ -4636,7 +4636,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		return false;
 
 	// Unit already at target plot?
-	if(pTarget == pUnit->plot() && pTarget->CanStackUnitHere(pUnit))
+	if(pTarget == pUnit->plot() && pUnit->canEndTurnAtPlot(pTarget))
 	{
 		bResult = true;
 
@@ -7606,8 +7606,8 @@ bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
 
 STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bAllowPillage)
 {
-	//default action is do nothing and invalid score
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-INT_MAX,A_FINISH);
+	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
 
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7759,7 +7759,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 				result.eAssignmentType = A_PILLAGE;
 			}
 		}
+	}
 
+	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
+	//we only consider this when explicitly ending the turn!
+	if (movePlot.iMovesLeft == 0 || movePlot.iPlotIndex == unit.iPlotIndex) 
+	{
 		//if we don't plan on pillaging, then this is a plain finish assigment
 		if (result.eAssignmentType != A_PILLAGE)
 		{
@@ -7773,12 +7778,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 					iMiscScore ++; //fortification bonus!
 			}
 		}
-	}
 
-	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
-	//we only consider this when explicitly ending the turn!
-	if (movePlot.iMovesLeft == 0) 
-	{
 		//try to close the lines (todo: make sure the friendlies intend to stay there ...)
 		if (testPlot.getNumAdjacentFirstlineFriendlies(DomainForUnit(pUnit), unit.iPlotIndex) > 0)
 			iMiscScore++;
@@ -7861,8 +7861,8 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 {
 	//since we're not going to attack, we will assume a single move per unit, so we will always end the turn on the test plot
 
-	//default action is do nothing and invalid score
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-INT_MAX,A_FINISH);
+	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
 		
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -8001,8 +8001,8 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 //stacking with combat units is allowed here!
 STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
-	//default action is do nothing and invalid score
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-INT_MAX,A_FINISH);
+	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
 		
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
