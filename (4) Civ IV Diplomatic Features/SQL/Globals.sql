@@ -32,7 +32,7 @@ INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_PROTECT_VALUE_PER_OPINI
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', 50);	-- ...YOU TRIED ANYWAY, DIDN'T YOU, YOU FOOL? WARNED YOU....
 -- DANGER CLEARED! FEEL FREE TO SET THESE TO ZERO!
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_PROTECTED_CITY_DISTANCE', 5);				    -- ...okay, you can set this to zero. No really. No danger anymore! (How close to a vassal city must an enemy unit be for it to count for protect value.)
-INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 0);				-- How close to a vassal city must a vassal unit be to a city for it to count for failed protect value.
+INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 0);				-- How close to a vassal city must a vassal unit be for it to count for failed protect value.
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_PROTECTED_PER_TURN_DECAY', 25);					-- How much the protect score decays per turn. .25 a turn. CvDiplomacyAI::DoCounters()
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', 25);			-- How much the failed protect score decays per turn. .25 a turn. CvDiplomacyAI::DoCounters()
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_LOST_CITIES_THRESHOLD', 75);				-- Percentage of cities that must be lost before Vassalage can be ended.
