@@ -1024,12 +1024,12 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
 
-	//taken from CalculateBullyMetric
+	//taken from CalculateBullyScore
 	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
 	//check if we have a chance ...
-	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_pPlayer->GetID(), true);
+	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyScore(m_pPlayer->GetID(), true);
 	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
 		return false;
 

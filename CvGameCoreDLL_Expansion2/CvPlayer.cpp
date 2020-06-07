@@ -10565,7 +10565,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	if (pInitialCity && pInitialCity->isCoastal())
 	{
 		// Equal okay checking this plot because this is where the unit is right now
-		if (pInitialPlot->CanStackUnitHere(pUnit))
+		if (pUnit->canEndTurnAtPlot(pInitialPlot))
 			return pInitialPlot;
 	}
 
@@ -10576,81 +10576,12 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	{
 		if (pLoopCity != pInitialCity && pLoopCity->isCoastal())
 		{
-			if (pLoopCity->plot()->CanStackUnitHere(pUnit))
+			if (pUnit->canEndTurnAtPlot(pLoopCity->plot()))
 			{
 				return pLoopCity->plot();
 			}
 		}
 	}
-
-	// Don't have a coastal city, look for water plot THAT ISN'T A LAKE closest to our capital that isn't owned by an enemy
-	CvCity *pCapital = getCapitalCity();
-	if (pCapital)
-	{
-		int iCapitalX = pCapital->getX();
-		int iCapitalY = pCapital->getY();
-
-		CvPlot *pBestPlot = NULL;
-		int iBestDistance = MAX_INT;
-
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			CvPlot *pPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pPlot != NULL)
-			{
-				if (pPlot->isWater() && !pPlot->isLake())
-				{
-					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
-					{
-						if (pPlot->CanStackUnitHere(pUnit))
-						{
-							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
-							if (iDistance < iBestDistance)
-							{
-								pBestPlot = pPlot;
-								iBestDistance = iDistance;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (pBestPlot)
-		{
-			return pBestPlot;
-		}
-
-		// Now we'll even accept a lake
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			CvPlot *pPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pPlot != NULL)
-			{
-				if (pPlot->isWater())
-				{
-					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
-					{
-						if (pPlot->CanStackUnitHere(pUnit))
-						{
-							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
-							if (iDistance < iBestDistance)
-							{
-								pBestPlot = pPlot;
-								iBestDistance = iDistance;
-							}
-						}
-					}
-				}
-			}
-		}
-		if (pBestPlot)
-		{
-			return pBestPlot;
-		}
-	}
-
-	CvAssertMsg (false, "Could not find valid plot for Great Admiral - placing on land");
 
 	return pInitialPlot;
 }
@@ -11872,28 +11803,7 @@ void CvPlayer::RepositionInvalidUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->isDelayedDeath())
-		{
-			continue;
-		}
-
-		if(pLoopUnit->isCargo())
-		{
-			continue;
-		}
-
-		if(pLoopUnit->isInCombat())
-		{
-			continue;
-		}
-
-		CvPlot* pPlot = pLoopUnit->plot();
-		if(!pPlot)
-		{
-			continue;
-		}
-
-		if (!pPlot->CanStackUnitHere(pLoopUnit))
+		if (!pLoopUnit->canEndTurnAtPlot(pLoopUnit->plot()))
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
 				pLoopUnit->kill(false);	// Could not find a valid location!
@@ -13057,7 +12967,7 @@ void CvPlayer::disband(CvCity* pCity)
 			{
 				CvUnit* pUnit = ::getUnit(*itr);
 
-				if(pUnit && !pPlot->isValidDomainForLocation(*pUnit))
+				if(pUnit && !pUnit->canEndTurnAtPlot(pPlot))
 				{
 					if (!pUnit->jumpToNearestValidPlot())
 						pUnit->kill(false);
@@ -14279,7 +14189,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						pLoopPlot	= plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iPopRange);
 						if(pLoopPlot != NULL)
 						{
-							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isMatchingDomain(pLoopPlot))
+							if(pNewUnit->isNativeDomain(pLoopPlot))
 							{
 								if(pNewUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
 								{

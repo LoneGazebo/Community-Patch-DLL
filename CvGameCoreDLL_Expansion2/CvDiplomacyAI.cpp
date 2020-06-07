@@ -10035,19 +10035,15 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	else if (viApproachWeights[MINOR_CIV_APPROACH_BULLY] > 0)
 	{
 		int iBullyScore = 0;
-		if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
-			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyValue(GetPlayer()->GetID(), false);
+			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyScore(GetPlayer()->GetID(), false);
 			if (iBullyScore > 0)
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 5);
-			else
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
-		}
-		else
-		{
-			iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyMetric(GetPlayer()->GetID(), false);
-			if (iBullyScore > 0)
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 10);
+			{
+				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+					viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 5);
+				else
+					viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (iBullyScore / 10);
+			}
 			else
 				viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
 		}
@@ -26556,7 +26552,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-					iValue = pMinor->GetMinorCivAI()->CalculateBullyValue(eID, true);
+					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, true);
+
 				if (iValue <= 0)
 					continue;
 
@@ -26698,7 +26695,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-					iValue = pMinor->GetMinorCivAI()->CalculateBullyValue(eID, false);
+					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, false);
+
 				if (iValue <= 0)
 					continue;
 

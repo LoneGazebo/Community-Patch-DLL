@@ -525,8 +525,8 @@ public:
 	DomainTypes getDomainType() const;
 	//check if plot type matches the (primary) domain type
 	bool isNativeDomain(const CvPlot* pPlot) const;
-	//similar to native domain, but consider embarked state for land units
-	bool isMatchingDomain(const CvPlot* pPlot) const;
+	//check territory, terrain, stacking, etc
+	bool canEndTurnAtPlot(const CvPlot* pPlot) const;
 
 	int flavorValue(FlavorTypes eFlavor) const;
 
@@ -1021,12 +1021,8 @@ public:
 	bool IsImmobile() const;
 	void SetImmobile(bool bValue);
 
-	bool IsInFriendlyTerritory() const;
-	bool IsUnderEnemyRangedAttack() const;
-
 #if defined(MOD_BALANCE_CORE)
 	bool IsInForeignOwnedTerritory() const;
-	bool IsInPlayerTerritory(PlayerTypes ePlayer) const;
 #endif
 
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -1727,6 +1723,7 @@ public:
 	bool AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked = false) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
+	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
 
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;

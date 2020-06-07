@@ -1174,7 +1174,7 @@ if civ5_mode then
 
 			if g_isBasicHelp then
         		tips:insert( "" )
-				tips:insert( L"TXT_KEY_TP_HAPPINESS_EXPLANATION" )
+				tips:insert( L"TXT_KEY_CP_HAPPINESS_EXPLANATION" )
 			end
 
 			------------

@@ -15153,9 +15153,9 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	iGold /= iVisibleDivisor;
 	iGold *= iVisibleDivisor;
 
-	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING && !bIgnoreScaling)
+	if (!bIgnoreScaling)
 	{
-		int iFactor = CalculateBullyValue(eBullyPlayer, false);
+		int iFactor = CalculateBullyScore(eBullyPlayer, false);
 		iGold *= iFactor;
 		iGold /= 100;
 	}
@@ -15168,443 +15168,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 // Calculates a basic score for whether the major can bully this minor based on many factors.
 // Negative score if bully attempt is a failure, zero or positive if success.
 // May be modified after return, if the task is easier or harder (ex. bully a worker vs. bully gold)
-int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
-{
-	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-		return CalculateBullyValue(eBullyPlayer, bForUnit, sTooltipSink);
-
-	CvString sFactors = "";
-
-	int iScore = 0;
-#if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -500000;
-#else
-	const int iFailScore = -300;
-#endif
-
-	CvAssertMsg(GetPlayer()->GetID() != eBullyPlayer, "Minor civ and bully civ not expected to have the same ID!");
-	if (GetPlayer()->GetID() == eBullyPlayer)
-		return iFailScore;
-
-	CvAssertMsg(eBullyPlayer >= 0, "eBullyPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "eBullyPlayer is expected to be within maximum bounds (invalid Index)");
-	if (eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
-		return iFailScore;
-
-	// Can't bully the dead
-	if (!GetPlayer()->isAlive())
-		return iFailScore;
-
-	// **************************
-	// Global military power ranking of major
-	//
-	// +0 ~ +75
-	// **************************
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	int iGlobalMilitaryScore = 0;
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		eMajorLoop = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
-		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-		}
-	}
-	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-	veMilitaryRankings.SortItems();
-	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if (veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
-		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-#if defined(MOD_BALANCE_CORE_MINORS)
-			int iValue = 75;
-			if (MOD_BALANCE_CORE_MINORS)
-			{
-				iValue -= GET_PLAYER(eBullyPlayer).GetCurrentEra() * 5;
-			}
-#endif
-			iGlobalMilitaryScore = (int)(fRankRatio * iValue); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
-			iScore += iGlobalMilitaryScore;
-			break;
-		}
-	}
-
-	if (sTooltipSink)
-	{
-		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-		strPositiveFactor << iGlobalMilitaryScore;
-		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GLOBAL_MILITARY";
-		sFactors += strPositiveFactor.toUTF8();
-	}
-
-	// **************************
-	// Local military power comparison
-	//
-	// +0 ~ +125
-	// **************************
-	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-	if(pMinorCapital == NULL)
-		return iFailScore;
-
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower( GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
-	//don't forget the city itself
-	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
-	iScore += iLocalPowerRatio;
-
-	if (sTooltipSink)
-	{
-		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-		strPositiveFactor << iLocalPowerRatio;
-		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
-		sFactors += strPositiveFactor.toUTF8();
-	}
-
-	// **************************
-	// Social Policies
-	//
-	// Modifier to positive scores
-	// **************************
-	int iPoliciesScore = 0;
-	int iPoliciesMod = GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER);
-	if (iPoliciesMod != 0)
-	{
-		iPoliciesScore += iGlobalMilitaryScore;
-		iPoliciesScore += iLocalPowerRatio;
-
-		iPoliciesScore *= iPoliciesMod;
-		iPoliciesScore /= 100;
-	}
-	if (sTooltipSink && iPoliciesScore != 0)
-	{
-		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-		strPositiveFactor << iPoliciesScore;
-		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GUNBOAT_DIPLOMACY";
-		sFactors += strPositiveFactor.toUTF8();
-	}
-	iScore += iPoliciesScore;
-
-	// **************************
-	// Base Reluctance
-	//
-	// -110
-	// **************************
-#if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = 0;
-	if(MOD_BALANCE_CORE_MINORS)
-	{
-		iBaseReluctanceScore = -150;
-	}
-	else
-	{
-#endif
-		iBaseReluctanceScore = -110;
-#if defined(MOD_BALANCE_CORE_MINORS)
-	}
-
-	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex())
-		iBaseReluctanceScore -= (GET_PLAYER(eBullyPlayer).GetNumMinorsControlled() * 20);
-
-#endif
-	if (sTooltipSink)
-	{
-		Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		strNegativeFactor << iBaseReluctanceScore;
-		strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
-		sFactors += strNegativeFactor.toUTF8();
-	}
-	iScore += iBaseReluctanceScore;
-
-	// **************************
-	// Current influence of major
-	//
-	// -999 ~ -0
-	// **************************
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (MOD_BALANCE_CORE_MINORS && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
-	{
-		int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
-		if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
-		{
-			iFriendshipLimit *= 5;
-		}
-		if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= iFriendshipLimit)
-		{
-			int iInfluenceScore = iFailScore;
-			iScore += iInfluenceScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iInfluenceScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-	}
-	else
-#endif
-	if (GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY() && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
-	{
-		int iInfluenceScore = iFailScore;
-		iScore += iInfluenceScore;
-		if (sTooltipSink)
-		{
-			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			strNegativeFactor << iInfluenceScore;
-			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
-			sFactors += strNegativeFactor.toUTF8();
-		}
-	}
-
-	// **************************
-	// Previous bully attempts
-	//
-	// -300 ~ -0
-	// **************************
-	/*
-	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex() && GC.getGame().GetLastTurnCSAnnexed() > 0)
-	{
-		int iTurnLimit = 50;
-		iTurnLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iTurnLimit /= 100;
-
-		if ((GC.getGame().getGameTurn() - GC.getGame().GetLastTurnCSAnnexed()) < iTurnLimit)
-		{
-			int iInfluenceScore = iFailScore;
-			iScore += iInfluenceScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iInfluenceScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-	}
-	*/
-	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
-
-	if(iLastBullyTurn >= 0)
-	{
-		if (iLastBullyTurn == GC.getGame().getGameTurn())
-		{
-			iScore += iFailScore * 2;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iFailScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-		else if(iLastBullyTurn + 7 >= GC.getGame().getGameTurn())
-		{
-			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
-			iScore += iBulliedVeryRecentlyScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iBulliedVeryRecentlyScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-		else if (iLastBullyTurn + 15 >= GC.getGame().getGameTurn())
-		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 16) - (GC.getGame().getGameTurn())) * -25);
-			iScore += iBulliedRecentlyScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iBulliedRecentlyScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
-	{
-		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-		if(iDuration >= 0)
-		{
-			int iLimit = 50;
-			iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iLimit /= 100;
-			if(iDuration <= iLimit)
-			{
-				iScore += iFailScore * 2;
-				if (sTooltipSink)
-				{
-					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-					strNegativeFactor << iFailScore * 2;
-					strNegativeFactor << "TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED";
-					sFactors += strNegativeFactor.toUTF8();
-				}
-			}
-		}
-	}
-#endif	
-
-	// **************************
-	// Tribute type
-	//
-	// -30 ~ -0
-	// **************************
-	if (bForUnit)
-	{
-#if defined(MOD_BALANCE_CORE_MINORS)
-		int iUnitScore = 0;
-		if(MOD_BALANCE_CORE_MINORS)
-		{
-			iUnitScore = -50;
-		}
-		else
-		{
-#endif
-			iUnitScore = -30;
-#if defined(MOD_BALANCE_CORE_MINORS)
-		}
-#endif
-		iScore += iUnitScore;
-		if (sTooltipSink)
-		{
-			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			strNegativeFactor << iUnitScore;
-			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_UNIT_RELUCTANCE";
-			sFactors += strNegativeFactor.toUTF8();
-		}
-	}
-
-	// **************************
-	// City-State population
-	//
-	// -300 ~ -0
-	// **************************
-	if (bForUnit)
-	{
-		if (GetPlayer()->getCapitalCity() == NULL || GetPlayer()->getCapitalCity()->getPopulation() < 4)
-		{
-			int iPopulationScore = iFailScore;
-			iScore += iPopulationScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iPopulationScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_POPULATION";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-	}
-
-	// **************************
-	// Passive Support from other majors
-	//
-	// -10 ~ -0
-	// **************************
-	if (!GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IgnoreBullyPenalties())
-	{
-		if (GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
-		{
-#if defined(MOD_BALANCE_CORE_MINORS)
-			int iAllyScore = 0;
-			if (MOD_BALANCE_CORE_MINORS)
-			{
-				iAllyScore = -125;
-			}
-			else
-			{
-#endif
-				iAllyScore = -10;
-#if defined(MOD_BALANCE_CORE_MINORS)
-			}
-#endif
-			iScore += iAllyScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iAllyScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_ALLIES";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-
-		// **************************
-		// Pledges of Protection from other majors
-		//
-		// -20 ~ -0
-		// **************************
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			int iProtectionScore = 0;
-			eMajorLoop = (PlayerTypes)iMajorLoop;
-			if (eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
-			{
-#if defined(MOD_BALANCE_CORE_MINORS)
-				if (MOD_BALANCE_CORE_MINORS)
-				{
-					iProtectionScore = -50;
-				}
-				else
-				{
-#endif
-					iProtectionScore = -20;
-#if defined(MOD_BALANCE_CORE_MINORS)
-				}
-#endif
-				iScore += iProtectionScore;
-				if (sTooltipSink)
-				{
-					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-					strNegativeFactor << iProtectionScore;
-					strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
-					sFactors += strNegativeFactor.toUTF8();
-				}
-				break;
-			}
-		}
-	}
-
-	// **************************
-	// Minor Civ Type
-	//
-	// -20 ~ -0
-	// **************************
-	if (GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-	{
-		int iHostileScore = -10;
-		iScore += iHostileScore;
-		if (sTooltipSink)
-		{
-			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			strNegativeFactor << iHostileScore;
-			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE";
-			sFactors += strNegativeFactor.toUTF8();
-		}
-	}
-	if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-	{
-		int iMilitaristicScore = -10;
-		iScore += iMilitaristicScore;
-		if (sTooltipSink)
-		{
-			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			strNegativeFactor << iMilitaristicScore;
-			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARISTIC";
-			sFactors += strNegativeFactor.toUTF8();
-		}
-	}
-
-	if (sTooltipSink != NULL)
-	{
-		(*sTooltipSink) += sFactors;
-	}
-
-	return iScore;
-}
-
-int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
+int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
 {
 	CvString sFactors = "";
 
@@ -15640,32 +15204,20 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 	// **************************
 	// Global military power ranking of major
 	//
-	// +0 ~ +25
+	// +0 ~ +50, typically much lower
 	// **************************
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	int iGlobalMilitaryScore = 0;
+
+	const int iGlobalMilitaryScoreMax = 50;
+	int iTotalMilitaryMight = 0;
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajorLoop = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
-		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-		}
+		PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
+		if (GET_PLAYER(eMajorLoop).isAlive())
+			iTotalMilitaryMight +=  GET_PLAYER(eMajorLoop).GetMilitaryMight(true); 
 	}
-	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-	veMilitaryRankings.SortItems();
-	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if (veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
-		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-			int iValue = 50;
-			iGlobalMilitaryScore = (int)(fRankRatio * iValue); // A score between 0*(1 / num majors alive) and 25, with the highest rank major getting 25
-			iScore += iGlobalMilitaryScore;
-			break;
-		}
-	}
+
+	int iMilitaryMightPercent = (100 * GET_PLAYER(eBullyPlayer).GetMilitaryMight(true)) / max(1, iTotalMilitaryMight);
+	int	iGlobalMilitaryScore = (iMilitaryMightPercent * iGlobalMilitaryScoreMax)/100; 
 
 	if (sTooltipSink)
 	{
@@ -15678,8 +15230,10 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 	// **************************
 	// Local military power comparison
 	//
-	// +0 ~ +25
+	// +0 ~ +100
 	// **************************
+	const int iLocalMilitaryScoreMax = 100;
+
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (pMinorCapital == NULL)
 		return iFailScore;
@@ -15687,22 +15241,15 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
-	iLocalPowerRatio /= 5;
 
-	if (iLocalPowerRatio != 0)
+	iScore += min(iLocalMilitaryScoreMax,iLocalPowerRatio);
+
+	if (sTooltipSink)
 	{
-		if (iLocalPowerRatio > 50)
-			iLocalPowerRatio = 50;
-
-		iScore += iLocalPowerRatio;
-
-		if (sTooltipSink)
-		{
-			Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-			strPositiveFactor << iLocalPowerRatio;
-			strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
-			sFactors += strPositiveFactor.toUTF8();
-		}
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iLocalPowerRatio;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
+		sFactors += strPositiveFactor.toUTF8();
 	}
 
 	// **************************
@@ -15728,52 +15275,6 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 		sFactors += strPositiveFactor.toUTF8();
 	}
 	iScore += iPoliciesScore;
-
-	// **************************
-	// Empire Proximity
-	//
-	// +0 ~ +50
-
-	PlayerProximityTypes eProximity = GET_PLAYER(eBullyPlayer).GetProximityToPlayer(GetPlayer()->GetID());
-	int iProxmityBonus = 0;
-	switch (eProximity)
-	{
-	case PLAYER_PROXIMITY_NEIGHBORS:
-		iProxmityBonus = 20;
-		break;
-	case PLAYER_PROXIMITY_CLOSE:
-		iProxmityBonus = 10;
-		break;
-	case PLAYER_PROXIMITY_FAR:
-		iProxmityBonus = -20;
-		break;
-	case PLAYER_PROXIMITY_DISTANT:
-		iProxmityBonus = -40;
-		break;
-	}
-
-	if (iProxmityBonus != 0)
-	{
-		iScore += iProxmityBonus;
-		if (sTooltipSink)
-		{
-			if (iProxmityBonus < 0)
-			{
-				Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strPositiveFactor << iProxmityBonus;
-				strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY";
-				sFactors += strPositiveFactor.toUTF8();
-			}
-			else
-			{
-				Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-				strPositiveFactor << iProxmityBonus;
-				strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY";
-				sFactors += strPositiveFactor.toUTF8();
-			}
-		}
-	}
-
 
 	// **************************
 	// Current influence of major
@@ -15890,7 +15391,7 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 		int iFriends = 0;
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			eMajorLoop = (PlayerTypes)iMajorLoop;
+			PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
 			if (eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 			{
 				iProtectionScore += 10;
@@ -15988,11 +15489,10 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 	if(!GetPlayer()->isAlive())
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
-#endif
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false);
+
+	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ false);
 
 	return CanMajorBullyGold(ePlayer, iScore);
 }
@@ -16033,7 +15533,7 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 	
 	CvString sFactors = "";
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false, &sFactors);
+	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ false, &sFactors);
 	bool bCanBully = CanMajorBullyGold(ePlayer, iScore);
 
 	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
@@ -16071,7 +15571,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 		return false;
 #endif
 
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true);
+	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true);
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
 
@@ -16111,7 +15611,7 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 
 	CvString sFactors = "";
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true, &sFactors);
+	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
 #if defined(MOD_BALANCE_CORE)
 	UnitClassTypes eUnitClassType = GetBullyUnit();
@@ -16179,7 +15679,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
 	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
-	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/ false);
+	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ false);
 	bool bSuccess = CanMajorBullyGold(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -16382,9 +15882,9 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
 	iValue /= 100;
 
-	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING && !bIgnoreScaling)
+	if (!bIgnoreScaling)
 	{
-		int iFactor = CalculateBullyValue(eBully, true);
+		int iFactor = CalculateBullyScore(eBully, true);
 		iValue *= iFactor;
 		iValue /= 100;
 	}
@@ -16401,7 +15901,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
 	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
-	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/ true);
+	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ true);
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
 
