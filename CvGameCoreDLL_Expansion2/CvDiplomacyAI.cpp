@@ -4365,13 +4365,13 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	// More than one player to update - use approach prioritization for more strategic diplomacy
 	if (vPlayersToUpdate.size() > 1)
 	{
-		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record (but do not update) the approach weights in a map; they will be used in the second pass.
+		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record the approach weights using SetPlayerApproachValue; they will be used in the second pass.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
 		}
 
-		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player and update/log the (possibly new) approach and weights.
+		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player (using approach prioritization via GetPlayerApproachValue) and update/log the (possibly new) approach and weights.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
 			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
