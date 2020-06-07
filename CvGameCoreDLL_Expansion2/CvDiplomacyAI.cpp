@@ -4384,11 +4384,11 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
 			if (!vPlayersToReevaluate.empty() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
 			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
 			}
 			else
 			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ false);
+				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ false);
 			}
 		}
 	}
@@ -4396,7 +4396,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	else if (vPlayersToUpdate.size() == 1)
 	{
 		// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-		if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
+		if (!vPlayersToReevaluate.empty() && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
 		{
 			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bIgnoreApproachCurve*/ true);
 		}
@@ -4410,7 +4410,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 /// What is the best Diplomatic Approach to take towards a major civilization?
 void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve)
 {
-	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && ePlayer != GetPlayer()->GetID(), "DIPLOMACY AI: Invalid Player Index when calling function GetBestApproachTowardsMajorCiv.");
+	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && ePlayer != GetPlayer()->GetID(), "DIPLOMACY AI: Invalid Player Index when calling function SelectBestApproachTowardsMajorCiv.");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || ePlayer == GetPlayer()->GetID()) return;
 
 	// Initialize some variables that are called repeatedly here, to save on performance
