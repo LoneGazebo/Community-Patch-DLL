@@ -4362,59 +4362,36 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 		}
 	}
 
-	bool bReevaluate = !vPlayersToReevaluate.empty();
-
 	// More than one player to update - use approach prioritization for more strategic diplomacy
 	if (vPlayersToUpdate.size() > 1)
 	{
 		// Do a first pass of SelectBestApproachTowardsMajorCiv for each player and record (but do not update) the approach weights in a map; they will be used in the second pass.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
-			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-			if (bReevaluate && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
-			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ true);
-			}
-			else
-			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ false);
-			}
+			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ true, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
 		}
 
 		// Do a second pass of SelectBestApproachTowardsMajorCiv for each player and update/log the (possibly new) approach and weights.
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 		{
-			// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-			if (bReevaluate && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), *it) != vPlayersToReevaluate.end())
-			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ true);
-			}
-			else
-			{
-				SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ false);
-			}
+			SelectBestApproachTowardsMajorCiv(*it, /*bFirstPass*/ false, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
 		}
 	}
 	// There's only one player to update, so we only need one pass of the function
 	else if (vPlayersToUpdate.size() == 1)
 	{
-		// Do we need to re-evaluate our approach towards this player? If so, ignore the approach curve.
-		if (bReevaluate && std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), vPlayersToUpdate.front()) != vPlayersToReevaluate.end())
-		{
-			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ true);
-		}
-		else
-		{
-			SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, oldApproaches, /*bReevaluatePlayer*/ false);
-		}
+		SelectBestApproachTowardsMajorCiv(vPlayersToUpdate.front(), /*bFirstPass*/ false, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
 	}
 }
 
 /// What is the best Diplomatic Approach to take towards a major civilization?
-void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bReevaluatePlayer)
+void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches)
 {
 	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && ePlayer != GetPlayer()->GetID(), "DIPLOMACY AI: Invalid Player Index when calling function SelectBestApproachTowardsMajorCiv.");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || ePlayer == GetPlayer()->GetID()) return;
+
+	// Are we re-evaluating our approach towards this player?
+	bool bReevaluatePlayer = std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), ePlayer) != vPlayersToReevaluate.end();
 
 	// Initialize some variables that are called repeatedly here, to save on performance
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
@@ -4558,7 +4535,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 #endif
 
 	// Previous approach
-	bool bNoOldApproach = false;
 	MajorCivApproachTypes eOldApproach;
 	std::map<PlayerTypes, MajorCivApproachTypes>::iterator oldApproachPointer;
 	oldApproachPointer = oldApproaches.find(ePlayer);
@@ -4573,16 +4549,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 	{
-		bNoOldApproach = true;
+		bReevaluatePlayer = true;
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 	}
-
-	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
-	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0);
 
 	//--------------------------------//
 	// [PART 1: INITIAL WEIGHTS]	  //
 	//--------------------------------//
+
+	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
+	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0);
 
 	////////////////////////////////////
 	// BASE PERSONALITY WEIGHT
@@ -4596,7 +4572,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iBias = GetPersonalityMajorCivApproachBias(eLoopApproach);
 		viApproachWeightsPersonality.push_back(iBias);
 		
-		// Initial personality weight
+		// Add 1x bias for each approach to reflect personality weight
 		viApproachWeights[eLoopApproach] += iBias;
 	}
 
@@ -4610,7 +4586,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// LAST TURN APPROACH BIASES
 	////////////////////////////////////
 
-	if (!bNoOldApproach && !bReevaluatePlayer)
+	if (!bReevaluatePlayer)
 	{
 		// Add 1x approach bias for our current approach, to make it less likely to flip from turn to turn
 		viApproachWeights[eOldApproach] += viApproachWeightsPersonality[eOldApproach];
@@ -4769,6 +4745,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -4780,6 +4759,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -4791,6 +4773,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -4824,6 +4809,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -4869,6 +4856,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
 
 		// Liberated the capital?
 		if (IsPlayerLiberatedCapital(ePlayer))
@@ -5901,7 +5890,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		// They have vassals? Let's consider our opinion of them.
-		if (GET_TEAM(eTeam).GetNumVassals() > 0 && !bReevaluatePlayer)
+		if (GET_TEAM(eTeam).GetNumVassals() > 0)
 		{
 			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -5912,6 +5901,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 					if (GET_TEAM(eLoopTeam).IsVassal(eTeam))
 					{
+						// Are we re-evaluating this vassal? Then using last update's approach is no good.
+						if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), eLoopPlayer) != vPlayersToReevaluate.end())
+							continue;
+
 						// Grab our previous approach towards them from the map
 						MajorCivApproachTypes eOldLoopApproach;
 						oldApproachPointer = oldApproaches.find(eLoopPlayer);
@@ -5958,7 +5951,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// They're a vassal of someone other than us? What do we think of their masters?
-		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && !bIsMaster && !bReevaluatePlayer)
+		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && !bIsMaster)
 		{
 			// We have the same master
 			if (GET_TEAM(eMyTeam).GetMaster() == GET_TEAM(eTeam).GetMaster())
@@ -5976,6 +5969,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 						if (GET_TEAM(eTeam).IsVassal(eLoopTeam))
 						{
+							// Are we re-evaluating this master? Then using last update's approach is no good.
+							if (std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), eLoopPlayer) != vPlayersToReevaluate.end())
+								continue;
+
 							// Grab our previous approach towards them from the map
 							MajorCivApproachTypes eOldLoopApproach;
 							oldApproachPointer = oldApproaches.find(eLoopPlayer);
@@ -8549,7 +8546,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		int iApproachValue = viApproachWeights[eLoopApproach];
 
-		if (!bNoOldApproach && !bReevaluatePlayer)
+		if (!bReevaluatePlayer)
 		{
 			float fAlpha = 0.10f;
 			int iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * (1 - fAlpha)));
