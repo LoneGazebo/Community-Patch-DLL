@@ -3183,36 +3183,29 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				// Only on conquest
-				if(bConquest) {
-					// Vassalage stuff
-					TeamTypes eMaster = GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).GetMaster();
-					if(eMaster != NO_TEAM) {
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if (MOD_DIPLOMACY_CIV4_FEATURES && bConquest)
+			{
+				// If the city belonged to a vassal, penalize the masters
+				if (GET_PLAYER(pOldCity->getOwner()).isMajorCiv() && GET_PLAYER(pOldCity->getOwner()).IsVassalOfSomeone())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (pOldOwnerDiploAI->IsPlayerValid(eLoopPlayer) && pOldOwnerDiploAI->IsVassal(eLoopPlayer))
 						{
-							ePlayer = (PlayerTypes) iPlayerLoop;
-						
-							if(GET_PLAYER(ePlayer).getTeam() == eMaster) {
-								// This team was the master of the loser's team
-								if(GET_PLAYER(pOldCity->getOwner()).getTeam() == eMaster)
-								{
-									// Master's failed protect score goes up for Vassal
-									GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
-								}
-
-								// Notify Diplo AI that our master has killed a city in a civ near our empire
-								// Conquering team is the master
-								if(getTeam() == eMaster)
-								{
-									// Old city was neighbors to us
-									if(GET_PLAYER(ePlayer).GetProximityToPlayer(pOldCity->getOwner()) <= PLAYER_PROXIMITY_CLOSE)
-									{
-										// Master protected us against our enemy!
-										GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
-									}
-								}
-							}
+							pOldOwnerDiploAI->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+						}
+					}
+				}
+				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
+				if (isMajorCiv() && GetNumVassals() > 0)
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GetDiplomacyAI()->IsMaster(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(pOldCity->getOwner()) >= PLAYER_PROXIMITY_CLOSE)
+						{
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
 						}
 					}
 				}
