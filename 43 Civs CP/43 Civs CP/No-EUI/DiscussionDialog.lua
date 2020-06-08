@@ -356,8 +356,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				---------------------
 
 				-- Ask the AI player not to send missionaries or prophets
-				if (activePlayer:GetNegativeReligiousConversionPoints(g_iAIPlayer) > 0 and not pAIPlayer:IsAskedToStopConverting(iActivePlayer)) then
-					strButton4Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPREADING_RELIGION");
+				if (activePlayer:GetNegativeReligiousConversionPoints(g_iAIPlayer) > 0 or activePlayer:HasCreatedReligion()) then
+					if (not pAIPlayer:IsAskedToStopConverting(iActivePlayer)) then
+						strButton4Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPREADING_RELIGION");
+					end
 				end
 					
 				---------------------
