@@ -2510,8 +2510,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 						eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer))
 						{
-							// Unit killed in the vassal's territory or near one of the vassal's cities
-							if (pPlot->getOwner() == eLoopPlayer || GET_PLAYER(eLoopPlayer).GetCityDistanceInPlots(pPlot) <= /*5*/ GC.getVASSALAGE_PROTECTED_CITY_DISTANCE())
+							// Unit killed in/adjacent to the vassal's territory or near one of the vassal's units/cities
+							if (pPlot->getOwner() == eLoopPlayer || pPlot->isAdjacentPlayer(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetCityDistanceInPlots(pPlot) <= /*6*/ GC.getVASSALAGE_PROTECTED_CITY_DISTANCE())
 							{
 								if (iCivValue > 0)
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(ePlayer, iCivValue);
@@ -10337,15 +10337,15 @@ bool CvUnit::pillage()
 					}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					// Loser a vassal?
-					TeamTypes eMaster = GET_TEAM(pPlot->getTeam()).GetMaster();
-					if(eMaster != NO_TEAM)
+					// Did the plot owner's master fail to protect their territory?
+					if (MOD_DIPLOMACY_CIV4_FEATURES && !isBarbarian() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
 					{
-						// master failing to protect territory
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++) {
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
-								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							if (GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+							{
+								GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
 							}
 						}
 					}
