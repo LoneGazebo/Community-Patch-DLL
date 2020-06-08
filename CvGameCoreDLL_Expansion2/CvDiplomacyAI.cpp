@@ -45121,31 +45121,12 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	}
 	
 	// clear out DoF/DP desires, attack operations
-	if (IsWantsDoFWithPlayer(eKilledPlayer))
-	{
-		DoCancelWantsDoFWithPlayer(eKilledPlayer);
-	}
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (IsWantsDefensivePactWithPlayer(eKilledPlayer))
-	{
-		DoCancelWantsDefensivePactWithPlayer(eKilledPlayer);
-	}
-#endif
-	
+	DoCancelWantsDoFWithPlayer(eKilledPlayer);
+	DoCancelWantsDefensivePactWithPlayer(eKilledPlayer);
 	SetArmyInPlaceForAttack(eKilledPlayer, false);
 	SetWantsSneakAttack(eKilledPlayer, false);
-	
-	if (GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->IsWantsDoFWithPlayer(GetPlayer()->GetID()))
-	{
-		GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(GetPlayer()->GetID());
-	}
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-	{
-		GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(GetPlayer()->GetID());
-	}
-#endif
-	
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(GetPlayer()->GetID());
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(GetPlayer()->GetID());
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetArmyInPlaceForAttack(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsSneakAttack(GetPlayer()->GetID(), false);
 	
@@ -45166,7 +45147,14 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredMilitaryPromise(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMadeAttackCityStatePromise(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredAttackCityStatePromise(GetPlayer()->GetID(), false);
-	
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	ChangeVassalProtectValue(eKilledPlayer, -GetVassalProtectValue(eKilledPlayer));
+	ChangeVassalFailedProtectValue(eKilledPlayer, -GetVassalFailedProtectValue(eKilledPlayer));
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetPlayer()->GetID(), -GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->GetVassalProtectValue(GetPlayer()->GetID()));
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->ChangeVassalFailedProtectValue(GetPlayer()->GetID(), -GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->GetVassalFailedProtectValue(GetPlayer()->GetID()));
+#endif
+
 	SetWarmongerThreat(eKilledPlayer, THREAT_NONE);
 	SetOtherPlayerWarmongerAmountTimes100(eKilledPlayer, 0);
 }
@@ -52563,10 +52551,6 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 			// Set number of times demanded while vassal to be 0, since, y'know, we're not a vassal anymore...
 			SetNumTimesDemandedWhileVassal(ePlayer, 0);
 			m_pabDemandAcceptedWhenVassal[ePlayer] = false;
-
-			// Reset protection bonuses/penalties
-			ChangeVassalProtectValue(ePlayer, -GetVassalProtectValue(ePlayer));
-			ChangeVassalFailedProtectValue(ePlayer, -GetVassalFailedProtectValue(ePlayer));
 
 			// Reset our memory of GPT that was taxed from us
 			SetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer, 0);
