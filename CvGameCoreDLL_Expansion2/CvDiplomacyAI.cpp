@@ -52564,6 +52564,10 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 			SetNumTimesDemandedWhileVassal(ePlayer, 0);
 			m_pabDemandAcceptedWhenVassal[ePlayer] = false;
 
+			// Reset protection bonuses/penalties
+			ChangeVassalProtectValue(ePlayer, -GetVassalProtectValue(ePlayer));
+			ChangeVassalFailedProtectValue(ePlayer, -GetVassalFailedProtectValue(ePlayer));
+
 			// Reset our memory of GPT that was taxed from us
 			SetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer, 0);
 			SetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer, 0);
