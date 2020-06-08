@@ -105,8 +105,14 @@ void CvHomelandAI::RecruitUnits()
 			OutputDebugString( CvString::format("undefended general found at %d:%d!\n",pLoopUnit->getX(),pLoopUnit->getY()).c_str());
 
 		// Never want units that have already moved or zombies
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
+		if (pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
+		{
+			//if there is an unfinished mission but the unit can still move, that means there is a problem ...
+			if (pLoopUnit->GetLengthMissionQueue() > 0 && pLoopUnit->canMove())
+				pLoopUnit->ClearMissionQueue();
+
 			continue;
+		}
 
 		//don't touch armies or units which are out of moves
 		if(!pLoopUnit->canMove() || pLoopUnit->getArmyID()!=-1)
@@ -2138,12 +2144,17 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			// Therefore we set the last move manually
 			pUnit->setHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
 
-			//safety check. in case we have a unit with queued missions, 
-			//don't finish its moves, else it won't be able to execute the mission
+			//safety check in case we have a unit with a queued mission
 			if (pUnit->GetLengthMissionQueue() > 0)
 			{
-				pUnit->SetTurnProcessed(true);
-				continue;
+				//unit can still move? then there is a problem with the mission, better delete it!
+				if (pUnit->canMove())
+					pUnit->ClearMissionQueue();
+				else
+				{
+					pUnit->SetTurnProcessed(true);
+					continue;
+				}
 			}
 
 			if (pUnit->getDomainType() == DOMAIN_LAND)
@@ -2896,26 +2907,37 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
+		if (!pUnit)
+			continue;
+
+		//so easy
+		CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+		if (!pBestPlot)
+			continue;
+
+		// Move to the lowest danger value found
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+
+		//we know that we should be able to reach the plot
+		//so check if the mission was aborted (new enemy discovered etc)
+		while (pUnit->plot() != pBestPlot && pUnit->canMove())
 		{
-			//so easy
-			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+			//try as long as necessary
+			CvPlot* pBestPlot2 = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+			if(pBestPlot2)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot2->getX(), pBestPlot2->getY());
+		}
 
-			if(pBestPlot != NULL)
-			{
-				// Move to the lowest danger value found
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-				UnitProcessed(pUnit->GetID());
+		//important, else we can't end the turn
+		UnitProcessed(pUnit->GetID());
 
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-					strLogString.Format("Moving %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			CvString strTemp;
+			strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+			strLogString.Format("Moving %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
+			LogHomelandMessage(strLogString);
 		}
 	}
 }

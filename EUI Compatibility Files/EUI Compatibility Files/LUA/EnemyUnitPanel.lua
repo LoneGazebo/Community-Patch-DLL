@@ -3480,7 +3480,7 @@ function OnMouseOverHex( hexX, hexY )
 									-- ranged attacks handled elsewhere!
 									if (validLandAttack or validSeaAttack or validAirAttack) then
 								
-										if (pUnit:GetBaseCombatStrength() > 0) then
+										if (pUnit:IsCanDefend()) then
 											UpdateUnitPortrait(pUnit);
 											UpdateUnitPromotions(pUnit);
 											UpdateUnitStats(pUnit);

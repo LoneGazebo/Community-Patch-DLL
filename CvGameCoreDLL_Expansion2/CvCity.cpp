@@ -29466,7 +29466,7 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 
 //	--------------------------------------------------------------------------------
 /// Setting the danger value threat amount
-void CvCity::SetThreatValue(int iThreatValue)
+void CvCity::setThreatValue(int iThreatValue)
 {
 	VALIDATE_OBJECT
 	m_iThreatValue = iThreatValue;

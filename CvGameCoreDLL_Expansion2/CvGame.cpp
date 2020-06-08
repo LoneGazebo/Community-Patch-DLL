@@ -9183,6 +9183,7 @@ void CvGame::updateMoves()
 				{
 					if(needsAIUpdate || !player.isHuman())
 					{
+						// ------- this is where the important stuff happens! --------------
 						player.AI_unitUpdate();
 						NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.AI_unitUpdate() called for player " << player.GetID() << " " << player.getName()); 
 					}

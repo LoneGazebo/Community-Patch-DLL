@@ -355,7 +355,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
-		pLoopCity->SetThreatValue(iThreatValue);
+		pLoopCity->setThreatValue(iThreatValue);
 	}
 }
 

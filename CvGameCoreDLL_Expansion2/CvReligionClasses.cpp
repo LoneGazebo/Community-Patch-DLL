@@ -1816,19 +1816,19 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 				}
 			}
 		}
-
-		// Logging
-		if(GC.getLogging())
-		{
-			CvString strLogMsg;
-			strLogMsg = kPlayer.getCivilizationShortDescription();
-			strLogMsg += ", RELIGION ENHANCED";
-			LogReligionMessage(strLogMsg);
-		}
 	}
 #if defined(MOD_API_RELIGION)
 	}
 #endif
+
+	// Logging
+	if(GC.getLogging())
+	{
+		CvString strLogMsg;
+		strLogMsg = kPlayer.getCivilizationShortDescription();
+		strLogMsg += ", RELIGION ENHANCED";
+		LogReligionMessage(strLogMsg);
+	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -7684,6 +7684,7 @@ bool CvReligionAI::DoFaithPurchases()
 	UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	bool bAllConvertedCore = AreAllOurCitiesConverted(eReligionToSpread, false /*bIncludePuppets*/);
 	bool bAllConvertedInclPuppets = AreAllOurCitiesConverted(eReligionToSpread, true /*bIncludePuppets*/);
+	bool bHaveCityWithReligion = false;
 
 	// Count missionaries / prophets
 	int iNumMissionaries = 0;
@@ -7694,6 +7695,15 @@ bool CvReligionAI::DoFaithPurchases()
 			if ( pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
 				iNumMissionaries++;
 	}
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligionToSpread)
+		{
+			bHaveCityWithReligion = true;
+			break;
+		}
+	}
+
 
 	//Let's see about our religious flavor...
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
@@ -7802,6 +7812,11 @@ bool CvReligionAI::DoFaithPurchases()
 			}
 		}
 	}
+
+	//the rest needs missionaries / inquisitors of a certain religion
+	//we can only create them if we have a city with that religion
+	if (!bHaveCityWithReligion)
+		return false;
 
 	//THIRD PRIORITY
 	//Let's make sure all of our non-puppet cities are converted.
@@ -7973,13 +7988,17 @@ bool CvReligionAI::DoFaithPurchases()
 // check whether a missionary or an inquisitor is better
 bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 {
-	//missionaries first
-	if (HaveNearbyConversionTarget(eReligion, true, false))
+	//missionaries for easy targets first
+	if (HaveNearbyConversionTarget(eReligion, false, true))
 		return BuyMissionary(eReligion);
 
 	//inquisitors second
 	if (!HaveEnoughInquisitors(eReligion))
 		return BuyInquisitor(eReligion);
+
+	//now missionaries for all targets
+	if (HaveNearbyConversionTarget(eReligion, true, false))
+		return BuyMissionary(eReligion);
 
 	return false;
 }
@@ -10619,7 +10638,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	CvCity* pHolyCity = pMyReligion->GetHolyCity();
 	int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
 	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
-	int iScore = max(10, 100 - 2 * iDistToHolyCity - iDistToUnit);
+	int iScore = max(10, 50 - iDistToHolyCity - iDistToUnit);
 
 	// Better score if city owner isn't starting a religion and can easily be converted to our side
 	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
@@ -10664,11 +10683,19 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	}
 #endif
 
-	// Holy city will anger folks, let's not do that one right away
-	ReligionTypes eCityOwnersReligion = kCityPlayer.GetReligions()->GetReligionCreatedByPlayer();
-	if (eCityOwnersReligion > RELIGION_PANTHEON && pCity->GetCityReligions()->IsHolyCityForReligion(eCityOwnersReligion))
+	//prefer to convert our own cities ...
+	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
-		iScore /= 2;
+		iScore *= 2;
+	}
+	else
+	{
+		// Holy city will anger folks, let's not do that one right away
+		ReligionTypes eCityOwnersReligion = kCityPlayer.GetReligions()->GetReligionCreatedByPlayer();
+		if (eCityOwnersReligion > RELIGION_PANTHEON && pCity->GetCityReligions()->IsHolyCityForReligion(eCityOwnersReligion))
+		{
+			iScore /= 2;
+		}
 	}
 
 	return iScore;

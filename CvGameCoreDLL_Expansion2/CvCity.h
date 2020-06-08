@@ -1525,7 +1525,7 @@ public:
 
 	bool isValidBuildingLocation(BuildingTypes eIndex) const;
 
-	void SetThreatValue(int iThreatValue);
+	void setThreatValue(int iThreatValue);
 	int getThreatValue(void);
 
 	void clearOrderQueue();

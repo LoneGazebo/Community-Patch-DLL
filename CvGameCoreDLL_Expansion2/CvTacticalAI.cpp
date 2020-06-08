@@ -711,11 +711,17 @@ void CvTacticalAI::FindTacticalTargets()
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if (pCity != NULL)
 			{
-				if (m_pPlayer->GetID() == pCity->getOwner() && pCity->getThreatValue()>0)
+				if (m_pPlayer->GetID() == pCity->getOwner())
 				{
-					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-					newTarget.SetAuxIntData(pCity->getThreatValue());
-					m_AllTargets.push_back(newTarget);
+					CvTacticalDominanceZone* pLandZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+					CvTacticalDominanceZone* pWaterZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
+					int iBorderScore = (pLandZone ? pLandZone->GetBorderScore(DOMAIN_LAND) : 0) + (pWaterZone ? pWaterZone->GetBorderScore(DOMAIN_SEA) : 0);
+					if (iBorderScore > 0)
+					{
+						newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+						newTarget.SetAuxIntData(iBorderScore);
+						m_AllTargets.push_back(newTarget);
+					}
 				}
 
 				// ... enemy city
@@ -4252,6 +4258,10 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			if (pUnit->isRanged())
 				if (pTestPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 					continue;
+
+			//staging is not fighting ...
+			if (pUnit->GetDanger(pTestPlot) > 0)
+				continue;
 
 			if (TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pTestPlot, pUnit->getDomainType()))
 			{
