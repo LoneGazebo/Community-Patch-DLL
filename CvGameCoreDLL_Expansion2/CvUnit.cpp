@@ -2504,7 +2504,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				// Did the killer protect some of his vassals? They should be grateful if a combat unit or non-Barbarian Settler was killed.
 				if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetNumVassals() > 0)
 				{
-					if (iValue > 0 || (!isBarbarian() && (isFound() || IsFoundAbroad())))
+					if (iCivValue == 0 || (!isBarbarian() && (isFound() || IsFoundAbroad())))
 					{
 						PlayerTypes eLoopPlayer;
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

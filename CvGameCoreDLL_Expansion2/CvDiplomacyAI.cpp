@@ -4322,40 +4322,38 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 		if (eLoopPlayer != NO_PLAYER && eLoopPlayer != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && ((GetTeam() == eLoopTeam) || GET_TEAM(GetTeam()).isHasMet(eLoopTeam)))
 		{
 			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+			bool bPriorityUpdate = false;
 
 			// Under certain circumstances, set the approach immediately
 			// Prioritized approach updates are done first and don't depend on each other, therefore we can fairly use the new approach in the map ...
 			if (IsTeammate(eLoopPlayer))
 			{
 				DoUpdateApproachTowardsTeammate(eLoopPlayer);
-				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
-				continue;
+				bPriorityUpdate = true;
 			}
 			else if (IsAlwaysAtWar(eLoopPlayer))
 			{
 				DoUpdateAlwaysWarApproachTowardsMajorCiv(eLoopPlayer);
-				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
-				continue;
+				bPriorityUpdate = true;
 			}
 			else if (bHuman)
 			{
 				DoUpdateHumanApproachTowardsMajorCiv(eLoopPlayer);
-				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
-				continue;
+				bPriorityUpdate = true;
 			}
 			else if (bNoCities)
 			{
 				DoUpdateMajorCivApproachIfWeHaveNoCities(eLoopPlayer);
-				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
-				continue;
+				bPriorityUpdate = true;
 			}
 			else if (GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
 			{
 				DoUpdateMajorCivApproachIfTheyHaveNoCities(eLoopPlayer);
+				bPriorityUpdate = true;
+			}
+			
+			if (bPriorityUpdate)
+			{
 				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
 				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
@@ -4542,8 +4540,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Previous approach
 	MajorCivApproachTypes eOldApproach;
-	std::map<PlayerTypes, MajorCivApproachTypes>::iterator oldApproachPointer;
-	oldApproachPointer = oldApproaches.find(ePlayer);
+	std::map<PlayerTypes, MajorCivApproachTypes>::iterator oldApproachPointer = oldApproaches.find(ePlayer);
 	if (oldApproachPointer != oldApproaches.end())
 	{
 		eOldApproach = oldApproachPointer->second;
@@ -9316,8 +9313,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	////////////////////////////////////
 
 	MinorCivApproachTypes eOldApproach;
-	std::map<PlayerTypes, MinorCivApproachTypes>::iterator oldApproachPointer;
-	oldApproachPointer = oldApproaches.find(ePlayer);
+	std::map<PlayerTypes, MinorCivApproachTypes>::iterator oldApproachPointer = oldApproaches.find(ePlayer);
 	if (oldApproachPointer != oldApproaches.end())
 		eOldApproach = oldApproachPointer->second;
 	else
