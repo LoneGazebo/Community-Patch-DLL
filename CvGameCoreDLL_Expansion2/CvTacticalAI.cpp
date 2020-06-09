@@ -3642,26 +3642,23 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 		if (!pUnit)
 			continue;
 
-		if (!pTargetPlot->isVisible(m_pPlayer->getTeam()) || pUnit->isRanged())
-			ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-		else
-		{
-			//guarded camp?
-			if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, true))
-			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-				//assumption: next turn we will have a unit as target and do a real attack ... for now just a quick snipe if possible
-				TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
-			}
-			else //empty camp
-			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true);
-			}
-		}
+		//a little bit of AI cheating here.
+		//the problem is that sometimes the camp is too strong to attack with a single unit, it needs an army to take it out
+		//so if we have a single unit it moves in, does nothing, reposition moves take it away, next turn it comes back etc.
+		//so we peek at the unit in the camp even if it's invisible and see if it's even worth going there
 
-		// Delete this unit from those we have to move
-		if (!pUnit->canMove())
-			UnitProcessed(pUnit->GetID());
+		if (!TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
+			continue;
+
+		//guarded camp?
+		if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, false))
+		{
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+		}
+		else //empty camp, move in and move on
+		{
+			ExecuteMoveToPlot(pUnit, pTargetPlot, true);
+		}
 	}
 }
 
@@ -4260,7 +4257,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					continue;
 
 			//staging is not fighting ...
-			if (pUnit->GetDanger(pTestPlot) > 0)
+			if (pUnit->GetDanger(pTestPlot) > pUnit->GetCurrHitPoints()/5)
 				continue;
 
 			if (TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pTestPlot, pUnit->getDomainType()))
@@ -4693,7 +4690,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 			//for inspection in GUI
 			pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
 
-			if (!bSaveMoves)
+			if (!bSaveMoves || !pUnit->canMove())
 				UnitProcessed(pUnit->GetID());
 		}
 		//maybe units are blocking our way? try to find a good plot in the direction of the target and hope the block clears
@@ -4705,7 +4702,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 				//for inspection in GUI
 				pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
-				if (!bSaveMoves)
+				if (!bSaveMoves || !pUnit->canMove())
 					UnitProcessed(pUnit->GetID());
 			}
 		}
@@ -6465,7 +6462,7 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 
 	//target can be city or a unit
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
-	CvUnit* pTargetUnit = pTargetPlot->getVisibleEnemyDefender( pUnit->getOwner() );
+	CvUnit* pTargetUnit = pTargetPlot->getBestDefender( NO_PLAYER, pUnit->getOwner(), pUnit);
 
 	int iDamageDealt = 0, iDamageReceived = 1;
 	if (pTargetCity)
@@ -6570,20 +6567,20 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 	std::sort(meleeTargets.begin(), meleeTargets.end());
 
 	//we will never do attacks with negative scores!
-	if (meleeTargets.back().score > iScoreThreshold)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strMsg;
-			strMsg.Format("Performing melee opportunity attack on (%d:%d) with %s at (%d:%d)",
-				meleeTargets.front().pPlot->getX(), meleeTargets.front().pPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
-		}
+	if (meleeTargets.back().score < iScoreThreshold)
+		return false;
 
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), meleeTargets.back().pPlot->getX(), meleeTargets.back().pPlot->getY());
-		if (pUnit->canMove()) //try to move back to the original plot
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pOrigin->getX(), pOrigin->getY());
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Performing melee opportunity attack on (%d:%d) with %s at (%d:%d)",
+			meleeTargets.front().pPlot->getX(), meleeTargets.front().pPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+		GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 	}
+
+	pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), meleeTargets.back().pPlot->getX(), meleeTargets.back().pPlot->getY());
+	if (pUnit->canMove()) //try to move back to the original plot
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pOrigin->getX(), pOrigin->getY());
 
 	return true;
 }
@@ -6862,7 +6859,7 @@ bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandida
 		return false;
 
 	int iCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pCandidate);
-	if (iCityDistance<1 || iCityDistance>4)
+	if (iCityDistance>4)
 		return false;
 
 	if (pCandidate->getRouteType()!=NO_ROUTE)
