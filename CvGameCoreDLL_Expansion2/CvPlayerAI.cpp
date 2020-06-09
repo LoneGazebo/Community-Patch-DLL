@@ -312,13 +312,12 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
 {
+	if (isHuman())
+		return;
+
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
 #if defined(MOD_BALANCE_CORE)
-	if(isHuman())
-	{
-		return;
-	}
 	//Don't burn down gifts, that makes you look ungrateful.
 	if (bGift && eOriginalOwner != GetID())
 	{
@@ -333,72 +332,30 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		// minor civ
 		if(GET_PLAYER(eOriginalOwner).isMinorCiv())
 		{
-			if(GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity->GetID()))
-				return;
-		}
-		else // major civ
-		{
-			// Never liberate an original capital if we're going for world conquest!
-			if (isMinorCiv() || !pCity->IsOriginalMajorCapital() || (!GetDiplomacyAI()->IsGoingForWorldConquest() && !GetDiplomacyAI()->IsCloseToDominationVictory()))
+			// If we're a major civ, decision is made by diplo AI (minors don't liberate other minors)
+			if (isMajorCiv())
 			{
-				bool bLiberate = false;
-				if (GET_PLAYER(eOriginalOwner).isAlive())
-				{
-					// If the original owner and this player have a defensive pact
-					// and both the original owner and the player are at war with the old owner of this city
-					// give the city back to the original owner
-					TeamTypes eOriginalOwnerTeam = GET_PLAYER(eOriginalOwner).getTeam();
-					if (GET_TEAM(getTeam()).IsHasDefensivePact(eOriginalOwnerTeam) && GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && GET_TEAM(eOriginalOwnerTeam).isAtWar(eOldOwnerTeam))
-					{
-						bLiberate = true;
-					}
-					// if the player is a friend and we're going for diplo victory or really like them, then liberate to score some friend points
-					else if (GetDiplomacyAI()->IsDoFAccepted(eOriginalOwner) && (GetDiplomacyAI()->IsGoingForDiploVictory() || GetDiplomacyAI()->IsCloseToDiploVictory() || GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND))
-					{
-						bLiberate = true;
-					}
-					// ally?
-					else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) == MAJOR_CIV_OPINION_ALLY)
-					{
-						bLiberate = true;
-					}
-				}
-				// if the player isn't human and we're going for diplo victory, resurrect players to get super diplo bonuses
-				else if (!GET_PLAYER(eOriginalOwner).isHuman())
-				{
-					if (GetDiplomacyAI()->IsGoingForDiploVictory() || GetDiplomacyAI()->IsCloseToDiploVictory())
-					{
-						bLiberate = true;
-					}
-					// also resurrect if our Opinion of them was positive
-					else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND)
-					{
-						bLiberate = true;
-					}
-				}
-#if defined(MOD_BALANCE_CORE)
-				if(isMinorCiv() && GetMinorCivAI()->GetAlly() == eOriginalOwner)
-				{
-					bLiberate = true;
-				}
-				if(IsEmpireUnhappy() && !GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOriginalOwner).getTeam()))
-				{
-					if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
-					{
-						bLiberate = true;
-					}
-					if(GET_PLAYER(eOriginalOwner).isMajorCiv() && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_NEUTRAL && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_NEUTRAL)
-					{
-						bLiberate = true;
-					}
-				}
-#endif
-
-				if (bLiberate)
+				if (GetDiplomacyAI()->DoPossibleMinorLiberation(eOriginalOwner, pCity->GetID()))
+					return;
+			}
+		}
+		// Original owner is a major civ
+		else
+		{
+			// If we're a minor civ, only liberate if they're our ally
+			if (isMinorCiv())
+			{
+				if (GetMinorCivAI()->GetAlly() == eOriginalOwner)
 				{
 					DoLiberatePlayer(eOriginalOwner, pCity->GetID());
 					return;
 				}
+			}
+			// If we're a major civ, decision is made by diplo AI
+			else if (isMajorCiv())
+			{
+				if (GetDiplomacyAI()->DoPossibleMajorLiberation(eOriginalOwner, eOldOwner, pCity))
+					return;
 			}
 		}
 	}
@@ -429,7 +386,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 				}
 				else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
 				{
-					if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+					if (GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam))
 					{
 						if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
 						{
@@ -2716,32 +2673,12 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 
 			// make sure we don't step on the wrong toes
 			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
-			if (eOwner != NO_PLAYER && eOwner != m_eID )
+			if (eOwner != NO_PLAYER && eOwner != BARBARIAN_PLAYER && eOwner != m_eID)
 			{
-				if(GET_PLAYER(eOwner).isMinorCiv())
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOwner, THEFT_TYPE_CULTURE_BOMB))
 				{
-					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOwner);
-					// if we're friendly or protective, don't be a jerk
-					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						bGoodCandidate = false;
-						break;
-					}
-				}
-				else
-				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, false);
-					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
-
-					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
-
-					// only bomb if we're hostile
-					if(!bTicked && !bTickedAboutLand)
-					{
-						bGoodCandidate = false;
-						break;
-					}
+					bGoodCandidate = false;
+					break;
 				}
 			}
 
@@ -2809,44 +2746,29 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			//Let's grab embassies if we can!
 			if (pAdjacentPlot->IsImprovementEmbassy())
 			{
-				iWeightFactor += 5;
+				if (GET_PLAYER(pAdjacentPlot->GetPlayerThatBuiltImprovement()).getTeam() != GET_PLAYER(pUnit->getOwner()).getTeam())
+					iWeightFactor += 5;
+				else //don't steal our own embassy
+					iWeightFactor = 1;
 			}
 
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
-			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != GetID())
+			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != BARBARIAN_PLAYER && eOtherPlayer != GetID())
 			{
-				if(GET_PLAYER(eOtherPlayer).isMinorCiv())
+				if (GetDiplomacyAI()->IsPlayerBadTheftTarget(eOtherPlayer, THEFT_TYPE_CULTURE_BOMB))
 				{
-					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
-					// if we're friendly or protective, don't count the tile (but accept it as collateral damage)
-					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from minors is nice
-						iWeightFactor += 3;
-					}
+					iScore = 0;
+					break;
+				}
+				else if (GET_PLAYER(eOtherPlayer).isMinorCiv())
+				{
+					// grabbing tiles away from minors is nice
+					iWeightFactor += 3;
 				}
 				else
 				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
-
-					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
-
-					// don't count the tile if we're not hostile (but accept it as collateral damage)
-					if(!bTicked && !bTickedAboutLand)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from majors is really nice
-						iWeightFactor += 4;
-					}
+					// grabbing tiles away from majors is really nice
+					iWeightFactor += 4;
 				}
 			}
 

@@ -334,11 +334,7 @@ public:
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
-	void SetNoSettling(int iPlotIndex);
-	bool IsNoSettling(int iPlotIndex) const;
-	void ClearNoSettling();
-
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
+	bool canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFound(int iX, int iY) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
@@ -484,6 +480,7 @@ public:
 	int getTotalLandScored() const;
 	void changeTotalLandScored(int iChange);
 
+	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
 
@@ -623,6 +620,7 @@ public:
 	void DoUpdateLuxuryHappiness();
 	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
 	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
+	int GetEmpireHappinessFromCities() const;
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
 	void SetUnhappiness(int iNewValue);
@@ -1794,6 +1792,12 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalOfSomeone() const;
+	int GetNumVassals() const;
+#endif
+	int GetNumValidMajorsMet(bool bJustMetBuffer) const;
+	bool HasMetValidMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 
@@ -2180,7 +2184,7 @@ public:
 
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
-	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true, bool bIncludeMinors = false) const;
+	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
@@ -2225,8 +2229,8 @@ public:
 	int getResourceExport(ResourceTypes eIndex) const;
 	void changeResourceExport(ResourceTypes eIndex, int iChange);
 
-	int getResourceImport(ResourceTypes eIndex) const;
-	void changeResourceImport(ResourceTypes eIndex, int iChange);
+	int getResourceImportFromMajor(ResourceTypes eIndex) const;
+	void changeResourceImportFromMajor(ResourceTypes eIndex, int iChange);
 
 	int getResourceFromMinors(ResourceTypes eIndex) const;
 	void changeResourceFromMinors(ResourceTypes eIndex, int iChange);
@@ -2608,9 +2612,9 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	bool HaveGoodSettlePlot(int iAreaID);
+	vector<int> GetBestSettleAreas();
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -2844,7 +2848,7 @@ public:
 #endif
 
 	virtual void computeAveragePlotFoundValue();
-	virtual void updatePlotFoundValues();
+	virtual void UpdatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
@@ -3542,8 +3546,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceGiftedToMinors;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceExport;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceImport;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceExport; //always to majors
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceImportFromMajor;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourcesSiphoned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
@@ -3660,9 +3664,6 @@ protected:
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
 #endif
-
-	//plots we have pledged no to settle
-	std::set<int> m_noSettlingPlots;
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

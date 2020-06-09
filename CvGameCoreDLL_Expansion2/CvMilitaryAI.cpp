@@ -1024,12 +1024,12 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
 
-	//taken from CalculateBullyMetric
+	//taken from CalculateBullyScore
 	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
 	//check if we have a chance ...
-	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_pPlayer->GetID(), true);
+	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyScore(m_pPlayer->GetID(), true);
 	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
 		return false;
 
@@ -3224,12 +3224,9 @@ void CvMilitaryAI::UpdateDefenseState()
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateDefenseState, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	int iLandUnitsNotInArmies;
-	int iNavalUnitsNotInArmies;
-
 	// Derive data we'll need
-	iLandUnitsNotInArmies = m_iNumLandUnits;
-	iNavalUnitsNotInArmies = m_iNumNavalUnits;
+	int iLandUnitsNotInArmies = m_iNumLandUnits;
+	int iNavalUnitsNotInArmies = m_iNumNavalUnits;
 
 	if(iLandUnitsNotInArmies < m_iMandatoryReserveSize)
 	{
@@ -3251,10 +3248,9 @@ void CvMilitaryAI::UpdateDefenseState()
 	if (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL)
 	{
 		int iCityLoop;
-		CvCity *pLoopCity;
-		for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
 			{
 				m_eLandDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
@@ -3288,10 +3284,9 @@ void CvMilitaryAI::UpdateDefenseState()
 	if (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL)
 	{
 		int iCityLoop;
-		CvCity *pLoopCity;
-		for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			if (pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
 			{
 				m_eNavalDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
@@ -3305,9 +3300,6 @@ void CvMilitaryAI::ScanForBarbarians()
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("ScanForBarbarians, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	int iPlotLoop;
-	CvPlot* pPlot;
-
 #if defined(MOD_BALANCE_CORE)
 	int iLastTurnBarbarianCount = m_iVisibleBarbarianCount;
 #endif
@@ -3318,9 +3310,9 @@ void CvMilitaryAI::ScanForBarbarians()
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
 	// Look at revealed Barbarian camps and visible units
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if(pPlot->isRevealed(eTeam))
 		{
 			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())

@@ -23,7 +23,6 @@
 
 			<!-- Worker Action Panel -->
 			<Grid ID="WorkerActionPanel" Anchor="L,B" Offset="370,-39" Size="290,210" Style="Grid9DetailFive140" ConsumeMouse="1">
-				<TextButton ID="EditButton" Offset="30,25" Anchor="R,T" AnchorSide="I.I" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_EDIT_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow"/>
 				<Label ID="WorkerText" Anchor="C,T" Offset="0,18" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_WORKERACTION_TEXT"/>
 				<Label ID="PromotionText" Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow"/>
 
@@ -199,7 +198,7 @@
 
 	<!-- Promotion Instance -->
 	<Instance Name="EarnedPromotionInstance">
-		<Container ID="EarnedPromotion" Size="26,26" ConsumeMouse="1">
+		<Container ID="EarnedPromotion" Size="26,26">
 			<Image ID="UnitPromotionImage" Anchor="C,C" Size="32,32" Texture="Promotions256.dds"/>
 		</Container>
 	</Instance>

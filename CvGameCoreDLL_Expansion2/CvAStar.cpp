@@ -882,7 +882,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 
 		kToNodeCacheData.bIsVisibleNeutralCombatUnit = pPlot->isNeutralUnit(pUnit->getOwner(), true, true);
-		kToNodeCacheData.bUnitStackingLimitReached = !pPlot->CanStackUnitHere(pUnit);
+		kToNodeCacheData.bUnitStackingLimitReached = !pUnit->CanStackUnitAtPlot(pPlot);
 	}
 
 

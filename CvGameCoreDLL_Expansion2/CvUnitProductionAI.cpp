@@ -914,7 +914,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Diplomatic Units!
 		if(MOD_DIPLOMACY_CITYSTATES &&  pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 		{
-			if (!kPlayer.GetDiplomacyAI()->HasMetValidMinorCiv())
+			if (!kPlayer.HasMetValidMinorCiv())
 				return 0;
 
 			//There's a diplomat waiting here? Abort!

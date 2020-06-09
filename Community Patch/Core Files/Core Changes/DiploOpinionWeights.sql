@@ -236,9 +236,9 @@ UPDATE Defines
 SET Value = '-2'
 WHERE Name = 'OPINION_WEIGHT_EMBASSY';
 
--- -10
+-- -10 (unchanged)
 UPDATE Defines
-SET Value = '-5'
+SET Value = '-10'
 WHERE Name = 'OPINION_WEIGHT_FORGAVE_FOR_SPYING';
 
 -- 20 (unchanged)
@@ -604,6 +604,9 @@ WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME';
 UPDATE Defines
 SET Value = '35'
 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_THEM';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_MUTUAL_DENOUNCEMENT', '50';
 
 -- Weight for excessive empire expansion
 -- 35

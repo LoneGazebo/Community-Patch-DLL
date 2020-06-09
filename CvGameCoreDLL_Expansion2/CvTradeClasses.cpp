@@ -1228,7 +1228,7 @@ void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
 
 //	--------------------------------------------------------------------------------
 //  Reset all Civ to Civ trade routes involving ePlayer.  Trade routes involving city-states are not reset.
-void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
+void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo /* = false */)
 {
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
@@ -1250,6 +1250,14 @@ void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
 			}
 			else if (bMatchesOrigin || bMatchesDest)
 			{
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (MOD_DIPLOMACY_CIV4_FEATURES && bFromEmbargo)
+				{
+					// Master/vassal trade routes aren't cancelled by an embargo
+					if (GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()) || GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()))
+						continue;
+				}
+#endif
 				// if the destination was wiped, the origin gets a trade unit back
 				if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())
 				{
@@ -3270,12 +3278,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			if (iEra <= 0)
 				iEra = 1;
 
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
 				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
@@ -4972,8 +4975,6 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-		//we want to know whether they can still see the plot _after_ we plunder the caravan
-		bool bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(eOtherTeam)>1);
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)
@@ -4987,32 +4988,8 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman())
-				{
-					MajorCivApproachTypes eTrueApproach = m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, /*bHideTrueFeelings*/ false);
-					MajorCivApproachTypes eSurfaceApproach = m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, /*bHideTrueFeelings*/ true);
-					MajorCivOpinionTypes eOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pConnection->m_eOriginOwner);
-					
-					if (m_pPlayer->GetDiplomacyAI()->IsDoFAccepted(pConnection->m_eOriginOwner))
-						bIgnore = true;
-					else if (eTrueApproach == MAJOR_CIV_APPROACH_AFRAID || eTrueApproach == MAJOR_CIV_APPROACH_FRIENDLY)
-						bIgnore = true;
-					else if (eTrueApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
-						bIgnore = true;
-					// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
-					else if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY && bPlotIsVisibleToOtherTeam)
-						bIgnore = true;
-					else if (eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE && bPlotIsVisibleToOtherTeam)
-						bIgnore = true;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					// Don't plunder our master's trade routes if they're treating us well
-					else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam())
-					{
-						if (m_pPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(pConnection->m_eOriginOwner) == VASSAL_TREATMENT_CONTENT)
-							bIgnore = true;
-					}
-#endif
-				}
+				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
+					bIgnore = true;
 			}
 			else
 			{
@@ -5264,9 +5241,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
 		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && pPlunderPlot->isVisible(eOwningTeam) && !GET_PLAYER(eOwningPlayer).isMinorCiv() && !GET_PLAYER(eOwningPlayer).isBarbarian())
-	{
+		{
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
-	}
+		}
 	}
 	// Diplo penalty for destination civilization if not at war (don't apply for internal trade routes)
 	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && !m_pPlayer->isBarbarian() && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
@@ -5330,7 +5307,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 				Localization::String strMessage;
 
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_SUMMARY");
-				if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
+				if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && !GET_TEAM(eDestTeam).isAtWar(m_pPlayer->getTeam()) && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_BARBARIANS");
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())

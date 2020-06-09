@@ -3358,7 +3358,7 @@ int CvHandicapInfo::getNumGoodies() const
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIResistanceCap() const
+int CvHandicapInfo::getResistanceCap() const
 {
 	return m_iResistanceCap;
 }

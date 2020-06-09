@@ -1546,12 +1546,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
-				CvCity* pHolyCity = NULL;
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-				if (pHolyCityPlot)
-				{
-					pHolyCity = pHolyCityPlot->getPlotCity();
-				}
+				CvCity* pHolyCity = pReligion->GetHolyCity();
 				if(eTheirReligion != eFoundedReligion)
 				{			
 					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
@@ -1603,12 +1598,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
-				CvCity* pHolyCity = NULL;
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-				if (pHolyCityPlot)
-				{
-					pHolyCity = pHolyCityPlot->getPlotCity();
-				}
+				CvCity* pHolyCity = pReligion->GetHolyCity();
 				if(eTheirReligion != eFoundedReligion)
 				{			
 					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);

@@ -235,7 +235,7 @@ public:
 
 	void ClearCorporationFromCity(CvCity* pCity, CorporationTypes eCorporation, bool bAllButThis = false);
 
-	void ClearCorporationFromForeignCities(bool bMinorsOnly = false);
+	void ClearCorporationFromForeignCities(bool bMinorsOnly = false, bool bFromEmbargo = false);
 
 	bool CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity* pTargetCity);
 
