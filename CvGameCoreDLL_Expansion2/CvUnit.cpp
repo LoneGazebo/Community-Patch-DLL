@@ -4757,9 +4757,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_AIR)
 		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
-	// Immobile can go nowhere
+	// Immobile can go nowhere ... except where they are
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
-		return false;
+		if (!at(enterPlot.getX(),enterPlot.getY()))
+			return false;
 
 	// Sea units - we can exclude non-water plots right away
 	// also allow forts and cities if adjacent to real water

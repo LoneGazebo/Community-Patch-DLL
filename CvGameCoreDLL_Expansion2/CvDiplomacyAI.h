@@ -354,6 +354,7 @@ public:
 	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);

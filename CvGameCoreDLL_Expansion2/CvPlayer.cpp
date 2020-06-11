@@ -4781,11 +4781,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	else //if (bConquest)
 	{
 		// Set the plots to the new owner, now, we may be flipping it to a liberated player and we need to pass on the information.
+		bool bBumpUnits = GET_PLAYER(pNewCity->getOwner()).isMajorCiv();
 		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
 		{
 			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
 			if(pPlot->getOwner() != pNewCity->getOwner())
-				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ bBumpUnits|pPlot->isCity(), /*bUpdateResources*/ true);
 		}
 
 		// Is this City being Occupied?

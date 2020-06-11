@@ -11527,16 +11527,19 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
 	
-	// Player declared war and wants peace right away. Uh huh, right.
-#if defined(MOD_BALANCE_CORE)
-	if((GetPlayerNumTurnsAtWar(ePlayer) <= 1) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1))
-#else
-	if(GetPlayerNumTurnsAtWar(ePlayer) < 1)
-#endif
+	// Enemy declared war and wants peace right away. Uh huh, right.
+	if (GetPlayerNumTurnsAtWar(ePlayer) <= 1)
 	{
 		return false;
 	}
-	
+
+	// Enemy captured a city and wants peace? Not if we can retaliate ...
+	if (GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
+	{
+		return false;
+	}
+
+
 	if (GetPlayerNumTurnsAtWar(ePlayer) <= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS) || !GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -13974,6 +13977,25 @@ void CvDiplomacyAI::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, in
 	{
 		SetPlayerNumTurnsSinceCityCapture(ePlayer, GetPlayerNumTurnsSinceCityCapture(ePlayer) + iChange);
 	}
+}
+
+int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const
+{
+	if (ePlayer == NO_PLAYER)
+		return 0;
+
+	int iCount = 0;
+	int iUnitLoop;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if (!pLoopUnit->IsCombatUnit() || pLoopUnit->isProjectedToDieNextTurn())
+			continue;
+
+		if (GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopUnit->plot()) < iTurnRange)
+			iCount++;
+	}
+
+	return iCount;
 }
 #endif
 

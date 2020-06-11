@@ -2910,23 +2910,20 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 		if (!pUnit)
 			continue;
 
-		//so easy
-		CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
-		if (!pBestPlot)
-			continue;
-
-		// Move to the lowest danger value found
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-
-		//we know that we should be able to reach the plot
-		//so check if the mission was aborted (new enemy discovered etc)
-		while (pUnit->plot() != pBestPlot && pUnit->canMove())
+		//a bit tricky: we know that we should be able to reach the plot
+		//but maybe the mission is aborted (new enemy discovered etc)
+		//can happen for AI civilians ...
+		CvPlot* pBestPlot = NULL;
+		for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
 		{
-			//try as long as necessary
-			CvPlot* pBestPlot2 = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
-			if(pBestPlot2)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot2->getX(), pBestPlot2->getY());
-		}
+			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
+			//can we move?
+			if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
+				break;
+
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+		} 
 
 		//important, else we can't end the turn
 		UnitProcessed(pUnit->GetID());
@@ -2936,7 +2933,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 			CvString strLogString;
 			CvString strTemp;
 			strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-			strLogString.Format("Moving %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
+			strLogString.Format("Moved %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
 			LogHomelandMessage(strLogString);
 		}
 	}
