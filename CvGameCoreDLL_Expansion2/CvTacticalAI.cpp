@@ -4083,7 +4083,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 		{
 			CvPlot* pTestPlot = iterateRingPlots(pTargetPlot, i);
-			if (!pTestPlot)
+			//ignore the current plot of the unit, we want to make progress
+			if (!pTestPlot || pTestPlot == pUnit->plot())
 				continue;
 
 			int iDistance = plotDistance(*pTestPlot, *pUnit->plot());
@@ -4119,7 +4120,13 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		if (pUnit->IsCombatUnit())
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
-		ExecuteMoveToPlot(pUnit, pTargetPlot, false, iFlags);
+		CvPlot* pOldPlot = pUnit->plot();
+		ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+
+		//important: only mark the unit as processed if we made a move!
+		//if we're stuck it should be used for other purposes
+		if (pUnit->plot() != pOldPlot)
+			UnitProcessed(pUnit->GetID());
 	}
 
 	return bSuccess;
@@ -7952,7 +7959,38 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	{
 		//move close to the (friendly) target
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
-		result.iScore = result.iScore + 3 - iPlotDistance;
+		result.iScore += (3 - iPlotDistance);
+	}
+
+	//may instead of a plain finish we can pillage?
+	if (movePlot.iPlotIndex == unit.iPlotIndex)
+	{
+		//would it make sense to pillage here?
+		if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
+		{
+			//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
+			if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer()))
+			{
+				result.iScore  += 6;
+				if (movePlot.iMovesLeft > 0) //if we can do it right away ...
+				{
+					result.iScore += 7;
+					if (!pUnit->hasFreePillageMove())
+						result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+					result.eAssignmentType = A_PILLAGE;
+				}
+			}
+			//if it's an improvement we pillage to heal if we have moves to spare
+			else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && (movePlot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
+			{
+				result.iScore += 4;
+				if (pUnit->IsGainsXPFromPillaging())
+					result.iScore += 2;
+				if (!pUnit->hasFreePillageMove())
+					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+				result.eAssignmentType = A_PILLAGE;
+			}
+		}
 	}
 
 	//count all plots we could possibly attack from here (next turn since this is defensive placement)
@@ -10022,6 +10060,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	{
 		CvUnit* pUnit = vUnits[i];
 
+		//ignore units on other islands, we can find better moves for them
+		if (!pTarget->hasSharedAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
+			continue;
+
 		//units outside of their native domain are a problem because they violate 1UPT
 		//we treat embarked units non-combat units (see addAvailableUnit)
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && !pUnit->TurnProcessed())
@@ -10105,8 +10147,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 				CvTacticalPosition* newPos = *it;
 				if (newPos->isComplete())
 				{
-					completedPositions.push_back(newPos);
-					iTopScore = max(iTopScore, newPos->getScore());
+					if (newPos->addFinishMovesIfAcceptable())
+					{
+						completedPositions.push_back(newPos);
+						iTopScore = max(iTopScore, newPos->getScore());
+					}
+					else
+						iDiscardedPositions++;
 				}
 				else
 				{
@@ -10222,6 +10269,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
+
+		//ignore units on other islands, we can find better moves for them
+		if (!pTarget->hasSharedAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
+			continue;
 
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.

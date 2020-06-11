@@ -212,6 +212,7 @@ public:
 	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
+	bool IsAdjacentCity(TeamTypes eTeam = NO_TEAM) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentCity() const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bool bCountUnowned) const;

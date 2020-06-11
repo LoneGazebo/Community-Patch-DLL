@@ -2309,7 +2309,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pkImprovementInfo->IsAdjacentCity() && GetAdjacentCity() == NULL)
+	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
 	{
 		return false;
 	}
@@ -3599,6 +3599,21 @@ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 					return true;
 				}
 			}
+		}
+	}
+
+	return false;
+}
+
+bool CvPlot::IsAdjacentCity(TeamTypes eTeam) const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if (pAdjacentPlot && pAdjacentPlot->isCity())
+		{
+			if (eTeam==NO_TEAM || pAdjacentPlot->getTeam()==eTeam)
+				return true;
 		}
 	}
 

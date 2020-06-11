@@ -2928,11 +2928,10 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 		//important, else we can't end the turn
 		UnitProcessed(pUnit->GetID());
 
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging() && GC.getAILogging() && pBestPlot)
 		{
 			CvString strLogString;
-			CvString strTemp;
-			strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+			CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
 			strLogString.Format("Moved %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
 			LogHomelandMessage(strLogString);
 		}

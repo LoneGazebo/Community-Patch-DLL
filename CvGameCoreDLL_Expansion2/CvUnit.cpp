@@ -5492,10 +5492,6 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
 				iValue += 10000;
 
-			//avoid isolated unowned plots ...
-			if (pLoopPlot->getTeam() != getTeam() && !pLoopPlot->isAdjacentTeam(getTeam()))
-				iValue += 5000;
-
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
 	}
@@ -5507,22 +5503,22 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pTestPlot = candidates[i].pPlot;
 
-			// check to make sure this is not a dead end
-			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+		// check to make sure this is not a dead end
+		// alternatively we could verify against all plots reachable from owner's capital?
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-			//want to sort by ascending area size
-			candidates[i].score = GC.getMap().numPlots() - plots2.size();
+		//want to sort by ascending area size
+		candidates[i].score = GC.getMap().numPlots() - plots2.size();
 
-			//if we have lots of room here, use the plot immediately
-			if (plots2.size() > 23)
-			{
-				pBestPlot = pTestPlot;
-				break;
-			}
+		//if we have lots of room here, use the plot immediately
+		if (plots2.size() > 23)
+		{
+			pBestPlot = pTestPlot;
+			break;
 		}
+	}
 
 	if (!pBestPlot && !candidates.empty())
 	{
@@ -10243,7 +10239,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	if (!canPillage(pPlot, iMovesOverride))
 		return false;
 
-	if (hasFreePillageMove() && pPlot->GetAdjacentCity() != NULL)
+	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
 
 	if (pPlot->getOwningCity() != NULL)
