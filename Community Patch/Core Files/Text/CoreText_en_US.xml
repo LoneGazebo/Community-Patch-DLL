@@ -6723,10 +6723,10 @@
 		</Row>
 
 		<!-- Great Person Progress -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">
 			<Text>Empire-Wide Bonus Great Person Points</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS">
 			<Text>Bonus Great Person Points Update</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_IN_CITY">
@@ -6737,17 +6737,17 @@
 		</Row>
 		
 		<!-- Instant Yield Text -->
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE">
 			<Text>Empire-Wide Bonus Yields</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
 			<Text>Bonus Yields Update</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_IN_CITY">
 			<Text>Bonus Yields in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
@@ -6777,7 +6777,7 @@
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
-			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@2_Building}}:[NEWLINE]{1_YieldString}</Text>
+			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN {@2_Building}}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
@@ -6855,7 +6855,7 @@
 			<Text>[ICON_CITY_STATE] City-State Quest ({1_Data}):[NEWLINE]{2_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
-			<Text>Expanding [ICON_CULTURE] Borders by Culture Bomb:[NEWLINE]{1_YieldString}</Text>
+			<Text>Expanding [ICON_CULTURE] Borders by Great Person:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REMOVE_HERESY">
 			<Text>Removing [ICON_INQUISITOR] Religious Heresy:[NEWLINE]{1_YieldString}</Text>
@@ -6993,11 +6993,11 @@
 		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER">
 			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and the prior {1_Num} Turn(s)[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE">
-			<Text>[NEWLINE]        [ICON_BULLET] Average: +{1_Num} Per Turn</Text>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
+			<Text>[NEWLINE]        [ICON_BULLET] This Turn: +{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES">
-			<Text>[NEWLINE]        [ICON_BULLET] Per-City Average: +{1_Num} Per Turn</Text>
+			<Text>[NEWLINE]        [ICON_BULLET] Average: +{1_Num} Per Turn Per City</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM">

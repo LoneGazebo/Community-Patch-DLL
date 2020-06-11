@@ -4076,18 +4076,50 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		if (pUnit->TurnProcessed())
 			continue;
 
-		if (pUnit->GetDanger() == INT_MAX) //don't leave a general out in the cold
+		//don't go directly to the target, instead find one of our units which is close to the target
+		CvPlot* pClosestUnit = NULL;
+		//we only want units on our side of the target!
+		int iClosestDistance = plotDistance(*pTargetPlot, *pUnit->plot());
+		for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
+		{
+			CvPlot* pTestPlot = iterateRingPlots(pTargetPlot, i);
+			if (!pTestPlot)
+				continue;
+
+			int iDistance = plotDistance(*pTestPlot, *pUnit->plot());
+			if (iDistance > iClosestDistance)
+				continue;
+
+			CvUnit* pFriendlyUnit = pTestPlot->getBestDefender(m_pPlayer->GetID());
+			if (pFriendlyUnit && pFriendlyUnit->getDomainType()==pUnit->getDomainType())
+			{
+				iClosestDistance = iDistance;
+				pClosestUnit = pTestPlot;
+			}
+		}
+
+		//don't move into danger blindly
+		if (!pClosestUnit)
+			continue;
+
+		//don't leave a general out in the cold
+		if (pUnit->GetDanger() == INT_MAX)
 		{
 			CvPlot* pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 			if (pSafePlot)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
 				UnitProcessed(pUnit->GetID());
+				continue;
 			}
 		}
 
-		if (!pUnit->TurnProcessed())
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN|CvUnit::MOVEFLAG_NO_EMBARK);
+		//civilians can stack ...
+		int iFlags = 0;
+		if (pUnit->IsCombatUnit())
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+
+		ExecuteMoveToPlot(pUnit, pTargetPlot, false, iFlags);
 	}
 
 	return bSuccess;

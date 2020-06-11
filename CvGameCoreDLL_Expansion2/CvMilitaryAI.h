@@ -479,9 +479,7 @@ private:
 	int m_iNumNavalUnits;
 	int m_iNumLandUnitsInArmies;
 	int m_iNumNavalUnitsInArmies;
-#if defined(MOD_BALANCE_CORE)
 	int m_iRecNavySize;
-#endif
 	int m_iNumAirUnits;
 	int m_iNumAntiAirUnits;
 	int m_iBarbarianCampCount;

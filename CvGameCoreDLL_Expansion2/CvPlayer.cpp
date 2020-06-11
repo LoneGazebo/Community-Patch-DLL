@@ -41949,7 +41949,6 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 			}
 
 			Localization::String localizedIYText;
-
 			localizedIYText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TOTAL");
 
 			localizedIYText << GC.getYieldInfo(eYield)->GetDescription();
@@ -41958,13 +41957,11 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 			localizedIYText << iSum;
 
 			yieldtooltip += localizedIYText.toUTF8();
-
-			int iAverage = max(1, (iSum / max(1, MaxTurnsBack)));
-
-			yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_AVERAGE", iAverage);
+			yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_THIS_TURN", getInstantYieldValue(eYield, iGameTurn));
 
 			if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 			{
+				int iAverage = max(1, (iSum / max(1, MaxTurnsBack)));
 				iAverage /= max(1, getNumCities());
 				yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES", iAverage);
 			}
