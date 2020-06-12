@@ -2393,8 +2393,8 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 			if (pCity != NULL)
 			{
 				CvString strMsg;
-				strMsg.Format("City founded (%s), At X=%d, At Y=%d, plot value %d, area value %d", pCity->getName().c_str(), 
-					pCityPlot->getX(), pCityPlot->getY(), pCityPlot->getFoundValue(m_eOwner), pArea->getTotalFoundValue());
+				strMsg.Format("City founded (%s), At X=%d, At Y=%d, plot value %d", pCity->getName().c_str(), 
+					pCityPlot->getX(), pCityPlot->getY(), pCityPlot->getFoundValue(m_eOwner));
 				LogOperationSpecialMessage(strMsg);
 			}
 		}

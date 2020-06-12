@@ -2608,13 +2608,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					pBestPlot = pEvalPlot;
 					iBestPlotScore = iTotalScore;
 					bFoundNearbyExplorePlot = true;
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						CvString msg = CvString::format("Checking plot (%d:%d) for scout %s %d - base score %d, extra %d, bonus %d\n",
-							pBestPlot->getX(), pBestPlot->getY(), strTemp.GetCString(), pUnit->GetID(), iScoreBase, iScoreExtra, iScoreBonus);
-						LogHomelandMessage(msg);
-					}
 				}
 			}
 		}

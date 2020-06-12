@@ -10072,7 +10072,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		CvUnit* pUnit = vUnits[i];
 
 		//ignore units on other islands, we can find better moves for them
-		if (!pTarget->hasSharedAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
+		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
 
 		//units outside of their native domain are a problem because they violate 1UPT
@@ -10282,7 +10282,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		CvUnit* pUnit = vUnits[i];
 
 		//ignore units on other islands, we can find better moves for them
-		if (!pTarget->hasSharedAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
+		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
 
 		//units outside of their native domain are a problem because they violate 1UPT. 

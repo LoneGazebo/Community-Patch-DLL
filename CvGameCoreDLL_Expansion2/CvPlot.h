@@ -972,7 +972,7 @@ public:
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
-	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
+	bool isSameOrAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

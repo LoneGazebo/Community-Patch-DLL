@@ -14077,17 +14077,17 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 	return m_bIsImpassable;
 }
 
-bool CvPlot::hasSharedAdjacentArea(CvPlot* pOtherPlot) const
+bool CvPlot::isSameOrAdjacentArea(CvPlot* pOtherPlot) const
 {
 	if (pOtherPlot == NULL)
 		return false;
 
-	std::vector<int> myAreas = getAllAdjacentAreas();
-	std::vector<int> theirAreas = pOtherPlot->getAllAdjacentAreas();
-	std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
+	if (getArea() == pOtherPlot->getArea())
+		return true;
 
-	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(), myAreas.end(), theirAreas.begin(), theirAreas.end(), shared.begin());
-	return (result != shared.begin());
+	std::vector<int> myAdjacent = getAllAdjacentAreas();
+	std::vector<int>::iterator result = std::find(myAdjacent.begin(), myAdjacent.end(), pOtherPlot->getArea());
+	return (result != myAdjacent.end());
 }
 
 //--------------------------------------------------------------------
