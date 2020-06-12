@@ -554,11 +554,18 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	int iDominancePercentage = GetTacticalAnalysisMap()->GetDominancePercentage();
 	eTacticalDominanceFlags eOverallDominance = pZone->GetOverallDominanceFlag(); //this one is precomputed
 	eTacticalDominanceFlags eRangedDominance = pZone->IsWater() ? pZone->GetNavalRangedDominanceFlag(iDominancePercentage) : pZone->GetRangedDominanceFlag(iDominancePercentage);
-	//eTacticalDominanceFlags eUnitCountDominance = pZone->IsWater() ? pZone->GetNavalUnitCountDominanceFlag(iDominancePercentage) : pZone->GetUnitCountDominanceFlag(iDominancePercentage);
 
 	//are our forces mostly ranged and the enemy has a lot of melee units?
 	bool bInDangerOfCounterattack = pZone->IsWater() ? pZone->GetEnemyNavalStrength() > 2 * pZone->GetFriendlyNavalStrength() && pZone->GetFriendlyNavalRangedStrength() > 2 * pZone->GetFriendlyNavalStrength() :
 									pZone->GetEnemyMeleeStrength() > 2 * pZone->GetFriendlyMeleeStrength() && pZone->GetFriendlyRangedStrength() > 2 * pZone->GetFriendlyMeleeStrength();
+
+	bool bLandRangedMayKillFleet = false;
+	if (pZone->IsWater())
+	{
+		CvTacticalDominanceZone* pLandZone = GetTacticalAnalysisMap()->GetZoneByCity(pZone->GetZoneCity(), false);
+		if (pLandZone && pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && pLandZone->GetEnemyRangedStrength() > pZone->GetFriendlyNavalRangedStrength())
+			bLandRangedMayKillFleet = true;
+	}
 
 	// Choice based on whose territory this is
 	switch(pZone->GetTerritoryType())
@@ -606,7 +613,10 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+			if (bLandRangedMayKillFleet)
+				eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			else
+				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 		}
 		break;
 	}
@@ -4087,12 +4097,13 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 			if (!pTestPlot || pTestPlot == pUnit->plot())
 				continue;
 
+			//the > is important, it allows the garrison as target in case of a friendly city
 			int iDistance = plotDistance(*pTestPlot, *pUnit->plot());
 			if (iDistance > iClosestDistance)
 				continue;
 
 			CvUnit* pFriendlyUnit = pTestPlot->getBestDefender(m_pPlayer->GetID());
-			if (pFriendlyUnit && pFriendlyUnit->getDomainType()==pUnit->getDomainType())
+			if ((pFriendlyUnit && pFriendlyUnit->getDomainType()==pUnit->getDomainType()) || pTestPlot->isFriendlyCity(*pUnit))
 			{
 				iClosestDistance = iDistance;
 				pClosestUnit = pTestPlot;
@@ -4121,7 +4132,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
 		CvPlot* pOldPlot = pUnit->plot();
-		ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+		ExecuteMoveToPlot(pUnit, pClosestUnit, true, iFlags);
 
 		//important: only mark the unit as processed if we made a move!
 		//if we're stuck it should be used for other purposes
