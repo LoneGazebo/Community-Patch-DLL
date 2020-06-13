@@ -6174,7 +6174,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				bDifferentReligions = true;
 
-				if (!bUntrustworthy && GetNegativeReligiousConversionPoints(ePlayer) <= 0 && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+				if (bUntrustworthy || GetNegativeReligiousConversionPoints(ePlayer) > 0 || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
@@ -6210,7 +6210,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (IsPlayerOpposingIdeology(ePlayer))
 	{
-		if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+		if (bUntrustworthy || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
