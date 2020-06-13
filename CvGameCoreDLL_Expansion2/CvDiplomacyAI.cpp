@@ -5525,6 +5525,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// TERRITORIAL DISPUTES
 	////////////////////////////////////
 
+	DisputeLevelTypes eDisputeLevel = GetLandDisputeLevel(ePlayer);
+
 	int iMultiplier = 1;
 	bool bBonus = true; // territorial disputes should always play a major role ...
 	bool bVictoryConcern = false;
@@ -5559,7 +5561,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Additional multiplier increase if dispute level is fierce
-	if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+	if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
 	{
 		if (bVictoryConcern)
 		{
@@ -5571,7 +5573,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	switch (GetLandDisputeLevel(ePlayer))
+	switch (eDisputeLevel)
 	{
 	case DISPUTE_LEVEL_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
@@ -5599,6 +5601,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (bMetValidMinor)
 	{
+		eDisputeLevel = GetMinorCivDisputeLevel(ePlayer);
 		iMultiplier = 1;
 		bBonus = false;
 		bVictoryConcern = false;
@@ -5638,7 +5641,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// Additional multiplier increase if dispute level is fierce
-		if (GetMinorCivDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+		if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
 		{
 			if (bVictoryConcern)
 			{
@@ -5650,7 +5653,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 
-		switch (GetMinorCivDisputeLevel(ePlayer))
+		switch (eDisputeLevel)
 		{
 		case DISPUTE_LEVEL_NONE:
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
@@ -5677,6 +5680,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// WORLD WONDER COMPETITION
 	////////////////////////////////////
 
+	eDisputeLevel = GetWonderDisputeLevel(ePlayer);
 	iMultiplier = 1;
 	bBonus = false;
 	bVictoryConcern = false;
@@ -5721,7 +5725,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Additional multiplier increase if dispute level is fierce
-	if (GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+	if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
 	{
 		if (bVictoryConcern)
 		{
@@ -5733,7 +5737,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	switch (GetWonderDisputeLevel(ePlayer))
+	switch (eDisputeLevel)
 	{
 	case DISPUTE_LEVEL_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
@@ -5759,6 +5763,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// TECH COMPETITION
 	////////////////////////////////////
 
+	eDisputeLevel = GetTechDisputeLevel(ePlayer);
 	iMultiplier = 1;
 	bBonus = false;
 	bVictoryConcern = false;
@@ -5793,7 +5798,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Additional multiplier increase if dispute level is fierce
-	if (GetTechDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+	if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
 	{
 		if (bVictoryConcern)
 		{
@@ -5805,7 +5810,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	switch (GetTechDisputeLevel(ePlayer))
+	switch (eDisputeLevel)
 	{
 	case DISPUTE_LEVEL_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
