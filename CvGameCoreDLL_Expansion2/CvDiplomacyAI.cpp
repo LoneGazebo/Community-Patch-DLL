@@ -52184,8 +52184,8 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 		iOpinionWeight /= 100;
 	}
 
-	// No religion bonus if they captured our Holy City
-	if (iOpinionWeight < 0 && IsHolyCityCapturedBy(ePlayer))
+	// No religion bonus if they captured our Holy City (and haven't returned it)
+	if (iOpinionWeight < 0 && m_pPlayer->IsHasLostHolyCity() && IsHolyCityCapturedBy(ePlayer))
 		return 0;
 
 	return iOpinionWeight;
