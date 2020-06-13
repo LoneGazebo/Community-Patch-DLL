@@ -13889,11 +13889,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED_OTHER");
 		aOpinions.push_back(kOpinion);
 	}
-	// Divergent Social Policies should be visible even if there's no penalty (but not for teammates)
-	if (pDiploAI->GetNumSamePolicies(eWithPlayer) != 0 && pkPlayer->getTeam() != GET_PLAYER(eWithPlayer).getTeam())
+	// Similar/divergent Social Policies should be visible even if there's no penalty
+	if (pDiploAI->GetNumSamePolicies(eWithPlayer) != 0)
 	{
 		Opinion kOpinion;
-		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);;
+		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
 		aOpinions.push_back(kOpinion);
 	}
