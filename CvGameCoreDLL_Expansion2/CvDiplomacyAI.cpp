@@ -4466,6 +4466,30 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
+	// Cold war - increases emphasis for ideologies
+	bool bColdWar = false;
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague != NULL)
+	{
+		// Loop through all (known) Players
+		PlayerTypes eLoopPlayer;
+		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (IsPlayerValid(eLoopPlayer))
+			{
+				if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(eMyPlayer, eLoopPlayer))
+				{
+					bColdWar = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
+
 	// Victory stuff
 	bool bNoVictoryCompetition = IsNoVictoryCompetition();
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
@@ -6320,10 +6344,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Ignore religion/ideology penalties if they've been liberating us and aren't a backstabber
 	if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs))
 	{
+		// Don't ignore religion if they're converting our cities
 		if (GetNegativeReligiousConversionPoints(ePlayer) <= 0)
 			iReligionMod = 0;
 
-		iIdeologyMod = 0;
+		// Don't ignore ideology if there's a Cold War resolution active
+		if (!bColdWar)
+			iIdeologyMod = 0;
 	}
 
 	// Bad alliances
@@ -7206,7 +7233,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// Is this one of our primary League competitors?
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 			if (pLeague != NULL && !bNoVictoryCompetition && !bResurrectedUs)
 			{
 				// Prime competitor?
@@ -7860,7 +7886,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		////////////////////////////////////
 		// WORLD CONGRESS - Are there any resolutions we should take into consideration?
 		////////////////////////////////////
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
 		if (pLeague != NULL)
 		{
 			// UN active? Be more friendly if we're trying to win by diplomacy.
@@ -7881,6 +7907,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			}
 
+#if defined(MOD_DIPLOMACY_CITY_STATES)
 			// Casus Belli = more war, less friendly
 			if (MOD_DIPLOMACY_CITYSTATES && GC.getGame().GetGameLeagues()->IsWorldWar(eMyPlayer) > 0)
 			{
@@ -7898,44 +7925,26 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 			}
+#endif
 
 			// COLD WAR = ideology is more important
-			bool bColdWar = false;
-			if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			if (bColdWar)
 			{
-				// Loop through all (known) Players
-				PlayerTypes eLoopPlayer;
-				for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				if (IsPlayerSameIdeology(ePlayer))
 				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					if (IsPlayerValid(eLoopPlayer))
-					{
-						if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(eMyPlayer, eLoopPlayer))
-						{
-							bColdWar = true;
-							break;
-						}
-					}
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 				}
-
-				if (bColdWar)
+				else if (IsPlayerOpposingIdeology(ePlayer))
 				{
-					if (IsPlayerSameIdeology(ePlayer))
-					{
-						viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
-					}
-					else if (IsPlayerOpposingIdeology(ePlayer))
-					{
-						viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
-						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
-					}
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 				}
 			}
 		}
