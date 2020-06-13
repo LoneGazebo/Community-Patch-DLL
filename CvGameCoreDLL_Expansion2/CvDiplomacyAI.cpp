@@ -43376,7 +43376,7 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 		return 0;
 
 	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
-	if (iOpinionWeight > 0 && !IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
+	if (iOpinionWeight > 0 && !IsAtWar(ePlayer) && !IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
 		return 0;
 
 	return iOpinionWeight;
