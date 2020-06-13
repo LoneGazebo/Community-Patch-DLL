@@ -6146,7 +6146,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Do we have the same religion?
 		else if (eMyReligion == eTheirReligion)
 		{
-			if (!IsHolyCityCapturedBy(ePlayer) && !bUntrustworthy)
+			if (!IsHolyCityCapturedBy(ePlayer) && !bUntrustworthy && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirReligion, ePlayer) > 0)
 			{
 				bSameReligions = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iReligiosityScore);
@@ -6167,20 +6167,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Do we have different religions?
 		if (eMyReligion != eTheirReligion)
 		{
-			bDifferentReligions = true;
-
-			if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+			if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirReligion, ePlayer) > 0)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
-				viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
-				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iReligiosityScore);
+				bDifferentReligions = true;
 
-				// If it's the World Religion and they control its Holy City, we should work against them
-				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirReligion) > 0)
+				if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iReligiosityScore);
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
 					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iReligiosityScore);
+
+					// If it's the World Religion and they control its Holy City, we should work against them
+					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirReligion) > 0)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iReligiosityScore);
+						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iReligiosityScore);
+					}
 				}
 			}
 		}
@@ -16702,7 +16705,7 @@ void CvDiplomacyAI::ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iCha
 }
 
 /// Returns if ePlayer liberated our capital
-bool CvDiplomacyAI::IsPlayerLiberatedCapital(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerLiberatedCapital(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -16722,6 +16725,39 @@ void CvDiplomacyAI::SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabPlayerLiberatedCapital[ePlayer] = bValue;
 }
+
+/// Returns if ePlayer captured our capital
+bool CvDiplomacyAI::IsPlayerCapturedCapital(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerCapturedCapital[ePlayer];
+}
+
+/// Sets if ePlayer captured our capital
+void CvDiplomacyAI::SetPlayerCapturedCapital(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_pabPlayerCapturedCapital[ePlayer] = bValue;
+}
+
+/// Returns if ePlayer captured our Holy City
+bool CvDiplomacyAI::IsPlayerCapturedHolyCity(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabPlayerCapturedHolyCity[ePlayer];
+}
+
+/// Sets if ePlayer captured our Holy City
+void CvDiplomacyAI::SetPlayerCapturedHolyCity(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_pabPlayerCapturedHolyCity[ePlayer] = bValue;
+}
+
 
 /// Returns the number of cities liberated by ePlayer
 int CvDiplomacyAI::GetNumCitiesLiberatedBy(PlayerTypes ePlayer)
@@ -16914,7 +16950,12 @@ bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer) const
 /// Returns if this player's original capital is currently owned by ePlayer
 bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer) const
 {
-	if(m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
+	if (m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
+	{
+		return true;
+	}
+
+	if (IsPlayerCapturedCapital(ePlayer))
 	{
 		return true;
 	}
@@ -16926,6 +16967,11 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer) const
 bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
+	{
+		return true;
+	}
+
+	if (IsPlayerCapturedHolyCity(ePlayer))
 	{
 		return true;
 	}
@@ -41806,6 +41852,11 @@ int CvDiplomacyAI::GetLiberatedCapitalScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if (IsPlayerLiberatedCapital(ePlayer))
 		iOpinionWeight = /*-80*/ GC.getOPINION_WEIGHT_LIBERATED_CAPITAL();
+
+	// Halve the weight if they captured our Holy City.
+	if (IsHolyCityCapturedBy(ePlayer))
+		iOpinionWeight /= 2;
+
 	return iOpinionWeight;
 }
 
@@ -41813,6 +41864,10 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 {
 	// Don't stack the liberation bonus for the capital with other cities
 	if (IsPlayerLiberatedCapital(ePlayer))
+		return 0;
+
+	// No bonus if they captured our capital
+	if (IsCapitalCapturedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -41843,6 +41898,10 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 		}
 	}
 #endif
+
+	// Halve the weight if they captured our Holy City.
+	if (IsHolyCityCapturedBy(ePlayer))
+		iOpinionWeight /= 2;
 
 	return iOpinionWeight;
 }
@@ -41994,10 +42053,15 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetHasAdoptedHisReligionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer) && !IsHolyCityCapturedBy(ePlayer) && GetNegativeReligiousConversionPoints(ePlayer) <= 0)
+	if (m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer) && !IsHolyCityCapturedBy(ePlayer) && GetNegativeReligiousConversionPoints(ePlayer) <= 0)
 	{
+		// If they don't have any cities following their own religion, no bonus
+		if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer) > 0)
+			return 0;
+
 		iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
+
 	return iOpinionWeight;
 }
 
@@ -42026,11 +42090,14 @@ int CvDiplomacyAI::GetDifferentMajorityReligionScore(PlayerTypes ePlayer)
 		return 0;
 	
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) == NO_RELIGION || GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
-	{
 		return 0;
-	}
+
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) != GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false))
 	{
+		// If they don't have any cities following their own religion, no penalty
+		if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer) > 0)
+			return 0;
+
 		iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
 	
@@ -43299,6 +43366,12 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 	
 	if (IsCapitalCapturedBy(ePlayer))
 		iOpinionWeight += /*160*/ GC.getOPINION_WEIGHT_CAPTURED_CAPITAL();
+
+	// Halve the weight if we have our capital back.
+	if (!m_pPlayer->IsHasLostCapital())
+	{
+		iOpinionWeight /= 2;
+	}
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// If a capitulated vassal, halve the weight.
@@ -43317,6 +43390,12 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 	
 	if (IsHolyCityCapturedBy(ePlayer))
 		iOpinionWeight += /*80*/ GC.getOPINION_WEIGHT_CAPTURED_HOLY_CITY();
+
+	// Halve the weight if we have our Holy City back (or have a new one).
+	if (!m_pPlayer->IsHasLostHolyCity())
+	{
+		iOpinionWeight /= 2;
+	}
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// If a capitulated vassal, halve the weight.
@@ -51968,6 +52047,10 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 		iOpinionWeight *= GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD();
 		iOpinionWeight /= 100;
 	}
+
+	// No religion bonus if they captured our Holy City
+	if (iOpinionWeight < 0 && IsHolyCityCapturedBy(ePlayer))
+		return 0;
 
 	return iOpinionWeight;
 }
