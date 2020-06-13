@@ -6234,7 +6234,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (IsPlayerOpposingIdeology(ePlayer))
 	{
-		if (bUntrustworthy || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+		if (bUntrustworthy || bColdWar || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
