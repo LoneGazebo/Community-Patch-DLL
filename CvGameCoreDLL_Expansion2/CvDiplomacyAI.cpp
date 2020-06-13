@@ -4950,7 +4950,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Note: This is in addition to the weight from being an untrustworthy friend!
 	if (!bIsVassal || bVoluntaryVassalage)
 	{
-		if (IsCapitalCapturedBy(ePlayer))
+		if (bWeLostCapital && GetPlayer()->GetCapitalConqueror() == ePlayer)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
@@ -4963,7 +4963,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 100;
 			}
 		}
-		if (IsHolyCityCapturedBy(ePlayer))
+		if (GetPlayer()->IsHasLostHolyCity() && GetPlayer()->GetCapitalConqueror() == ePlayer)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
@@ -6109,14 +6109,17 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Different government types get along worse
 	else if (iPolicyScore < 0)
 	{
-		if (eMilitaryStrength < STRENGTH_AVERAGE)
+		if (bUntrustworthy || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		}
-		else
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+			if (eMilitaryStrength < STRENGTH_AVERAGE)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			}
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+			}
 		}
 	}
 
@@ -6167,11 +6170,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Do we have different religions?
 		if (eMyReligion != eTheirReligion)
 		{
-			if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirReligion, ePlayer) > 0)
+			if (GetNegativeReligiousConversionPoints(ePlayer) > 0 || GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirReligion, ePlayer) > 0)
 			{
 				bDifferentReligions = true;
 
-				if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+				if (!bUntrustworthy && GetNegativeReligiousConversionPoints(ePlayer) <= 0 && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
@@ -6317,7 +6320,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Ignore religion/ideology penalties if they've been liberating us and aren't a backstabber
 	if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs))
 	{
-		iReligionMod = 0;
+		if (GetNegativeReligiousConversionPoints(ePlayer) <= 0)
+			iReligionMod = 0;
+
 		iIdeologyMod = 0;
 	}
 
@@ -42088,14 +42093,18 @@ int CvDiplomacyAI::GetDifferentMajorityReligionScore(PlayerTypes ePlayer)
 	// No penalty for teammates
 	if (IsTeammate(ePlayer))
 		return 0;
+
+	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
+	if (!IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
+		return 0;
 	
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) == NO_RELIGION || GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
 		return 0;
 
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) != GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false))
 	{
-		// If they don't have any cities following their own religion, no penalty
-		if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer) > 0)
+		// If they don't have any cities following their own religion (and aren't converting our cities), no penalty
+		if (GetNegativeReligiousConversionPoints(ePlayer) <= 0 && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer) > 0)
 			return 0;
 
 		iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
@@ -42124,6 +42133,10 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 	
 	// No penalty for teammates
 	if (IsTeammate(ePlayer))
+		return 0;
+
+	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
+	if (!IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
 		return 0;
 	
 	return iOpinionWeight;
@@ -43308,7 +43321,7 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 	if (iNumPolicies < 0)
 	{
 		iOpinionWeight = max(5, iNumPolicies * /*-1*/ GC.getOPINION_WEIGHT_PER_DIVERGENT_POLICY());
-		}
+	}
 	else if (iNumPolicies > 0)
 	{
 		iOpinionWeight = min(-5, iNumPolicies * /*-1*/ GC.getOPINION_WEIGHT_PER_SIMILAR_POLICY());
@@ -43321,6 +43334,10 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 	
 	// No penalty for teammates
 	if (iOpinionWeight > 0 && IsTeammate(ePlayer))
+		return 0;
+
+	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
+	if (iOpinionWeight > 0 && !IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
 		return 0;
 
 	return iOpinionWeight;
