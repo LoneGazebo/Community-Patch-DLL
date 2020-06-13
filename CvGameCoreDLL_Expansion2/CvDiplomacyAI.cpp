@@ -6219,7 +6219,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// IDEOLOGY
 	////////////////////////////////////
 
-	int iIdeologueScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion());
+	int iIdeologueScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies());
 
 	if (iGameEra != 6) // Ideology matters most in the Atomic Era!
 		iIdeologueScore /= 2;
