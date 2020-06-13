@@ -2614,7 +2614,7 @@ public:
 
 	bool HaveGoodSettlePlot(int iAreaID);
 	vector<int> GetBestSettleAreas();
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;

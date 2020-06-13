@@ -2165,7 +2165,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		return;
 	}
 
-	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
+	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID);
 	if (!pTargetSite)
 	{
 		SetToAbort(AI_ABORT_NO_TARGET);
@@ -2345,7 +2345,7 @@ bool CvAIOperationCivilian::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 	CvPlot* pCurrentTarget = GetTargetPlot();
 
 	// Find best target
-	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,pCurrentTarget?pCurrentTarget->getArea():-1,!IsEscorted());
+	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,pCurrentTarget?pCurrentTarget->getArea():-1);
 
 	// No targets at all!
 	if(pBetterTarget == NULL)
@@ -2387,9 +2387,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 
 		if(GC.getLogging() && GC.getAILogging())
 		{
-			CvArea* pArea = pCityPlot->area();
 			CvCity* pCity = pCityPlot->getPlotCity();
-
 			if (pCity != NULL)
 			{
 				CvString strMsg;
@@ -2434,7 +2432,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 	else
 	{
 		// let's see if the target still makes sense
-		CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, !IsEscorted());
+		CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, GetTargetPlot()->getArea());
 
 		// No targets at all!
 		if(pBetterTarget == NULL)
@@ -2455,34 +2453,41 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 }
 
 /// Find the plot where we want to settle
-CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafeTargets)
+CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, int iAreaID)
 {
 	//todo: better options
 	//a) return a list of possible targets and find the ones that are currently reachable
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
-	bool bIsSafe; //dummy
-	int iTargetArea = GetTargetPlot() ? GetTargetPlot()->getArea() : -1;
+	bool bIsSafe = false;
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iTargetArea, bOnlySafeTargets, bIsSafe, this);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bIsSafe, this);
+	if (!bIsSafe && !IsEscorted())
+		pResult = NULL;
 
 	//try again if the result is not good
-	if (pResult == NULL && iTargetArea != -1)
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe, this);
+	if (pResult == NULL && iAreaID != -1)
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe, this);
+	if (!bIsSafe && !IsEscorted())
+		pResult = NULL;
 
 	LogSettleTarget("BestWithCurrent", pResult);
 	return pResult;
 }
 
 //need to have this, it's pure virtual in civilian operation
-CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets)
+CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int iAreaID)
 {
-	bool bIsSafe; //dummy
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bOnlySafeTargets, bIsSafe);
+	bool bIsSafe = false;
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bIsSafe);
+	if (!bIsSafe && !IsEscorted())
+		pResult = NULL;
 
 	//try again if the result is not good
 	if (pResult == NULL && iAreaID != -1 )
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe);
+	if (!bIsSafe && !IsEscorted())
+		pResult = NULL;
 
 	LogSettleTarget("BestNew", pResult);
 	return pResult;
@@ -2566,7 +2571,7 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
+CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
 {
 	if(!pUnit)
 		return NULL;
@@ -2592,7 +2597,7 @@ CvAIOperationCivilianDiplomatDelegation::~CvAIOperationCivilianDiplomatDelegatio
 }
 
 /// Find the plot where we want to influence
-CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
+CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
 {
 	if(!pUnit)
 		return NULL;
@@ -2689,7 +2694,7 @@ CvAIOperationCivilianConcertTour::~CvAIOperationCivilianConcertTour()
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
+CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
 {
 	if(!pUnit)
 		return NULL;

@@ -1521,7 +1521,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		else
 		{
 			bool bIsSafe;
-			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
+			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
 			if (pSettlePlot == NULL)
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
@@ -1536,7 +1536,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	else if (pGreatMerchant->CanFoundColony())
 	{
 		bool bIsSafe;
-		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
 		if (pPlot != NULL)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}

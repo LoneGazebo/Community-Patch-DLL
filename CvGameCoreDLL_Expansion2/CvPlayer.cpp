@@ -47897,8 +47897,9 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafePlot, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
+	bIsSafe = false; //set a sane default
 	std::vector<SPlotWithScore> vSettlePlots;
 
 	//--------
@@ -48039,7 +48040,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		}
 
 		//important: take into account distance from existing cities!
-		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
+		//no pathfinder yet, that is done later ...
+		int iRelevantDistance = GetCityDistanceInPlots(pPlot);
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//check for new continent
@@ -48110,115 +48112,90 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	if (vSettlePlots.empty())
 		return 0;
 
-	//order by increasing score
-	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	//delete the worst half
-	SPlotWithScore ref = vSettlePlots.back();
-	ref.score = int(ref.score * 0.5f);
-	std::vector<SPlotWithScore>::iterator cutoff = std::upper_bound( vSettlePlots.begin(), vSettlePlots.end(), ref );
-	//reverse so best comes first
-	vSettlePlots.erase( vSettlePlots.begin(), cutoff );
-	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	//AI cheating here ... check if a settler would likely be captured
-	std::vector<CvPlot*> vBadPlots;
-	for(int iI = 0; iI < iNumPlots; iI++)
-	{
-		CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
-
-		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
-			continue;
-
-		if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-		{
-			vBadPlots.push_back(pPlot);
-			continue;
-		}
-
-		IDInfo* pUnitNode = pPlot->headUnitNode();
-		while(pUnitNode != NULL)
-		{
-			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-			pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
-			{
-				if (pLoopUnit->isEnemy(getTeam()) || pLoopUnit->isHuman()) //extra careful with those sneaky humans
-				{
-					vBadPlots.push_back(pPlot);
-					break;
-				}
-			}
-		}
-	}
-
 	//see where our settler can go
 	ReachablePlots reachablePlots;
-	int iMaxSafeTurns = 4;
+	int iMaxSafeTurns = 3;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit,0,iMaxSafeTurns);
+		//worst case in jungle one turn equals one plot ...
+		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
-	for (size_t i=0; i<vSettlePlots.size(); i++)
+	//order by increasing score
+	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
+	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
+
+	CvPlot* pTestPlot = vSettlePlots[0].pPlot;
+	//look at the best two and see if maybe the second one is much closer ...
+	if (vSettlePlots.size() > 1)
 	{
-		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
-		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+		CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
+		CvPlot* pTestPlotB = vSettlePlots[1].pPlot;
+		int iScoreA = vSettlePlots[0].score;
+		int iScoreB = vSettlePlots[1].score;
+		ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
+		ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
 
-		bool bDangerous = true;
-		bool bCanReachThisTurn = false;
-		if (it != reachablePlots.end())
+		//if B is at least 80% as good but less than 80% of the distance
+		if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
+			pTestPlot = pTestPlotB;
+	}
+
+	ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+	bool bCanReachThisTurn = false;
+	if (it != reachablePlots.end())
+	{
+		//a ranged attack or some fog danger is ok
+		bIsSafe = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))<30); 
+		bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
+	}
+
+	//if it's too far from our existing cities, it's still dangerous
+	if (bIsSafe && !bCanReachThisTurn)
+	{
+		int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
+		//also consider distance to settler here in case of re-targeting an operation
+		if (iDistanceToCity>iMaxSafeTurns && pTestPlot->getOwner()!=m_eID)
+			bIsSafe = false;
+	}
+
+	//check if it's too close to an enemy
+	if (bIsSafe && !bCanReachThisTurn)
+	{
+		//check if a settler would likely be captured
+		std::vector<CvPlot*> vBadPlots;
+		for(int iI = 0; iI < iNumPlots; iI++)
 		{
-			bDangerous = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))>30); //a ranged attack or some fog danger is ok
-			bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
+			CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
+			if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
+				continue;
+
+			//careful with barbarians
+			if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				vBadPlots.push_back(pPlot);
+			//careful with humans as well!
+			else if (pPlot->isCity() && GET_PLAYER(pPlot->getOwner()).isHuman())
+				vBadPlots.push_back(pPlot);
 		}
 
-		//check if it's too close to an enemy
-		if (!bCanReachThisTurn && !bDangerous)
+		for (size_t j = 0; j < vBadPlots.size(); j++)
 		{
-			for (size_t j = 0; j < vBadPlots.size(); j++)
+			if (pTestPlot->getArea() != vBadPlots[j]->getArea())
+				continue;
+
+			int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
+			if (iDistanceToDanger <= iMaxSafeTurns)
 			{
-				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
-					continue;
-
-				int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
-				if (iDistanceToDanger < 4)
-				{
-					bDangerous = true;
-					break;
-				}
+				bIsSafe = false;
+				break;
 			}
-		}
-
-		//if it's too far from our existing cities, it's dangerous
-		if (!bDangerous && !bCanReachThisTurn)
-		{
-			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
-			//also consider distance to settler here in case of re-targeting an operation
-			if (iDistanceToCity>3 && pTestPlot->getOwner()!=m_eID)
-				bDangerous = true;
-		}
-
-		if (bNeedSafePlot)
-		{
-			if (!bDangerous)
-			{
-				bIsSafe = true;
-				return pTestPlot;
-			}
-		}
-		else //don't care about safety but return the status nevertheless
-		{
-			bIsSafe = !bDangerous;
-			return pTestPlot;
 		}
 	}
 
-	bIsSafe = false;
-	return NULL;
+	return pTestPlot;
 }
 
 //	--------------------------------------------------------------------------------

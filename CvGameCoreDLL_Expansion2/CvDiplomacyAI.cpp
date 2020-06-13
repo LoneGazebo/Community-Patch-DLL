@@ -9213,7 +9213,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 			if (pCapitalCity == NULL)
 				continue;
 
-			CvCity* pOurClosestCity = GetPlayer()->GetClosestCityByPlots(pCapitalCity->plot()); //use estimated turns here?
+			CvCity* pOurClosestCity = GetPlayer()->GetClosestCityByEstimatedTurns(pCapitalCity->plot());
 			if (!pOurClosestCity)
 				continue;
 

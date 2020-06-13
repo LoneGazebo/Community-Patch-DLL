@@ -10544,35 +10544,28 @@ bool CvUnit::pillage()
 //	--------------------------------------------------------------------------------
 bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
-	VALIDATE_OBJECT
-	if(!m_pUnitInfo->IsFound())
-	{
-		if(!m_pUnitInfo->IsFoundAbroad())
-		{
-			return false;
-		}
-		else
-		{
-			CvCity* pCapital = GET_PLAYER(m_eOwner).getCapitalCity();
-			if(!pCapital || pCapital->getArea() == pPlot->getArea())
-			{
-				return false;
-			}
-		}
-	}
-
-	if (m_pUnitInfo->GetNumColonyFound() > 0 && !CanFoundColony())
-		return false;
-
 	if (pPlot)
 	{
 		if (!canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			return false;
 
-		return GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness);
+		if (!GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness))
+			return false;
 	}
-	else
+
+	if(m_pUnitInfo->IsFound())
+	{
+		if(m_pUnitInfo->IsFoundAbroad() && pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
+			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() == pPlot->getArea();
+
 		return true;
+	}
+	else if (CanFoundColony() && GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
