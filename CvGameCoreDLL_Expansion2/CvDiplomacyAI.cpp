@@ -10181,7 +10181,7 @@ bool CvDiplomacyAI::IsHasActiveGoldQuest()
 }
 
 /// Returns ePlayer's visible Diplomatic Approach towards us
-MajorCivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer)
+MajorCivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10200,7 +10200,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePl
 }
 
 /// Returns our guess as to another player's true Diplomatic Approach towards us
-MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlayer)
+MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function GetApproachTowardsUsGuess.");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_MAJOR_CIV_APPROACH;
@@ -15825,26 +15825,21 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return true;
-	
-	//we don't have a target value for the barbarians ... could change it but that would break savegames
+
 	if (ePlayer == BARBARIAN_PLAYER)
 		return true;
 	
 	// If they're about to win, we have nothing to lose!
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
-	{
 		return true;
-	}
 	
 	// If we're doing too badly, retreat!
 	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED || GetPlayer()->IsEmpireVeryUnhappy())
 		return false;
 	
 	// They're an easy target, so play offensively!
-	if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer))
-	{
+	if (IsEasyTarget(ePlayer))
 		return true;
-	}
 	
 	// We're going for world conquest, so play offensively!
 	if ((IsGoingForWorldConquest() || IsCloseToDominationVictory()) && GetWarState(ePlayer) > WAR_STATE_DEFENSIVE)
@@ -15903,6 +15898,58 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	}
 
 	return true; //by default we conquer everything
+}
+
+/// Is this major civ a potential military target or threat?
+bool CvDiplomacyAI::IsMajorCivPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return false;
+
+	if (IsTeammate(ePlayer) || IsVassal(ePlayer))
+		return false;
+
+	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
+		return true;
+
+	// We trust our friends.
+	if (IsDoFAccepted(ePlayer) && !IsUntrustworthyFriend(ePlayer))
+		return false;
+
+	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, false);
+	if (eApproach != NO_MAJOR_CIV_APPROACH && eApproach <= MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
+	{
+		if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE || GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
+			return true;
+
+		if (GetMilitaryThreat(ePlayer) >= THREAT_MAJOR || GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
+			return true;
+
+		// If they're equal or one level below us in strength, let's check diplomacy
+		if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
+		{
+			// Denouncement in either direction?
+			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
+				return true;
+
+			if (GetNumWarsDeclaredOnUs(ePlayer) > 0)
+				return true;
+
+			// Any reason for them to be mad at us?
+			PlayerTypes eMyPlayer = GetPlayer()->GetID();
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(ePlayer) > 0)
+				return true;
+
+			MajorCivApproachTypes eApproachTowardsUs = GetVisibleApproachTowardsUs(ePlayer);
+			if (eApproachTowardsUs != NO_MAJOR_CIV_APPROACH && eApproachTowardsUs <= MAJOR_CIV_APPROACH_GUARDED)
+				return true;
+		}
+	}
+
+	return false;
 }
 
 /// Does this AI want to make a Declaration of Friendship with ePlayer?
@@ -52546,6 +52593,10 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					SetOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, 0);
 					GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetWarmongerThreat(GetPlayer()->GetID(), THREAT_NONE);
 					GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerWarmongerAmountTimes100(GetPlayer()->GetID(), 0);
+
+					// Reset memory of demands made
+					SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
+					SetDemandCounter(eOtherTeamPlayer, -1);
 					
 					// During capitulation, reset all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
 					if (!bVoluntary)
@@ -52562,7 +52613,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						
 						SetPlayerNoSettleRequestEverAsked(eOtherTeamPlayer, false);
 						SetPlayerStopSpyingRequestEverAsked(eOtherTeamPlayer, false);
-						SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
 						
 						SetNumTimesCoopWarDenied(eOtherTeamPlayer, 0);
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetNumTimesCoopWarDenied(GetPlayer()->GetID(), 0);
@@ -52582,7 +52632,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						SetNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer, 0);
 						SetNumTimesPerformedCoupAgainstUs(eOtherTeamPlayer, 0);
 #endif
-						SetDemandCounter(eOtherTeamPlayer, -1);
 						SetNumTimesCultureBombed(eOtherTeamPlayer, 0);
 						SetNegativeReligiousConversionPoints(eOtherTeamPlayer, 0);
 						SetNegativeArchaeologyPoints(eOtherTeamPlayer, 0);

@@ -3782,8 +3782,14 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 			continue;
 
 		//we trust our friends
-		if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+		if (GET_PLAYER(eDefendingPlayer).isMajorCiv() && !GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eLoopPlayer))
+		{
 			continue;
+		}
+		else if (GET_PLAYER(eDefendingPlayer).isMinorCiv() && (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsFriends(eLoopPlayer) || (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetAlly() == eLoopPlayer)))
+		{
+			continue;
+		}
 
 		if (IsCloseToBorder(eLoopPlayer))
 			return true;

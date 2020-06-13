@@ -3076,26 +3076,17 @@ void CvMilitaryAI::UpdateBaseData()
 	iNumUnitsWanted += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
-	if(MOD_BALANCE_CORE_MILITARY && !m_pPlayer->isMinorCiv())
+	if (MOD_BALANCE_CORE_MILITARY && m_pPlayer->isMajorCiv())
 	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != m_pPlayer->GetID()))
+			if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
-				MajorCivApproachTypes eApproachType = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_AFRAID) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE))
+				if (GetPlayer()->GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eOtherPlayer))
 				{
-					if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
-					{
-						fMultiplier += 0.2f;
-					}
-					else if (m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
-					{
-						fMultiplier += 0.2f;
-					}
+					fMultiplier += 0.2f;
 				}
 			}
 		}
@@ -5917,14 +5908,20 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		// Add in weight for each civ we're on really bad terms with
 		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR ||
 		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_HOSTILE ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID)
+		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID ||
+				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
+				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE ||
+				pkDiplomacyAI->IsCapitalCapturedBy(eOtherPlayer) || pkDiplomacyAI->IsHolyCityCapturedBy(eOtherPlayer) ||
+				pkDiplomacyAI->GetNumCitiesCapturedBy(eOtherPlayer) > 0 || pkDiplomacyAI->GetNumWarsDeclaredOnUs(eOtherPlayer) > 2)
 		{
 			iCurrentWeight += 50;
 		}
 
 		// And some if on fairly bad terms
 		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_GUARDED ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE ||
+				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_GUARDED ||
+				pkDiplomacyAI->GetNumWarsDeclaredOnUs(eOtherPlayer) > 0)
 		{
 			iCurrentWeight += 25;
 		}
@@ -6433,24 +6430,16 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 	float fMultiplier = 0.25f + (pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon) / 100.0f;
 
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
-	if(MOD_BALANCE_CORE_MILITARY && !pPlayer->isMinorCiv())
+	if (MOD_BALANCE_CORE_MILITARY && pPlayer->isMajorCiv())
 	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != pPlayer->GetID()))
+			if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != pPlayer->GetID()))
 			{
-				MajorCivApproachTypes eApproachType = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_AFRAID) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE))
+				if (pPlayer->GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eOtherPlayer))
 				{
-					if(pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
-					{
-						fMultiplier += 0.10f;
-					}
-					else if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
-					{
-						fMultiplier += 0.10f;
-					}
+					fMultiplier += 0.10f;
 				}
 			}
 		}
