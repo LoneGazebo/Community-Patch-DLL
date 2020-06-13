@@ -6169,7 +6169,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			bDifferentReligions = true;
 
-			if (!bUntrustworthy && (bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+			if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
 				viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
@@ -6204,7 +6204,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (IsPlayerOpposingIdeology(ePlayer))
 	{
-		if (!bUntrustworthy && (bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+		if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
@@ -6312,7 +6312,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Ignore religion/ideology penalties if they've been liberating us and aren't a backstabber
-	if (!bUntrustworthy && (bRecentLiberation || bLiberatedCapital || bResurrectedUs))
+	if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs))
 	{
 		iReligionMod = 0;
 		iIdeologyMod = 0;
@@ -6344,8 +6344,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					// Are they allied ideological foes? Let's try to slow down their ideological spread.
 					if (IsPlayerOpposingIdeology(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologyMod;
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologyMod;
 					}
 				}
 				// Made a DP with an enemy of ours
@@ -6365,8 +6365,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					// Are they allied ideological foes? Let's try to slow down their ideological spread.
 					if (IsPlayerOpposingIdeology(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
-						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologyMod;
+						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologyMod;
 					}
 				}					
 			}
@@ -6400,13 +6400,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						if (IsPlayerOpposingIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologyMod;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologyMod;
 						}
 						else if (IsPlayerSameIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologueScore;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;							
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologyMod;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologyMod;							
 						}
 					}
 				}
@@ -6438,13 +6438,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						if (IsPlayerOpposingIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologyMod;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologyMod;
 						}
 						else if (IsPlayerSameIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologueScore;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologyMod;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologyMod;
 						}
 					}
 				}
