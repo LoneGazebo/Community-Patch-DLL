@@ -2392,7 +2392,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			int iValue = getUnitInfo().GetPower();
 			int iCivValue = 0;
 
-			int iTypicalPower = !isBarbarian() ? GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND) : GET_PLAYER(ePlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+			int iTypicalPower = !isBarbarian() ? GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND) : 0;
 
 			if (iTypicalPower > 0)
 			{
@@ -2512,6 +2512,20 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer))
 							{
+								// If the unit killed was a Barbarian combat unit, recalculate unit value (comparing against the vassal's typical unit power)
+								if (isBarbarian() && iCivValue == 0)
+								{
+									iTypicalPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+									if (iTypicalPower > 0)
+									{
+										iValue = getUnitInfo().GetPower() * /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
+									}
+									else
+									{
+										iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+									}
+								}
+
 								// Unit killed in/adjacent to the vassal's territory or near one of the vassal's cities
 								if (pPlot->getOwner() == eLoopPlayer || pPlot->isAdjacentPlayer(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetCityDistanceInPlots(pPlot) <= /*6*/ GC.getVASSALAGE_PROTECTED_CITY_DISTANCE())
 								{
