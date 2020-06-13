@@ -4474,7 +4474,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague != NULL)
 	{
 		// Loop through all (known) Players
-		PlayerTypes eLoopPlayer;
 		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -6133,7 +6132,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Different government types get along worse
 	else if (iPolicyScore < 0)
 	{
-		if (bUntrustworthy || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+		if (bUntrustworthy || IsAtWar(ePlayer) || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
 			if (eMilitaryStrength < STRENGTH_AVERAGE)
 			{
@@ -6198,7 +6197,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				bDifferentReligions = true;
 
-				if (bUntrustworthy || GetNegativeReligiousConversionPoints(ePlayer) > 0 || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+				if (bUntrustworthy || GetNegativeReligiousConversionPoints(ePlayer) > 0 || IsAtWar(ePlayer) || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
@@ -6234,7 +6233,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (IsPlayerOpposingIdeology(ePlayer))
 	{
-		if (bUntrustworthy || bColdWar || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
+		if (bUntrustworthy || bColdWar || IsAtWar(ePlayer) || (!bCoopWarSoon && !bRecentLiberation && !bLiberatedCapital && !bResurrectedUs)) // Ignore if they've been liberating us and aren't a backstabber
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
@@ -6342,7 +6341,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Ignore religion/ideology penalties if they've been liberating us and aren't a backstabber
-	if (!bUntrustworthy && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs))
+	if (!bUntrustworthy && !IsAtWar(ePlayer) && (bCoopWarSoon || bRecentLiberation || bLiberatedCapital || bResurrectedUs))
 	{
 		// Don't ignore religion if they're converting our cities
 		if (GetNegativeReligiousConversionPoints(ePlayer) <= 0)
@@ -17576,7 +17575,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 	if (IsNoVictoryCompetition())
 	{
 		// Loop through all (known) Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			ePlayer = (PlayerTypes)iPlayerLoop;
 			SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
@@ -17591,7 +17590,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 		{
 			// Loop through all (known) Players
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes)iPlayerLoop;
 				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
@@ -20075,7 +20074,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 	if (IsNoVictoryCompetition())
 	{
 		// Loop through all (known) Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			ePlayer = (PlayerTypes)iPlayerLoop;
 			SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
@@ -20090,7 +20089,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 		{
 			// Loop through all (known) Players
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes)iPlayerLoop;
 				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
@@ -42103,9 +42102,12 @@ int CvDiplomacyAI::GetDifferentMajorityReligionScore(PlayerTypes ePlayer)
 	if (IsTeammate(ePlayer))
 		return 0;
 
-	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
-	if (!IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
-		return 0;
+	// No penalty if they resurrected us or liberated our capital, as long as we're at peace, they're not converting our cities, and they're not a backstabber
+	if (!IsAtWar(ePlayer) && GetNegativeReligiousConversionPoints(ePlayer) <= 0 && !IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+	{
+		if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer))
+			return 0;
+	}
 	
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) == NO_RELIGION || GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
 		return 0;
@@ -42136,17 +42138,45 @@ int CvDiplomacyAI::GetSameLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	
-	if(IsPlayerOpposingIdeology(ePlayer))
-		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
-	
+
 	// No penalty for teammates
 	if (IsTeammate(ePlayer))
 		return 0;
+	
+	if (IsPlayerOpposingIdeology(ePlayer))
+	{
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 
-	// No penalty if they resurrected us or liberated our capital, as long as they're not a backstabber
-	if (!IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()) && (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer)))
-		return 0;
+		// No penalty if they resurrected us or liberated our capital, as long as we're at peace, they're not a backstabber, and there isn't a cold war
+		if (!IsAtWar(ePlayer) && !IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		{
+			bool bColdWar = false;
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague != NULL)
+			{
+				// Loop through all (known) Players
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if (IsPlayerValid(eLoopPlayer))
+					{
+						if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(GetPlayer()->GetID(), eLoopPlayer))
+						{
+							bColdWar = true;
+							break;
+						}
+					}
+				}
+			}
+#endif
+			if (!bColdWar)
+			{
+				if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer))
+					return 0;
+			}
+		}
+	}
 	
 	return iOpinionWeight;
 }
