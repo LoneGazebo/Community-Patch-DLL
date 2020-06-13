@@ -2849,7 +2849,7 @@
 			<Text>They have no strong feelings about us one way or the other.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_HOSTILE">
-			<Text>They view us as irrelevant and unimportant.</Text>
+			<Text>They do not view us as relevant to their interests.</Text>
 		</Row>
 
 		<!-- Opinion Indicator If Untrustworthy -->
