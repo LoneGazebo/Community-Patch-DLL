@@ -478,7 +478,7 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-	bool IsMajorCivPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const;
+	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const;
 	
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);

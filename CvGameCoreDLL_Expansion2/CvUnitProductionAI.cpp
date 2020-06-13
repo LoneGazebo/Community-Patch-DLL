@@ -726,7 +726,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 							iNumPlayers++;
 
-							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
+							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
 
 							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
 							{
@@ -789,7 +789,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 							iNumPlayers++;
 
-							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
+							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
 
 							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 							{

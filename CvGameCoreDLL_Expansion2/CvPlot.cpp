@@ -3782,7 +3782,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 			continue;
 
 		//we trust our friends
-		if (GET_PLAYER(eDefendingPlayer).isMajorCiv() && !GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eLoopPlayer))
+		if (GET_PLAYER(eDefendingPlayer).isMajorCiv() && !GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer))
 		{
 			continue;
 		}

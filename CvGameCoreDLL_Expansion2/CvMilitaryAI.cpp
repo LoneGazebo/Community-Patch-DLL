@@ -3084,7 +3084,7 @@ void CvMilitaryAI::UpdateBaseData()
 			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
 			if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
-				if (GetPlayer()->GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eOtherPlayer))
+				if (GetPlayer()->GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eOtherPlayer))
 				{
 					fMultiplier += 0.2f;
 				}
@@ -6437,7 +6437,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
 			if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != pPlayer->GetID()))
 			{
-				if (pPlayer->GetDiplomacyAI()->IsMajorCivPotentialMilitaryTargetOrThreat(eOtherPlayer))
+				if (pPlayer->GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eOtherPlayer))
 				{
 					fMultiplier += 0.10f;
 				}

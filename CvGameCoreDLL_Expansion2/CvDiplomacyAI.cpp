@@ -15906,7 +15906,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 }
 
 /// Is this major civ a potential military target or threat?
-bool CvDiplomacyAI::IsMajorCivPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
