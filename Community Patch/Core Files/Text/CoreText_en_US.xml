@@ -2849,12 +2849,12 @@
 			<Text>They have no strong feelings about us one way or the other.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_HOSTILE">
-			<Text>They do not view us as relevant to their interests.</Text>
+			<Text>They do not consider us relevant to their interests.</Text>
 		</Row>
 
 		<!-- Opinion Indicator If Untrustworthy -->
 		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
-			<Text>They consider us completely untrustworthy.</Text>
+			<Text>We are completely untrustworthy to them.</Text>
 		</Row>
 		
 		<!-- Base Opinion Mod -->
