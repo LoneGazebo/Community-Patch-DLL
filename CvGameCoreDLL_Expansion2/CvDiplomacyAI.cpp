@@ -4963,7 +4963,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 100;
 			}
 		}
-		if (GetPlayer()->IsHasLostHolyCity() && GetPlayer()->GetCapitalConqueror() == ePlayer)
+		if (GetPlayer()->IsHasLostHolyCity() && GetPlayer()->GetHolyCityConqueror() == ePlayer)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
