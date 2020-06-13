@@ -4095,8 +4095,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
 		
-		if (isMajorCiv())
-		GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+		if (isMajorCiv() && bConquest)
+		{
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedCapital(m_eID, true);
+		}
 	}
 
 
@@ -4109,8 +4112,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, m_eID);
 			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
 			
-			if (isMajorCiv())
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+			if (isMajorCiv() && bConquest)
+			{
+				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetPlayerCapturedHolyCity(m_eID, true);
+			}
 		}
 	}
 
@@ -9890,6 +9896,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumCitiesCapturedBy(eMePlayer, 0);
 			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
 			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
+			pDiploAI->SetPlayerCapturedCapital(eMePlayer, false);
+			pDiploAI->SetPlayerCapturedHolyCity(eMePlayer, false);
 			GetDiplomacyAI()->SetNumWarsDeclaredOnUs(ePlayer, 0);
 			GetDiplomacyAI()->SetNumCitiesCapturedBy(ePlayer, 0);
 			GetDiplomacyAI()->SetNumTimesRazed(ePlayer, 0);

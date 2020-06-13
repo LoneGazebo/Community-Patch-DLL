@@ -535,8 +535,14 @@ public:
 	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
 	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
 
-	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
+	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
+
+	bool IsPlayerCapturedCapital(PlayerTypes ePlayer) const;
+	void SetPlayerCapturedCapital(PlayerTypes ePlayer, bool bValue);
+
+	bool IsPlayerCapturedHolyCity(PlayerTypes ePlayer) const;
+	void SetPlayerCapturedHolyCity(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCitiesLiberatedBy(PlayerTypes ePlayer);
 	void ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange);

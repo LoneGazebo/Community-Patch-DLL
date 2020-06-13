@@ -2843,6 +2843,19 @@
 		<Row Tag="TXT_KEY_DIPLO_HUMAN_TEAMMATE">
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
 		</Row>
+
+		<!-- Opinion Indicators For Neutral Approach -->
+		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_FRIENDLY">
+			<Text>They have no strong feelings about us one way or the other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEUTRAL_HOSTILE">
+			<Text>They view us as irrelevant and unimportant.</Text>
+		</Row>
+
+		<!-- Opinion Indicator If Untrustworthy -->
+		<Row Tag="TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND">
+			<Text>They consider us completely untrustworthy.</Text>
+		</Row>
 		
 		<!-- Base Opinion Mod -->
 		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
@@ -4121,13 +4134,13 @@
 			<Text>The war against {1_PlayerName:textkey} has come. Shall we?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
-			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
+			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.[NEWLINE][NEWLINE](If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
-			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.[NEWLINE][NEWLINE](If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
-			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.[NEWLINE][NEWLINE](If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_ENEMY_2">
 			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>

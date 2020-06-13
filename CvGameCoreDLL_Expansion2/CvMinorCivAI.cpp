@@ -9671,32 +9671,34 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 	{
 		eTarget = (PlayerTypes) iTargetLoop;
 
-		if(GET_PLAYER(eTarget).isAlive())
+		if (GET_PLAYER(eTarget).isAlive())
+			continue;
+
+		if (!GET_PLAYER(eTarget).isMinorCiv())
 			continue;
 
 		if (GET_PLAYER(eForPlayer).getTeam() == GET_PLAYER(eTarget).getTeam())
 			continue;
 
-		if(!GET_PLAYER(eTarget).isMinorCiv())
+		int iX = GET_PLAYER(eTarget).GetOriginalCapitalX();
+		int iY = GET_PLAYER(eTarget).GetOriginalCapitalY();
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+
+		if (pPlot == NULL || !pPlot->isCity())
 			continue;
 
-		if (GET_PLAYER(eTarget).GetCapitalConqueror() == eForPlayer)
+		TeamTypes eCityOwnerTeam = (TeamTypes) GET_PLAYER(pPlot->getOwner()).getTeam();
+
+		if (eCityOwnerTeam == GET_PLAYER(eTarget).getTeam())
 			continue;
 
-		int iLoopCity;
-		bool bCapital = false;
-		for (CvCity* pLoopCity = GET_PLAYER(eForPlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eForPlayer).nextCity(&iLoopCity))
-		{
-			if(pLoopCity != NULL)
-			{
-				if(pLoopCity->getX() == GET_PLAYER(eTarget).GetOriginalCapitalX() && pLoopCity->getY() == GET_PLAYER(eTarget).GetOriginalCapitalY())
-				{
-					bCapital = true;
-					break;
-				}
-			}
-		}
-		if(bCapital)
+		if (eCityOwnerTeam == GET_PLAYER(eForPlayer).getTeam())
+			continue;
+
+		if (eCityOwnerTeam == GET_PLAYER(GetAlly()).getTeam())
+			continue;
+
+		if (eCityOwnerTeam == m_pPlayer->getTeam())
 			continue;
 
 		PlayerProximityTypes eClosestProximity = GET_PLAYER(eForPlayer).GetProximityToPlayer(eTarget);
