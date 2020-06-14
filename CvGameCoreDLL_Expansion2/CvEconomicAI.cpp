@@ -4825,7 +4825,8 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 				if(eMinorAlly != NO_PLAYER)
 				{
 					MajorCivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eMinorAlly);
-					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ true);
+					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ false);
+					MajorCivApproachTypes eApproachTowardsUs = pPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(eMinorAlly);
 
 					if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
 					{
@@ -4835,7 +4836,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 					{
 						iMinorAllyEnemy++;
 					}
-					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
+					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproachTowardsUs == MAJOR_CIV_APPROACH_HOSTILE || eApproachTowardsUs == MAJOR_CIV_APPROACH_WAR)
 					{
 						iMinorAllyHostile++;
 					}
