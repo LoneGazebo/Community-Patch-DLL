@@ -88,14 +88,62 @@ public:
 
 	void update();
 
+	// ************************************
+	// Pointers
+	// ************************************
+
 	CvPlayer* GetPlayer();
 	const CvPlayer* GetPlayer() const;
 	TeamTypes GetTeam() const;
 
-	void DoInitializePersonality();
+	// ************************************
+	// Helper Functions
+	// ************************************
+
+	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
+	vector<PlayerTypes> GetAllValidMajorCivs() const;
+	bool IsAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsTeammate(PlayerTypes eOtherPlayer) const;
+	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
+	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassal(PlayerTypes eOtherPlayer) const;
+	bool IsMaster(PlayerTypes eOtherPlayer) const;
+	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
+#endif
+
+	// ************************************
+	// Personality Values
+	// ************************************
+
 	int GetRandomPersonalityWeight(int iOriginalValue);
-	
+	void DoInitializePersonality();
 	void DoInitializeDiploPersonalityType();
+
+	int GetVictoryCompetitiveness() const;
+	int GetWonderCompetitiveness() const;
+	int GetMinorCivCompetitiveness() const;
+	int GetBoldness() const;
+	int GetDiploBalance() const;
+	int GetWarmongerHate() const;
+	int GetDenounceWillingness() const;
+	int GetDoFWillingness() const;
+	int GetLoyalty() const;
+	int GetNeediness() const;
+	int GetForgiveness() const;
+	int GetChattiness() const;
+	int GetMeanness() const;
+
+	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
+	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
+
+	DiploPersonalityTypes GetDiploPersonalityType() const;
+	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -131,15 +179,15 @@ public:
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
+	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
-	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateAlwaysWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfWeHaveNoCities(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachIfTheyHaveNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
@@ -147,6 +195,7 @@ public:
 
 	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
+	PlayerTypes GetPlayerWithHighestApproachValue(MajorCivApproachTypes eApproach) const;
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
@@ -611,34 +660,6 @@ public:
 	bool IsHideNeutralOpinionValues() const;
 
 	/////////////////////////////////////////////////////////
-	// Personality Members
-	/////////////////////////////////////////////////////////
-
-	int GetVictoryCompetitiveness() const;
-	int GetWonderCompetitiveness() const;
-	int GetMinorCivCompetitiveness() const;
-	int GetBoldness() const;
-	int GetDiploBalance() const;
-	int GetWarmongerHate() const;
-	int GetDenounceWillingness() const;
-	int GetDoFWillingness() const;
-	int GetLoyalty() const;
-	int GetNeediness() const;
-	int GetForgiveness() const;
-	int GetChattiness() const;
-	int GetMeanness() const;
-
-	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
-	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
-
-	DiploPersonalityTypes GetDiploPersonalityType() const;
-	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
-	bool IsConqueror() const;
-	bool IsDiplomat() const;
-	bool IsCultural() const;
-	bool IsScientist() const;
-
-	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
 	/////////////////////////////////////////////////////////
 
@@ -904,8 +925,8 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
-	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer);
 	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
 	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
@@ -1047,6 +1068,7 @@ public:
 	bool IsDenouncedPlayer(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue);
 	bool IsDenouncingPlayer(PlayerTypes ePlayer) const;
+	bool IsDenouncedByPlayer(PlayerTypes ePlayer) const;
 
 	short GetDenouncedPlayerCounter(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue);
@@ -1512,6 +1534,7 @@ public:
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
 	int GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer);
 	int GetFriendDeclaredWarOnUsScore(PlayerTypes ePlayer);
+	int GetMutualDenouncementScore(PlayerTypes ePlayer);
 	int GetDenouncedUsScore(PlayerTypes ePlayer);
 	int GetDenouncedThemScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
@@ -1565,9 +1588,6 @@ public:
 	bool IsCloseToCultureVictory() const;
 	bool IsCloseToDiploVictory() const;
 #endif
-
-	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
-	bool HasMetValidMinorCiv() const;
 
 	// Messages sent to other players about protected Minor Civs
 	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);
@@ -1625,11 +1645,6 @@ public:
 
 private:
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
-
-	bool IsAtWar(PlayerTypes eOtherPlayer) const;
-	bool IsTeammate(PlayerTypes eOtherPlayer) const;
-	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
-	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
 
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
@@ -1700,10 +1715,6 @@ private:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
 	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
-
-	bool IsVassal(PlayerTypes eOtherPlayer) const;
-	int GetNumVassals(PlayerTypes eOtherPlayer) const;
-	
 	//void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
 #endif
 
@@ -2275,19 +2286,19 @@ private:
 
 	// Personality Members
 
-	int m_iVictoryCompetitiveness;
-	int m_iWonderCompetitiveness;
-	int m_iMinorCivCompetitiveness;
-	int m_iBoldness;
-	int m_iDiploBalance;
-	int m_iWarmongerHate;
-	int m_iDenounceWillingness;
-	int m_iDoFWillingness;
-	int m_iLoyalty;
-	int m_iNeediness;
-	int m_iForgiveness;
-	int m_iChattiness;
-	int m_iMeanness;
+	char m_iVictoryCompetitiveness;
+	char m_iWonderCompetitiveness;
+	char m_iMinorCivCompetitiveness;
+	char m_iBoldness;
+	char m_iDiploBalance;
+	char m_iWarmongerHate;
+	char m_iDenounceWillingness;
+	char m_iDoFWillingness;
+	char m_iLoyalty;
+	char m_iNeediness;
+	char m_iForgiveness;
+	char m_iChattiness;
+	char m_iMeanness;
 
 	char* m_paiPersonalityMajorCivApproachBiases;
 	char* m_paiPersonalityMinorCivApproachBiases;

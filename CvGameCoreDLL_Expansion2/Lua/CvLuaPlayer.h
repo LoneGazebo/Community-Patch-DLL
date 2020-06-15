@@ -341,6 +341,7 @@ protected:
 
 	static int lGetEmpireHappinessForCity(lua_State* L);
 	static int lGetEmpireUnhappinessForCity(lua_State* L);
+	static int lGetEmpireHappinessFromCities(lua_State* L);
 	static int lGetHappinessForGAP(lua_State* L);
 
 	static int lGetExcessHappiness(lua_State* L);

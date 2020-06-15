@@ -2883,13 +2883,27 @@
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
 			<Text>True Approach: Neutral</Text>
 		</Row>
-		
-		<!-- Research Agreement Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
-			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
+
+		<!-- Embassy Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have shared embassies.[ENDCOLOR]</Text>
 		</Row>
-		
-		<!-- Defensive Pact Bonuses -->
+		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have an embassy in their capital.[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Open Borders Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
+			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_US">
+			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
+			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Defensive Pact Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
 			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact![ENDCOLOR]</Text>
 		</Row>
@@ -2900,23 +2914,14 @@
 			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
 		</Row>
 		
-		<!-- Embassy Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
-			<Text>[COLOR_POSITIVE_TEXT]We have shared embassies.[ENDCOLOR]</Text>
+		<!-- Research Agreement Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
+			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
-			<Text>[COLOR_POSITIVE_TEXT]We have an embassy in their capital.[ENDCOLOR]</Text>
-		</Row>
-		
-		<!-- Open Borders Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
-			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_US">
-			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to them.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
-			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
+
+		<!-- Denouncement Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
+			<Text>[COLOR_NEGATIVE_TEXT]We have denounced each other![ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
@@ -2973,7 +2978,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
 		</Row>
 
-		<!-- Aggressive Posture -->
+		<!-- Aggressive Posture Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">
 			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is threatening.[ENDCOLOR]</Text>
 		</Row>

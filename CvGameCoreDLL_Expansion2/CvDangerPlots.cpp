@@ -355,7 +355,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
-		pLoopCity->SetThreatValue(iThreatValue);
+		pLoopCity->setThreatValue(iThreatValue);
 	}
 }
 
@@ -409,7 +409,7 @@ void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
 
 bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 {
-	if (m_DangerPlots.empty()  || !pUnit)
+	if (m_DangerPlots.empty()  || !pUnit || !pUnit->IsCanAttack())
 		return false;
 
 	return m_knownUnits.find(std::make_pair(pUnit->getOwner(), pUnit->GetID())) != m_knownUnits.end();
@@ -417,7 +417,7 @@ bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 
 bool CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 {
-	if (m_DangerPlots.empty()  || !pUnit)
+	if (m_DangerPlots.empty()  || !pUnit || !pUnit->IsCanAttack())
 		return false;
 
 	if (IsKnownAttacker(pUnit))

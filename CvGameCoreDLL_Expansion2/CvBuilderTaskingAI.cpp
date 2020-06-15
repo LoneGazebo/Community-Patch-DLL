@@ -1750,7 +1750,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	if (!m_pPlayer->isHuman() && pPlot->isVisibleToEnemy(pUnit->getOwner()))
 		return false;
 
-	if (!pPlot->CanStackUnitHere(pUnit))
+	if (!pUnit->canEndTurnAtPlot(pPlot))
 	{
 		if(m_bLogging)
 		{

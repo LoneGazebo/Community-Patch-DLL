@@ -347,7 +347,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iWetlandsCount = 0;
 
 	int iLakeCount = 0;
-	int iLuxuryCount = 0;
+	int iResourceLuxuryCount = 0;
+	int iResourceStrategicCount = 0;
+	int iResourceBonusCount = 0;
 
 	//currently just for debugging
 	int iTotalFoodValue = 0;
@@ -522,9 +524,20 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 
 		ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
-		if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		if(eResource != NO_RESOURCE)
 		{
-			++iLuxuryCount;
+			switch (GC.getResourceInfo(eResource)->getResourceUsage())
+			{
+			case RESOURCEUSAGE_LUXURY:
+				++iResourceLuxuryCount;
+				break;
+			case RESOURCEUSAGE_STRATEGIC:
+				++iResourceStrategicCount;
+				break;
+			case RESOURCEUSAGE_BONUS:
+				++iResourceBonusCount;
+				break;
+			}
 		}
 
 		if (pLoopPlot->getTerrainType() == TERRAIN_DESERT && eResource == NO_RESOURCE)
@@ -571,6 +584,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (nFoodPlots < 4)
 		return 0;
 	if (nHammerPlots < 3)
+		return 0;
+	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && iNaturalWonderCount < 1)
 		return 0;
 
 	//civ-specific bonuses
@@ -642,7 +657,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
-					iCivModifier += iLuxuryCount * m_iFranceMultiplier;
+					iCivModifier += iResourceLuxuryCount * m_iFranceMultiplier;
 					if (pDebug) vQualifiersPositive.push_back("(C) luxury");
 				}
 			}
@@ -737,30 +752,28 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	{
 		//check if this location can be defended (from majors)
 		int iOwnCityDistanceTurns = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
-		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+		CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
+		if (pClosestCity && pClosestCity->getOwner() != pPlayer->GetID())
 		{
-			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
-			if (kNeighbor.isAlive() && i != pPlayer->GetID())
+			CvPlayer& kNeighbor = GET_PLAYER(pClosestCity->getOwner());
+			int iEnemyDistanceTurns = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+			int iEnemyMight = kNeighbor.GetMilitaryMight();
+			int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+
+			if (iEnemyDistanceTurns < min(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
 			{
-				int iEnemyDistanceTurns = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
-				int iEnemyMight = kNeighbor.GetMilitaryMight();
-				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
-
-				if (iEnemyDistanceTurns < min(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
+				//stay away if we are weak
+				if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
 				{
-					//stay away if we are weak
-					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
-					{
-						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
-					}
+					iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+					if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+				}
 
-					//landgrab if the neighbor is weak
-					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
-					{
-						iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-						if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
-					}
+				//landgrab if the neighbor is weak
+				if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
+				{
+					iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 				}
 			}
 		}

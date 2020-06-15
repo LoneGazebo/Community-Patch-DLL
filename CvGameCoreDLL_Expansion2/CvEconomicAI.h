@@ -366,10 +366,8 @@ bool IsTestStrategy_TooManyUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-bool IsTestStrategy_ReallyExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer *pPlayer);
 #else
 bool IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer);
-bool IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer *pPlayer);
 #endif
 bool IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer);
 bool IsTestStrategy_NavalMap(CvPlayer* pPlayer);

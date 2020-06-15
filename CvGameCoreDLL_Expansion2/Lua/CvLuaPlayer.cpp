@@ -358,6 +358,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetHappiness);
 	Method(GetEmpireHappinessForCity);
 	Method(GetEmpireUnhappinessForCity);
+	Method(GetEmpireHappinessFromCities);
 	Method(GetBonusHappinessFromLuxuriesFlat);
 	Method(GetBonusHappinessFromLuxuriesFlatForUI);
 	Method(GetHandicapHappiness);
@@ -3827,23 +3828,21 @@ int CvLuaPlayer::lDoesUnitPassFaithPurchaseCheck(lua_State* L)
 //int GetHappiness();
 int CvLuaPlayer::lGetHappiness(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetHappiness);
+	return BasicLuaMethod(L, &CvPlayer::GetHappiness);
 }
 //------------------------------------------------------------------------------
 //void SetHappiness(int iNewValue);
 int CvLuaPlayer::lSetHappiness(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::SetHappiness);
+	return BasicLuaMethod(L, &CvPlayer::SetHappiness);
 }
 
 //------------------------------------------------------------------------------
-//void SetHappiness(int iNewValue);
 int CvLuaPlayer::lGetEmpireHappinessForCity(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetEmpireHappinessForCity);
+	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessForCity);
 }
 //------------------------------------------------------------------------------
-//void SetHappiness(int iNewValue);
 int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -3851,6 +3850,13 @@ int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetEmpireHappinessFromCities(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessFromCities);
+}
+
 int CvLuaPlayer::lGetHappinessForGAP(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessForGAP);
@@ -8834,7 +8840,7 @@ int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
 
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
-		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ false);
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, /*bForUnit*/ false);
 		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor, iScore);
 		lua_pushboolean(L, bResult);
 		return 1;
@@ -8867,7 +8873,7 @@ int CvLuaPlayer::lCanMajorBullyUnit(lua_State* L)
 
 	if (iTargetVal > 0)
 	{
-		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ true);
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, /*bForUnit*/ true);
 		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor, (iScore - iTargetVal));
 		lua_pushboolean(L, bResult);
 		return 1;
@@ -8900,7 +8906,7 @@ int CvLuaPlayer::lGetMajorBullyValue(lua_State* L)
 	bool bForUnit = luaL_optbool(L, 3, false);
 
 	//since this is just for UI, flip it to positive.
-	const int iValue = abs(pkPlayer->GetMinorCivAI()->CalculateBullyValue(eMajor, bForUnit));
+	const int iValue = abs(pkPlayer->GetMinorCivAI()->CalculateBullyScore(eMajor, bForUnit));
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -9534,7 +9540,18 @@ int CvLuaPlayer::lGetResourceExport(lua_State* L)
 //int getResourceImport(ResourceTypes  iIndex);
 int CvLuaPlayer::lGetResourceImport(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getResourceImport);
+	//we have to sum up several types of import here
+	//everything except GetResourceFromMinors because that has it's own method
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
+
+	int iSum = 
+		pkPlayer->getResourceImportFromMajor(eResource) + 
+		pkPlayer->getResourceFromCSAlliances(eResource) + 
+		pkPlayer->getResourceSiphoned(eResource);
+	
+	lua_pushinteger(L, iSum);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getResourceFromMinors(ResourceTypes  iIndex);
@@ -9990,7 +10007,7 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 //void AI_updateFoundValues(bool bStartingLoc);
 int CvLuaPlayer::lAI_updateFoundValues(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::updatePlotFoundValues);
+	return BasicLuaMethod(L, &CvPlayer::UpdatePlotFoundValues);
 }
 //------------------------------------------------------------------------------
 //int AI_foundValue(int iX, int iY, int iMinUnitRange/* = -1*/, bool bStartingLoc/* = false*/);
@@ -13108,7 +13125,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	iValue = pDiploAI->GetEmbassyScore(eWithPlayer);
 	if (iValue != 0)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).HasEmbassyAtTeam(pkPlayer->getTeam()) && GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			Opinion kOpinion;
@@ -13130,12 +13146,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
 			aOpinions.push_back(kOpinion);
 		}
-#else
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
-		aOpinions.push_back(kOpinion);
-#endif
 	}
 
 	iValue = pDiploAI->GetForgaveForSpyingScore(eWithPlayer);
@@ -13646,22 +13656,24 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiploAI->GetVassalProtectScore(eWithPlayer);
-		if (iValue != 0)
+		// Vassal protect VS. failed protect
+		if (pDiploAI->GetVassalProtectScore(eWithPlayer) != pDiploAI->GetVassalFailedProtectScore(eWithPlayer))
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiploAI->GetVassalFailedProtectScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT");
-			aOpinions.push_back(kOpinion);
+			iValue = pDiploAI->GetVassalProtectScore(eWithPlayer) + pDiploAI->GetVassalFailedProtectScore(eWithPlayer);
+			if (iValue < 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_PROTECT");
+				aOpinions.push_back(kOpinion);
+			}
+			else if (iValue > 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT");
+				aOpinions.push_back(kOpinion);
+			}
 		}
 
 		iValue = pDiploAI->GetBrokenVassalAgreementScore(eWithPlayer);
@@ -13751,22 +13763,33 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 	// TRAITOR END
 
-	iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
+	iValue = pDiploAI->GetMutualDenouncementScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US");
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT");
 		aOpinions.push_back(kOpinion);
 	}
-
-	iValue = pDiploAI->GetDenouncedThemScore(eWithPlayer);
-	if (iValue != 0)
+	else
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM");
-		aOpinions.push_back(kOpinion);
+		iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiploAI->GetDenouncedThemScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 	// Denouncing a teammate's friend should be visible but with no penalty

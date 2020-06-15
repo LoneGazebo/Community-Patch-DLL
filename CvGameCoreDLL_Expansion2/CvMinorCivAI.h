@@ -677,9 +677,7 @@ public:
 	const ReachablePlots& GetBullyRelevantPlots();
 	int GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling = false);
 
-	int CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
-
-	int CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
+	int CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
 
 	bool CanMajorBullyGold(PlayerTypes ePlayer);
 	bool CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMetric);

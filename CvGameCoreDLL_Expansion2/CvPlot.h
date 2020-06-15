@@ -214,7 +214,7 @@ public:
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentCity() const;
-	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
+	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bool bCountUnowned) const;
 	int GetNumAdjacentMountains() const;
 	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -317,11 +317,10 @@ public:
 
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
+	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
-
-	bool CanStackUnitHere(const CvUnit* pUnit) const;
 
 	bool isFighting() const;
 	bool isUnitFighting() const;
@@ -339,10 +338,6 @@ public:
 	void SetTradeUnitRoute(bool bActive);
 	bool IsTradeUnitRoute() const;
 #endif
-
-	bool isValidDomainForLocation(const CvUnit& unit) const;
-	bool isValidDomainForAction(const CvUnit& unit) const;
-
 
 	inline int getX() const
 	{
@@ -704,7 +699,7 @@ public:
 #endif
 
 	int getFoundValue(PlayerTypes eIndex);
-	bool isBestAdjacentFound(PlayerTypes eIndex);
+	bool isBestAdjacentFoundValue(PlayerTypes eIndex);
 	void setFoundValue(PlayerTypes eIndex, int iNewValue);
 
 	int getPlayerCityRadiusCount(PlayerTypes eIndex) const;

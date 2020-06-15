@@ -3196,7 +3196,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			ResourceTypes eResource = (ResourceTypes) it->m_iData1;
 			int iResourceQuantity = it->m_iData2;
 			GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
-			GET_PLAYER(eAcceptedToPlayer).changeResourceImport(eResource, iResourceQuantity);
+			GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
 #if !defined(NO_ACHIEVEMENTS)
 			//Resource Trading Achievements
@@ -3319,8 +3319,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				{
 					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 					{
+						vector<PlayerTypes> v;
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 					}
 				}
 			}
@@ -3903,7 +3904,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					ResourceTypes eResource = (ResourceTypes) it->m_iData1;
 					int iResourceQuantity = it->m_iData2;
 					GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
-					GET_PLAYER(eAcceptedToPlayer).changeResourceImport(eResource, iResourceQuantity);
+					GET_PLAYER(eAcceptedToPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
 #if !defined(NO_ACHIEVEMENTS)
 					//Resource Trading Achievements
@@ -4025,8 +4026,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
+								vector<PlayerTypes> v;
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 							}
 						}
 					}
@@ -4311,8 +4313,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
+								vector<PlayerTypes> v;
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
 							}
 						}
 					}
@@ -4859,7 +4862,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		int iResourceQuantity = pItem->m_iData2;
 
 		fromPlayer.changeResourceExport(eResource, -iResourceQuantity);
-		toPlayer.changeResourceImport(eResource, -iResourceQuantity);
+		toPlayer.changeResourceImportFromMajor(eResource, -iResourceQuantity);
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		const char* szResourceDescription = (pkResourceInfo)? pkResourceInfo->GetDescriptionKey() : "";
@@ -5141,12 +5144,12 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal)
 					if(oldDealItemIter->m_eFromPlayer == pOldDeal->m_eFromPlayer)
 					{
 						fromPlayer.changeResourceExport(eResource, iResourceDelta);
-						toPlayer.changeResourceImport(eResource, iResourceDelta);
+						toPlayer.changeResourceImportFromMajor(eResource, iResourceDelta);
 					}
 					else
 					{
 						toPlayer.changeResourceExport(eResource, iResourceDelta);
-						fromPlayer.changeResourceImport(eResource, iResourceDelta);
+						fromPlayer.changeResourceImportFromMajor(eResource, iResourceDelta);
 					}
 				}
 			}

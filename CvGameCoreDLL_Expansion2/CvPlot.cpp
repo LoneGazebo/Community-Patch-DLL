@@ -764,23 +764,10 @@ void CvPlot::verifyUnitValidPlot()
 					{
 						if(!(pLoopUnit->isInCombat()))
 						{
-							// Unit not allowed to be here
-							if (!CanStackUnitHere(pLoopUnit))
+							if (!pLoopUnit->canEndTurnAtPlot(this))
 							{
 								if (!pLoopUnit->jumpToNearestValidPlot())
-								{
 									pLoopUnit->kill(true);
-									pLoopUnit = NULL;
-								}
-							}
-							
-							if (pLoopUnit != NULL)
-							{
-								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam())))
-								{
-									if (!pLoopUnit->jumpToNearestValidPlot())
-										pLoopUnit->kill(true);
-								}
 							}
 						}
 					}
@@ -3672,22 +3659,22 @@ CvCity* CvPlot::GetAdjacentCity() const
 
 //	--------------------------------------------------------------------------------
 /// Number of adjacent tiles owned by another team (or unowned)
-int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const
+int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bool bCountUnowned) const
 {
 	int iRtnValue = 0;
 
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GetPlotIndex());
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
 		if(pAdjacentPlot != NULL)
 		{
-			if(bIgnoreWater && pAdjacentPlot->isWater())
+			if(eDomain!=NO_DOMAIN && pAdjacentPlot->getDomain()!=eDomain)
 			{
 				continue;
 			}
 
-			if(pAdjacentPlot->getTeam() != eTeam)
+			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()))
 			{
 				iRtnValue++;
 			}
@@ -4831,6 +4818,20 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 	return false;
 }
 
+bool CvPlot::isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if (pAdjacentPlot != NULL)
+			if (pAdjacentPlot->isNeutralUnit(ePlayer, bCombat, bCheckVisibility, bIgnoreMinors))
+				return true;
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 // does not check visibility!
 bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
@@ -4882,95 +4883,6 @@ bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 	}
 
 	return false;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::CanStackUnitHere(const CvUnit* pUnit) const
-{
-	//trade is always ok
-	if (pUnit->isTrade())
-		return true;
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if (pUnit->getNumberStackingUnits() == -1)
-		return true;
-#endif
-
-	int iNumUnitsOfSameType = 0;
-
-	CvTeam& kUnitTeam = GET_TEAM(pUnit->getTeam());
-	const IDInfo* pUnitNode = headUnitNode();
-	while(pUnitNode != NULL)
-	{
-		const CvUnit*  pLoopUnit = GetPlayerUnit(*pUnitNode);
-		pUnitNode = nextUnitNode(pUnitNode);
-
-		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
-		{
-			//ignore the unit if it's already in the plot
-			if (pLoopUnit == pUnit)
-				continue;
-
-			// Don't include an enemy unit, or else it won't let us attack it :)
-			if(!kUnitTeam.isAtWar(pLoopUnit->getTeam()))
-			{
-				// Units of the same type OR Units belonging to different civs
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit,needsEmbarkation(pUnit)) && (pLoopUnit->getNumberStackingUnits() != -1)))
-#else
-				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
-#endif
-				{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-					if(!MOD_GLOBAL_STACKING_RULES)
-					{
-						if(!pLoopUnit->isCargo())
-						{
-							iNumUnitsOfSameType++;
-						}
-					}
-					else
-					{
-						if(MOD_GLOBAL_STACKING_RULES)
-						{
-							if(!pLoopUnit->isCargo())
-							{
-								if(!pLoopUnit->IsStackingUnit() && !pUnit->IsStackingUnit())
-								{
-									iNumUnitsOfSameType++;
-								}
-								if(pLoopUnit->IsStackingUnit())
-								{
-									iNumUnitsOfSameType++;
-									// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
-									// Also don't want plot unit limit to be exceeded if we are embarked. Rules are different there strict 1 UPT unless it's a sea improvement that allows it.
-									if(pUnit->IsStackingUnit() && !pUnit->isEmbarked())
-									{
-										iNumUnitsOfSameType++;
-									}
-								}
-							}
-						}
-					}
-
-#else
-					// We should allow as many cargo units as we want
-					if(!pLoopUnit->isCargo())
-					{
-						// Unit is the same domain & combat type, not allowed more than the limit
-						iNumUnitsOfSameType++;
-					}
-#endif
-				}
-			}
-		}
-	}
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	return iNumUnitsOfSameType < getUnitLimit();
-#else
-	return iNumUnitsOfSameType < GC.getPLOT_UNIT_LIMIT();
-#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -5189,78 +5101,6 @@ bool CvPlot::IsTradeUnitRoute() const
 	return m_bIsTradeUnitRoute;
 }
 #endif
-//	--------------------------------------------------------------------------------
-bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
-{
-	switch(unit.getDomainType())
-	{
-	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true, &unit));
-		break;
-
-	case DOMAIN_AIR:
-		return (isCity() && getOwner()==unit.getOwner()) || unit.canLoad(*this);
-		break;
-
-	case DOMAIN_HOVER:
-		if (unit.isEmbarked())
-			return needsEmbarkation(&unit);
-		else
-			return !isDeepWater();
-		break;
-
-	case DOMAIN_IMMOBILE:
-		return unit.plot()==this;
-		break;
-
-	case DOMAIN_LAND:
-		if (unit.isEmbarked())
-			return needsEmbarkation(&unit);
-		else
-			return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory())) || unit.canLoad(*this);
-		break;
-
-	default:
-		CvAssert(false);
-		break;
-	}
-
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
-{
-	switch(unit.getDomainType())
-	{
-	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), false, &unit));
-		break;
-
-	case DOMAIN_AIR:
-		return (isCity() || unit.canLoad(*this));
-		break;
-
-	case DOMAIN_HOVER:
-		return !isDeepWater();
-		break;
-
-	case DOMAIN_IMMOBILE:
-		return false;
-		break;
-
-	case DOMAIN_LAND:
-		return true;
-		break;
-
-	default:
-		CvAssert(false);
-		break;
-	}
-
-	return false;
-}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::at(int iX, int iY) const
@@ -10903,7 +10743,7 @@ int CvPlot::getFoundValue(PlayerTypes eIndex)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
+bool CvPlot::isBestAdjacentFoundValue(PlayerTypes eIndex)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
 	int iPlotValue = getFoundValue(eIndex);
