@@ -2309,7 +2309,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pkImprovementInfo->IsAdjacentCity() && GetAdjacentCity() == NULL)
+	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
 	{
 		return false;
 	}
@@ -3605,6 +3605,21 @@ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 	return false;
 }
 
+bool CvPlot::IsAdjacentCity(TeamTypes eTeam) const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if (pAdjacentPlot && pAdjacentPlot->isCity())
+		{
+			if (eTeam==NO_TEAM || pAdjacentPlot->getTeam()==eTeam)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly) const
 {
@@ -3767,8 +3782,14 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 			continue;
 
 		//we trust our friends
-		if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+		if (GET_PLAYER(eDefendingPlayer).isMajorCiv() && !GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer))
+		{
 			continue;
+		}
+		else if (GET_PLAYER(eDefendingPlayer).isMinorCiv() && (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsFriends(eLoopPlayer) || (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetAlly() == eLoopPlayer)))
+		{
+			continue;
+		}
 
 		if (IsCloseToBorder(eLoopPlayer))
 			return true;
@@ -14062,17 +14083,17 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 	return m_bIsImpassable;
 }
 
-bool CvPlot::hasSharedAdjacentArea(CvPlot* pOtherPlot) const
+bool CvPlot::isSameOrAdjacentArea(CvPlot* pOtherPlot) const
 {
 	if (pOtherPlot == NULL)
 		return false;
 
-	std::vector<int> myAreas = getAllAdjacentAreas();
-	std::vector<int> theirAreas = pOtherPlot->getAllAdjacentAreas();
-	std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
+	if (getArea() == pOtherPlot->getArea())
+		return true;
 
-	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(), myAreas.end(), theirAreas.begin(), theirAreas.end(), shared.begin());
-	return (result != shared.begin());
+	std::vector<int> myAdjacent = getAllAdjacentAreas();
+	std::vector<int>::iterator result = std::find(myAdjacent.begin(), myAdjacent.end(), pOtherPlot->getArea());
+	return (result != myAdjacent.end());
 }
 
 //--------------------------------------------------------------------

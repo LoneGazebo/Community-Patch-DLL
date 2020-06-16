@@ -12576,7 +12576,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetNumWarsFought(pkPlayer->GetID()) > 0)
 		{
 			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID ||
-			(iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL && !GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(pkPlayer->GetID())))
+				(iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL && !pDiploAI->IsActHostileTowardsHuman(eWithPlayer)))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12592,126 +12592,133 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 	}
-	// Debug: display the AI's true approach in the opinion table (also duplicates Transparent Diplomacy)
-	if (pDiploAI->IsAlwaysShowTrueApproaches())
+	if (!pkPlayer->isHuman())
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = 0;
-		
-		switch (pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false))
-		{
-		case MAJOR_CIV_APPROACH_WAR:
-			if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_WAR");
-			}
-			else
-			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR");
-			}
-			break;
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE");
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE");
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED");
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID");
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY");
-			break;
-		case MAJOR_CIV_APPROACH_NEUTRAL:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL");
-			break;
-		}
-		
-		aOpinions.push_back(kOpinion);
-	}
-	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
-	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+		// Debug: display the AI's true approach in the opinion table (also duplicates Transparent Diplomacy)
+		if (pDiploAI->IsAlwaysShowTrueApproaches())
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
-		
-		switch (iVisibleApproach)
-		{
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
-			break;
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
-			break;
-		}
-		
-			aOpinions.push_back(kOpinion);
-		}
-	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
-	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = 0;
-		
-		switch (iVisibleApproach)
-		{
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
-			break;
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
-			break;
-		}
-		
-		aOpinions.push_back(kOpinion);
-	}
 
-	// Base opinion score?
-	iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
-	if (iValue != 0)
-	{
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
-#else
-		if (pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
-#endif
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			
-			if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			if (pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
-			}
-			else if (iValue > 0)
-			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
-			}
-			else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
-			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
+				if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_WAR");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR");
+				}
 			}
 			else
 			{
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GOOD_BASE_OPINION");
+				switch (pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false))
+				{
+				case MAJOR_CIV_APPROACH_HOSTILE:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE");
+					break;
+				case MAJOR_CIV_APPROACH_DECEPTIVE:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE");
+					break;
+				case MAJOR_CIV_APPROACH_GUARDED:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED");
+					break;
+				case MAJOR_CIV_APPROACH_AFRAID:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID");
+					break;
+				case MAJOR_CIV_APPROACH_FRIENDLY:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY");
+					break;
+				case MAJOR_CIV_APPROACH_NEUTRAL:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL");
+					break;
+				}
 			}
 			
 			aOpinions.push_back(kOpinion);
+		}
+		// If not at war, show an explanation message for the visible approach to the human.
+		else if (!GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+
+			// Neutral has two different messages: one if the AI is acting hostile, and one if they're not
+			if (iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL)
+			{
+				if (pDiploAI->IsActHostileTowardsHuman(eWithPlayer))
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY");
+				}
+			}
+			else
+			{
+				switch (iVisibleApproach)
+				{
+				case MAJOR_CIV_APPROACH_FRIENDLY:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
+					break;
+				case MAJOR_CIV_APPROACH_AFRAID:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
+					break;
+				case MAJOR_CIV_APPROACH_GUARDED:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
+					break;
+				case MAJOR_CIV_APPROACH_HOSTILE:
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
+					break;
+				}
+			}
+			
+			aOpinions.push_back(kOpinion);
+		}
+
+		// Untrustworthy friend?
+		if (pDiploAI->IsTeamUntrustworthy(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_UNTRUSTWORTHY_FRIEND");
+			aOpinions.push_back(kOpinion);
+		}
+
+		// Base opinion score?
+		iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
+		if (iValue != 0)
+		{
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
+#else
+			if (pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
+#endif
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				
+				if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
+				}
+				else if (iValue > 0)
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
+				}
+				else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GOOD_BASE_OPINION");
+				}
+				
+				aOpinions.push_back(kOpinion);
+			}
 		}
 	}
 
@@ -13889,11 +13896,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED_OTHER");
 		aOpinions.push_back(kOpinion);
 	}
-	iValue = pDiploAI->GetPolicyScore(eWithPlayer);
-	if (iValue < 0)
+	// Similar/divergent Social Policies should be visible even if there's no opinion change
+	if (pDiploAI->GetNumSamePolicies(eWithPlayer) != 0)
 	{
 		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
+		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
 		aOpinions.push_back(kOpinion);
 	}

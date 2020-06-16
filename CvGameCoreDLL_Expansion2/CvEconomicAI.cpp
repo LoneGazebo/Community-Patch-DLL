@@ -3917,36 +3917,52 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iUnitLoop = 0;
 	for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE && pLoopUnit->getArmyID() == -1)
-			vSettlers.push_back(pLoopUnit);
-		else if (pLoopUnit->CanFoundColony() && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND))
+		if (pLoopUnit->getArmyID() != -1)
+			continue;
+
+		if(pLoopUnit->canFound(NULL,true,true))
 			vSettlers.push_back(pLoopUnit);
 	}
 
 	if (vSettlers.empty())
 		return false;
 
+	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	bool bIsEarlyExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY) && pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
+
 	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
-	vector<int> vBestAreas = pPlayer->GetBestSettleAreas();
+	vector<int> vSearchAreas = pPlayer->GetBestSettleAreas();
+	//try the available areas one after another, but global search first
+	vSearchAreas.insert(vSearchAreas.begin(), -1);
+
 	bool bStartedOp = false;
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-
-		//try the available areas one after another
-		vector<int> vSearchAreas;
-		vSearchAreas.push_back(-1); //global search first
-		vSearchAreas.insert(vSearchAreas.end(), vBestAreas.begin(), vBestAreas.end());
-
 		for (size_t i = 0; i < vSearchAreas.size(); i++)
 		{
 			bool bIsSafe = false;
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], false, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], bIsSafe);
 			if (!pBestSettle)
 				continue;
 
+			//we need good plots for our core cities, so hold off for a while if the plot is not good enough
+			//there's a chance we just haven't explored enough yet
+			int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
+			if (bIsEarlyExpansion && pPlayer->getCapitalCity())
+			{
+				int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
+				if (iFoundValue < iCapitalFoundValue / 2)
+				{
+					CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - area %d, value %d - because it is not good enough", 
+						pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), vSearchAreas[i], iFoundValue);
+					pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
+					continue;
+				}
+			}
+
 			CvString msg = CvString::format("Trying settle plot for unit %d at %d,%d - area %d, value %d", 
-				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), pBestSettle->getFoundValue(pPlayer->GetID()));
+				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), iFoundValue);
 			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
 			//could be a conquistador ...
@@ -4809,7 +4825,8 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 				if(eMinorAlly != NO_PLAYER)
 				{
 					MajorCivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eMinorAlly);
-					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ true);
+					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ false);
+					MajorCivApproachTypes eApproachTowardsUs = pPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(eMinorAlly);
 
 					if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
 					{
@@ -4819,7 +4836,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 					{
 						iMinorAllyEnemy++;
 					}
-					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
+					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproachTowardsUs == MAJOR_CIV_APPROACH_HOSTILE || eApproachTowardsUs == MAJOR_CIV_APPROACH_WAR)
 					{
 						iMinorAllyHostile++;
 					}

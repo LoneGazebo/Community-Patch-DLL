@@ -2095,7 +2095,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				if (pPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
-					if (!m_bNoPermanentsAdjacentCity || pPlot->GetAdjacentCity() == NULL)
+					if (!m_bNoPermanentsAdjacentCity || pPlot->IsAdjacentCity())
 						iSecondaryScore += iBigBuff;
 					else
 						iSecondaryScore -= iSmallBuff;
@@ -2452,7 +2452,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 
 	//City adjacenct improvement? Ramp it up!
-	if(pImprovement->IsAdjacentCity() && pPlot->GetAdjacentCity() != NULL)
+	if(pImprovement->IsAdjacentCity() && pPlot->IsAdjacentCity())
 	{
 		iSecondaryScore += iBigBuff;
 	}

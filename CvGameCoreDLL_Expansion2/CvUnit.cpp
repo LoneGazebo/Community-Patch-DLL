@@ -2392,7 +2392,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			int iValue = getUnitInfo().GetPower();
 			int iCivValue = 0;
 
-			int iTypicalPower = !isBarbarian() ? GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND) : GET_PLAYER(ePlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+			int iTypicalPower = !isBarbarian() ? GET_PLAYER(getOwner()).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND) : 0;
 
 			if (iTypicalPower > 0)
 			{
@@ -2512,6 +2512,20 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer))
 							{
+								// If the unit killed was a Barbarian combat unit, recalculate unit value (comparing against the vassal's typical unit power)
+								if (isBarbarian() && iCivValue == 0)
+								{
+									iTypicalPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+									if (iTypicalPower > 0)
+									{
+										iValue = getUnitInfo().GetPower() * /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
+									}
+									else
+									{
+										iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+									}
+								}
+
 								// Unit killed in/adjacent to the vassal's territory or near one of the vassal's cities
 								if (pPlot->getOwner() == eLoopPlayer || pPlot->isAdjacentPlayer(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetCityDistanceInPlots(pPlot) <= /*6*/ GC.getVASSALAGE_PROTECTED_CITY_DISTANCE())
 								{
@@ -4757,9 +4771,10 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_AIR)
 		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
-	// Immobile can go nowhere
+	// Immobile can go nowhere ... except where they are
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
-		return false;
+		if (!at(enterPlot.getX(),enterPlot.getY()))
+			return false;
 
 	// Sea units - we can exclude non-water plots right away
 	// also allow forts and cities if adjacent to real water
@@ -5491,10 +5506,6 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
 				iValue += 10000;
 
-			//avoid isolated unowned plots ...
-			if (pLoopPlot->getTeam() != getTeam() && !pLoopPlot->isAdjacentTeam(getTeam()))
-				iValue += 5000;
-
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
 	}
@@ -5506,22 +5517,22 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pTestPlot = candidates[i].pPlot;
 
-			// check to make sure this is not a dead end
-			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+		// check to make sure this is not a dead end
+		// alternatively we could verify against all plots reachable from owner's capital?
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-			//want to sort by ascending area size
-			candidates[i].score = GC.getMap().numPlots() - plots2.size();
+		//want to sort by ascending area size
+		candidates[i].score = GC.getMap().numPlots() - plots2.size();
 
-			//if we have lots of room here, use the plot immediately
-			if (plots2.size() > 23)
-			{
-				pBestPlot = pTestPlot;
-				break;
-			}
+		//if we have lots of room here, use the plot immediately
+		if (plots2.size() > 23)
+		{
+			pBestPlot = pTestPlot;
+			break;
 		}
+	}
 
 	if (!pBestPlot && !candidates.empty())
 	{
@@ -10242,7 +10253,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	if (!canPillage(pPlot, iMovesOverride))
 		return false;
 
-	if (hasFreePillageMove() && pPlot->GetAdjacentCity() != NULL)
+	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
 
 	if (pPlot->getOwningCity() != NULL)
@@ -10547,35 +10558,28 @@ bool CvUnit::pillage()
 //	--------------------------------------------------------------------------------
 bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
-	VALIDATE_OBJECT
-	if(!m_pUnitInfo->IsFound())
-	{
-		if(!m_pUnitInfo->IsFoundAbroad())
-		{
-			return false;
-		}
-		else
-		{
-			CvCity* pCapital = GET_PLAYER(m_eOwner).getCapitalCity();
-			if(!pCapital || pCapital->getArea() == pPlot->getArea())
-			{
-				return false;
-			}
-		}
-	}
-
-	if (m_pUnitInfo->GetNumColonyFound() > 0 && !CanFoundColony())
-		return false;
-
 	if (pPlot)
 	{
 		if (!canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			return false;
 
-		return GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness);
+		if (!GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness))
+			return false;
 	}
-	else
+
+	if(m_pUnitInfo->IsFound())
+	{
+		if(m_pUnitInfo->IsFoundAbroad() && pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
+			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() == pPlot->getArea();
+
 		return true;
+	}
+	else if (CanFoundColony() && GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

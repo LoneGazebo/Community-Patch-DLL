@@ -537,7 +537,7 @@ public:
 
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvUnit* FindBestCivilian();
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets) = 0;
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID) = 0;
 
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -579,8 +579,8 @@ public:
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
-	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
+	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, int iAreaID);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
 	virtual void	LogSettleTarget(const char* hint, CvPlot* pTarget) const;
 };
 
@@ -643,7 +643,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -677,7 +677,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -711,7 +711,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
