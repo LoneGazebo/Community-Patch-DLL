@@ -211,8 +211,8 @@ public:
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
-	MajorCivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer);
-	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const;
+	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
@@ -478,6 +478,7 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
+	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const;
 	
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
@@ -535,8 +536,14 @@ public:
 	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
 	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
 
-	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
+	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
+
+	bool IsPlayerCapturedCapital(PlayerTypes ePlayer) const;
+	void SetPlayerCapturedCapital(PlayerTypes ePlayer, bool bValue);
+
+	bool IsPlayerCapturedHolyCity(PlayerTypes ePlayer) const;
+	void SetPlayerCapturedHolyCity(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCitiesLiberatedBy(PlayerTypes ePlayer);
 	void ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange);

@@ -21256,7 +21256,7 @@ bool CvCity::DoRazingTurn()
 					}
 				}
 			}
-			else
+			else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 			{
 				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
 				if(bNotification)
