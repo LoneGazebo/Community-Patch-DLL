@@ -13258,10 +13258,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// Same/different ideologies should always be visible even if there's no score change
 	if (pDiploAI->IsPlayerSameIdeology(eWithPlayer) || pDiploAI->IsPlayerOpposingIdeology(eWithPlayer))
 	{
-		iValue = pDiploAI->GetIdeologyScore(eWithPlayer);
-
 		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
+		kOpinion.m_iValue = pDiploAI->GetIdeologyScore(eWithPlayer);
 
 		if (pDiploAI->IsPlayerSameIdeology(eWithPlayer))
 		{
@@ -13278,9 +13276,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
 			}
 		}
-		else
+		else if (!GET_PLAYER(eWithPlayer).IsVassalOfSomeone())
 		{
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES");
+			PolicyBranchTypes eTheirBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+			PolicyBranchTypes eMyBranch = GET_PLAYER(eWithPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+			kOpinion.m_str << GC.getPolicyBranchInfo(eMyBranch)->GetDescription();
+			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
+		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
 			PolicyBranchTypes eTheirBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 			PolicyBranchTypes eMyBranch = GET_PLAYER(eWithPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 			kOpinion.m_str << GC.getPolicyBranchInfo(eMyBranch)->GetDescription();

@@ -6504,7 +6504,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iReligionMod /= 2;
 	}
 
-	if (GetPlayer()->IsVassalOfSomeone() || bCoopWarSoon || bRecentLiberation || bIgnoreIdeologyDifferences)
+	if (bCoopWarSoon || bRecentLiberation || bIgnoreIdeologyDifferences || GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(ePlayer).IsVassalOfSomeone())
 	{
 		iIdeologyMod = 0;
 	}
@@ -42539,6 +42539,11 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 		iOpinionWeight /= 2;
 	}
 	else if (!IsVassal(ePlayer) && GetPlayer()->IsVassalOfSomeone())
+	{
+		iOpinionWeight /= 2;
+	}
+	// Care less about vassals' ideologies, for the same reason
+	else if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 	{
 		iOpinionWeight /= 2;
 	}
