@@ -13221,59 +13221,64 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetHasAdoptedHisReligionScore(eWithPlayer);
+	iValue = pDiploAI->GetReligionScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION");
+
+		if (iValue > 0)
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES");
+		}
+		else // figure out the source of the bonus
+		{
+			ReligionTypes eAIStateReligion = pkPlayer->GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eAIMajorityReligion = pkPlayer->GetReligions()->GetReligionInMostCities();
+			ReligionTypes eHumanStateReligion = GET_PLAYER(eWithPlayer).GetReligions()->GetCurrentReligion(false);
+			ReligionTypes eHumanMajorityReligion = GET_PLAYER(eWithPlayer).GetReligions()->GetReligionInMostCities();
+			
+			if (eAIStateReligion != NO_RELIGION && eAIStateReligion == eHumanMajorityReligion)
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION");
+			}
+			else if (eHumanStateReligion != NO_RELIGION && eHumanStateReligion == eAIMajorityReligion)
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_MY_RELIGION");
+			}
+			else
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS");
+			}
+		}
+
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetHasAdoptedMyReligionScore(eWithPlayer);
-	if (iValue != 0)
+	// Same/different ideologies should always be visible even if there's no score change
+	if (pDiploAI->IsPlayerSameIdeology(eWithPlayer) || pDiploAI->IsPlayerOpposingIdeology(eWithPlayer))
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION");
-		aOpinions.push_back(kOpinion);
-	}
-	
-#if defined(MOD_BALANCE_CORE)
-	iValue = pDiploAI->GetDifferentMajorityReligionScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS", iValue);
-		aOpinions.push_back(kOpinion);
-	}
-#endif
-	
-	iValue = pDiploAI->GetSameLatePoliciesScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES");
-		PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-		kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
-		aOpinions.push_back(kOpinion);
-	}
+		iValue = pDiploAI->GetIdeologyScore(eWithPlayer);
 
-	// Opposing the ideology of a teammate should be visible but with no penalty
-	if (pDiploAI->IsPlayerOpposingIdeology(eWithPlayer))
-	{
-		iValue = pDiploAI->GetDifferentLatePoliciesScore(eWithPlayer);
-		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES");
-		PolicyBranchTypes eTheirBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-		PolicyBranchTypes eMyBranch = GET_PLAYER(eWithPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-		kOpinion.m_str << GC.getPolicyBranchInfo(eMyBranch)->GetDescription();
-		kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
-		aOpinions.push_back(kOpinion);
+
+		if (pDiploAI->IsPlayerSameIdeology(eWithPlayer))
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES");
+			PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+			kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
+		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES");
+			PolicyBranchTypes eTheirBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+			PolicyBranchTypes eMyBranch = GET_PLAYER(eWithPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+			kOpinion.m_str << GC.getPolicyBranchInfo(eMyBranch)->GetDescription();
+			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
+		}
+
+		aOpinions.push_back(kOpinion);		
 	}
 
 	iValue = pDiploAI->GetTimesRobbedScore(eWithPlayer);

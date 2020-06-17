@@ -2998,7 +2998,18 @@
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is extremely threatening.[ENDCOLOR]</Text>
 		</Row>
-		
+
+		<!-- Religion Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS">
+			<Text>[COLOR_POSITIVE_TEXT]We have adopted the same religion in the majority of our cities.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES">
+			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
+			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
+		</Row>
+
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
 			<Text>[COLOR_POSITIVE_TEXT]They liked our proposal to the United Nations.[ENDCOLOR]</Text>
@@ -6165,14 +6176,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS">
-			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
-			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN">
