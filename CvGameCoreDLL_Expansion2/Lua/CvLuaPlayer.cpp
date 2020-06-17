@@ -13265,7 +13265,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		if (pDiploAI->IsPlayerSameIdeology(eWithPlayer))
 		{
-			if (!pkPlayer->IsVassalOfSomeone())
+			if (!pkPlayer->IsVassalOfSomeone() && !GET_PLAYER(eWithPlayer).IsVassalOfSomeone())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES");
 				PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
