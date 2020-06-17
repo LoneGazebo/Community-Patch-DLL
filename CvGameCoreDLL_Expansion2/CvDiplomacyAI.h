@@ -1496,7 +1496,7 @@ public:
 	int GetDemandEverMadeScore(PlayerTypes ePlayer);
 	int GetTimesCultureBombedScore(PlayerTypes ePlayer);
 	int GetReligiousConversionPointsScore(PlayerTypes ePlayer);
-	int GetReligionScore(PlayerTypes ePlayer, bool bVassalCheck = false);
+	int GetReligionScore(PlayerTypes ePlayer);
 	int GetIdeologyScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)

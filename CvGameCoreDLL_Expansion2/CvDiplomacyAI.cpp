@@ -42308,10 +42308,10 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer, bool bVassalCheck /* = false */)
+int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if (!bVassalCheck && IsVassal(ePlayer)) return 0; // Don't double dip
+	if (IsVassal(ePlayer)) return 0; // Don't double dip
 
 	ReligionTypes eOurStateReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
 	ReligionTypes eOurMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
@@ -52279,13 +52279,64 @@ int CvDiplomacyAI::GetVassalTradeRouteScore(PlayerTypes ePlayer) const
 int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer)) return 0;
-	int iOpinionWeight = GetPlayer()->GetDiplomacyAI()->GetReligionScore(ePlayer, /*bVassalCheck*/ true);
+	int iOpinionWeight = 0;
+
+	ReligionTypes eVassalStateReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eVassalMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eMasterStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eMasterMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+
+	// No vassal religion - don't care
+	if (eVassalStateReligion == NO_RELIGION && eVassalMajorityReligion == NO_RELIGION)
+		return 0;
+
+	// Vassal did not found or conquer
+	if (eVassalStateReligion == NO_RELIGION)
+	{
+		// Master founded, and we have their religion
+		if (eMasterStateReligion != NO_RELIGION && eMasterStateReligion == eVassalMajorityReligion && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eMasterStateReligion, ePlayer) > 0)
+		{
+			iOpinionWeight += -20;
+		}
+		// Same majority religions
+		else if (eMasterMajorityReligion != NO_RELIGION && eMasterMajorityReligion == eVassalMajorityReligion)
+		{
+			iOpinionWeight += -10;
+		}
+	}
+	// Vassal did found or conquer
+	else
+	{
+		// Master also founded or conquered
+		if (eMasterStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eMasterStateReligion, ePlayer) > 0)
+		{
+			// ... and it's our majority religion
+			if (eMasterStateReligion == eVassalMajorityReligion)
+			{
+				iOpinionWeight += 25;
+			}
+			// ... and they've converted some of our cities
+			else if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eMasterStateReligion, GetPlayer()->GetID()) > 0)
+			{
+				iOpinionWeight += 10;
+			}
+		}
+		// Master did not found or conquer, but does have a majority religion - ours
+		else if (eMasterMajorityReligion != NO_RELIGION && eMasterMajorityReligion == eVassalStateReligion)
+		{
+			iOpinionWeight += -40;
+		}
+	}
 	
 	if (IsVoluntaryVassalage(ePlayer))
 	{
 		iOpinionWeight *= GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD();
 		iOpinionWeight /= 100;
 	}
+
+	// No opinion bonuses if the Holy City was captured and we don't have it back yet
+	if (iOpinionWeight < 0 && GetPlayer()->IsHasLostHolyCity() && IsPlayerCapturedHolyCity(ePlayer))
+		return 0;
 
 	return iOpinionWeight;
 }
