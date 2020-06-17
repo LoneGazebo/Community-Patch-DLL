@@ -13265,9 +13265,18 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		if (pDiploAI->IsPlayerSameIdeology(eWithPlayer))
 		{
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES");
-			PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
-			kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
+			if (!pkPlayer->IsVassalOfSomeone())
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES");
+				PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+				kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
+			}
+			else
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES_VASSAL");
+				PolicyBranchTypes eBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+				kOpinion.m_str << GC.getPolicyBranchInfo(eBranch)->GetDescription();
+			}
 		}
 		else
 		{
