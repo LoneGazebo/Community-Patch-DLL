@@ -10209,7 +10209,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 					}
 				}
 				// Let's not attack our friends' allied/protected City-States either.
-				else if (IsDoFAccepted(eLoopPlayer) && GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true) == MAJOR_CIV_APPROACH_FRIENDLY)
+				else if (IsDoFAccepted(eLoopPlayer))
 				{
 					if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == eLoopPlayer)
 					{
@@ -35000,7 +35000,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman)
 		return true;
 	else if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 	{
-		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY && eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)	// Enemy or worse, and not pretending to be friendly
+		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)	// Enemy or worse, and not pretending to be friendly
 			return true;
 		else if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam())) // Backstabber, and not pretending to be friendly
 			return true;
