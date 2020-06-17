@@ -5084,9 +5084,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
+	// Are they standing in the way of our bullying? How nasty am I...?
 	if (IsAngryAboutSidedWithTheirProtectedMinor(ePlayer) && !IsDoFAccepted(ePlayer) && !IsHasDefensivePact(ePlayer) && !IsHasResearchAgreement(ePlayer))
 	{
-		// Are they standing in the way of our bullying? How nasty am I...?
 		if (GetBoldness() > 7 || GetMeanness() > 7)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6169,6 +6169,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// [PART 6: STRATEGIC DIPLOMACY]  //
 	//--------------------------------//
 
+	bool bIgnorePolicyDifferences = IsIgnorePolicyDifferences(ePlayer);
+	bool bIgnoreReligionDifferences = IsIgnoreReligionDifferences(ePlayer);
+	bool bIgnoreIdeologyDifferences = IsIgnoreIdeologyDifferences(ePlayer);
+
 	////////////////////////////////////
 	// SOCIAL POLICIES
 	////////////////////////////////////	
@@ -6184,7 +6188,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Different government types get along worse
 	else if (iPolicyScore < 0)
 	{
-		if (!bCoopWarSoon && !bRecentLiberation && !IsIgnorePolicyDifferences(ePlayer))
+		if (!bCoopWarSoon && !bRecentLiberation && !bIgnorePolicyDifferences)
 		{
 			if (eMilitaryStrength < STRENGTH_AVERAGE)
 			{
@@ -6267,7 +6271,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Different majority religions?
 		if (eOurMajorityReligion != eTheirStateReligion && eOurMajorityReligion != eTheirMajorityReligion && eTheirMajorityReligion != NO_RELIGION)
 		{
-			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				bDifferentReligions = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6282,7 +6286,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Do they also have a state religion? We don't like that!
 		if (eTheirStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirStateReligion, ePlayer) > 0)
 		{
-			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				bDifferentReligions = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
@@ -6314,7 +6318,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 			// Someone else's?
-			else if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			else if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirMajorityReligion, NO_PLAYER);
 
@@ -6400,7 +6404,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 		else if (eMyBranch != eTheirBranch)
 		{
-			if (!bCoopWarSoon && !bRecentLiberation && !IsIgnoreIdeologyDifferences(ePlayer))
+			if (!bCoopWarSoon && !bRecentLiberation && !bIgnoreIdeologyDifferences)
 			{
 				bDifferentIdeologies = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
@@ -6519,7 +6523,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Reduce global penalties for religion/ideology, if appropriate.
-	if (bIsVassal || bCoopWarSoon || bRecentLiberation || IsIgnoreReligionDifferences(ePlayer))
+	if (bIsVassal || bCoopWarSoon || bRecentLiberation || bIgnoreReligionDifferences)
 	{
 		iReligionMod = 0;
 	}
@@ -6528,7 +6532,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iReligionMod /= 2;
 	}
 
-	if (GetPlayer()->IsVassalOfSomeone() || bCoopWarSoon || bRecentLiberation || IsIgnoreIdeologyDifferences(ePlayer))
+	if (GetPlayer()->IsVassalOfSomeone() || bCoopWarSoon || bRecentLiberation || bIgnoreIdeologyDifferences)
 	{
 		iIdeologyMod = 0;
 	}
