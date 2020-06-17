@@ -261,46 +261,60 @@ UPDATE Defines
 SET Value = '30'
 WHERE Name = 'OPINION_WEIGHT_CULTURE_BOMBED';
 
--- 2 (unchanged)
--- This is multiplied by the current game era's Diplo Emphasis for Religion.
-UPDATE Defines
-SET Value = '2'
-WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION';
-
 -- 5 (unchanged)
--- Religious conversion points are reduced to this number minus 1 when player makes a promise to stop converting AI's cities.
+-- Religious conversion points are reduced to (at minimum) this number minus 1 when player makes a promise to stop converting AI's cities.
 UPDATE Defines
 SET Value = '5'
 WHERE Name = 'RELIGION_DIPLO_HIT_THRESHOLD';
 
+
+-- Religion Diplo Values
+-- These values are multiplied by the current game era's Diplo Emphasis for Religion, except the World Religion Modifier.
+
+-- 2 (unchanged)
+UPDATE Defines
+SET Value = '2'
+WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION';
+
 -- -5
--- This is multiplied by the current game era's Diplo Emphasis for Religion.
 UPDATE Defines
 SET Value = '-4'
 WHERE Name = 'OPINION_WEIGHT_ADOPTING_HIS_RELIGION';
 
 -- -3
--- This is multiplied by the current game era's Diplo Emphasis for Religion.
 UPDATE Defines
 SET Value = '-8'
 WHERE Name = 'OPINION_WEIGHT_ADOPTING_MY_RELIGION';
 
--- Different Majority Religions Opinion Weight
--- This is multiplied by the current game era's Diplo Emphasis for Religion.
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '5';
+SELECT 'OPINION_WEIGHT_SAME_MAJORITY_RELIGIONS', '-2';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS', '5';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '2';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WORLD_RELIGION_MODIFIER', '150'; -- increases + & - opinion weights by 50% for the World Religion
+
+
+-- Ideology Diplo Values
+-- These values are multiplied by the current game era's Diplo Emphasis for Late Game Policies (aka Ideology), except the World Ideology Modifier.
 
 -- 5
--- This is multiplied by the current game era's Diplo Emphasis for Late Game Policies.
 UPDATE Defines
 SET Value = '-10'
 WHERE Name = 'OPINION_WEIGHT_SAME_LATE_POLICIES';
 
 -- 5
--- This is multiplied by the current game era's Diplo Emphasis for Late Game Policies.
 UPDATE Defines
 SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_DIFFERENT_LATE_POLICIES';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WORLD_IDEOLOGY_MODIFIER', '150'; -- increases + & - opinion weights by 50% for the World Ideology
+
 
 -- 20 (unchanged)
 UPDATE Defines

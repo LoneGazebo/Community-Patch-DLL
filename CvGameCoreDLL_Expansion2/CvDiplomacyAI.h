@@ -105,8 +105,11 @@ public:
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
+	bool IsHasMet(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
 	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+	bool IsHasEmbassy(PlayerTypes eOtherPlayer) const;
+	bool HavePermissionToCrossBorders(PlayerTypes eOtherPlayer) const;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassal(PlayerTypes eOtherPlayer) const;
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
@@ -620,6 +623,10 @@ public:
 	bool IsStrategicTradePartner(PlayerTypes ePlayer) const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
 	bool IsEarlyGameCompetitor(PlayerTypes ePlayer);
+
+	bool IsIgnorePolicyDifferences(PlayerTypes ePlayer);
+	bool IsIgnoreReligionDifferences(PlayerTypes ePlayer);
+	bool IsIgnoreIdeologyDifferences(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
@@ -1058,7 +1065,7 @@ public:
 	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
-	
+
 	// Religion
 	bool IsPlayerSameReligion(PlayerTypes ePlayer) const;
 	bool IsPlayerOpposingReligion(PlayerTypes ePlayer) const;
@@ -1475,7 +1482,6 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
-	int GetDifferentMajorityReligionScore(PlayerTypes ePlayer);
 #endif
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
@@ -1490,10 +1496,8 @@ public:
 	int GetDemandEverMadeScore(PlayerTypes ePlayer);
 	int GetTimesCultureBombedScore(PlayerTypes ePlayer);
 	int GetReligiousConversionPointsScore(PlayerTypes ePlayer);
-	int GetHasAdoptedHisReligionScore(PlayerTypes ePlayer);
-	int GetHasAdoptedMyReligionScore(PlayerTypes ePlayer);
-	int GetSameLatePoliciesScore(PlayerTypes ePlayer);
-	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
+	int GetReligionScore(PlayerTypes ePlayer, bool bVassalCheck = false);
+	int GetIdeologyScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
