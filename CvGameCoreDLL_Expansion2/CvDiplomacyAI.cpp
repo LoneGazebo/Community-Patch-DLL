@@ -18481,7 +18481,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			// Religion & ideology weight
-
 			int iReligionWeight = GetReligionScore(ePlayer) / max(1, iReligionEraMod);
 			int iIdeologyWeight = GetIdeologyScore(ePlayer) / max(1, iIdeologyEraMod);
 
@@ -42428,7 +42427,24 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
 	ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
-	int iFlavorReligion = std::max(1, std::min(10, GET_PLAYER(GetPlayer()->GetID()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
+	int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
+	int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+
+	// Error handling to prevent out of bounds values
+	if (iFlavorMin < 1 || iFlavorMin > 20)
+	{
+		iFlavorMin = 1;
+	}
+	if (iFlavorMax < 1 || iFlavorMax > 20)
+	{
+		iFlavorMax = 10;
+	}
+	if (iFlavorMin > iFlavorMax)
+	{
+		iFlavorMin = iFlavorMax;
+	}
+
+	int iFlavorReligion = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
 	int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 
 	// Weight increases or decreases based on flavors
@@ -42553,7 +42569,24 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 
 	if (eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE)
 	{
-		int iFlavorCulture = std::max(1, std::min(10, GET_PLAYER(GetPlayer()->GetID()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+		int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
+		int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+
+		// Error handling to prevent out of bounds values
+		if (iFlavorMin < 1 || iFlavorMin > 20)
+		{
+			iFlavorMin = 1;
+		}
+		if (iFlavorMax < 1 || iFlavorMax > 20)
+		{
+			iFlavorMax = 10;
+		}
+		if (iFlavorMin > iFlavorMax)
+		{
+			iFlavorMin = iFlavorMax;
+		}
+
+		int iFlavorCulture = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
 		int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 
 		// Weight increases or decreases based on flavors
