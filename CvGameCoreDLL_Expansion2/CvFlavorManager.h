@@ -88,6 +88,7 @@ public:
 	// External routines to retrieve Default Personality flavor values
 	int GetPersonalityIndividualFlavor(FlavorTypes eType);
 	int* GetAllPersonalityFlavors();
+	int GetPersonalityFlavorForDiplomacy(FlavorTypes eType);
 
 	int GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax);
 

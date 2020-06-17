@@ -2824,28 +2824,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 /// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and some other things)
 void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
-	PlayerTypes eMyPlayer = GetPlayer()->GetID();
-	CvPlayerAI& kPlayer = GET_PLAYER(eMyPlayer);
-
-	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-	// Error handling to prevent out of bounds values
-	CvAssertMsg(iMin >= 1 && iMin <= 20, "DIPLOMACY AI: Personality Flavor Minimum Value is out of bounds.");
-	CvAssertMsg(iMax >= 1 && iMax <= 20, "DIPLOMACY AI: Personality Flavor Maximum Value is out of bounds.");
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 10;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-
 	int iConquerorWeight = 0;
 	int iDiplomatWeight = 0;
 	int iCulturalWeight = 0;
@@ -2863,29 +2841,29 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	// Weight for conquest
 	iConquerorWeight += GetBoldness();
 	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
-	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))));
-	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"))));
+	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
 
 	// Weight for diplomacy
 	iDiplomatWeight += GetDoFWillingness();
 	iDiplomatWeight += GetLoyalty();
-	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))));
-	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"))));
+	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() * GetLoyalty() + ID);
 
 	// Weight for culture
 	iCulturalWeight += GetWonderCompetitiveness();
 	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
-	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"))));
-	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
 
 	// Weight for science
 	iScientistWeight += GetDiploBalance();
 	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
-	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"))));
-	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"))));
+	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
 
 #if defined(MOD_BALANCE_CORE)
@@ -2907,6 +2885,18 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 		if (GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
 			iScientistWeight += 4;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+		{
+			iConquerorWeight += 2;
+			iCulturalWeight -= 2;
+			iScientistWeight -= 2;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+		{
+			iConquerorWeight -= 2;
+			iCulturalWeight += 2;
+			iScientistWeight += 2;
 		}
 	}
 #endif
@@ -4537,29 +4527,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bTheyAreCloseToScienceVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory();
 	bool bTheyAreCloseToCultureVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory();
 
-	// Diplo personality
+	// Diplo personality type
 	bool bConqueror = IsConqueror();
 	bool bDiplomat = IsDiplomat();
 	bool bCultural = IsCultural();
 	bool bScientist = IsScientist();
-	int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-	// Error handling to prevent out of bounds values
-	CvAssertMsg(iFlavorMin >= 1 && iFlavorMin <= 20, "DIPLOMACY AI: Personality Flavor Minimum Value is out of bounds.");
-	CvAssertMsg(iFlavorMax >= 1 && iFlavorMax <= 20, "DIPLOMACY AI: Personality Flavor Maximum Value is out of bounds.");
-	if (iFlavorMin < 1 || iFlavorMin > 20)
-	{
-		iFlavorMin = 1;
-	}
-	if (iFlavorMax < 1 || iFlavorMax > 20)
-	{
-		iFlavorMax = 10;
-	}
-	if (iFlavorMin > iFlavorMax)
-	{
-		iFlavorMin = iFlavorMax;
-	}
 
 	// Player traits
 	bool bConquerorTraits = false;
@@ -6206,7 +6178,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// RELIGION
 	////////////////////////////////////
 
-	int iFlavorReligion = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iReligiosityScore = iFlavorReligion + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion();
 
 	if (iFlavorReligion < 5)
@@ -6358,7 +6330,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// IDEOLOGY
 	////////////////////////////////////
 
-	int iFlavorCulture = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));;
 	int iIdeologueScore = iFlavorCulture + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies();
 
 	if (iFlavorCulture < 5)
@@ -7191,7 +7163,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || iNumOurCaps > 0)
 		{
 			// Add some weight for leader flavors
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += ((GetMeanness() + GetDenounceWillingness()) / 2);
 
 			// More likely to declare war for each original capital we own, provided we have our own
@@ -7337,7 +7309,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Increase friendship willingness with all civs (that aren't close to winning)
 			if (!bTheyAreCloseToAnyVictory || bNoVictoryCompetition)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + ((GetDoFWillingness() + GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))) / 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + ((GetDoFWillingness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))) / 2));
 
 				// Larger increase if we're close to winning
 				if (bCloseToDiploVictory)
@@ -18048,25 +18020,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	PlayerTypes eHighestWarPlayer = GetPlayerWithHighestApproachValue(MAJOR_CIV_APPROACH_WAR);
 	PlayerTypes eHighestHostilePlayer = GetPlayerWithHighestApproachValue(MAJOR_CIV_APPROACH_HOSTILE);
 
-	int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-	// Error handling to prevent out of bounds values
-	if (iFlavorMin < 1 || iFlavorMin > 20)
-	{
-		iFlavorMin = 1;
-	}
-	if (iFlavorMax < 1 || iFlavorMax > 20)
-	{
-		iFlavorMax = 10;
-	}
-	if (iFlavorMin > iFlavorMax)
-	{
-		iFlavorMin = iFlavorMax;
-	}
-
-	int iFlavorReligion = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
-	int iFlavorCulture = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	int iReligionEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	int iIdeologyEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 
@@ -40867,15 +40822,9 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 	if (IsUntrustworthyFriend(ePlayer) && GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
 	
-	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
-	if (eFlavor == NO_FLAVOR)
-	{
-		return false;
-	}
-	
-	int iFlavorReligionValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 
-	if (iFlavorReligionValue < 7)
+	if (iFlavorReligion < 7)
 	{
 		return true;
 	}
@@ -41046,22 +40995,16 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer) const
 	if (IsGoingForCultureVictory() || IsCloseToCultureVictory())
 		return false;
 	
-	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
-	if (eFlavor == NO_FLAVOR)
-	{
-		return false;
-	}
-	
-	int iFlavorCultureValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 
 #if defined(MOD_BALANCE_CORE)
-	if (iFlavorCultureValue > 4 && GetPlayer()->GetPlayerTraits()->IsTourism())
+	if (iFlavorCulture > 4 && GetPlayer()->GetPlayerTraits()->IsTourism())
 	{
 		return false;
 	}
 #endif
 	
-	if (iFlavorCultureValue < 7)
+	if (iFlavorCulture < 7)
 	{
 		return true;
 	}
@@ -42420,24 +42363,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
 	ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
-	int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-	// Error handling to prevent out of bounds values
-	if (iFlavorMin < 1 || iFlavorMin > 20)
-	{
-		iFlavorMin = 1;
-	}
-	if (iFlavorMax < 1 || iFlavorMax > 20)
-	{
-		iFlavorMax = 10;
-	}
-	if (iFlavorMin > iFlavorMax)
-	{
-		iFlavorMin = iFlavorMax;
-	}
-
-	int iFlavorReligion = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"))));
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 
 	// Weight increases or decreases based on flavors
@@ -42562,24 +42488,7 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 
 	if (eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE)
 	{
-		int iFlavorMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-		int iFlavorMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-		// Error handling to prevent out of bounds values
-		if (iFlavorMin < 1 || iFlavorMin > 20)
-		{
-			iFlavorMin = 1;
-		}
-		if (iFlavorMax < 1 || iFlavorMax > 20)
-		{
-			iFlavorMax = 10;
-		}
-		if (iFlavorMin > iFlavorMax)
-		{
-			iFlavorMin = iFlavorMax;
-		}
-
-		int iFlavorCulture = std::max(iFlavorMin, std::min(iFlavorMax, GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+		int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 		int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 
 		// Weight increases or decreases based on flavors
