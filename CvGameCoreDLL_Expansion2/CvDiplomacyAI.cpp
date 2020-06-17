@@ -9627,7 +9627,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	}
 
 	bool bIsGoodWarTarget = false;
-	bool bCheckIfGoodWarTarget = false;
+	bool bCheckIfGoodWarTarget = true;
 	
 	////////////////////////////////////
 	// EASY TARGET
@@ -9639,7 +9639,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
 		bEasyTarget = true;
-		bCheckIfGoodWarTarget = true;
 	}
 
 	////////////////////////////////////
@@ -9664,8 +9663,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			{
 				viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 			}
-
-			bCheckIfGoodWarTarget = true;
 		}
 	}
 
@@ -9684,10 +9681,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 			bCheckIfGoodWarTarget = false;
 		}
-		else
-		{
-			bCheckIfGoodWarTarget = true;
-		}
 	}
 
 	////////////////////////////////////
@@ -9701,10 +9694,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY];
 			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE];
 			bCheckIfGoodWarTarget = false;
-		}
-		else
-		{
-			bCheckIfGoodWarTarget = true;
 		}
 	}
 
