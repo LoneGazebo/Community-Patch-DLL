@@ -21622,6 +21622,17 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 
 /// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
 
+/// Show number values for opinion modifiers, but allow AI to hide modifiers when visible approach is FRIENDLY
+bool CvDiplomacyAI::IsShowOpinionValues() const
+{
+	if (GC.getDIPLO_AI_SHOW_OPINION_VALUES() == 1)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
 /// Always show the AI's true approach, always succeed on Share Opinion requests and duplicate the effects of Transparent Diplomacy (intended for debugging)
 bool CvDiplomacyAI::IsAlwaysShowTrueApproaches() const
 {

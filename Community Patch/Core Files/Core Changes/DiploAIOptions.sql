@@ -5,6 +5,12 @@
 -- If you are using any of these advanced settings (except Nuclear Gandhi, which is enabled by default),
 -- please be sure to INDICATE IT when posting feedback or bug reports!
 
+-- [SHOW NUMBER VALUES FOR OPINION MODIFIERS]
+-- If set to 1, AI opinion modifiers will have their number values displayed, so you can see how much a factor is affecting your relationship.
+-- HOWEVER, unlike Transparent Diplomacy, the AI can still hide negative modifiers when they are FRIENDLY (or pretending to be).
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_SHOW_OPINION_VALUES', '0';
+
 -- [SHOW TRUE APPROACHES]
 -- If set to 1, the AI's true Approach (FRIENDLY, HOSTILE, WAR, etc.) towards human players will be visible at all times in the AI's opinion table.
 -- You can view the opinion table by mousing over the AI's visible Approach.

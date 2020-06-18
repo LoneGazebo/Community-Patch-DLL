@@ -663,6 +663,7 @@ public:
 	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
 	
 	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
+	bool IsShowOpinionValues() const;
 	bool IsAlwaysShowTrueApproaches() const;
 	bool IsNoVictoryCompetition() const;
 	bool IsWarDisallowedHuman() const;

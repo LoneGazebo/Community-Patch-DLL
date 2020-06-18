@@ -14159,7 +14159,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (!pDiploAI->IsHideNeutralOpinionValues() || (pDiploAI->IsHideNeutralOpinionValues() && (aOpinions[ui].m_iValue != 0)))
 		{
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
+			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches() || pDiploAI->IsShowOpinionValues())
 			{
 				CvString strTemp;
 				// Reverse the value of the opinion so as to not confuse players
