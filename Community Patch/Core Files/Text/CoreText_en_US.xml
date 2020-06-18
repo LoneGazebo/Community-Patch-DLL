@@ -3010,6 +3010,14 @@
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
 
+		<!-- Ideology Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_LATE_POLICY_TREES_VASSAL">
+			<Text>You have both adopted the {1_PolicyTree} Ideology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL">
+			<Text>[COLOR_NEGATIVE_TEXT]You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
 			<Text>[COLOR_POSITIVE_TEXT]They liked our proposal to the United Nations.[ENDCOLOR]</Text>

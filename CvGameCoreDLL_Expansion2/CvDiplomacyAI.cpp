@@ -2723,6 +2723,10 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue)
 	{
 		iMax = 10;
 	}
+	if (iMin > iMax)
+	{
+		iMin = iMax;
+	}
 
 	//maybe we should use the real RNG here? anyway include the player ID which should be somewhat random at least
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue + (int) GetPlayer()->GetID());
@@ -2820,24 +2824,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 /// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and some other things)
 void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
-	PlayerTypes eMyPlayer = GetPlayer()->GetID();
-	CvPlayerAI& kPlayer = GET_PLAYER(eMyPlayer);
-
-	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-
-	// Error handling to prevent out of bounds values
-	CvAssertMsg(iMin >= 1 && iMin <= 20, "DIPLOMACY AI: Personality Flavor Minimum Value is out of bounds.");
-	CvAssertMsg(iMax >= 1 && iMax <= 20, "DIPLOMACY AI: Personality Flavor Maximum Value is out of bounds.");
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 10;
-	}
-
 	int iConquerorWeight = 0;
 	int iDiplomatWeight = 0;
 	int iCulturalWeight = 0;
@@ -2855,29 +2841,29 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	// Weight for conquest
 	iConquerorWeight += GetBoldness();
 	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
-	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))));
-	iConquerorWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"))));
+	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
 
 	// Weight for diplomacy
 	iDiplomatWeight += GetDoFWillingness();
 	iDiplomatWeight += GetLoyalty();
-	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))));
-	iDiplomatWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"))));
+	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() * GetLoyalty() + ID);
 
 	// Weight for culture
 	iCulturalWeight += GetWonderCompetitiveness();
 	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
-	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"))));
-	iCulturalWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"))));
+	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
 
 	// Weight for science
 	iScientistWeight += GetDiploBalance();
 	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
-	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"))));
-	iScientistWeight += std::max(iMin, std::min(iMax, kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"))));
+	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
 
 #if defined(MOD_BALANCE_CORE)
@@ -2899,6 +2885,18 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 		if (GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
 			iScientistWeight += 4;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+		{
+			iConquerorWeight += 2;
+			iCulturalWeight -= 2;
+			iScientistWeight -= 2;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+		{
+			iConquerorWeight -= 2;
+			iCulturalWeight += 2;
+			iScientistWeight += 2;
 		}
 	}
 #endif
@@ -5058,9 +5056,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
+	// Are they standing in the way of our bullying? How nasty am I...?
 	if (IsAngryAboutSidedWithTheirProtectedMinor(ePlayer) && !IsDoFAccepted(ePlayer) && !IsHasDefensivePact(ePlayer) && !IsHasResearchAgreement(ePlayer))
 	{
-		// Are they standing in the way of our bullying? How nasty am I...?
 		if (GetBoldness() > 7 || GetMeanness() > 7)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6143,6 +6141,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// [PART 6: STRATEGIC DIPLOMACY]  //
 	//--------------------------------//
 
+	bool bIgnorePolicyDifferences = IsIgnorePolicyDifferences(ePlayer);
+	bool bIgnoreReligionDifferences = IsIgnoreReligionDifferences(ePlayer);
+	bool bIgnoreIdeologyDifferences = IsIgnoreIdeologyDifferences(ePlayer);
+
 	////////////////////////////////////
 	// SOCIAL POLICIES
 	////////////////////////////////////	
@@ -6158,7 +6160,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Different government types get along worse
 	else if (iPolicyScore < 0)
 	{
-		if (!bCoopWarSoon && !bRecentLiberation && !IsIgnorePolicyDifferences(ePlayer))
+		if (!bCoopWarSoon && !bRecentLiberation && !bIgnorePolicyDifferences)
 		{
 			if (eMilitaryStrength < STRENGTH_AVERAGE)
 			{
@@ -6176,7 +6178,21 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// RELIGION
 	////////////////////////////////////
 
-	int iReligiosityScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion());
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iReligiosityScore = iFlavorReligion + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion();
+
+	if (iFlavorReligion < 5)
+	{
+		iReligiosityScore = max(0, iReligiosityScore - 2);
+	}
+	else if (iFlavorReligion > 7)
+	{
+		iReligiosityScore += 2;
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	iReligiosityScore += (MOD_BALANCE_CORE && GetPlayer()->GetPlayerTraits()->IsReligious()) ? 2 : 0;
+#endif
 	
 	if (iGameEra < 2 || iGameEra > 3) // Religion matters most in the Medieval and Renaissance Eras!
 		iReligiosityScore /= 2;
@@ -6227,7 +6243,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Different majority religions?
 		if (eOurMajorityReligion != eTheirStateReligion && eOurMajorityReligion != eTheirMajorityReligion && eTheirMajorityReligion != NO_RELIGION)
 		{
-			if (!bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				bDifferentReligions = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6242,7 +6258,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Do they also have a state religion? We don't like that!
 		if (eTheirStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirStateReligion, ePlayer) > 0)
 		{
-			if (!bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				bDifferentReligions = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
@@ -6274,7 +6290,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 			// Someone else's?
-			else if (!bCoopWarSoon && !bRecentLiberation && !IsIgnoreReligionDifferences(ePlayer))
+			else if (!bIsVassal && !bCoopWarSoon && !bRecentLiberation && !bIgnoreReligionDifferences)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirMajorityReligion, NO_PLAYER);
 
@@ -6314,9 +6330,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// IDEOLOGY
 	////////////////////////////////////
 
-	int iIdeologueScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies());
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));;
+	int iIdeologueScore = iFlavorCulture + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies();
 
-	if (iGameEra != 6) // Ideology matters most in the Atomic Era!
+	if (iFlavorCulture < 5)
+	{
+		iIdeologueScore = max(0, iIdeologueScore - 2);
+	}
+	else if (iFlavorCulture > 7)
+	{
+		iIdeologueScore += 2;
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	iIdeologueScore += (bCultural || bCulturalTraits) ? 2 : 0;
+	iIdeologueScore += (bGoingForCultureVictory || bCloseToCultureVictory) ? 2 : 0;
+#endif
+
+	if (iGameEra != 6 && !bGoingForCultureVictory && !bCloseToCultureVictory) // Ideology matters most in the Atomic Era!
 		iIdeologueScore /= 2;
 
 	PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -6324,7 +6355,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bSameIdeology = false;
 	bool bDifferentIdeologies = false;
 
-	if (eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE)
+	if (eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE && (!bIsVassal || bVoluntaryVassalage))
 	{
 		if (eMyBranch == eTheirBranch && !bCapturedMajorCityFromUs && !bUntrustworthy)
 		{
@@ -6345,7 +6376,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 		else if (eMyBranch != eTheirBranch)
 		{
-			if (!bCoopWarSoon && !bRecentLiberation && !IsIgnoreIdeologyDifferences(ePlayer))
+			if (!bCoopWarSoon && !bRecentLiberation && !bIgnoreIdeologyDifferences)
 			{
 				bDifferentIdeologies = true;
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
@@ -6464,7 +6495,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Reduce global penalties for religion/ideology, if appropriate.
-	if (bCoopWarSoon || bRecentLiberation || IsIgnoreReligionDifferences(ePlayer))
+	if (bIsVassal || bCoopWarSoon || bRecentLiberation || bIgnoreReligionDifferences)
 	{
 		iReligionMod = 0;
 	}
@@ -6473,7 +6504,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iReligionMod /= 2;
 	}
 
-	if (bCoopWarSoon || bRecentLiberation || IsIgnoreIdeologyDifferences(ePlayer))
+	if (bCoopWarSoon || bRecentLiberation || bIgnoreIdeologyDifferences || GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(ePlayer).IsVassalOfSomeone())
 	{
 		iIdeologyMod = 0;
 	}
@@ -6486,7 +6517,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
+
 		if (IsPlayerValid(eLoopPlayer) && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
 		{
 			if (IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer) || IsUntrustworthyFriend(eLoopPlayer))
@@ -7132,7 +7163,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || iNumOurCaps > 0)
 		{
 			// Add some weight for leader flavors
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += ((GetMeanness() + GetDenounceWillingness()) / 2);
 
 			// More likely to declare war for each original capital we own, provided we have our own
@@ -7278,7 +7309,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Increase friendship willingness with all civs (that aren't close to winning)
 			if (!bTheyAreCloseToAnyVictory || bNoVictoryCompetition)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + ((GetDoFWillingness() + GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))) / 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + ((GetDoFWillingness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))) / 2));
 
 				// Larger increase if we're close to winning
 				if (bCloseToDiploVictory)
@@ -9572,7 +9603,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	}
 
 	bool bIsGoodWarTarget = false;
-	bool bCheckIfGoodWarTarget = false;
+	bool bCheckIfGoodWarTarget = true;
 	
 	////////////////////////////////////
 	// EASY TARGET
@@ -9584,7 +9615,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
 		bEasyTarget = true;
-		bCheckIfGoodWarTarget = true;
 	}
 
 	////////////////////////////////////
@@ -9609,8 +9639,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			{
 				viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 			}
-
-			bCheckIfGoodWarTarget = true;
 		}
 	}
 
@@ -9629,10 +9657,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 			bCheckIfGoodWarTarget = false;
 		}
-		else
-		{
-			bCheckIfGoodWarTarget = true;
-		}
 	}
 
 	////////////////////////////////////
@@ -9647,10 +9671,17 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE];
 			bCheckIfGoodWarTarget = false;
 		}
-		else
-		{
-			bCheckIfGoodWarTarget = true;
-		}
+	}
+
+	////////////////////////////////////
+	// RELIGIOUS MINORS
+	////////////////////////////////////
+
+	if (GetPlayer()->GetPlayerTraits()->IsReligious() && GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
+		bCheckIfGoodWarTarget = false;
 	}
 
 	////////////////////////////////////
@@ -10178,7 +10209,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 					}
 				}
 				// Let's not attack our friends' allied/protected City-States either.
-				else if (IsDoFAccepted(eLoopPlayer) && GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true) == MAJOR_CIV_APPROACH_FRIENDLY)
+				else if (IsDoFAccepted(eLoopPlayer))
 				{
 					if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == eLoopPlayer)
 					{
@@ -17989,6 +18020,32 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	PlayerTypes eHighestWarPlayer = GetPlayerWithHighestApproachValue(MAJOR_CIV_APPROACH_WAR);
 	PlayerTypes eHighestHostilePlayer = GetPlayerWithHighestApproachValue(MAJOR_CIV_APPROACH_HOSTILE);
 
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iReligionEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+	int iIdeologyEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+
+	if (iFlavorReligion < 5)
+	{
+		iReligionEraMod = max(0, iReligionEraMod - 1);
+	}
+	else if (iFlavorReligion > 7)
+	{
+		iReligionEraMod++;
+	}
+	if (iFlavorCulture < 5)
+	{
+		iIdeologyEraMod = max(0, iIdeologyEraMod - 1);
+	}
+	else if (iFlavorCulture > 7)
+	{
+		iIdeologyEraMod++;
+	}
+
+	iReligionEraMod += (MOD_BALANCE_CORE && GetPlayer()->GetPlayerTraits()->IsReligious()) ? 1 : 0;
+	iIdeologyEraMod += ((MOD_BALANCE_CORE && GetPlayer()->GetPlayerTraits()->IsTourism()) || IsCultural()) ? 1 : 0;
+	iIdeologyEraMod += IsCloseToCultureVictory() ? 1 : 0;
+
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -18372,8 +18429,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			// Religion & ideology weight
-			int iReligionWeight = GetReligionScore(ePlayer) / max(1, GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion());
-			int iIdeologyWeight = GetIdeologyScore(ePlayer) / max(1, GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies());
+			int iReligionWeight = GetReligionScore(ePlayer) / max(1, iReligionEraMod);
+			int iIdeologyWeight = GetIdeologyScore(ePlayer) / max(1, iIdeologyEraMod);
 
 			iEnemyWeight += iReligionWeight;
 			iDPWeight -= iReligionWeight;
@@ -18386,9 +18443,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Have they been converting our cities? Grr...
 			if (GetNegativeReligiousConversionPoints(ePlayer) > 0 && (!IsPlayerMadeNoConvertPromise(ePlayer) || IsPlayerIgnoredNoConvertPromise(ePlayer) || IsPlayerBrokenNoConvertPromise(ePlayer)))
 			{
-				iEnemyWeight += 10;
-				iDPWeight -= 10;
-				iDoFWeight -= 10;
+				iEnemyWeight += iFlavorReligion;
+				iDPWeight -= iFlavorReligion;
+				iDoFWeight -= iFlavorReligion;
 			}
 
 			////////////////////////////////////
@@ -20214,7 +20271,7 @@ bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer)
 /// Should we ignore religious differences with ePlayer?
 bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer)
 {
-	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
+	if (IsTeammate(ePlayer) || IsMaster(ePlayer))
 		return true;
 
 	if (GetNegativeReligiousConversionPoints(ePlayer) > 0)
@@ -21564,6 +21621,17 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 }
 
 /// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
+
+/// Show number values for opinion modifiers, but allow AI to hide modifiers when visible approach is FRIENDLY
+bool CvDiplomacyAI::IsShowOpinionValues() const
+{
+	if (GC.getDIPLO_AI_SHOW_OPINION_VALUES() == 1)
+	{
+		return true;
+	}
+	
+	return false;
+}
 
 /// Always show the AI's true approach, always succeed on Share Opinion requests and duplicate the effects of Transparent Diplomacy (intended for debugging)
 bool CvDiplomacyAI::IsAlwaysShowTrueApproaches() const
@@ -34943,7 +35011,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman)
 		return true;
 	else if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 	{
-		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY && eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)	// Enemy or worse, and not pretending to be friendly
+		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)	// Enemy or worse, and not pretending to be friendly
 			return true;
 		else if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam())) // Backstabber, and not pretending to be friendly
 			return true;
@@ -40765,15 +40833,9 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 	if (IsUntrustworthyFriend(ePlayer) && GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
 	
-	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
-	if (eFlavor == NO_FLAVOR)
-	{
-		return false;
-	}
-	
-	int iFlavorReligionValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 
-	if (iFlavorReligionValue < 7)
+	if (iFlavorReligion < 7)
 	{
 		return true;
 	}
@@ -40944,22 +41006,16 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer) const
 	if (IsGoingForCultureVictory() || IsCloseToCultureVictory())
 		return false;
 	
-	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
-	if (eFlavor == NO_FLAVOR)
-	{
-		return false;
-	}
-	
-	int iFlavorCultureValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 
 #if defined(MOD_BALANCE_CORE)
-	if (iFlavorCultureValue > 4 && GetPlayer()->GetPlayerTraits()->IsTourism())
+	if (iFlavorCulture > 4 && GetPlayer()->GetPlayerTraits()->IsTourism())
 	{
 		return false;
 	}
 #endif
 	
-	if (iFlavorCultureValue < 7)
+	if (iFlavorCulture < 7)
 	{
 		return true;
 	}
@@ -42318,6 +42374,23 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 	ReligionTypes eTheirStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
 	ReligionTypes eTheirMajorityReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
+	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+
+	// Weight increases or decreases based on flavors
+	if (iFlavorReligion < 5)
+	{
+		iEraMod = max(0, iEraMod - 1);
+	}
+	else if (iFlavorReligion > 7)
+	{
+		iEraMod++;
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	iEraMod += (MOD_BALANCE_CORE && GetPlayer()->GetPlayerTraits()->IsReligious()) ? 1 : 0;
+#endif
+
 	// We didn't found or conquer, but have a majority religion
 	if (eOurStateReligion == NO_RELIGION && eOurMajorityReligion != NO_RELIGION)
 	{
@@ -42328,7 +42401,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// They must have at least one of their own cities following their state religion to get a bonus
 				if (GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirStateReligion, ePlayer) > 0)
 				{
-					iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+					iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * iEraMod;
 
 					// If it's the World Religion and they're its controller, support them since we get extra League votes from it
 					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
@@ -42341,13 +42414,13 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			// Same majority religions?
 			else if (eOurMajorityReligion == eTheirMajorityReligion)
 			{
-				iOpinionWeight += /*-2*/ GC.getOPINION_WEIGHT_SAME_MAJORITY_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+				iOpinionWeight += /*-2*/ GC.getOPINION_WEIGHT_SAME_MAJORITY_RELIGIONS() * iEraMod;
 			}
 		}
 		// Different majority religions?
 		if (eOurMajorityReligion != eTheirStateReligion && eOurMajorityReligion != eTheirMajorityReligion && eTheirMajorityReligion != NO_RELIGION)
 		{
-			iOpinionWeight += /*2*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+			iOpinionWeight += /*2*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * iEraMod;
 		}
 	}
 	// We founded or conquered
@@ -42356,7 +42429,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 		// Do they also have a state religion? We don't like that!
 		if (eTheirStateReligion != NO_RELIGION && GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eTheirStateReligion, ePlayer) > 0)
 		{
-			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS() * iEraMod;
 
 			// If it's the World Religion and they control its Holy City, we should work against them
 			if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirStateReligion) > 0)
@@ -42371,7 +42444,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			// Ours?
 			if (eTheirMajorityReligion == eOurStateReligion)
 			{
-				iOpinionWeight += /*-8*/ GC.getOPINION_WEIGHT_ADOPTING_MY_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+				iOpinionWeight += /*-8*/ GC.getOPINION_WEIGHT_ADOPTING_MY_RELIGION() * iEraMod;
 
 				// If it's the World Religion and we control its Holy City, we should work together
 				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(GetPlayer()->GetID(), eOurStateReligion) > 0)
@@ -42392,7 +42465,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// If the religion's founder is THEIR teammate, treat it like a state religion.
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate((PlayerTypes)pReligion->m_eFounder) && GET_PLAYER((PlayerTypes)pReligion->m_eFounder).getNumCities() > 0)
 				{
-					iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+					iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS() * iEraMod;
 
 					// If it's the World Religion and their teammate controls its Holy City, we should work against them
 					if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier((PlayerTypes)pReligion->m_eFounder, eTheirMajorityReligion) > 0)
@@ -42404,7 +42477,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// Otherwise, apply a penalty for different majority religions.
 				else
 				{
-					iOpinionWeight += /*2*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+					iOpinionWeight += /*2*/ GC.getOPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS() * iEraMod;
 				}
 			}
 		}
@@ -42426,9 +42499,27 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 
 	if (eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE)
 	{
+		int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		int iEraMod = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+
+		// Weight increases or decreases based on flavors
+		if (iFlavorCulture < 5)
+		{
+			iEraMod = max(0, iEraMod - 1);
+		}
+		else if (iFlavorCulture > 7)
+		{
+			iEraMod++;
+		}
+
+#if defined(MOD_BALANCE_CORE)
+		iEraMod += ((MOD_BALANCE_CORE && GetPlayer()->GetPlayerTraits()->IsTourism()) || IsCultural()) ? 1 : 0;
+		iEraMod += IsCloseToCultureVictory() ? 1 : 0;
+#endif
+
 		if (eMyBranch == eTheirBranch)
 		{
-			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_SAME_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_SAME_LATE_POLICIES() * iEraMod;
 
 			// World Ideology modifier?
 			if (pLeague != NULL && pLeague->GetPressureForIdeology(eMyBranch) > 0)
@@ -42439,7 +42530,7 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 		}
 		else if (eMyBranch != eTheirBranch)
 		{
-			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * iEraMod;
 
 			// World Ideology modifier?
 			if (pLeague != NULL && (pLeague->GetPressureForIdeology(eMyBranch) > 0 || pLeague->GetPressureForIdeology(eTheirBranch) > 0))
@@ -42452,6 +42543,21 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 
 	if (iOpinionWeight > 0 && IsIgnoreIdeologyDifferences(ePlayer))
 		return 0;
+
+	// Vassals care less, since they're forced to adopt the master's ideology
+	if (IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
+	{
+		iOpinionWeight /= 2;
+	}
+	else if (!IsVassal(ePlayer) && GetPlayer()->IsVassalOfSomeone())
+	{
+		iOpinionWeight /= 2;
+	}
+	// Care less about vassals' ideologies, for the same reason
+	else if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
+	{
+		iOpinionWeight /= 2;
+	}
 
 	return iOpinionWeight;
 }
@@ -52336,6 +52442,10 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 
 	// No opinion bonuses if the Holy City was captured and we don't have it back yet
 	if (iOpinionWeight < 0 && GetPlayer()->IsHasLostHolyCity() && IsPlayerCapturedHolyCity(ePlayer))
+		return 0;
+
+	// No opinion penalties if ignoring religious differences
+	if (iOpinionWeight > 0 && GetPlayer()->GetDiplomacyAI()->IsIgnoreReligionDifferences(ePlayer))
 		return 0;
 
 	return iOpinionWeight;
