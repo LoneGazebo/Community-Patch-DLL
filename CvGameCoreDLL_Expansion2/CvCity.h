@@ -862,7 +862,7 @@ public:
 	void UpdateHappinessFromBuildingClasses();
 	int GetHappinessFromBuildingClasses() const;
 
-	int GetLocalHappiness(int iPopMod = 0) const;
+	int GetLocalHappiness(int iPopMod = 0, bool bExcludeEmpireContributions = false) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void setHappinessDelta(int iValue);	
 	int getHappinessDelta(bool bStatic = false) const;
@@ -1525,7 +1525,7 @@ public:
 
 	bool isValidBuildingLocation(BuildingTypes eIndex) const;
 
-	void SetThreatValue(int iThreatValue);
+	void setThreatValue(int iThreatValue);
 	int getThreatValue(void);
 
 	void clearOrderQueue();

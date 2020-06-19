@@ -86,6 +86,7 @@ public:
 	CvReligion(ReligionTypes eReligion, PlayerTypes eFounder, CvCity* pHolyCity, bool bPantheon);
 
 	CvString GetName() const;
+	CvCity* GetHolyCity() const;
 
 	// Public data
 	ReligionTypes m_eReligion;
@@ -460,9 +461,8 @@ public:
 	ReligionTypes GetReligionForHolyCity();
 #endif
 	bool IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers = 0);
-	bool HasFriendlyInquisitor(ReligionTypes eReligion, CvUnit* pUnit = NULL);
+	bool IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pUnit = NULL);
 	bool IsForeignMissionaryNearby(ReligionTypes eReligion);
-	bool IsDefendedAgainstSpread(ReligionTypes eReligion);
 	ReligionTypes GetReligiousMajority();
 	ReligionTypes GetSimulatedReligiousMajority();
 	ReligionTypes GetSecondaryReligion();
@@ -637,16 +637,13 @@ public:
 	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
-
-	CvPlayer* GetPlayer();
 	ReligionTypes GetReligionToSpread() const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
-	void DoFaithPurchasesInCities(CvCity* pCity);
+	bool DoFaithPurchasesInCities(CvCity* pCity);
 #endif
 	int GetSpreadScore() const;
-	int GetNumKnownHeathenCities(int iMaxTurnsAway, ReligionTypes eReligionToSpread) const;
 	bool DoFaithPurchases();
 	bool BuyMissionaryOrInquisitor(ReligionTypes eReligion);
 	bool BuyMissionary(ReligionTypes eReligion);
@@ -665,13 +662,14 @@ private:
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false);
 	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield);
 
-	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);
-	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit);
+	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion);
+	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion);
 
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
-	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;
+	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter, bool bHeathensOnly) const;
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
+	bool CanHaveInquisitors(ReligionTypes eReligion) const;
 	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL, bool bEvaluateBestPurchase = false) const;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool IsProphetGainRateAcceptable();

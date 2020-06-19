@@ -926,7 +926,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty and [ICON_FOOD]/[ICON_PRODUCTION] Distress. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for all Yields and Empire Modifier by 5% in all Cities. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS">

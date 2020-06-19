@@ -5,6 +5,9 @@
 		<Row Tag="TXT_KEY_DEBUG_X_Y">
 			<Text>X: {1_Num} / Y: {2_Num} / Plot Danger: {3_Num}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CP_HAPPINESS_EXPLANATION">
+			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Both are limited by the size of the city, except for urbanization!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CBP">
 			<Text>Local Resources</Text>
 		</Row>
@@ -34,6 +37,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO">
 			<Text>{1_Num} from Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
+			<Text>{1_Num} from local sources in cities (religion, buildings, etc).</Text>
 		</Row>
 
 	</Language_en_US>

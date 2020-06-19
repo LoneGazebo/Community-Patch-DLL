@@ -84,6 +84,11 @@ void SerializeToSequenceContainer(FDataStream & loadFrom, ContainerType & contai
 	container.clear();
 	ContainerType::size_type count = 0;
 	loadFrom >> count;
+	
+	//failsafe - may be pointless but let's try
+	if (count == 0xFFFFFFFF)
+		return;
+
 	ContainerType::size_type i = 0;
 	for(i = 0; i < count; ++i)
 	{
@@ -142,6 +147,11 @@ void SerializeToAssociativeContainer(FDataStream & loadFrom, ContainerType & con
 	container.clear();
 	size_t count = 0;
 	loadFrom >> count;
+
+	//failsafe - may be pointless but let's try
+	if (count == 0xFFFFFFFF)
+		return;
+
 	size_t i = 0;
 	for(i = 0; i < count; ++i)
 	{

@@ -146,7 +146,7 @@ public:
 #else
 	void ClearAllCityTradeRoutes (CvPlot* pPlot); // called when a city is captured or traded
 #endif
-	void ClearAllCivTradeRoutes (PlayerTypes ePlayer); // called from world congress code
+	void ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo = false); // called from world congress code
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
 #if defined(MOD_BALANCE_CORE)
 	void ClearAllCityStateTradeRoutesSpecial(void); // called from world congress code

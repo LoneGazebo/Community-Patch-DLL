@@ -2285,34 +2285,14 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 			if(pOurPlayer->isAlive())
 			{
 				// Our Team
-				if(pOurPlayer->getTeam() == GetID())
-				{		
-					//Reset war damage.
-					PlayerTypes eThem;
-					for (int ieThemLoop = 0; ieThemLoop < MAX_CIV_PLAYERS; ieThemLoop++)
-					{
-						eThem = (PlayerTypes)ieThemLoop;
-						if (eThem != NO_PLAYER && GET_PLAYER(eThem).getTeam() == eTeam)
-						{
-							pOurPlayer->GetDiplomacyAI()->SetWarDamageValue(eThem, 0);
-						}
-					}
+				if (pOurPlayer->getTeam() == GetID())
+				{
 					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
 					pOurPlayer->GetMilitaryAI()->LogPeace(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
 				}
 				// Their Team
-				else if(pOurPlayer->getTeam() == eTeam)
+				else if (pOurPlayer->getTeam() == eTeam)
 				{
-					//Reset war damage.
-					PlayerTypes eUs;
-					for (int ieUsLoop = 0; ieUsLoop < MAX_CIV_PLAYERS; ieUsLoop++)
-					{
-						eUs = (PlayerTypes)ieUsLoop;
-						if (eUs != NO_PLAYER && GET_PLAYER(eUs).getTeam() == GetID())
-						{
-							pOurPlayer->GetDiplomacyAI()->SetWarDamageValue(eUs, 0);
-						}
-					}
 					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
 					pOurPlayer->GetMilitaryAI()->LogPeace(GetID());	// This is not quite correct, but it'll work well enough for AI testing
 				}

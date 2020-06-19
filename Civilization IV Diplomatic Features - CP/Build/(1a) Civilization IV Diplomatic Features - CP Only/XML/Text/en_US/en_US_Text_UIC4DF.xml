@@ -113,10 +113,10 @@
 			<Text>They believe they are being enslaved by your rule over them!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PROTECT">
-			<Text>You protected their cities while they were your vassal!</Text>
+			<Text>You protected their territory as their master!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_FAILED_PROTECT">
-			<Text>You failed to protect their cities while they were your vassal!</Text>
+			<Text>You failed to protect their territory as their master!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_PEACEFULLY_REVOKED">
 			<Text>You granted their nation independence!</Text>

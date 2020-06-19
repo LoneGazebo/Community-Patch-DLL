@@ -138,11 +138,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsVisibleEnemyUnit);
 	Method(IsVisibleOtherUnit);
 
-	//---- wtf is going on here
 	Method(GetNumFriendlyUnitsOfType);
-	Method(getNumFriendlyUnitsOfType);
-	//---- this says it all
-
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -151,9 +147,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsRoute);
 	Method(IsTradeRoute);
-
-	Method(IsValidDomainForLocation);
-	Method(IsValidDomainForAction);
 	Method(IsImpassable);
 
 	Method(GetX);
@@ -1052,24 +1045,12 @@ int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
 	//hack this
-	int iResult = pkPlot->CanStackUnitHere(pkUnit) ? 0 : pkPlot->getUnitLimit();
+	int iResult = pkUnit->CanStackUnitAtPlot(pkPlot) ? 0 : pkPlot->getUnitLimit();
 
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
-int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
-{
-	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
-	//hack this
-	int iResult = pkPlot->CanStackUnitHere(pkUnit) ? 0 : pkPlot->getUnitLimit();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 //------------------------------------------------------------------------------
 //bool isFighting();
 int CvLuaPlot::lIsFighting(lua_State* L)
@@ -1099,28 +1080,7 @@ int CvLuaPlot::lIsTradeRoute(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//bool isValidDomainForLocation(CyUnit* pUnit);
-int CvLuaPlot::lIsValidDomainForLocation(lua_State* L)
-{
-	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
-	const bool bResult = pkPlot->isValidDomainForLocation(*pkUnit);
-	lua_pushboolean(L, bResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//bool isValidDomainForAction(CyUnit* pUnit);
-int CvLuaPlot::lIsValidDomainForAction(lua_State* L)
-{
-	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-
-	const bool bResult = pkPlot->isValidDomainForAction(*pkUnit);
-	lua_pushboolean(L, bResult);
-	return 1;
-}
 //------------------------------------------------------------------------------
 //bool isImpassable();
 int CvLuaPlot::lIsImpassable(lua_State* L)
@@ -1764,7 +1724,7 @@ int CvLuaPlot::lGetFoundValue(lua_State* L)
 //bool isBestAdjacentFound(PlayerTypes eIndex);
 int CvLuaPlot::lIsBestAdjacentFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::isBestAdjacentFound);
+	return BasicLuaMethod(L, &CvPlot::isBestAdjacentFoundValue);
 }
 //------------------------------------------------------------------------------
 //int getPlayerCityRadiusCount(PlayerTypes eIndex);

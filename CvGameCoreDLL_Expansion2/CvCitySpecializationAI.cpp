@@ -417,13 +417,11 @@ void CvCitySpecializationAI::DoTurn()
 				}
 			}
 		}
-
-		// Reset this flag -- need a new high priority event before we'll interrupt again
-		m_bInterruptWonders = false;
-#if defined(MOD_BALANCE_CORE)
-		m_bInterruptBuildings = false;
-#endif
 	}
+
+	// Reset this flag -- need a new high priority event before we'll interrupt again
+	m_bInterruptWonders = false;
+	m_bInterruptBuildings = false;
 }
 
 /// Change specializations for cities since world state has changed

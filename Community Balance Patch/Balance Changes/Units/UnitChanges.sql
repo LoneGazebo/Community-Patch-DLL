@@ -1,5 +1,14 @@
 -- CIVILIANS AND GREAT PEOPLE
 
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_CARAVAN';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_CARGO_SHIP';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_WORKER';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_SETTLER';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_PIONEER';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_COLONIST';
+	UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_WORKBOAT';
+	
+
 	-- Moved SS Parts to last 4 techs - makes Science Victory as difficult as other victories.
 	UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FUSION' WHERE Type = 'UNIT_SS_BOOSTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Units SET PrereqTech = 'TECH_GLOBALIZATION' WHERE Type = 'UNIT_SS_COCKPIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

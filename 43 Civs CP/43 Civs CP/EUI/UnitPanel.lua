@@ -1583,7 +1583,7 @@ function ActionToolTipHandler( control )
 			end
 
 				-- if we can't upgrade due to stacking
-			if plot:getNumFriendlyUnitsOfType(unit) > 1 then
+			if plot:GetNumFriendlyUnitsOfType(unit) > 1 then
 
 				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_STACKING" )
 

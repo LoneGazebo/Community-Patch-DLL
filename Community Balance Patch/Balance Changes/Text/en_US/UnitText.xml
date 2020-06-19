@@ -6,7 +6,7 @@
 			<Text>Hovering Unit Embarked</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT_HELP">
-			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles.[NEWLINE]Embarked units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and receive +100% [ICON_STRENGTH] Combat Strength when defending.</Text>
+			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and receive +100% [ICON_STRENGTH] Combat Strength when defending.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
@@ -75,26 +75,26 @@
 			<Text>Prize Rules</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>Receive [ICON_GOLD] Gold in your Capital when you defeat an enemy unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>Receive [ICON_GOLD] Gold in your Capital when you defeat an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I">
 			<Text>Air Defense I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +15 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+15 Damage to [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] when defending against Air Strikes.[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Flight[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II">
 			<Text>Air Defense II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +20 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+20 Damage to [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] when defending against Air Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III">
 			<Text>Air Defense III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +25 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+25 Damage to [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] when defending against Air Strikes.</Text>
 		</Row>
 			
 		<Row Tag="TXT_KEY_UNIT_GUERILLA">
@@ -128,14 +128,14 @@
 			<Text>Grenadiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP">
-			<Text>When you advance after destroying an enemy unit, all newly-adjacent enemy units take 10 Damage.</Text>
+			<Text>When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY">
 			<Text>Pilum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
-			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] at the beginning of every turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
@@ -149,7 +149,7 @@
 			<Text>Heal On Kill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
-			<Text>Heal 15 points when you destoy an enemy unit.</Text>
+			<Text>Heal 15 points when you destoy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I">
@@ -168,7 +168,7 @@
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Attempts to withdraw when faced with a melee attack (60% chance).</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]60% chance to withdraw from Melee combat.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus vs Gunpowder (25)</Text>
@@ -268,7 +268,7 @@
 			<Text>Gift of the Pharaoh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
-			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an enemy unit.</Text>
+			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an Enemy Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
 			<Text>Raider</Text>
@@ -359,49 +359,49 @@
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]Units in adjacent tiles receive +5 HP when healing.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]Units in adjacent tiles receive +5 HP when healing.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+50% Experience gained from combat.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+50% Experience gained from combat.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR">
 			<Text>Honor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength outside of friendly lands.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength outside of friendly lands.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength inside friendly lands.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength inside friendly lands.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 
@@ -409,7 +409,7 @@
 			<Text>Self Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength when defending.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength when defending.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
@@ -427,17 +427,17 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_I_HELP">
-			<Text>+25% Chance to Evade Air Interception</Text>
+			<Text>+33% Chance to [COLOR_POSITIVE_TEXT]Evade Air Interception[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_II_HELP">
-			<Text>+25% Chance to Evade Air Interception</Text>
+			<Text>+33% Chance to [COLOR_POSITIVE_TEXT]Evade Air Interception[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III">
 			<Text>Stealth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to evade Interception. [COLOR_POSITIVE_TEXT]-25%[ENDCOLOR] Damage received from Interceptions. +50 Hit Points.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to evade Interception.[NEWLINE]-25% Damage received from [COLOR_POSITIVE_TEXT]Interceptions[ENDCOLOR].[NEWLINE]+50 Hit Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HELI_REPAIR">
@@ -473,7 +473,7 @@
 			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Medieval and Renaissance periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled until the advent of the Zeppelin.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_EXPLORER_CBP">
-			<Text>Mid-game exploration unit that is stronger and has additional sight while embarked. Use these units to discover new lands.</Text>
+			<Text>Mid-game exploration Unit that is stronger and has additional sight while embarked. Use these Units to discover new lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_EXPLORER_TEXT_CBP">
 			<Text>Exploration is the act of searching for the purpose of discovery of information or resources. Exploration occurs in all non-sessile animal species, including humans. In human history, its most dramatic rise was during the Age of Discovery when European explorers sailed and charted much of the rest of the world, largely in a pursuit of material wealth. Since then, major explorations after the Age of Discovery have occurred for reasons mostly aimed at information discovery.</Text>
@@ -485,7 +485,7 @@
 			<Text>Zeppelins are a useful ranged exploration unit that appears during the Industrial Era. They are fairly weak on defense and, therefore, are easily defeated by contemporary military units. Their reconaissance abilities are unparalleled, especially due to their ability to hover.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_ZEPPELIN_CBP">
-			<Text>Industrial-era ranged exploration unit. Use these units to explore or to monitor your borders. It is capable of hovering over Mountains.</Text>
+			<Text>Industrial-era ranged exploration unit. Use these Units to explore or to monitor your borders. It is capable of hovering over Mountains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP">
 			<Text>A Zeppelin was a type of rigid airship named after the German Count Ferdinand von Zeppelin who pioneered rigid airship development at the beginning of the 20th century. Zeppelin's ideas were first formulated in 1874 and developed in detail in 1893. They were patented in Germany in 1895 and in the United States in 1899. After the outstanding success of the Zeppelin design, the word zeppelin came to be commonly used to refer to all rigid airships. Zeppelins were first flown commercially in 1910 by Deutsche Luftschiffahrts-AG (DELAG), the world's first airline in revenue service. By mid-1914, DELAG had carried over 10,000 fare-paying passengers on over 1,500 flights. During World War I the German military made extensive use of Zeppelins as bombers and scouts, killing over 500 people in bombing raids in Britain.</Text>
@@ -514,7 +514,7 @@
 			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Barracks. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
-			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman.[NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this unit.</Text>
+			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby Enemy Units. It is, however, much slower and more expensive than the Horseman.[NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
 			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
@@ -530,7 +530,7 @@
 			<Text>Voyage of Discovery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP">
-			<Text>If the unit is in owned territory, this order will expend the unit, granting you two free copies of a Luxury Resource not available on this map. These Resources will not appear on the map, but can be traded to other civilizations. Also increases your Military Supply by 2.</Text>
+			<Text>If the Unit is in owned territory, this order will expend the Unit, granting you two free copies of a Luxury Resource not available on this map. These Resources will not appear on the map, but can be traded to other civilizations. Also increases your Military Supply by 2.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
 			<Text>Unit must be in owned territory to use this ability.</Text>
@@ -612,7 +612,7 @@
 			<Text>Siege Volleys</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_REPEATER_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deals 5 Damage to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deals [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 		
 		<!-- New Tier 4 Promotions -->
@@ -620,7 +620,7 @@
 			<Text>Overrun</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take 10 Damage.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DRILL_4">
 			<Text>Stalwart</Text>
@@ -638,13 +638,13 @@
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR], and [NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]-15%[ENDCOLOR] [ICON_RANGE_STRENGTH] Ranged Combat Strength per adjacent [COLOR_POSITIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength if adjacent to a [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] effect from Naval Melee units.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] effect from Naval Melee Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION">
@@ -658,7 +658,7 @@
 			<Text>Press Gangs</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS_HELP">
-			<Text>Can pillage without expending movement.[NEWLINE]Pillaging [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this unit.</Text>
+			<Text>Can pillage without expending movement.[NEWLINE]Pillaging [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PIRACY">
@@ -672,7 +672,7 @@
 			<Text>Breacher</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal 15 Damage to all enemy units [COLOR_POSITIVE_TEXT]adjacent[ENDCOLOR] to a unit killed by this unit.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to a Unit killed by this Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT">
 			<Text>Encirclement</Text>
@@ -704,7 +704,7 @@
 			<Text>Minelayer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement points for enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).</Text>
+			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement points for enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this Unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
@@ -803,14 +803,14 @@
 			<Text>Splash Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
+			<Text>Deals [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II">
 			<Text>Splash Damage II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
+			<Text>Deals [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TERROR">
@@ -844,7 +844,7 @@
 			<Text>Jinete</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ALHAMBRA_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Attempts to withdraw when faced with a melee attack (50% chance).</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">
@@ -870,19 +870,19 @@
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain.</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">

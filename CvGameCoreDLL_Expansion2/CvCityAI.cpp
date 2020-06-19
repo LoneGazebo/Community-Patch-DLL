@@ -99,19 +99,18 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 	{
 		if (kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
 			bAlreadyBuildingWonder = true;
+		if (bAlreadyBuildingWonder && !bInterruptWonders)
+			return;
+		else if (!bInterruptBuildings)
+			return;
 	}
-	//not building a building? then get out of here!
-	else if (bInterruptBuildings || bInterruptWonders)
-		return;
 
 	// Has the designated wonder been poached by another civ?
 	BuildingTypes eNextWonder = pSpecializationAI->GetNextWonderDesired(); 
 
 	// Is it still working on that wonder and we don't want to interrupt it?
 	bool bAlreadyBuilt = false;
-	if (!bInterruptWonders && bAlreadyBuildingWonder)
-		return;
-	else if (eNextWonder != NO_BUILDING)
+	if (eNextWonder != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
 		if (pkBuilding)

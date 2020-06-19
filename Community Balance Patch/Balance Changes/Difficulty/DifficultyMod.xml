@@ -76,8 +76,8 @@
 			<AIBarbarianBonus>0</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>14</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>6</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_CHIEFTAIN</Type>
@@ -151,8 +151,8 @@
 			<AIBarbarianBonus>5</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>16</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>6</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_WARLORD</Type>
@@ -226,8 +226,8 @@
 			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>7</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_PRINCE</Type>
@@ -301,8 +301,8 @@
 			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>7</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_KING</Type>
@@ -376,8 +376,8 @@
 			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>9</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_EMPEROR</Type>
@@ -451,8 +451,8 @@
 			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>10</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>24</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_IMMORTAL</Type>
@@ -526,8 +526,8 @@
 			<AIBarbarianBonus>20</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>11</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>26</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>9</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_DEITY</Type>
@@ -601,8 +601,8 @@
 			<AIBarbarianBonus>25</AIBarbarianBonus>
 			<BarbCampGold>15</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>10</BarbarianSeaTargetRange>
 		</Row>
 		<Row>
 			<Type>HANDICAP_AI_DEFAULT</Type>
@@ -672,11 +672,11 @@
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>0</BarbarianBonus>
-			<AIBarbarianBonus>25</AIBarbarianBonus>
+			<AIBarbarianBonus>0</AIBarbarianBonus>
 			<BarbCampGold>50</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
-			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
 		</Row>
 	</HandicapInfos>
 </GameData>

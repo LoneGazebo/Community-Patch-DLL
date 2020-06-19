@@ -357,6 +357,20 @@ UPDATE Language_en_US
 SET Text = 'Because the empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, an uprising has occurred in our territory!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS';
 
+-- Pantheons Founded
+
+UPDATE Language_en_US
+SET Text = 'Your people have started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER';
+
+UPDATE Language_en_US
+SET Text = '{@1_CivName} {@1: plural 1?has; 2?have;} started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{2_BeliefName}[ENDCOLOR] ({@3_BeliefDesc})'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED';
+
+UPDATE Language_en_US
+SET Text = 'An unknown civilization has started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_UNKNOWN';
+
 -- Religion
 
 UPDATE Language_en_US

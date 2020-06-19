@@ -454,6 +454,8 @@ int* CvFlavorManager::GetAllFlavors()
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+
 	return m_piPersonalityFlavor[eType];
 }
 
@@ -461,6 +463,46 @@ int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 int* CvFlavorManager::GetAllPersonalityFlavors()
 {
 	return m_piPersonalityFlavor;
+}
+
+
+/// Retrieve the value of one Personality flavor, modified for the diplomacy AI
+int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
+{
+	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+
+	int iValue = m_piPersonalityFlavor[eType];
+
+	// If the flavor is zeroed out, we have to account for that - use the default value
+	if (iValue == 0)
+	{
+		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+		if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
+		{
+			iDefaultFlavorValue = 5;
+		}
+		return iDefaultFlavorValue;
+	}
+
+	// Must be within upper and lower bounds
+	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
+	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+
+	if (iMin < 1 || iMin > 20)
+	{
+		iMin = 1;
+	}
+	if (iMax < 1 || iMax > 20)
+	{
+		iMax = 10;
+	}
+	if (iMin > iMax)
+	{
+		iMin = iMax;
+	}
+
+	return std::max(iMin, std::min(iMax, iValue));
 }
 
 // PRIVATE METHODS

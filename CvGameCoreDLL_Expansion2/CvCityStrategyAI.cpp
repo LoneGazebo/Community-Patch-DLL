@@ -3759,12 +3759,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 		if (!bAtPeace && !kPlayer.isMinorCiv())
 		{
 			CvCity *pMostThreatened = kPlayer.GetThreatenedCityByRank();
-#if defined(MOD_BALANCE_CORE_MILITARY)
 			//threat value is now calculated differently
 			if (pMostThreatened == pCity && pMostThreatened->getThreatValue() > GC.getCITY_HIT_POINTS_HEALED_PER_TURN()*2)
-#else
-			if (pMostThreatened == pCity && pMostThreatened->getThreatValue() > 200)
-#endif
 			{
 				return true;
 			}

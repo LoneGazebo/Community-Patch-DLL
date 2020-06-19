@@ -2262,9 +2262,9 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
-			<CombatPercent>5</CombatPercent>
-			<FlankAttackModifier>5</FlankAttackModifier>
-			<RangedDefenseMod>5</RangedDefenseMod>
+			<CombatPercent>10</CombatPercent>
+			<FlankAttackModifier>10</FlankAttackModifier>
+			<RangedDefenseMod>10</RangedDefenseMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_BUFFALO_LOINS</Type>
@@ -2276,9 +2276,9 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
-			<CombatPercent>5</CombatPercent>
-			<FlankAttackModifier>5</FlankAttackModifier>
-			<RangedDefenseMod>5</RangedDefenseMod>
+			<CombatPercent>10</CombatPercent>
+			<FlankAttackModifier>10</FlankAttackModifier>
+			<RangedDefenseMod>10</RangedDefenseMod>
 		</Replace>
 		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 		<Replace>
@@ -2291,9 +2291,9 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>
-			<FlankAttackModifier>5</FlankAttackModifier>
+			<FlankAttackModifier>10</FlankAttackModifier>
 			<MovesChange>1</MovesChange>
-			<RangedDefenseMod>5</RangedDefenseMod>
+			<RangedDefenseMod>10</RangedDefenseMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_GUNPOWDER</Type>
