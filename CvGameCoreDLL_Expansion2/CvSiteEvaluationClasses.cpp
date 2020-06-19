@@ -217,10 +217,10 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
 void CvCitySiteEvaluator::ComputeFlavorMultipliers(const CvPlayer* pPlayer)
 {
-	// Set all to 0
+	// Set all to 1 as base value
 	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
 	{
-		m_iFlavorMultiplier[iI] = 0;
+		m_iFlavorMultiplier[iI] = 1;
 	}
 
 	// Find out if player has a desired next city specialization
@@ -469,7 +469,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
 
 			// need at least some food close by
-			if (iDistance > 0 && iDistance < 3 &&  iFoodValue > 0)
+			if (iDistance > 0 && iDistance < 3 && iFoodValue > 0)
 				nFoodPlots++;
 			// and some hammers or other interesting stuff close by
 			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0 || pLoopPlot->IsNaturalWonder(true)))
