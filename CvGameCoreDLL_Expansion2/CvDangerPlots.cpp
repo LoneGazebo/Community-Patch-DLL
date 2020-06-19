@@ -30,6 +30,7 @@ REMARK_GROUP("CvDangerPlots");
 CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
 	, m_bDirty(false)
+	//, m_iTurnSliceBuilt(0)
 	, m_DangerPlots(NULL)
 {
 }
@@ -63,6 +64,7 @@ void CvDangerPlots::Uninit()
 {
 	m_ePlayer = NO_PLAYER;
 	m_bDirty = false;
+	//m_iTurnSliceBuilt = 0;
 	m_DangerPlots.clear();
 	m_knownUnits.clear();
 }
@@ -197,6 +199,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 
 	// important. do this first to avoid recursion
 	m_bDirty = false;
+	//m_iTurnSliceBuilt = GC.getGame().getTurnSlice();
 
 	// wipe out values
 	int iGridSize = GC.getMap().numPlots();

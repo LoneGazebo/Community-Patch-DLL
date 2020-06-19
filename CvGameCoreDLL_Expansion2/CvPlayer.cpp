@@ -47209,6 +47209,11 @@ void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
 }
 
+int CvPlayer::GetDangerPlotAge() const
+{
+	return m_pDangerPlots->GetTurnSliceBuilt();
+}
+
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck)
 {
 	if (m_pDangerPlots->IsDirty())

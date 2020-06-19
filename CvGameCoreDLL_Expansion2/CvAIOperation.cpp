@@ -1801,13 +1801,9 @@ MultiunitFormationTypes CvAIOperationCityBasicAttack::GetFormation() const
 /// Allows an outside class to terminate the operation
 void CvAIOperationMilitary::SetToAbort(AIOperationAbortReason eReason)
 {
-#if defined(MOD_BALANCE_CORE)
 	if(eReason == AI_ABORT_LOST_TARGET || eReason == AI_ABORT_NO_ROOM_DEPLOY || eReason == AI_ABORT_NO_MUSTER || eReason == AI_ABORT_LOST_PATH)
-	{
-		/// Clear cached targets so we don't do this over and over.
+		// Clear cached targets so we don't do this over and over.
 		GET_PLAYER(GetOwner()).GetMilitaryAI()->ClearCachedTargets();
-	}
-#endif
 
 	CvAIOperation::SetToAbort(eReason);
 }
