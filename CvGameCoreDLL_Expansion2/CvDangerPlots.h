@@ -165,7 +165,7 @@ public:
 
 	void SetDirty();
 	bool IsDirty() const { return m_bDirty; }
-	int GetTurnSliceBuilt() const { return 0; }// m_iTurnSliceBuilt; }
+	int GetTurnSliceBuilt() const { return m_iTurnSliceBuilt; }
 
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
@@ -186,7 +186,7 @@ protected:
 
 	PlayerTypes m_ePlayer;
 	bool m_bDirty;
-	//int m_iTurnSliceBuilt;
+	int m_iTurnSliceBuilt;
 	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
 };

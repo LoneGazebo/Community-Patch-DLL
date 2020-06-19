@@ -77,7 +77,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 
 		iRouteCost = std::min(iRouteVariableCost, iRouteFlatCost);
 
-		if (pToPlot->isCity()) //don't consider terrain/feature effects for cities
+		if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //don't consider terrain/feature effects for cities
 			return iRouteCost;
 	}
 
@@ -189,11 +189,12 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return INT_MAX;
 	}
 	// This is a special Domain unit that can disembark and becomes a land unit. End Turn like normal disembarkation.
-	else if ((pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && !pToPlot->isWater() && pFromPlot->isWater()) || (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isConvertUnit() && pToPlot->isWater() && !pFromPlot->isWater()))
+	else if ((pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && !pToPlot->isWater() && pFromPlot->isWater()) || 
+			 (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isConvertUnit() && pToPlot->isWater() && !pFromPlot->isWater()) )
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isCity()) //case with route is already handled above
+	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //case with route is already handled above
 	{
 		return iMoveDenominator;
 	}
