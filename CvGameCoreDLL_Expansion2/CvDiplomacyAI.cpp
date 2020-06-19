@@ -6330,7 +6330,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// IDEOLOGY
 	////////////////////////////////////
 
-	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));;
+	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	int iIdeologueScore = iFlavorCulture + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies();
 
 	if (iFlavorCulture < 5)
