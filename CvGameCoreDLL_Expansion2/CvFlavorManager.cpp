@@ -454,7 +454,7 @@ int* CvFlavorManager::GetAllFlavors()
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
-	if ((int)eType >= 0 || (int)eType < GC.getNumFlavorTypes()) return 0;
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
 
 	return m_piPersonalityFlavor[eType];
 }
@@ -470,7 +470,7 @@ int* CvFlavorManager::GetAllPersonalityFlavors()
 int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 {
 	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
-	if ((int)eType >= 0 || (int)eType < GC.getNumFlavorTypes()) return 0;
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
 
 	int iValue = m_piPersonalityFlavor[eType];
 
