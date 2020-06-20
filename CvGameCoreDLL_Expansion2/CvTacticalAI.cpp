@@ -1095,7 +1095,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
-	PlotMovesToSafety(false);
 	PlotEscortEmbarkedMoves();
 
 	//try again now that other blocking units might have moved
@@ -1118,6 +1117,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 	PlotRepositionMoves();
+
+	//civilians move out of harms way last, when all potential defenders are set in place
+	PlotMovesToSafety(false);
 }
 
 /// Choose which tactics to run and assign units to it (barbarian version)
@@ -6763,8 +6765,11 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit);
-		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
+
+		//taking cover only works if the defender will not move away!
+		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
+		bool bIsInCover = pDefender && pDefender->TurnProcessed() && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 
 		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
