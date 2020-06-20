@@ -218,7 +218,6 @@ CvPlayer::CvPlayer() :
 	, m_iGreatGeneralRateModifier("CvPlayer::m_iGreatGeneralRateModifier", m_syncArchive)
 	, m_iGreatGeneralRateModFromBldgs("CvPlayer::m_iGreatGeneralRateModFromBldgs", m_syncArchive)
 	, m_iDomesticGreatGeneralRateModifier("CvPlayer::m_iDomesticGreatGeneralRateModifier", m_syncArchive)
-	, m_iDomesticGreatGeneralRateModFromBldgs("CvPlayer::m_iDomesticGreatGeneralRateModFromBldgs", m_syncArchive)
 	, m_iGreatAdmiralRateModifier("CvPlayer::m_iGreatAdmiralRateModifier", m_syncArchive)
 	, m_iGreatWriterRateModifier("CvPlayer::m_iGreatWriterRateModifier", m_syncArchive)
 	, m_iGreatArtistRateModifier("CvPlayer::m_iGreatArtistRateModifier", m_syncArchive)
@@ -1416,7 +1415,6 @@ void CvPlayer::uninit()
 	m_iGreatGeneralRateModifier = 0;
 	m_iGreatGeneralRateModFromBldgs = 0;
 	m_iDomesticGreatGeneralRateModifier = 0;
-	m_iDomesticGreatGeneralRateModFromBldgs = 0;
 	m_iGreatAdmiralRateModifier = 0;
 	m_iGreatWriterRateModifier = 0;
 	m_iGreatArtistRateModifier = 0;
@@ -19826,6 +19824,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iHandicapB = pHandicapInfo->getAIDifficultyBonusMid();
 		iHandicapC = pHandicapInfo->getAIDifficultyBonusLate();
 		iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
+
+		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYieldHandicap /= 100;
 	}
 	if (iYieldHandicap > 0)
 	{
@@ -28812,7 +28813,6 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	// Next add in buildings
 	m_iGreatPeopleRateModifier += m_iGreatPeopleRateModFromBldgs;
 	m_iGreatGeneralRateModifier += m_iGreatGeneralRateModFromBldgs;
-	m_iDomesticGreatGeneralRateModifier += m_iDomesticGreatGeneralRateModFromBldgs;
 
 	// Finally anything from friendships
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();

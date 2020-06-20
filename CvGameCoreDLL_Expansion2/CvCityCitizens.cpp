@@ -930,7 +930,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = store.iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 2 : GC.getAI_CITIZEN_VALUE_FOOD();
+					int iMultiplier = store.iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 10 : GC.getAI_CITIZEN_VALUE_FOOD();
 					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
@@ -1056,7 +1056,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 		}
 	}
 
-	return iValue;
+	return max(1, iValue);
 }
 
 /// Are this City's Citizens under automation?
@@ -3144,7 +3144,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 							ChangeNumForcedDefaultSpecialists(-1);
 
 						SetWorkingPlot(pPlot, true);
-						SetForcedWorkingPlot(pPlot, true);
+						SetForcedWorkingPlot(pPlot, false);
+						
 					}
 					// No Default Specialists, so grab a better allocated guy
 					else

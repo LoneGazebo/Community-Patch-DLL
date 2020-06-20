@@ -3153,7 +3153,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralRateModFromBldgs;
 	FAutoVariable<int, CvPlayer> m_iDomesticGreatGeneralRateModifier;
-	FAutoVariable<int, CvPlayer> m_iDomesticGreatGeneralRateModFromBldgs;
 	FAutoVariable<int, CvPlayer> m_iGreatAdmiralRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatWriterRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatArtistRateModifier;

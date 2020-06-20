@@ -296,9 +296,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 500)
+		if (iValue > 300)
 		{
-			iValue = 500;
+			iValue = 300;
 		}
 
 		// we want this? ramp it up!
@@ -307,12 +307,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if (isNationalWonderClass(kBuildingClassInfo))
 			{
 				//cap this at an extreme value.
-				iBonus += max(10000, m_pCity->getPopulation() * 500);
+				iBonus += min(1000, m_pCity->getPopulation() * 50);
 			}
 			else
 			{
 				//cap this at an extreme value.
-				iBonus += max(15000, m_pCity->getPopulation() * 1500);
+				iBonus += min(1500, m_pCity->getPopulation() * 100);
 			}
 		}
 
@@ -1321,7 +1321,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iEraValue = (kPlayer.GetCurrentEra() - eEra);
 				if (iEraValue > 0)
 				{
-					iBonus += (125 * iEraValue);
+					iBonus += (250 * iEraValue);
 				}
 			}
 			//No Era? Zero!
@@ -1330,7 +1330,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iEraValue = kPlayer.GetCurrentEra(); //was 8
 				if (iEraValue > 0)
 				{
-					iBonus += (125 * iEraValue);
+					iBonus += (250 * iEraValue);
 				}
 			}
 		}
@@ -1340,7 +1340,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iEraValue = kPlayer.GetCurrentEra(); //was 8
 		if (iEraValue > 0)
 		{
-			iBonus += (125 * iEraValue);
+			iBonus += (250 * iEraValue);
 		}
 	}
 
@@ -1357,9 +1357,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus -= 1000;
 	}
 
-	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
+	if (m_pCity->isProductionBuilding())
 	{
-		iBonus += max(1, 250 - m_pCity->getProductionTurnsLeft());
+		if (m_pCity->getProductionBuilding() == eBuilding)
+			iBonus += max(1, 1000 - m_pCity->getProductionTurnsLeft());
+		else
+			iBonus = (iBonus/2);
 	}
 
 	/////

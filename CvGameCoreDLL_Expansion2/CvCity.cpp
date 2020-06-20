@@ -11562,16 +11562,6 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
 
-#if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
-	{
-		int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
-		int iMod = (100 + min(75, iWarWeariness));
-		iCost *= iMod;
-		iCost /= 100;
-	}
-#endif
-
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
 		int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
@@ -21149,11 +21139,12 @@ bool CvCity::DoRazingTurn()
 
 			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOwner() , getOriginalOwner());
 
-			kPlayer.disband(this);
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, getOwner(), "", pkPlot->getX(), pkPlot->getY());
 #if defined(MOD_BALANCE_CORE)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, getOwner(), getX(), getY());
 #endif
+
+			kPlayer.disband(this);
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, getOwner(), "", pkPlot->getX(), pkPlot->getY());
 			return true;
 		}
 
@@ -28177,11 +28168,7 @@ void CvCity::updateStrengthValue()
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		int iStrengthFromGarrisonRaw = pGarrisonedUnit->GetBaseCombatStrength();
-		if (!pGarrisonedUnit->isNativeDomain(plot()))
-			iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
-
-		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		int iStrengthFromGarrison = (pGarrisonedUnit->GetBaseCombatStrength() * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
 		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
@@ -28219,7 +28206,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 				{
-					iValue -= getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
+					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue() ) / 100);
 				}
 			}
 
@@ -28236,7 +28223,8 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			}
 
 			// buildings
-			int iModifier = getCityBuildingRangeStrikeModifier();
+			int iModifier = /*-40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
+			iModifier += getCityBuildingRangeStrikeModifier();
 			if (HasGarrison())
 			{
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
@@ -28317,7 +28305,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 				{
-					iValue -= getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
+					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
 				}
 			}
 
@@ -29790,76 +29778,76 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	bMessage = false;
 
 	if(bChoose)
-						{
+	{
 		if(getOrderQueueLength() == 0)
 							{
 			if(!isHuman() || isProductionAutomated())
-								{
+			{
 				AI_chooseProduction(false /*bInterruptWonders*/, false);
-									}
+			}
 			else
-									{
+			{
 				chooseProduction(eTrainUnit, eConstructBuilding, eCreateProject, bFinish);
 
 				bMessage = true;
-									}
-								}
-							}
+			}
+		}
+	}
 
 	if(bFinish && !bMessage)
-						{
+	{
 		if(getOwner() == GC.getGame().getActivePlayer())
-							{
+		{
 			Localization::String localizedText;
 			if(eTrainUnit != NO_UNIT)
-								{
+			{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eTrainUnit);
 				if(pkUnitInfo)
-									{
+					{
 					localizedText = Localization::Lookup(((isLimitedUnitClass((UnitClassTypes)(pkUnitInfo->GetUnitClassType()))) ? "TXT_KEY_MISC_TRAINED_UNIT_IN_LIMITED" : "TXT_KEY_MISC_TRAINED_UNIT_IN"));
 					localizedText << pkUnitInfo->GetTextKey() << getNameKey();
 				}
-									}
+			}
 			else if(eConstructBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 				if(pkBuildingInfo)
-									{
+				{
 					localizedText = Localization::Lookup(((isLimitedWonderClass(pkBuildingInfo->GetBuildingClassInfo())) ? "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN_LIMITED" : "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN"));
 					localizedText << pkBuildingInfo->GetTextKey() << getNameKey();
-									}
-								}
+				}
+			}
 			else if(eCreateProject != NO_PROJECT)
 			{
 				localizedText = Localization::Lookup(((isLimitedProject(eCreateProject)) ? "TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED" : "TXT_KEY_MISC_CREATED_PROJECT_IN"));
 				localizedText << GC.getProjectInfo(eCreateProject)->GetTextKey() << getNameKey();
-							}
+			}
 			if(isProduction())
 			{
 				localizedText = Localization::Lookup(((isProductionLimited()) ? "TXT_KEY_MISC_WORK_HAS_BEGUN_LIMITED" : "TXT_KEY_MISC_WORK_HAS_BEGUN"));
 				localizedText << getProductionNameKey();
-						}
+			}
 			DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8()/*, szSound, MESSAGE_TYPE_MINOR_EVENT, szIcon, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
-					}
-				}
+		}
+	}
 #if defined(MOD_BALANCE_CORE)
 	if (bUpdateStrength)
-				{
+	{
 		updateStrengthValue();
-				}
+	}
 #endif
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
 		if(isCitySelected())
-				{
+		{
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
-				}
+		}
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-				}
-				}
+	}
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::swapOrder(int iNum)
@@ -29868,29 +29856,29 @@ void CvCity::swapOrder(int iNum)
 	VALIDATE_OBJECT
 
 	if(iNum == 0)
-				{
+	{
 		stopHeadOrder();
-				}
+	}
 
 	m_orderQueue.swapUp(iNum);
 
 	if(iNum == 0)
-				{
+	{
 		startHeadOrder();
-				}
+	}
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
 		if(isCitySelected())
-				{
+		{
 			//DLLUI->setDirty(InfoPane_DIRTY_BIT, true );
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
 		}
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-				}
-			}
+	}
+}
 
 
 //	--------------------------------------------------------------------------------

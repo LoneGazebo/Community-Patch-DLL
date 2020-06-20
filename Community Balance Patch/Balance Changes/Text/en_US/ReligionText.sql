@@ -268,7 +268,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Religious Texts (Now Hymns)
 UPDATE Language_en_US
-SET Text = '[ICON_INQUISITOR] Inquisitors cost 25% less [ICON_PEACE] Faith, and generate 25 [ICON_GOLD] Gold per converted [ICON_CITIZEN] Citizen when Removing Heresy. Removing Heresy does not reduce City [ICON_CITIZEN] Population or cause [ICON_RESISTANCE] Resistance. Your [ICON_SPY] Spies exert +50 Religious Pressure on the Cities they occupy (Standard Speed), and +2 [ICON_HAPPINESS_1] Happiness if stationed in a foreign City.'
+SET Text = '[ICON_INQUISITOR] Inquisitors cost 25% less [ICON_PEACE] Faith, and generate 25 [ICON_GOLD] Gold per converted [ICON_CITIZEN] Citizen when Removing Heresy. Removing Heresy no longer causes [ICON_RESISTANCE] Resistance in Cities. Your [ICON_SPY] Spies exert +50 Religious Pressure on the Cities they occupy (Standard Speed), and +2 [ICON_HAPPINESS_1] Happiness if stationed in a foreign City.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -331,7 +331,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Holy Order
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads 20% faster (40% with Printing Press), and to Cities 20% further away. Pressure doubled to friendly [ICON_CITY_STATE] City-States and foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[ICON_RELIGION] Religion spreads 15% faster (30% with Printing Press), and to Cities 25% further away. Pressure doubled to friendly [ICON_CITY_STATE] City-States and foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -2643,6 +2643,10 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				return false;
 			}
 
+			ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+			if (eFeitoria != NO_IMPROVEMENT && getImprovementType() == eFeitoria)
+				return false;
+
 			eFinalImprovementType = finalImprovementUpgrade(getImprovementType());
 
 			if(eFinalImprovementType != NO_IMPROVEMENT)

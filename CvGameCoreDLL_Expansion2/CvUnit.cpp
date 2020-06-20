@@ -1067,6 +1067,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// free XP from handicap?
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
+	iXP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iXP /= 100;
 	if (iXP && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -1078,6 +1080,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// bonus xp in combat from handicap?
 	int iXPPercent = GC.getGame().getHandicapInfo().getAIFreeXPPercent();
+	iXPPercent *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iXPPercent /= 100;
 	if (iXPPercent && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
 	{
 		changeExperiencePercent(iXPPercent);
@@ -11483,7 +11487,7 @@ bool CvUnit::DoRemoveHeresy()
 
 				if (!bNoPenalty)
 				{
-					pCity->changePopulation(-1);
+					//pCity->changePopulation(-1);
 					pCity->ChangeResistanceTurns(1);
 				}
 			}
@@ -16499,9 +16503,12 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 			return 0;
 
 		iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
+
 		// Not our territory?
-		if (plot()->getOwner() == NO_PLAYER)
-			iResistance /= 2;
+		if (plot()->IsFriendlyTerritory(getOwner()))
+			return iResistance;
+		else
+			return iResistance/2;
 	}
 
 	return iResistance;
@@ -21299,17 +21306,17 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		if (bInBorders)
 		{
 			// In-borders GG mod
-			iCombatExperienceMod += (getDomainType() == DOMAIN_LAND ? kPlayer.getDomesticGreatGeneralRateModifier() : 0) + kPlayer.getExpInBorderModifier();
-#if defined(MOD_UNITS_XP_TIMES_100)
-			int iBorderBonusXpTimes100 = (iChangeTimes100 * iCombatExperienceMod) / 100;
+			if (getDomainType() == DOMAIN_LAND)
+			{
+				iCombatExperienceMod += kPlayer.getDomesticGreatGeneralRateModifier();
+			}
+
+			int iBorderBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
 			if (!MOD_UNITS_XP_TIMES_100) {
 				// If NOT using XP times 100, remove any fractional part
 				iBorderBonusXpTimes100 -= (iBorderBonusXpTimes100 % 100);
 			}
 			iUnitExperienceTimes100 += iBorderBonusXpTimes100;
-#else
-			iUnitExperience += (iChange * kPlayer.getExpInBorderModifier()) / 100;
-#endif
 		}
 
 		if(bUpdateGlobal)
@@ -21404,7 +21411,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		if(getExperiencePercent() != 0)
 		{
 #if defined(MOD_UNITS_XP_TIMES_100)
-			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 + getExperiencePercent()) / 100;
 			if (!MOD_UNITS_XP_TIMES_100) {
 				// If NOT using XP times 100, remove any fractional part
 				iUnitBonusXpTimes100 -= (iUnitBonusXpTimes100 % 100);
@@ -27897,9 +27904,6 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 				if (pLoopPlot->getOwner() == NO_PLAYER || pLoopPlot->getOwner() == getOwner())
 					continue;
 
-				if (!GET_TEAM(pLoopPlot->getTeam()).isAtWar(getTeam()))
-					continue;
-
 				const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 				while (pUnitNode != NULL)
 				{
@@ -27913,6 +27917,8 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 					if (pLoopUnit->isSuicide())
 						continue;
 					if (pLoopUnit->isCargo())
+						continue;
+					if (!GET_TEAM(pLoopUnit->getTeam()).isAtWar(getTeam()))
 						continue;
 
 					pLoopUnit->changeDamage(iAirSweepDamage, getOwner(), 0.25f, &strAppendText);

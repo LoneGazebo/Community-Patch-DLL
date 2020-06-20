@@ -704,8 +704,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iNumCoastal++;
 					}
 				}
-				if (iCurrent <= iNumCoastal * 4)
-					iValue *= 5;
+				if (iCurrent <= iNumCoastal)
+					iValue *= 2;
 
 				if (iValue > 0)
 				{

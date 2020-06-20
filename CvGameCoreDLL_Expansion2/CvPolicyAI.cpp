@@ -4118,11 +4118,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += (iPopulation * 100)  / PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield);
+				yield[eYield] += (iPopulation * 50)  / PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield);
 			}
 			else
 			{
-				yield[eYield] += (iPopulation * 50) / PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield);
+				yield[eYield] += (iPopulation * 25) / PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield);
 			}
 		}
 		if (PolicyInfo->GetCapitalYieldModifier(eYield) != 0)
@@ -4162,7 +4162,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirth(eYield) * 3 * iNumCities;
+				yield[eYield] += PolicyInfo->GetYieldFromBirth(eYield) * 2 * iNumCities;
 			}
 			else
 			{
@@ -4173,7 +4173,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * 3 * iCapitalPop;
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * 2 * iCapitalPop;
 			}
 			else
 			{
@@ -4195,11 +4195,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 4 * iCapitalPop;
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 2 * iCapitalPop;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 2 * iCapitalPop;
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * iCapitalPop;
 			}
 		}
 		if (PolicyInfo->GetYieldFromConstruction(eYield) != 0)

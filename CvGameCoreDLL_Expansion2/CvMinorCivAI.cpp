@@ -15815,7 +15815,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
-	int iValue = 40;
+	int iValue = 50;
 	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	iValue /= 100;
 

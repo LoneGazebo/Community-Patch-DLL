@@ -5802,13 +5802,6 @@ int CvPlayerCulture::ComputeWarWeariness()
 		
 		iRisingWarWeariness = (iMostWarTurns * iWarValue) / 100;
 
-		int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
-		if (iMod > 100)
-			iMod = 100;
-
-		iRisingWarWeariness *= (100 - iMod);
-		iRisingWarWeariness /= 100;
-
 		//simple exponential smoothing
 		float fAlpha = 0.3f;
 		iRisingWarWeariness = int(0.5f + (iRisingWarWeariness * fAlpha) + (iOldWarWeariness * (1 - fAlpha)));
@@ -5823,6 +5816,13 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 	//whichever is worse counts
 	m_iRawWarWeariness = max(iFallingWarWeariness,iRisingWarWeariness);
+
+	int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
+	if (iMod > 100)
+		iMod = 100;
+
+	m_iRawWarWeariness *= (100 - iMod);
+	m_iRawWarWeariness /= 100;
 
 	if (GC.getLogging() && GC.getAILogging() && m_iRawWarWeariness > 0)
 	{
