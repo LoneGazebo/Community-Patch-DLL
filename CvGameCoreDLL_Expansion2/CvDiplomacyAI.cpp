@@ -2586,8 +2586,8 @@ vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
 /// Helper function to determine if we're at war with a player
 bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
 {
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling IsAtWar.");
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer <= MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling IsAtWar.");
+	if (eOtherPlayer < 0 || eOtherPlayer > MAX_CIV_PLAYERS) return false;
 
 	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
 }
@@ -3303,7 +3303,7 @@ void CvDiplomacyAI::DoCounters()
 					ChangeRecentAssistValue(eLoopPlayer, iMin);
 				}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eLoopPlayer))
+				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
 					ChangeVassalProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_PROTECTED_PER_TURN_DECAY());
 					ChangeVassalFailedProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_FAILED_PROTECT_PER_TURN_DECAY());
@@ -16031,7 +16031,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
-	if (IsTeammate(ePlayer) || IsVassal(ePlayer))
+	if (IsTeammate(ePlayer) || IsMaster(ePlayer) || IsVassal(ePlayer))
 		return false;
 
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)

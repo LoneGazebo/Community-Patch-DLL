@@ -238,7 +238,7 @@
 			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREAD}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_BODY">
-			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foriegn City, if you are trading with that Civilization already.</Text>
+			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foreign City, if you are trading with that Civilization already.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
