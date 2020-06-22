@@ -21404,7 +21404,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			}
 		}
 
-		if (getExperiencePercent() != 0)
+		if (getExperiencePercent() != 0 && bFromCombat)
 		{
 #if defined(MOD_UNITS_XP_TIMES_100)
 			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
