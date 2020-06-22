@@ -399,7 +399,7 @@ CvCity::CvCity() :
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
 	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
 	, m_iNoUnhappfromXSpecialists("CvCity::m_iNoUnhappfromXSpecialists", m_syncArchive)
-	, m_bDummy("CvCity::m_bDummy", m_syncArchive)
+	, m_aiStaticNeedsUpdateTurn("CvCity::m_aiStaticNeedsUpdateTurn", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1704,7 +1704,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iAlwaysHeal = 0;
 	m_iResourceDiversityModifier = 0;
 	m_iNoUnhappfromXSpecialists = 0;
-	m_bDummy = false;
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1743,6 +1742,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiExtraSpecialistYield.resize(NUM_YIELD_TYPES);
 	m_aiProductionToYieldModifier.resize(NUM_YIELD_TYPES);
 	m_aiEventCityYield.resize(NUM_YIELD_TYPES);
+	m_aiStaticNeedsUpdateTurn = GC.getGame().getGameTurn();
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_aiStaticGlobalYield.setAt(iI, 0);
@@ -3637,6 +3637,8 @@ void CvCity::UpdateGlobalStaticYields()
 	SetStaticNeedAdditives(YIELD_CULTURE, iStaticNeeds);
 	SetStaticNeedAdditives(YIELD_SCIENCE, iStaticNeeds);
 	SetStaticNeedAdditives(YIELD_PRODUCTION, iStaticNeeds);
+
+	m_aiStaticNeedsUpdateTurn = GC.getGame().getGameTurn();
 }
 void CvCity::SetGlobalStaticYield(YieldTypes eYield, int iValue)
 {
@@ -3648,7 +3650,7 @@ void CvCity::SetGlobalStaticYield(YieldTypes eYield, int iValue)
 int CvCity::GetGlobalStaticYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		return m_aiStaticGlobalYield[eYield];
+	return m_aiStaticGlobalYield[eYield];
 }
 
 void CvCity::SetStaticNeedAdditives(YieldTypes eYield, int iValue)
@@ -22417,13 +22419,11 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	int iPuppetUnhappy = 0;
 	int iResistanceUnhappy = 0;
 
-	
-
 	if (IsRazing() || IsResistance())
 	{
 		iResistanceUnhappy = int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
 		if (!bFlavorText)
-			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappy);
+			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy, GC.getGame().getGameTurn()) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappy);
 	}
 	else if (IsPuppet())
 	{
@@ -22434,11 +22434,11 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		iResistanceUnhappy = int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
 
 		if (!bFlavorText)
-			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_OCCUPATION_UNHAPPINESS", iResistanceUnhappy);
+			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy, GC.getGame().getGameTurn()) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_OCCUPATION_UNHAPPINESS", iResistanceUnhappy);
 	}
 
 	int iPop = getPopulation();
-	int iNegativeHappiness = 0;
+	int iNegativeHappiness = iPuppetUnhappy;
 	int iLimit = getPopulation();
 	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 	
@@ -22472,9 +22472,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	int iSpecialistUnhappy = getUnhappinessFromSpecialists(iSpecialists);
 	iNegativeHappiness += iSpecialistUnhappy;
 
-	iNegativeHappiness += iPuppetUnhappy;
 
-	CvString strPotential = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iNegativeHappiness);
+	CvString strPotential = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iNegativeHappiness, m_aiStaticNeedsUpdateTurn);
 	CvString strReligionIcon = "";
 	if (iMinorityUnhappy != 0)
 	{
@@ -23064,9 +23063,6 @@ int CvCity::getUnhappinessFromDefenseYield(int iModPop) const
 int CvCity::getUnhappinessFromDefenseNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_PRODUCTION) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
-
-		
-	
 	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod, bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
@@ -30041,11 +30037,11 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 							if (!canTrain(eUnit))
 							{
 								continue;
-							}
+	}
 							if (pUnitEntry->GetRangedCombat() > 0)
-							{
+	{
 								continue;
-							}
+	}
 							if (pUnitEntry->GetDomainType() == DOMAIN_LAND)
 							{
 								bool bBad = false;
@@ -30057,7 +30053,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 									if (iNumResource > 0)
 									{
 										if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
-										{
+	{
 											bBad = true;
 											break;
 										}
@@ -30078,65 +30074,65 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 #endif
 								}
 								if (bBad)
-								{
+	{
 									continue;
-								}
+	}
 								int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
 								if (iCombatLandStrength > iStrengthBestLandCombat)
-								{
+	{
 									iStrengthBestLandCombat = iCombatLandStrength;
 									eBestLandUnit = eUnit;
 								}
-							}
-						}
-					}
-				}
+	}
+	}
+		}
+	}
 				if (eBestLandUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
 					if (pkbUnitEntry)
-					{
+	{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
-						{
+		{
 							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
-							{
+			{
 								pUnit2->kill(false);	// Could not find a valid spot!
-							}
+			}
 							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 							if (pNotifications)
-							{
+			{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
 								strText << pUnit2->getNameKey() << getNameKey();
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
 								strSummary << getNameKey();
 								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
 							}
-						}
-					}
-				}
+			}
+		}
+	}
 				else
 				{
 					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
 					if (pkbUnitEntry)
-					{
+	{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
-						{
+		{
 							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
-							{
+			{
 								pUnit2->kill(false);	// Could not find a valid spot!
 							}
 							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 							if (pNotifications)
-							{
+				{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
 								strText << pUnit2->getNameKey() << getNameKey();
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
@@ -30144,10 +30140,10 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
 							}
 						}
-					}
 				}
 			}
-		}
+				}
+			}
 		if (kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
@@ -30156,19 +30152,19 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 			{
 				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 				if (pkcUnitEntry)
-				{
+			{
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
 					pZuluImpi->convert(pUnit, true);
-				}
 			}
 		}
+	}
 #endif
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY)
-		{
+	{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
-		}
+	}
 		else
 		{
 #endif
@@ -30184,40 +30180,40 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
-			}
+	}
 #if defined(MOD_EVENTS_CITY)
-		}
+}
 #endif
 
 		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
 		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
-		{
+{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
 #endif
 		if (bCanOverflow)
 		{
-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
-			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-			iOverflow = std::min(iMaxOverflow, iOverflow);
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
 
-			if (iOverflow > 0)
-			{
-				changeOverflowProductionTimes100(iOverflow);
-			}
-			setUnitProduction(eTrainUnit, 0);
+		if (iOverflow > 0)
+	{
+			changeOverflowProductionTimes100(iOverflow);
+	}
+		setUnitProduction(eTrainUnit, 0);
 
-			int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-			if (iProductionGold > 0)
-			{
-				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-			}
+		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+	{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
 		}
-		else
-		{
+	}
+	else
+	{
 			changeUnitProductionTimes100(eTrainUnit, -iProductionNeeded);
 		}
 	}
@@ -30228,7 +30224,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 		CvNotifications* pNotifications = kOwner.GetNotifications();
 		if (pNotifications)
-		{
+	{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
 			strText << getNameKey();
 			strText << GC.getUnitInfo(eTrainUnit)->GetDescription();

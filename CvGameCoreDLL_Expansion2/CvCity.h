@@ -2002,7 +2002,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
 	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
 	FAutoVariable<int, CvCity> m_iNoUnhappfromXSpecialists;
-	FAutoVariable<bool, CvCity> m_bDummy; //unused
+	FAutoVariable<int, CvCity> m_aiStaticNeedsUpdateTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGreatWorkYieldChange;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;

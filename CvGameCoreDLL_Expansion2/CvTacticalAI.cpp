@@ -1095,7 +1095,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
-	PlotMovesToSafety(false);
 	PlotEscortEmbarkedMoves();
 
 	//try again now that other blocking units might have moved
@@ -1118,6 +1117,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 	PlotRepositionMoves();
+
+	//civilians move out of harms way last, when all potential defenders are set in place
+	PlotMovesToSafety(false);
 }
 
 /// Choose which tactics to run and assign units to it (barbarian version)
@@ -2525,8 +2527,18 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (pTargetZone->GetTotalFriendlyUnitCount() + m_CurrentMoveUnits.size() - iAlreadyInZone < 2)
 		return;
 
-	if (m_CurrentMoveUnits.size()>0)
-		PositionUnitsAroundTarget(pTargetPlot);
+	if (m_CurrentMoveUnits.size() > 0)
+	{
+		vector<CvUnit*> vUnits;
+		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
+			if (!pUnit->isDelayedDeath() && pUnit->canMove())
+				vUnits.push_back(pUnit);
+		}
+
+		PositionUnitsAroundTarget(vUnits,pTargetPlot);
+	}
 }
 
 /// Log that we couldn't find assignments for some units
@@ -3119,41 +3131,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 		pUnit = pArmy->GetNextUnit(pUnit);
 	}
 
-	int iCount = 0;
-	bool bSuccess = false;
-	do
-	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestDefensiveAssignment(vUnits, pTurnTarget, gTactPosStorage);
-		if (vAssignments.empty())
-			break;
-
-		//restarts might happen when new enemies become visible
-		bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments);
-		iCount++;
-	}
-	while (!bSuccess && iCount < 4);
-
-	//now, some units might have been too far out to consider
-	//so we move them explicitly and independently
-	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
-	{
-		CvUnit* pUnit = *it;
-		if (pUnit->TurnProcessed())
-			continue;
-
-		if (pUnit->GetDanger() == INT_MAX) //don't leave a general out in the cold
-		{
-			CvPlot* pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-			if (pSafePlot)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
-				UnitProcessed(pUnit->GetID());
-			}
-		}
-
-		if (!pUnit->TurnProcessed())
-			ExecuteMoveToPlot(pUnit, pTurnTarget, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
-	}
+	PositionUnitsAroundTarget(vUnits, pTurnTarget);
 
 	// Update army's current location
 	CvPlot* pCoM = pArmy->GetCenterOfMass();
@@ -3940,16 +3918,16 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 #endif
 }
 
-bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
+bool CvTacticalAI::ExecuteSpotterMove(vector<CvUnit*> vUnits, CvPlot* pTargetPlot)
 {
 	if (pTargetPlot->isVisible(m_pPlayer->getTeam()))
 		return true; //nothing to do
 
 	//else find a suitable unit
 	vector<CvUnit*> vCandidates;
-	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
+	for (size_t i = 0; i < vUnits.size(); i++)
 	{
-		CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
+		CvUnit* pUnit = vUnits[i];
 
 		// we want fast units or tanks
 		// (unitai defense includes ranged units ... don't use it here)
@@ -3968,7 +3946,6 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 	for (size_t i=0; i<vCandidates.size();i++)
 	{
 		CvUnit* pUnit = vCandidates[i];
-
 		int iFlags = CvUnit::MOVEFLAG_NO_EMBARK;
 
 		//move into ring 2 unless we are already there and still can't see the target
@@ -4003,10 +3980,20 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 	return false;
 }
 
+//evaluate many possible unit assignments around the target plot and choose the best one
+//will not necessarily attack only the target plot when other targets are present!
+//todos:
+// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
+// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker so will be safe from retaliation)
 bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 {
+	vector<CvUnit*> vUnits;
+	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
+		if (m_CurrentMoveUnits[i].GetAttackStrength()>0) //sometimes we mark units as not desired
+			vUnits.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
+
 	//try to improve visibility
-	if (!ExecuteSpotterMove(pTargetPlot))
+	if (!ExecuteSpotterMove(vUnits,pTargetPlot))
 		return false;
 
 	//first handle air units
@@ -4016,18 +4003,6 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	//did the air attack already kill the enemy?
 	if (pTargetPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true) == NULL && !pTargetPlot->isCity())
 		return true;
-
-	//evaluate many possible unit assignments around the target plot and choose the best one
-	//will not necessarily attack only the target plot when other targets are present!
-
-	//todos:
-	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
-	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker so will be safe from retaliation)
-
-	vector<CvUnit*> vUnits;
-	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
-		if (m_CurrentMoveUnits[i].GetAttackStrength()>0) //sometimes we mark units as not desired
-			vUnits.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
 	int iCount = 0;
 	bool bSuccess = false;
@@ -4047,23 +4022,11 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 }
 
 //target can be friendly, neutral or hostile
-bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
+bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTargetPlot)
 {
 	//try to improve visibility
-	if (!ExecuteSpotterMove(pTargetPlot))
+	if (!ExecuteSpotterMove(vUnits,pTargetPlot))
 		return false;
-
-	//assumption is that the selected units are spread out and may be far from the target
-	//but there are no (known) enemies around the units
-	//so split them up into a close group which needs a good formation
-	//and a far group which just needs to move in fast
-	vector<CvUnit*> vUnits;
-	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
-		if (!pUnit->isDelayedDeath() && pUnit->canMove())
-			vUnits.push_back(pUnit);
-	}
 
 	int iCount = 0;
 	bool bSuccess = false;
@@ -6802,8 +6765,11 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit);
-		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
+
+		//taking cover only works if the defender will not move away!
+		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
+		bool bIsInCover = pDefender && pDefender->TurnProcessed() && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 
 		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
@@ -9108,7 +9074,10 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		int iNextTurnScore = 0;
 		if (canStayInPlotUntilNextTurn(unit,iNextTurnScore))
 		{
-			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+			//blocked units may be used for other moves, but make sure we don't leave them in an impossible position
+			if (unit.eLastAssignment != A_BLOCKED)
+				assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+
 			notQuiteFinishedUnits.pop_back();
 		}
 		else
@@ -9737,7 +9706,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0)
 	{
-		if (newAssignment.eAssignmentType != A_BLOCKED && newAssignment.eAssignmentType != A_FINISH)
+		if (itUnit->eLastAssignment != A_FINISH)
 			notQuiteFinishedUnits.push_back(*itUnit);
 
 		availableUnits.erase(itUnit);
@@ -10218,8 +10187,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		strMsg.Format("tactsim_defense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), AL_NONE, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
+		strMsg.Format("tactsim_defense %s, target %d:%d with %d units (agglvl %d). last dangerplots update at %d. tested %d, discarded %d, completed %d, open %d (%.2f ms).", 
+			result.empty() ? "failed" : "success",
+			pTarget->getX(), pTarget->getY(), ourUnits.size(), AL_NONE, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
+			iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
+
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
@@ -10459,8 +10431,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-			strMsg.Format("tactsim_offense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
+		strMsg.Format("tactsim_offense %s, target %d:%d with %d units (agglvl %d). last dangerplots update at %d. tested %d, discarded %d, completed %d, open %d (%.2f ms).", 
+			result.empty() ? "failed" : "success",
+			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
+			iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
