@@ -7880,6 +7880,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (MOD_BALANCE_CORE)
 	{
+		PolicyBranchTypes eAuthority = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true);
+		PolicyBranchTypes eImperialism = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true);
+
 		////////////////////////////////////
 		// War Bonus
 		////////////////////////////////////
@@ -7914,10 +7917,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// If we picked offensive policy trees, war is better for us.
-		PolicyBranchTypes eAuthority = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
-		PolicyBranchTypes eImperialism = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
-		PolicyBranchTypes eIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
-
 		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eAuthority))
 		{
 			iWarBonus++;
@@ -7936,7 +7935,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				iWarBonus += 2;
 			}
 		}
-		if (eIdeology == GC.getPOLICY_BRANCH_AUTOCRACY())
+		if (eMyBranch == GC.getPOLICY_BRANCH_AUTOCRACY())
 		{
 			iWarBonus += 3;
 		}
@@ -11309,7 +11308,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
 		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
-		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
 		
 		if (iNormalSites > 0)
 		{
