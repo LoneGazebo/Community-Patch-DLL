@@ -194,7 +194,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //case with route is already handled above
+	//case with route is already handled above
+	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}

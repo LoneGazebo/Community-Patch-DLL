@@ -3144,7 +3144,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 							ChangeNumForcedDefaultSpecialists(-1);
 
 						SetWorkingPlot(pPlot, true);
-						SetForcedWorkingPlot(pPlot, false);
+						SetForcedWorkingPlot(pPlot, true);
 						
 					}
 					// No Default Specialists, so grab a better allocated guy

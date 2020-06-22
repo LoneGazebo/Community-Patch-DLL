@@ -10573,10 +10573,18 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 
 	if(m_pUnitInfo->IsFound())
 	{
-		if(m_pUnitInfo->IsFoundAbroad() && pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
-			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() == pPlot->getArea();
-
 		return true;
+	}
+	else if (m_pUnitInfo->IsFoundAbroad())
+	{
+		if (pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
+		{
+			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() != pPlot->getArea();
+		}
+		else
+		{
+			return true;
+		}
 	}
 	else if (CanFoundColony() && GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
 	{

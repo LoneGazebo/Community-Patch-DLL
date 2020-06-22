@@ -2499,6 +2499,10 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				if (plotDistance(*pUnit->plot(), *pTargetPlot) > iMaxTurns * 2)
 					continue;
 
+				// don't use near-dead units to attack ... misuse the flag here to be more careful when attacking
+				if (pUnit->shouldHeal(pTargetZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY))
+					continue;
+
 				//don't run away if there's other work to do (will eventually be handled by ExecuteAttackWithUnits)
 				CvPlot* pAlternativeTarget = TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false);
 				if (pAlternativeTarget && plotDistance(*pAlternativeTarget,*pTargetPlot)>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
@@ -7627,10 +7631,10 @@ bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
 	return false;
 }
 
-STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bAllowPillage)
+STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bEndTurnAllowed)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-1000,A_FINISH);
 
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7753,41 +7757,42 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		}
 	}
 
-	//may instead of a plain finish we can pillage?
-	if (bAllowPillage && movePlot.iPlotIndex == unit.iPlotIndex)
+	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
+	//we only consider this when explicitly ending the turn!
+	bool bWouldEndTurn = (movePlot.iMovesLeft == 0 || movePlot.iPlotIndex == unit.iPlotIndex);
+	if (bEndTurnAllowed && bWouldEndTurn)
 	{
-		//would it make sense to pillage here?
-		if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
+		//may instead of a plain finish we can pillage?
+		if (movePlot.iMovesLeft>0)
 		{
-			//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-			if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer()))
+			//would it make sense to pillage here?
+			if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
 			{
-				iMiscScore += 50;
-				if (movePlot.iMovesLeft > 0) //if we can do it right away ...
+				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
+				if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer()))
 				{
 					iMiscScore += 50;
+					if (movePlot.iMovesLeft > 0) //if we can do it right away ...
+					{
+						iMiscScore += 50;
+						if (!pUnit->hasFreePillageMove())
+							result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+						result.eAssignmentType = A_PILLAGE;
+					}
+				}
+				//if it's an improvement we pillage to heal if we have moves to spare
+				else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && (movePlot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
+				{
+					iMiscScore += 20;
+					if (pUnit->IsGainsXPFromPillaging())
+						iMiscScore += 10;
 					if (!pUnit->hasFreePillageMove())
 						result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 					result.eAssignmentType = A_PILLAGE;
 				}
 			}
-			//if it's an improvement we pillage to heal if we have moves to spare
-			else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && (movePlot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
-			{
-				iMiscScore += 20;
-				if (pUnit->IsGainsXPFromPillaging())
-					iMiscScore += 10;
-				if (!pUnit->hasFreePillageMove())
-					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-				result.eAssignmentType = A_PILLAGE;
-			}
 		}
-	}
 
-	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
-	//we only consider this when explicitly ending the turn!
-	if (movePlot.iMovesLeft == 0 || movePlot.iPlotIndex == unit.iPlotIndex) 
-	{
 		//if we don't plan on pillaging, then this is a plain finish assigment
 		if (result.eAssignmentType != A_PILLAGE)
 		{
@@ -7818,11 +7823,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		// * freshly revealed enemy units are not considered
 		int	iDanger = pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies());
 
-		//if we're not alone, maybe not everybody will attack us
-		int iSpreadFactor = pUnit->isRanged() ? 
-			testPlot.getNumAdjacentFirstlineFriendlies(CvTacticalPlot::TD_BOTH,unit.iPlotIndex) + 1 : 
-			testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH,unit.iPlotIndex) + 1;
-
 		//can happen with garrisons, catch this case as is messes up the math
 		if (iDanger == INT_MAX)
 		{
@@ -7834,7 +7834,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		bool bAbort = false;
 		bAbort |= (testPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3);
 		bAbort |= (assumedPosition.getAggressionBias() < 1 && testPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) == 3);
-		bAbort |= (iSpreadFactor == 1 && iDanger > pUnit->GetCurrHitPoints());
 
 		if (bAbort)
 			return result;
@@ -7859,7 +7858,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 			iDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
 
 			//penalty for high danger plots
-			iDangerScore = (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / max(1,iSpreadFactor) / max(1,pUnit->GetCurrHitPoints() - unit.iSelfDamage);
+			iDangerScore = (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / max(1,pUnit->GetCurrHitPoints() - unit.iSelfDamage);
 		}
 
 		//often there are multiple identical units which could move into a plot (eg in naval battles)
@@ -7885,7 +7884,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	//since we're not going to attack, we will assume a single move per unit, so we will always end the turn on the test plot
 
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-1000,A_FINISH);
 		
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7915,9 +7914,9 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	//lookup score by unit strategy / enemy distance
 	int iPlotTypeScores[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
-		{ -1, 20, 6, 4, 1 }, //firstline
-		{ -1, 1, 20, 8, 1 }, //secondline
-		{ -1, 1, 8, 20, 1 }, //thirdline
+		{ -1, 12, 6, 4, 1 }, //firstline
+		{ -1, 1, 12, 8, 1 }, //secondline
+		{ -1, 1, 8, 12, 1 }, //thirdline
 		{ -1, 1, 4, 4, 1 }, //support (should not occur)
 	};
 	result.iScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
@@ -8480,6 +8479,7 @@ void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, 
 	changeNeighboringUnitCount(currentPosition, assignment, -1);
 }
 
+//this is quite unreliable as it does not count non-simulated friendly units!
 int CvTacticalPlot::getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const 
 {
 	if (iIgnoreUnitPlot >= 0 && isValid())
@@ -8492,6 +8492,7 @@ int CvTacticalPlot::getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnor
 	return aiFriendlyCombatUnitsAdjacent[eDomain];
 }
 
+//this is quite unreliable as it does not count non-simulated friendly units!
 int CvTacticalPlot::getNumAdjacentFirstlineFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const 
 { 
 	if (iIgnoreUnitPlot >= 0 && isValid())
@@ -8604,10 +8605,10 @@ const ReachablePlots& CvTacticalPosition::getReachablePlotsForUnit(const SUnitSt
 	return emptyResult;
 }
 
-const STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bAllowPillage)
+const STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bEndTurnAllowed)
 {
 	return (assumedPosition.getAggressionLevel() > AL_NONE) ? 
-		ScorePlotForCombatUnitOffensiveMove(unit, testPlot, movePlot, assumedPosition, bAllowPillage) : 
+		ScorePlotForCombatUnitOffensiveMove(unit, testPlot, movePlot, assumedPosition, bEndTurnAllowed) : 
 		ScorePlotForCombatUnitDefensiveMove(unit, testPlot, movePlot, assumedPosition);
 }
 
@@ -8718,8 +8719,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
 				{
 					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies());
-					int iSpreadFactor = assumedUnitPlot.getNumAdjacentFirstlineFriendlies(CvTacticalPlot::TD_BOTH, unit.iPlotIndex) + 1;
-					if (iSpreadFactor == 1 && iDanger > pUnit->GetCurrHitPoints())
+					if (iDanger > 2*pUnit->GetCurrHitPoints())
 						bSuicide = true;
 				}
 
@@ -8791,7 +8791,7 @@ void CvTacticalPosition::addInitialAssignments()
 	{
 		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
 		int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot( itUnit->iPlotIndex ), *this, false).iScore;
-		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, max(-1000,iScore), A_INITIAL));
+		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
 	}
 }
 
