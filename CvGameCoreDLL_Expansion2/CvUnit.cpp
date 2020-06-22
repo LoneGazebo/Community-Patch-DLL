@@ -1067,8 +1067,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// free XP from handicap?
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
-	iXP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iXP /= 100;
 	if (iXP && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
