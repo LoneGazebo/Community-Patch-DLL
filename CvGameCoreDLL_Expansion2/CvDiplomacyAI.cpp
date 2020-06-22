@@ -38302,40 +38302,58 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 {
 	int iNumSame = 0;
 	int iNumDifferent = 0;
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
+	int iNumWeHave = 0;
+	int iNumTheyHave = 0;
+
+	for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
 	{
 		PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iPolicyLoop;
-		if(ePolicyBranch != NO_POLICY_BRANCH_TYPE)
+		if (ePolicyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
-			if(pkPolicyBranchInfo == NULL)
+			if (pkPolicyBranchInfo == NULL)
 			{
 				continue;
 			}
 			//No ideologies.
-			if(pkPolicyBranchInfo->IsPurchaseByLevel())
+			if (pkPolicyBranchInfo->IsPurchaseByLevel())
 			{
 				continue;
 			}
 
 			//We have it and they don't?
-			if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumDifferent++;
+				iNumWeHave++;
 			}
 			//They have it and we don't?
-			else if(!GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			else if (!GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumDifferent++;
+				iNumTheyHave++;
 			}
 			//We both have it?
-			else if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			else if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumSame++;
+				iNumWeHave++;
+				iNumTheyHave++;
 			}
 		}
 	}
-	return(iNumSame - iNumDifferent);
+
+	// If one of us has only one branch unlocked and the other has none, count it as 0.
+	if (iNumWeHave == 1 && iNumTheyHave == 0)
+	{
+		return 0;
+	}
+	else if (iNumTheyHave == 1 && iNumWeHave == 0)
+	{
+		return 0;
+	}
+	
+	return (iNumSame - iNumDifferent);
 }
 #endif
 
