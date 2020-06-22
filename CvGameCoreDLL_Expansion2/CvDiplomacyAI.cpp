@@ -41865,11 +41865,11 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	
 	else if (iOpinionWeight < 0)
 	{
-		if (IsConqueror())
+		if (IsConqueror() || IsCloseToDominationVictory())
 		{
-			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
 		}
-		if (GetPlayer()->GetCurrentEra() <= 1)
+		else if (GetPlayer()->GetCurrentEra() <= 1)
 		{
 			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
 		}
@@ -41956,11 +41956,11 @@ int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || IsNoVictoryCompetition() || GET_TEAM(GetTeam()).IsVassalOfSomeone())
-		return 0;
-	
 	// Only scientific civs care about this.
 	if (!IsScientist())
+		return 0;
+
+	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam() || IsNoVictoryCompetition() || GetPlayer()->IsVassalOfSomeone())
 		return 0;
 	
 	switch (GetTechDisputeLevel(ePlayer))
