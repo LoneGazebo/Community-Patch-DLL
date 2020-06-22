@@ -2586,8 +2586,8 @@ vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
 /// Helper function to determine if we're at war with a player
 bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
 {
-	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling IsAtWar.");
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer <= MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling IsAtWar.");
+	if (eOtherPlayer < 0 || eOtherPlayer > MAX_CIV_PLAYERS) return false;
 
 	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
 }
@@ -3303,7 +3303,7 @@ void CvDiplomacyAI::DoCounters()
 					ChangeRecentAssistValue(eLoopPlayer, iMin);
 				}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eLoopPlayer))
+				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
 					ChangeVassalProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_PROTECTED_PER_TURN_DECAY());
 					ChangeVassalFailedProtectValue(eLoopPlayer, /*-25*/ -GC.getVASSALAGE_FAILED_PROTECT_PER_TURN_DECAY());
@@ -7880,6 +7880,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (MOD_BALANCE_CORE)
 	{
+		PolicyBranchTypes eAuthority = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true);
+		PolicyBranchTypes eImperialism = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true);
+
 		////////////////////////////////////
 		// War Bonus
 		////////////////////////////////////
@@ -7914,10 +7917,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// If we picked offensive policy trees, war is better for us.
-		PolicyBranchTypes eAuthority = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
-		PolicyBranchTypes eImperialism = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
-		PolicyBranchTypes eIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
-
 		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eAuthority))
 		{
 			iWarBonus++;
@@ -7936,7 +7935,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				iWarBonus += 2;
 			}
 		}
-		if (eIdeology == GC.getPOLICY_BRANCH_AUTOCRACY())
+		if (eMyBranch == GC.getPOLICY_BRANCH_AUTOCRACY())
 		{
 			iWarBonus += 3;
 		}
@@ -11309,7 +11308,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
 		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
-		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
 		
 		if (iNormalSites > 0)
 		{
@@ -16031,7 +16030,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
-	if (IsTeammate(ePlayer) || IsVassal(ePlayer))
+	if (IsTeammate(ePlayer) || IsMaster(ePlayer) || IsVassal(ePlayer))
 		return false;
 
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
@@ -38303,40 +38302,58 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 {
 	int iNumSame = 0;
 	int iNumDifferent = 0;
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
+	int iNumWeHave = 0;
+	int iNumTheyHave = 0;
+
+	for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
 	{
 		PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iPolicyLoop;
-		if(ePolicyBranch != NO_POLICY_BRANCH_TYPE)
+		if (ePolicyBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
-			if(pkPolicyBranchInfo == NULL)
+			if (pkPolicyBranchInfo == NULL)
 			{
 				continue;
 			}
 			//No ideologies.
-			if(pkPolicyBranchInfo->IsPurchaseByLevel())
+			if (pkPolicyBranchInfo->IsPurchaseByLevel())
 			{
 				continue;
 			}
 
 			//We have it and they don't?
-			if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumDifferent++;
+				iNumWeHave++;
 			}
 			//They have it and we don't?
-			else if(!GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			else if (!GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumDifferent++;
+				iNumTheyHave++;
 			}
 			//We both have it?
-			else if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			else if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
 				iNumSame++;
+				iNumWeHave++;
+				iNumTheyHave++;
 			}
 		}
 	}
-	return(iNumSame - iNumDifferent);
+
+	// If one of us has only one branch unlocked and the other has none, count it as 0.
+	if (iNumWeHave == 1 && iNumTheyHave == 0)
+	{
+		return 0;
+	}
+	else if (iNumTheyHave == 1 && iNumWeHave == 0)
+	{
+		return 0;
+	}
+	
+	return (iNumSame - iNumDifferent);
 }
 #endif
 

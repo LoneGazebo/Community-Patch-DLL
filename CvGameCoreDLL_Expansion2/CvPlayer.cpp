@@ -16388,12 +16388,12 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 						CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
 						if (pkEraInfo)
 						{
-							iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+							iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod(); // This value is negative by default!
 						}
 					}
 				}
 
-				iProductionNeeded *= (100 - iTotalEraMod);
+				iProductionNeeded *= (100 + iTotalEraMod);
 				iProductionNeeded /= 100;
 			}
 		}
@@ -16411,12 +16411,12 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 				CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
 				if (pkEraInfo)
 				{
-					iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+					iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod(); // This value is negative by default!
 				}
 			}
 		}
 
-		iProductionNeeded *= (100 - iTotalEraMod);
+		iProductionNeeded *= (100 + iTotalEraMod);
 		iProductionNeeded /= 100;
 	}
 
