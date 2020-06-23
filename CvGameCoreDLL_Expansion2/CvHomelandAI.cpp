@@ -604,6 +604,22 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
 				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
+				//this is stupid but we need extra code for scout healing 
+				if (pUnit->shouldHeal())
+				{
+					CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+					if (!pPlot)
+						pPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
+					if (pPlot)
+					{
+						ExecuteMoveToTarget(pUnit, pPlot, 0, true);
+						if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						continue;
+					}
+				}
+
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -644,6 +660,19 @@ void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
 				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
+				//this is stupid but we need extra code for scout healing 
+				if (pUnit->shouldHeal())
+				{
+					CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+					if (pPlot)
+					{
+						ExecuteMoveToTarget(pUnit, pPlot, 0, true);
+						if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						continue;
+					}
+				}
+
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
