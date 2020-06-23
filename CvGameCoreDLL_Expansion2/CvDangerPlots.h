@@ -164,10 +164,8 @@ public:
 	bool AddKnownAttacker(const CvUnit* pUnit);
 
 	void SetDirty();
-	bool IsDirty() const
-	{
-		return m_bDirty;
-	}
+	bool IsDirty() const { return m_bDirty; }
+	int GetTurnSliceBuilt() const { return m_iTurnSliceBuilt; }
 
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
@@ -188,8 +186,8 @@ protected:
 
 	PlayerTypes m_ePlayer;
 	bool m_bDirty;
-
-	vector<CvDangerPlotContents> m_DangerPlots;
+	int m_iTurnSliceBuilt;
+	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
 };
 

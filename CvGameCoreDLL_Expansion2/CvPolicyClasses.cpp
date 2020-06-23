@@ -4314,6 +4314,33 @@ int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) con
 	return rtnValue;
 }
 
+/// Number of policies purchased in this branch - used for LUA display
+int CvPlayerPolicies::GetNumPoliciesOwnedInBranchForDisplay(PolicyBranchTypes eBranch) const
+{
+	int rtnValue = 0;
+
+	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
+	if (pkPolicyBranchInfo == NULL)
+		return 0;
+
+	// If not an ideology, count the opener.
+	if (!pkPolicyBranchInfo->IsPurchaseByLevel())
+	{
+		rtnValue = (m_pabPolicyBranchUnlocked[eBranch]) ? 1 : 0;
+	}
+
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy? Exclude finishers.
+		if (m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsFinisher() && m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType() == eBranch)
+		{
+			rtnValue++;
+		}
+	}
+
+	return rtnValue;
+}
+
 /// Return the policy data (from XML)
 CvPolicyXMLEntries* CvPlayerPolicies::GetPolicies() const
 {
