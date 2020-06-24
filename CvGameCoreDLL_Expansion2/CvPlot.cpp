@@ -2309,7 +2309,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
+	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
 	{
 		return false;
 	}
