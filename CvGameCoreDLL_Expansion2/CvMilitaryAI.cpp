@@ -1562,7 +1562,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 			CvMilitaryTarget newTarget;
 			if (bInvalidTarget || bWantNewTarget)
 			{
-			int iNewScore = 0;
+				int iNewScore = 0;
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
 				//new target valid?
@@ -2121,47 +2121,54 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if(eMinor != NO_PLAYER)
+		CvPlayer* pMinor = &GET_PLAYER(eMinor);
+		CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		if (MOD_DIPLOMACY_CITYSTATES)
 		{
-			CvPlayer* pMinor = &GET_PLAYER(eMinor);
-			if(pMinor)
+			if(pMinor->GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
 			{
-				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				TeamTypes eConquerorTeam = GET_TEAM(pMinor->getTeam()).GetKilledByTeam();
-
-				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
+				if(target.m_pTargetCity->getOriginalOwner() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
 				{
-					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == target.m_pTargetCity->getOwner())
-					{
-						fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
-						fDesirability /= 100;
-					}
+					fDesirability *= GC.getAI_MILITARY_RECAPTURING_CITY_STATE();
+					fDesirability /= 100;
+				}	
+			}
+		}
+#endif
+		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
+		{
+			if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == target.m_pTargetCity->getOwner())
+			{
+				fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+				fDesirability /= 100;
+			}
+		}
+		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION))
+		{
+			if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
+			{
+				TeamTypes eConquerorTeam = GET_TEAM(pMinor->getTeam()).GetKilledByTeam();	
+				if(eConquerorTeam == target.m_pTargetCity->getTeam())
+				{
+					fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+					fDesirability /= 100;
 				}
-				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION))
-				{
-					if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
-					{
-						if(eConquerorTeam == target.m_pTargetCity->getTeam())
-						{
-							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
-							fDesirability /= 100;
-						}
-					}
-				}
-				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
-				{
-					int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
-					int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+			}
+		}
+		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
+		{
+			int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+			int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
 
-					CvPlot* pPlot = GC.getMap().plot(iX, iY);
-					if(pPlot != NULL && pPlot->isCity())
-					{
-						if(pPlot->getOwner() == target.m_pTargetCity->getOwner())
-						{
-							fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
-							fDesirability /= 100;
-						}
-					}
+			CvPlot* pPlot = GC.getMap().plot(iX, iY);
+			if(pPlot != NULL && pPlot->isCity())
+			{
+				if(pPlot->getOwner() == target.m_pTargetCity->getOwner())
+				{
+					fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+					fDesirability /= 100;
 				}
 			}
 		}
@@ -2243,26 +2250,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-		{
-			PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-			if(eMinor != NO_PLAYER && GET_PLAYER(eMinor).isAlive())
-			{
-				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if(pMinor->GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
-				{
-					if(target.m_pTargetCity->getOriginalOwner() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
-					{
-						fDesirability *= GC.getAI_MILITARY_RECAPTURING_CITY_STATE();
-						fDesirability /= 100;
-					}	
-				}
-			}
-		}
-	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
@@ -2286,9 +2274,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	fDesirability /= 100;
 	
 	// Economic value of target
-	float fEconomicValue = 1.0;
-	fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID() );
-	fEconomicValue = sqrt(fEconomicValue/250);
+	float fEconomicValue =  sqrt( target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / 250.f );
 
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fExposureScore * fDesirability * fEconomicValue);
@@ -2318,6 +2304,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 		return ATTACK_APPROACH_NONE;
 
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
+	//FIXME! we need the distance in the appropriate domain!
 	int iRefDist = m_pPlayer->GetCityDistanceInEstimatedTurns(pCity->plot());
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
@@ -2344,9 +2331,9 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),false) || pLoopPlot->isCity())
 				bBlocked = true;
 
-			//ignore plots which are "behind" the city if it's a foreign city (AI always takes the shortest path)
+			//careful with plots which are "behind" the city if it's a foreign city
 			if (m_pPlayer->GetID() != pCity->getOwner() && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot) > iRefDist)
-				bBlocked = true;
+				bTough = true;
 
 			//ignore plots owned by third parties
 			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pCity->getTeam())
