@@ -4952,8 +4952,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				}
 			}
 		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
+		if(plot.getNumUnits() > 0)
 		{
 			int iPeaceUnits = 0;
 			bool bWarCity = false;
@@ -4967,15 +4966,14 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 				if(loopUnit != NULL)
 				{
-					if(loopUnit->IsCombatUnit() && !loopUnit->isEmbarked())
+					if(loopUnit->IsCombatUnit())
 					{
 						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
 							bWarUnit = true;
 						}
 					}
-					//embarked units count as civilians
-					else if(loopUnit->isEmbarked() || loopUnit->IsCivilianUnit())
+					else if(loopUnit->IsCivilianUnit())
 					{
 						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
@@ -4997,7 +4995,6 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				return NO_TEAM;
 			}
 		}
-#endif
 
 		if(plot.isActiveVisible(false))
 		{
@@ -5021,18 +5018,15 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT
-	const CvUnit* pUnit;
-
 	CvAssert(isHuman());
 
 	if(plot.isActiveVisible(false))
 	{
 		if(canRangeStrikeAt(plot.getX(), plot.getY(), false))
 		{
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
+			if(plot.getNumUnits() > 0)
 			{
-				pUnit = NULL;
+				const CvUnit* pUnit = NULL;
 				int iPeaceUnits = 0;
 				bool bWarCity = false;
 				if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
@@ -5070,9 +5064,8 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 					return NO_TEAM;
 				}
 			}
-#endif
-			pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
+			CvUnit* pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 			if(pUnit != NULL)
 			{
 				return pUnit->getTeam();
@@ -5117,11 +5110,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || !IsCivilianUnit() || plot.needsEmbarkation(this)))
-#else
-	if(iMoveFlags & CvUnit::MOVEFLAG_DESTINATION)
-#endif
+	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && !IsCivilianUnit())
 	{
 		// Don't let another player's unit inside someone's city
 		if((iMoveFlags & CvUnit::MOVEFLAG_ATTACK)==0)
@@ -5130,12 +5119,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 		}
 
-		// Check to see if any units are present at this full-turn move plot (borrowed from CvGameCoreUtils::pathDestValid())
-#if defined(MOD_GLOBAL_STACKING_RULES)
+		// Check to see if any units are present at this full-turn move plot
 		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && plot.getUnitLimit() > 0)
-#else
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) GC.getPLOT_UNIT_LIMIT() > 0)
-#endif
 		{
 			if (!CanStackUnitAtPlot(&plot))
 			{
@@ -6676,7 +6661,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
 	int iRtnValue = 0;
 
-	if ((m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0) && AreUnitsOfSameType(*pEnemy))
+	if ((m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0) && getDomainType()==pEnemy->getDomainType())
 	{
 		// Look at ratio of intrinsic combat strengths
 		CvUnitEntry *pkEnemyInfo = GC.getUnitInfo(pEnemy->getUnitType());
@@ -9939,6 +9924,10 @@ bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
 		}
 
 		int iUnitsThere = pToPlot->countNumAirUnits(getTeam());
+		//don't count ourselves!
+		if (plot() == pToPlot)
+			iUnitsThere--;
+
 		if (iUnitsThere >= pToPlot->getPlotCity()->GetMaxAirUnits())
 		{
 			return false;
@@ -27128,41 +27117,12 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked) const
-{
-	// embarked units are considered the same type, independent of their domain/combat type
-	bool bUnit1isEmbarked = isEmbarked();
-	bool bUnit2isEmbarked = pUnit2.isEmbarked() || bPretendUnit2Embarked;
-
-	//unless civilians may stack
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	{
-		if(IsCivilianUnit())
-		{
-			bUnit1isEmbarked = false;
-		}
-		if(pUnit2.IsCivilianUnit())
-		{
-			bUnit2isEmbarked = false;
-		}
-	}
-#endif
-
-	if(bUnit1isEmbarked && bUnit2isEmbarked)
-	{
-		return true;
-	}
-
-	return CvGameQueries::AreUnitsSameType(getUnitType(), pUnit2.getUnitType());
-}
-//	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
 	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
 }
 
-CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
+CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 {
 	//AI shouldn't swap into a frontline plot
 	if (!isHuman() && swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
@@ -27170,7 +27130,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
-		if (canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
+		if (IsCombatUnit() && canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
 			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
@@ -27199,7 +27159,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if (AreUnitsOfSameType(*pLoopUnit) && pLoopUnit->ReadyToSwap())
+								if (pLoopUnit->IsCombatUnit() && pLoopUnit->ReadyToSwap())
 								{
 									CvPlot* here = plot();
 									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(here->getTeam(),true) && pLoopUnit->ReadyToSwap())
@@ -27443,99 +27403,71 @@ bool CvUnit::canRangeStrike() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanStackUnitAtPlot(const CvPlot* pPlot) const
+int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 {
 	if (!pPlot)
-		return false;
+		return 0;
 
-	//trade is always ok
-	if (isTrade())
-		return true;
+	//this also catches air units!
+	//they have separate checks (canRebaseAt)
+	if (!IsCombatUnit())
+		return 0;
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if (getNumberStackingUnits() == -1)
-		return true;
-#endif
+	if (IsStackingUnit())
+		return 0;
 
 	int iNumUnitsOfSameType = 0;
 
 	CvTeam& kUnitTeam = GET_TEAM(getTeam());
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		const CvUnit*  pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
+		if (pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
 		{
-			//ignore the unit if it's already in the plot
+			// Ignore the unit itself if it's already in the plot
 			if (pLoopUnit == this)
 				continue;
 
-			if (pLoopUnit->getNumberStackingUnits() == -1)
+			// Ignore units with special abilities
+			if (pLoopUnit->IsStackingUnit())
 				continue;
 
 			// Don't include an enemy unit, or else it won't let us attack it :)
 			if (kUnitTeam.isAtWar(pLoopUnit->getTeam()))
 				continue;
 
-			// Units of the same type OR Units belonging to different civs
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*this,pPlot->needsEmbarkation(this))))
-#else
-			if(pUnit->getOwner() != pLoopUnit->getOwner() || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
-#endif
+			// Ignore cargo
+			if (pLoopUnit->isCargo())
+				continue;
+
+			// Combat units are in conflict
+			if (pLoopUnit->IsCombatUnit())
 			{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-				if(!MOD_GLOBAL_STACKING_RULES)
+				//inside of cities mixing domains is ok
+				if (pPlot->isFriendlyCityOrPassableImprovement(getOwner()))
 				{
-					if(!pLoopUnit->isCargo())
-					{
+					if (getDomainType()==pLoopUnit->getDomainType())
 						iNumUnitsOfSameType++;
-					}
 				}
 				else
-				{
-					if(MOD_GLOBAL_STACKING_RULES)
-					{
-						if(!pLoopUnit->isCargo())
-						{
-							if(!pLoopUnit->IsStackingUnit() && !IsStackingUnit())
-							{
-								iNumUnitsOfSameType++;
-							}
-							if(pLoopUnit->IsStackingUnit())
-							{
-								iNumUnitsOfSameType++;
-								// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
-								// Also don't want plot unit limit to be exceeded if we are embarked. Rules are different there strict 1 UPT unless it's a sea improvement that allows it.
-								if(IsStackingUnit() && !isEmbarked())
-								{
-									iNumUnitsOfSameType++;
-								}
-							}
-						}
-					}
-				}
-
-#else
-				// We should allow as many cargo units as we want
-				if(!pLoopUnit->isCargo())
-				{
-					// Unit is the same domain & combat type, not allowed more than the limit
+					//outside of cities domain doesn't matter
 					iNumUnitsOfSameType++;
-				}
-#endif
 			}
 		}
 	}
 
+	return iNumUnitsOfSameType;
+}
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	return iNumUnitsOfSameType < pPlot->getUnitLimit();
-#else
-	return iNumUnitsOfSameType < GC.getPLOT_UNIT_LIMIT();
-#endif
+bool CvUnit::CanStackUnitAtPlot(const CvPlot* pPlot) const
+{
+	if (pPlot)
+		return CountStackingUnitsAtPlot(pPlot) < pPlot->getUnitLimit();
+
+	return false;
 }
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const

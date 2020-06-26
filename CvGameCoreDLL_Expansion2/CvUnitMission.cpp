@@ -622,7 +622,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
 					{
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
-						if(!pUnit2->AreUnitsOfSameType(*hUnit))
+
+						//only combat units need to swap
+						if(!pUnit2->IsCombatUnit())
 							continue;
 
 						if(pUnit2->ReadyToSwap())

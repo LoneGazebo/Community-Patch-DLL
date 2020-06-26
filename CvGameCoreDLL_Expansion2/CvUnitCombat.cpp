@@ -418,9 +418,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = false;
 		}
 #if defined(MOD_UNITS_MAX_HP)
-		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
+		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 #else
-		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
+		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 #endif
 		{
 			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());

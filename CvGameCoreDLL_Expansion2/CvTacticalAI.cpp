@@ -8315,31 +8315,15 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		//neutral units
 		else if (ePlayer != pPlotUnit->getOwner())
 		{
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			if (MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			{
-				//be conservative and don't use the plot even if we maybe could put an embarked unit here
-				if (pPlotUnit->IsCanDefend())
-					bPlotBlocked = true;
-			}
-			else
-#endif
+			//be conservative and don't use the plot even if we maybe could put an embarked unit here
+			if (pPlotUnit->IsCanDefend())
 				bPlotBlocked = true;
 		}
 		//owned units not included in sim
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			if (MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			{
-				//again stacking rules are too complex ... simply ignore the plot
-				//IsCanDefend catches everybody but unembarked civilians
-				//todo: figure out a simple way to allow generals into owned cities with a garrison
-				if (pPlotUnit->IsCanDefend())
-					bPlotBlocked = true;
-			}
-			else
-#endif
+			//todo: figure out a simple way to allow generals into owned cities with a garrison
+			if (pPlotUnit->IsCanDefend())
 				bPlotBlocked = true;
 		}
 		else

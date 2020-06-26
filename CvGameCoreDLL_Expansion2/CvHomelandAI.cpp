@@ -3935,50 +3935,9 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	CHomelandUnitArray::iterator it;
-
-	// Do we have an Apollo program to stay clear of?
-	bool bHaveApolloInCapital = false;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	{
-#endif
-		ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-		if(eApolloProgram != NO_PROJECT)
-		{
-			if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
-			{
-				bHaveApolloInCapital = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	}
-#endif
-	// Do we have a holy city to stay clear of?
-	bool bKeepHolyCityClear = false;
-	CvCity* pHolyCity = NULL;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) 
-	{
-#endif
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if(pMyReligion)
-		{
-			pHolyCity = pMyReligion->GetHolyCity();
-			if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
-			{
-				bKeepHolyCityClear = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	}
-#endif
-
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	std::vector<CvPlot*> vPlotsToAvoid;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4244,44 +4203,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
 				int iNumCommanders = 0;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-				if (bHaveApolloInCapital && pLoopCity->isCapital())
-				{
-					continue;
-				}
-
-				if (bKeepHolyCityClear && pLoopCity == pHolyCity)
-				{
-					continue;
-				}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				}
-#endif
 				// Don't go here if a different general or admiral is already present
 				bool bSkipCity = false;
 				CvPlot* pTarget = pLoopCity->plot();
 				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 				{
 					CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-					if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
-					{
-#endif
-						if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
-						{
-							bSkipCity = true;
-							break;
-						}
-						else if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-						{
-							bSkipCity = true;
-							break;
-						}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-					}
-#endif
 					if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
 					{
 						iNumCommanders++;
@@ -4372,45 +4299,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 /// Moves a great admiral into an important coastal city to aid its defense
 void CvHomelandAI::ExecuteAdmiralMoves()
 {
-	CHomelandUnitArray::iterator it;
-	// Do we have an Apollo program to stay clear of?
-	bool bHaveApolloInCapital = false;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-	if(eApolloProgram != NO_PROJECT)
-	{
-		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
-		{
-			bHaveApolloInCapital = true;
-		}
-	}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-	// Do we have a holy city to stay clear of?
-	bool bKeepHolyCityClear = false;
-	CvCity* pHolyCity = NULL;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
-	{
-#endif
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if(pMyReligion)
-		{
-			pHolyCity = pMyReligion->GetHolyCity();
-			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
-			{
-				bKeepHolyCityClear = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4423,7 +4312,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			ExecuteGoldenAgeMove(pUnit);
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
+
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
@@ -4510,247 +4399,159 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 		}
 
-
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
-#endif
-
-		bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
+			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
 
 			// Score cities to move to
-		CvCity* pLoopCity;
-		int iLoopCity = 0;
-		CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			int iNumCommanders = 0;
-#endif
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-			if (bHaveApolloInCapital && pLoopCity->isCapital())
+			CvCity* pLoopCity;
+			int iLoopCity = 0;
+			CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
+			for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
-				continue;
-			}
-
-			if (bKeepHolyCityClear && pLoopCity == pHolyCity)
-			{
-				continue;
-			}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			}
-#endif
-			if (!pLoopCity->isCoastal())
-			{
-				continue;
-			}
-
-			// Don't go here if a different general or admiral is already present
-			bool bSkipCity = false;
-			CvPlot* pTarget = pLoopCity->plot();
-			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-			{
-				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-				else if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-#else
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-				else if(pLoopUnit->AI_getUnitAIType() == UNITAI_ADMIRAL && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				}
-				if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					iNumCommanders++;
-				}
-#endif
-			}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			int iUnitLoop = 0;
-			int iTotalAdmirals = 0;
-			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-			{
-				if (pLoopUnit != NULL && pLoopUnit->IsGreatAdmiral())
-				{
-					iTotalAdmirals++;
-				}
-			}
-			if(iNumCommanders > 0)
-			{
-				bSkipCity = true;
-			}
-			if(iTotalAdmirals > m_pPlayer->getNumCities())
-			{
-				bSkipCity = false;
-			}
-			if(bSkipCity)
-			{
-				continue;
-			}
-			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot(),false,false,23);
-
-			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-			if (bNotAtFriendlyCity)
-			{
-				if (iTurns == MAX_INT)
+				int iNumCommanders = 0;
+				if (!pLoopCity->isCoastal())
 				{
 					continue;
 				}
-			}
 
-			// Weight is size of largest adjacent ocean
-			int iWeight = pTarget->GetSizeLargestAdjacentWater();
+				// Don't go here if a different general or admiral is already present
+				bool bSkipCity = false;
+				CvPlot* pTarget = pLoopCity->plot();
+				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
+				{
+					CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
+					if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
+					{
+						iNumCommanders++;
+					}
+				}
 
-			// If this city is damaged, divide weight by the damage level
-			if (pLoopCity->getDamage() > 0)
-			{
-				iWeight /= pLoopCity->getDamage();
-			}
-
-			// Subtract off turns to reach
-			if (iTurns != MAX_INT)
-			{
-				iWeight -= iTurns;
-			}
-			if(pLoopCity->HasGarrison())
-			{
-				iWeight *= 2;
-			}
-			if(iNumCommanders > 0)
-			{
-				iWeight /= (iNumCommanders + 1);
-			}
-
-#else
-			if(bSkipCity)
-			{
-				continue;
-			}
-
-			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
-
-			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-			if (bNotAtFriendlyCity)
-			{
-				if (iTurns == MAX_INT)
+				int iUnitLoop = 0;
+				int iTotalAdmirals = 0;
+				for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+				{
+					if (pLoopUnit != NULL && pLoopUnit->IsGreatAdmiral())
+					{
+						iTotalAdmirals++;
+					}
+				}
+				if(iNumCommanders > 0)
+				{
+					bSkipCity = true;
+				}
+				if(iTotalAdmirals > m_pPlayer->getNumCities())
+				{
+					bSkipCity = false;
+				}
+				if(bSkipCity)
 				{
 					continue;
 				}
-			}
+				int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot(),false,false,23);
 
-			// Weight is size of largest adjacent ocean
-			int iWeight = pTarget->GetSizeLargestAdjacentWater();
-
-			// If this city is damaged, divide weight by the damage level
-			if (pLoopCity->getDamage() > 0)
-			{
-				iWeight /= pLoopCity->getDamage();
-			}
-
-			// Subtract off turns to reach
-			if (iTurns != MAX_INT)
-			{
-				iWeight -= iTurns;
-			}
-#endif
-
-			weightedCityList.push_back(pLoopCity, iWeight);
-		}
-
-		weightedCityList.SortItems();
-		if (weightedCityList.size() > 0)
-		{
-			CvCity *pChosenCity = weightedCityList.GetElement(0);
-
-			// Am I already in chosen city?
-			if (pUnit->plot() == pChosenCity->plot())
-			{
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
+				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
+				if (bNotAtFriendlyCity)
 				{
-					CvString strLogString;
-					strLogString.Format("Great Admiral still in most favored city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
-					LogHomelandMessage(strLogString);
+					if (iTurns == MAX_INT)
+					{
+						continue;
+					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				continue;
-#endif
+
+				// Weight is size of largest adjacent ocean
+				int iWeight = pTarget->GetSizeLargestAdjacentWater();
+
+				// If this city is damaged, divide weight by the damage level
+				if (pLoopCity->getDamage() > 0)
+				{
+					iWeight /= pLoopCity->getDamage();
+				}
+
+				// Subtract off turns to reach
+				if (iTurns != MAX_INT)
+				{
+					iWeight -= iTurns;
+				}
+				if(pLoopCity->HasGarrison())
+				{
+					iWeight *= 2;
+				}
+				if(iNumCommanders > 0)
+				{
+					iWeight /= (iNumCommanders + 1);
+				}
+
+				weightedCityList.push_back(pLoopCity, iWeight);
 			}
+
+			weightedCityList.SortItems();
+			if (weightedCityList.size() > 0)
+			{
+				CvCity *pChosenCity = weightedCityList.GetElement(0);
+
+				// Am I already in chosen city?
+				if (pUnit->plot() == pChosenCity->plot())
+				{
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Great Admiral still in most favored city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
 			
-			// Am I currently in a different friendly city?
-			else if (!bNotAtFriendlyCity)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_CHANGE_ADMIRAL_PORT(), pChosenCity->getX(), pChosenCity->getY());
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
+				// Am I currently in a different friendly city?
+				else if (!bNotAtFriendlyCity)
 				{
-					CvString strLogString;
-					strLogString.Format("Transferring Great Admiral to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
-					LogHomelandMessage(strLogString);
-				}
-#if defined(MOD_BALANCE_CORE)
-				continue;
-#endif
-			}
+					pUnit->PushMission(CvTypes::getMISSION_CHANGE_ADMIRAL_PORT(), pChosenCity->getX(), pChosenCity->getY());
+					UnitProcessed(pUnit->GetID());
 
-			// Move normally to this city
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Transferring Great Admiral to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
+
+				// Move normally to this city
+				else
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
+			}
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 				UnitProcessed(pUnit->GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+					strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-#if defined(MOD_BALANCE_CORE)	
-				continue;
-#endif
-			}
-		}
-		else
-		{
-			UnitProcessed(pUnit->GetID());
 
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
+				continue;
 			}
-#if defined(MOD_BALANCE_CORE)
-			continue;
-#endif
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		}
-#endif
 	}
 }
 

@@ -570,7 +570,6 @@ public:
 	void endTurnTimerSemaphoreIncrement();
 	void endTurnTimerSemaphoreDecrement();
 	void endTurnTimerReset();
-	bool AreUnitsSameType(UnitTypes eFirstUnitType, UnitTypes eSecondUnitType);
 
 	void DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, bool bProtect, bool bPledgeNowBroken = false);
 	void DoMinorGiftGold(PlayerTypes eMinor, int iNumGold);

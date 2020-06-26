@@ -14177,7 +14177,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		{
 			CvUnit* pNewUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
 			// see if there is an open spot to put him - no over-stacking allowed!
-			if(pNewUnit && pUnit && pUnit->AreUnitsOfSameType(*pNewUnit))  // pUnit isn't in this plot yet (if it even exists) so we can't check on if we are over-stacked directly
+			if(pNewUnit && pUnit && pNewUnit->IsCombatUnit())  
 			{
 				pBestPlot = NULL;
 				iBestValue = INT_MAX;

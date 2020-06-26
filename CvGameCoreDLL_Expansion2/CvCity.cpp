@@ -30753,7 +30753,7 @@ int CvCity::getProjectCount(ProjectTypes eProject) const
 	return m_aiNumProjects[eProject];
 }
 
-bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitType, CvUnitEntry* pkUnitInfo)
+bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkUnitInfo)
 {
 	if (!pPlot->isValidMovePlot(ePlayer))
 		return false;
@@ -30778,7 +30778,6 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitT
 	if (!bAccept)
 		return false;
 
-	bool bCanPlace = true;
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
@@ -30786,14 +30785,14 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitT
 		if(pLoopUnit != NULL)
 		{
 			// check stacking
-			if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
-				bCanPlace = false;
+			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCombatUnit())
+				return false;
 		}
 
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 	}
 	
-	return bCanPlace;
+	return true;
 }
 
 CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
@@ -30822,7 +30821,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		if (pPlot == NULL)
 			continue;
 
-		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
+		if (IsValidPlotForUnitType(pPlot,getOwner(),pkUnitInfo))
 			validChoices.push_back(pPlot);
 	}
 
@@ -30855,7 +30854,7 @@ bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
 		if (!pPlot)
 			continue;
 
-		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
+		if (IsValidPlotForUnitType(pPlot,getOwner(),pkUnitInfo))
 			return true;
 	}
 

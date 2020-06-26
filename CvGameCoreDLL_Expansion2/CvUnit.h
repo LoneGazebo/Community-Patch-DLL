@@ -1720,10 +1720,10 @@ public:
 
 	int GetPower() const;
 
-	bool AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked = false) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
+	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
 
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
@@ -1764,12 +1764,10 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	inline bool IsCivilianUnit() const
 	{
 		return !(IsCombatUnit() || isRanged());
 	}
-#endif
 
 	// Combat eligibility routines
 	inline bool IsCombatUnit() const

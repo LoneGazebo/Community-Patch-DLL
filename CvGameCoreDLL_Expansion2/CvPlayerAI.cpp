@@ -2526,19 +2526,9 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
 		if(bRightOwner && bIsRevealed)
 		{
-			if(pLoopPlot->getNumUnits() <= 0)
-			{
-				pBestTarget = pLoopPlot;
-				break;
-			}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			else if(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			{
-				pBestTarget = pLoopPlot;
-				break;
-			}
+			pBestTarget = pLoopPlot;
+			break;
 		}
-#endif
 	}
 
 	//remember this city

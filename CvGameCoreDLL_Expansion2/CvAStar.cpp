@@ -1381,11 +1381,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritoryPermanent)
 				return FALSE;
 
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if(!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || pCacheData->m_bCanAttack)
-#else
-			if(true)
-#endif
+			if(pCacheData->m_bCanAttack)
 			{
 				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;
