@@ -29614,7 +29614,7 @@ bool CvUnit::IsCanAttackWithMoveNow() const
 
 //	--------------------------------------------------------------------------------
 // Unit able to fight back when attacked?
-//  ignores embarked units!
+// Note that this does not check whether a unit may enter a plot at all and whether it must embark to do so.
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 {
@@ -29631,11 +29631,6 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 	}
 
 	if(isDelayedDeath())
-	{
-		return false;
-	}
-
-	if(!isNativeDomain(pPlot))
 	{
 		return false;
 	}
