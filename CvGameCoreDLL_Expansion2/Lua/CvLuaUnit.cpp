@@ -1032,10 +1032,10 @@ int CvLuaUnit::lCanAutomate(lua_State* L)
 int CvLuaUnit::lCanRebaseAt(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	//CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	const int iX = lua_tointeger(L, 3);
 	const int iY = lua_tointeger(L, 4);
-	const bool bResult = pkUnit->canRebaseAt(pkPlot,iX,iY);
+	const bool bResult = pkUnit->canRebaseAt(iX,iY);
 
 	lua_pushboolean(L, bResult);
 	return 1;

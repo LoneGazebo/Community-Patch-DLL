@@ -4771,7 +4771,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	if (m_CurrentMoveUnits.empty())
 		return;
 	
-	int iTargetRange = 6; //basic aircraft and guided missile range
 	int nAirUnitsInCarriers = 0;
 	int nAirUnitsInCities = 0;
 	int nSlotsInCarriers = 0;
@@ -4833,7 +4832,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID(), iTargetRange );
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID() );
 			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
 			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
@@ -4844,7 +4843,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID(), iTargetRange );
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID() );
 		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
 		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
@@ -4907,7 +4906,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					continue;
 
 				//see if we can rebase there directly
-				if (pUnit->canRebaseAt(pUnit->plot(),it->pPlot->getX(),it->pPlot->getY()))
+				if (pUnit->canRebaseAt(it->pPlot->getX(),it->pPlot->getY()))
 				{
 					pNewBase = it->pPlot;
 					break;
@@ -4994,7 +4993,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 
 			//see if we can rebase there directly
-			if (pUnit->canRebaseAt(pUnit->plot(),it->pPlot->getX(),it->pPlot->getY()))
+			if (pUnit->canRebaseAt(it->pPlot->getX(),it->pPlot->getY()))
 			{
 				pNewBase = it->pPlot;
 				break;
@@ -6301,9 +6300,9 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 	return true;
 }
 
-int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int iRange)
+int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 {
-	if (!pBasePlot || iRange<0)
+	if (!pBasePlot || ePlayer==NO_PLAYER)
 		return false;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -6351,10 +6350,6 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
-		// Is this target near enough?
-		if(plotDistance(pBasePlot->getX(), pBasePlot->getY(), allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY()) > iRange)
-			continue;
-
 		// Is the target of an appropriate type?
 		switch (allTargets[iI].GetTargetType())
 		{

@@ -1103,7 +1103,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_REBASE())
 	{
-		if(hUnit->canRebaseAt(pPlot, iData1, iData2))
+		if(hUnit->canRebaseAt(iData1, iData2))
 		{
 			return true;
 		}

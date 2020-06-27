@@ -5200,7 +5200,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		else
 		{
 			//just a failsafe, aircraft do range attacks when moving and move by rebasing ...
-			if (!canRebaseAt(NULL,plot.getX(),plot.getY()))
+			if (!canRebaseAt(plot.getX(),plot.getY()))
 			{
 				return false;
 			}
@@ -5470,6 +5470,24 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
 		return true;
 
+	if (getDomainType() == DOMAIN_AIR)
+	{
+		int iLoopCity;
+		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+		{
+			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner()) > 0)
+			{
+				rebase(pLoopCity->getX(), pLoopCity->getY());
+				return true;
+			}
+		}
+
+		if (GC.getLogging() && GC.getAILogging())
+			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage("failed to find a valid plot for air unit");
+
+		return false;
+	}
+
 	//remember we're calling this because the unit is trapped, so use the stepfinder
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 12);
 	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
@@ -5562,6 +5580,7 @@ bool CvUnit::jumpToNearestValidPlot()
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
 			disembark(plot());
+
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 		return true;
 	}
@@ -9835,8 +9854,16 @@ bool CvUnit::canRebase() const
 	return true;
 }
 
+int CvUnit::getRebaseRange() const
+{
+	if (canRebase())
+		return (GetRange() * GC.getAIR_UNIT_REBASE_RANGE_MULTIPLIER()) / 100;
+
+	return 0;
+}
+
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
+bool CvUnit::canRebaseAt(int iXDest, int iYDest) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
 	if(!canRebase())
@@ -9845,37 +9872,12 @@ bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
 	}
 
 	CvPlot* pToPlot = GC.getMap().plot(iXDest, iYDest);
-
-	// Null plot...
 	if(pToPlot == NULL)
 	{
 		return false;
 	}
 
-	// Cannot rebase if we're already there
-	if(pToPlot == pStartPlot)
-	{
-		return false;
-	}
-
-	// If no startplot is given, use the current plot
-	if (pStartPlot == NULL)
-	{
-		pStartPlot = plot();
-	}
-
-	// too far
-	int iRange = GetRange();
-	iRange *= /*200*/ GC.getAIR_UNIT_REBASE_RANGE_MULTIPLIER();
-	iRange /= 100;
-
-	if(plotDistance(pStartPlot->getX(), pStartPlot->getY(), iXDest, iYDest) > iRange)
-	{
-		return false;
-	}
-
-	// Can't load to the target plot
-	if(!canLoad(*pToPlot))
+	if(plotDistance(getX(), getY(), iXDest, iYDest) > getRebaseRange())
 	{
 		return false;
 	}
@@ -10018,7 +10020,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::rebase(int iX, int iY)
 {
-	if(!canRebaseAt(plot(), iX, iY))
+	if(!canRebaseAt(iX, iY))
 	{
 		return false;
 	}
@@ -11379,6 +11381,11 @@ bool CvUnit::CanRemoveHeresy(const CvPlot* pPlot) const
 		return false;
 	}
 
+	if(isDelayedDeath())
+	{
+		return false;
+	}
+
 	if(GetReligionData()->GetReligion() == NO_RELIGION)
 	{
 		return false;
@@ -11400,16 +11407,6 @@ bool CvUnit::CanRemoveHeresy(const CvPlot* pPlot) const
 	}
 
 	if(!pCity->GetCityReligions()->IsReligionHereOtherThan(GetReligionData()->GetReligion()))
-	{
-		return false;
-	}
-
-	if (pCity->GetCityReligions()->GetFollowersOtherReligions(GetReligionData()->GetReligion()) <= 0)
-	{
-		return false;
-	}
-
-	if(isDelayedDeath())
 	{
 		return false;
 	}

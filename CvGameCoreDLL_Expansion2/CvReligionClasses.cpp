@@ -10732,8 +10732,9 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 	if (!pMyReligion)
 		return 0;
 
+	//Inquisition reduces population so don't be overly zeleaous here
 	int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
-	int iThreshold = pCity->getPopulation() / 3;
+	int iThreshold = max(3,pCity->getPopulation()/3);
 
 	//Looking to remove heresy?
 	if (iNumOtherFollowers>iThreshold)
