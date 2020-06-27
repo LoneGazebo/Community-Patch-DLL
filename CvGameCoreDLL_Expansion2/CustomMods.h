@@ -74,6 +74,9 @@
 /// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
 //#define MOD_CORE_TWO_PASS_DANGER
 
+/// define this if you need hovercraft support, but it costs performance
+//#define MOD_CORE_HOVERING_UNITS
+
 /// unrevealed plots are impassable instead of passable by default
 #define MOD_CORE_UNREVEALED_IMPASSABLE
 

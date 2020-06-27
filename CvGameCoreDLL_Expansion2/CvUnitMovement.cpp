@@ -389,7 +389,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}
@@ -486,7 +486,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}

@@ -18294,8 +18294,11 @@ void CvUnit::ChangeRoughTerrainEndsTurnCount(int iValue)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHoveringUnit() const
 {
-	VALIDATE_OBJECT
+#if defined (MOD_CORE_HOVERING_UNITS)
 	return (GetHoveringUnitCount()>0) || (getDomainType()==DOMAIN_HOVER);
+#else
+	return false;
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -588,6 +588,8 @@ public:
 	bool IsImprovementEmbassy() const;
 	void SetImprovementEmbassy(bool bEmbassy);
 #endif
+	bool IsImprovementPassable() const;
+	void SetImprovementPassable(bool bPassable);
 	bool IsImprovementPillaged() const;
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	void SetImprovementPillaged(bool bPillaged, bool bEvents = true);
@@ -1135,6 +1137,7 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool m_bImprovementEmbassy:1;
 #endif
+	bool m_bImprovementPassable:1;
 	bool m_bImprovementPillaged:1;
 	bool m_bRoutePillaged:1;
 	bool m_bStartingPlot:1;

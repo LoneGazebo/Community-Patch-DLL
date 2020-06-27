@@ -243,6 +243,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bPotentialCityWork = false;
 	m_bPlotLayoutDirty = false;
 	m_bLayoutStateWorked = false;
+	m_bImprovementPassable = false;
 	m_bImprovementPillaged = false;
 	m_bRoutePillaged = false;
 	m_bBarbCampNotConverting = false;
@@ -4333,14 +4334,7 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 {
 	bool bIsCityOrPassable = isCity();
 	if (MOD_GLOBAL_PASSABLE_FORTS)
-	{
-		if (!IsImprovementPillaged())
-		{
-			ImprovementTypes eImprovement = getRevealedImprovementType(GET_PLAYER(ePlayer).getTeam());
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			bIsCityOrPassable |= (pkImprovementInfo && pkImprovementInfo->IsMakesPassable());
-		}
-	}
+		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged());
 
 	// Not a city or a fort
 	if (!bIsCityOrPassable)
@@ -7996,6 +7990,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #endif
+				//remember this to improve pathfinding performance
+				SetImprovementPassable(newImprovementEntry.IsMakesPassable());
 
 				// Maintenance
 				if(MustPayMaintenanceHere(owningPlayerID))
@@ -8032,8 +8028,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
 				}
-#endif
-#if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement();
@@ -8489,19 +8483,21 @@ bool CvPlot::IsImprovementEmbassy() const
 //	--------------------------------------------------------------------------------
 void CvPlot::SetImprovementEmbassy(bool bEmbassy)
 {
-	bool bWasEmbassy = m_bImprovementEmbassy;
-
-	if(bEmbassy != bWasEmbassy)
-	{
-		m_bImprovementEmbassy = bEmbassy;
-	}
-
-	if(bWasEmbassy != m_bImprovementEmbassy)
-	{
-		setLayoutDirty(true);
-	}
+	m_bImprovementEmbassy = bEmbassy;
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsImprovementPassable() const
+{
+	return m_bImprovementPassable;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetImprovementPassable(bool bPassable)
+{
+	m_bImprovementPassable = bPassable;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementPillaged() const
@@ -12769,6 +12765,8 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> bitPackWorkaround;
 	m_bPotentialCityWork = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
+	m_bImprovementPassable = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
 	m_bImprovementPillaged = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bRoutePillaged = bitPackWorkaround;
@@ -12968,6 +12966,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bWOfRiver;
 	kStream << m_bNWOfRiver;
 	kStream << m_bPotentialCityWork;
+	kStream << m_bImprovementPassable;
 	kStream << m_bImprovementPillaged;
 	kStream << m_bRoutePillaged;
 	kStream << m_bBarbCampNotConverting;
