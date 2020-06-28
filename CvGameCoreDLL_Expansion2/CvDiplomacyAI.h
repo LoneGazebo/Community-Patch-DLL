@@ -743,7 +743,6 @@ public:
 	void SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
@@ -755,16 +754,11 @@ public:
 	int GetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
-#endif
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
 	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iValue);
-#if defined(MOD_API_EXTENSIONS)
 	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
-#else
-	void ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iChange);
-#endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -1954,15 +1948,11 @@ private:
 		char m_aiOtherPlayerNumMinorsConquered[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
+		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 
-#if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
 		char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
-		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
-#else
-		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
-#endif
 
 		short m_aiOtherPlayerTurnsSinceWeLikedTheirProposal[MAX_MAJOR_CIVS];
 		short m_aiOtherPlayerTurnsSinceWeDislikedTheirProposal[MAX_MAJOR_CIVS];
@@ -2334,14 +2324,11 @@ private:
 	char* m_paiOtherPlayerNumMinorsConquered;
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
-#if defined(MOD_API_EXTENSIONS)
+	int* m_paiOtherPlayerWarmongerAmountTimes100;
+
 	char* m_paiTheyPlottedAgainstUs;
 	char* m_paiTheyLoweredOurInfluence;
 	char* m_paiPerformedCoupAgainstUs;
-	int*  m_paiOtherPlayerWarmongerAmountTimes100;
-#else
-	int*  m_paiOtherPlayerWarmongerAmount;
-#endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;
 	short* m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal;
