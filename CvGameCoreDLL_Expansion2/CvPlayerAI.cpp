@@ -732,7 +732,7 @@ void CvPlayerAI::AI_considerAnnex()
 
 	if (bCourthouseImprovement)
 	{
-		fCutoffValue = GC.getAGGRESIVE_ANNEX();
+		fCutoffValue = GC.getAGGRESSIVE_ANNEX();
 	}
 
 	uint uiCutOff = (uint)(aCityAndProductions.size() * fCutoffValue);
