@@ -16382,7 +16382,7 @@ bool CvCity::IsOriginalMinorCapital() const
 {
 	VALIDATE_OBJECT
 
-		PlayerTypes ePlayer;
+	PlayerTypes ePlayer;
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		ePlayer = (PlayerTypes)iPlayerLoop;
@@ -16391,6 +16391,24 @@ bool CvCity::IsOriginalMinorCapital() const
 		{
 			return true;
 		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+/// Was this city a player's original capital?
+bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+
+	if (ePlayer <= NO_PLAYER || ePlayer >= BARBARIAN_PLAYER)
+		return false;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
+	{
+		return true;
 	}
 
 	return false;

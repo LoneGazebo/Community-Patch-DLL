@@ -346,9 +346,7 @@ public:
 	void DoUpdateWarGoals();
 
 	// Num Turns At War
-#if defined(MOD_API_EXTENSIONS)
 	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
-#endif
 	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
@@ -743,7 +741,6 @@ public:
 	void SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
@@ -755,16 +752,11 @@ public:
 	int GetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
-#endif
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
 	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iValue);
-#if defined(MOD_API_EXTENSIONS)
 	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
-#else
-	void ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iChange);
-#endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -1384,12 +1376,12 @@ public:
 	void SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const;
-	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
 	void SetNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iValue);
+	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
 
 	int GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const;
-	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
 	void SetNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iValue);
+	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
 	int GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const;
@@ -1428,49 +1420,47 @@ public:
 	void SetResurrectedBy(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumTimesCultureBombed(PlayerTypes ePlayer) const;
-	void ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange);
 
 	int GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const;
-	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
 	void SetNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iValue);
+	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
 
 	int GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const;
-	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 	void SetNegativeArchaeologyPoints(PlayerTypes ePlayer, int iValue);
+	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	bool HasPlayerEverConvertedCity(PlayerTypes ePlayer) const;
 	void SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue);
 	
 	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
-	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
+	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 
 	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
-	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
-	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesRazed(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
-	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
 	void SetNumTradeRoutesPlundered(PlayerTypes ePlayer, int iValue);
-#endif
+	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesNuked(PlayerTypes ePlayer) const;
-	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesNuked(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesRobbedBy(PlayerTypes ePlayer) const;
-	void ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesRobbedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesIntrigueSharedBy(PlayerTypes ePlayer) const;
-	void ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Opinion modifiers
@@ -1954,15 +1944,11 @@ private:
 		char m_aiOtherPlayerNumMinorsConquered[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
+		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 
-#if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
 		char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
-		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
-#else
-		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
-#endif
 
 		short m_aiOtherPlayerTurnsSinceWeLikedTheirProposal[MAX_MAJOR_CIVS];
 		short m_aiOtherPlayerTurnsSinceWeDislikedTheirProposal[MAX_MAJOR_CIVS];
@@ -2334,14 +2320,11 @@ private:
 	char* m_paiOtherPlayerNumMinorsConquered;
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
-#if defined(MOD_API_EXTENSIONS)
+	int* m_paiOtherPlayerWarmongerAmountTimes100;
+
 	char* m_paiTheyPlottedAgainstUs;
 	char* m_paiTheyLoweredOurInfluence;
 	char* m_paiPerformedCoupAgainstUs;
-	int*  m_paiOtherPlayerWarmongerAmountTimes100;
-#else
-	int*  m_paiOtherPlayerWarmongerAmount;
-#endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;
 	short* m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal;
@@ -2375,17 +2358,11 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
-#if defined(MOD_CONFIG_AI_IN_XML)
 	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
 	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
-#else
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
-#endif
 }
 
 #endif //CIV5_AI_DIPLOMACY_H
