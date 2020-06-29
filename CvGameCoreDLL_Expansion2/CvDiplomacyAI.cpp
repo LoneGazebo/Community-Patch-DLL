@@ -13934,51 +13934,44 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 	}
 }
 
-#if defined(MOD_API_EXTENSIONS)
 /// How many turns have we been at war with this Team?
 int CvDiplomacyAI::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
 {
-	CvAssertMsg(eTeam >= 0, "DIPLOMACY_AI: Invalid Team Index.");
-	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;
+
 	int iMaxTurns = 0;
-	
-	for (int i = 0; i < MAX_CIV_PLAYERS; ++i) {
-		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		if (kPlayer.isAlive() && kPlayer.getTeam() == eTeam) {
-			iMaxTurns = std::max(iMaxTurns, (int) m_paiPlayerNumTurnsAtWar[ePlayer]);
+
+	vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
+	for (size_t i = 0; i < vTeamPlayers.size(); i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) vTeamPlayers[i];
+		if (GET_PLAYER(ePlayer).isAlive() && GetPlayerNumTurnsAtWar(ePlayer) > iMaxTurns)
+		{
+			iMaxTurns = GetPlayerNumTurnsAtWar(ePlayer);
 		}
 	}
 	
 	return iMaxTurns;
 }
-#endif
 
 /// How many turns have we been at war with this player?
 int CvDiplomacyAI::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_paiPlayerNumTurnsAtWar[ePlayer];
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return (int) m_paiPlayerNumTurnsAtWar[(int)ePlayer];
 }
 
 /// Sets how many turns we've been at war with this player
 void CvDiplomacyAI::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting PlayerNumTurnsAtWar to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	m_paiPlayerNumTurnsAtWar[ePlayer] = iValue;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_paiPlayerNumTurnsAtWar[(int)ePlayer] = iValue;
 }
 
 /// Sets how many turns we've been at war with this player
 void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
 {
-	if(iChange != 0)
-	{
-		SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
-	}
+	SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -15550,7 +15543,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 			}
 
 			// Skip updating the logs if threat is zero and nothing has changed
-			if (!bUpdateLogsSpecial && eThreat == THREAT_NONE && GetOtherPlayerWarmongerAmount(eLoopPlayer) == 0)
+			if (!bUpdateLogsSpecial && eThreatType == THREAT_NONE && GetOtherPlayerWarmongerAmount(eLoopPlayer) == 0)
 				continue;
 
 			LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);

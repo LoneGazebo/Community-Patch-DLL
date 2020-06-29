@@ -12691,7 +12691,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
 		if (iValue != 0)
 		{
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
 #else
 			if (pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
@@ -12722,7 +12722,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 // Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
 #else
@@ -13313,8 +13313,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOLEN_ARTIFACTS");
 		aOpinions.push_back(kOpinion);
 	}
-	
-#if defined(MOD_BALANCE_CORE)
+
 	iValue = pDiploAI->GetTradeRoutesPlunderedScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13341,7 +13340,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
 		aOpinions.push_back(kOpinion);
 	}
-#endif
 	
 	iValue = pDiploAI->GetTimesIntrigueSharedScore(eWithPlayer);
 	if (iValue != 0)
@@ -13588,7 +13586,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) 
 	{
 		// They are my vassal
@@ -14158,7 +14156,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// Hide the (0) for white (neutral) modifiers if players find it annoying enough to disable it
 		if (!pDiploAI->IsHideNeutralOpinionValues() || (pDiploAI->IsHideNeutralOpinionValues() && (aOpinions[ui].m_iValue != 0)))
 		{
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches() || pDiploAI->IsShowOpinionValues())
 			{
 				CvString strTemp;
@@ -14168,14 +14166,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				strOutput += strTemp;
 			}
 #else
-			if (pDiploAI->IsAlwaysShowTrueApproaches())
-		{
-			CvString strTemp;
-			// Reverse the value of the opinion so as to not confuse players
-			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+			if (pDiploAI->IsAlwaysShowTrueApproaches() || pDiploAI->IsShowOpinionValues())
+			{
+				CvString strTemp;
+				// Reverse the value of the opinion so as to not confuse players
+				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
 
-			strOutput += strTemp;
-		}
+				strOutput += strTemp;
+			}
 #endif
 		}
 
