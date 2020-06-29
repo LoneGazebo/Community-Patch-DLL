@@ -49486,7 +49486,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 				{
 					iWarmongerModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 				}
-				else if (GET_TEAM(kConqueringPlayer.getTeam()).IsVassal(GET_PLAYER(eMajor).getTeam()))
+				else if (GET_TEAM(kConqueredPlayer.getTeam()).IsVassal(GET_PLAYER(eMajor).getTeam()))
 				{
 					iWarmongerModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 				}
