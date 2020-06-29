@@ -15549,6 +15549,10 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				bUpdateLogsSpecial = true;
 			}
 
+			// Skip updating the logs if threat is zero and nothing has changed
+			if (!bUpdateLogsSpecial && eThreat == THREAT_NONE && iThreatValue == 0)
+				continue;
+
 			LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);
 		}
 	}
