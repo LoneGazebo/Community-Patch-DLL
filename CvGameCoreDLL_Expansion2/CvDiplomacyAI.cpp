@@ -2559,7 +2559,7 @@ bool CvDiplomacyAI::IsHasEmbassy(PlayerTypes eOtherPlayer) const
 /// Helper function to determine if we have permission to cross a player's borders
 bool CvDiplomacyAI::HavePermissionToCrossBorders(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv())
 	{
