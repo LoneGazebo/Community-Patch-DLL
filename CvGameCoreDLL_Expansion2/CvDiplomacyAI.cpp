@@ -48954,7 +48954,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * 10);
+			int iWarmongerModifier = 200 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * 10);
 
 			// INCREASE if he's big and nasty, less so if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
@@ -48974,7 +48974,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= (100 + iWarmongerModifier);
+			iWarmongerValue *= iWarmongerModifier;
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
@@ -48989,7 +48989,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * 10);
+			int iWarmongerModifier = 200 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * 10);
 
 			// INCREASE if he's big and nasty, less so if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
@@ -49009,7 +49009,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= (100 + iWarmongerModifier);
+			iWarmongerValue *= iWarmongerModifier;
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
@@ -49024,7 +49024,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * 25);
+			int iWarmongerModifier = 200 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * 25);
 
 			// INCREASE if he's big and nasty, less so if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
@@ -49044,7 +49044,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= (100 + iWarmongerModifier);
+			iWarmongerValue *= iWarmongerModifier;
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
