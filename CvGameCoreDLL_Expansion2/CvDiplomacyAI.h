@@ -59,8 +59,8 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
-	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
 #if !defined(MOD_ACTIVE_DIPLOMACY)
+	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
 	enum DiplomacyPlayerType
 	{
 		DIPLO_FIRST_PLAYER		=  0,
@@ -78,6 +78,10 @@ public:
 		int iGoldAmount;
 	};
 
+	// ************************************
+	// Initialization & Serialization
+	// ************************************
+
 	CvDiplomacyAI(void);
 	~CvDiplomacyAI(void);
 	void Init(CvPlayer* pPlayer);
@@ -85,7 +89,6 @@ public:
 	void Reset();
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
-
 	void update();
 
 	// ************************************
@@ -109,7 +112,7 @@ public:
 	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
 	bool IsHasEmbassy(PlayerTypes eOtherPlayer) const;
-	bool HavePermissionToCrossBorders(PlayerTypes eOtherPlayer) const;
+	bool IsHasOpenBorders(PlayerTypes eOtherPlayer) const;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassal(PlayerTypes eOtherPlayer) const;
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
@@ -147,6 +150,13 @@ public:
 	bool IsDiplomat() const;
 	bool IsCultural() const;
 	bool IsScientist() const;
+
+	// ************************************
+	// Memory Management
+	// ************************************
+
+
+
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
