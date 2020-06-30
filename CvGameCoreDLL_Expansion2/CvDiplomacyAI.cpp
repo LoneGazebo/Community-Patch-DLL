@@ -15520,7 +15520,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				eThreatType = THREAT_MINOR;
 
 			// Also test % of players killed (in case we're on a map with very few players or something)
-			int iNumPlayersEver = GC.getGame().countMajorCivsEverAlive() <= 4;
+			int iNumPlayersEver = GC.getGame().countMajorCivsEverAlive();
 			int iNumPlayersKilled = GetOtherPlayerNumMajorsConquered(eLoopPlayer) + (GetOtherPlayerNumMinorsConquered(eLoopPlayer)/2);
 
 			if (eThreatType != THREAT_CRITICAL && iNumPlayersEver <= 4 && iNumPlayersKilled > 0)
@@ -15561,32 +15561,27 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 /// Updates our desire to make Research Agreements and Defensive Pacts with all players
 void CvDiplomacyAI::DoUpdatePlanningExchanges()
 {
-	//int iRandRoll;
-	//int iThreshold;
-
-	PlayerTypes eLoopPlayer;
-	int iPlayerLoop;
-
 	int iNumRAsWanted = GetNumResearchAgreementsWanted();
 
-	if (GET_TEAM(GetPlayer()->getTeam()).IsResearchAgreementTradingAllowed() && !GetPlayer()->IsAITeammateOfHuman())
+	if (GET_TEAM(GetTeam()).IsResearchAgreementTradingAllowed() && !GetPlayer()->IsAITeammateOfHuman())
 	{
 		// Loop through all (known) Players
-		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
 			if (IsPlayerValid(eLoopPlayer))
 			{
 				// RESEARCH AGREEMENT
 				// Do we already have a RA?
-				if (!GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eLoopPlayer).getTeam()))
+				if (!IsHasResearchAgreement(eLoopPlayer))
 				{
 					// If we're Friendly and have the appropriate Tech, there's a chance we want to make a Research Agreement
 					if (!IsWantsResearchAgreementWithPlayer(eLoopPlayer))
 					{
-						if (GET_TEAM(GetPlayer()->getTeam()).IsResearchAgreementTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-							GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsResearchAgreementTradingAllowedWithTeam(GetPlayer()->getTeam())) // They have Tech & embassy to make RA
+						if (GET_TEAM(GetTeam()).IsResearchAgreementTradingAllowedWithTeam(eLoopTeam) ||	   // We have Tech & embassy to make a RA
+							GET_TEAM(eLoopTeam).IsResearchAgreementTradingAllowedWithTeam(GetTeam())) // They have Tech & embassy to make RA
 						{
 							DoAddWantsResearchAgreementWithPlayer(eLoopPlayer);
 							iNumRAsWanted++;
@@ -15602,8 +15597,8 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 					{
 						bCancel = true;
 					}
-					else if (!(GET_TEAM(GetPlayer()->getTeam()).IsResearchAgreementTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsResearchAgreementTradingAllowedWithTeam(GetPlayer()->getTeam()))) // They have Tech & embassy to make RA
+					else if (!(GET_TEAM(GetTeam()).IsResearchAgreementTradingAllowedWithTeam(eLoopTeam) ||	   // We have Tech & embassy to make a RA
+						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsResearchAgreementTradingAllowedWithTeam(GetTeam()))) // They have Tech & embassy to make RA
 					{
 						bCancel = true;
 					}
@@ -15618,9 +15613,9 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	}
 	
 	// Loop through all (known) Players and clear our desire to make a DoF, if present.
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		if (!IsPlayerValid(eLoopPlayer))
 			continue;
@@ -15640,13 +15635,12 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		eNextBestDoF = GetNextBestDoF();
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (MOD_BALANCE_CORE_DEALS && GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowed() && !GetPlayer()->IsAITeammateOfHuman())
+	if (GET_TEAM(GetTeam()).isDefensivePactTradingAllowed() && !GetPlayer()->IsAITeammateOfHuman())
 	{
 		// Loop through all (known) Players and clear our desire to make a DP, if present.
-		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 			if (!IsPlayerValid(eLoopPlayer))
 				continue;
@@ -15666,7 +15660,6 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			eNextBestDP = GetNextBestDefensivePact();
 		}
 	}
-#endif
 }
 
 /// Does this AI want to make a Research Agreement with ePlayer?
