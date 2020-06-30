@@ -15598,7 +15598,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						bCancel = true;
 					}
 					else if (!(GET_TEAM(GetTeam()).IsResearchAgreementTradingAllowedWithTeam(eLoopTeam) ||	   // We have Tech & embassy to make a RA
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsResearchAgreementTradingAllowedWithTeam(GetTeam()))) // They have Tech & embassy to make RA
+						GET_TEAM(eLoopTeam).IsResearchAgreementTradingAllowedWithTeam(GetTeam()))) // They have Tech & embassy to make RA
 					{
 						bCancel = true;
 					}
