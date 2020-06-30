@@ -25,6 +25,10 @@
 #	pragma warning ( disable : 4351 ) // default initialization of arrays
 #endif
 
+// ************************************
+// Initialization & Serialization
+// ************************************
+
 CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	m_aDiploLogStatementTurnCountScratchPad()
 	, m_aeMajorCivOpinion()
@@ -2389,17 +2393,17 @@ void CvDiplomacyAI::update()
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if (!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		if(!m_aGreetPlayers.empty())
+		if (!m_aGreetPlayers.empty())
 		{
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			// In out list?
 			PlayerTypesArray::iterator itr = std::find(m_aGreetPlayers.begin(), m_aGreetPlayers.end(), eActivePlayer);
-			if(itr != m_aGreetPlayers.end())
+			if (itr != m_aGreetPlayers.end())
 			{
 				m_aGreetPlayers.erase(itr);
 
 				const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-				if(szText)
+				if (szText)
 				{
 					CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
 				}
@@ -2556,8 +2560,8 @@ bool CvDiplomacyAI::IsHasEmbassy(PlayerTypes eOtherPlayer) const
 	return GET_TEAM(GetPlayer()->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if we have permission to cross a player's borders
-bool CvDiplomacyAI::HavePermissionToCrossBorders(PlayerTypes eOtherPlayer) const
+/// Helper function to determine if we have Open Borders with a player's team (we can enter their territory)
+bool CvDiplomacyAI::IsHasOpenBorders(PlayerTypes eOtherPlayer) const
 {
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
@@ -42718,15 +42722,18 @@ int CvDiplomacyAI::GetOpenBordersScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam()) && GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	bool bTheyAllow = IsHasOpenBorders(ePlayer);
+	bool bWeAllow = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(GetPlayer()->GetID());
+
+	if (bWeAllow && bTheyAllow)
 	{
 		iOpinionWeight += /*-12*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_MUTUAL();
 	}
-	else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam()))
+	else if (bWeAllow)
 	{
 		iOpinionWeight += /*-8*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_US();
 	}
-	else if (GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	else if (bTheyAllow)
 	{
 		iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_THEM();
 	}
