@@ -2716,8 +2716,8 @@ int CvLuaUnit::lIsCombatUnit(lua_State* L)
 int CvLuaUnit::lIsCanDefend(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
-	const bool bResult = pkUnit->IsCanDefend(pkPlot);
+	//CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
+	const bool bResult = pkUnit->IsCanDefend();
 
 	lua_pushboolean(L, bResult);
 	return 1;

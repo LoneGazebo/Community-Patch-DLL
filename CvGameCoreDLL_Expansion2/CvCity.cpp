@@ -33678,7 +33678,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	else if (pDefender != NULL) //attacking a unit
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend(pInPlot))
+		if (!pDefender->IsCanDefend())
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}

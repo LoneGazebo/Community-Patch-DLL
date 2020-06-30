@@ -7651,7 +7651,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 		}
 	}
 
-	if(!IsCanDefend(pPlot) && !IsCanAttack())
+	if(!IsCanDefend() && !IsCanAttack())
 	{
 		return false;
 	}
@@ -17060,7 +17060,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 	else if (pDefender != NULL)
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend(pTargetPlot))
+		if (!pDefender->IsCanDefend())
 		{
 			//can assassinate any civilian with one missile hit
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
@@ -18504,14 +18504,14 @@ void CvUnit::ChangeHealIfDefeatExcludeBarbariansCount(int iValue)
 int CvUnit::GetGoldenAgeValueFromKills() const
 {
 	VALIDATE_OBJECT
-		return m_iGoldenAgeValueFromKills;
+	return m_iGoldenAgeValueFromKills;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 {
 	VALIDATE_OBJECT
-		m_iGoldenAgeValueFromKills += iValue;
+	m_iGoldenAgeValueFromKills += iValue;
 	CvAssert(GetGoldenAgeValueFromKills() >= 0);
 }
 
@@ -18519,8 +18519,7 @@ void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 bool CvUnit::isOnlyDefensive() const
 {
 	VALIDATE_OBJECT
-
-	return getOnlyDefensiveCount() > 0 ? true : false;
+	return getOnlyDefensiveCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19516,7 +19515,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 							if(!pLoopUnit->canCoexistWithEnemyUnit(eOurTeam))
 							{
 								// Unit somehow ended up on top of an enemy combat unit
-								if(NO_UNITCLASS == pLoopUnit->getUnitInfo().GetUnitCaptureClassType() && pLoopUnit->IsCanDefend(pNewPlot))
+								if(NO_UNITCLASS == pLoopUnit->getUnitInfo().GetUnitCaptureClassType() && pLoopUnit->IsCanDefend())
 								{
 									if(!pNewPlot->isCity())
 									{
@@ -29510,53 +29509,15 @@ bool CvUnit::IsCanAttack() const
 bool CvUnit::IsCanAttackWithMoveNow() const
 {
 	VALIDATE_OBJECT
-	if(!IsCanAttackWithMove())
-	{
-		return false;
-	}
-
-	// Can't attack out of cities if there is more than 1 combat unit of the same domain in it.
-	// This does not apply to air units, which strangely don't show up as combat unit anyhow.
-	DomainTypes eSourceDomain = getDomainType();
-	CvPlot* pkPlot = plot();
-	if (pkPlot->isCity() && eSourceDomain != DOMAIN_AIR)
-	{
-		IDInfo* pUnitNode = pkPlot->headUnitNode();
-		int iCount = 0;
-		while(pUnitNode != NULL)
-		{
-			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
-			if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == eSourceDomain)
-			{
-				iCount++;
-			}
-
-			pUnitNode = pkPlot->nextUnitNode(pUnitNode);
-		}
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		return iCount <= pkPlot->getUnitLimit();
-#else
-		return iCount <= GC.getPLOT_UNIT_LIMIT();
-#endif
-	}
-
-	return true;
+	return IsCanAttackWithMove() && canEndTurnAtPlot(plot());
 }
 
 //	--------------------------------------------------------------------------------
 // Unit able to fight back when attacked?
-// Note that this does not check whether a unit may enter a plot at all and whether it must embark to do so.
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
+bool CvUnit::IsCanDefend() const
 {
-	VALIDATE_OBJECT
-	if(pPlot == NULL)
-	{
-		pPlot = plot();
-	}
-
-	// This will catch noncombatants
+	// This will catch noncombatants (and air units!)
 	if(GetBaseCombatStrength() == 0)
 	{
 		return false;

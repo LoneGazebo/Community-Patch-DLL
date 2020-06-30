@@ -13628,7 +13628,16 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam, bool bNoSuicide) const
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && DOMAIN_AIR == pLoopUnit->getDomainType() && !pLoopUnit->isCargo() && pLoopUnit->getTeam() == eTeam)
+		if (!pLoopUnit || pLoopUnit->isDelayedDeath())
+			continue;
+
+		if (pLoopUnit->getDomainType() != DOMAIN_AIR)
+			continue;
+
+		if (pLoopUnit->isCargo())
+			continue;
+
+		if(eTeam == NO_TEAM || pLoopUnit->getTeam() == eTeam)
 		{
 			if (bNoSuicide && !pLoopUnit->isSuicide())
 				iCount += pLoopUnit->getUnitInfo().GetAirUnitCap();

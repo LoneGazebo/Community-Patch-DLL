@@ -6773,7 +6773,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		//taking cover only works if the defender will not move away!
 		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
-		bool bIsInCover = pDefender && pDefender->TurnProcessed() && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
+		bool bIsInCover = pDefender && pDefender->TurnProcessed() && !pUnit->IsCanDefend(); // only move to cover if I'm defenseless here
 
 		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
@@ -7640,6 +7640,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	const CvPlot* pTestPlot = testPlot.getPlot();
 	const CvUnit* pUnit = unit.pUnit;
 
+	//can we put a combat unit here?
+	if (testPlot.isBlockedByNonSimCombatUnit())
+		return result;
+
 	//cannot deal with enemies here, only friendly/empty plots
 	if (testPlot.isEnemy())
 		return result;
@@ -7901,11 +7905,15 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	const CvPlot* pTestPlot = testPlot.getPlot();
 	const CvUnit* pUnit = unit.pUnit;
 
+	//can we put a combat unit here?
+	if (testPlot.isBlockedByNonSimCombatUnit())
+		return result;
+
 	//cannot deal with enemies here, only friendly/empty plots
 	if (testPlot.isEnemy())
 		return result;
 
-	//check if this is actual movement or whether we simply end the turn
+	//check if this is actual movement or whether we finish the turn
 	if (movePlot.iPlotIndex != unit.iPlotIndex)
 	{
 		//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
@@ -7914,10 +7922,6 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 
 		result.eAssignmentType = A_MOVE;
 	}
-
-	//simplification: don't embark if there is another embarked unit there, stacking is too complex to take care of then
-	if (testPlot.hasFriendlyEmbarkedUnit() && !pUnit->isNativeDomain(pTestPlot))
-		return result;
 
 	//ranged attacks are cross-domain
 	CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pTestPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
@@ -8060,10 +8064,11 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 }
 
 //stacking with combat units is allowed here!
-STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
+STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-100000,A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-1000,A_FINISH);
+	int iScore = 0;
 		
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -8073,16 +8078,20 @@ STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const 
 	if (testPlot.isEnemy())
 		return result;
 
+	//is this actual movement or finishing the turn
 	if (movePlot.iPlotIndex != unit.iPlotIndex)
-	{
-		//prevent two moves in a row (also for generals, everything else is too complex)
-		if (unit.eLastAssignment == A_MOVE)
-			return result;
-
 		result.eAssignmentType = A_MOVE;
+
+	//check distance to target if gathering (not attacking)
+	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
+	if (!targetPlot.isEnemy())
+	{
+		//can be treacherous with impassable terrain in between but everything else is much more complex
+		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
+		iScore = iScore + 3 - iPlotDistance;
 	}
 
-	int iScore = 0;
+	//check distance to enemy in any case
 	switch (testPlot.getEnemyDistance())
 	{
 	case 0:
@@ -8100,17 +8109,17 @@ STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const 
 		break;
 	}
 
-	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
-	if (!targetPlot.isEnemy()) //gathering around a target
-	{
-		//can be treacherous with impassable terrain in between but everything else is much more complex
-		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
-		iScore = iScore + 3 - iPlotDistance;
-	}
-
-	//generals and admirals (as opposed to plain embarked units)
+	//generals and admirals
 	if (unit.eStrategy == MS_SUPPORT)
 	{
+		//we want one of our own combat units covering us
+		//pass firstline, any combat movement strategy will do
+		STacticalAssignment dummy(0, 0, 0, 0, MS_FIRSTLINE);
+		vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(testPlot.getPlotIndex(), dummy);
+		if (defenderAssignment.empty() || defenderAssignment.front().iRemainingMoves > 0)
+			if (!pTestPlot->isFriendlyCity(*pUnit))
+				return result;
+
 		//points for supported units (count only the first ring ...)
 		iScore += 10 * testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
 
@@ -8118,31 +8127,29 @@ STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const 
 		if (testPlot.hasSupportBonus(unit.iPlotIndex) && movePlot.iPlotIndex!=unit.iPlotIndex)
 			iScore /= 2;
 	}
-
-	//we want one of our own combat units covering us
-	//pass firstline, any combat movement strategy will do
-	STacticalAssignment dummy(0,0,0,0,MS_FIRSTLINE);
-	vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(testPlot.getPlotIndex(),dummy);
-
-	//todo: check if the defender is not embarked! 
-	if ( (!defenderAssignment.empty() && defenderAssignment.front().iRemainingMoves == 0) || pTestPlot->isFriendlyCity(*pUnit) )
-		iScore += 100;
-	else
+	//plain embarked units
+	else if (unit.eStrategy == MS_EMBARKED)
 	{
-		//danger is only relevant if there is no covering unit ...
-		int iDanger = pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies());
-		if (iDanger == INT_MAX)
-			iScore -= 1000;
-		else if (result.eMoveType==A_FINISH || result.iRemainingMoves==0) //only if we are going to end the turn here
-		{
-			if (testPlot.isEdgePlot()) //if we don't expect combat, we can afford to be less careful - embarked units have limited vision!
-				iDanger += (assumedPosition.getAggressionLevel()==AL_NONE) ? 20 : 50;
+		//can we put a combat unit here?
+		if (testPlot.isBlockedByNonSimCombatUnit())
+			return result;
 
-			//if we're not alone, maybe not everybody will attack us
-			iScore -= iDanger / (testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1) + 1);
-		}
+		//prevent two moves in a row
+		if (unit.eLastAssignment == A_MOVE)
+			return result;
+
+		//catch the case with infinite danger
+		int iDanger = min(1000, pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies()));
+
+		//embarked units have limited vision! but if we don't expect combat, we can afford to be less careful
+		if (testPlot.isEdgePlot()) 
+			iDanger += (assumedPosition.getAggressionLevel() == AL_NONE) ? 20 : 50;
+
+		//we want friends around us
+		iScore -= iDanger / (testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1) + 1);
 	}
 
+	//scale to be in range with actual fighting units
 	result.iScore = iScore * 10;
 	return result;
 }
@@ -8260,7 +8267,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	//constant
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
 	bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
-	bBlockedForCombatUnit = false;
+	bBlockedByNonSimCombatUnit = false;
 
 	//updated if necessary
 	bEnemyCivilianPresent = false;
@@ -8284,8 +8291,6 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders etc.
 
 	//so here comes tricky logic to figure out whether we can use this plot
-	bool bPlotBlocked = false;
-	bool bSimUnitPresent = false;
 	for (int i = 0; i < pPlot->getNumUnits(); i++)
 	{
 		CvUnit* pPlotUnit = pPlot->getUnitByIndex(i);
@@ -8297,7 +8302,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		//enemies
 		if (GET_PLAYER(ePlayer).IsAtWarWith(pPlotUnit->getOwner()))
 		{
-			//combat units and embarked civilians
+			//combat units (embarked or not)
 			if (pPlotUnit->IsCanDefend())
 			{
 				//enemy distance for other plots will be set afterwards in refreshVolatilePlotProperties
@@ -8309,39 +8314,25 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 					aiEnemyDistance[TD_SEA] = 0;
 			}
 			else
-				//unembarked civilian
+				//civilian
 				bEnemyCivilianPresent = true;
 		}
 		//neutral units
 		else if (ePlayer != pPlotUnit->getOwner())
 		{
-			//be conservative and don't use the plot even if we maybe could put an embarked unit here
+			//check if we can use the plot for combat units
 			if (pPlotUnit->IsCanDefend())
-				bPlotBlocked = true;
+				bBlockedByNonSimCombatUnit = true;
 		}
 		//owned units not included in sim
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
-			//todo: figure out a simple way to allow generals into owned cities with a garrison
 			if (pPlotUnit->IsCanDefend())
-				bPlotBlocked = true;
-		}
-		else
-			bSimUnitPresent = true;
-	}
-
-	//annoying details ... embarked units can stack but combat units cannot
-	if (bPlotBlocked)
-	{
-		bBlockedForCombatUnit = true;
-		//we don't want to use it unless there's already on of our units there
-		if (!bSimUnitPresent)
-		{
-			pPlot = NULL;
-			return;
+				bBlockedByNonSimCombatUnit = true;
 		}
 	}
 
+	//important, not every enemy city has a garrison!
 	if (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()))
 	{
 		aiEnemyDistance[TD_BOTH] = 0;
@@ -8629,7 +8620,9 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 	//what is the score for simply staying put and doing nothing?
 	//important not to pass zero moves left, otherwise we might ignore possible attacks
-	STacticalAssignment refAssignment(ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex,0,unit.iMovesLeft,0), *this, true));
+	STacticalAssignment refAssignment = IsCombatUnit(unit) ?
+		ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex, 0, unit.iMovesLeft, 0), *this, true):
+		ScorePlotForNonFightingUnitMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex, 0, unit.iMovesLeft, 0), *this);
 
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit);
@@ -8647,9 +8640,6 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 		if (IsCombatUnit(unit))
 		{
-			if (testPlot.isBlockedForCombatUnit())
-				continue;
-
 			if (testPlot.isEnemy())
 			{
 				//ranged attacks are handled separately below
@@ -8676,7 +8666,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 		else
 		{
 			//support units or embarked units
-			newAssignment = ScorePlotForNonCombatUnitMove(unit, testPlot, *it, *this);
+			newAssignment = ScorePlotForNonFightingUnitMove(unit, testPlot, *it, *this);
+			//may be invalid
+			if (newAssignment.iScore < 0)
+				continue;
+
+			//important normalization step
+			newAssignment.iScore -= refAssignment.iScore;
 		}
 
 		//score functions are biased so that only scores > 0 are interesting moves
@@ -9361,10 +9357,8 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			if (plotDistance(*pPlot, *pTargetPlot) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 				continue;
 
-			if (unit.eStrategy == MS_ESCORTED_EMBARKED)
+			if (unit.eStrategy == MS_EMBARKED)
 			{
-				//we are embarked and stay embarked, so we can stack with combat units
-
 				//only allow disembarking if it takes us closer to the target
 				if (pUnit->isNativeDomain(pPlot) && plotDistance(*pPlot, *pTargetPlot) >= plotDistance(*pUnit->plot(), *pTargetPlot))
 					continue;
@@ -9380,7 +9374,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				}
 				else
 				{
-					//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
+					//we don't want to fight so embarkation is ok if we're careful
 					if (!pUnit->isNativeDomain(pPlot))
 					{
 						//for embarked units, every attacker is bad news
@@ -9761,30 +9755,18 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	eUnitMovementStrategy eStrategy = MS_NONE;
 
 	//ok this is a bit involved
-	//case a) we only have combat units and we want to fight. units should stay in their native domain so they can fight.
-	//case b) we have escorted units which are embarked or need to embark and are not expected to fight. embarked units can stack with their escort but yet-unembarked units cannot stack.
+	//case a) we want to fight. units should stay in their native domain so they can fight.
+	//case b) we don't want to fight. units may embark if the target is not their native domain
 	//later in updateMoveAndAttackPlotsForUnits we try and filter the reachable plots according to unit strategy
 	//also, only land units can embark and but melee ships can move into certain land plots (cities) so it's tricky
 
-	//dimensions
-	// - attacking / defending
-	// - combat unit / non-combat unit
-	// - native domain target / non-native domain target
-
+	//if were not looking to fight but about to embark then keep the unit away from enemies
 	if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
-		// if the target is outside of our native domain, we will need to embark sooner or later
-		if ( pUnit->isEmbarked() )
-			eStrategy = MS_ESCORTED_EMBARKED; //already embarked, can stack
-		else if (pUnit->IsCombatUnit())
-			eStrategy = MS_THIRDLINE; //not yet embarked, don't stack
+		if (pUnit->IsCombatUnit())
+			eStrategy = MS_EMBARKED;
 		else
-			eStrategy = MS_SUPPORT;
-	}
-	else if (eAggression == AL_NONE && pUnit->isNativeDomain(pTargetPlot) && pUnit->isEmbarked())
-	{
-		// target is in native domain, but we are embarked and will need to disembark sooner or later
-		eStrategy = MS_THIRDLINE; //do not stack
+			eStrategy = MS_SUPPORT; //civilians can stack!
 	}
 	else
 	{
