@@ -24387,12 +24387,10 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	int iModifier = 0;
-	int iTempMod;
 
 	// Yield Rate Modifier
-	iTempMod = getYieldRateModifier(eIndex);
-	iModifier += iTempMod;
+	int iTempMod = getYieldRateModifier(eIndex);
+	int iModifier = iTempMod;
 	if(toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD", iTempMod);
 
@@ -24558,7 +24556,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if(pReligion)
 	{
 		int iMaxVal = 0;
-		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), this);
 		if (iReligionYieldMaxFollowersPercent > 0)
 		{
 			int iVal = GetCityReligions()->GetNumFollowers(eMajority) * iReligionYieldMaxFollowersPercent;
@@ -24577,7 +24575,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 		else
 		{
-			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), this);
 			if (iReligionYieldMaxFollowers > 0)
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
