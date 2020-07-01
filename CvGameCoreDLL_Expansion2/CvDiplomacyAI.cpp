@@ -7833,7 +7833,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Do we have bonuses towards war?
 		int iWarBonus = 0;
-		bool bWantToAttack = (bEasyTarget || (GetBiggestCompetitor() == ePlayer) || bGoingForWorldConquest || bCloseToWorldConquest || bUntrustworthy || bRecklessExpander || bWonderSpammer || bTheyAreCloseToAnyVictory || (GetLandDisputeLevel(ePlayer) > DISPUTE_LEVEL_STRONG) || (GetVictoryDisputeLevel(ePlayer) > DISPUTE_LEVEL_STRONG) || (GetVictoryBlockLevel(ePlayer) > BLOCK_LEVEL_STRONG));
+		bool bWantToAttack = (bEasyTarget || bGoingForWorldConquest || bCloseToWorldConquest || IsMajorCompetitor(ePlayer));
 
 		// War UA?
 		if (bConquerorTraits)
