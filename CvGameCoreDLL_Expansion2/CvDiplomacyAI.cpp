@@ -15634,10 +15634,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		if (!IsPlayerValid(eLoopPlayer))
 			continue;
 
-		if (IsWantsDoFWithPlayer(eLoopPlayer))
-		{
-			DoCancelWantsDoFWithPlayer(eLoopPlayer);
-		}
+		SetWantsDoFWithPlayer(eLoopPlayer, false);
 	}
 	
 	// Second loop, add desired DoFs in the order of best to worst
@@ -15645,7 +15642,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	
 	while (eNextBestDoF != NO_PLAYER)
 	{
-		DoAddWantsDoFWithPlayer(eNextBestDoF);
+		SetWantsDoFWithPlayer(eNextBestDoF, true);
 		eNextBestDoF = GetNextBestDoF();
 	}
 
@@ -15659,10 +15656,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			if (!IsPlayerValid(eLoopPlayer))
 				continue;
 
-			if (IsWantsDefensivePactWithPlayer(eLoopPlayer))
-			{
-				DoCancelWantsDefensivePactWithPlayer(eLoopPlayer);
-			}
+			SetWantsDefensivePactWithPlayer(eLoopPlayer, false);
 		}
 
 		// Second loop, add desired DPs in the order of best to worst
@@ -15670,7 +15664,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		
 		while (eNextBestDP != NO_PLAYER)
 		{
-			DoAddWantsDefensivePactWithPlayer(eNextBestDP);
+			SetWantsDefensivePactWithPlayer(eNextBestDP, true);
 			eNextBestDP = GetNextBestDefensivePact();
 		}
 	}
@@ -15730,14 +15724,13 @@ void CvDiplomacyAI::DoAddWantsResearchAgreementWithPlayer(PlayerTypes ePlayer)
 /// AI wants to cancel its desire to make a Research Agreement with ePlayer, so handle everything that means
 void CvDiplomacyAI::DoCancelWantsResearchAgreementWithPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	CvAssertMsg(IsWantsResearchAgreementWithPlayer(ePlayer), "DIPLOMACY_AI: AI trying to cancel saving for a Research Agreements he doesn't have.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-	SetWantsResearchAgreementWithPlayer(ePlayer, false);
-
-	GetPlayer()->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE);
+	if (IsWantsResearchAgreementWithPlayer(ePlayer))
+	{
+		GetPlayer()->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE);
+		SetWantsResearchAgreementWithPlayer(ePlayer, false);
+	}
 }
 
 /// Are we able to make a Research Agreement with ePlayer right now?
@@ -15983,28 +15976,6 @@ int CvDiplomacyAI::GetNumDoFsWanted(PlayerTypes ePlayer) const
 	return iNum;
 }
 	
-/// AI wants to make a Declaration of Friendship with ePlayer, so handle everything that means
-void CvDiplomacyAI::DoAddWantsDoFWithPlayer(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	CvAssertMsg(!IsWantsDoFWithPlayer(ePlayer), "DIPLOMACY_AI: AI trying to save for multiple Declarations of Friendship with a player.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-	SetWantsDoFWithPlayer(ePlayer, true);
-}
-	
-/// AI no longer wants to make a Declaration of Friendship with ePlayer, so handle everything that means
-void CvDiplomacyAI::DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	CvAssertMsg(IsWantsDoFWithPlayer(ePlayer), "DIPLOMACY_AI: AI trying to cancel saving for a Declaration of Friendship he doesn't have.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-	SetWantsDoFWithPlayer(ePlayer, false);
-}
-	
 /// Is this player a good choice for a Declaration of Friendship?
 bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 {
@@ -16138,30 +16109,6 @@ int CvDiplomacyAI::GetNumDefensivePactsWanted(PlayerTypes ePlayer) const
 	}
 
 	return iNum;
-}
-
-/// AI wants to make a Defensive Pact with ePlayer, so handle everything that means
-void CvDiplomacyAI::DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	CvAssertMsg(!IsWantsDefensivePactWithPlayer(ePlayer), "DIPLOMACY_AI: AI trying to save for multiple Defensive Pacts with a player.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-	SetWantsDefensivePactWithPlayer(ePlayer, true);
-
-	LogWantDP(ePlayer);
-}
-
-/// AI no longer wants to make a Defensive Pact with ePlayer, so handle everything that means
-void CvDiplomacyAI::DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	CvAssertMsg(IsWantsDefensivePactWithPlayer(ePlayer), "DIPLOMACY_AI: AI trying to cancel saving for a Defensive Pacts he doesn't have.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-
-	SetWantsDefensivePactWithPlayer(ePlayer, false);
 }
 
 /// Are we able to make a Defensive Pact with ePlayer right now?
@@ -21696,11 +21643,11 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
 
 				// Cancel any desire for exchanges
-				DoCancelWantsDoFWithPlayer(ePlayer);
-				DoCancelWantsDefensivePactWithPlayer(ePlayer);
+				SetWantsDoFWithPlayer(ePlayer, false);
+				SetWantsDoFWithPlayer(ePlayer, false);
 				DoCancelWantsResearchAgreementWithPlayer(ePlayer);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(eMyPlayer);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eMyPlayer);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(eMyPlayer, false);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(eMyPlayer, false);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eMyPlayer);
 
 				// End all coop war agreements with this player
@@ -21790,7 +21737,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 			// If it's us OR we know the attacked player, change appropriate values
 			if (IsPlayerValid(eAttackedPlayer, true) && GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				if (GET_PLAYER(eAttackedPlayer).isMajorCiv()))
+				if (GET_PLAYER(eAttackedPlayer).isMajorCiv())
 				{
 					bMajorAttackedMajor = true;
 
@@ -37328,7 +37275,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	if (bAcceptable)
 	{
 		// Are we at war?
-		if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		if (IsAtWar(ePlayer))
 			bCancel = true;
 
 		// Already have a DoF?
@@ -37336,7 +37283,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 			bCancel = true;
 
 		// No DoFs if they're untrustworthy
-		if (IsUntrustworthyFriend(ePlayer))
+		if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 			bCancel = true;
 	
 		// No DoFs if we're hostile or want war
@@ -37360,16 +37307,18 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 			bCancel = true;
 
 		// Make sure none of our AI teammates find them untrustworthy or hostile
-		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 			if (IsPlayerValid(eLoopPlayer, true) && !GET_PLAYER(eLoopPlayer).isHuman() && IsTeammate(eLoopPlayer))
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
 					bCancel = true;
 
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend(ePlayer))
+				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_SOON)
+					bCancel = true;
+
+				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 					bCancel = true;
 			}
 		}
@@ -37377,7 +37326,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 
 	if (bCancel)
 	{
-		DoCancelWantsDoFWithPlayer(ePlayer);
+		SetWantsDoFWithPlayer(ePlayer, false);
 		return false;
 	}
 	else
@@ -38307,23 +38256,13 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
 	}
 	
-	// Cancel any desire for a DoF or DP
-	if (IsWantsDoFWithPlayer(ePlayer))
-	{
-		DoCancelWantsDoFWithPlayer(ePlayer);
-	}
-	if (IsWantsDefensivePactWithPlayer(ePlayer))
-	{
-		DoCancelWantsDefensivePactWithPlayer(ePlayer);
-	}
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWantsDoFWithPlayer(eMyPlayer))
-	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(eMyPlayer);
-	}
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eMyPlayer))
-	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eMyPlayer);
-	}
+	// Cancel any desire for exchanges
+	SetWantsDoFWithPlayer(ePlayer, false);
+	SetWantsDefensivePactWithPlayer(ePlayer, false);
+	DoCancelWantsResearchAgreementWithPlayer(ePlayer);
+	GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(eMyPlayer, false);
+	GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(eMyPlayer, false);
+	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eMyPlayer);
 	
 	// Update opinions and approaches
 	vector<PlayerTypes> v;
@@ -45027,13 +44966,15 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 		GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), ePlayer, 0);
 	}
 	
-	// clear out DoF/DP desires, attack operations
-	DoCancelWantsDoFWithPlayer(eKilledPlayer);
-	DoCancelWantsDefensivePactWithPlayer(eKilledPlayer);
+	// clear out planning exchanges, attack operations
+	SetWantsDoFWithPlayer(eKilledPlayer, false);
+	SetWantsDefensivePactWithPlayer(eKilledPlayer, false);
+	DoCancelWantsResearchAgreementWithPlayer(eKilledPlayer);
 	SetArmyInPlaceForAttack(eKilledPlayer, false);
 	SetWantsSneakAttack(eKilledPlayer, false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(GetPlayer()->GetID());
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(GetPlayer()->GetID());
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(GetPlayer()->GetID());
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetArmyInPlaceForAttack(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsSneakAttack(GetPlayer()->GetID(), false);
 	
@@ -52276,25 +52217,11 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						
 						// Reset the third party player's desire for a Declaration of Friendship, since vassal friends are much less valuable
 						// If they're still a valuable friend, the AI's desire will be updated in DoPlanningExchanges next turn
-						if (GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->IsWantsDoFWithPlayer(GetPlayer()->GetID()))
-						{
-							GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->DoCancelWantsDoFWithPlayer(GetPlayer()->GetID());
-						}
-						
-#if defined(MOD_BALANCE_CORE_DEALS)
-						if (MOD_BALANCE_CORE_DEALS)
-						{
-							// Also reset desire for a Defensive Pact
-							if (IsWantsDefensivePactWithPlayer(eThirdPartyPlayer))
-							{
-								DoCancelWantsDefensivePactWithPlayer(eThirdPartyPlayer);
-							}
-							if (GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-							{
-								GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(GetPlayer()->GetID());
-							}
-						}
-#endif
+						GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->SetWantsDoFWithPlayer(GetPlayer()->GetID(), false);
+
+						// Also reset desire for a Defensive Pact
+						SetWantsDefensivePactWithPlayer(eThirdPartyPlayer, false);
+						GET_PLAYER(eThirdPartyPlayer).GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(GetPlayer()->GetID(), false);
 						
 						for(int iThirdPartyTarget = 0; iThirdPartyTarget < MAX_MAJOR_CIVS; iThirdPartyTarget++)
 						{
@@ -52304,7 +52231,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 							if(GetCoopWarAcceptedState(eThirdPartyPlayer, eThirdPartyTarget) != NO_COOP_WAR_STATE)
 							{
 								SetCoopWarAcceptedState(eThirdPartyPlayer, eThirdPartyTarget, NO_COOP_WAR_STATE);
-								SetCoopWarCounter(eThirdPartyPlayer, eThirdPartyTarget, -666);
+								SetCoopWarCounter(eThirdPartyPlayer, eThirdPartyTarget, -1);
 							}
 						}
 					}
@@ -52349,14 +52276,14 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	// Only do this if we are a vassal
-	if(!GET_TEAM(GetPlayer()->getTeam()).IsVassal(eTeam))
+	if (!GET_TEAM(GetTeam()).IsVassal(eTeam))
 		return;
 
 	// Get players from Master's team
-	for(int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
+	for (int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
 	{
 		PlayerTypes eMasterPlayer = (PlayerTypes) iMasterPlayer;
-		if(GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
+		if (GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
 		{
 			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
 			ChangeRecentAssistValue(eMasterPlayer, -300);

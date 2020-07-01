@@ -495,9 +495,6 @@ public:
 	
 	int GetNumDoFsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 	
-	void DoAddWantsDoFWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer);
-	
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
@@ -505,8 +502,6 @@ public:
 
 	int GetNumDefensivePactsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 
-	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
 
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);

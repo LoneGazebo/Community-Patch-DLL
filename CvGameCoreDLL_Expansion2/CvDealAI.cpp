@@ -2909,9 +2909,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	
 	if (bCancel)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
-		GetPlayer()->GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eOtherPlayer);
-#endif
+		GetPlayer()->GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(eOtherPlayer, false);
 		return INT_MAX;
 	}
 
