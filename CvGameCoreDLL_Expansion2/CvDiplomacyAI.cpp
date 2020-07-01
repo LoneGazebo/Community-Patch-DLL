@@ -6344,12 +6344,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 
 						// Is this a brother of the faith who denounced a HERETIC?!?!
-						if (bSameReligion && IsPlayerOpposingReligion(eLoopPlayer))
+						if (bSameReligion && IsPlayerOpposingReligion(eLoopPlayer) && !IsIgnoreReligionDifferences(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iReligionMod;
 						}
 						// Is this an ideological partner who denounced an ideological opponent?
-						if (bSameIdeology && IsPlayerOpposingIdeology(eLoopPlayer))
+						if (bSameIdeology && IsPlayerOpposingIdeology(eLoopPlayer) && !IsIgnoreIdeologyDifferences(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iIdeologyMod;
 						}
