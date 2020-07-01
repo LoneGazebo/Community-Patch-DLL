@@ -5170,7 +5170,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 			{
-				int iStrengthFactor = ((int)GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - (int)STRENGTH_AVERAGE); // --> Strong: +2, Powerful: +4, Immense: +6
+				int iStrengthFactor = ((int)GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - (int)STRENGTH_AVERAGE) * 2; // --> Strong: +2, Powerful: +4, Immense: +6
 
 				// This player gives us additional offensive punch
 				bool bOffensivePower = (IsTeammate(eLoopPlayer) || GetCoopWarAcceptedState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_SOON || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer));
