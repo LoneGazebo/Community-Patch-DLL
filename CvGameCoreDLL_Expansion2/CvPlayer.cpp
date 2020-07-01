@@ -33019,7 +33019,7 @@ int CvPlayer::GetMilitaryRating() const
 
 void CvPlayer::SetMilitaryRating(int iValue)
 {
-	m_iMilitaryRating = iValue;
+	m_iMilitaryRating = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------

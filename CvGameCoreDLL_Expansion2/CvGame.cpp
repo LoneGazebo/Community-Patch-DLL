@@ -851,20 +851,20 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	}
 
 	// Player Stuff
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if(GET_PLAYER(ePlayer).isAlive())
+		if (GET_PLAYER(ePlayer).isAlive())
 		{
 			// Major Civ init
-			if(!GET_PLAYER(ePlayer).isMinorCiv())
+			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
+				GET_PLAYER(ePlayer).SetMilitaryRating(1000);
 			}
 			// Minor Civ init
-			else
+			else if (GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				GET_PLAYER(ePlayer).GetMinorCivAI()->DoPickInitialItems();
 			}

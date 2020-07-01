@@ -105,6 +105,8 @@ public:
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
 	vector<PlayerTypes> GetAllValidMajorCivs() const;
+	int GetNumValidMajorCivs() const;
+
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
@@ -178,22 +180,22 @@ public:
 	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
 
 	// Our guess as to another player's opinion towards us
-	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
 	//void DoUpdateOpinionTowardsUsGuesses();
 	void DoEstimateOtherPlayerOpinions();
 
-	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivOpinionTypes ePlayerOpinion);
+	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivOpinionTypes eOpinion);
 
 	/////////////////////////////////////////////////////////
 	// Approach
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate);
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches);
+	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bBetweenTurnsUpdate = true);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bBetweenTurnsUpdate = true);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
@@ -214,13 +216,12 @@ public:
 	void DoUpdateMinorCivApproaches();
 	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog);
 
-	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes ePlayer) const;
-	void SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach);
+	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes eMinor) const;
+	void SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
 	int GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const;
 
-	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsWantToRouteConnectToMinor(PlayerTypes eMinor);
-
+	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
@@ -234,12 +235,12 @@ public:
 	void DoUpdateApproachTowardsUsGuesses();
 	void DoEstimateOtherPlayerApproaches();
 
-	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
+	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivApproachTypes eApproach);
 	
-	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iValue);
-	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iChange);
+	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iValue);
+	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Demands
@@ -388,13 +389,11 @@ public:
 	StrengthTypes GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength);
 	void DoUpdatePlayerMilitaryStrengths();
-	void DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer);
 
 	// Economic Strength: How strong is ePlayer compared to US?
 	StrengthTypes GetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eEconomicStrength);
 	void DoUpdatePlayerEconomicStrengths();
-	void DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer);
 
 	// Target Value: how easy or hard of a target would ePlayer be to attack?
 	TargetValueTypes GetPlayerTargetValue(PlayerTypes ePlayer) const;
@@ -496,9 +495,6 @@ public:
 	
 	int GetNumDoFsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 	
-	void DoAddWantsDoFWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer);
-	
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
@@ -506,8 +502,6 @@ public:
 
 	int GetNumDefensivePactsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 
-	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
 
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
