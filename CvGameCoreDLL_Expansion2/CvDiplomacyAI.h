@@ -389,13 +389,11 @@ public:
 	StrengthTypes GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength);
 	void DoUpdatePlayerMilitaryStrengths();
-	void DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer);
 
 	// Economic Strength: How strong is ePlayer compared to US?
 	StrengthTypes GetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eEconomicStrength);
 	void DoUpdatePlayerEconomicStrengths();
-	void DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer);
 
 	// Target Value: how easy or hard of a target would ePlayer be to attack?
 	TargetValueTypes GetPlayerTargetValue(PlayerTypes ePlayer) const;

@@ -14159,298 +14159,263 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	if (iPercentageDifference < 0)
 		iPercentageDifference *= -1; // need the absolute value
 
+	int iRtnValue = 0;
+
 	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
 	if (iCivRating > iAverageRating)
 	{
-		return min((100 + iPercentageDifference), 100);
+		iRtnValue = min((100 + iPercentageDifference), 200);
 	}
 	// If below average, apply half the % difference as a negative modifier to strength, cap below at -50%
 	else if (iCivRating < iAverageRating)
 	{
-		iPercentageDifference /= -2; // flip the sign
-		return max((100 - iPercentageDifference), -50);
+		iPercentageDifference /= 2;
+		iRtnValue = max((100 - iPercentageDifference), 50);
 	}
 
-	return 0;
+	return iRtnValue;
 }
 
 
 /// What is our assessment of this player's overall Military Strength?
 StrengthTypes CvDiplomacyAI::GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return (StrengthTypes) m_paePlayerMilitaryStrengthComparedToUs[ePlayer];
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_STRENGTH_VALUE;
+	return (StrengthTypes) m_paePlayerMilitaryStrengthComparedToUs[(int)ePlayer];
 }
 
 /// Sets what our assessment is of this player's overall Military Strength
 void CvDiplomacyAI::SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eMilitaryStrength >= 0, "DIPLOMACY_AI: Invalid StrengthType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eMilitaryStrength < NUM_STRENGTH_VALUES, "DIPLOMACY_AI: Invalid StrengthType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_paePlayerMilitaryStrengthComparedToUs[ePlayer] = eMilitaryStrength;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (eMilitaryStrength < 0 || eMilitaryStrength >= NUM_STRENGTH_VALUES) return;
+	m_paePlayerMilitaryStrengthComparedToUs[(int)ePlayer] = eMilitaryStrength;
 }
 
 /// Updates what our assessment is of all players' overall Military Strength
 void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 {
-	// Loop through all (known) Players
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		DoUpdateOnePlayerMilitaryStrength(eLoopPlayer);
-	}
-}
-
-/// Updates what our assessment is of a player's overall Military Strength
-void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	StrengthTypes eMilitaryStrength;
+	int iBase = /*30*/ GC.getMILITARY_STRENGTH_BASE();
 	int iHumanStrengthMod = max(0, (GC.getGame().getHandicapInfo().getAIUnitSupplyPercent() + (GC.getGame().getHandicapInfo().getAIPerEraModifier() * -7))); // Ranges from 0 (Settler) to 105 (Deity)
 
-	int iBase = /*30*/ GC.getMILITARY_STRENGTH_BASE();
 	int iMilitaryStrength = iBase + GetPlayer()->GetMilitaryMight();
+	SetPlayerMilitaryStrengthComparedToUs(GetPlayer()->GetID(), STRENGTH_AVERAGE);
 
-	// Modify strength based on military rating (combat skill)
-	iMilitaryStrength *= (100 + ComputeRatingStrengthAdjustment(GetPlayer()->GetID()));
+	// Modify our strength based on military rating (combat skill)
+	iMilitaryStrength *= ComputeRatingStrengthAdjustment(GetPlayer()->GetID());
 	iMilitaryStrength /= 100;
 
-	int iOtherPlayerMilitaryStrength;
-	int iMilitaryRatio;
-
-	if (IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true))
+	// Loop through all (known) Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		// If we're an AI evaluating a human, modify strength estimate based on difficulty level
-		if (!GetPlayer()->isHuman())
+		if (IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true) && ePlayer != GetPlayer()->GetID())
 		{
-			iOtherPlayerMilitaryStrength *= GET_PLAYER(ePlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
-			iOtherPlayerMilitaryStrength /= 100;
-		}
+			int iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
 
-		// Modify strength based on military rating (combat skill)
-		iOtherPlayerMilitaryStrength *= (100 + ComputeRatingStrengthAdjustment(ePlayer));
-		iOtherPlayerMilitaryStrength /= 100;
-
-		PlayerTypes eLoopPlayer;
-		int iDPUs = 0;
-		int iDPThem = 0;
-		int iLoopPlayerStrength = 0;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
+			// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+			if (!GetPlayer()->isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone())
 			{
-				bool bCountDefensivePact = (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer));
+				iOtherPlayerMilitaryStrength *= GET_PLAYER(ePlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+				iOtherPlayerMilitaryStrength /= 100;
+			}
 
-				if (GET_PLAYER(ePlayer).isMajorCiv())
+			// Modify their strength based on military rating (combat skill)
+			iOtherPlayerMilitaryStrength *= ComputeRatingStrengthAdjustment(ePlayer);
+			iOtherPlayerMilitaryStrength /= 100;
+
+			int iDPUs = 0;
+			int iDPThem = 0;
+
+			for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+
+				if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 				{
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer) || (bCountDefensivePact && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(ePlayer)))
-					{
-						iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
+					bool bCountDefensivePact = (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer));
 
-						// If we're an AI evaluating a human, modify strength estimate based on difficulty level
-						if (!GetPlayer()->isHuman())
-						{
-							iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
-							iLoopPlayerStrength /= 100;
-						}
-
-						// Modify strength based on military rating (combat skill)
-						iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
-						iLoopPlayerStrength /= 100;
-
-						// Count teammates twice, they're more likely to defend each other
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer))
-						{
-							iLoopPlayerStrength *= 2;
-						}
-
-						iDPThem += iLoopPlayerStrength;
-					}
-				}
-
-				bCountDefensivePact = (!IsAtWar(ePlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer)); 
-
-				if (IsTeammate(eLoopPlayer) || (bCountDefensivePact && IsHasDefensivePact(eLoopPlayer)))
-				{
-					iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
-
-					// If we're an AI evaluating a human, modify strength estimate based on difficulty level
-					if (!GetPlayer()->isHuman())
-					{
-						iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
-						iLoopPlayerStrength /= 100;
-					}
-
-					// Modify strength based on military rating (combat skill)
-					iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
-					iLoopPlayerStrength /= 100;
-
-					// Count teammates twice, they're more likely to defend each other
-					if (IsTeammate(eLoopPlayer))
-					{
-						iLoopPlayerStrength *= 2;
-					}
-					
-					iDPUs += iLoopPlayerStrength;
-				}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if (MOD_DIPLOMACY_CIV4_FEATURES)
-				{
 					if (GET_PLAYER(ePlayer).isMajorCiv())
 					{
-						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer) || (bCountDefensivePact && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(ePlayer)))
 						{
-							iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
+							int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
-							// If we're an AI evaluating a human, modify strength estimate based on difficulty level
-							if (!GetPlayer()->isHuman())
+							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+							if (!GetPlayer()->isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
 							{
 								iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
 								iLoopPlayerStrength /= 100;
 							}
 
-							// Modify strength based on military rating (combat skill)
-							iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+							// Modify their strength estimate based on military rating (combat skill)
+							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 							iLoopPlayerStrength /= 100;
+
+							// Count teammates twice, they're more likely to defend each other
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer))
+							{
+								iLoopPlayerStrength *= 2;
+							}
 
 							iDPThem += iLoopPlayerStrength;
 						}
 					}
-					if (IsMaster(eLoopPlayer) || IsVassal(eLoopPlayer))
-					{
-						iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
-						// If we're an AI evaluating a human, modify strength estimate based on difficulty level
-						if (!GetPlayer()->isHuman())
+					bCountDefensivePact = (!IsAtWar(ePlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer)); 
+
+					if (IsTeammate(eLoopPlayer) || (bCountDefensivePact && IsHasDefensivePact(eLoopPlayer)) || GetCoopWarAcceptedState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_SOON)
+					{
+						int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
+
+						// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+						if (!GetPlayer()->isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
 						{
 							iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
 							iLoopPlayerStrength /= 100;
 						}
 
-						// Modify strength based on military rating (combat skill)
-						iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+						// Modify their strength estimate based on military rating (combat skill)
+						iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 						iLoopPlayerStrength /= 100;
+
+						// Count teammates twice, they're more likely to defend each other
+						if (IsTeammate(eLoopPlayer))
+						{
+							iLoopPlayerStrength *= 2;
+						}
 
 						iDPUs += iLoopPlayerStrength;
 					}
-				}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_PLAYER(ePlayer).isMajorCiv())
+						{
+							if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eLoopPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+							{
+								int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
+
+								// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+								if (!GetPlayer()->isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+								{
+									iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+									iLoopPlayerStrength /= 100;
+								}
+
+								// Modify their strength estimate based on military rating (combat skill)
+								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+								iLoopPlayerStrength /= 100;
+
+								iDPThem += iLoopPlayerStrength;
+							}
+						}
+						if (IsMaster(eLoopPlayer) || IsVassal(eLoopPlayer))
+						{
+							int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
+
+							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+							if (!GetPlayer()->isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+							{
+								iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+								iLoopPlayerStrength /= 100;
+							}
+
+							// Modify their strength estimate based on military rating (combat skill)
+							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
+							iLoopPlayerStrength /= 100;
+
+							iDPUs += iLoopPlayerStrength;
+						}
+					}
 #endif
+				}
 			}
-		}
-		if (iDPThem > 0)
-		{
-			iOtherPlayerMilitaryStrength += (iDPThem / 10);
-		}
-		if (iDPUs > 0)
-		{
-			iMilitaryStrength += (iDPUs / 10);
-		}
+			if (iDPThem > 0)
+			{
+				iOtherPlayerMilitaryStrength += (iDPThem / 10);
+			}
+			if (iDPUs > 0)
+			{
+				iMilitaryStrength += (iDPUs / 10);
+			}
 
-		// Example: If another player has double the Military strength of us, the Ratio will be 200
-		iMilitaryRatio = iOtherPlayerMilitaryStrength * /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
+			// Example: If another player has double the Military strength of us, the Ratio will be 200
+			int iMilitaryRatio = iOtherPlayerMilitaryStrength * /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
 
-		// Now do the final assessment
-		if (iMilitaryRatio >= /*300*/ GC.getMILITARY_STRENGTH_IMMENSE_THRESHOLD())
-			eMilitaryStrength = STRENGTH_IMMENSE;
-		else if (iMilitaryRatio >= /*200*/ GC.getMILITARY_STRENGTH_POWERFUL_THRESHOLD())
-			eMilitaryStrength = STRENGTH_POWERFUL;
-		else if (iMilitaryRatio >= /*100*/ GC.getMILITARY_STRENGTH_STRONG_THRESHOLD())
-			eMilitaryStrength = STRENGTH_STRONG;
-		else if (iMilitaryRatio >= /*75*/ GC.getMILITARY_STRENGTH_AVERAGE_THRESHOLD())
-			eMilitaryStrength = STRENGTH_AVERAGE;
-		else if (iMilitaryRatio >= /*50*/ GC.getMILITARY_STRENGTH_POOR_THRESHOLD())
-			eMilitaryStrength = STRENGTH_POOR;
-		else if (iMilitaryRatio >= /*25*/ GC.getMILITARY_STRENGTH_WEAK_THRESHOLD())
-			eMilitaryStrength = STRENGTH_WEAK;
-		else
-			eMilitaryStrength = STRENGTH_PATHETIC;
+			// Now do the final assessment
+			StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
+			if (iMilitaryRatio >= /*300*/ GC.getMILITARY_STRENGTH_IMMENSE_THRESHOLD())
+				eMilitaryStrength = STRENGTH_IMMENSE;
+			else if (iMilitaryRatio >= /*200*/ GC.getMILITARY_STRENGTH_POWERFUL_THRESHOLD())
+				eMilitaryStrength = STRENGTH_POWERFUL;
+			else if (iMilitaryRatio >= /*100*/ GC.getMILITARY_STRENGTH_STRONG_THRESHOLD())
+				eMilitaryStrength = STRENGTH_STRONG;
+			else if (iMilitaryRatio >= /*75*/ GC.getMILITARY_STRENGTH_AVERAGE_THRESHOLD())
+				eMilitaryStrength = STRENGTH_AVERAGE;
+			else if (iMilitaryRatio >= /*50*/ GC.getMILITARY_STRENGTH_POOR_THRESHOLD())
+				eMilitaryStrength = STRENGTH_POOR;
+			else if (iMilitaryRatio >= /*25*/ GC.getMILITARY_STRENGTH_WEAK_THRESHOLD())
+				eMilitaryStrength = STRENGTH_WEAK;
 
-		// Set the value
-		SetPlayerMilitaryStrengthComparedToUs(ePlayer, eMilitaryStrength);
+			// Set the value
+			SetPlayerMilitaryStrengthComparedToUs(ePlayer, eMilitaryStrength);
+		}
 	}
 }
-
 
 /// What is our assessment of this player's overall Economic Strength?
 StrengthTypes CvDiplomacyAI::GetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return (StrengthTypes) m_paePlayerEconomicStrengthComparedToUs[ePlayer];
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_STRENGTH_VALUE;
+	return (StrengthTypes) m_paePlayerEconomicStrengthComparedToUs[(int)ePlayer];
 }
 
 /// Sets what our assessment is of this player's overall Economic Strength
 void CvDiplomacyAI::SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eEconomicStrength)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eEconomicStrength >= 0, "DIPLOMACY_AI: Invalid StrengthType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eEconomicStrength < NUM_STRENGTH_VALUES, "DIPLOMACY_AI: Invalid StrengthType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_paePlayerEconomicStrengthComparedToUs[ePlayer] = eEconomicStrength;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (eEconomicStrength < 0 || eEconomicStrength >= NUM_STRENGTH_VALUES) return;
+	m_paePlayerEconomicStrengthComparedToUs[(int)ePlayer] = eEconomicStrength;
 }
 
 /// Updates what our assessment is of all players' overall Economic Strength
 void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 {
+	// My strength
+	int iEconomicStrength = max(GetPlayer()->GetEconomicMight(), 1);
+	SetPlayerEconomicStrengthComparedToUs(GetPlayer()->GetID(), STRENGTH_AVERAGE);
+
 	// Loop through all (known) Players
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		DoUpdateOnePlayerEconomicStrength(eLoopPlayer);
-	}
-}
-
-/// Updates what our assessment is of a player's overall Economic Strength
-void CvDiplomacyAI::DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true))
-	{
-		//just a default
-		int iEconomicRatio = /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER();
-
-		// Look at player's Economic Strength
-		if(GetPlayer()->GetEconomicMight() > 0)
+		if (IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true) && ePlayer != GetPlayer()->GetID())
 		{
-			// Example: If another player has double the Economic strength of us, the Ratio will be 200
-			iEconomicRatio = GET_PLAYER(ePlayer).GetEconomicMight() * /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER() / GetPlayer()->GetEconomicMight();
+			int iEconomicRatio = GET_PLAYER(ePlayer).GetEconomicMight() * /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER() / iEconomicStrength;
+
+			// Now do the final assessment
+			StrengthTypes eEconomicStrength = STRENGTH_PATHETIC;
+			if (iEconomicRatio >= /*300*/ GC.getECONOMIC_STRENGTH_IMMENSE_THRESHOLD())
+				eEconomicStrength = STRENGTH_IMMENSE;
+			else if (iEconomicRatio >= /*200*/ GC.getECONOMIC_STRENGTH_POWERFUL_THRESHOLD())
+				eEconomicStrength = STRENGTH_POWERFUL;
+			else if (iEconomicRatio >= /*100*/ GC.getECONOMIC_STRENGTH_STRONG_THRESHOLD())
+				eEconomicStrength = STRENGTH_STRONG;
+			else if (iEconomicRatio >= /*75*/ GC.getECONOMIC_STRENGTH_AVERAGE_THRESHOLD())
+				eEconomicStrength = STRENGTH_AVERAGE;
+			else if (iEconomicRatio >= /*50*/ GC.getECONOMIC_STRENGTH_POOR_THRESHOLD())
+				eEconomicStrength = STRENGTH_POOR;
+			else if (iEconomicRatio >= /*25*/ GC.getECONOMIC_STRENGTH_WEAK_THRESHOLD())
+				eEconomicStrength = STRENGTH_WEAK;
+
+			// Set the value
+			SetPlayerEconomicStrengthComparedToUs(ePlayer, eEconomicStrength);
 		}
-
-		// Now do the final assessment
-		StrengthTypes eEconomicStrength = STRENGTH_PATHETIC;
-		if(iEconomicRatio >= /*300*/ GC.getECONOMIC_STRENGTH_IMMENSE_THRESHOLD())
-			eEconomicStrength = STRENGTH_IMMENSE;
-		else if(iEconomicRatio >= /*200*/ GC.getECONOMIC_STRENGTH_POWERFUL_THRESHOLD())
-			eEconomicStrength = STRENGTH_POWERFUL;
-		else if(iEconomicRatio >= /*100*/ GC.getECONOMIC_STRENGTH_STRONG_THRESHOLD())
-			eEconomicStrength = STRENGTH_STRONG;
-		else if(iEconomicRatio >= /*75*/ GC.getECONOMIC_STRENGTH_AVERAGE_THRESHOLD())
-			eEconomicStrength = STRENGTH_AVERAGE;
-		else if(iEconomicRatio >= /*50*/ GC.getECONOMIC_STRENGTH_POOR_THRESHOLD())
-			eEconomicStrength = STRENGTH_POOR;
-		else if(iEconomicRatio >= /*25*/ GC.getECONOMIC_STRENGTH_WEAK_THRESHOLD())
-			eEconomicStrength = STRENGTH_WEAK;
-
-		// Set the value
-		SetPlayerEconomicStrengthComparedToUs(ePlayer, eEconomicStrength);
 	}
 }
-
 
 /// What is our assessment of this player's value as a military target?
 TargetValueTypes CvDiplomacyAI::GetPlayerTargetValue(PlayerTypes ePlayer) const
@@ -22741,8 +22706,8 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 /// Initiate relationship values towards a new player on first contact
 void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 {
-	DoUpdateOnePlayerMilitaryStrength(ePlayer);
-	DoUpdateOnePlayerEconomicStrength(ePlayer);
+	DoUpdatePlayerMilitaryStrengths();
+	DoUpdatePlayerEconomicStrengths();
 
 	DoUpdateOnePlayerMilitaryAggressivePosture(ePlayer);
 	DoUpdateOnePlayerExpansionAggressivePosture(ePlayer);
