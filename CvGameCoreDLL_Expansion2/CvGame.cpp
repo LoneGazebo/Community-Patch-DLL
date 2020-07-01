@@ -861,7 +861,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
-				GET_PLAYER(ePlayer).SetMilitaryRating(500);
+				GET_PLAYER(ePlayer).SetMilitaryRating(1000);
 			}
 			// Minor Civ init
 			else if (GET_PLAYER(ePlayer).isMinorCiv())
