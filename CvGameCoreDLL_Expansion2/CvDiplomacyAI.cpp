@@ -14145,14 +14145,14 @@ int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer
 int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 0;
+		return 100;
 	
 	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
 	int iAverageRating = ComputeAverageMajorMilitaryRating(/*eExcludedPlayer*/ ePlayer);
 
 	// There are no other players - don't adjust
 	if (iAverageRating == -1)
-		return 0;
+		return 100;
 
 	// Calculate the percentage difference from the average
 	int iPercentageDifference = ((iCivRating - iAverageRating) * 100) / max(iAverageRating, 1);
