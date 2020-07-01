@@ -8688,7 +8688,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iAverage > 0)
 				bAllZero = false;
 
-			// Set the new average for next turn.
+			// Set the new average for next turn (but not if we're doing a between-turns update, unless it's a re-evaluation).
 			if (!bFirstPass && !bUpdateScratchValueOnReevaluation)
 			{
 				GetPlayer()->SetApproachScratchValue(ePlayer, eLoopApproach, iAverage);
