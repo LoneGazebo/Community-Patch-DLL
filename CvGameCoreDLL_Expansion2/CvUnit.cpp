@@ -2400,11 +2400,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 			if (iTypicalPower > 0)
 			{
-				iValue = iValue * /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
+				iValue = iValue * 100 / iTypicalPower;
 			}
 			else
 			{
-				iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+				iValue = /*115*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 			}
 
 			if (IsCivilianUnit() && pPlot && !pPlot->isCity()) // Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
@@ -2522,11 +2522,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 									iTypicalPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
 									if (iTypicalPower > 0)
 									{
-										iValue = getUnitInfo().GetPower() * /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
+										iValue = getUnitInfo().GetPower() * 100 / iTypicalPower;
 									}
 									else
 									{
-										iValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+										iValue = /*115*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
 									}
 								}
 
