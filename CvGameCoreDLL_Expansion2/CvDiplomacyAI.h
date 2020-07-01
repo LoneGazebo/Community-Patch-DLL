@@ -105,6 +105,8 @@ public:
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
 	vector<PlayerTypes> GetAllValidMajorCivs() const;
+	int GetNumValidMajorCivs() const;
+
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
@@ -192,8 +194,8 @@ public:
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate);
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches);
+	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bUpdateScratchValueOnReevaluation = true);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bUpdateScratchValueOnReevaluation = true);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
