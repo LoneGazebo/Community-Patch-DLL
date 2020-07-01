@@ -5104,10 +5104,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		eLoopTeam = (TeamTypes) GET_PLAYER(eLoopPlayer).getTeam();
 
-		if (eTeam == eLoopTeam)
+		if (!IsPlayerValid(eLoopPlayer, true))
 			continue;
 
-		if (!IsPlayerValid(eLoopPlayer))
+		if (eLoopPlayer == ePlayer || eLoopPlayer == eMyPlayer)
 			continue;
 
 		// Is this guy at war with the other player?
@@ -5135,8 +5135,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 
-		// This player has a defensive pact with them? If the loop player's at least as strong as we are, let's reduce our war interest.
-		else if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTeam) && (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer)))
+		// Their teammate or Defensive Pact? If the loop player's at least as strong as we are (and it's relevant to our situation), let's reduce our war interest.
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate(eLoopPlayer) || (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eLoopPlayer) && (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer))))
 		{
 			if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 			{
@@ -5160,6 +5160,47 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					break;
 				case PLAYER_PROXIMITY_DISTANT:
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2);
+					break;
+				}
+			}
+		}
+
+		// Will the loop player support us in any wars against them?
+		if (IsTeammate(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || GetCoopWarAcceptedState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_SOON)
+		{
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
+			{
+				int iStrengthFactor = ((int)GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - (int)STRENGTH_AVERAGE); // --> Strong: +2, Powerful: +4, Immense: +6
+
+				// This player gives us additional offensive punch
+				bool bOffensivePower = (IsTeammate(eLoopPlayer) || GetCoopWarAcceptedState(eLoopPlayer, ePlayer) >= COOP_WAR_STATE_SOON || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsAtWar(ePlayer));
+
+				// Proximity to the other player is important
+				switch (GET_PLAYER(ePlayer).GetProximityToPlayer(eLoopPlayer))
+				{
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iStrengthFactor*2)) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iStrengthFactor*2)) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + (iStrengthFactor*2)) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] + (iStrengthFactor*2));
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + (iStrengthFactor*2));
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iStrengthFactor) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iStrengthFactor) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iStrengthFactor) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] + iStrengthFactor);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iStrengthFactor);
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= bOffensivePower ? ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2) + iStrengthFactor) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] / 2) + iStrengthFactor);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] / 2) + iStrengthFactor);
+					break;
+				case PLAYER_PROXIMITY_DISTANT:
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= bOffensivePower ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2) : 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] / 2);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] / 2);
 					break;
 				}
 			}
@@ -6450,7 +6491,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 				}
 				// Made a DP with an enemy of ours
-				if (GET_TEAM(eTeam).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eLoopPlayer))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
@@ -7123,7 +7164,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 					}
 					// Be friendly to our DPs.
-					if (GET_TEAM(eTeam).IsHasDefensivePact(eMyTeam) && GetDefensivePactValue(ePlayer) > 0)
+					if (IsHasDefensivePact(ePlayer) && GetDefensivePactValue(ePlayer) > 0)
 					{
 						viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
@@ -7155,7 +7196,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// They're giving us Open Borders, and no contested borders? Add some friendliness weight.
-			if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eMyTeam))
+			if (IsHasOpenBorders(ePlayer))
 			{
 				if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
 				{
@@ -7360,9 +7401,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				// Weight for Open Borders
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-				if (GET_TEAM(eMyTeam).IsAllowsOpenBordersToTeam(eTeam))
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(eMyPlayer))
 #else
-				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eMyTeam))
+				if (IsHasOpenBorders(ePlayer))
 #endif
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
@@ -8914,7 +8955,7 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 			else
 				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 		}
-		else if (bCoopWarWith || IsDoFAccepted(ePlayer) || GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		else if (bCoopWarWith || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 		{
 			if (bCoopWarAgainst)
 				eWarFace = WAR_FACE_FRIENDLY;
@@ -8994,7 +9035,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachIfWeHaveNoCities(PlayerTypes ePlayer
 			else
 				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 		}
-		else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 		{
 			if (bCoopWarAgainst)
 				eWarFace = WAR_FACE_FRIENDLY;
@@ -9075,7 +9116,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachIfTheyHaveNoCities(PlayerTypes ePlay
 			else
 				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 		}
-		else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 		{
 			if (bCoopWarAgainst)
 				eWarFace = WAR_FACE_FRIENDLY;
@@ -11171,7 +11212,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
+	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
 	}
@@ -11285,7 +11326,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
+	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
 	}
