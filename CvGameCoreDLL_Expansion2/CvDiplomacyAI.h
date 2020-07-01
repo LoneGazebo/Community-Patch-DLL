@@ -180,14 +180,14 @@ public:
 	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
 
 	// Our guess as to another player's opinion towards us
-	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
 	//void DoUpdateOpinionTowardsUsGuesses();
 	void DoEstimateOtherPlayerOpinions();
 
-	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivOpinionTypes ePlayerOpinion);
+	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivOpinionTypes eOpinion);
 
 	/////////////////////////////////////////////////////////
 	// Approach
@@ -216,13 +216,12 @@ public:
 	void DoUpdateMinorCivApproaches();
 	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog);
 
-	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes ePlayer) const;
-	void SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach);
+	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes eMinor) const;
+	void SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
 	int GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const;
 
-	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsWantToRouteConnectToMinor(PlayerTypes eMinor);
-
+	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
@@ -236,12 +235,12 @@ public:
 	void DoUpdateApproachTowardsUsGuesses();
 	void DoEstimateOtherPlayerApproaches();
 
-	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
+	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivApproachTypes eApproach);
 	
-	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iValue);
-	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iChange);
+	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iValue);
+	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Demands
