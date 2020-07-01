@@ -1799,7 +1799,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					PlayerTypes eMajor = (PlayerTypes) iMajorCivLoop2;
 
 					// If we've met the player, update Diplo stuff
-					if (GET_PLAYER(eMajor).getTeam() != GetID() && GET_PLAYER(eMajor).GetDiplomacyAI()->IsHasMet(eAttacker))
+					if (GET_PLAYER(eMajor).getTeam() != GetID() && GET_PLAYER(eMajor).GetDiplomacyAI()->IsHasMet(eAttacker, /*bMyTeamIsValid*/ true))
 					{
 						GET_PLAYER(eMajor).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone(eAttacker, eTeam, bDefensivePact);
 					}
