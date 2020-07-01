@@ -21790,7 +21790,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 			// If it's us OR we know the attacked player, change appropriate values
 			if (IsPlayerValid(eAttackedPlayer, true) && GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				if (GET_PLAYER(eAttackedPlayer).isMajorCiv() && !bDefensivePact && GetTeam() != eOtherTeam)
+				if (GET_PLAYER(eAttackedPlayer).isMajorCiv() && !bDefensivePact)
 				{
 					bMajorAttackedMajor = true;
 					ChangeOtherPlayerNumMajorsAttacked(ePlayer, 1, eOtherTeam);
