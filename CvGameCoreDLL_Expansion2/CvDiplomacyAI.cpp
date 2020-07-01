@@ -52080,11 +52080,17 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				// Is ePlayer the vassal of eOtherTeamPlayer? (just in case we call this function the other way around, and ePlayer is the master)
 				if(GetPlayer()->GetDiplomacyAI()->IsVassal(eOtherTeamPlayer))
 				{
-					// Reset warmongering penalty for both players
+					// Reset master's warmongering penalty
 					SetWarmongerThreat(eOtherTeamPlayer, THREAT_NONE);
 					SetOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, 0);
-					GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetWarmongerThreat(GetPlayer()->GetID(), THREAT_NONE);
-					GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetOtherPlayerWarmongerAmountTimes100(GetPlayer()->GetID(), 0);
+
+					// All other players reset warmongering penalty for the vassal
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetWarmongerThreat(GetPlayer()->GetID(), THREAT_NONE);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetOtherPlayerWarmongerAmountTimes100(GetPlayer()->GetID(), 0);
+					}
 
 					// Reset memory of demands made
 					SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
