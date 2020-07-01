@@ -21779,19 +21779,16 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					}
 				}
 
-				else if (GET_PLAYER(eAttackedPlayer).isMinorCiv())
+				else if (GET_PLAYER(eAttackedPlayer).isMinorCiv() && !bDefensivePact)
 				{
 					ChangeOtherPlayerNumMinorsAttacked(ePlayer, 1, eOtherTeam);
 
 					// Did they attack a Minor we're protecting?
 					if (GET_PLAYER(eAttackedPlayer).GetMinorCivAI()->IsProtectedByMajor(eMyPlayer))
 					{
-						if (!bDefensivePact)
-						{
-							SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, 0);
-							SetOtherPlayerProtectedMinorAttacked(ePlayer, eAttackedPlayer);
-							ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
-						}
+						SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, 0);
+						SetOtherPlayerProtectedMinorAttacked(ePlayer, eAttackedPlayer);
+						ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
 					}
 				}
 			}
