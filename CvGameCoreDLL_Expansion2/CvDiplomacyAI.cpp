@@ -21790,39 +21790,43 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 			// If it's us OR we know the attacked player, change appropriate values
 			if (IsPlayerValid(eAttackedPlayer, true) && GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				if (GET_PLAYER(eAttackedPlayer).isMajorCiv() && !bDefensivePact)
+				if (GET_PLAYER(eAttackedPlayer).isMajorCiv()))
 				{
 					bMajorAttackedMajor = true;
-					ChangeOtherPlayerNumMajorsAttacked(ePlayer, 1, eOtherTeam);
 
-					if (GetTeam() != eOtherTeam && !bDefensivePact && !IsAtWar(ePlayer) && !IsUntrustworthyFriend(ePlayer))
+					if (!bDefensivePact)
 					{
-						// If we view the target as a backstabber, apply a large diplo bonus.
-						if (IsUntrustworthyFriend(eAttackedPlayer))
+						ChangeOtherPlayerNumMajorsAttacked(ePlayer, 1, eOtherTeam);
+
+						if (GetTeam() != eOtherTeam && !IsAtWar(ePlayer) && !IsUntrustworthyFriend(ePlayer))
 						{
-							ChangeRecentAssistValue(ePlayer, -300);
-						}
-						// Did they declare war on someone we're at war with?
-						else if (IsAtWar(eAttackedPlayer))
-						{
-							// If we're doing badly in the war, we appreciate the assistance.
-							switch (GetWarState(eAttackedPlayer))
+							// If we view the target as a backstabber, apply a large diplo bonus.
+							if (IsUntrustworthyFriend(eAttackedPlayer))
 							{
-							case WAR_STATE_NEARLY_WON:
-							case WAR_STATE_OFFENSIVE:
-								break;
-							case WAR_STATE_CALM:
-								ChangeRecentAssistValue(ePlayer, -50);
-								break;
-							case WAR_STATE_STALEMATE:
-								ChangeRecentAssistValue(ePlayer, -100);
-								break;
-							case WAR_STATE_DEFENSIVE:
-								ChangeRecentAssistValue(ePlayer, -200);
-								break;
-							case WAR_STATE_NEARLY_DEFEATED:
 								ChangeRecentAssistValue(ePlayer, -300);
-								break;
+							}
+							// Did they declare war on someone we're at war with?
+							else if (IsAtWar(eAttackedPlayer))
+							{
+								// If we're doing badly in the war, we appreciate the assistance.
+								switch (GetWarState(eAttackedPlayer))
+								{
+								case WAR_STATE_NEARLY_WON:
+								case WAR_STATE_OFFENSIVE:
+									break;
+								case WAR_STATE_CALM:
+									ChangeRecentAssistValue(ePlayer, -50);
+									break;
+								case WAR_STATE_STALEMATE:
+									ChangeRecentAssistValue(ePlayer, -100);
+									break;
+								case WAR_STATE_DEFENSIVE:
+									ChangeRecentAssistValue(ePlayer, -200);
+									break;
+								case WAR_STATE_NEARLY_DEFEATED:
+									ChangeRecentAssistValue(ePlayer, -300);
+									break;
+								}
 							}
 						}
 					}
