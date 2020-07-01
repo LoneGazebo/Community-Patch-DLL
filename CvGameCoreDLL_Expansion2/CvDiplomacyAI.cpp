@@ -14159,7 +14159,7 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	if (iPercentageDifference < 0)
 		iPercentageDifference *= -1; // need the absolute value
 
-	int iRtnValue = 0;
+	int iRtnValue = 100;
 
 	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
 	if (iCivRating > iAverageRating)
