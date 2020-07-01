@@ -5136,7 +5136,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// This player has a defensive pact with them? If the loop player's at least as strong as we are, let's reduce our war interest.
-		else if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTeam))
+		else if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTeam) && (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer)))
 		{
 			if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 			{
