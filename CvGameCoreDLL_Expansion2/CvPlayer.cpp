@@ -173,7 +173,7 @@ CvPlayer::CvPlayer() :
 	, m_iEspionageModifier("CvPlayer::m_iEspionageModifier", m_syncArchive)
 	, m_iSpyStartingRank("CvPlayer::m_iSpyStartingRank", m_syncArchive)
 	, m_iExtraLeagueVotes("CvPlayer::m_iExtraLeagueVotes", m_syncArchive)
-	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
+	, m_iDummy("CvPlayer::m_iDummy", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
 	, m_iUnitUpgradeCostMod("CvPlayer::m_iUnitUpgradeCostMod", m_syncArchive)
 	, m_iBarbarianCombatBonus("CvPlayer::m_iBarbarianCombatBonus", m_syncArchive)
@@ -427,7 +427,6 @@ CvPlayer::CvPlayer() :
 	, m_pabGetsScienceFromPlayer("CvPlayer::m_pabGetsScienceFromPlayer", m_syncArchive)
 	, m_ppaaiSpecialistExtraYield("CvPlayer::m_ppaaiSpecialistExtraYield", m_syncArchive)
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
-	, m_ppaaiBuildingClassYieldMod("CvPlayer::m_ppaaiBuildingClassYieldMod", m_syncArchive)
 	, m_bEverPoppedGoody("CvPlayer::m_bEverPoppedGoody", m_syncArchive)
 	, m_bEverTrainedBuilder("CvPlayer::m_bEverTrainedBuilder", m_syncArchive)
 	, m_iCityConnectionHappiness("CvPlayer::m_iCityConnectionHappiness", m_syncArchive)
@@ -1225,7 +1224,6 @@ void CvPlayer::uninit()
 	m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
 	m_ppaaiImprovementYieldChange.clear();
-	m_ppaaiBuildingClassYieldMod.clear();
 
 	m_researchQueue.clear();
 	m_cityNames.clear();
@@ -1330,7 +1328,7 @@ void CvPlayer::uninit()
 	m_iScienceRateFromLeagueAid = 0;
 	m_iLeagueCultureCityModifier = 0;
 #endif
-	m_iSpecialPolicyBuildingHappiness = 0;
+	m_iDummy = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
@@ -1740,6 +1738,7 @@ void CvPlayer::uninit()
 	m_iMilitaryLandMight = 0;
 #endif
 
+	m_vCityConnectionPlots.clear();
 	m_eID = NO_PLAYER;
 }
 
@@ -2301,12 +2300,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_ppaaiImprovementYieldChange.setAt(i, yield);
 		}
 
-		m_ppaaiBuildingClassYieldMod.clear();
-		m_ppaaiBuildingClassYieldMod.resize(GC.getNumBuildingClassInfos());
-		for(unsigned int i = 0; i < m_ppaaiBuildingClassYieldMod.size(); ++i)
-		{
-			m_ppaaiBuildingClassYieldMod.setAt(i, yield);
-		}
 #if defined(MOD_BALANCE_CORE)
 		m_ppiApproachScratchValue.clear();
 		m_ppiApproachScratchValue.resize(MAX_MAJOR_CIVS);
@@ -2325,6 +2318,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		AI_reset();
 	}
 
+	m_vCityConnectionPlots.clear();
 	m_iNumUnitsSuppliedCached = -1;
 }
 
@@ -23188,6 +23182,34 @@ void CvPlayer::DoUpdateCityConnectionHappiness()
 		}
 	}
 	m_iCityConnectionHappiness = iHappinessPerTradeRoute * iNumCities / 100;	// Bring it out of hundreds
+}
+
+bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive)
+{
+	if (bActive)
+	{
+		if (IsCityConnectionPlot(pPlot))
+			return false; //no update
+
+		//insert and sort
+		m_vCityConnectionPlots.push_back(pPlot->GetPlotIndex());
+		std::sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
+		return true;
+	}
+	else
+	{
+		if (!IsCityConnectionPlot(pPlot))
+			return false; //no update
+
+		//just delete, no need to re-sort
+		m_vCityConnectionPlots.erase(std::remove(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex()), m_vCityConnectionPlots.end());
+		return true;
+	}
+}
+
+bool CvPlayer::IsCityConnectionPlot(const CvPlot * pPlot) const
+{
+	return std::binary_search(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex());
 }
 
 //	--------------------------------------------------------------------------------
@@ -46024,6 +46046,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		pCity->UpdateClosestFriendlyNeighbors();
 #endif
 
+	kStream >> m_vCityConnectionPlots;
 }
 
 //	--------------------------------------------------------------------------------
@@ -46212,6 +46235,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabHasGlobalMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
 #endif
+
+	kStream << m_vCityConnectionPlots;
 }
 
 //	--------------------------------------------------------------------------------

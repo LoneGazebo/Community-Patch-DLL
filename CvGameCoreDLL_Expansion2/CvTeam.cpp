@@ -1783,81 +1783,49 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 	}
 
-	int iMinorCivLoop;
-	int iMajorCivLoop;
-
-	// Minor Civs declaring war
-	if (isMinorCiv())
-	{
-
-	}
 	// Major is declaring War
-	else
+	if (isMajorCiv())
 	{
-		int iMajorCivLoop2;
-
 		// Update what every Major Civ sees
-		for (iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
+		for (int iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
 		{
-			if (GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam() == GetID())
+			PlayerTypes eAttacker = (PlayerTypes) iMajorCivLoop;
+
+			if (GET_PLAYER(eAttacker).getTeam() == GetID() && GET_PLAYER(eAttacker).isAlive())
 			{
-				if (GET_PLAYER((PlayerTypes)iMajorCivLoop).isAlive())
+				// All other major civs should take note of this war declaration
+				for (int iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
 				{
-					// Alter Grand Strategy stats for all Majors in the game who've met this Major declaring war
-					for (iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
+					PlayerTypes eMajor = (PlayerTypes) iMajorCivLoop2;
+
+					// If we've met the player, update Diplo stuff
+					if (GET_PLAYER(eMajor).getTeam() != GetID() && GET_PLAYER(eMajor).GetDiplomacyAI()->IsHasMet(eAttacker, /*bMyTeamIsValid*/ true))
 					{
-						// I don't care if it's me
-						if (iMajorCivLoop != iMajorCivLoop2)
-						{
-							// Have I actually met this player declaring war?
-							if (GET_TEAM(GET_PLAYER((PlayerTypes)iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam()))
-							{
-								// Update Diplo stuff
-#if defined(MOD_BALANCE_CORE)
-								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam, bDefensivePact);
-#else
-								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam);
-#endif
-								if (!bDefensivePact)
-								{
-									// Major declaring war on Minor
-									if (GET_TEAM(eTeam).isMinorCiv())
-									{
-										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMinorsAttacked((PlayerTypes)iMajorCivLoop, 1, eTeam);
-									}
-									// Major declaring war on Major
-									else
-									{
-										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMajorsAttacked((PlayerTypes)iMajorCivLoop, 1, eTeam);
-									}
-								}
-							}
-						}
+						GET_PLAYER(eMajor).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone(eAttacker, eTeam, bDefensivePact);
 					}
+				}
 
-					// Declaring war on Minor
-					for (iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+				// Attacker should reevaluate approaches towards all other major civs
+				vector<PlayerTypes> v = GET_PLAYER(eAttacker).GetDiplomacyAI()->GetAllValidMajorCivs();
+				GET_PLAYER(eAttacker).GetDiplomacyAI()->DoUpdateOpinions();
+				GET_PLAYER(eAttacker).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+			}
+
+			// Declaring war on Minor
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+
+				// Now loop through all players on this team to nullify Quests for them
+				if (GET_PLAYER(eMinor).getTeam() == eTeam && GET_PLAYER(eMinor).isAlive())
+				{
+					// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
+					// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
+					//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
+					if (!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
 					{
-						// Now loop through all players on this team to nullify Quests for them
-						if (GET_PLAYER((PlayerTypes)iMinorCivLoop).getTeam() == eTeam)
-						{
-							if (GET_PLAYER((PlayerTypes)iMinorCivLoop).isAlive())
-							{
-								// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
-								// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
-								//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
-#if defined(MOD_BALANCE_CORE)
-								if (!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
-#else
-								if (!isMinorCiv() && !bDefensivePact)
-#endif
-								{
-									ChangeNumMinorCivsAttacked(1);
-
-									GET_PLAYER((PlayerTypes)iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
-								}
-							}
-						}
+						ChangeNumMinorCivsAttacked(1);
+						GET_PLAYER((PlayerTypes)iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
 					}
 				}
 			}
@@ -2975,8 +2943,6 @@ bool CvTeam::isHuman() const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
-
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
 {
@@ -2996,103 +2962,23 @@ bool CvTeam::isObserver() const
 void CvTeam::updateTeamStatus()
 {
 	m_bIsMinorTeam = false;
-	m_bIsObserverTeam = true;
+	m_bIsObserverTeam = false;
 
-	//the first alive player determines the result
+	//one member determines the result
 	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
+		if (CvPreGame::isMinorCiv(*iI))
+		{
+			m_bIsMinorTeam = true;
+		}
+
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
-		if(kPlayer.isAlive())
+		if (kPlayer.isObserver())
 		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-		else if (CvPreGame::isMinorCiv(*iI))
-		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-	}
-
-	//the first member determines the result
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if (kPlayer.getTeam() == GetID())
-		{
-			m_bIsObserverTeam = kPlayer.isObserver();
-			break;
-		}
-	}
-
-	//make sure team membership is correct
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-
-		if (kPlayer.getTeam() == GetID())
-		{
-			if (!isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for membership in CvTeam()\n");
-		}
-		else
-		{
-			if (isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for non-membership in CvTeam()\n");
+			m_bIsObserverTeam = true;
 		}
 	}
 }
-
-#else
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isObserver() const
-{
-	int iI;
-	for(iI = 0; iI < MAX_PLAYERS; iI++){
-		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
-		if(player.getTeam() == GetID() && player.isObserver()){
-			return true;
-		}
-	}
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isBarbarian() const
-{
-	return (m_eID == BARBARIAN_TEAM);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isMinorCiv() const
-{
-	bool bValid = false;
-
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
-		{
-			if(kPlayer.getTeam() == GetID())
-			{
-				if(kPlayer.isMinorCiv())
-				{
-					bValid = true;
-					break;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return bValid;
-}
-#endif
 
 #if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------

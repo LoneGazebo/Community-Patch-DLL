@@ -29309,11 +29309,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	iRtnValue += iYieldValue;
 
-	if (pPlot->IsStrategicRoute(getTeam()))
-	{
-		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
-	}
-	if (pPlot->GetBuilderAIScratchPadPlayer() == getOwner() && pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE)
+	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}

@@ -8,6 +8,45 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreEnumSerialization.h"
 
+FDataStream& operator<<(FDataStream& saveTo, const TerrainTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, TerrainTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<TerrainTypes>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const FeatureTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, FeatureTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<FeatureTypes>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const PromotionTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, PromotionTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PromotionTypes>(v);
+	return loadFrom;
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const AITacticalMove& readFrom)
 {
 	saveTo << static_cast<int>(readFrom);

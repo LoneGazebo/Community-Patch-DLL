@@ -2072,10 +2072,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else
 	{
 		// if the tile already been tagged for building a road, then provide a discount
-		if(pPlot->GetBuilderAIScratchPadTurn() >= (GC.getGame().getGameTurn()-1) && 
-			pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer &&
-			pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE
-			)
+		if(GET_PLAYER(data.ePlayer).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
 			return PATH_BASE_COST/2;
 
 		//should we prefer rough terrain because the gain in movement points is greater?
