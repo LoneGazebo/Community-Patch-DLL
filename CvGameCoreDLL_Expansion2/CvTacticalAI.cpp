@@ -1095,7 +1095,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
-	PlotEscortEmbarkedMoves();
 
 	//try again now that other blocking units might have moved
 	PlotHealMoves(false);
@@ -1113,6 +1112,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotBlockadeMoves();
 
 	//pure defense
+	PlotEscortEmbarkedMoves();
 	PlotGarrisonMoves(4);
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
@@ -2306,7 +2306,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Am I a naval combat unit?
-			if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCombatUnit())
+			if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCanAttack())
 			{
 				//any embarked unit close by?
 				int iMaxDist = pUnit->baseMoves()*2;
@@ -3634,17 +3634,17 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 		if (!pUnit)
 			continue;
 
-		//a little bit of AI cheating here.
-		//the problem is that sometimes the camp is too strong to attack with a single unit, it needs an army to take it out
-		//so if we have a single unit it moves in, does nothing, reposition moves take it away, next turn it comes back etc.
-		//so we peek at the unit in the camp even if it's invisible and see if it's even worth going there
-
-		if (!TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
-			continue;
-
 		//guarded camp?
 		if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, false))
 		{
+			//a little bit of AI cheating here.
+			//the problem is that sometimes the camp is too strong to attack with a single unit, it needs an army to take it out
+			//so if we have a single unit it moves in, does nothing, reposition moves take it away, next turn it comes back etc.
+			//so we peek at the unit in the camp even if it's invisible and see if it's even worth going there
+
+			if (!TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
+				continue;
+
 			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 		}
 		else //empty camp, move in and move on
@@ -5022,11 +5022,12 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 		{
 			CvPlot *pBestTarget = NULL;
 			int iHighestDanger = -1;
+			//we cannot stack with embarked combat units, but with embarked civilians its fine
+			int iMoveFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 			// Loop through all my embarked units that are: alone and within range
-			CvUnit* pLoopUnit;
 			int iLoop;
-			for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+			for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 			{
 				if (pLoopUnit->getDomainType() != DOMAIN_LAND)
 				{
@@ -5040,19 +5041,19 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 				{
 					continue;
 				}
-				else if(pLoopUnit->plot()->getBestDefender(m_pPlayer->GetID()))
-				{
-					continue;
-				}
 				//Ignore guys that can still move.
 				else if(pLoopUnit->getMoves() > 0)
 				{
 					continue;
 				}
 			
+				//stack with civilians
+				if (!pLoopUnit->IsCanDefend())
+					iMoveFlag = 0;
+				
 				CvPlot *pTarget = pLoopUnit->plot();
 				// Can this unit get to the embarked unit in two moves?
-				int iTurns = pUnit->TurnsToReachTarget(pTarget);
+				int iTurns = pUnit->TurnsToReachTarget(pTarget,iMoveFlag);
 				if (iTurns <= 1)
 				{
 					//note: civilian in danger have INT_MAX
@@ -5067,7 +5068,7 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 
 			if (pBestTarget)
 			{
-				ExecuteMoveToPlot(pUnit, pBestTarget, true);
+				ExecuteMoveToPlot(pUnit, pBestTarget, true, iMoveFlag);
 
 				//If we can shoot while doing this, do it!
 				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit))
@@ -5540,7 +5541,11 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 				continue;
 
-			if (pLoopUnit->IsGarrisoned() || pLoopUnit->getArmyID()!=-1)
+			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
+			if (pLoopUnit->IsGarrisoned() && m_pPlayer->GetPlotDanger(pLoopUnit->GetGarrisonedCity())==0)
+				continue;
+				
+			if (pLoopUnit->getArmyID()!=-1)
 				continue;
 
 			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
@@ -6479,7 +6484,8 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 
 	//target can be city or a unit
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
-	CvUnit* pTargetUnit = pTargetPlot->getBestDefender( NO_PLAYER, pUnit->getOwner(), pUnit);
+	//no visibility check, when we call this we already know there is an enemy unit ...
+	CvUnit* pTargetUnit = pTargetPlot->getBestDefender( NO_PLAYER, pUnit->getOwner(), pUnit, false, true);
 
 	int iDamageDealt = 0, iDamageReceived = 1;
 	if (pTargetCity)
