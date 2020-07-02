@@ -15627,23 +15627,25 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 int CvUnit::GetUnhappinessCombatPenalty() const
 {
 	CvPlayer &kPlayer = GET_PLAYER(getOwner());
-	int iPenalty = 0;
 
-	if(!kPlayer.isMinorCiv() && kPlayer.IsEmpireUnhappy())
-	{ 
-		if (MOD_BALANCE_CORE_HAPPINESS)
-		{
-			if (kPlayer.IsEmpireSuperUnhappy() || kPlayer.IsEmpireVeryUnhappy())
-				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
-			else
-				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY() / 2;
-		}
-
-		iPenalty = (-1 * kPlayer.GetExcessHappiness()) * GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
-		iPenalty = max(iPenalty, GC.getVERY_UNHAPPY_MAX_COMBAT_PENALTY());
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if (kPlayer.IsEmpireVeryUnhappy()) //includes the super unhappy case!
+			return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
+		else if (kPlayer.IsEmpireUnhappy())
+			return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY() / 2;
 	}
-
-	return iPenalty;
+	else
+	{
+		if (kPlayer.IsEmpireUnhappy())
+		{
+			//negative result!
+			int iPenalty = (-1 * kPlayer.GetExcessHappiness()) * GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
+			return max(iPenalty, GC.getVERY_UNHAPPY_MAX_COMBAT_PENALTY());
+		}
+		else
+			return 0;
+	}
 }
 
 //	--------------------------------------------------------------------------------

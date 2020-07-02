@@ -20699,10 +20699,10 @@ int CvPlayer::GetHappinessForGAP() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
+	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0) || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 	{
 		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-			return 50;
+			return GC.getUNHAPPY_THRESHOLD();
 		else
 			return 0;
 	}
@@ -20714,61 +20714,42 @@ int CvPlayer::GetExcessHappiness() const
 /// Has the player passed the Happiness limit?
 bool CvPlayer::IsEmpireUnhappy() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD());
 	}
 	else
 	{
-		if (GetExcessHappiness() < 0)
-			return true;
+		return (GetExcessHappiness() < 0);
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is the empire REALLY unhappy? (other penalties)
 bool CvPlayer::IsEmpireVeryUnhappy() const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD());
 	}
-	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	else
 	{
-		return true;
+		return (GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD());
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is the empire SUPER unhappy? (leads to revolts)
 bool CvPlayer::IsEmpireSuperUnhappy() const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD());
 	}
-	else if (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	else
 	{
-		return true;
+		return (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD());
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
