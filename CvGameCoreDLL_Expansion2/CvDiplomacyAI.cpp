@@ -22676,6 +22676,13 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 		vector<PlayerTypes> v;
 		DoUpdateOpinions();
 		DoUpdateMajorCivApproaches(v);
+
+		// Let's not be hostile right off the bat - neutral is fine, though
+		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+		}
 	}
 	// Minor civ
 	else
@@ -26894,16 +26901,12 @@ void CvDiplomacyAI::DoContactMinorCivs()
 void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivApproachTypes eApproach)
 {
 	// Only change protection if this player is not human controlled!
-	if(!GetPlayer()->isHuman())
+	if (!GetPlayer()->isHuman())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetPlayer()->GetID())
-#else
-		if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-#endif
+		if (eApproach == MINOR_CIV_APPROACH_PROTECTIVE || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetPlayer()->GetID())
 		{
 			// We are protective, so do a PtP if we are able to and haven't already
-			if(GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetPlayer()->GetID()))
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetPlayer()->GetID()))
 			{
 				GC.getGame().DoMinorPledgeProtection(GetPlayer()->GetID(), eMinor, true);
 				DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
@@ -26912,7 +26915,7 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivAppro
 		else
 		{
 			// We are not protective, so revoke PtP if we can
-			if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetPlayer()->GetID()))
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetPlayer()->GetID()))
 			{
 				GC.getGame().DoMinorPledgeProtection(GetPlayer()->GetID(), eMinor, false);
 				DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
