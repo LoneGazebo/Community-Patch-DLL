@@ -15618,8 +15618,8 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 		}
 	}
 
-	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
-	return iPenalty;
+	//value is negative!
+	return max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 }
 
 //	--------------------------------------------------------------------------------
@@ -15630,10 +15630,17 @@ int CvUnit::GetUnhappinessCombatPenalty() const
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if (kPlayer.IsEmpireVeryUnhappy()) //includes the super unhappy case!
-			return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
-		else if (kPlayer.IsEmpireUnhappy())
-			return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY() / 2;
+		//this is called a lot during combat simulation
+		//try to minimize the checks, if we're happy there is only one!
+		if (kPlayer.IsEmpireUnhappy())
+		{
+			if (kPlayer.IsEmpireVeryUnhappy())
+				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
+			else
+				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY() / 2;
+		}
+		else
+			return 0;
 	}
 	else
 	{
@@ -16108,40 +16115,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 		iModifier += /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (attack mod only)
@@ -16329,40 +16304,8 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	// this may be always zero for defense against ranged
 	iModifier += GetDamageCombatModifier(bFromRangedAttack);
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyDefenseBonus();
-				iModifier += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies();
 
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
@@ -16672,40 +16615,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
 	if (pTargetPlot)
 	{

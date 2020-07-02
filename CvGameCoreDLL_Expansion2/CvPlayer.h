@@ -1694,6 +1694,7 @@ public:
 	void changeConversionTimer(int iChange);
 
 	CvCity* getCapitalCity() const;
+	int getCapitalCityID() const;
 	void setCapitalCity(CvCity* pNewCapitalCity);
 
 	int GetOriginalCapitalX() const;
@@ -2197,6 +2198,10 @@ public:
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
 	int GetMonopolyPercent(ResourceTypes eResource) const;
+	//cache these because we need them a lot
+	int GetCombatAttackBonusFromMonopolies() const;
+	int GetCombatDefenseBonusFromMonopolies() const;
+	void UpdateMonopolyCache();
 
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
@@ -3585,6 +3590,8 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
+	int m_iCombatAttackBonusFromMonopolies;
+	int m_iCombatDefenseBonusFromMonopolies;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;

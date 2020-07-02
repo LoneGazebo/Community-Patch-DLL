@@ -16338,7 +16338,7 @@ bool CvCity::isVisible(TeamTypes eTeam, bool bDebug) const
 bool CvCity::isCapital() const
 {
 	VALIDATE_OBJECT
-	return (GET_PLAYER(getOwner()).getCapitalCity() == this);
+	return (GET_PLAYER(getOwner()).getCapitalCityID() == GetID());
 }
 
 //	--------------------------------------------------------------------------------
@@ -21513,13 +21513,9 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
-	if (iHappinessPerGarrison > 0)
+	if (iHappinessPerGarrison > 0 && HasGarrison())
 	{
-		CvUnit* pDefender = plot()->getBestDefender(getOwner());
-		if (pDefender)
-		{
-			iTotalHappiness += iHappinessPerGarrison;
-		}
+		iTotalHappiness += iHappinessPerGarrison;
 	}
 	
 	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
