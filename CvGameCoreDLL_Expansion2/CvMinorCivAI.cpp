@@ -12406,8 +12406,12 @@ void CvMinorCivAI::DoDefection()
 /// Is a player allowed to be inside someone else's borders?
 bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 {
+	// At war?
+	if (IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	// Special trait?
-	if(IsPlayerHasOpenBordersAutomatically(ePlayer))
+	if (IsPlayerHasOpenBordersAutomatically(ePlayer))
 		return true;
 
 	if (m_bAllowMajorsToIntrude)

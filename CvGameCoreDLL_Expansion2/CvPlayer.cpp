@@ -10037,14 +10037,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				// Have I met the player who conquered the city?
 				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 				{
-#if defined(MOD_CONFIG_AI_IN_XML)
 					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
-#else
-					int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities, GET_PLAYER(ePlayer).isMinorCiv());
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(GetID(), -iWarmongerOffset);
-#endif
 				}
 			}
 		}
@@ -19840,8 +19834,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				iYieldHandicap *= 3;
 				int iLoop;
-				CvCity* pLoopCity;
-				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -19882,8 +19875,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_WAR:
 			{
 				int iLoop;
-				CvCity* pLoopCity;
-				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -19910,8 +19902,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_GA:
 			{
 				int iLoop;
-				CvCity* pLoopCity;
-				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -19961,8 +19952,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
 			{
 				int iLoop;
-				CvCity* pLoopCity;
-				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -19978,8 +19968,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_CITY_FOUND:
 			{
 				int iLoop;
-				CvCity* pLoopCity;
-				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -33020,7 +33009,7 @@ int CvPlayer::GetMilitaryRating() const
 
 void CvPlayer::SetMilitaryRating(int iValue)
 {
-	m_iMilitaryRating = iValue;
+	m_iMilitaryRating = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------

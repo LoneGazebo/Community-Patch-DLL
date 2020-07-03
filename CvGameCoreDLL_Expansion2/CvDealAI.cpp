@@ -1485,7 +1485,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
 		//let's assume an interest rate of 0.1% per turn, no compounding
-		int iInterestPercent = 100 * (iNumTurns * 1) / 1000;
+		int iInterestPercent = 100 * (iNumTurns * /*1*/ GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 1000;
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
 		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
@@ -2909,9 +2909,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	
 	if (bCancel)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
-		GetPlayer()->GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eOtherPlayer);
-#endif
+		GetPlayer()->GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(eOtherPlayer, false);
 		return INT_MAX;
 	}
 
