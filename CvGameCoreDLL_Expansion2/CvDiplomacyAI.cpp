@@ -5284,7 +5284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// STRENGTH COMPARED TO US
 	////////////////////////////////////
 
-	bool bWantToAttack = (bConqueror || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || IsMajorCompetitor(ePlayer) || (IsEarlyGameCompetitor(ePlayer) && eProximity >= PLAYER_PROXIMITY_CLOSE));
+	bool bWantToAttack = (bGoingForWorldConquest || bCloseToWorldConquest || IsMajorCompetitor(ePlayer));
 
 	switch (eMilitaryStrength)
 	{
@@ -6858,7 +6858,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						bThinkingAboutDogpiling = true;
 					}
-					else if (IsEarlyGameCompetitor(ePlayer))
+					else if (iEra <= 2 && IsEarlyGameCompetitor(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 					}
@@ -19947,10 +19947,6 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 /// Is this player causing us problems in the early game?
 bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 {
-	// Not the early game
-	if (GetPlayer()->GetCurrentEra() > 2)
-		return false;
-
 	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
 		return true;
 

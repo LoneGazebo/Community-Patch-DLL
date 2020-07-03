@@ -2651,11 +2651,19 @@ local function GetMoodInfo( playerID )
 	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale_ToLower("TXT_KEY_VP_TECH") ) )
 	-- Policies
 	for policyBranch in GameInfo.PolicyBranchTypes() do
-		local policyCount = player:GetNumPoliciesInBranchForDisplay(policyBranch.ID)
+		local policyCount = 0
 
-		if (policyCount > 0) then
-			tips:insert(policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) ) 
+		for policy in GameInfo.Policies() do
+			if policy.PolicyBranchType == policyBranch.Type and player:HasPolicy(policy.ID) then
+				policyCount = policyCount + 1
+			end
 		end
+		-- Add here for opener
+		if(policyCount > 0) then
+			policyCount = policyCount + 1
+		end
+
+		tips:insertIf( policyCount > 0 and policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) )
 	end
 	-- Religion Founded
 	if g_isReligionEnabled then
