@@ -5284,7 +5284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// STRENGTH COMPARED TO US
 	////////////////////////////////////
 
-	bool bWantToAttack = (bConqueror || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || IsMajorCompetitor(ePlayer) || (IsEarlyGameCompetitor(ePlayer) && eProximity >= PLAYER_PROXIMITY_CLOSE));
+	bool bWantToAttack = (bConqueror || bConquerorTraits || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || IsMajorCompetitor(ePlayer) || (IsEarlyGameCompetitor(ePlayer) && eProximity >= PLAYER_PROXIMITY_CLOSE));
 
 	switch (eMilitaryStrength)
 	{
