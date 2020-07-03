@@ -4497,6 +4497,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 #endif
 
 	// Previous approach
+	bool bFirstUpdate = false;
 	MajorCivApproachTypes eOldApproach;
 	std::map<PlayerTypes, MajorCivApproachTypes>::iterator oldApproachPointer = oldApproaches.find(ePlayer);
 	if (oldApproachPointer != oldApproaches.end())
@@ -4510,6 +4511,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 	{
+		bFirstUpdate = true;
 		bReevaluatePlayer = true;
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 	}
@@ -5282,17 +5284,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// STRENGTH COMPARED TO US
 	////////////////////////////////////
 
+	bool bWantToAttack = (bGoingForWorldConquest || bCloseToWorldConquest || IsMajorCompetitor(ePlayer));
+
 	switch (eMilitaryStrength)
 	{
 	case STRENGTH_PATHETIC:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 3);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3);
 		break;
 	case STRENGTH_WEAK:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
 		break;
@@ -5330,15 +5334,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// For high economic strength, do not add AFRAID weight or remove WAR/HOSTILE weight unless military strength is also that high ... military power should remain a larger factor
 	if (eEconomicStrength == STRENGTH_PATHETIC)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 3);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3);
 	}
 	else if (eEconomicStrength == STRENGTH_WEAK)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
 	}
@@ -7833,7 +7837,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Do we have bonuses towards war?
 		int iWarBonus = 0;
-		bool bWantToAttack = (bEasyTarget || bGoingForWorldConquest || bCloseToWorldConquest || IsMajorCompetitor(ePlayer));
+		bWantToAttack |= bEasyTarget;
 
 		// War UA?
 		if (bConquerorTraits)
@@ -8738,6 +8742,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// APPROACH OVERRIDES
 	////////////////////////////////////
 
+	// If this is the first time ever updating approach towards this player, let's not be hostile right off the bat - neutral is fine, though.
+	if (bFirstUpdate && eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+	{
+		eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+
 	// Don't bother being friendly (real or fake) if there's been a denouncement or they're untrustworthy
 	bool bNoFriendly = (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy);
 
@@ -8951,12 +8961,13 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 		iDefaultFlavorValue = 5;
 	}
 
-	viApproachWeights[eApproach] = iDefaultFlavorValue;
-
 	// Grab the old approach and scratch values for logging
 	MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+
+	// Add some base weight to the approach we've selected
+	viApproachWeights[eApproach] = iDefaultFlavorValue;
 
 	vector<int> viApproachWeightsScratch;
 
@@ -9032,12 +9043,22 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachIfWeHaveNoCities(PlayerTypes ePlayer
 		}
 	}
 
-	viApproachWeights[eApproach] = GetPersonalityMajorCivApproachBias(eApproach);
-
 	// Grab the old approach and scratch values for logging
 	MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
+	{
+		// If this is the first time ever updating approach towards this player, let's not be hostile right off the bat - neutral is fine, though.
+		if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+			eWarFace = NO_WAR_FACE_TYPE;
+		}
+
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+
+	// Add some base weight to the approach we've selected
+	viApproachWeights[eApproach] = GetPersonalityMajorCivApproachBias(eApproach);
 
 	vector<int> viApproachWeightsScratch;
 
@@ -9106,12 +9127,22 @@ void CvDiplomacyAI::DoUpdateMajorCivApproachIfTheyHaveNoCities(PlayerTypes ePlay
 		}
 	}
 
-	viApproachWeights[eApproach] = GetPersonalityMajorCivApproachBias(eApproach);
-
 	// Grab the old approach and scratch values for logging
 	MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
+	{
+		// If this is the first time ever updating approach towards this player, let's not be hostile right off the bat - neutral is fine, though.
+		if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+			eWarFace = NO_WAR_FACE_TYPE;
+		}
+
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+
+	// Add some base weight to the approach we've selected
+	viApproachWeights[eApproach] = GetPersonalityMajorCivApproachBias(eApproach);
 
 	vector<int> viApproachWeightsScratch;
 
@@ -11446,16 +11477,10 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					}
 				}
 
-				// If we're out for conquest then no peace!
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				//Correction - we want conquest, but if the war has stalled out and/or we're losing all our wars, let's consider peace.
-				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
-#else
-				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST)
-#endif
+				// We want conquest, but if the war has stalled out and/or we're losing all our wars, let's consider peace.
+				if (GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
 				{
 					// What we're willing to give up.  The higher the number the more we're willing to part with
-
 					int iWarScore = GetWarScore(eLoopPlayer,false);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -11484,43 +11509,43 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					}
 
 					// Do the final assessment
-					if(iWillingToOfferScore >= /*180*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
+					if (iWillingToOfferScore >= /*180*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_UN_SURRENDER())
 						eTreatyWillingToOffer = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
-					else if(iWillingToOfferScore >= /*150*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
+					else if (iWillingToOfferScore >= /*150*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CAPITULATION())
 						eTreatyWillingToOffer = PEACE_TREATY_CAPITULATION;
-					else if(iWillingToOfferScore >= /*120*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
+					else if (iWillingToOfferScore >= /*120*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_CESSION())
 						eTreatyWillingToOffer = PEACE_TREATY_CESSION;
-					else if(iWillingToOfferScore >= /*95*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
+					else if (iWillingToOfferScore >= /*95*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SURRENDER())
 						eTreatyWillingToOffer = PEACE_TREATY_SURRENDER;
-					else if(iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
+					else if (iWillingToOfferScore >= /*70*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SUBMISSION())
 						eTreatyWillingToOffer = PEACE_TREATY_SUBMISSION;
-					else if(iWillingToOfferScore >= /*55*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
+					else if (iWillingToOfferScore >= /*55*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_BACKDOWN())
 						eTreatyWillingToOffer = PEACE_TREATY_BACKDOWN;
-					else if(iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
+					else if (iWillingToOfferScore >= /*40*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_SETTLEMENT())
 						eTreatyWillingToOffer = PEACE_TREATY_SETTLEMENT;
-					else if(iWillingToOfferScore >= /*20*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
+					else if (iWillingToOfferScore >= /*20*/ GC.getPEACE_WILLINGNESS_OFFER_THRESHOLD_ARMISTICE())
 						eTreatyWillingToOffer = PEACE_TREATY_ARMISTICE;
 					else	// War Score could be negative here, but we're already assuming this player wants peace.  But he's not willing to give up anything for it
 						eTreatyWillingToOffer = PEACE_TREATY_WHITE_PEACE;
 
 					// Do the final assessment
-					if(iWillingToAcceptScore >= /*150*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER())
+					if (iWillingToAcceptScore >= /*150*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_UN_SURRENDER())
 						eTreatyWillingToAccept = PEACE_TREATY_UNCONDITIONAL_SURRENDER;
-					else if(iWillingToAcceptScore >= /*115*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CAPITULATION())
+					else if (iWillingToAcceptScore >= /*115*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CAPITULATION())
 						eTreatyWillingToAccept = PEACE_TREATY_CAPITULATION;
-					else if(iWillingToAcceptScore >= /*80*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CESSION())
+					else if (iWillingToAcceptScore >= /*80*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_CESSION())
 						eTreatyWillingToAccept = PEACE_TREATY_CESSION;
-					else if(iWillingToAcceptScore >= /*65*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SURRENDER())
+					else if (iWillingToAcceptScore >= /*65*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SURRENDER())
 						eTreatyWillingToAccept = PEACE_TREATY_SURRENDER;
-					else if(iWillingToAcceptScore >= /*50*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SUBMISSION())
+					else if (iWillingToAcceptScore >= /*50*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SUBMISSION())
 						eTreatyWillingToAccept = PEACE_TREATY_SUBMISSION;
-					else if(iWillingToAcceptScore >= /*35*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_BACKDOWN())
+					else if (iWillingToAcceptScore >= /*35*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_BACKDOWN())
 						eTreatyWillingToAccept = PEACE_TREATY_BACKDOWN;
-					else if(iWillingToAcceptScore >= /*20*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SETTLEMENT())
+					else if (iWillingToAcceptScore >= /*20*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_SETTLEMENT())
 						eTreatyWillingToAccept = PEACE_TREATY_SETTLEMENT;
-					else if(iWillingToAcceptScore >= /*10*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE())
+					else if (iWillingToAcceptScore >= /*10*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE())
 						eTreatyWillingToAccept = PEACE_TREATY_ARMISTICE;
-					else// if (iWillingToAcceptScore >= /*0*/ GC.get())
+					else
 						eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
 
 					// If we're losing all wars then let's go ahead and accept a white peace
@@ -14356,7 +14381,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 				eMilitaryStrength = STRENGTH_AVERAGE;
 			else if (iMilitaryRatio >= /*50*/ GC.getMILITARY_STRENGTH_POOR_THRESHOLD())
 				eMilitaryStrength = STRENGTH_POOR;
-			else if (iMilitaryRatio >= /*25*/ GC.getMILITARY_STRENGTH_WEAK_THRESHOLD())
+			else if (iMilitaryRatio >= /*33*/ GC.getMILITARY_STRENGTH_WEAK_THRESHOLD())
 				eMilitaryStrength = STRENGTH_WEAK;
 
 			// Set the value
@@ -14408,7 +14433,7 @@ void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 				eEconomicStrength = STRENGTH_AVERAGE;
 			else if (iEconomicRatio >= /*50*/ GC.getECONOMIC_STRENGTH_POOR_THRESHOLD())
 				eEconomicStrength = STRENGTH_POOR;
-			else if (iEconomicRatio >= /*25*/ GC.getECONOMIC_STRENGTH_WEAK_THRESHOLD())
+			else if (iEconomicRatio >= /*33*/ GC.getECONOMIC_STRENGTH_WEAK_THRESHOLD())
 				eEconomicStrength = STRENGTH_WEAK;
 
 			// Set the value
@@ -22663,29 +22688,22 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 	DoUpdateOnePlayerTargetValue(ePlayer);
 
 	// Major Civ
-	if(!GET_PLAYER(ePlayer).isMinorCiv())
+	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		SetDoFType(ePlayer, DOF_TYPE_NEW);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_NEW);
-		for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 		{
-			GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, 0);
+			MajorCivApproachTypes eApproach = (MajorCivApproachTypes) iApproachLoop;
+			GetPlayer()->SetApproachScratchValue(ePlayer, eApproach, 0);
 		}
-#endif
+
 		vector<PlayerTypes> v;
 		DoUpdateOpinions();
 		DoUpdateMajorCivApproaches(v);
-
-		// Let's not be hostile right off the bat - neutral is fine, though
-		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-		if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
-		{
-			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-		}
 	}
 	// Minor civ
-	else
+	else if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		SetMinorCivApproach(ePlayer, MINOR_CIV_APPROACH_IGNORE);
 	}
@@ -38519,6 +38537,10 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	// If we're friends, return false - this is handled in IsDenounceFriendAcceptable
 	if (IsDoFAccepted(ePlayer))
+		return false;
+
+	// Don't denounce players we've just met.
+	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) < 10)
 		return false;
 
 	int iTurn = GC.getGame().getGameTurn();
