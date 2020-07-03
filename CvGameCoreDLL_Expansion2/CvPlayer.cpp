@@ -3062,13 +3062,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 	if(bConquest)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(!isHuman())
-		{
-			GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
-		}
-		GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(GetID(), 0);
-#endif
+		GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
+
 #if defined(MOD_BALANCE_CORE)
 		if (pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
 		{

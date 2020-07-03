@@ -349,6 +349,8 @@ public:
 	void DoUpdateWarProjections();
 
 	int GetHighestWarscore(bool bOnlyCurrentWars = true);
+	PlayerTypes GetHighestWarscorePlayer(bool bOnlyCurrentWars = true);
+
 	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug = false);
 
 	// War Goal: What is is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
@@ -537,9 +539,6 @@ public:
 	int GetIgnoredBorderPromiseValue(PlayerTypes ePlayer);
 	void SetIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iValue);
 	void ChangeIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iChange);
-
-	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
-	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
 
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
@@ -1879,7 +1878,6 @@ private:
 		short m_aiBrokenBorderPromiseValue[MAX_MAJOR_CIVS];
 		short m_aiIgnoredBorderPromiseValue[MAX_MAJOR_CIVS];
 
-		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
 		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
 		bool m_abPlayerCapturedCapital[MAX_MAJOR_CIVS];
 		bool m_abPlayerCapturedHolyCity[MAX_MAJOR_CIVS];
@@ -2219,7 +2217,6 @@ private:
 	short* m_paiIgnoredExpansionPromiseValue;
 	short* m_paiBrokenBorderPromiseValue;
 	short* m_paiIgnoredBorderPromiseValue;
-	short* m_paiDeclaredWarOnFriendValue;
 	short* m_paiTradeValue;
 	short* m_paiCommonFoeValue;
 	short* m_paiAssistValue;
