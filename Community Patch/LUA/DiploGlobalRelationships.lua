@@ -1,4 +1,3 @@
-print("This is the modded DiploGlobalRelationships from CP")
 -------------------------------------------------
 -- Diplomatic
 -------------------------------------------------
@@ -22,6 +21,7 @@ function InitMajorCivList()
 	local g_pUs = Players[ g_iUs ];
 	local g_iUsTeam = g_pUs:GetTeam();
 	local g_pUsTeam = Teams[ g_iUsTeam ];
+	local g_RelationshipLength = Game.GetRelationshipDuration();
 	
 	-- Clear buttons
 	Controls.ItemStack:DestroyAllChildren();
@@ -81,17 +81,7 @@ function InitMajorCivList()
 				for pPolicyBranch in GameInfo.PolicyBranchTypes() do
 					local iPolicyBranch = pPolicyBranch.ID;
 					
-					local iCount = 0;
-					
-					for pPolicy in GameInfo.Policies() do
-						local iPolicy = pPolicy.ID;
-						
-						if (pPolicy.PolicyBranchType == pPolicyBranch.Type) then
-							if (pOtherPlayer:HasPolicy(iPolicy)) then
-								iCount = iCount + 1;
-							end
-						end
-					end
+					local iCount = pOtherPlayer:GetNumPoliciesInBranchForDisplay(iPolicyBranch);
 					
 				 	if (iCount > 0) then
 						local textControls = {};
@@ -109,7 +99,7 @@ function InitMajorCivList()
 					if (pBuildingClass.MaxGlobalInstances > 0) then
 						if (pOtherPlayer:CountNumBuildings(iBuilding) > 0) then
 							local textControls = {};
-							ContextPtr:BuildInstanceForControl("LTextEntry", textControls, controlTable.WondersStack);
+							ContextPtr:BuildInstanceForControl("TextEntryShort", textControls, controlTable.WondersStack);
 							textControls.Text:LocalizeAndSetText(pBuilding.Description);
 						end
 					end
@@ -137,7 +127,7 @@ function InitMajorCivList()
 					else
 						local text = Locale.Lookup("TXT_KEY_DIPLO_YOU_HAVE_DENOUNCED")
 						if(Players[g_iUs].GetDenouncedPlayerCounter ~= nil) then
-							local turnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - Players[g_iUs]:GetDenouncedPlayerCounter(iOtherPlayer);
+							local turnsLeft = g_RelationshipLength - Players[g_iUs]:GetDenouncedPlayerCounter(iOtherPlayer);
 							text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
 						end
 					
@@ -146,6 +136,15 @@ function InitMajorCivList()
 					bHasEntry = true;
 				else
 					controlTable.DenounceLabel:SetHide(true);
+				end
+				
+				-- We're his vassal
+				if (g_pUsTeam:IsVassal(iOtherTeam)) then
+					controlTable.VassalLabel:SetHide(false);
+					controlTable.VassalLabel:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_ARE_VASSAL"));
+					bHasEntry = true;
+				else
+					controlTable.VassalLabel:SetHide(true);
 				end
 				
 				-- The following goes into the diplo stack on the right
@@ -173,8 +172,43 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
-									textControls.Text:LocalizeAndSetText("TXT_KEY_AT_WAR_WITH", thirdName);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+									local iWarScore = pOtherPlayer:GetWarScore(iThirdPlayer);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_AT_WAR_WITH", thirdName, iWarScore);
+								end
+							end
+						end
+					end
+				end
+				
+				-- Vassals
+				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+					if (iThirdPlayer ~= iOtherPlayer) then
+						local pThirdPlayer = Players[iThirdPlayer];
+
+						if (pThirdPlayer ~= nil and pThirdPlayer:IsAlive()) then
+							local iThirdTeam = pThirdPlayer:GetTeam();
+
+							if (g_pUsTeam:IsHasMet(iThirdTeam) or iThirdPlayer == g_iUs) then
+								
+								-- Is a Vassal
+								if (pOtherTeam:IsVassal(iThirdTeam)) then
+									bHasEntry = true;
+
+									-- Us
+									if (iThirdPlayer == g_iUs) then
+										thirdName = "TXT_KEY_YOU";
+									-- Human
+									elseif (pThirdPlayer:IsHuman()) then
+										thirdName = pThirdPlayer:GetNickName();
+									-- AI
+									else
+										thirdName = pThirdPlayer:GetCivilizationShortDescription();
+									end
+
+									local textControls = {};
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_DIPLO_VASSAL_OF", thirdName);
 								end
 							end
 						end
@@ -207,11 +241,11 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
 									local text = Locale.Lookup("TXT_KEY_DIPLO_FRIENDS_WITH", thirdName);
 									if(pOtherPlayer.GetDoFCounter ~= nil) then
-										local turnsLeft = GameDefines.DOF_EXPIRATION_TIME - pOtherPlayer:GetDoFCounter(iThirdPlayer);
+										local turnsLeft = g_RelationshipLength - pOtherPlayer:GetDoFCounter(iThirdPlayer);
 										text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
         							end
 									textControls.Text:SetText(text);
@@ -221,7 +255,7 @@ function InitMajorCivList()
 					end
 				end
 
-				-- DPS (CP)
+				-- DPS (CBP)
 				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
 					if (iThirdPlayer ~= iOtherPlayer) then
 						local pThirdPlayer = Players[iThirdPlayer];
@@ -247,17 +281,41 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
-									local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
-									textControls.Text:SetText(text);
+									--local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
 								end
 							end
 						end
 					end
 				end
 				-- END
-				
+				-- Marriages (CBP)
+				for iThirdPlayer = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS - 1 do
+					if (iThirdPlayer ~= iOtherPlayer) then
+						local pThirdPlayer = Players[iThirdPlayer];
+						
+						if (pThirdPlayer ~= nil and pThirdPlayer:IsAlive()) then
+							local iThirdTeam  = pThirdPlayer:GetTeam();
+							
+							if (g_pUsTeam:IsHasMet(iThirdTeam) or iThirdPlayer == g_iUs) then
+								
+								-- Allied with Minor
+								if (pThirdPlayer:IsMarried(iOtherPlayer)) then
+									bHasEntry = true;
+									
+									thirdName = pThirdPlayer:GetCivilizationShortDescription();
+									
+									local textControls = {};
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_MARRIED_TO", thirdName);
+								end
+							end
+						end
+					end
+				end
+				-- END
 				-- Denouncements
 				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
 					if (iThirdPlayer ~= iOtherPlayer) then
@@ -284,7 +342,7 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
 									-- Backstab?
 									if (pThirdPlayer:IsFriendDenouncedUs(iOtherPlayer) or pThirdPlayer:IsFriendDeclaredWarOnUs(iOtherPlayer)) then
@@ -293,7 +351,7 @@ function InitMajorCivList()
 									else
 										local text = Locale.Lookup("TXT_KEY_DIPLO_DENOUNCED", thirdName);
 										if(pOtherPlayer.GetDenouncedPlayerCounter ~= nil) then
-											local turnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - pOtherPlayer:GetDenouncedPlayerCounter(iThirdPlayer);
+											local turnsLeft = g_RelationshipLength - pOtherPlayer:GetDenouncedPlayerCounter(iThirdPlayer);
 											text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
         								end
 										textControls.Text:SetText(text);
@@ -322,14 +380,26 @@ function InitMajorCivList()
 									thirdName = pThirdPlayer:GetCivilizationShortDescription();
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									textControls.Text:LocalizeAndSetText("TXT_KEY_ALLIED_WITH", thirdName);
 								end
 							end
 						end
 					end
 				end
-
+				
+				-- Promises (Vox Populi)
+				local function ShowPromiseTurns(iNumTurns, sDiploText)
+					if iNumTurns <= 0 then return end -- do not display "0 turns"
+					local textControls = {};
+					ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+					textControls.Text:LocalizeAndSetText(sDiploText, iNumTurns);
+				end
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS");
+				-- Promises END
+				
 				--controlTable.NothingLabel:SetHide(bHasEntry);
 				controlTable.PactStack:CalculateSize();
 				controlTable.PoliciesStack:CalculateSize();
