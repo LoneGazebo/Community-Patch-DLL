@@ -29571,25 +29571,20 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 	{
 		return;
 	}
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-#if !defined(MOD_BALANCE_CORE)
-		CvTeam* pOurTeam = &GET_TEAM(GetPlayer()->getTeam());
-		TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
-#endif
-
 		// Have to have been at war for at least a little while
 #if defined(MOD_BALANCE_CORE)
 		GetPlayer()->SetCachedValueOfPeaceWithHuman(0);
 #endif
-		if(IsWantsPeaceWithPlayer(ePlayer))
+		if (IsWantsPeaceWithPlayer(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
 			int iTurnsBetweenStatements = 5;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
-				if(GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0)
+				if (GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0)
 				{
 					eStatement = eTempStatement;
 				}

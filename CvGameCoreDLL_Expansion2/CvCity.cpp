@@ -16402,7 +16402,7 @@ bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
 
-	if (ePlayer <= NO_PLAYER || ePlayer >= BARBARIAN_PLAYER)
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 		return false;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
