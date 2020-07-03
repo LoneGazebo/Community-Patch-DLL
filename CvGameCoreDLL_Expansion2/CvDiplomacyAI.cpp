@@ -11623,7 +11623,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		iPeaceBlockReason = 1;
 	}
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
-	else if (GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
+	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 	{
 		bPeaceBlocked = true;
 		iPeaceBlockReason = 2;
