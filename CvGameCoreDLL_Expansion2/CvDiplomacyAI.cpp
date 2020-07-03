@@ -11776,7 +11776,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
 			iDangerMod *= 2;
 		else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || (pLoopCity->getNumNationalWonders() > 0))
-			iDangerMod++;
+		{
+			if (iDangerMod > 0)
+				iDangerMod++;
+		}
 		
 		iOurDanger += iDangerMod;
 	}
@@ -11824,7 +11827,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
 				iDangerMod *= 2;
 			else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
-				iDangerMod++;
+			{
+				if (iDangerMod > 0)
+					iDangerMod++;
+			}
 
 			iTheirDanger += iDangerMod;
 		}
@@ -13195,7 +13201,10 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
 						iDangerMod *= 2;
 					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || (pLoopCity->getNumNationalWonders() > 0))
-						iDangerMod++;
+					{
+						if (iDangerMod > 0)
+							iDangerMod++;
+					}
 					
 					iOurDanger += iDangerMod;
 				}
@@ -13248,7 +13257,10 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
 							iDangerMod *= 2;
 						else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
-							iDangerMod++;
+						{
+							if (iDangerMod > 0)
+								iDangerMod++;
+						}
 
 						iTheirDanger += iDangerMod;
 					}
