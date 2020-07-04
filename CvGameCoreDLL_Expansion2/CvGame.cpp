@@ -4524,21 +4524,21 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
-	int iEra = 0;
+	float fEra = 0;
 	int iCount = 0;
 
 	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			iEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
+			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
 
 	if(iCount > 0)
 	{
-		int iRoundedEra = int(iEra / iCount + 0.5f);
+		int iRoundedEra = int(fEra / iCount + 0.5f);
 		return ((EraTypes)iRoundedEra);
 	}
 

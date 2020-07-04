@@ -536,7 +536,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	//update cache
 	m_routesPerPlayer[eOriginPlayer].push_back(iNewTradeRouteIndex);
 	m_routesPerPlayer[eDestPlayer].push_back(iNewTradeRouteIndex);
-	OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
+	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
@@ -1092,7 +1092,7 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 	vector<int>& destRoutes = m_routesPerPlayer[eDestPlayer];
 	originRoutes.erase(std::remove(originRoutes.begin(), originRoutes.end(), iIndex), originRoutes.end());
 	destRoutes.erase(std::remove(destRoutes.begin(), destRoutes.end(), iIndex), destRoutes.end());
-	OutputDebugString(CvString::format("cleared TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iIndex).c_str());
+	//OutputDebugString(CvString::format("cleared TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iIndex).c_str());
 
 	//reset to default
 	kTradeConnection = TradeConnection();
@@ -4764,7 +4764,7 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
 	return iNumConnections;
 }
 
-int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
+int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(const CvCity* pCity)
 {
 	if (!pCity)
 		return 0;

@@ -21604,7 +21604,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 	if (kPlayer.GetHappinessPerActiveTradeRoute() > 0)
 	{
-		iTotalHappiness += (kPlayer.GetTrade()->GetNumberOfTradeRoutesFromCity(kPlayer.getCity(GetID())) * kPlayer.GetHappinessPerActiveTradeRoute());
+		iTotalHappiness += (kPlayer.GetTrade()->GetNumberOfTradeRoutesFromCity(this) * kPlayer.GetHappinessPerActiveTradeRoute());
 	}
 
 	return iTotalHappiness;
