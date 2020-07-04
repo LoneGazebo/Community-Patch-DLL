@@ -12119,7 +12119,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		// Can we actually see this city's danger status? No cheating!
+		// Can we actually see this city's danger status?
 		if (HasVisibilityOfEnemyCityDanger(pLoopCity))
 		{
 			int iDangerMod = 0;
@@ -13547,7 +13547,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 					iNumTheirCities++;
 
-					// Can we actually see this city's danger status? No cheating!
+					// Can we actually see this city's danger status?
 					if (HasVisibilityOfEnemyCityDanger(pLoopCity))
 					{
 						int iDangerMod = 0;
@@ -14590,11 +14590,32 @@ bool CvDiplomacyAI::HasVisibilityOfEnemyCityDanger(CvCity* pCity) const
 	if (pCityPlot->isAdjacentVisible(eMyTeam))
 		return true;
 
+	// Near one of our cities?
+	// Assume that the AI has a good idea of what's going on within 8 tiles if the city plot is revealed
+	// This is "cheating" on a technical level but due to limitations it will have to do ... fairer than letting them see everywhere, and humans can intuit the same knowledge by looking at city HP, etc.
+	if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) <= 8)
+		return true;
+
 	// Nearby units?
+	int iVisionBonus = !GetPlayer()->isHuman() ? GC.getGame().getHandicapInfo().getAIVisionBonus() : 0;
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (GET_PLAYER(pCity->getOwner()).GetCityDistanceInEstimatedTurns(pLoopUnit->plot()) <= 3)
+		// Disregard trade/blind units
+		if (pLoopUnit->isTrade() || pLoopUnit->visibilityRange() <= 0)
+			continue;
+
+		// Smaller sight radius for units
+		int iRadius = 6;
+		iRadius += iVisionBonus;
+
+		// VP Special: Coastal units have a harder time seeing what's going on in non-coastal cities
+		if (MOD_BALANCE_CORE && pLoopUnit->getDomainType() == DOMAIN_SEA && !pCity->isCoastal())
+		{
+			iRadius = 3;
+		}
+
+		if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pCityPlot->getX(), pCityPlot->getY()) <= iRadius)
 		{
 			return true;
 		}
@@ -16443,7 +16464,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 		return false;
 
 	// We trust our friends.
-	if (IsDoFAccepted(ePlayer) && !IsUntrustworthyFriend(ePlayer))
+	if ((IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer)) && !IsUntrustworthyFriend(ePlayer))
 		return false;
 
 	if (!bFromApproachSelection)
