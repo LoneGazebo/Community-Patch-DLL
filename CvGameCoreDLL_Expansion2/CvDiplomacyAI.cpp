@@ -13138,6 +13138,10 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
 		return false;
 
+	// They're losing all their wars! Let's strike!
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		return true;
+
 	// If we've been at war for a while without capturing any of their cities, they can't be an easy target
 	if (GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
 		return false;
@@ -16462,7 +16466,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
-	if (IsTeammate(ePlayer) || IsMaster(ePlayer) || IsVassal(ePlayer))
+	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		return false;
 
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
@@ -16494,6 +16498,10 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 		// If they're equal or one level below us in strength, let's check diplomacy
 		if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
 		{
+			// Backstabber?
+			if (IsUntrustworthyFriend(ePlayer))
+				return true;
+
 			// Denouncement in either direction?
 			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
 				return true;
