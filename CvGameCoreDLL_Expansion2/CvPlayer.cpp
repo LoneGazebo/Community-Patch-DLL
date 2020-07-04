@@ -33781,8 +33781,11 @@ int CvPlayer::GetNumValidMajorsMet(bool bJustMetBuffer) const
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		if (getTeam() != GET_PLAYER(eLoopPlayer).getTeam() && GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 		{
+			if (GetDiplomacyAI()->IsAlwaysAtWar(eLoopPlayer))
+				continue;
+
 			if (bJustMetBuffer && GET_TEAM(getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(eLoopPlayer).getTeam()) < iJustMetBuffer)
 				continue;
 		

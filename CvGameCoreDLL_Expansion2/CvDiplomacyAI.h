@@ -369,6 +369,7 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
+	bool HasVisibilityOfEnemyCityDanger(CvCity* pCity) const;
 
 	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
@@ -490,7 +491,7 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const;
+	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
 	
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
