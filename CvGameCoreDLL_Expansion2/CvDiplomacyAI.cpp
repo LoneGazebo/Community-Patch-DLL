@@ -11658,8 +11658,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 	}
 #endif
-	// Cannot make peace?
-	else if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
+	// Cannot make peace for some other reason?
+	if (!bPeaceBlocked && !GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
 		bPeaceBlocked = true;
 		iPeaceBlockReason = 7;
