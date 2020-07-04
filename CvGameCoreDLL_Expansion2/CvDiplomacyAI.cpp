@@ -4380,7 +4380,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
 			{
 				// Ignore players who aren't a serious threat.
-				if (IsEasyTarget(eLoopPlayer))
+				if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 					continue;
 				
 				// Disregard players who are far away and have no significant military near us (that we can tell)
@@ -6818,7 +6818,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() < 10)
 				{
 					// Ignore players who aren't a serious threat.
-					if (IsEasyTarget(eLoopPlayer))
+					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 					{
 						continue;
 					}
@@ -6882,6 +6882,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (!IsAtWar(eLoopPlayer) && GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 				continue;
 
+			// If we're winning against them or they're losing all their wars, don't count this player as a deterrent.
+			if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+				continue;
+
 			bool bNeighbors = GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS;
 			int iProximityFactor = bNeighbors ? 2 : 1;
 			int iStrengthFactor = (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - (int)STRENGTH_AVERAGE); // Ranges from -1 (poor) to 3 (immense)
@@ -6889,6 +6893,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 			int iDeterrence = iProximityFactor + iStrengthFactor + iCitiesCapturedFactor;
 			if (!bNeighbors)
+			{
+				iDeterrence /= 2;
+			}
+			// If we're already at war but not with the other nearby player, halve the effect of deterrence.
+			if (IsAtWar(ePlayer) && !IsAtWar(eLoopPlayer))
 			{
 				iDeterrence /= 2;
 			}
@@ -8278,7 +8287,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		
-			if (IsEarlyGameCompetitor(ePlayer) || (!GetPlayer()->isGoldenAge() && eProximity >= PLAYER_PROXIMITY_CLOSE))
+			if (bEarlyGameCompetitor || (!GetPlayer()->isGoldenAge() && eProximity >= PLAYER_PROXIMITY_CLOSE))
 			{
 				if (bEasyTarget)
 				{
@@ -8434,6 +8443,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
 	if (!bFirstPass && vPlayersToUpdate.size() > 1)
 	{
+		// How many valid players have we met? Used to apply a bonus below.
+		int iNumValidMajorsMet = min(GetPlayer()->GetNumValidMajorsMet(/*bJustMetBuffer*/ true), 10);
+
 		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 		{
 			MajorCivApproachTypes eLoopApproach = (MajorCivApproachTypes) iApproachLoop;
@@ -8449,9 +8461,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 			// Sort the weights from highest to lowest
 			vePlayerApproachWeights.SortItems();
-
-			// How many valid players have we met? Used to apply a bonus below.
-			int iNumValidMajorsMet = min(GetPlayer()->GetNumValidMajorsMet(/*bJustMetBuffer*/ true), 10);
 
 			// Find this player's ranking (how far are they down the list?)
 			for (int iPlayerRanking = 0; iPlayerRanking < (int) vePlayerApproachWeights.size(); iPlayerRanking++)
