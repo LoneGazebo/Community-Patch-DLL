@@ -4363,6 +4363,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	bool bUntrustworthy = IsTeamUntrustworthy(eTeam);
+	bool bStrategicTradePartner = IsStrategicTradePartner(ePlayer);
+	bool bMajorCompetitor = IsMajorCompetitor(ePlayer);
+	bool bEarlyGameCompetitor = IsEarlyGameCompetitor(ePlayer);
 	bool bRecklessExpander = IsPlayerRecklessExpander(ePlayer);
 	bool bWonderSpammer = IsPlayerWonderSpammer(ePlayer);
 	bool bEasyTarget = IsEasyTarget(ePlayer);
@@ -5064,7 +5067,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 	// Focus our attention on major competitors.
-	else if (IsMajorCompetitor(ePlayer))
+	else if (bMajorCompetitor)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2);
@@ -5281,11 +5284,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Higher threshold for attack desire if we already have good relations - don't hate our friends!
 	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer) || bCoopWarSoon)
 	{
-		bWantToAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || bTheyAreCloseToAnyVictory || (IsEarlyGameCompetitor(ePlayer) && eProximity >= PLAYER_PROXIMITY_CLOSE));
+		bWantToAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || bTheyAreCloseToAnyVictory);
 	}
 	else
 	{
-		bWantToAttack = (bConqueror || bConquerorTraits || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || IsMajorCompetitor(ePlayer) || (IsEarlyGameCompetitor(ePlayer) && eProximity >= PLAYER_PROXIMITY_CLOSE));
+		bWantToAttack = (bConqueror || bConquerorTraits || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || bMajorCompetitor || (bEarlyGameCompetitor && eProximity >= PLAYER_PROXIMITY_CLOSE));
 	}
 
 	switch (eMilitaryStrength)
@@ -6655,7 +6658,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			iTradeDelta /= 2;
 		}
-		else if (IsStrategicTradePartner(ePlayer))
+		else if (bStrategicTradePartner)
 		{
 			iTradeDelta *= 2;
 		}
@@ -6916,11 +6919,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					bOtherWarPlayerCloseToTarget = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE;
 
-					if (IsMajorCompetitor(ePlayer))
+					if (bMajorCompetitor)
 					{
 						bThinkingAboutDogpiling = true;
 					}
-					else if (IsEarlyGameCompetitor(ePlayer))
+					else if (bEarlyGameCompetitor)
 					{
 						bThinkingAboutDogpiling = true;
 					}
@@ -7093,7 +7096,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// Early game competition is fierce.
-		if (IsEarlyGameCompetitor(ePlayer))
+		if (bEarlyGameCompetitor)
 		{
 			// Only favor nearby targets before the Renaissance
 			if (eProximity >= PLAYER_PROXIMITY_CLOSE)
@@ -7457,7 +7460,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (bCultural || bGoingForCultureVictory || bCloseToCultureVictory)
 		{
 			// They have influence over us
-			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_POPULAR && !bNoVictoryCompetition)
+			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_POPULAR)
 			{
 				if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_INFLUENTIAL || GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(eMyPlayer) == INFLUENCE_TREND_RISING)
 				{
@@ -7498,7 +7501,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// The civ we have the lowest influence on is nearby and an easy target? Let's get 'em!
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer && bEasyTarget && !bNoVictoryCompetition)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer && bEasyTarget)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
@@ -7888,7 +7891,39 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (MOD_BALANCE_CORE)
 	{
-		int iDifficultyBonusBase = min(10, max(0, GC.getGame().getHandicapInfo().getAIDifficultyBonusBase())); // normally ranges from 0 to 9
+		////////////////////////////////////
+		// Difficulty Bonus
+		////////////////////////////////////
+
+		int iDifficultyBonusBase = MOD_BALANCE_CORE_DIFFICULTY ? (min(10, max(0, GC.getGame().getHandicapInfo().getAIDifficultyBonusBase()))) : 0; // normally ranges from 0 to 9
+
+		if (MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			// If we don't view them favorably, increase hostility based on game difficulty
+			if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+			{
+				int iDifficultyBonus = iDifficultyBonusBase - ((int)eOpinion * 2); // Unforgivable: -0, Enemy: -2, Competitor: -4
+
+				if (iDifficultyBonus > 0)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iDifficultyBonus);
+
+					if (bWantToAttack || eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
+					}
+					// Easy target?
+					if (bEasyTarget)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
+					}
+				}
+			}
+		}
 
 		////////////////////////////////////
 		// War Bonus
@@ -7903,13 +7938,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			bWantToAttack |= bEasyTarget;
 		}
 
-		// War UA?
-		if (bConquerorTraits)
+		// War or expansionist UA?
+		if (bConquerorTraits || GetPlayer()->GetPlayerTraits()->IsExpansionist())
 		{
 			iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 
-			// Warmonger + unique unit active? Slay them all!
+			// Unique unit active? Slay them all!
 			if (GetPlayer()->HasUUPeriod() && bWeHaveUUTech && bWeHaveUUActive)
 			{
 				iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -7994,34 +8029,224 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		////////////////////////////////////
-		// Difficulty Bonus
+		// Non-War Social Policy Bonuses
 		////////////////////////////////////
 
-		if (MOD_BALANCE_CORE_DIFFICULTY)
+		PolicyBranchTypes eTradition = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true);
+		PolicyBranchTypes eProgress = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true);
+		PolicyBranchTypes eFealty = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PIETY", true);
+		PolicyBranchTypes eStatecraft = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true);
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
+		PolicyBranchTypes eIndustry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true);
+		PolicyBranchTypes eRationalism = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_RATIONALISM", true);
+
+		// Tradition
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eTradition))
 		{
-			// If we don't view them favorably, increase hostility based on game difficulty
-			if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+			// Early game competitor and stronger than a non-Tradition player? Let's seize our advantage while we can!
+			if (bEarlyGameCompetitor && eProximity >= PLAYER_PROXIMITY_CLOSE && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eTradition))
 			{
-				int iDifficultyBonus = iDifficultyBonusBase - ((int)eOpinion * 2); // Unforgivable: -0, Enemy: -2, Competitor: -4
-
-				if (iDifficultyBonus > 0)
+				if (bEasyTarget)
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
-					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iDifficultyBonus);
-
-					if (bWantToAttack || eOpinion <= MAJOR_CIV_OPINION_ENEMY)
-					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
-					}
-					// Easy target?
-					if (bEasyTarget)
-					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
-					}
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 				}
+				else if (eMilitaryStrength < STRENGTH_AVERAGE || (eEconomicStrength < STRENGTH_AVERAGE && eMilitaryStrength == STRENGTH_AVERAGE))
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+				}
+				// Stronger than us? Raise our guard!
+				else if (eMilitaryStrength > STRENGTH_AVERAGE)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
+				}
+			}
+			else
+			{
+				iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eTradition)) ? 2 : 1;
+				iMultiplier += GetPlayer()->GetPlayerTraits()->IsSmaller() ? 1 : 0; // Additional bonus if we're geared towards being smaller
+
+				// More likely to be friendly if not competing for Wonders, more aggressive if competing for Wonders
+				if (GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+				{
+					iMultiplier += bMajorCompetitor ? 1 : -1;
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+				}
+				else if (!bUntrustworthy)
+				{
+					iMultiplier += bMajorCompetitor ? -1 : 1;
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				}
+			}
+		}
+
+		// Progress
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eProgress))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eProgress)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsSmaller() ? 1 : 0; // Additional bonus if we're geared towards being smaller
+			iMultiplier += bEarlyGameCompetitor ? -1 : 1;
+
+			// Disincentivize early war - we want to work on our infrastructure
+			if (iEra <= 2)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+
+				// Be wary of strong neighbors
+				if (eProximity >= PLAYER_PROXIMITY_CLOSE && eMilitaryStrength > STRENGTH_AVERAGE)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+				}
+			}
+		}
+
+		// Fealty
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eFealty))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eFealty)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsReligious() ? 2 : 0; // Additional bonus if we're geared towards being religious
+
+			// Favor players who we share a religion with
+			if (bSameReligion)
+			{
+				iMultiplier += bMajorCompetitor ? -1 : 1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+			// Pre-Modern Era, let's be more intense about religious fervor
+			else if (bDifferentReligions && iEra <= 4)
+			{
+				iMultiplier += bMajorCompetitor ? 1 : -1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+		}
+
+		// Statecraft
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eStatecraft))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eStatecraft)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsExpansionist() ? 2 : 0; // Larger civs care more, since they have more enforcement ability, resources and City-State allies
+			iMultiplier += bDiplomatTraits ? 1 : 0;
+			iMultiplier += bDiplomat ? 1 : 0;
+
+			// Extra hatred for those who mess with our City-States (also our prime league competitor!)
+			if ((bMetValidMinor && IsMinorCivTroublemaker(ePlayer)) || IsPrimeLeagueCompetitor(ePlayer))
+			{
+				iMultiplier += bMajorCompetitor ? 1 : -1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+			// Extra friendliness for others!
+			else if (bMetValidMinor && !bUntrustworthy)
+			{
+				iMultiplier += bMajorCompetitor ? -1 : 1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+		}
+
+		// Artistry
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eArtistry)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsSmaller() ? 2 : 0; // Smaller civs really care about cultural competition if they've chosen Artistry
+			iMultiplier += bCulturalTraits ? 1 : 0;
+			iMultiplier += bCultural ? 1 : 0;
+			bool bStolenArtifacts = GetNumArtifactsEverDugUp(ePlayer) > 0;
+
+			bool bInfluenceOverUs = false;
+			// They have influence over us
+			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_POPULAR)
+			{
+				if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_INFLUENTIAL || GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(eMyPlayer) == INFLUENCE_TREND_RISING)
+				{
+					bInfluenceOverUs = true;
+				}
+			}
+
+			// More aggressive if competing for Influence, dig sites or Wonders, more friendly otherwise
+			if (bInfluenceOverUs || bStolenArtifacts || GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+			{
+				iMultiplier += bMajorCompetitor ? 1 : -1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+			else if (!bUntrustworthy)
+			{
+				iMultiplier += bMajorCompetitor ? -1 : 1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+
+				// If they've built landmarks for us, be happy!
+				if (GetNumLandmarksBuiltForMe(ePlayer) > 0)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + (GetNumLandmarksBuiltForMe(ePlayer) * 3));
+				}
+			}
+		}
+
+		// Industry - more friendliness for strategic trade partners
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eIndustry)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsExpansionist() ? 2 : 0; // Larger civs care more, since they have more trade resources
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() ? 2 : 0; // The Netherlands REALLY likes strategic trade partners if they've chosen Industry
+			iMultiplier += bDiplomatTraits ? 1 : 0;
+			iMultiplier += bDiplomat ? 1 : 0;
+			iMultiplier += bMajorCompetitor ? -1 : 1;
+
+			// Strategic trade partner that we're getting trade value from?
+			if (!bUntrustworthy && bStrategicTradePartner && iTradeDelta > 0)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+		}
+
+		// Rationalism - more friendliness if ahead in science, more aggression if behind
+		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eRationalism))
+		{
+			iMultiplier = (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eRationalism)) ? 2 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsSmaller() ? 2 : 0; // Smaller civs really care about tech levels if they've chosen Rationalism
+			iMultiplier += bScientistTraits ? 1 : 0;
+			iMultiplier += bScientist ? 1 : 0;
+
+			if (GetTechDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE)
+			{
+				iMultiplier += bMajorCompetitor ? 1 : -1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			}
+			else
+			{
+				iMultiplier += bMajorCompetitor ? -1 : 1;
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
 			}
 		}
 
@@ -8047,16 +8272,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 
-		// Aztecs - More likely to declare war than any other civ, everything else equal, plus a bonus for early war
+		// Aztecs - More likely to declare war than any other civ, everything else equal, plus an extra bonus for war when not in a Golden Age (or in the early game)
 		else if (GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		
-			if (iEra <= 2)
+			if (IsEarlyGameCompetitor(ePlayer) || (!GetPlayer()->isGoldenAge() && eProximity >= PLAYER_PROXIMITY_CLOSE))
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+				if (bEasyTarget)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+				}
+				else if (eMilitaryStrength < STRENGTH_AVERAGE)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+				}					
 			}
 		}
 
@@ -8663,7 +8896,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		else if (bIsMaster)
 		{
 			// If they control other players' original capitals or are close to victory, don't erase weight for hostility
-			if (!IsMajorCompetitor(ePlayer) && iNumTheirCaps <= 0)
+			if (!bMajorCompetitor && iNumTheirCaps <= 0)
 			{
 				// We must control all capitals to win a Domination Victory
 				if (bGoingForWorldConquest || bCloseToWorldConquest)
@@ -19997,11 +20230,6 @@ PlayerTypes CvDiplomacyAI::GetBiggestCompetitor() const
 /// Is this major civ a strategic trade partner?
 bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 {
-	bool bGoingForConquest = IsGoingForWorldConquest();
-	bool bCloseToConquest = IsCloseToDominationVictory();
-	bool bGoingForDiplo = IsGoingForDiploVictory();
-	bool bCloseToDiplo = IsCloseToDiploVictory(); 
-	
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
@@ -20020,6 +20248,15 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 		return false;
 
+	bool bGoingForConquest = IsGoingForWorldConquest();
+	bool bCloseToConquest = IsCloseToDominationVictory();
+	bool bGoingForDiplo = IsGoingForDiploVictory();
+	bool bCloseToDiplo = IsCloseToDiploVictory();
+
+	PolicyBranchTypes eIndustry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true);
+	bool bTradeBonus = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry);
+	bTradeBonus |= GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies();
+
 	if (GetPlayer()->GetCurrentEra() >= 2 && (bGoingForConquest || bCloseToConquest || IsConqueror()))
 	{
 		if (bCloseToConquest)
@@ -20030,7 +20267,7 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 				return false;
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetTeam())
+		else if (MOD_DIPLOMACY_CIV4_FEATURES && IsMaster(ePlayer))
 		{
 			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 				return true;
@@ -20040,7 +20277,7 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 		{
 			if (bGoingForDiplo || bCloseToDiplo || IsDiplomat())
 			{
-				if (IsMinorCivTroublemaker(ePlayer))
+				if (IsMinorCivTroublemaker(ePlayer) || IsPrimeLeagueCompetitor(ePlayer))
 					return false;
 				else
 					return true;
@@ -20056,16 +20293,15 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 	{
 		if (IsMinorCivTroublemaker(ePlayer))
 			return false;
-		
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		
-		if (pLeague == NULL)
-			return true;
 
-		// Our prime league competitor?
 		if (IsPrimeLeagueCompetitor(ePlayer))
 			return false;
 		
+		return true;
+	}
+
+	if (bTradeBonus && GetPlayerEconomicStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE && !IsMajorCompetitor(ePlayer))
+	{
 		return true;
 	}
 	
@@ -20983,6 +21219,12 @@ bool CvDiplomacyAI::IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const
 /// What is our level of Dispute with a player over Technology?
 DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
 {
+	if (GetPlayer()->IsVassalOfSomeone())
+		return DISPUTE_LEVEL_NONE;
+
+	if (WasResurrectedBy(ePlayer) || GET_TEAM(GetPlayer()->getTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+		return DISPUTE_LEVEL_NONE;
+
 	int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iTheirTechs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iTechDifference = iOurTechs - iTheirTechs;
@@ -41632,12 +41874,12 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-
-	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || IsNoVictoryCompetition() || GET_TEAM(GetTeam()).IsVassalOfSomeone())
-		return 0;
 	
 	// Only scientific civs care about this.
 	if (!IsScientist())
+		return 0;
+
+	if (IsTeammate(ePlayer) || IsNoVictoryCompetition())
 		return 0;
 	
 	switch (GetTechDisputeLevel(ePlayer))
@@ -43286,7 +43528,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(GetRecentTradeValue(ePlayer) > 0)
+	if (GetRecentTradeValue(ePlayer) > 0)
 	{
 		int iWeightChange = -1 * GetRecentTradeValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
 		if(iWeightChange < /*-40*/ GC.getOPINION_WEIGHT_TRADE_MAX())
@@ -43295,6 +43537,13 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 		}
 		iOpinionWeight +=  iWeightChange;
 	}
+
+	if (IsStrategicTradePartner(ePlayer))
+	{
+		iOpinionWeight *= /*150*/ GC.getOPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER();
+		iOpinionWeight /= 100;
+	}
+
 	return iOpinionWeight;
 }
 

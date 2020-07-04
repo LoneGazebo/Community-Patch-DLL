@@ -686,6 +686,10 @@ UPDATE Defines
 SET Value = '-40'
 WHERE Name = 'OPINION_WEIGHT_TRADE_MAX';
 
+-- Increases current and maximum trade bonus if player is considered a strategic trade partner
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', '150';
+
 -- Common Foe Values
 -- 25 (unchanged)
 UPDATE Defines
