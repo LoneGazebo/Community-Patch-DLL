@@ -11857,6 +11857,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						eTreatyWillingToAccept = PEACE_TREATY_SETTLEMENT;
 					else if (iWillingToAcceptScore >= /*15*/ GC.getPEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE())
 						eTreatyWillingToAccept = PEACE_TREATY_ARMISTICE;
+
+					SetTreatyWillingToOffer(eLoopPlayer, eTreatyWillingToOffer);
+					SetTreatyWillingToAccept(eLoopPlayer, eTreatyWillingToAccept);
 				}
 			}
 			else
