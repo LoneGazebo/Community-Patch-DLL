@@ -36381,7 +36381,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 				{
 					WarStateTypes eWarState = GetWarState(eWarPlayer);
 
-					if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+					if (eWarState == WAR_STATE_STALEMATE || eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
 						return 0;
 
 					if (!IsEasyTarget(eWarPlayer))
