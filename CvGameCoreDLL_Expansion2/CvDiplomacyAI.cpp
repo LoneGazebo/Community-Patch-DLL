@@ -4379,17 +4379,20 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			
 			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
 			{
-				// Ignore players who aren't a serious threat.
-				if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-					continue;
-				
-				// Disregard players who are far away and have no significant military near us (that we can tell)
-				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 				{
-					if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+					// Ignore players who aren't a serious threat.
+					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 						continue;
+					
+					// Disregard players who are far away and have no significant military near us (that we can tell)
+					if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
+					{
+						if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+							continue;
+					}
 				}
-				
+					
 				bEasyTarget = false;
 				break;
 			}
@@ -6883,8 +6886,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				continue;
 
 			// If we're winning against them or they're losing all their wars, don't count this player as a deterrent.
-			if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-				continue;
+			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+			{
+				if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+					continue;
+			}
 
 			bool bNeighbors = GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS;
 			int iProximityFactor = bNeighbors ? 2 : 1;
@@ -13138,10 +13144,6 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
 		return false;
 
-	// They're losing all their wars! Let's strike!
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-		return true;
-
 	// If we've been at war for a while without capturing any of their cities, they can't be an easy target
 	if (GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
 		return false;
@@ -13172,30 +13174,27 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Don't look at the guy we're already thinking about
-		if (IsPlayerValid(eLoopPlayer) && ePlayer != eLoopPlayer)
+		if (IsPlayerValid(eLoopPlayer) && ePlayer != eLoopPlayer && IsAtWar(eLoopPlayer))
 		{
-			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			// Disregard players who are far away and have no significant military near us (that we can tell)
+			if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
 			{
-				// Disregard players who are far away and have no significant military near us (that we can tell)
-				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
-				{
-					if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
-						continue;
-				}
+				if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+					continue;
+			}
 
-				if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
+			if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
+			{
+				if (GetWarState(eLoopPlayer) == WAR_STATE_DEFENSIVE || GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_DEFEATED)
 				{
-					if (GetWarState(eLoopPlayer) == WAR_STATE_DEFENSIVE || GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_DEFEATED)
-					{
-						return false;
-					}
+					return false;
 				}
-				else
+			}
+			else
+			{
+				if (GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE) // if we're at a stalemate in this war, don't open ourselves up to dogpiling
 				{
-					if (GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE) // if we're at a stalemate in this war, don't open ourselves up to dogpiling
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 		}
@@ -13297,6 +13296,10 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 			}
 		}
 	}
+
+	// They're losing all their wars! Let's strike!
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		return true;
 
 	bool bUnhappinessBoost = false;
 	bool bUnhappinessKnown = false;
@@ -15325,7 +15328,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOt
 	if (!IsPlayerValid(ePlayer))
 		return 0;
 	
-	if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	if (IsAtWar(ePlayer))
 		return 0;
 	
 	int iGPT = 0;
