@@ -2097,8 +2097,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pCorporations->Init(this);
 		m_pContracts->Init(this);
 #endif
-		m_pPlayerTechs->Init(GC.GetGameTechs(), this, false);
 		m_pPlayerPolicies->Init(GC.GetGamePolicies(), this, false);
+		m_pPlayerTechs->Init(GC.GetGameTechs(), this, false);
 		m_pTacticalAI->Init(this);
 		m_pHomelandAI->Init(this);
 		m_pMinorCivAI->Init(this);

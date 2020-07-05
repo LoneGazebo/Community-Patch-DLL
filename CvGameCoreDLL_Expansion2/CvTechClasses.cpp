@@ -797,10 +797,9 @@ void CvPlayerTechs::Uninit()
 /// Reset tech status array to all false
 void CvPlayerTechs::Reset()
 {
-	int iI;
 	CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
 
-	for(iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
+	for(int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
 		m_pabResearchingTech[iI] = false;
 		m_piCivTechPriority[iI] = 1;
@@ -824,7 +823,7 @@ void CvPlayerTechs::Reset()
 		if(pkInfo)
 		{
 			// Loop through all building classes
-			for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
 				CvBuildingEntry* pkBuildingInfo = NULL;
@@ -856,6 +855,9 @@ void CvPlayerTechs::Reset()
 						}
 					}
 #endif // AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+
+					//this is called at a time where m_pPlayer may not be initialized completely
+					/*
 					if (GC.getGame().getElapsedGameTurns() > 5)
 					{
 						if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE)
@@ -897,11 +899,12 @@ void CvPlayerTechs::Reset()
 							}
 						}
 					}
+					*/
 				}
 			}
 
 			// Loop through all units
-			for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 			{
 				// Is this one overridden for our civ?
 				if(pkInfo->isCivilizationUnitOverridden(iI))
@@ -924,7 +927,7 @@ void CvPlayerTechs::Reset()
 			}
 
 			// Loop through all improvements
-			for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
 				CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo((ImprovementTypes)iI);
 				if(pkImprovementEntry)
