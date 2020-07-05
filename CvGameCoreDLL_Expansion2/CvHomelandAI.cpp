@@ -3661,7 +3661,8 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			//not at target yet?
 			if( ((pUnit->plot() != pTarget) && (pUnit->plot()->getOwner() != pTarget->getOwner())) || !pUnit->canTrade(pUnit->plot()) )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+				//important to use the same flags as in FindBestMessengerTargetCity to avoid double pathfinding!
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 				
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -3672,7 +3673,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 
 			//now try to finish our mission
-			if (((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+			if (pUnit->plot()->getOwner() == pTarget->getOwner() && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_TRADE());
 				PlayerTypes ePlayer = pUnit->plot()->getOwner();

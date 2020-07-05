@@ -2502,40 +2502,16 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 	}
 
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
-	CvPlot* pBestTarget = NULL;
 	if(pCity == NULL)
 	{
 		return NULL;
 	}
 
-	// Find adjacent plot with no units (that aren't our own)
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-		if(pLoopPlot == NULL)
-			continue;
-
-		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
-			continue;
-
-		if(pUnit->GetDanger(pLoopPlot)>20) //allow some fog danger
-			continue;
-
-		// Make sure this is still owned by target and is revealed to us
-		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-		if(bRightOwner && bIsRevealed)
-		{
-			pBestTarget = pLoopPlot;
-			break;
-		}
-	}
-
 	//remember this city
-	if (pBestTarget && pvIgnoreCities)
+	if (pvIgnoreCities)
 		pvIgnoreCities->push_back(pCity->GetID());
 
-	return pBestTarget;
+	return pCity->plot();
 }
 #endif
 
