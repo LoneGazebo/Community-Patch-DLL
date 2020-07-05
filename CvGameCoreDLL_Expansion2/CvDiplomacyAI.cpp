@@ -12262,7 +12262,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// -95 or worse against a major civ? If we got this far, always make peace.
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95)
+	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 && GetPlayer()->GetDiplomacyAI()->GetNumberOfThreatenedCities(ePlayer) > 0)
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
