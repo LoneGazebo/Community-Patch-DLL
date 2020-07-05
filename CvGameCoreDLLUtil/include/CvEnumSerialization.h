@@ -16,6 +16,15 @@ FDataStream & operator>>(FDataStream &, FeatureTypes &);
 FDataStream & operator<<(FDataStream &, const PromotionTypes &);
 FDataStream & operator>>(FDataStream &, PromotionTypes &);
 
+FDataStream & operator<<(FDataStream&, const YieldTypes&);
+FDataStream & operator>>(FDataStream&, YieldTypes&);
+
+FDataStream & operator<<(FDataStream&, const SpecialistTypes&);
+FDataStream & operator>>(FDataStream&, SpecialistTypes&);
+
+FDataStream & operator<<(FDataStream&, const PlotTypes&);
+FDataStream & operator>>(FDataStream&, PlotTypes&);
+
 FDataStream & operator<<(FDataStream &, const ClimateTypes &);
 FDataStream & operator>>(FDataStream &, ClimateTypes &);
 
@@ -281,6 +290,5 @@ FDataStream & operator>>(FDataStream&, CityEventChoiceTypes&);
 FDataStream & operator<<(FDataStream&, const EventClassTypes&);
 FDataStream & operator>>(FDataStream&, EventClassTypes&);
 namespace FSerialization { std::string toString(const EventClassTypes &); }
-
 #endif
 #endif//INCLUDED_CvEnumSerialization_H

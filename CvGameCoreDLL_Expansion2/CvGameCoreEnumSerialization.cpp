@@ -47,6 +47,45 @@ FDataStream& operator>>(FDataStream& loadFrom, PromotionTypes& writeTo)
 	return loadFrom;
 }
 
+FDataStream& operator<<(FDataStream& saveTo, const YieldTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, YieldTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<YieldTypes>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SpecialistTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SpecialistTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<SpecialistTypes>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const PlotTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, PlotTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PlotTypes>(v);
+	return loadFrom;
+}
+
 FDataStream& operator<<(FDataStream& saveTo, const AITacticalMove& readFrom)
 {
 	saveTo << static_cast<int>(readFrom);
@@ -74,19 +113,6 @@ FDataStream& operator>>(FDataStream& loadFrom, AIHomelandMove& writeTo)
 	return loadFrom;
 }
 
-//------------------------------------------------------------------------------
-FDataStream& operator<<(FDataStream& saveTo, const YieldTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-FDataStream& operator>>(FDataStream& loadFrom, YieldTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<YieldTypes>(v);
-	return loadFrom;
-}
 //------------------------------------------------------------------------------
 namespace FSerialization
 {
