@@ -10339,7 +10339,7 @@ bool CvUnit::pillage()
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
 					// Notify Diplo AI that damage has been done
-					int iValue = (GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 3);
+					int iValue = (/*38*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 3);
 					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					{
 						CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(getTeam()));

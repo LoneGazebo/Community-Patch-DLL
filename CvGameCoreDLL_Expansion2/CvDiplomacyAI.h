@@ -290,8 +290,6 @@ public:
 #endif
 	void DoUpdatePeaceTreatyWillingness();
 
-	bool IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer);
-
 	// What are we willing to give up to ePlayer to make peace?
 	PeaceTreatyTypes GetTreatyWillingToOffer(PlayerTypes ePlayer) const;
 	void SetTreatyWillingToOffer(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty);

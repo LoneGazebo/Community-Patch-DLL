@@ -6447,7 +6447,7 @@ int CvLuaPlayer::lIsWillingToMakePeaceWithHuman(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const bool bResult = pkPlayer->GetDiplomacyAI()->IsWillingToMakePeaceWithHuman(ePlayer);
+	const bool bResult = pkPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
