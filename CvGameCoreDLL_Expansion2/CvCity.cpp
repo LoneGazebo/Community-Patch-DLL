@@ -16338,7 +16338,7 @@ bool CvCity::isVisible(TeamTypes eTeam, bool bDebug) const
 bool CvCity::isCapital() const
 {
 	VALIDATE_OBJECT
-	return (GET_PLAYER(getOwner()).getCapitalCity() == this);
+	return (GET_PLAYER(getOwner()).getCapitalCityID() == GetID());
 }
 
 //	--------------------------------------------------------------------------------
@@ -21531,13 +21531,9 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
-	if (iHappinessPerGarrison > 0)
+	if (iHappinessPerGarrison > 0 && HasGarrison())
 	{
-		CvUnit* pDefender = plot()->getBestDefender(getOwner());
-		if (pDefender)
-		{
-			iTotalHappiness += iHappinessPerGarrison;
-		}
+		iTotalHappiness += iHappinessPerGarrison;
 	}
 	
 	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
@@ -24405,12 +24401,10 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	int iModifier = 0;
-	int iTempMod;
 
 	// Yield Rate Modifier
-	iTempMod = getYieldRateModifier(eIndex);
-	iModifier += iTempMod;
+	int iTempMod = getYieldRateModifier(eIndex);
+	int iModifier = iTempMod;
 	if(toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD", iTempMod);
 
@@ -24576,7 +24570,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if(pReligion)
 	{
 		int iMaxVal = 0;
-		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), this);
 		if (iReligionYieldMaxFollowersPercent > 0)
 		{
 			int iVal = GetCityReligions()->GetNumFollowers(eMajority) * iReligionYieldMaxFollowersPercent;
@@ -24595,7 +24589,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 		else
 		{
-			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), this);
 			if (iReligionYieldMaxFollowers > 0)
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
@@ -33698,7 +33692,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	else if (pDefender != NULL) //attacking a unit
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend(pInPlot))
+		if (!pDefender->IsCanDefend())
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}

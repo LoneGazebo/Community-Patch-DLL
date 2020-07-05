@@ -4078,13 +4078,12 @@ CvPlayer* CvPlayerPolicies::GetPlayer()
 //could be extended for other modifiers as well ...
 void CvPlayerPolicies::UpdateModifierCache()
 {
+	ClearCache();
+
 	m_vBuildingClassTourismModifier.clear();
 	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
 	m_vBuildingClassHappinessModifier.clear();
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
-
-	//reset this as well - new values will be set directly in GetNumericModifier()
-	mModifierLookup.clear();
 
 	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
 	{
@@ -4325,10 +4324,23 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 {
 	int rtnValue = 0;
 
-	//simply memoization for repeated calls
-	ModifierMap::iterator it = mModifierLookup.find(eType);
-	if (it!=mModifierLookup.end() && it->second.first==GC.getGame().getGameTurn())
-		return it->second.second;
+	if (eType == POLICYMOD_EXTRA_HAPPINESS)
+	{
+		if (currentHappinessModifier.first == GC.getGame().getGameTurn())
+			return currentHappinessModifier.second;
+	}
+	else if (eType == POLICYMOD_EXTRA_HAPPINESS_PER_CITY)
+	{
+		if (currentHappinessModifierPerCity.first == GC.getGame().getGameTurn())
+			return currentHappinessModifierPerCity.second;
+	}
+	else
+	{
+		//simple memoization for repeated calls
+		ModifierMap::iterator it = mModifierLookup.find(eType);
+		if (it != mModifierLookup.end() && it->second.first == GC.getGame().getGameTurn())
+			return it->second.second;
+	}
 
 	int iNumPolicies = m_pPolicies->GetNumPolicies();
 	for(int i = 0; i < iNumPolicies; i++)
@@ -4522,13 +4534,26 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 	}
 
 	//remember the value for next time
-	mModifierLookup[eType] = std::make_pair(GC.getGame().getGameTurn(),rtnValue);
+	if (eType == POLICYMOD_EXTRA_HAPPINESS)
+	{
+		currentHappinessModifier = make_pair(GC.getGame().getGameTurn(), rtnValue);
+	}
+	else if (eType == POLICYMOD_EXTRA_HAPPINESS_PER_CITY)
+	{
+		currentHappinessModifierPerCity = make_pair(GC.getGame().getGameTurn(), rtnValue);
+	}
+	else
+	{
+		mModifierLookup[eType] = std::make_pair(GC.getGame().getGameTurn(),rtnValue);
+	}
 
 	return rtnValue;
 }
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerPolicies::ClearCache()
 {
+	currentHappinessModifier = make_pair(0, 0);
+	currentHappinessModifierPerCity = make_pair(0, 0);
 	mModifierLookup.clear();
 }
 #endif

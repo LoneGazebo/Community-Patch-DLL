@@ -7651,7 +7651,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 		}
 	}
 
-	if(!IsCanDefend(pPlot) && !IsCanAttack())
+	if(!IsCanDefend() && !IsCanAttack())
 	{
 		return false;
 	}
@@ -15618,8 +15618,8 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 		}
 	}
 
-	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
-	return iPenalty;
+	//value is negative!
+	return max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 }
 
 //	--------------------------------------------------------------------------------
@@ -15627,23 +15627,32 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 int CvUnit::GetUnhappinessCombatPenalty() const
 {
 	CvPlayer &kPlayer = GET_PLAYER(getOwner());
-	int iPenalty = 0;
 
-	if(!kPlayer.isMinorCiv() && kPlayer.IsEmpireUnhappy())
-	{ 
-		if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		//this is called a lot during combat simulation
+		//try to minimize the checks, if we're happy there is only one!
+		if (kPlayer.IsEmpireUnhappy())
 		{
-			if (kPlayer.IsEmpireSuperUnhappy() || kPlayer.IsEmpireVeryUnhappy())
+			if (kPlayer.IsEmpireVeryUnhappy())
 				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
 			else
 				return GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY() / 2;
 		}
-
-		iPenalty = (-1 * kPlayer.GetExcessHappiness()) * GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
-		iPenalty = max(iPenalty, GC.getVERY_UNHAPPY_MAX_COMBAT_PENALTY());
+		else
+			return 0;
 	}
-
-	return iPenalty;
+	else
+	{
+		if (kPlayer.IsEmpireUnhappy())
+		{
+			//negative result!
+			int iPenalty = (-1 * kPlayer.GetExcessHappiness()) * GC.getVERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY();
+			return max(iPenalty, GC.getVERY_UNHAPPY_MAX_COMBAT_PENALTY());
+		}
+		else
+			return 0;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -16106,40 +16115,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 		iModifier += /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (attack mod only)
@@ -16327,40 +16304,8 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	// this may be always zero for defense against ranged
 	iModifier += GetDamageCombatModifier(bFromRangedAttack);
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyDefenseBonus();
-				iModifier += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies();
 
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
@@ -16670,40 +16615,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Strategic monopoly of resources
-		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-		}
-
-		// Global monopoly of resources
-		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
-		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-				if (iTempMod != 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				}
-				iModifier += iTempMod;
-			}
-		}
-	}
-#endif
+	//resource monopolies
+	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
 	if (pTargetPlot)
 	{
@@ -17060,7 +16973,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 	else if (pDefender != NULL)
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend(pTargetPlot))
+		if (!pDefender->IsCanDefend())
 		{
 			//can assassinate any civilian with one missile hit
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
@@ -18504,14 +18417,14 @@ void CvUnit::ChangeHealIfDefeatExcludeBarbariansCount(int iValue)
 int CvUnit::GetGoldenAgeValueFromKills() const
 {
 	VALIDATE_OBJECT
-		return m_iGoldenAgeValueFromKills;
+	return m_iGoldenAgeValueFromKills;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 {
 	VALIDATE_OBJECT
-		m_iGoldenAgeValueFromKills += iValue;
+	m_iGoldenAgeValueFromKills += iValue;
 	CvAssert(GetGoldenAgeValueFromKills() >= 0);
 }
 
@@ -18519,8 +18432,7 @@ void CvUnit::ChangeGoldenAgeValueFromKills(int iValue)
 bool CvUnit::isOnlyDefensive() const
 {
 	VALIDATE_OBJECT
-
-	return getOnlyDefensiveCount() > 0 ? true : false;
+	return getOnlyDefensiveCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19516,7 +19428,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 							if(!pLoopUnit->canCoexistWithEnemyUnit(eOurTeam))
 							{
 								// Unit somehow ended up on top of an enemy combat unit
-								if(NO_UNITCLASS == pLoopUnit->getUnitInfo().GetUnitCaptureClassType() && pLoopUnit->IsCanDefend(pNewPlot))
+								if(NO_UNITCLASS == pLoopUnit->getUnitInfo().GetUnitCaptureClassType() && pLoopUnit->IsCanDefend())
 								{
 									if(!pNewPlot->isCity())
 									{
@@ -29510,53 +29422,15 @@ bool CvUnit::IsCanAttack() const
 bool CvUnit::IsCanAttackWithMoveNow() const
 {
 	VALIDATE_OBJECT
-	if(!IsCanAttackWithMove())
-	{
-		return false;
-	}
-
-	// Can't attack out of cities if there is more than 1 combat unit of the same domain in it.
-	// This does not apply to air units, which strangely don't show up as combat unit anyhow.
-	DomainTypes eSourceDomain = getDomainType();
-	CvPlot* pkPlot = plot();
-	if (pkPlot->isCity() && eSourceDomain != DOMAIN_AIR)
-	{
-		IDInfo* pUnitNode = pkPlot->headUnitNode();
-		int iCount = 0;
-		while(pUnitNode != NULL)
-		{
-			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
-			if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == eSourceDomain)
-			{
-				iCount++;
-			}
-
-			pUnitNode = pkPlot->nextUnitNode(pUnitNode);
-		}
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		return iCount <= pkPlot->getUnitLimit();
-#else
-		return iCount <= GC.getPLOT_UNIT_LIMIT();
-#endif
-	}
-
-	return true;
+	return IsCanAttackWithMove() && canEndTurnAtPlot(plot());
 }
 
 //	--------------------------------------------------------------------------------
 // Unit able to fight back when attacked?
-// Note that this does not check whether a unit may enter a plot at all and whether it must embark to do so.
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
+bool CvUnit::IsCanDefend() const
 {
-	VALIDATE_OBJECT
-	if(pPlot == NULL)
-	{
-		pPlot = plot();
-	}
-
-	// This will catch noncombatants
+	// This will catch noncombatants (and air units!)
 	if(GetBaseCombatStrength() == 0)
 	{
 		return false;

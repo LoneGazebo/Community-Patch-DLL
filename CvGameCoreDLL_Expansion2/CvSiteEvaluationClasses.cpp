@@ -404,7 +404,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int nFoodPlots = 0, nHammerPlots = 0;
+	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -483,6 +483,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		// avoid this
 		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
 			bIsAlmostCoast = true;
+
+		// we don't want to be too exposed
+		if (iDistance == 1 && pLoopPlot->isWater() && !pLoopPlot->isLake())
+			nWaterPlots++;
 
 		// if this tile is a NW boost the value
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
@@ -719,8 +723,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 	if (pPlot->isCoastalLand())
 	{
-		iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-		if (pDebug) vQualifiersPositive.push_back("(V) coast");
+		if (nWaterPlots <= 3)
+		{
+			iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+			if (pDebug) vQualifiersPositive.push_back("(V) coast but not too exposed");
+		}
 
 		if (pPlayer)
 		{

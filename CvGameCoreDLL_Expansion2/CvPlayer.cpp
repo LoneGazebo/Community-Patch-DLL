@@ -1150,6 +1150,8 @@ void CvPlayer::uninit()
 	m_pabHasStrategicMonopoly.clear();
 	m_vResourcesWGlobalMonopoly.clear();
 	m_vResourcesWStrategicMonopoly.clear();
+	m_iCombatAttackBonusFromMonopolies = 0;
+	m_iCombatDefenseBonusFromMonopolies = 0;
 #endif
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
@@ -2075,6 +2077,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
 		m_vResourcesWGlobalMonopoly.clear();
 		m_vResourcesWStrategicMonopoly.clear();
+		m_iCombatAttackBonusFromMonopolies = 0;
+		m_iCombatDefenseBonusFromMonopolies = 0;
 #endif
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -20683,10 +20687,10 @@ int CvPlayer::GetHappinessForGAP() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
+	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0) || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 	{
 		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-			return 50;
+			return GC.getUNHAPPY_THRESHOLD();
 		else
 			return 0;
 	}
@@ -20698,61 +20702,42 @@ int CvPlayer::GetExcessHappiness() const
 /// Has the player passed the Happiness limit?
 bool CvPlayer::IsEmpireUnhappy() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD());
 	}
 	else
 	{
-		if (GetExcessHappiness() < 0)
-			return true;
+		return (GetExcessHappiness() < 0);
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is the empire REALLY unhappy? (other penalties)
 bool CvPlayer::IsEmpireVeryUnhappy() const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD());
 	}
-	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	else
 	{
-		return true;
+		return (GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD());
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is the empire SUPER unhappy? (leads to revolts)
 bool CvPlayer::IsEmpireSuperUnhappy() const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
-	{
-		return false;
-	}
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD())
-			return true;
+		return (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD());
 	}
-	else if (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	else
 	{
-		return true;
+		return (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD());
 	}
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -32230,6 +32215,11 @@ CvCity* CvPlayer::getCapitalCity() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::getCapitalCityID() const
+{
+	return m_iCapitalCityID;
+}
+//	--------------------------------------------------------------------------------
 void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 {
 	CvCity* pOldCapitalCity;
@@ -33744,7 +33734,7 @@ uint CvPlayer::getTotalTimePlayed() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isMinorCiv() const
 {
-	return CvPreGame::isMinorCiv(m_eID);
+	return GET_TEAM(getTeam()).isMinorCiv();
 }
 
 
@@ -38305,6 +38295,67 @@ void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 	CvAssert(m_paiResourceFromCSAlliances[eIndex] >= 0);
 }
 
+void CvPlayer::UpdateMonopolyCache()
+{
+	m_vResourcesWStrategicMonopoly.clear();
+	m_vResourcesWGlobalMonopoly.clear();
+	m_iCombatAttackBonusFromMonopolies = 0;
+	m_iCombatDefenseBonusFromMonopolies = 0;
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (!MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		return;
+#endif
+
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		if (m_pabHasGlobalMonopoly[iResourceLoop])
+			m_vResourcesWGlobalMonopoly.push_back((ResourceTypes)iResourceLoop);
+		if (m_pabHasStrategicMonopoly[iResourceLoop])
+			m_vResourcesWStrategicMonopoly.push_back((ResourceTypes)iResourceLoop);
+	}
+
+	// Strategic monopoly of resources
+	const std::vector<ResourceTypes>& vStrategicMonopolies = GetStrategicMonopolies();
+	for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+		if (!pInfo)
+			continue;
+		
+		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus();
+		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
+		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
+	}
+
+	// Global monopoly of resources
+	const std::vector<ResourceTypes>& vGlobalMonopolies = GetGlobalMonopolies();
+	for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+		if (!pInfo)
+			continue;
+
+		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+		m_iCombatAttackBonusFromMonopolies += GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
+		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
+	}
+}
+
+int CvPlayer::GetCombatAttackBonusFromMonopolies() const
+{
+	return m_iCombatAttackBonusFromMonopolies;
+}
+
+int CvPlayer::GetCombatDefenseBonusFromMonopolies() const
+{
+	return m_iCombatDefenseBonusFromMonopolies;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasGlobalMonopoly(ResourceTypes eResource) const
 {
@@ -38380,13 +38431,9 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 			}
 #endif
 		}
-	}
 
-	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesWGlobalMonopoly.begin(),m_vResourcesWGlobalMonopoly.end(),eResource);
-	if (bNewValue && it==m_vResourcesWGlobalMonopoly.end())
-		m_vResourcesWGlobalMonopoly.push_back(eResource);
-	else if (!bNewValue && it!=m_vResourcesWGlobalMonopoly.end())
-		m_vResourcesWGlobalMonopoly.erase(it);
+		UpdateMonopolyCache();
+	}
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
@@ -38441,13 +38488,9 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 			}
 #endif
 		}
-	}
 
-	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesWStrategicMonopoly.begin(),m_vResourcesWStrategicMonopoly.end(),eResource);
-	if (bNewValue && it==m_vResourcesWStrategicMonopoly.end())
-		m_vResourcesWStrategicMonopoly.push_back(eResource);
-	else if (!bNewValue && it!=m_vResourcesWStrategicMonopoly.end())
-		m_vResourcesWStrategicMonopoly.erase(it);
+		UpdateMonopolyCache();
+	}
 }
 
 //	--------------------------------------------------------------------------------

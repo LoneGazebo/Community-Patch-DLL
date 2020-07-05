@@ -2532,9 +2532,9 @@ bool CvGameReligions::IsEligibleForFounderBenefits(ReligionTypes eReligion, Play
 	const CvReligion* pReligion = GetReligion(eReligion, NO_PLAYER);
 	if(pReligion)
 	{
-		CvCity* pHolyCity = pReligion->GetHolyCity();
-
-		if(pReligion->m_bPantheon && pHolyCity == NULL)
+		//do not look up the holy city itself, it's too expensive and we only need the plot
+		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+		if(pReligion->m_bPantheon && pHolyCityPlot == NULL)
 		{
 			if(pReligion->m_eFounder == ePlayer)
 			{		
@@ -2544,7 +2544,7 @@ bool CvGameReligions::IsEligibleForFounderBenefits(ReligionTypes eReligion, Play
 		else
 		{
 			//don't care about founder, ownership counts!
-			if(pHolyCity && pHolyCity->getOwner() == ePlayer)
+			if(pHolyCityPlot && pHolyCityPlot->getOwner() == ePlayer)
 			{		
 				return true;
 			}

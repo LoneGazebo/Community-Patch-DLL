@@ -684,7 +684,7 @@ private:
 	std::vector<CvTemporaryZone> m_TempZones;
 };
 
-enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_ESCORTED_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
+enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, 
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE };
 
@@ -710,7 +710,7 @@ struct STacticalAssignment
 
 	//convenience
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
-	bool isEmbarkedUnit() const { return eMoveType == MS_ESCORTED_EMBARKED; }
+	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
 	bool isOffensive() const;
 };
@@ -872,7 +872,7 @@ public:
 	void setNextToEnemyCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
-	bool isBlockedForCombatUnit() const { return bBlockedForCombatUnit; }
+	bool isBlockedByNonSimCombatUnit() const { return bBlockedByNonSimCombatUnit; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -907,7 +907,7 @@ protected:
 	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
-	bool bBlockedForCombatUnit:1;
+	bool bBlockedByNonSimCombatUnit:1;
 
 	//this is updated if the civilian is captured
 	bool bEnemyCivilianPresent:1; 
