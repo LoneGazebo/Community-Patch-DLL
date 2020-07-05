@@ -4379,7 +4379,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			
 			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
 			{
-				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && GetWarState(eLoopPlayer) != WAR_STATE_DEFENSIVE && GetWarState(eLoopPlayer) != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -6817,8 +6817,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// WAR STATE
 				////////////////////////////////////
 
+				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
+
 				// Not significantly war weary? We should ignore certain players for the war state check.
-				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() < 10)
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState != WAR_STATE_DEFENSIVE && eLoopWarState != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -6838,8 +6840,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 
 				// Not winning? Let's be even nicer.
-				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
-
 				switch (eLoopWarState)
 				{
 				case WAR_STATE_NEARLY_WON:
@@ -11861,6 +11861,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					SetTreatyWillingToOffer(eLoopPlayer, eTreatyWillingToOffer);
 					SetTreatyWillingToAccept(eLoopPlayer, eTreatyWillingToAccept);
 				}
+				else
+				{
+					SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+					SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+				}					
 			}
 			else
 			{
@@ -36369,19 +36374,20 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		// find any other wars we have going
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
+			PlayerTypes eWarPlayer = (PlayerTypes) iPlayerLoop;
 			if (IsPlayerValid(eWarPlayer) && eWarPlayer != eTargetPlayer && !GET_PLAYER(eWarPlayer).isMinorCiv())
 			{
 				if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 				{
+					WarStateTypes eWarState = GetWarState(eWarPlayer);
+
+					if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+						return 0;
+
 					if (!IsEasyTarget(eWarPlayer))
 					{
-						WarStateTypes eWarState = GetWarState(eWarPlayer);
-						if (eWarState <= WAR_STATE_CALM)
+						if (eWarState == WAR_STATE_CALM)
 						{
-							if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
-								return 0;
-
 							if (GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
 							{
 								if (GetPlayer()->GetProximityToPlayer(eWarPlayer) >= PLAYER_PROXIMITY_CLOSE)

@@ -3853,18 +3853,18 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 		if(!bMinor)
 		{
-			if(GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
+			if (GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
 			{
 				// find any other wars we have going
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 				{
 					PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
-					if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != eWithPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
+					if (eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != eWithPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
 					{
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
 							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
-							if (eWarState <= WAR_STATE_STALEMATE)
+							if (eWarState != NO_WAR_STATE_TYPE && eWarState <= WAR_STATE_STALEMATE)
 							{
 								return INT_MAX;
 							}
