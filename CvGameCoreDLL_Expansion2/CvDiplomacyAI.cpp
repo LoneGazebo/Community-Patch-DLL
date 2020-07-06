@@ -3080,7 +3080,7 @@ int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) 
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetVictoryCompetitiveness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetVictoryCompetitiveness(), 10));
 }
 
 /// How much do we estimate this other leader gets angry when they're beaten to a World Wonder?
@@ -3101,7 +3101,7 @@ int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) c
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetWonderCompetitiveness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetWonderCompetitiveness(), 10));
 }
 
 /// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
@@ -3122,7 +3122,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer)
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivCompetitiveness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivCompetitiveness(), 10));
 }
 
 /// What is this other leader's estimated likelihood to take risks / go for World Conquest?
@@ -3143,7 +3143,7 @@ int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetBoldness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetBoldness(), 10));
 }
 
 /// How much do we estimate this other leader wants to maintain a balance of power in the world?
@@ -3164,7 +3164,7 @@ int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetDiploBalance();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetDiploBalance(), 10));
 }
 
 /// How much does this other leader gets angry when someone's being a warmonger?
@@ -3216,7 +3216,7 @@ int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
 		}
 	}
 
-	return iRtnValue;
+	return max(1, min(iRtnValue, 10));
 }
 
 /// What is this other leader's estimated likelihood to work with someone AGAINST another player?
@@ -3237,7 +3237,7 @@ int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) con
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetDenounceWillingness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetDenounceWillingness(), 10));
 }
 
 /// What is this other leader's estimated likelihood to befriend other players?
@@ -3258,7 +3258,7 @@ int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness(), 10));
 }
 
 /// What is this other leader's estimated likelihood to refrain from backstabbing their friends?
@@ -3279,7 +3279,7 @@ int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetLoyalty();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetLoyalty(), 10));
 }
 
 /// How much do we estimate this other leader wants the support of its friends in rough times?
@@ -3300,7 +3300,7 @@ int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetNeediness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetNeediness(), 10));
 }
 
 /// How much do we estimate this other leader is willing to forgive transgressions against them?
@@ -3321,7 +3321,7 @@ int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetForgiveness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetForgiveness(), 10));
 }
 
 /// How much do we estimate this other leader likes to pop up and talk?
@@ -3342,7 +3342,7 @@ int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetChattiness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetChattiness(), 10));
 }
 
 /// How much do we estimate this other leader likes to talk smack / bully others?
@@ -3363,7 +3363,7 @@ int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetMeanness();
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetMeanness(), 10));
 }
 
 /// What is our estimate of another leader's bias for a particular Major Civ Approach?
@@ -3385,7 +3385,7 @@ int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, Ma
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetMajorCivApproachBias((int)eApproach);
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetMajorCivApproachBias((int)eApproach), 10));
 }
 
 /// What is our estimate of another leader's bias for a particular Minor Civ Approach?
@@ -3407,7 +3407,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, Mi
 	}
 
 	// AI? Use the other player's base XML value.
-	return GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivApproachBias((int)eApproach);
+	return max(1, min(GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivApproachBias((int)eApproach), 10));
 }
 
 /// What is our estimate of another leader's value for a personality flavor?
@@ -3441,7 +3441,7 @@ int CvDiplomacyAI::GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes
 		}
 	}
 
-	return iRtnValue;
+	return max(1, min(iRtnValue, 20));
 }
 
 /// What is the difference between a player's personality flavor value and the default (average) flavor value?
