@@ -9726,19 +9726,13 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 		}
 	}
 
-	int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
-	{
-		iDefaultFlavorValue = 5;
-	}
-
 	// Grab the old approach and scratch values for logging
 	MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
 	// Add some base weight to the approach we've selected
-	viApproachWeights[eApproach] = iDefaultFlavorValue;
+	viApproachWeights[eApproach] = /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 	vector<int> viApproachWeightsScratch;
 
@@ -21280,7 +21274,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerVictoryDisputeLevels()
 							}
 
 							// Add weight for Player's competitiveness: assume default (5), since we can't actually know how competitive a player is
-							iVictoryDisputeWeight *= /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+							iVictoryDisputeWeight *= /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 							// Example Victory Dispute Weights
 							// Positive on Both:		70
@@ -26759,10 +26753,11 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 void CvDiplomacyAI::DoContactMinorCivs()
 {
 	// If the player has deleted the DIPLOMACY Flavor we have to account for that
-	int iDiplomacyFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iGoldFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iTileImprovementFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iExpansionFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+	int iDiplomacyFlavor = iDefaultFlavorValue;
+	int iGoldFlavor = iDefaultFlavorValue;
+	int iTileImprovementFlavor = iDefaultFlavorValue;
+	int iExpansionFlavor = iDefaultFlavorValue;
 
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
@@ -37851,7 +37846,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer) const
 		return false;
 
 	// If the player has deleted the EXPANSION Flavor we have to account for that
-	int iExpansionFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+	int iExpansionFlavor = /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
@@ -51322,12 +51317,13 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// Account for this player's flavors
 	
 	// If the player has deleted the EXPANSION Flavor we have to account for that
-	int iExpansionFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iOffenseFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iMilitaryTrainingFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iDefenseFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iCultureFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-	int iWonderFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+	int iExpansionFlavor = iDefaultFlavorValue;
+	int iOffenseFlavor = iDefaultFlavorValue;
+	int iMilitaryTrainingFlavor = iDefaultFlavorValue;
+	int iDefenseFlavor = iDefaultFlavorValue;
+	int iCultureFlavor = iDefaultFlavorValue;
+	int iWonderFlavor = iDefaultFlavorValue;
 
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
@@ -51340,12 +51336,12 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Adjust score based on civ flavors
-	iWantVassalageScore += (iExpansionFlavor - GC.getDEFAULT_FLAVOR_VALUE()) * -2;	// expansionist civs don't like vassalage too much
-	iWantVassalageScore += (iOffenseFlavor - GC.getDEFAULT_FLAVOR_VALUE()) * -2;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iMilitaryTrainingFlavor - GC.getDEFAULT_FLAVOR_VALUE())	* -2;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iDefenseFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// defensive civs like vassalage a lot
-	iWantVassalageScore += (iCultureFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// cultural civs prefer vassalage
-	iWantVassalageScore += (iWonderFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// wonder civs don't mind vassalage
+	iWantVassalageScore += (iExpansionFlavor - iDefaultFlavorValue) * -2;	// expansionist civs don't like vassalage too much
+	iWantVassalageScore += (iOffenseFlavor - iDefaultFlavorValue) * -2;	// offensive civs don't like vassalage too much
+	iWantVassalageScore += (iMilitaryTrainingFlavor - iDefaultFlavorValue)	* -2;	// offensive civs don't like vassalage too much
+	iWantVassalageScore += (iDefenseFlavor - iDefaultFlavorValue);	// defensive civs like vassalage a lot
+	iWantVassalageScore += (iCultureFlavor - iDefaultFlavorValue);	// cultural civs prefer vassalage
+	iWantVassalageScore += (iWonderFlavor - iDefaultFlavorValue);	// wonder civs don't mind vassalage
 
 	// Modifier based on proximity
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
