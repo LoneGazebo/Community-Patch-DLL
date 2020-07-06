@@ -476,7 +476,7 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 	}
 	if (iMax < 1 || iMax > 20)
 	{
-		iMax = 10;
+		iMax = 20;
 	}
 	if (iMin > iMax)
 	{
