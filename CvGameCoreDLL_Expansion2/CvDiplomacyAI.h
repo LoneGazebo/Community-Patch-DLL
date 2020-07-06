@@ -104,8 +104,8 @@ public:
 	// ************************************
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
-	vector<PlayerTypes> GetAllValidMajorCivs() const;
 	int GetNumValidMajorCivs() const;
+	vector<PlayerTypes> GetAllValidMajorCivs() const;
 
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
@@ -115,17 +115,15 @@ public:
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
 	bool IsHasEmbassy(PlayerTypes eOtherPlayer) const;
 	bool IsHasOpenBorders(PlayerTypes eOtherPlayer) const;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassal(PlayerTypes eOtherPlayer) const;
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
-#endif
 
 	// ************************************
 	// Personality Values
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue);
+	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality();
 	void DoInitializeDiploPersonalityType();
 
@@ -152,6 +150,25 @@ public:
 	bool IsDiplomat() const;
 	bool IsCultural() const;
 	bool IsScientist() const;
+
+	// Estimations of other players' tendencies
+	int GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerBoldness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerNeediness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerChattiness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerMeanness(PlayerTypes ePlayer) const;	
+	int GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
+	int GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, MinorCivApproachTypes eApproach) const;
+	int GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const;
+	int GetDifferenceFromAverageFlavorValue(int iValue) const;
 
 	// ************************************
 	// Memory Management

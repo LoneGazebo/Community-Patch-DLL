@@ -325,6 +325,8 @@ public:
 	bool isPaused();
 	void setPausePlayer(PlayerTypes eNewValue);
 
+	int GetDefaultFlavorValue() const;
+
 	UnitTypes getBestLandUnit();
 	int getBestLandUnitCombat();
 	void setBestLandUnit(UnitTypes eNewValue);

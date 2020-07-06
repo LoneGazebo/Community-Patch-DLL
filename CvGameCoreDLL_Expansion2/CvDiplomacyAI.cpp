@@ -2435,10 +2435,10 @@ TeamTypes CvDiplomacyAI::GetTeam() const
 // ************************************
 
 
-/// Helper function: is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
+/// Is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
 bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
 	// Alive?
 	if (!GET_PLAYER(eOtherPlayer).isAlive())
@@ -2470,7 +2470,24 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 	return true;
 }
 
-/// Helper function: returns a vector with all valid major civs
+/// Returns the number of valid major civs
+int CvDiplomacyAI::GetNumValidMajorCivs() const
+{
+	int iCount = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		if (IsPlayerValid(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv())
+		{
+			iCount++;
+		}
+	}
+
+	return iCount;
+}
+
+/// Returns a vector containing pointers to all valid major civs
 vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
 {
 	vector<PlayerTypes> result;
@@ -2484,63 +2501,46 @@ vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
 	return result;
 }
 
-/// Helper function: returns the number of valid major civs
-int CvDiplomacyAI::GetNumValidMajorCivs() const
-{
-	int result = 0;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		if (IsPlayerValid(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv())
-		{
-			result++;
-		}
-	}
-
-	return result;
-}
-
 //	-----------------------------------------------------------------------------------------------
 
-/// Helper function to determine if we're at war with a player
+/// Determine if we're at war with a player
 bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer > MAX_CIV_PLAYERS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_PLAYERS) return false;
 	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if we're always at war with a player
+/// Determine if we're always at war with a player
 bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer > MAX_CIV_PLAYERS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_PLAYERS) return false;
 
-	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam()) 
+	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 		return false;
 
-	if (eOtherPlayer == BARBARIAN_PLAYER) 
+	if (eOtherPlayer == BARBARIAN_PLAYER)
 		return true;
 
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam()))
 		return true;
 
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR)) 
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		return true;
 
 	return GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && IsAtWar(eOtherPlayer);
 }
 
-/// Helper function to determine if a player is a teammate
+/// Determine if a player is a teammate (returns false for ourselves!)
 bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS || eOtherPlayer == GetPlayer()->GetID()) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_CIV_PLAYERS || eOtherPlayer == GetPlayer()->GetID()) return false;
 	return GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam();
 }
 
-/// Helper function to determine if a player is on a team we've met
+/// Determine if a player is on a team we've met
 bool CvDiplomacyAI::IsHasMet(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false */) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
 	if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 		return bMyTeamIsValid;
@@ -2548,31 +2548,31 @@ bool CvDiplomacyAI::IsHasMet(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = 
 	return GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if a player's team has a Defensive Pact with our team
+/// Determine if a player's team has a Defensive Pact with our team
 bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 	return GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if a player's team has a Research Agreement with our team
+/// Determine if a player's team has a Research Agreement with our team
 bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 	return GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if we have an embassy with a player's team
+/// Determine if we have an embassy with a player's team
 bool CvDiplomacyAI::IsHasEmbassy(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 	return GET_TEAM(GetPlayer()->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
-/// Helper function to determine if we have Open Borders with a player's team (we can enter their territory)
+/// Determine if we have Open Borders with a player's team (we can enter their territory)
 bool CvDiplomacyAI::IsHasOpenBorders(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_CIV_PLAYERS) return false;
 
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv())
 	{
@@ -2582,44 +2582,53 @@ bool CvDiplomacyAI::IsHasOpenBorders(PlayerTypes eOtherPlayer) const
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam());
 }
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-/// Helper function to determine if we're a player's vassal
+/// Determine if we're a player's vassal
 bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	return GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam());
+#endif
+
+	return false;
 }
 
-/// Helper function to determine if we're a player's master
+/// Determine if we're a player's master
 bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
+#endif
+
+	return false;
 }
 
-/// Helper function to determine if vassalage with this player is voluntary (functions in either direction)
+/// Determine if our current vassalage agreement with this player is voluntary (functions in either direction)
 bool CvDiplomacyAI::IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (IsVassal(eOtherPlayer) && GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(eOtherPlayer).getTeam())) 
 		return true;
 
 	if (IsMaster(eOtherPlayer) && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVoluntaryVassal(GetPlayer()->getTeam())) 
 		return true;
+#endif
 	
 	return false;
 }
-#endif
 
 
 // ************************************
 // Personality Values
 // ************************************
 
-
 /// Returns a personality weight with a small random element
-int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue)
+int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 {
 	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
 	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
@@ -2629,6 +2638,16 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue)
 	{
 		iPlusMinus *= 2;
 	}
+
+	// Player ID (used for randomization below)
+	int ID = (int) GetPlayer()->GetID();
+
+	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
+	if (iSeed < 0)
+	{
+		iSeed = 0;
+	}
+	iSeed++;
 
 	// Error handling to prevent out of bounds values
 	if (iMin < 1 || iMin > 20)
@@ -2643,53 +2662,66 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue)
 	{
 		iMin = iMax;
 	}
+	if (iPlusMinus < 0)
+	{
+		iPlusMinus *= -1;
+	}
+	if (iOriginalValue < iMin)
+	{
+		iOriginalValue = iMin;
+	}
+	else if (iOriginalValue > iMax)
+	{
+		iOriginalValue = iMax;
+	}
 
-	//maybe we should use the real RNG here? anyway include the player ID which should be somewhat random at least
-	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue + (int) GetPlayer()->GetID());
+	// Randomize!
+	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), ((iOriginalValue * iSeed) + ID));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-	//for stupid settings, try to make it so that we don't cluster at the extreme values
+	/* for stupid settings, try to make it so that we don't cluster at the extreme values
 	if (iRtnValue < iMin)
 		iRtnValue = iMin + ((iMin-iRtnValue) % (iMax-iMin));
 	if (iRtnValue > iMax)
 		iRtnValue = iMax - ((iRtnValue-iMax) % (iMax-iMin));
+	*/
 
-	//if that didn't help, clamp it down hard
 	return std::max(iMin, std::min(iMax, iRtnValue));
 }
 
 //	-----------------------------------------------------------------------------------------------
 
-/// Initializes Personality Members for this player (XML value + random element)
+/// Initializes Personality Values for this player (XML value + random element)
 void CvDiplomacyAI::DoInitializePersonality()
 {
 	// AI Player
 	if (!GetPlayer()->isHuman())
 	{
 		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
+		int iSeed = 0;
 
-		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness());
-		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness());
-		m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivCompetitiveness());
-		m_iBoldness = GetRandomPersonalityWeight(playerLeaderInfo.GetBoldness());
-		m_iDiploBalance = GetRandomPersonalityWeight(playerLeaderInfo.GetDiploBalance());
-		m_iWarmongerHate = GetRandomPersonalityWeight(playerLeaderInfo.GetWarmongerHate());
-		m_iDenounceWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDenounceWillingness());
-		m_iDoFWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDoFWillingness());
-		m_iLoyalty = GetRandomPersonalityWeight(playerLeaderInfo.GetLoyalty());
-		m_iNeediness = GetRandomPersonalityWeight(playerLeaderInfo.GetNeediness());
-		m_iForgiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetForgiveness());
-		m_iChattiness = GetRandomPersonalityWeight(playerLeaderInfo.GetChattiness());
-		m_iMeanness = GetRandomPersonalityWeight(playerLeaderInfo.GetMeanness());
+		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness(), iSeed);
+		m_iWonderCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetWonderCompetitiveness(), iSeed);
+		m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivCompetitiveness(), iSeed);
+		m_iBoldness = GetRandomPersonalityWeight(playerLeaderInfo.GetBoldness(), iSeed);
+		m_iDiploBalance = GetRandomPersonalityWeight(playerLeaderInfo.GetDiploBalance(), iSeed);
+		m_iWarmongerHate = GetRandomPersonalityWeight(playerLeaderInfo.GetWarmongerHate(), iSeed);
+		m_iDenounceWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDenounceWillingness(), iSeed);
+		m_iDoFWillingness = GetRandomPersonalityWeight(playerLeaderInfo.GetDoFWillingness(), iSeed);
+		m_iLoyalty = GetRandomPersonalityWeight(playerLeaderInfo.GetLoyalty(), iSeed);
+		m_iNeediness = GetRandomPersonalityWeight(playerLeaderInfo.GetNeediness(), iSeed);
+		m_iForgiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetForgiveness(), iSeed);
+		m_iChattiness = GetRandomPersonalityWeight(playerLeaderInfo.GetChattiness(), iSeed);
+		m_iMeanness = GetRandomPersonalityWeight(playerLeaderInfo.GetMeanness(), iSeed);
 
 		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 		{
-			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMajorCivApproachBias(iApproachLoop));
+			m_paiPersonalityMajorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMajorCivApproachBias(iApproachLoop), iSeed);
 		}
 
 		for (int iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
 		{
-			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivApproachBias(iApproachLoop));
+			m_paiPersonalityMinorCivApproachBiases[iApproachLoop] = GetRandomPersonalityWeight(playerLeaderInfo.GetMinorCivApproachBias(iApproachLoop), iSeed);
 		}
 
 		// Now that we've picked our flavors, select a Diplo Personality.
@@ -2698,13 +2730,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 	// Human player
 	else
 	{
-		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-
-		// Error handling to prevent out of bounds values
-		if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
-		{
-			iDefaultFlavorValue = 5;
-		}
+		int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 		m_iVictoryCompetitiveness = iDefaultFlavorValue;
 		m_iWonderCompetitiveness = iDefaultFlavorValue;
@@ -2736,7 +2762,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 
 //	-----------------------------------------------------------------------------------------------
 
-/// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and some other things)
+/// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and other things)
 void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 {
 	int iConquerorWeight = 0;
@@ -2753,33 +2779,41 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 		iRandom *= 2;
 	}
 
+	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
+	int iSeed = 1;
+
+	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
+
 	// Weight for conquest
 	iConquerorWeight += GetBoldness();
 	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
-	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	iConquerorWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) + ID);
+	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) * iSeed) + ID));
+	iSeed++;
 
 	// Weight for diplomacy
 	iDiplomatWeight += GetDoFWillingness();
 	iDiplomatWeight += GetLoyalty();
-	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	iDiplomatWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDoFWillingness() * GetLoyalty() + ID);
+	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDoFWillingness() * GetLoyalty() * iSeed) + ID));
+	iSeed++;
 
 	// Weight for culture
 	iCulturalWeight += GetWonderCompetitiveness();
 	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
-	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-	iCulturalWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) + ID);
+	iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) * iSeed) + ID));
+	iSeed++;
 
 	// Weight for science
 	iScientistWeight += GetDiploBalance();
 	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
-	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-	iScientistWeight += m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) + ID);
+	iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) * iSeed) + ID));
 
 #if defined(MOD_BALANCE_CORE)
 	// Add weight for leader traits
@@ -2887,134 +2921,534 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 
 //	-----------------------------------------------------------------------------------------------
 
-/// How much does this AI get angry when they think another player is going for the same victory type?
+/// How much does this AI leader get angry when another player is competing for Victory?
 int CvDiplomacyAI::GetVictoryCompetitiveness() const
 {
 	return (int) m_iVictoryCompetitiveness;
 }
 
-/// How much does this AI get angry when they're beaten to a World Wonder?
+/// How much does this AI leader get angry when they're beaten to a World Wonder?
 int CvDiplomacyAI::GetWonderCompetitiveness() const
 {
 	return (int) m_iWonderCompetitiveness;
 }
 
-/// How does this AI get angry when another player is befriending "their" minor civs?
+/// How much does this AI leader get angry when another player is befriending "their" minor civs?
 int CvDiplomacyAI::GetMinorCivCompetitiveness() const
 {
 	return (int) m_iMinorCivCompetitiveness;
 }
 
-/// How likely is this player to go for World Conquest?
+/// How likely is this AI leader to take risks / go for World Conquest?
 int CvDiplomacyAI::GetBoldness() const
 {
 	return (int) m_iBoldness;
 }
 
-/// How much does this leader want to maintain a balance of power in the world?
+/// How much does this AI leader want to maintain a balance of power in the world?
 int CvDiplomacyAI::GetDiploBalance() const
 {
 	return (int) m_iDiploBalance;
 }
 
-/// How much does this AI get angry when someone's being a warmonger?
+/// How much does this AI leader get angry when someone's being a warmonger?
 int CvDiplomacyAI::GetWarmongerHate() const
 {
 	return (int) m_iWarmongerHate;
 }
 
-/// How much is this AI willing to work with someone AGAINST another player?
+/// How much is this AI leader willing to work with someone AGAINST another player?
 int CvDiplomacyAI::GetDenounceWillingness() const
 {
 	return (int) m_iDenounceWillingness;
 }
 
-/// How much is this AI willing to work WITH someone?
+/// How much is this AI leader willing to befriend other players?
 int CvDiplomacyAI::GetDoFWillingness() const
 {
 	return (int) m_iDoFWillingness;
 }
 
-/// How willing is this AI to backstab its friends?
+/// How likely is this AI leader to refrain from backstabbing their friends?
 int CvDiplomacyAI::GetLoyalty() const
 {
 	return (int) m_iLoyalty;
 }
 
-/// How much does this AI want the support of its friends in rough times?
+/// How much does this AI leader want the support of its friends in rough times?
 int CvDiplomacyAI::GetNeediness() const
 {
 	return (int) m_iNeediness;
 }
 
-/// How willing is this AI to overlook transgressions between friends?
+/// How willing is this AI leader to overlook transgressions against them?
 int CvDiplomacyAI::GetForgiveness() const
 {
 	return (int) m_iForgiveness;
 }
 
-/// How much does this AI like to pop up and talk?
+/// How much does this AI leader like to pop up and talk?
 int CvDiplomacyAI::GetChattiness() const
 {
 	return (int) m_iChattiness;
 }
 
-/// How much does this AI like to talk smack?
+/// How much does this AI leader like to talk smack / bully others?
 int CvDiplomacyAI::GetMeanness() const
 {
 	return (int) m_iMeanness;
 }
 
-/// What is this AI's bias towards a particular Major Civ Approach?
+/// What is this AI leader's bias towards a particular Major Civ Approach?
 int CvDiplomacyAI::GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const
 {
-	if (eApproach < 0 || eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
+	if ((int)eApproach < 0 || (int)eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
 	return (int) m_paiPersonalityMajorCivApproachBiases[(int)eApproach];
 }
 
-/// What is this AI's bias towards a particular Minor Civ Approach?
+/// What is this AI leader's bias towards a particular Minor Civ Approach?
 int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const
 {
-	if (eApproach < 0 || eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
+	if ((int)eApproach < 0 || (int)eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
 	return (int) m_paiPersonalityMinorCivApproachBiases[(int)eApproach];
 }
 
 //	-----------------------------------------------------------------------------------------------
 
-/// What is this AI's Diplomatic Personality Type?
+/// What is this AI leader's Diplomatic Personality Type?
 DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
 {
 	return (DiploPersonalityTypes) m_eDiploPersonalityType;
 }
 
-/// Sets this AI's Diplomatic Personality Type
+/// Sets this AI leader's Diplomatic Personality Type
 void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonality)
 {
+	if ((int)eDiploPersonality < NO_DIPLO_PERSONALITY_TYPE || (int)eDiploPersonality >= NUM_DIPLO_PERSONALITY_TYPES) return;
 	m_eDiploPersonalityType = eDiploPersonality;
 }
 
-/// Does this AI have the personality of a conqueror?
+/// Is this AI leader naturally inclined to be aggressive and covetous of others' possessions?
 bool CvDiplomacyAI::IsConqueror() const
 {
 	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_CONQUEROR);
 }
 
-/// Does this AI have the personality of a diplomat?
+/// Is this AI leader naturally focused on forging friendships and allying City-States?
 bool CvDiplomacyAI::IsDiplomat() const
 {
 	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_DIPLOMAT);
 }
 
-/// Does this AI have a cultural personality?
+/// Is this AI leader naturally focused on spreading its culture across the world?
 bool CvDiplomacyAI::IsCultural() const
 {
 	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_CULTURAL);
 }
 
-/// Does this AI have the personality of a scientist?
+/// Is this AI leader naturally focused on their civilization's technological advancement?
 bool CvDiplomacyAI::IsScientist() const
 {
 	return (GetDiploPersonalityType() == DIPLO_PERSONALITY_SCIENTIST);
+}
+
+//	-----------------------------------------------------------------------------------------------
+
+// ////////////////////////////////////
+// Estimations of other players' tendencies
+// ////////////////////////////////////
+
+// Recursive: Because of how Firaxis programmed the diplomacy flavors, a separate estimation function is necessary for each of them, plus one for other flavors
+// For Diplo Personality Type, just grab the other leader's personality instead of estimating ...
+// ... humans can learn this by studying opinion modifiers whenever the AI's approach isn't FRIENDLY (or with Transparent Diplomacy enabled)
+
+/// How much do we estimate this other leader gets angry when another player is competing for Victory?
+int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetVictoryCompetitiveness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetVictoryCompetitiveness();
+}
+
+/// How much do we estimate this other leader gets angry when they're beaten to a World Wonder?
+int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWonderCompetitiveness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetWonderCompetitiveness();
+}
+
+/// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
+int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivCompetitiveness();
+}
+
+/// What is this other leader's estimated likelihood to take risks / go for World Conquest?
+int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetBoldness();
+}
+
+/// How much do we estimate this other leader wants to maintain a balance of power in the world?
+int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDiploBalance();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetDiploBalance();
+}
+
+/// How much does this other leader gets angry when someone's being a warmonger?
+int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate();
+	}
+
+	int iRtnValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (!GET_PLAYER(ePlayer).isHuman())
+	{
+		if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+		{
+			// AI? Use the other player's base XML value.
+			iRtnValue = GET_PLAYER(ePlayer).getLeaderInfo().GetWarmongerHate();
+		}
+
+		// Special: If we currently have warmongering penalties with this player, we have a better idea of their flavor...
+		// This uses the warmonger hate thresholds from the opinion table in LuaPlayer
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerWarmongerScore(GetPlayer()->GetID()) > 0)
+		{
+			int iActualValue = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate();
+			if (iActualValue >= 7 && iRtnValue < 7)
+			{
+				iRtnValue = 7;
+			}
+			else if (iActualValue <= 4 && iRtnValue > 4)
+			{
+				iRtnValue = 4;
+			}
+			else if (iActualValue == 5 || iActualValue == 6)
+			{
+				if (iRtnValue < 5)
+				{
+					iRtnValue = 5;
+				}
+				else if (iRtnValue > 6)
+				{
+					iRtnValue = 6;
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+
+/// What is this other leader's estimated likelihood to work with someone AGAINST another player?
+int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDenounceWillingness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetDenounceWillingness();
+}
+
+/// What is this other leader's estimated likelihood to befriend other players?
+int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDoFWillingness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness();
+}
+
+/// What is this other leader's estimated likelihood to refrain from backstabbing their friends?
+int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetLoyalty();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetLoyalty();
+}
+
+/// How much do we estimate this other leader wants the support of its friends in rough times?
+int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNeediness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetNeediness();
+}
+
+/// How much do we estimate this other leader is willing to forgive transgressions against them?
+int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetForgiveness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetForgiveness();
+}
+
+/// How much do we estimate this other leader likes to pop up and talk?
+int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetChattiness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetChattiness();
+}
+
+/// How much do we estimate this other leader likes to talk smack / bully others?
+int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness();
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetMeanness();
+}
+
+/// What is our estimate of another leader's bias for a particular Major Civ Approach?
+int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if ((int)eApproach < 0 || (int)eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(eApproach);
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetMajorCivApproachBias((int)eApproach);
+}
+
+/// What is our estimate of another leader's bias for a particular Minor Civ Approach?
+int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, MinorCivApproachTypes eApproach) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if ((int)eApproach < 0 || (int)eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPersonalityMinorCivApproachBias(eApproach);
+	}
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+	}
+
+	// AI? Use the other player's base XML value.
+	return GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivApproachBias((int)eApproach);
+}
+
+/// What is our estimate of another leader's value for a personality flavor?
+int CvDiplomacyAI::GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const
+{
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if ((int)eFlavor < 0 || (int)eFlavor >= GC.getNumFlavorTypes()) return 0;
+
+	// We always know our team's flavors
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		return GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor);
+	}
+
+	int iRtnValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+
+	// Human or Random Personalities? Assume the default flavor value.
+	if (GET_PLAYER(ePlayer).isHuman() || GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return iRtnValue;
+	}
+
+	// AI? Use the other player's base XML value.
+	LeaderHeadTypes leader = GET_PLAYER(ePlayer).getPersonalityType();
+	if (leader != NO_LEADER)
+	{
+		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
+		if (pkLeaderHeadInfo)
+		{
+			iRtnValue = pkLeaderHeadInfo->getFlavorValue((int)eFlavor);
+		}
+	}
+
+	return iRtnValue;
+}
+
+/// What is the difference between a player's personality flavor value and the default (average) flavor value?
+int CvDiplomacyAI::GetDifferenceFromAverageFlavorValue(int iValue) const
+{
+	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+	return iValue - iDefaultFlavorValue;
 }
 
 

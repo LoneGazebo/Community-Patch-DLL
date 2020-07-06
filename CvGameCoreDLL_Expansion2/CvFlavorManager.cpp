@@ -152,27 +152,27 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 
 	// If this is a live player, go ahead and set up his flavor preferences
 	PlayerTypes p = pPlayer->GetID();
-	if(p != NO_PLAYER)
+	if (p != NO_PLAYER)
 	{
 		SlotStatus s = CvPreGame::slotStatus(p);
-		if((s == SS_TAKEN || s == SS_COMPUTER) && !pPlayer->isBarbarian())
+		if ((s == SS_TAKEN || s == SS_COMPUTER) && !pPlayer->isBarbarian())
 		{
 			// Copy over leaderhead defaults unless human
-			if(!pPlayer->isHuman())
+			if (!pPlayer->isHuman())
 			{
-				LeaderHeadTypes type = pPlayer->getPersonalityType();
-				if(type != NO_LEADER)
+				LeaderHeadTypes leader = pPlayer->getPersonalityType();
+				if (leader != NO_LEADER)
 				{
-					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(type);
-					if(pkLeaderHeadInfo)
+					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
+					if (pkLeaderHeadInfo)
 					{
 						int iDefaultFlavorValue = GC.getDEFAULT_FLAVOR_VALUE();
 						int iNumFlavorTypes = GC.getNumFlavorTypes();
 
-						for(int iI = 0; iI < iNumFlavorTypes; iI++)
+						for (int iI = 0; iI < iNumFlavorTypes; iI++)
 						{
 							// Majors use Leader XML Flavors
-							if(!pPlayer->isMinorCiv())
+							if (!pPlayer->isMinorCiv())
 							{
 								m_piPersonalityFlavor[iI] = pkLeaderHeadInfo->getFlavorValue(iI);
 							}
@@ -183,7 +183,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 							}
 
 							// If no Flavor value is set in the XML use the Default
-							if(m_piPersonalityFlavor[iI] == -1)
+							if (m_piPersonalityFlavor[iI] == -1)
 							{
 								m_piPersonalityFlavor[iI] = iDefaultFlavorValue;
 							}
@@ -198,9 +198,9 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 			// Human player, just set all flavors to average (5)
 			else
 			{
-				int iDefaultFlavorValue = GC.getDEFAULT_FLAVOR_VALUE();
+				int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 				int iNumFlavors = GC.getNumFlavorTypes();
-				for(int iI = 0; iI < iNumFlavors; iI++)
+				for (int iI = 0; iI < iNumFlavors; iI++)
 				{
 					m_piPersonalityFlavor[iI] = iDefaultFlavorValue;
 				}
@@ -211,7 +211,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 
 			ResetToBasePersonality();
 
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				LogFlavors();
 			}
@@ -460,15 +460,10 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 
 	int iValue = m_piPersonalityFlavor[eType];
 
-	// If the flavor is zeroed out, we have to account for that - use the default value
-	if (iValue == 0)
+	// If the flavor is zeroed out or deleted, we have to account for that - use the default value
+	if (iValue <= 0)
 	{
-		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-		if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
-		{
-			iDefaultFlavorValue = 5;
-		}
-		return iDefaultFlavorValue;
+		return /*5*/ GC.getGame().GetDefaultFlavorValue();
 	}
 
 	// Must be within upper and lower bounds
@@ -500,27 +495,56 @@ void CvFlavorManager::RandomizeWeights()
 	int iMax = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
 	int iPlusMinus = /*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE();
 
-	for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
+	int iSeed = 0;
+
+	for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
 		// Don't modify it if it's zero-ed out in the XML
-		if(m_piPersonalityFlavor[iI] != 0)
+		if (m_piPersonalityFlavor[iI] != 0)
 		{
-			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax);
+			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, iSeed);
 		}
 	}
 }
 
 /// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax)
+int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
 {
-#if defined(MOD_BUGFIX_MINOR)
+	// Error handling to prevent out of bounds values
+	if (iMin < 1 || iMin > 20)
+	{
+		iMin = 1;
+	}
+	if (iMax < 1 || iMax > 20)
+	{
+		iMax = 10;
+	}
+	if (iMin > iMax)
+	{
+		iMin = iMax;
+	}
 	if (iPlusMinus < 0)
 	{
-		iPlusMinus = -iPlusMinus;
+		iPlusMinus *= -1;
 	}
-#endif
+	if (iOriginalValue < iMin)
+	{
+		iOriginalValue = iMin;
+	}
+	else if (iOriginalValue > iMax)
+	{
+		iOriginalValue = iMax;
+	}
 
-	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue);
+	// Increment the random seed (and make sure it's > 0)
+	if (iSeed < 0)
+	{
+		iSeed = 0;
+	}
+	iSeed++;
+
+	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
 	//for stupid settings, try to make it so that we don't cluster at the extreme values
@@ -530,7 +554,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 		iRtnValue = iMax - ((iRtnValue - iMax) % (iMax - iMin));
 
 	//if that didn't help, clamp it down hard
-	return range(iRtnValue, iMin, iMax);
+	return std::max(iMin, std::min(iMax, iRtnValue));
 }
 
 /// Sends current flavor settings to all recipients

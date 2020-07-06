@@ -6289,6 +6289,20 @@ void CvGame::setPausePlayer(PlayerTypes eNewValue)
 }
 
 //	-----------------------------------------------------------------------------------------------
+int CvGame::GetDefaultFlavorValue() const
+{
+	int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+
+	// Error handling to prevent out of bounds values
+	if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
+	{
+		iDefaultFlavorValue = 5;
+	}
+
+	return iDefaultFlavorValue;
+}
+
+//	-----------------------------------------------------------------------------------------------
 UnitTypes CvGame::getBestLandUnit()
 {
 	return m_eBestLandUnit;
