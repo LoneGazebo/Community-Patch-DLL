@@ -14361,12 +14361,12 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculatio
 {
 	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_CIV_PLAYERS) return 0;
 
-	int iWarScore = 0;
-
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
 	if (bUsePeacetimeCalculation)
 	{
+		int iWarScore = 0;
 		int iWarScoreModifier = 0;
+
 		switch (GetPlayer()->GetProximityToPlayer(ePlayer))
 		{
 		case PLAYER_PROXIMITY_NEIGHBORS:
