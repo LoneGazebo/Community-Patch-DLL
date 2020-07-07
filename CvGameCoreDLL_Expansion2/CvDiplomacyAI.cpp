@@ -4748,8 +4748,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 /// What is the best Diplomatic Approach to take towards a major civilization?
 void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bBetweenTurnsUpdate /* = true */)
 {
-	CvAssertMsg(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS && ePlayer != GetPlayer()->GetID(), "DIPLOMACY AI: Invalid Player Index when calling SelectBestApproachTowardsMajorCiv.");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || ePlayer == GetPlayer()->GetID()) return;
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS || GET_PLAYER(ePlayer).getTeam() == GetTeam()) return;
 
 	// Are we re-evaluating our approach towards this player?
 	bool bReevaluatePlayer = std::find(vPlayersToReevaluate.begin(), vPlayersToReevaluate.end(), ePlayer) != vPlayersToReevaluate.end();
@@ -5713,38 +5712,80 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// STRENGTH COMPARED TO US
+	// OPPORTUNITY ATTACK DESIRE
 	////////////////////////////////////
 
-	bool bWantToAttack = false;
+	// This value does not directly increase approach values, but intensifies some of the increases below
+	bool bWantsOpportunityAttack = false;
+	int iMultiplier = bEasyTarget ? 2 : 1;
 
-	// Higher threshold for attack desire if we already have good relations - don't hate our friends!
-	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer) || bCoopWarSoon)
+	// Certain things require a higher threshold for an opportunity attack desire
+	// If we don't moderate our aggressive desire
+	bool bModerateAggressiveDesire = false;
+
+	// If they're far away, moderate aggressive desire no matter what.
+	if (eProximity <= PLAYER_PROXIMITY_FAR)
 	{
-		bWantToAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || bTheyAreCloseToAnyVictory);
+		bModerateAggressiveDesire = true;
 	}
-	else
+	else if (!bUntrustworthy && !bCapturedMajorCityFromUs)
 	{
-		bWantToAttack = (bConqueror || bConquerorTraits || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || bMajorCompetitor || (bEarlyGameCompetitor && eProximity >= PLAYER_PROXIMITY_CLOSE));
+		// Ally to us now?
+		if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer) || bResurrectedUs || bResurrectedThem || bLiberatedCapital || bRecentLiberation || eOpinion == MAJOR_CIV_OPINION_ALLY || bCoopWarSoon)
+		{
+			bModerateAggressiveDesire = true;
+		}
+		// Friends previously, and not major competitors?
+		else if (GetDoFType(ePlayer) >= DOF_TYPE_FRIENDS)
+		{
+			if (!bMajorCompetitor && !bEarlyGameCompetitor)
+			{
+				bModerateAggressiveDesire = true;
+			}
+		}
 	}
+
+	// No opportunity attacks if we're doing terribly already!
+	if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		// Don't be aggressive towards our friends or distant players without a good reason.
+		if (bModerateAggressiveDesire)
+		{
+			bWantsOpportunityAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || bTheyAreCloseToAnyVictory);
+		}
+		else
+		{
+			bWantsOpportunityAttack = ((bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || bMajorCompetitor);
+
+			// If they're nearby, more reasons are valid to want to attack them!
+			if (eProximity >= PLAYER_PROXIMITY_CLOSE)
+			{
+				bWantsOpportunityAttack |= (bConqueror || bConquerorTraits || (bEasyTarget && eOpinion <= MAJOR_CIV_OPINION_COMPETITOR) || bEarlyGameCompetitor || bRecklessExpander || bWonderSpammer);
+			}
+		}
+	}
+
+	////////////////////////////////////
+	// STRENGTH COMPARED TO US
+	////////////////////////////////////
 
 	switch (eMilitaryStrength)
 	{
 	case STRENGTH_PATHETIC:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4 * iMultiplier) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iMultiplier) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 3);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3);
 		break;
 	case STRENGTH_WEAK:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2 * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2 * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
 		break;
 	case STRENGTH_POOR:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
@@ -5776,22 +5817,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// For high economic strength, do not add AFRAID weight or remove WAR/HOSTILE weight unless military strength is also that high ... military power should remain a larger factor
 	if (eEconomicStrength == STRENGTH_PATHETIC)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4 * iMultiplier) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iMultiplier) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 3);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3);
 	}
 	else if (eEconomicStrength == STRENGTH_WEAK)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2 * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2 * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] * 2);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
 	}
 	else if (eEconomicStrength == STRENGTH_POOR)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * iMultiplier) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
@@ -5952,7 +5993,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	DisputeLevelTypes eDisputeLevel = GetLandDisputeLevel(ePlayer);
-	int iMultiplier = 1;
+	iMultiplier = 1;
 	bool bBonus = true; // territorial disputes should always play a major role ...
 	bool bVictoryConcern = false;
 	if (bConqueror || bConquerorTraits)
@@ -6279,18 +6320,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 		break;
 	case WAR_PROJECTION_GOOD:
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		break;
 	case WAR_PROJECTION_VERY_GOOD:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 		break;
 	}
 
 	////////////////////////////////////
 	// MILITARY TARGET VALUE - how tough is this guy to kill?
 	////////////////////////////////////
+
 	switch (GetPlayerTargetValue(ePlayer))
 	{
 	case TARGET_VALUE_IMPOSSIBLE:
@@ -6305,12 +6347,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		break;
 	case TARGET_VALUE_FAVORABLE:
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		break;
 	case TARGET_VALUE_SOFT:
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 		break;
 	}
 
@@ -7352,10 +7394,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 	// Is this player already in a war with someone who isn't us?
 	////////////////////////////////////
+
 	int iBonus = 0;
 	bool bThinkingAboutDogpiling = false;
 	bool bOtherWarPlayerCloseToTarget;
-	if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+
+	if (bWantsOpportunityAttack)
 	{
 		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -8359,7 +8403,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iDifficultyBonus);
 
-					if (bWantToAttack || eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+					if (bWantsOpportunityAttack || eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 					{
 						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDifficultyBonus);
 						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDifficultyBonus);
@@ -8382,28 +8426,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iWarBonus = 0;
 		int iHostileBonus = 0;
 
-		if (!IsDoFAccepted(ePlayer) && !IsHasDefensivePact(ePlayer) && !bCoopWarSoon)
-		{
-			bWantToAttack |= bEasyTarget;
-		}
-
 		// War or expansionist UA?
 		if (bConquerorTraits || GetPlayer()->GetPlayerTraits()->IsExpansionist())
 		{
-			iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 
 			// Unique unit active? Slay them all!
 			if (GetPlayer()->HasUUPeriod() && bWeHaveUUTech && bWeHaveUUActive)
 			{
-				iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+				iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+				iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			
 				// AND we're going for world conquest?
 				if (bGoingForWorldConquest || bCloseToWorldConquest)
 				{
-					iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-					iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+					iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+					iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 				}
 			}
 		}
@@ -8420,37 +8459,37 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eAuthority))
 		{
-			iWarBonus += bWantToAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] / 2);
-			iHostileBonus += bWantToAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] / 2);
+			iWarBonus += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] / 2);
+			iHostileBonus += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] / 2);
 			
 			if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eAuthority))
 			{
-				iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+				iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+				iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			}
 		}
 		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eImperialism))
 		{
-			iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			
 			if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eImperialism))
 			{
-				iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-				iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+				iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+				iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 			}
 		}
 		if (eMyBranch == GC.getPOLICY_BRANCH_AUTOCRACY())
 		{
-			iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
-			iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
+			iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
+			iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
 		}
 
 		// Temporary attack bonus?
 		if (GetPlayer()->GetAttackBonusTurns() > 0)
 		{
-			iWarBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			iHostileBonus += bWantToAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			iWarBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			iHostileBonus += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
 
 		// Scale based on personality (boldness) and victory issues
@@ -8981,7 +9020,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (bValidAttackTarget)
 	{
-		if (bGoingForWorldConquest || bCloseToWorldConquest || IsLockedIntoCoopWar(ePlayer) || bUntrustworthy)
+		if (bWantsOpportunityAttack || (bGoingForWorldConquest && iEra >= 2) || bCloseToWorldConquest || IsLockedIntoCoopWar(ePlayer) || bUntrustworthy || bRecklessExpander || bWonderSpammer)
 		{
 			bWantsConquest = true;
 		}
@@ -8990,10 +9029,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			bWantsConquest = true;
 		}
 		else if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE && eWarProjection > WAR_PROJECTION_UNKNOWN)
-		{
-			bWantsConquest = true;
-		}
-		else if (bRecklessExpander || bWonderSpammer)
 		{
 			bWantsConquest = true;
 		}
