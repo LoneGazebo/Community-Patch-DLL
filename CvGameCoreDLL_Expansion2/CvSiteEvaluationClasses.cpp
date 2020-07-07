@@ -404,7 +404,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0;
+	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0, nGoodPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -469,11 +469,25 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
 
 			// need at least some food close by
-			if (iDistance > 0 && iDistance < 3 && iFoodValue > 0)
-				nFoodPlots++;
-			// and some hammers or other interesting stuff close by
-			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0 || pLoopPlot->IsNaturalWonder(true)))
-				nHammerPlots++;
+			if (iDistance > 0 && iDistance < 3)
+			{
+				if (iFoodValue > 0)
+					nFoodPlots++;
+				// and some hammers or other interesting stuff close by
+				if (iProductionValue > 0 || iResourceValue > 0)
+					nHammerPlots++;
+				//natural wonders and super features like atolls
+				if (pLoopPlot->getFeatureType() != NO_FEATURE)
+				{
+					CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
+					int iTotalFeatureYield = 0;
+					for (int i=0; i<YIELD_TOURISM; i++)
+						iTotalFeatureYield += pFeatureInfo->getYieldChange((YieldTypes)i);
+					if (iTotalFeatureYield > 4)
+						nGoodPlots++;
+				}
+
+			}
 		}
 
 		// for the central plot
@@ -589,7 +603,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		return 0;
 	if (nHammerPlots < 3)
 		return 0;
-	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && iNaturalWonderCount < 1)
+	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && nGoodPlots < 2)
 		return 0;
 
 	//civ-specific bonuses

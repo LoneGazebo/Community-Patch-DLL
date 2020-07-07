@@ -1273,7 +1273,7 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (FindUnitsForHarassing(pPlot,4,-1,-1,DOMAIN_LAND,false))
+		if (FindUnitsForHarassing(pPlot,4,-1,-1,DOMAIN_LAND,false,true))
 		{
 			ExecuteBarbarianCampMove(pPlot);
 			if( GC.getLogging() && GC.getAILogging() )
@@ -1623,7 +1623,7 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,eDomain,false))
+		if (FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,eDomain,false,false))
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -1727,7 +1727,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 				}
 
 			}
-			else if (FindUnitsForHarassing(pPlot, 0, GC.getMAX_HIT_POINTS() / 3, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, true))
+			else if (FindUnitsForHarassing(pPlot, 0, GC.getMAX_HIT_POINTS() / 3, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, true, false))
 			{
 				if (ExecutePillage(pPlot))
 				{
@@ -1740,7 +1740,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 				}
 			}
 		}
-		else if (FindUnitsForHarassing(pPlot, 2, GC.getMAX_HIT_POINTS() / 2, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, false))
+		else if (FindUnitsForHarassing(pPlot, 2, GC.getMAX_HIT_POINTS() / 2, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, false, false))
 		{
 			//be careful when sending out single units ...
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
@@ -1774,7 +1774,7 @@ void CvTacticalAI::PlotBlockadeMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (FindUnitsForHarassing(pPlot, 4, GC.getMAX_HIT_POINTS()/2, -1, DOMAIN_SEA, false))
+		if (FindUnitsForHarassing(pPlot, 4, GC.getMAX_HIT_POINTS()/2, -1, DOMAIN_SEA, false, false))
 		{
 			// Queue best one up to capture it
 			ExecuteNavalBlockadeMove(pPlot);
@@ -1805,7 +1805,7 @@ void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,DOMAIN_LAND,false))
+		if(FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,DOMAIN_LAND,false,false))
 		{
 			for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 			{
@@ -1941,7 +1941,7 @@ void CvTacticalAI::PlotBarbarianCampDefense()
 
 			UnitProcessed(currentDefender->GetID());
 		}
-		else if(FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false))
+		else if(FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false,false))
 		{
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 			ExecuteMoveToPlot(pUnit,pPlot);
@@ -3641,6 +3641,7 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 				continue;
 
 			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
 		}
 		else //empty camp, move in and move on
 		{
@@ -4042,6 +4043,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 	while (!bSuccess && iCount < 4);
 
 	//in case not all units were moved ...
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pTargetPlot);
 	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
@@ -4088,10 +4090,13 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 			}
 		}
 
-		//civilians can stack ...
 		int iFlags = 0;
+		//embark only when it's safe
+		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+		//civilians can stack ...
 		if (pUnit->IsCombatUnit())
-			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 		CvPlot* pOldPlot = pUnit->plot();
 		ExecuteMoveToPlot(pUnit, pClosestUnit, true, iFlags);
@@ -5522,7 +5527,7 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 }
 
 //find units for pillaging, plundering, blockading, etc
-bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft)
+bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation)
 {
 	m_CurrentMoveUnits.clear();
 
@@ -5562,7 +5567,9 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (plotDistance(*pTarget, *pLoopUnit->plot())>(iNumTurnsAway + 1) * 3)
 				continue;
 
-			int iFlags = CvUnit::MOVEFLAG_NO_EMBARK;
+			int iFlags = bAllowEmbarkation ? 0 : CvUnit::MOVEFLAG_NO_EMBARK;
+			if (pTarget->isEnemyUnit(m_pPlayer->GetID(), true, true) && !pLoopUnit->IsCanAttackWithMove())
+				iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 			if (bMustHaveMovesLeft)
 				iFlags |= CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
 
@@ -7481,7 +7488,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
-		if (pUnit->GetCurrHitPoints() - iDamageReceived <= -1)
+		int iLimit = pUnit->getOwner() == BARBARIAN_PLAYER ? -5 : 0;
+		if (pUnit->GetCurrHitPoints() - iDamageReceived < iLimit)
 		{
 			result.iScore = -INT_MAX;
 			return;
@@ -8083,15 +8091,6 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	if (movePlot.iPlotIndex != unit.iPlotIndex)
 		result.eAssignmentType = A_MOVE;
 
-	//check distance to target if gathering (not attacking)
-	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
-	if (!targetPlot.isEnemy())
-	{
-		//can be treacherous with impassable terrain in between but everything else is much more complex
-		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
-		iScore = iScore + 3 - iPlotDistance;
-	}
-
 	//check distance to enemy in any case
 	switch (testPlot.getEnemyDistance())
 	{
@@ -8108,6 +8107,15 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	default:
 		iScore = 2; //usual case for gathering moves, otherwise not really interesting
 		break;
+	}
+
+	//check distance to target if gathering (not attacking)
+	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
+	if (!targetPlot.isEnemy())
+	{
+		//can be treacherous with impassable terrain in between but everything else is much more complex
+		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pTestPlot);
+		iScore += 3 - iPlotDistance;
 	}
 
 	//generals and admirals
