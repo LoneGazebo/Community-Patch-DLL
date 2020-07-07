@@ -13062,11 +13062,14 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
 		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
-		
+
 		// Don't get into multiple wars at once (unless this is an easy target)
-		if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
+		if (bWantToAttack)
 		{
-			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+			if (!IsEasyTarget(eTargetPlayer) || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
+			{
+				bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+			}
 		}
 		
 		// Don't declare war if disallowed by game options.
