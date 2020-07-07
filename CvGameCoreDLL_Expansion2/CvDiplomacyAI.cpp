@@ -20501,7 +20501,7 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDefensivePact(bool bIgnoreDPs)
 		{
 			iNumPlayers++;
 			//Ignore DPs we already have.
-			if (!bIgnoreDPs && GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+			if (bIgnoreDPs && GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 				continue;
 
 			int iValue = GetDefensivePactValue(ePlayer);
@@ -20583,7 +20583,7 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 		{
 			iNumPlayers++;
 			//Ignore DoFs we already have.
-			if (!bIgnoreDoFs && IsDoFAccepted(ePlayer))
+			if (bIgnoreDoFs && IsDoFAccepted(ePlayer))
 				continue;
 
 			int iValue = GetDoFValue(ePlayer);
