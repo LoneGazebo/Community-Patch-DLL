@@ -23,10 +23,6 @@ UPDATE Beliefs
 SET GoldPerXFollowers = '0'
 WHERE Type = 'BELIEF_TITHE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Beliefs
-SET PolicyReductionWonderXFollowerCities = '8'
-WHERE Type = 'BELIEF_TITHE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
-
 -- Initiation Rites (Now Way of Transcendence)
 UPDATE Beliefs
 SET GoldPerFirstCityConversion = '0'
