@@ -13091,9 +13091,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 		
 		// Don't get into multiple wars at once (unless this is an easy target)
-		if (bWantToAttack && !IsEasyTarget(eTargetPlayer) && GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+		if (bWantToAttack)
 		{
-			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+			if (!IsEasyTarget(eTargetPlayer) || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
+			{
+				bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+			}
 		}
 		
 		// Don't declare war if we would backstab, or if disallowed by game options.
