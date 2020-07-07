@@ -10975,7 +10975,7 @@ void CvDiplomacyAI::SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachType
 	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
 	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return;
 	if (eApproach < NO_MINOR_CIV_APPROACH || eApproach >= NUM_MINOR_CIV_APPROACHES) return;
-	m_paeMinorCivApproach[(int)eMinor] = eApproach;
+	m_paeMinorCivApproach[iArrayIndex] = eApproach;
 }
 
 /// How many Minors do we have a particular Approach towards?
