@@ -5720,7 +5720,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	int iMultiplier = bEasyTarget ? 2 : 1;
 
 	// Certain things require a higher threshold for an opportunity attack desire
-	// If we don't moderate our aggressive desire
+	// If we don't moderate our aggressive desire, we'll lose friends and be hated by the world.
 	bool bModerateAggressiveDesire = false;
 
 	// If they're far away, moderate aggressive desire no matter what.
@@ -5745,7 +5745,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	// No opportunity attacks if we're doing terribly already!
+	// No opportunity attacks at all if we're doing terribly already!
 	if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 	{
 		// Don't be aggressive towards our friends or distant players without a good reason.
