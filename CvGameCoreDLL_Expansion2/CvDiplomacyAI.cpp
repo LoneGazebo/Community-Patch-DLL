@@ -14359,11 +14359,9 @@ PlayerTypes CvDiplomacyAI::GetHighestWarscorePlayer(bool bOnlyCurrentWars /* = t
 /// What is the integer value of how well we think the war with ePlayer is going?
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation /* = false */, bool bDebug /* = false */)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_CIV_PLAYERS) return 0;
 
 	int iWarScore = 0;
-	int iAverageScore = 0;
 
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
 	if (bUsePeacetimeCalculation)
@@ -14388,82 +14386,82 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculatio
 		// Their Military Strength compared to us
 		switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
-			case STRENGTH_PATHETIC:
-				iWarScore += 40;
-				break;
-			case STRENGTH_WEAK:
-				iWarScore += 20;
-				break;
-			case STRENGTH_POOR:
-				iWarScore += 10;
-				break;
-			case STRENGTH_AVERAGE:
-				iWarScore += 0;
-				break;
-			case STRENGTH_STRONG:
-				iWarScore += -10;
-				break;
-			case STRENGTH_POWERFUL:
-				iWarScore += -20;
-				break;
-			case STRENGTH_IMMENSE:
-				iWarScore += -40;
-				break;
+		case STRENGTH_PATHETIC:
+			iWarScore += 40;
+			break;
+		case STRENGTH_WEAK:
+			iWarScore += 20;
+			break;
+		case STRENGTH_POOR:
+			iWarScore += 10;
+			break;
+		case STRENGTH_AVERAGE:
+			iWarScore += 0;
+			break;
+		case STRENGTH_STRONG:
+			iWarScore += -10;
+			break;
+		case STRENGTH_POWERFUL:
+			iWarScore += -20;
+			break;
+		case STRENGTH_IMMENSE:
+			iWarScore += -40;
+			break;
 		}
 
 		// Their Economic Strength compared to us
-		switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
+		switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
-			case STRENGTH_PATHETIC:
-				iWarScore += 20;
-				break;
-			case STRENGTH_WEAK:
-				iWarScore += 10;
-				break;
-			case STRENGTH_POOR:
-				iWarScore += 5;
-				break;
-			case STRENGTH_AVERAGE:
-				iWarScore += 0;
-				break;
-			case STRENGTH_STRONG:
-				iWarScore += -5;
-				break;
-			case STRENGTH_POWERFUL:
-				iWarScore += -10;
-				break;
-			case STRENGTH_IMMENSE:
-				iWarScore += -20;
-				break;
+		case STRENGTH_PATHETIC:
+			iWarScore += 20;
+			break;
+		case STRENGTH_WEAK:
+			iWarScore += 10;
+			break;
+		case STRENGTH_POOR:
+			iWarScore += 5;
+			break;
+		case STRENGTH_AVERAGE:
+			iWarScore += 0;
+			break;
+		case STRENGTH_STRONG:
+			iWarScore += -5;
+			break;
+		case STRENGTH_POWERFUL:
+			iWarScore += -10;
+			break;
+		case STRENGTH_IMMENSE:
+			iWarScore += -20;
+			break;
 		}
 
-		// What is our war projection of them?
-		switch(GetMajorCivOpinion(ePlayer))
+		// What is our opinion of them?
+		switch (GetMajorCivOpinion(ePlayer))
 		{
-			case MAJOR_CIV_OPINION_ALLY:
-				iWarScore += -20;
-				break;
-			case MAJOR_CIV_OPINION_FRIEND:
-				iWarScore += -10;
-				break;
-			case MAJOR_CIV_OPINION_FAVORABLE:
-				iWarScore += -5;
-				break;
-			case MAJOR_CIV_OPINION_NEUTRAL:
-				iWarScore += 0;
-				break;
-			case MAJOR_CIV_OPINION_COMPETITOR:
-				iWarScore += 5;
-				break;
-			case MAJOR_CIV_OPINION_ENEMY:
-				iWarScore += 10;
-				break;
-			case MAJOR_CIV_OPINION_UNFORGIVABLE:
-				iWarScore += 20;
-				break;
+		case MAJOR_CIV_OPINION_ALLY:
+			iWarScore += -20;
+			break;
+		case MAJOR_CIV_OPINION_FRIEND:
+			iWarScore += -10;
+			break;
+		case MAJOR_CIV_OPINION_FAVORABLE:
+			iWarScore += -5;
+			break;
+		case MAJOR_CIV_OPINION_NEUTRAL:
+			iWarScore += 0;
+			break;
+		case MAJOR_CIV_OPINION_COMPETITOR:
+			iWarScore += 5;
+			break;
+		case MAJOR_CIV_OPINION_ENEMY:
+			iWarScore += 10;
+			break;
+		case MAJOR_CIV_OPINION_UNFORGIVABLE:
+			iWarScore += 20;
+			break;
 		}
 
-		// What is our war projection of them?
+		// How much of a warmonger are they?
 		switch (GetWarmongerThreat(ePlayer))
 		{
 		case THREAT_NONE:
@@ -14490,66 +14488,60 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculatio
 	}
 	else
 	{
-		int iTheirWarScore = GetWarDamageValue(ePlayer);
 		int iWarScore = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(GetPlayer()->GetID());
+		int iTheirWarScore = GetWarDamageValue(ePlayer);
+		int iAverageScore = 0;
+
+		if (iWarScore == iTheirWarScore)
+		{
+			iAverageScore = 0;
+		}
+		else if (iWarScore > iTheirWarScore)
+		{
+			iAverageScore = iWarScore - iTheirWarScore;
+		}
+		else if (iTheirWarScore > iWarScore)
+		{
+			iAverageScore = iTheirWarScore - iWarScore;
+			iAverageScore *= -1;
+		}
+
+		//Doubled because of the 'average' above.
+		iAverageScore *= 2;
+
+		if (iAverageScore != 0)
+		{
+			int iWarDurationUs = (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 5);
+			int iWarDurationThem = (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) / 5);
+
+			if (iAverageScore > 0)
+			{
+				iAverageScore = max((iAverageScore - iWarDurationUs), 0);
+			}
+			else if (iAverageScore < 0)
+			{
+				iAverageScore = min((iAverageScore + iWarDurationThem), 0);
+			}
+
+			if (iAverageScore >= 100)
+			{
+				iAverageScore = 100;
+			}
+			else if (iAverageScore <= -100)
+			{
+				iAverageScore = -100;
+			}
+		}
 	
-		if (bDebug && GC.getAILogging() )
+		if (bDebug && GC.getAILogging())
 		{
 			CvString strMsg;
 			strMsg.Format("turn %d - war score for %d against player %d is %d / %d\n", GC.getGame().getGameTurn(), m_pPlayer->GetID(), ePlayer, iWarScore, iTheirWarScore );
 			OutputDebugString(strMsg.c_str());
 		}
 
-		if (iWarScore == iTheirWarScore)
-		{
-			return 0;
-		}
-		if(iTheirWarScore > iWarScore)
-		{
-			iAverageScore = iTheirWarScore - iWarScore;
-			iAverageScore *= -1;
-		}
-		else
-		{
-			iAverageScore = iWarScore - iTheirWarScore;
-		}
-
-		//Doubled because of the 'average' above.
-		iAverageScore *= 2;
-
-		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
-		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
-		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-		iWarDuration /= 5;
-		if(iWarDuration > 0)
-		{	
-			if(iAverageScore > 0)
-			{
-				iAverageScore -= iWarDuration;
-				if(iAverageScore < 0)
-				{
-					iAverageScore = 0;
-				}
-			}
-			else if(iAverageScore < 0)
-			{
-				iAverageScore += iWarDuration;
-				if(iAverageScore > 0)
-				{
-					iAverageScore = 0;
-				}
-			}
-		}
-		if(iAverageScore >= 100)
-		{
-			return 100;
-		}
-		if(iAverageScore <= -100)
-		{
-			return -100;
-		}
+		return iAverageScore;
 	}
-	return iAverageScore;
 }
 
 
