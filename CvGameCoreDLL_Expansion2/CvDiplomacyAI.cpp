@@ -8954,7 +8954,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					// Ranking of 1 = -1x bias, 2 = -2x bias, etc.
 					if (iReduction > 0)
 					{
-						viApproachWeights[eLoopApproach] -= (viApproachWeightsPersonality[eLoopApproach] * iPlayerRanking);
+						viApproachWeights[eLoopApproach] -= iReduction;
 					}
 					// Highest approach weight of any player? Give it a bonus instead!
 					else if (iReduction == 0 && GetPlayerApproachValue(ePlayer, eLoopApproach) > 0)
@@ -12705,7 +12705,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// -95 or worse against a major civ? If we got this far, always make peace.
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 && GetPlayer()->GetDiplomacyAI()->GetNumberOfThreatenedCities(ePlayer) > 0)
+	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 && iOurDanger > 0)
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
@@ -12737,7 +12737,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strBaseString += playerName + " VS. " + otherPlayerName;
 
-			strOutBuf.Format("War score is -95 or worse, so we're willing to make peace!");
+			strOutBuf.Format("War score is -95 or worse and we're in danger, so we're willing to make peace!");
 
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
