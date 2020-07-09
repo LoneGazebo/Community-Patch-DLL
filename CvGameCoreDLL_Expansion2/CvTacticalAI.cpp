@@ -7557,7 +7557,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 				result.eAssignmentType = A_RANGEKILL;
 			else
 			{
-				if (pUnitPlot->MeleeAttackerAdvances())
+				if (pUnitPlot->MeleeAttackerAdvances(pUnit->getTeam()))
 					result.eAssignmentType = A_MELEEKILL;
 				else
 					result.eAssignmentType = A_MELEEKILL_NO_ADVANCE;

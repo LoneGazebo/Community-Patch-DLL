@@ -436,7 +436,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = true;
 		}
 
-		if (!kAttacker.plot()->MeleeAttackerAdvances())
+		if (!kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
 			bAdvance = false;
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
@@ -3831,7 +3831,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		eFireSupportResult = AttackRanged(kAttacker, pDefender->getX(), pDefender->getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 		if (pDefender->isDelayedDeath())
 		{
-			if (kAttacker.plot()->MeleeAttackerAdvances())
+			if (kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
 			{
 				// Killed him, move to the plot if we can.
 				if (targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
@@ -3935,8 +3935,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		if(pNotification)
 			pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pDefender->getX(), pDefender->getY(), (int) pDefender->getUnitType(), pDefender->getOwner());
 
-		bool bAdvance;
-		bAdvance = kAttacker.canAdvance(targetPlot, ((pDefender->IsCanDefend()) ? 1 : 0));
+		bool bAdvance = kAttacker.canAdvance(targetPlot, ((pDefender->IsCanDefend()) ? 1 : 0));
 
 		// Move forward
 		if(targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
