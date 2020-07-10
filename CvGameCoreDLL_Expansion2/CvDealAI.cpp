@@ -4147,14 +4147,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 {
 	int iValue = 100;
 
-	if(iNumVotes == 0)
-		return INT_MAX;
-
-	//vassals get out!
-	if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam()))
-		return INT_MAX;
-
-	if (GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+	if (iNumVotes == 0)
 		return INT_MAX;
 
 	// Giving our votes to them - Higher value for voting on things we dislike
@@ -4183,11 +4176,19 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					}
 				}
 				//Let's look real quick to see if this is the world leader vote. If so, don't give ANYTHING away if we can win.
-				if(pProposal->GetEffects()->bDiplomaticVictory)
+				if (pProposal->GetEffects()->bDiplomaticVictory)
 				{
+					// Vassals do not sell their votes!
+					if (GetPlayer()->IsVassalOfSomeone())
+						return INT_MAX;
+
+					// Never support the opposition if we're on a human's team.
+					if (GetPlayer()->IsAITeammateOfHuman())
+						return INT_MAX;
+
 					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-					if(iOurVotes >= iVotesNeededToWin)
+					if (iOurVotes >= iVotesNeededToWin)
 					{
 						return INT_MAX;
 					}
