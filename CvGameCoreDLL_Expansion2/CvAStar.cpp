@@ -3070,13 +3070,10 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 
 	int iCost = PATH_BASE_COST;
 
-	// prefer the coastline (not identical with coastal water)
-	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand())
-		iCost += PATH_BASE_COST/4;
-
-	// avoid cities (just for the looks)
-	if (pToPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
-		iCost += PATH_BASE_COST*2;
+	// it's a difference whether coast is cheaper or high seas are more expensive
+	// because it influences the normalized distance of the path!
+	if (pToPlot->isShallowWater())
+		iCost -= PATH_BASE_COST/3;
 
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();

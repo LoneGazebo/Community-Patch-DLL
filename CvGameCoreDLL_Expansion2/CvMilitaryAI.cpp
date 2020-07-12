@@ -2339,10 +2339,6 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pCity->getTeam())
 				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
 
-			//should not go here
-			if (GetPlayer()->GetPlotDanger(*pLoopPlot, true) > 9)
-				bTough = true;
-
 			//makes us slow
 			if(	pLoopPlot->isRoughGround() )
 				bTough = true;

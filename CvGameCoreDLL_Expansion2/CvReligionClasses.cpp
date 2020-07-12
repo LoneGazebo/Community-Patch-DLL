@@ -417,12 +417,12 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 					if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
 					{
 						bool bConnectedWithTrade;
-						int iApparentDistance, iMaxDistance;
-						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iApparentDistance, iMaxDistance))
+						int iRelativeDistancePercent;
+						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iRelativeDistancePercent))
 							continue;
 
 						int iNumTradeRoutes = 0;
-						int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+						int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iRelativeDistancePercent);
 						if (iPressure > 0)
 						{
 							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
@@ -536,7 +536,7 @@ bool CvGameReligions::IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, 
 	return true;
 }
 
-bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity, bool& bConnectedWithTrade, int& iApparentDistance, int& iMaxDistance)
+bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity, bool& bConnectedWithTrade, int& iRelativeDistancePercent)
 {
 	if (eReligion <= RELIGION_PANTHEON)
 	{
@@ -550,20 +550,17 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	}
 
 	bConnectedWithTrade = false;
+	iRelativeDistancePercent = INT_MAX;
 
 	if (eReligion == pFromCity->GetCityReligions()->GetReligiousMajority())
 	{
 		bConnectedWithTrade = GC.getGame().GetGameTrade()->CitiesHaveTradeConnection(pFromCity, pToCity);
 		if (bConnectedWithTrade)
+		{
+			iRelativeDistancePercent = 1; //very close
 			return true;
+		}
 	}
-
-	// Are the cities within the minimum distance?
-	//Increases with era and mapsize.
-	int iEraScaler = GC.getGame().getCurrentEra() * 3;
-	iEraScaler /= 2;
-	iEraScaler *= GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
-	iEraScaler /= 100;
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(pFromCity->getOwner());
@@ -601,35 +598,43 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	}
 #endif
 
-	iMaxDistance = (GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler)*SPath::getNormalizedDistanceBase();
+	int iMaxDistanceLand = GET_PLAYER(pFromCity->getOwner()).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pFromCity)*SPath::getNormalizedDistanceBase();
+	int iMaxDistanceSea = GET_PLAYER(pFromCity->getOwner()).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pFromCity)*SPath::getNormalizedDistanceBase();
+
 	if (iDistanceMod > 0)
 	{
-		iMaxDistance *= (100 + iDistanceMod);
-		iMaxDistance /= 100;
+		iMaxDistanceLand *= (100 + iDistanceMod);
+		iMaxDistanceLand /= 100;
+		iMaxDistanceSea *= (100 + iDistanceMod);
+		iMaxDistanceSea /= 100;
 	}
 
-	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
-	iApparentDistance = INT_MAX;
-	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	//estimate the distance between the cities from the traderoute cost. 
+	//will be influences by terrain features, routes, open borders etc
+	//note: trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	SPath path;
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
+		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
+		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
+		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
+		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
 
-	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
-	return bWithinDistance;
+	return (iRelativeDistancePercent<100);
 }
 
 EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer, bool bIgnorePlayer)
@@ -3269,7 +3274,8 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 }
 
 /// How much pressure is exerted between these cities?
-int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection, bool bConnectedWithTrade, int iApparentDistance, int iMaxDistance) //if bActualValue==false, then assume bPretendTradeConnection
+int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, 
+	bool bPretendTradeConnection, bool bConnectedWithTrade, int iRelativeDistancePercent) //if bActualValue==false, then assume bPretendTradeConnection
 {
 	iNumTradeRoutesInfluencing = 0;
 
@@ -3467,9 +3473,16 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 			iPressure /= 100;
 		}
 
-		int iDistanceScale = MapToPercent(iApparentDistance, iMaxDistance, iMaxDistance / 2 + 1);
-		iPressure *= iDistanceScale;
+		//now the most important thing - linear scaling
+		iPressure *= (100 - iRelativeDistancePercent);
 		iPressure /= 100;
+
+		/*
+		//alternative version with quadratic scaling - higher pressure
+		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
+		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
+		iPressure = int(iPressure * fScaleFactor);
+		*/
 	}
 
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
@@ -5266,12 +5279,12 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 					continue;
 
 				bool bConnectedWithTrade;
-				int iApparentDistance, iMaxDistance;
-				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iApparentDistance, iMaxDistance))
+				int iRelativeDistancePercent;
+				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))
 					continue;
 
 				int iNumTradeRoutes = 0;
-				int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+				int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
 				iPressure += iNewPressure;
 				iNumTradeRoutesInvolved += iNumTradeRoutes;
@@ -5336,11 +5349,11 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	int iNumTradeRoutes = 0;
 
 	bool bConnectedWithTrade;
-	int iApparentDistance, iMaxDistance;
-	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+	int iRelativeDistancePercent;
+	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
 
-	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iApparentDistance, iMaxDistance);
-	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
+	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
 	iAmount = (iWithTR-iNoTR);
 	return (iAmount>0);

@@ -6613,7 +6613,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 
 	CvPlot* pBasePlot = pUnit->plot();
 	bool bIsAirUnit = pUnit->getDomainType()==DOMAIN_AIR;
-	if (bIsAirUnit)
+	if (bIsAirUnit || pUnit->IsGarrisoned())
 		bAllowMovement = false;
 	
 	int iMaxDamage = 0;
@@ -6637,26 +6637,14 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 			int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit, NULL, false) : 
 										pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot());
 
-			if (iDamage < pOtherUnit->GetCurrHitPoints())
-			{
-				//if we're not killing the enemy, don't use a garrison
-				if (iDamage > iMaxDamage && !pUnit->IsGarrisoned())
-				{
-					pBestTarget = pLoopPlot;
-					iMaxDamage = iDamage;
-				}
-
-			}
-			else
-			{
-				//bonus for a kill
+			//kill bonus
+			if (iDamage >= pOtherUnit->GetCurrHitPoints())
 				iDamage += 30;
-				if (iDamage > iMaxDamage)
-				{
-					pBestTarget = pLoopPlot;
-					iMaxDamage = iDamage;
-				}
 
+			if (iDamage > iMaxDamage)
+			{
+				pBestTarget = pLoopPlot;
+				iMaxDamage = iDamage;
 			}
 		}
 	}
