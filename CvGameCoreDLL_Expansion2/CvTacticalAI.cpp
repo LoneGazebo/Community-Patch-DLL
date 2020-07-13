@@ -7693,8 +7693,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 				const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
 				if (enemyPlot.isValid() && enemyPlot.isEnemy())
 				{
-					//don't attack cities if the real target is something else
-					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot && iMaxRange>1)
+					//don't attack cities with non-siege units if the real target is something else
+					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot && iMaxRange>1 && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD)
 						continue;
 
 					//we don't care for damage here but let's reuse the scoring function
@@ -8694,8 +8694,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			//note: all valid plots are visible by definition
 			if (enemyPlot.isValid() && enemyPlot.isEnemy())
 			{
-				//don't attack cities if the real target is something else
-				if (enemyPlot.isEnemyCity() && getTarget() != enemyPlot.getPlot() && pUnit->GetRange()>1)
+				//don't attack cities with non-siege units if the real target is something else
+				if (enemyPlot.isEnemyCity() && getTarget() != enemyPlot.getPlot() && pUnit->GetRange()>1 && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD)
 					continue;
 
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
