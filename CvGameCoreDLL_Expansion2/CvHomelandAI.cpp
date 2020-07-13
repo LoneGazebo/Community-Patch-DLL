@@ -4594,6 +4594,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
+				//same flags as in ChooseMissionaryTargetCity!
 				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
