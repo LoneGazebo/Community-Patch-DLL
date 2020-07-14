@@ -1213,10 +1213,10 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 					{
 						iMeleeCount++;
 
-						//don't use too many melee units
+						//don't use too many far-away melee units
 						//the combat sim can't deal with too many units
 						//make sure there are ranged units in there as well
-						if (iMeleeCount > 3 && m_CurrentMoveUnits.size()>9)
+						if (iMeleeCount > 3 && m_CurrentMoveUnits.size()>9 && !pPlot->isAdjacent(pUnit->plot()))
 							m_CurrentMoveUnits[iI].SetAttackStrength(0);
 					}
 				}
@@ -7768,6 +7768,11 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	bool bWouldEndTurn = (movePlot.iMovesLeft == 0 || movePlot.iPlotIndex == unit.iPlotIndex);
 	if (bScoreTurnEnd && bWouldEndTurn)
 	{
+		//don't do it if it's a death trap (unless there is no other choice ...)
+		int iNumAdjEnemies = testPlot.getNumAdjacentEnemies(DomainForUnit(pUnit));
+		if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
+			return result;
+
 		//may instead of a plain finish we can pillage?
 		if (movePlot.iMovesLeft>0)
 		{
@@ -7804,7 +7809,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		{
 			//minor bonus for staying put and healing
 			//don't add too much else it overrides the firstline/secondline order
-			if (unit.iMovesLeft == pUnit->maxMoves())
+			if (movePlot.iMovesLeft == pUnit->maxMoves())
 			{
 				if (pUnit->IsHurt())
 					iMiscScore ++; //cannot fortify, only heal
@@ -7829,21 +7834,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		// * freshly revealed enemy units are not considered
 		int	iDanger = pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies());
 
-		//can happen with garrisons, catch this case as is messes up the math
+		//can happen with garrisons, catch this case as it messes up the math
 		if (iDanger == INT_MAX)
 		{
 			result.iScore = 1; //not impossible but strongly discouraged
 			return result;
 		}
-
-		//don't do it if it's a death trap (unless there is no other choice ...)
-		bool bAbort = false;
-		bAbort |= (testPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3);
-		bAbort |= (assumedPosition.getAggressionBias() < 1 && testPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) == 3);
-		bAbort |= (iDanger > pUnit->GetCurrHitPoints() * 3);
-
-		if (bAbort)
-			return result;
 
 		//avoid these plots
 		if (testPlot.isNextToEnemyCitadel())
@@ -8557,7 +8553,7 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 			}
 			else
 				//if the neighbor is invisible but passable be careful as well, enemies might be hiding there
-				bEdgeOfTheKnownWorld = !pNeighbor->isImpassable();
+				bEdgeOfTheKnownWorld |= !pNeighbor->isImpassable();
 
 			if (TacticalAIHelpers::IsEnemyCitadel(pNeighbor, currentPosition.getPlayer()))
 				bAdjacentToEnemyCitadel = true;
@@ -8994,7 +8990,7 @@ bool CvTacticalPosition::isComplete() const
 
 	//if this was an isolated target, we stop as soon as it has been killed (don't overcommit units)
 	//if it's a cluster of targets we have to continue because there's only one tactical target for the whole cluster
-	if (eAggression > AL_NONE && isIsolatedTarget)
+	if (eAggression > AL_NONE && (isIsolatedTarget || pTargetPlot->isCity()))
 		if (getTactPlot(pTargetPlot->GetPlotIndex()).getEnemyDistance() > 0)
 			return true;
 
@@ -9027,31 +9023,29 @@ bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextT
 	//we calculated the initial score with zero moves left, ignoring attacks
 	//this is important because we might have killed an enemy depriving us of the sweet score
 	//so we only check position and danger!
-	unit.iMovesLeft = 0;
-	iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex, 0, unit.iMovesLeft, 0), *this, true).iScore;
+	iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex), *this, true).iScore;
 
-	//note that the score may well be lower than the initial score if we killed an enemy!
-	//so as long as it's positive, no problem. if it's negative, check if we're better than before
-	if (iNextTurnScore < 0)
+	//note that the score may well be lower than the initial score if we killed an enemy.
+	//also melee units might have taken attacker damage, so their danger score increased.
+	//if we have many units we can afford to allow some extra danger!
+	if (iNextTurnScore > -10 * nOurUnits)
+		return true;
+
+	//second chance, see if we're better than the reference
+	//first the reference
+	int iInitialScore = 0;
+	for (size_t i = 0; i < assignedMoves.size(); i++)
 	{
-		//first the reference
-		int iInitialScore = 0;
-		for (size_t i = 0; i < assignedMoves.size(); i++)
+		if (assignedMoves[i].iUnitID == unit.iUnitID && assignedMoves[i].eAssignmentType == A_INITIAL)
 		{
-			if (assignedMoves[i].iUnitID == unit.iUnitID && assignedMoves[i].eAssignmentType == A_INITIAL)
-			{
-				iInitialScore = assignedMoves[i].iScore;
-				break;
-			}
+			iInitialScore = assignedMoves[i].iScore;
+			break;
 		}
-
-		//initial score could have been even more negative
-		//must be better than before to catch the case where both are invalid
-		return (iNextTurnScore - iInitialScore) > 0;
 	}
 
-	////zero or positive score is ok
-	return true;
+	//initial score could have been even more negative
+	//must be better than before to catch the case where both are invalid
+	return (iNextTurnScore - iInitialScore) > 0;
 }
 
 //see if all the plots where our units would end their turn are acceptable
@@ -9511,15 +9505,15 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 		{
 			//can pass empty set of units - the plot was invisible before so we know there is none of our units there
 			addTacticalPlot(pPlot,set<CvUnit*>()); 
-			//if we found a new enemy unit, update some flags
-			if ( tactPlots.back().getEnemyDistance()==0 )
-				refreshVolatilePlotProperties();
 
 			//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
 			if (pPlot->isEnemyUnit(ePlayer, true, false))
 				nNewEnemies++;
 		}
 	}
+
+	if (nNewEnemies>0)
+		refreshVolatilePlotProperties();
 
 	return make_pair<int, int>( (int)newlyVisiblePlots.size(), nNewEnemies);
 }
