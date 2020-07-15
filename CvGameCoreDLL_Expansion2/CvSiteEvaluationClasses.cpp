@@ -358,7 +358,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iTotalGoldValue = 0;
 	int iTotalScienceValue = 0;
 	int iTotalFaithValue = 0;
-	int iTotalResourceValue = 0;
+	int iTotalTradeValue = 0;
 	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
@@ -442,18 +442,18 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			//this is about strategic placement, not resources
 			int iStrategicValue = ComputeStrategicValue(pLoopPlot, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();
 
-			int iResourceValue = 0;
+			int iTradeValue = 0;
 			int iHappinessValue = 0;
 			if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
 			{
 				iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
-				iResourceValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
+				iTradeValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
 
 				//our existing city will catch those eventually
 				if (iExistingFriendlyCityDistance<=3)
 				{
 					iHappinessValue /= 2;
-					iResourceValue /= 2;
+					iTradeValue /= 2;
 				}
 			}
 
@@ -463,18 +463,19 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iTotalGoldValue += iGoldValue;
 			iTotalScienceValue += iScienceValue;
 			iTotalFaithValue += iFaithValue;
-			iTotalResourceValue += iResourceValue;
+			iTotalTradeValue += iTradeValue;
 			iTotalStrategicValue += iStrategicValue;
 
-			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
+			//it's a bit awkward, happiness and trade value should have a higher modifier in ring 0 ...
+			iPlotValue += iRingModifier * ( iFoodValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iTradeValue + iHappinessValue ) + iStrategicValue;
 
 			// need at least some food close by
 			if (iDistance > 0 && iDistance < 3)
 			{
 				if (iFoodValue > 0)
 					nFoodPlots++;
-				// and some hammers or other interesting stuff close by
-				if (iProductionValue > 0 || iResourceValue > 0)
+				// and some hammers
+				if (iProductionValue > 0)
 					nHammerPlots++;
 				//natural wonders and super features like atolls
 				if (pLoopPlot->getFeatureType() != NO_FEATURE)
@@ -517,13 +518,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
 		ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
 
-		if (ePlotFeature == FEATURE_FOREST)
+		if (ePlotFeature == FEATURE_FOREST && iDistance>0)
 		{
 			++iIroquoisForestCount;
 			if (iDistance == 1 && ePlotImprovement == NO_IMPROVEMENT)
 				++iCelticForestCount;
 		}
-		else if (ePlotFeature == FEATURE_JUNGLE)
+		else if (ePlotFeature == FEATURE_JUNGLE && iDistance>0)
 		{
 			++iBrazilJungleCount;
 		}
@@ -531,11 +532,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			++iWetlandsCount;
 		}
+
 		if (pLoopPlot->IsNaturalWonder())
 		{
 			++iNaturalWonderCount;
 		}
-
 		if (pLoopPlot->isLake())
 		{
 			++iLakeCount;
@@ -709,13 +710,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if ( iTotalProductionValue > 4*iTotalFoodValue )
+	if ( iTotalProductionValue > 4 * iTotalFoodValue )
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if (iTotalFoodValue > 8 * iTotalProductionValue)
+	//food has a higher weight than production anyway, so set a high threshold here
+	if (iTotalFoodValue > 12 * iTotalProductionValue)
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
@@ -966,8 +968,7 @@ int CvCitySiteEvaluator::ComputeHappinessValue(CvPlot* pPlot, const CvPlayer* pP
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		// Add a bonus if adds Happiness
@@ -1092,8 +1093,7 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1133,8 +1133,7 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlaye
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1170,8 +1169,7 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 
 	if(eResource != NO_RESOURCE)
 	{

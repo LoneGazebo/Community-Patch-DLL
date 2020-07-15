@@ -6246,7 +6246,7 @@ void CvUnit::flipDamageReceivedPerTurn()
 
 bool CvUnit::isProjectedToDieNextTurn() const
 {
-	return (m_iDamageTakenLastTurn>GetCurrHitPoints() && getDamage()>60);
+	return (m_iDamageTakenLastTurn>GetCurrHitPoints() && getDamage()>67);
 }
 #endif
 
@@ -27029,6 +27029,80 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::CanPushOutUnitHere(CvPlot& pushPlot) const
+{
+	return GetPotentialUnitToPushOut(pushPlot) != NULL;
+}
+
+CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
+{
+	//this is AI only, humans have to do it manually
+	if (isHuman())
+		return NULL;
+
+	//no problem if we can stack
+	if (CanStackUnitAtPlot(&pushPlot))
+		return NULL;
+
+	if (!isNativeDomain(&pushPlot))
+		return NULL;
+
+	const IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+	pUnitNode = pushPlot.headUnitNode();
+	while (pUnitNode != NULL)
+	{
+		pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
+		pUnitNode = pushPlot.nextUnitNode(pUnitNode);
+
+		//this should be the blocking unit
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
+		{
+			//is it idle right now?
+			if (pLoopUnit->canMove() && TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit) == NULL)
+			{
+				//does it have a free plot
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(&pushPlot);
+				for (int i = 0; i < 6; i++)
+				{
+					CvPlot* pNeighbor = aNeighbors[i];
+					if (pNeighbor && pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
+						return pLoopUnit;
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+
+//move into the plot which is assumed to be blocked by another unit
+//push the other unit to a neighboring plot
+bool CvUnit::PushBlockingUnitOutOfPlot(CvPlot & atPlot)
+{
+	CvUnit* pBlock = GetPotentialUnitToPushOut(atPlot);
+	if (!pBlock)
+		return false;
+
+	//does it have a free plot
+	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(&atPlot);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && pBlock->isNativeDomain(pNeighbor) && pBlock->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
+		{
+			pBlock->SetActivityType(ACTIVITY_AWAKE);
+			pBlock->PushMission(CvTypes::getMISSION_MOVE_TO(),pNeighbor->getX(),pNeighbor->getY());
+			PushMission(CvTypes::getMISSION_MOVE_TO(),atPlot.getX(),atPlot.getY());
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
 	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
@@ -27073,11 +27147,10 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							{
 								if (pLoopUnit->IsCombatUnit() && pLoopUnit->ReadyToSwap())
 								{
-									CvPlot* here = plot();
-									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(here->getTeam(),true) && pLoopUnit->ReadyToSwap())
+									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true) && pLoopUnit->ReadyToSwap())
 									{
 										// Can the unit I am swapping with get to me this turn?
-										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
+										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, 1);
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
@@ -27097,6 +27170,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 
 	return NULL;
 }
+
 
 //	--------------------------------------------------------------------------------
 void CvUnit::read(FDataStream& kStream)
@@ -27429,12 +27503,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 				return false;
 		}
 
-		if (getUnitInfo().IsCoastalFireOnly() && pTargetPlot->getArea() == DOMAIN_LAND)
-		{
-			if (!pTargetPlot->isCoastalLand())
-				return false;
-		}
-
 		// Ignores LoS or can see the plot directly?
 		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
 			//not a typo, we need attack range here, not sight range
@@ -27460,12 +27528,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 				bForbidden = false;
 
 			if (bForbidden)
-				return false;
-		}
-
-		if (getUnitInfo().IsCoastalFireOnly() && pTargetPlot->getArea() == DOMAIN_LAND)
-		{
-			if (!pTargetPlot->isCoastalLand())
 				return false;
 		}
 	}

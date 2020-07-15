@@ -910,7 +910,9 @@ protected:
 	bool bBlockedByNonSimCombatUnit:1;
 
 	//this is updated if the civilian is captured
-	bool bEnemyCivilianPresent:1; 
+	bool bEnemyCivilianPresent:1;
+	//when a new plot is created we don't know its status yet
+	bool bEdgeOfTheKnownWorldUnknown:1;
 
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
@@ -1072,7 +1074,7 @@ namespace TacticalAIHelpers
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	int CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp);
-	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
+	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderSwap = false, bool bConsiderPush = false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
 
