@@ -12422,7 +12422,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 		return true;
 
 	return false;
@@ -15236,18 +15236,22 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 	//
 	// +0 ~ +100
 	// **************************
-	const int iLocalMilitaryScoreMax = 100;
-
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (pMinorCapital == NULL)
 		return iFailScore;
 
 	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
-	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
+	int iOurPower = localPower.first + pMinorCapital->GetPower();
+	int iBullyPower = localPower.second;
+	int iLocalPowerRatio = 0;
+	//linear if the bully is weaker, sqrt if the bully is stronger
+	if (iBullyPower > iOurPower)
+		iLocalPowerRatio = sqrti(10000 * iBullyPower / iOurPower); //percent
+	else
+		iLocalPowerRatio = (100 * iBullyPower) / iOurPower;
 
-	iScore += min(iLocalMilitaryScoreMax,iLocalPowerRatio);
-
+	iScore += iLocalPowerRatio;
 	if (sTooltipSink)
 	{
 		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");

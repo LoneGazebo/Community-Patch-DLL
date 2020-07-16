@@ -2943,8 +2943,6 @@ bool CvTeam::isHuman() const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
-
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
 {
@@ -2964,111 +2962,29 @@ bool CvTeam::isObserver() const
 void CvTeam::updateTeamStatus()
 {
 	m_bIsMinorTeam = false;
-	m_bIsObserverTeam = true;
+	m_bIsObserverTeam = false;
 
-	//the first alive player determines the result
+	//one member determines the result
 	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
+		if (CvPreGame::isMinorCiv(*iI))
+		{
+			m_bIsMinorTeam = true;
+		}
+
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
-		if(kPlayer.isAlive())
+		if (kPlayer.isObserver())
 		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-		else if (CvPreGame::isMinorCiv(*iI))
-		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-	}
-
-	//the first member determines the result
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if (kPlayer.getTeam() == GetID())
-		{
-			m_bIsObserverTeam = kPlayer.isObserver();
-			break;
-		}
-	}
-
-	//make sure team membership is correct
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-
-		if (kPlayer.getTeam() == GetID())
-		{
-			if (!isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for membership in CvTeam()\n");
-		}
-		else
-		{
-			if (isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for non-membership in CvTeam()\n");
+			m_bIsObserverTeam = true;
 		}
 	}
 }
 
-#else
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isObserver() const
-{
-	int iI;
-	for(iI = 0; iI < MAX_PLAYERS; iI++){
-		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
-		if(player.getTeam() == GetID() && player.isObserver()){
-			return true;
-		}
-	}
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isBarbarian() const
-{
-	return (m_eID == BARBARIAN_TEAM);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isMinorCiv() const
-{
-	bool bValid = false;
-
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
-		{
-			if(kPlayer.getTeam() == GetID())
-			{
-				if(kPlayer.isMinorCiv())
-				{
-					bValid = true;
-					break;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return bValid;
-}
-#endif
-
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isMajorCiv() const
 {
 	return !(isMinorCiv() || isBarbarian() || isObserver());
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// The number of Minor Civs this player has declared war on

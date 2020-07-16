@@ -290,7 +290,7 @@ public:
 	int GetNumberOfCityStateTradeRoutes();
 	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
 
-	int GetNumberOfTradeRoutesFromCity(CvCity* pCity);
+	int GetNumberOfTradeRoutesFromCity(const CvCity* pCity);
 	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);

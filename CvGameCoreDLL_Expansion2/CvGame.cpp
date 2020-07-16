@@ -817,11 +817,11 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 		assignStartingPlots();
 
 	// Adjust FLAVOR_GROWTH and FLAVOR_EXPANSION based on map size
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 
-		if(kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		if (kPlayer.isAlive() && kPlayer.isMajorCiv())
 		{
 			kPlayer.GetFlavorManager()->AdjustWeightsForMap();
 		}
@@ -837,12 +837,11 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	bool bCanWorkWater = GC.getCAN_WORK_WATER_FROM_GAME_START();
 
 	// Team Stuff
-	TeamTypes eTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
-		eTeam = (TeamTypes) iTeamLoop;
+		TeamTypes eTeam = (TeamTypes) iTeamLoop;
 
-		if(bCanWorkWater)
+		if (bCanWorkWater)
 		{
 			GET_TEAM(eTeam).changeWaterWorkCount(1);
 		}
@@ -862,6 +861,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
 				GET_PLAYER(ePlayer).SetMilitaryRating(1000);
+				GET_PLAYER(ePlayer).computeAveragePlotFoundValue(); // To have an orientation which plots are relatively good or bad
 			}
 			// Minor Civ init
 			else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -871,21 +871,17 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
-
-			// To have an orientation which plots are relatively good or bad
-			if (GET_PLAYER(ePlayer).isMajorCiv())
-				GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
 		}
 	}
 
 	// Which Tech unlocks the Religion Race? (based on a CvBuildingEntry)
-	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if(pkBuildingInfo)
+		if (pkBuildingInfo)
 		{
-			if(pkBuildingInfo->IsFoundsReligion())
+			if (pkBuildingInfo->IsFoundsReligion())
 			{
 				const TechTypes eReligionTech = (TechTypes) pkBuildingInfo->GetPrereqAndTech();
 				SetReligionTech(eReligionTech);
@@ -4524,25 +4520,22 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
-	int iEra;
-	int iCount;
-	int iI;
+	float fEra = 0;
+	int iCount = 0;
 
-	iEra = 0;
-	iCount = 0;
-
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			iEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
+			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
 
 	if(iCount > 0)
 	{
-		return ((EraTypes)(iEra / iCount));
+		int iRoundedEra = int(fEra / iCount + 0.5f);
+		return ((EraTypes)iRoundedEra);
 	}
 
 	return NO_ERA;

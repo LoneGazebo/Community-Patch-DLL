@@ -1347,7 +1347,7 @@ CvCity* GetCityFromGlobalID(int iID)
 //-----------------------------------------
 // basic intra-turn caching. not serialized.
 //-----------------------------------------
-int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway)
+int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity)
 {
 	if (!pCity->hasSharedAdjacentArea(pOtherCity))
 		return -1;
@@ -1361,27 +1361,12 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 			return itD->second;
 	}
 
+	SPath path;
 	int iDistance = -1;
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
-	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
-	//performance optimization
-	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pCity, pOtherCity, &path))
 	{
-		if (m_pPlayer->CanCrossOcean())
-		{
-			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-			if (!!path && PathIsGood(path, eIntendedEnemy))
-				iDistance = path.iTotalTurns;
-		}
-		else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
-		{
-			//try without ocean
-			data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-			if (!!path && PathIsGood(path, eIntendedEnemy))
-				iDistance = path.iTotalTurns;
-		}
+		if (!!path && PathIsGood(path, eIntendedEnemy))
+			iDistance = path.iTotalTurns;
 	}
 
 	//update the cache
@@ -1406,7 +1391,7 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 //-----------------------------------------
 // basic intra-turn caching. not serialized.
 //-----------------------------------------
-int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway)
+int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity)
 {
 	if (pCity->getArea() != pOtherCity->getArea())
 		return -1;
@@ -1420,15 +1405,10 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 			return itD->second;
 	}
 
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
-	data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
+	SPath path;
 	int iDistance = -1;
-	//performance optimization
-	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pCity, pOtherCity, &path))
 	{
-		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
 		if (!!path && PathIsGood(path, eIntendedEnemy))
 			iDistance = path.iTotalTurns;
 	}
@@ -1741,7 +1721,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		bNavalOp = true;
 	}
 
-	int iMaxTurns = 29; //going further out really makes little sense
+	int iMaxTurns = 23; //going further out really makes little sense
 	int iMinExposureScore = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
 
 	// sometimes we were forced into a war and don't even want to attack the enemy
@@ -1846,7 +1826,9 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	{
 		if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
 		{
-			iWaterLength = GetCachedAttackTargetWaterDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
+			iWaterLength = GetCachedAttackTargetWaterDistance(target.m_pMusterCity, target.m_pTargetCity);
+			if (iWaterLength > iMaxTurnsAway)
+				iWaterLength = -1;
 
 			//Theoretically can make it via sea? Mark true so that naval ops can target this city.
 			if (iWaterLength != -1)
@@ -1857,8 +1839,10 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	}
 
 	//Land and sea ops need to look here.
-	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
-		
+	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity);
+	if (iLandLength > iMaxTurnsAway)
+		iLandLength = -1;
+
 	if (iWaterLength == -1 && iLandLength == -1)
 		return;
 
@@ -1885,7 +1869,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	{
 		if (eAIOperationType == AI_OPERATION_NAVAL_INVASION || eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY)
 		{
-			int iEvalInvasionApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, true);
+			int iEvalInvasionApproach = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, true);
 			if (iEvalInvasionApproach == ATTACK_APPROACH_RESTRICTED)
 			{
 				target.m_bAttackBySea = false;
@@ -1893,8 +1877,8 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 			}
 			else
 			{
-				int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
-				int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+				int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, false);
+				int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, false, true);
 				//Is their city relatively difficult to access via land? Go for a sea attack then.
 				if (iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach > iEvalLandApproach)
 				{
@@ -1915,8 +1899,8 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 		}
 		else
 		{
-			int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
-			int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+			int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, false);
+			int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, false, true);
 			//Is their city relatively difficult to access via land? Go for a sea attack then.
 			if (iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach > iEvalLandApproach)
 			{
@@ -2011,25 +1995,25 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	if(eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK)
 	{	
 		//naval only
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+		eApproaches = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, false, true);
 	}
 	else if(eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
 		eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY ||
 		eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
 	{	
 		//mixed
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, true);
+		eApproaches = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, true);
 	}
 	else if(eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK ||
 		eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK)
 	{	
 		//land only
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
+		eApproaches = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, false);
 	}
 	else
 	{
 		//automatic ...
-		eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true, target.m_bAttackBySea);
+		eApproaches = EvaluateMilitaryApproaches(target.m_pMusterCity, target.m_pTargetCity, true, target.m_bAttackBySea);
 	}
 
 	//bail if hopeless
@@ -2298,14 +2282,24 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 #endif
 
 /// How open an approach do we have to this city if we want to attack it?
-CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea)
+CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pMusterCity, CvCity* pTargetCity, bool bAttackByLand, bool bAttackBySea)
 {
-	if (!pCity || !pCity->plot()->isRevealed(m_pPlayer->getTeam()))
+	if (!pMusterCity || !pTargetCity || !pTargetCity->plot()->isRevealed(m_pPlayer->getTeam()))
 		return ATTACK_APPROACH_NONE;
 
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-	//FIXME! we need the distance in the appropriate domain!
-	int iRefDist = m_pPlayer->GetCityDistanceInEstimatedTurns(pCity->plot());
+
+	SPath path;
+	//check the water path for naval or mixed assault
+	if (!GC.getGame().GetGameTrade()->HavePotentialTradePath(bAttackBySea, pMusterCity, pTargetCity, &path))
+		return ATTACK_APPROACH_NONE;
+
+	//should not happen ...
+	if (path.length()<3)
+		return ATTACK_APPROACH_NONE;
+
+	//a the plot around which we ideally want to position our units
+	CvPlot* pStagingPlot = path.get(path.length() - 3);
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
@@ -2317,7 +2311,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	{
 		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
 		{
-			CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(),i);
+			CvPlot* pLoopPlot = iterateRingPlots(pTargetCity->plot(),i);
 			if(pLoopPlot == NULL)
 				continue;
 
@@ -2332,23 +2326,19 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//careful with plots which are "behind" the city if it's a foreign city
-			if (m_pPlayer->GetID() != pCity->getOwner() && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot) > iRefDist)
+			if (m_pPlayer->GetID() != pTargetCity->getOwner() && plotDistance(*pStagingPlot,*pLoopPlot) > iMaxRing)
 				bTough = true;
 
 			//ignore plots owned by third parties
-			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pCity->getTeam())
+			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pTargetCity->getTeam())
 				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
-
-			//should not go here
-			if (GetPlayer()->GetPlotDanger(*pLoopPlot, true) > 9)
-				bTough = true;
 
 			//makes us slow
 			if(	pLoopPlot->isRoughGround() )
 				bTough = true;
 
 			//correct area?
-			if ( !pCity->isMatchingArea(pLoopPlot) )
+			if ( !pTargetCity->isMatchingArea(pLoopPlot) )
 				bBlocked = true;
 
 			if (bAttackByLand && !bAttackBySea)
@@ -2396,7 +2386,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	{
 		const char* approachName[] = { "none", "restricted", "limited", "neutral", "open", "unrestricted" };
 		const char* mode = bAttackBySea ? (bAttackByLand ? "combined" : "naval") : (bAttackByLand ? "land" : "invalid");
-		OutputDebugString(CvString::format("%s attack approach on %s is %s for %s (score %d)\n", mode, pCity->getNameKey(), approachName[eRtnValue], m_pPlayer->getNameKey(), iFree).c_str());
+		OutputDebugString(CvString::format("%s attack approach on %s is %s for %s (score %d)\n", mode, pTargetCity->getNameKey(), approachName[eRtnValue], m_pPlayer->getNameKey(), iFree).c_str());
 	}
 
 	return eRtnValue;

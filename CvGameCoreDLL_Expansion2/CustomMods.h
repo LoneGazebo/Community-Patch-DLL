@@ -432,6 +432,10 @@
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
 #define MOD_POLICIES_CITY_AUTOMATON_WORKERS         gCustomMods.isPOLICIES_CITY_AUTOMATON_WORKERS()
 
+// If defined city yields can be influenced by the presence of units with special abilities
+// This is a performance hit, so it's disabled by default
+//#define MOD_YIELD_MODIFIER_FROM_UNITS
+
 // Restricts a Team from passing into the next era before they have found all techs of their current era
 #define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
 

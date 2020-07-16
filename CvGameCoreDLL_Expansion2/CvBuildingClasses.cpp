@@ -4304,6 +4304,7 @@ CvCityBuildings::CvCityBuildings():
 #endif
 	m_iNumBuildings(0),
 	m_iBuildingProductionModifier(0),
+	m_iBuildingProductionModifierPotentialFromMinorTrade(0),
 	m_iBuildingDefense(0),
 	m_iBuildingDefenseMod(0),
 	m_iMissionaryExtraSpreads(0),
@@ -4388,6 +4389,7 @@ void CvCityBuildings::Reset()
 	// Initialize non-arrays
 	m_iNumBuildings = 0;
 	m_iBuildingProductionModifier = 0;
+	m_iBuildingProductionModifierPotentialFromMinorTrade = 0;
 	m_iBuildingDefense = 0;
 	m_iBuildingDefenseMod = 0;
 	m_iMissionaryExtraSpreads = 0;
@@ -4428,6 +4430,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_iNumBuildings;
 	kStream >> m_iBuildingProductionModifier;
+	kStream >> m_iBuildingProductionModifierPotentialFromMinorTrade;
 	kStream >> m_iBuildingDefense;
 	kStream >> m_iBuildingDefenseMod;
 	kStream >> m_iMissionaryExtraSpreads;
@@ -4470,6 +4473,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 
 	kStream << m_iNumBuildings;
 	kStream << m_iBuildingProductionModifier;
+	kStream << m_iBuildingProductionModifierPotentialFromMinorTrade;
 	kStream << m_iBuildingDefense;
 	kStream << m_iBuildingDefenseMod;
 	kStream << m_iMissionaryExtraSpreads;
@@ -5986,36 +5990,21 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 /// Accessor: What is the production modifier for each city state trade route?
 int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 {
-	int iRtnValue = 0;
 	int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
-	if (iCityStates==0)
-		return 0;
-
-	const std::vector<BuildingTypes>& vBuildings = GetAllBuildingsHere();
-	for (size_t iI = 0; iI < vBuildings.size(); iI++)
-	{
-		BuildingTypes eBuilding = vBuildings[iI];
-		if (NO_BUILDING != eBuilding)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
-			{
-				int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
-				if (iProductionModifier > 0)
-				{
-#if defined(MOD_BUGFIX_MINOR)
-					iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
-#else
-					iRtnValue = iProductionModifier * iCityStates;
-#endif
-				}
-			}
-		}
-	}
-
-	return iRtnValue;
+	return iCityStates * GetBuildingProductionModifierPotentialFromMinorTrade();
 }
 
+/// Accessor: Get current production modifier from buildings
+int CvCityBuildings::GetBuildingProductionModifierPotentialFromMinorTrade() const
+{
+	return m_iBuildingProductionModifierPotentialFromMinorTrade;
+}
+
+/// Accessor: Change current production modifier from buildings
+void CvCityBuildings::ChangeBuildingProductionModifierPotentialFromMinorTrade(int iChange)
+{
+	m_iBuildingProductionModifierPotentialFromMinorTrade += iChange;
+}
 
 /// Accessor: Get current production modifier from buildings
 int CvCityBuildings::GetBuildingProductionModifier() const
@@ -6026,7 +6015,7 @@ int CvCityBuildings::GetBuildingProductionModifier() const
 /// Accessor: Change current production modifier from buildings
 void CvCityBuildings::ChangeBuildingProductionModifier(int iChange)
 {
-	m_iBuildingProductionModifier = (m_iBuildingProductionModifier + iChange);
+	m_iBuildingProductionModifier += iChange;
 	CvAssert(GetBuildingProductionModifier() >= 0);
 }
 

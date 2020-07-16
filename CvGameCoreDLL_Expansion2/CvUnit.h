@@ -2389,63 +2389,6 @@ private:
 FDataStream& operator<<(FDataStream&, const CvUnit&);
 FDataStream& operator>>(FDataStream&, CvUnit&);
 
-template<typename T>
-FDataStream & operator<<(FDataStream & writeTo, const std::map<T, int> & readFrom)
-{
-	writeTo << readFrom.size();
-	for (std::map<T, int>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
-	{
-		writeTo << (int)it->first;
-		writeTo << it->second;
-	}
-	return writeTo;
-}
-
-template<typename T>
-FDataStream & operator>>(FDataStream & readFrom, std::map<T, int> & writeTo)
-{
-	int nItems;
-	readFrom >> nItems;
-
-	for (int i = 0; i<nItems; i++)
-	{
-		int first, second;
-		readFrom >> first;
-		readFrom >> second;
-		writeTo[(T)first] = second;
-	}
-	return readFrom;
-}
-
-template<typename T>
-FDataStream & operator<<(FDataStream & writeTo, const std::vector<std::pair<T, int>> & readFrom)
-{
-	writeTo << readFrom.size();
-	for (std::vector<std::pair<T, int>>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
-	{
-		writeTo << (int)it->first;
-		writeTo << it->second;
-	}
-	return writeTo;
-}
-
-template<typename T>
-FDataStream & operator>>(FDataStream & readFrom, std::vector<std::pair<T, int>> & writeTo)
-{
-	int nItems;
-	readFrom >> nItems;
-
-	for (int i = 0; i<nItems; i++)
-	{
-		int first, second;
-		readFrom >> first;
-		readFrom >> second;
-		writeTo.push_back(std::make_pair(T(first), second));
-	}
-	return readFrom;
-}
-
-
 namespace FSerialization
 {
 void SyncUnits();

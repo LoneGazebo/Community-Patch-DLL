@@ -349,14 +349,14 @@ void CvMap::InitPlots()
 	m_pPlotNeighbors = FNEW(CvPlot*[iNumPlots*(NUM_DIRECTION_TYPES + 2)], c_eCiv5GameplayDLL, 0);
 	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
 	PrecalcNeighbors();
+
+	m_vVisibilityScratchpad = vector<int>(iNumPlots, 0);
 #endif
 }
 
 //	--------------------------------------------------------------------------------
 void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 {
-	int iX, iY;
-
 	CvString strMemState = CvString::format("CvMap::init begin - world size=%s, climate=%s, sealevel=%s",
 	                                        getWorldInfo().GetDescription(),
 	                                        getClimateInfo().GetDescription(),
@@ -383,9 +383,9 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 	int iW = getGridWidth();
 	int iH = getGridHeight();
 #if defined(MOD_BALANCE_CORE)
-	for(iY = 0; iY < iH; iY++)
+	for(int iY = 0; iY < iH; iY++)
 	{
-		for(iX = 0; iX < iW; iX++)
+		for(int iX = 0; iX < iW; iX++)
 		{
 			plotUnchecked(iX, iY)->init(iX, iY);
 		}

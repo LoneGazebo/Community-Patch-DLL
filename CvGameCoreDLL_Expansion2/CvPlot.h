@@ -234,7 +234,7 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool MeleeAttackerAdvances() const;
+	bool MeleeAttackerAdvances(TeamTypes eAttackerTeam) const;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
@@ -844,30 +844,6 @@ public:
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
-	inline int getScratchPad() const
-	{
-		return m_iScratchPad;
-	}
-	inline void setScratchPad(int iNewValue)
-	{
-		m_iScratchPad = iNewValue;
-	}
-
-	PlayerTypes GetBuilderAIScratchPadPlayer() const;
-	void SetBuilderAIScratchPadPlayer(PlayerTypes ePlayer);
-
-	short GetBuilderAIScratchPadTurn() const;
-	void SetBuilderAIScratchPadTurn(short sNewValue);
-
-	RouteTypes GetBuilderAIScratchPadRoute() const;
-	void SetBuilderAIScratchPadRoute(RouteTypes eRoute);
-
-	short GetBuilderAIScratchPadValue() const;
-	void SetBuilderAIScratchPadValue(short sNewValue);
-
-	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
-	bool IsStrategicRoute(TeamTypes eTeam) const;
-
 	int GetPlotIndex() const;
 
 	char GetContinentType() const;
@@ -987,7 +963,8 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		enum config { eCount = 4, eSize = 32 };
+		//two 32 bit DWORDS for 64 bit capacity
+		enum config { eCount = 2, eSize = 32 };
 		DWORD m_dwBits[eCount];
 
 		bool GetBit(const uint uiEntry) const
@@ -1081,20 +1058,9 @@ protected:
 
 	short m_iArea;
 	short m_iLandmass;
-
-	// This is a variable that you can use for whatever nefarious deeds you need to do
-	// it will not be saved or loaded - you should assume that it is filled with garbage
-	// when you get it
-	int m_iScratchPad;
-	char m_cBuilderAIScratchPadPlayer;
-	short m_sBuilderAIScratchPadTurn;
-	short m_sBuilderAIScratchPadValue;
-	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
-
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
-	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 

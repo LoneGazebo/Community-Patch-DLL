@@ -3540,52 +3540,50 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 	}
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && (pInfo->IsOpenDoor() || pInfo->IsSphereOfInfluence()))
 	{
-		if (pInfo->IsOpenDoor() || pInfo->IsSphereOfInfluence())
+		if (GC.getGame().GetNumMinorCivsEver() <= 0)
 		{
-			if (GC.getGame().GetNumMinorCivsEver() <= 0)
+			if (sTooltipSink != NULL)
 			{
-				if (sTooltipSink != NULL)
-				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
-				}
+				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
+				(*sTooltipSink) += "[ENDCOLOR]";
+			}
+			return false;
+		}
+		PlayerTypes eTargetPlayer = (PlayerTypes) iProposerChoice;
+		if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
+		{
+			return false;
+		}
+		if (eTargetPlayer >= 0 && GET_PLAYER(eTargetPlayer).isMinorCiv())
+		{
+			// Player is dead
+			if (!GET_PLAYER(eTargetPlayer).isAlive())
+			{
 				return false;
 			}
-			PlayerTypes eTargetPlayer = (PlayerTypes) iProposerChoice;
-			if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
-			{
-				return false;
-			}
-			if (eTargetPlayer >= 0 && GET_PLAYER(eTargetPlayer).isMinorCiv())
-			{
-				// Player is dead
-				if (!GET_PLAYER(eTargetPlayer).isAlive())
-				{
-					return false;
-				}
 
-				// Player is alive but no cities left (Complete Kills option)
-				if (GET_PLAYER(eTargetPlayer).getNumCities() <= 0)
-				{
-					return false;
-				}
+			// Player is alive but no cities left (Complete Kills option)
+			if (GET_PLAYER(eTargetPlayer).getNumCities() <= 0)
+			{
+				return false;
 			}
 		}
-		if (pInfo->IsEmbargoIdeology())
+	}
+
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->IsEmbargoIdeology())
+	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 		{
-			if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+			if (sTooltipSink != NULL)
 			{
-				if (sTooltipSink != NULL)
-				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
-				}
-				return false;
+				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_GAMEOPTION").toUTF8();
+				(*sTooltipSink) += "[ENDCOLOR]";
 			}
+			return false;
 		}
 	}
 #endif
