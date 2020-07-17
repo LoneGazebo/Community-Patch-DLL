@@ -2988,7 +2988,7 @@
 		
 		<!-- City-State Coup Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
-			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Our spies usurped their City-State Alliance in a coup d'état.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aggressive Posture Diplo Mod -->

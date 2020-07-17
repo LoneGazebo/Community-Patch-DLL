@@ -1030,7 +1030,7 @@ public:
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 	
 	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
-	bool WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const;
+	bool WasOurTeamEverBackstabbedBy(PlayerTypes ePlayer) const;
 	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
 	
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;

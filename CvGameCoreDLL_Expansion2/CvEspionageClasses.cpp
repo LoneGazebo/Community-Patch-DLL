@@ -5054,18 +5054,15 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				// Update diplomacy
 				if (ui == ePreviousAlly)
 				{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 2);
+					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 2);
 				}
 				else
 				{
 					// Don't apply the diplo penalty if this player hates the previous ally (or they're at war).
-					if (GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE &&
-						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasEverBackstabbedBy(ePreviousAlly) &&
-						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasTeammateEverBackstabbedBy(ePreviousAlly) &&
-						!GET_TEAM(GET_PLAYER((PlayerTypes)ui).getTeam()).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
+					if (!GET_PLAYER((PlayerTypes)ui).IsAtWarWith(ePreviousAlly) && GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE
+						&& !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(ePreviousAlly) && !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->IsUntrustworthyFriend(ePreviousAlly))
 					{
-						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
 					}
 				}

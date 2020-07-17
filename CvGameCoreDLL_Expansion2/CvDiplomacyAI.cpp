@@ -37206,7 +37206,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	}
 	
 	// If we were ever backstabbed by the target, never warn them
-	if (WasEverBackstabbedBy(eTargetPlayer) || WasTeammateEverBackstabbedBy(eTargetPlayer))
+	if (WasOurTeamEverBackstabbedBy(eTargetPlayer))
 	{
 		return false;
 	}
@@ -37219,7 +37219,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	}
 	
 	// If we were ever backstabbed by the asker, always warn them
-	if (WasEverBackstabbedBy(eAskingPlayer) || WasTeammateEverBackstabbedBy(eAskingPlayer))
+	if (WasOurTeamEverBackstabbedBy(eAskingPlayer))
 	{
 		return true;
 	}
@@ -38569,19 +38569,19 @@ void CvDiplomacyAI::SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue)
 
 bool CvDiplomacyAI::WasEverBackstabbedBy(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return false;
+
+	if (m_pabEverBackstabbedBy[(int)ePlayer])
+	{
+		return true;
+	}
 	
-	// If the player's teammates have backstabbed this player, penalize him too.
-	PlayerTypes eLoopPlayer;
+	// If the player's teammates (alive or dead) have backstabbed this player, penalize him too.
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (eLoopPlayer == ePlayer || eLoopPlayer == GetPlayer()->GetID())
-			continue;
-		
-		if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer))
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
 		{
 			if (m_pabEverBackstabbedBy[eLoopPlayer])
 			{
@@ -38589,29 +38589,26 @@ bool CvDiplomacyAI::WasEverBackstabbedBy(PlayerTypes ePlayer) const
 			}
 		}
 	}
-	
-	return m_pabEverBackstabbedBy[ePlayer];
+
+	return false;
 }
 
-bool CvDiplomacyAI::WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const
+/// Was anyone on our team ever backstabbed by this player or his teammates?
+bool CvDiplomacyAI::WasOurTeamEverBackstabbedBy(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	
-	PlayerTypes eLoopPlayer;
+	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return false;
+
+	if (WasEverBackstabbedBy(ePlayer))
+		return true;
+
+	// Loop through all of our teammates, alive or dead.
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (eLoopPlayer == ePlayer || eLoopPlayer == GetPlayer()->GetID())
-			continue;
-		
-		if (GetPlayer()->GetDiplomacyAI()->IsTeammate(eLoopPlayer))
+		if (IsTeammate(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(ePlayer))
 		{
-			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(ePlayer))
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	
@@ -42925,7 +42922,7 @@ int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 		}
 	}
 	
-	iOpinionWeight += (GetNumTimesPerformedCoupAgainstUs(ePlayer) * /*15*/ GC.getOPINION_WEIGHT_PERFORMED_COUP());
+	iOpinionWeight += (GetNumTimesPerformedCoupAgainstUs(ePlayer) * /*30*/ GC.getOPINION_WEIGHT_PERFORMED_COUP());
 	
 	if (bReduction)
 	{
@@ -43031,7 +43028,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	if (IsTeammate(ePlayer))
 		return 0;
 	
-	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer) && !WasTeammateEverBackstabbedBy(ePlayer))
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasOurTeamEverBackstabbedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -43047,11 +43044,11 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count.
-				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
+				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasOurTeamEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(ePlayer))
 					{
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
+						iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
 						break;
 					}
 				}
@@ -43165,7 +43162,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 	if (IsTeammate(ePlayer))
 		return 0;
 	
-	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer) && !WasTeammateEverBackstabbedBy(ePlayer))
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasOurTeamEverBackstabbedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -43180,7 +43177,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count
-				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
+				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasOurTeamEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(ePlayer))
 					{
@@ -43629,7 +43626,7 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsFriendDenouncedUs(eLoopPlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasOurTeamEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				// Do we like this player who denounced them more than the player we're evaluating?
 				if(GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
@@ -43670,7 +43667,7 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDenouncedUs(ePlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasOurTeamEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				// A friend or teammate?
 				if (IsDoFAccepted(eLoopPlayer) || IsTeammate(eLoopPlayer))
@@ -43719,7 +43716,7 @@ int CvDiplomacyAI::GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasOurTeamEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(GetPlayer()->GetID()) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				// A friend or teammate?
 				if (IsDoFAccepted(eLoopPlayer) || IsTeammate(eLoopPlayer))
