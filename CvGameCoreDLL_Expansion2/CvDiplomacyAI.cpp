@@ -3464,7 +3464,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	m_eTargetPlayer = eTargetPlayer;
 	// Military Stuff
 	DoWarDamageDecay();
-	DoUpdateWarDamageLevel();
+	DoUpdateWarDamageLevels();
 	DoUpdatePlayerMilitaryStrengths();
 	DoUpdatePlayerEconomicStrengths();
 
@@ -3490,9 +3490,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	DoUpdateMinorCivDisputeLevels();
 
 	// What we think other Players are up to
-#if defined(MOD_BALANCE_CORE)
-	DoUpdateOtherPlayerWarDamageLevel();
-#endif
+	DoUpdateOtherPlayerWarDamageLevels();
 	DoUpdateEstimateOtherPlayerLandDisputeLevels();
 	DoUpdateEstimateOtherPlayerVictoryDisputeLevels();
 	//DoUpdateEstimateOtherPlayerVictoryBlockLevels();
@@ -3592,6 +3590,383 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 
 	m_eTargetPlayer = DIPLO_ALL_PLAYERS;
 }
+
+//	-----------------------------------------------------------------------------------------------
+
+// ////////////////////////////////////
+// WAR DAMAGE & STATE EVALUATION
+// ////////////////////////////////////
+
+/// Every turn we're at peace war damage goes down a bit
+void CvDiplomacyAI::DoWarDamageDecay()
+{
+	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+		return;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!IsPlayerValid(eLoopPlayer, true))
+			continue;
+
+		int iValue = GetWarValueLost(eLoopPlayer);
+
+		// War damage we've suffered goes down by 1/50th every turn while at war (slower, but necessary to bring chance of white peace)
+		if (IsAtWar(eLoopPlayer))
+		{
+			if (iValue > 0)
+			{
+				int iChange = max((iValue/50), 1); // Must go down by at least 1
+				ChangeWarValueLost(eLoopPlayer, -iChange);
+			}
+		}
+		// Goes down by 1/10th every turn while at peace
+		else
+		{
+			if (iValue > 0)
+			{
+				int iChange = max((iValue/10), 1); // Must go down by at least 1
+				ChangeWarValueLost(eLoopPlayer, -iChange);
+			}
+		}
+
+		// Update our estimate of the war damage other players have suffered
+		for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_CIV_PLAYERS; iThirdPartyLoop++)
+		{
+			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+			if (!IsPlayerValid(eThirdParty, true))
+				continue;
+
+			iValue = GetOtherPlayerWarValueLost(eLoopPlayer, eThirdParty);
+
+			if (GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
+			{
+				if (iValue > 0)
+				{
+					int iChange = max((iValue/50), 1); // Must go down by at least 1
+					ChangeOtherPlayerWarValueLost(eLoopPlayer, eThirdParty, -iChange);
+				}
+			}
+			else
+			{
+				if (iValue > 0)
+				{
+					int iChange = max((iValue/10), 1); // Must go down by at least 1
+					ChangeOtherPlayerWarValueLost(eLoopPlayer, eThirdParty, -iChange);
+				}
+			}
+		}
+	}
+}
+
+/// Updates how much damage we have taken in wars against all players
+void CvDiplomacyAI::DoUpdateWarDamageLevels()
+{
+	// Calculate the value of what we have currently - this is invariant so we will just do it once
+	int iCurrentValue = 0;
+	int iTypicalLandPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	int iTypicalNavalPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
+	int iTypicalAirPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
+	int iValueLoop;
+
+	// City value
+	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
+	{
+		int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
+		iCityValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+
+		// Multipliers
+		// Our original capital!
+		if (pLoopCity->IsOriginalCapitalForPlayer(GetPlayer()->GetID()))
+		{
+			iCityValue *= 200;
+			iCityValue /= 100;
+		}
+		// Another major's original capital, or our Holy City
+		else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+		{
+			iCityValue *= 150;
+			iCityValue /= 100;
+		}
+		// A City-State's capital, or another major's Holy City
+		else if (pLoopCity->IsOriginalMinorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+		{
+			iCityValue *= 125;
+			iCityValue /= 100;
+		}
+
+		iCurrentValue += iCityValue;
+	}
+
+	// Unit value
+	for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iValueLoop))
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+		if (pkUnitInfo)
+		{
+			int iUnitValue = (pkUnitInfo->GetPower() * 100);
+
+			if (iUnitValue > 0)
+			{
+				// Compare to strongest unit we can build in that domain, for an apples to apples comparison
+				// Best unit that can be currently built in a domain is given a value of 100
+				DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+
+				if (eDomain == DOMAIN_AIR)
+				{
+					if (iTypicalAirPower > 0)
+					{
+						iUnitValue /= iTypicalAirPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+				else if (eDomain == DOMAIN_SEA)
+				{
+					if (iTypicalNavalPower > 0)
+					{
+						iUnitValue /= iTypicalNavalPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+				else
+				{
+					if (iTypicalLandPower > 0)
+					{
+						iUnitValue /= iTypicalLandPower;
+					}
+					else
+					{
+						iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+					}
+				}
+
+				iCurrentValue += iUnitValue;
+			}
+		}
+	}
+
+	// Loop through all (known) Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer, true))
+		{
+			int iWarValueLost = GetWarValueLost(eLoopPlayer);
+			int iValueLostRatio = 0;
+			WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
+
+			if (iWarValueLost > 0)
+			{
+				if (iCurrentValue > 0)
+				{
+					iValueLostRatio = ((iWarValueLost * 100) / (iCurrentValue + iWarValueLost));
+				}
+				else
+				{
+					iValueLostRatio = iWarValueLost;
+				}
+				
+				if (iValueLostRatio >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
+					eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
+				else if (iValueLostRatio >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
+					eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
+				else if (iValueLostRatio >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
+					eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
+				else if (iValueLostRatio >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
+					eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
+			}
+
+			SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+			SetWarDamageLevel(eLoopPlayer, eWarDamageLevel);
+		}
+	}
+}
+
+/// Updates what our guess is as to the amount of war damage a player has suffered to another player
+void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevels()
+{
+	std::map<PlayerTypes, int> CurrentValues;
+
+	// Loop through all other players and get how much they currently own
+	// AI cheats here to get exact military values, because estimating it with human-level precision would be too complicated + not beneficial to AI intelligence
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		// We handle ourselves in DoUpdateWarDamageLevels()
+		if (eLoopPlayer == GetPlayer()->GetID())
+			continue;
+
+		// Must be a valid player
+		if (!IsPlayerValid(eLoopPlayer, true))
+			continue;
+
+		// Calculate the value of what this player has currently
+		int iLoopCurrentValue = 0;
+		int iTypicalLandPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+		int iTypicalNavalPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
+		int iTypicalAirPower = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
+		int iValueLoop;
+
+		// City value
+		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iValueLoop))
+		{
+			int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
+			iCityValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+
+			// Multipliers
+			// Their original capital!
+			if (pLoopCity->IsOriginalCapitalForPlayer(eLoopPlayer))
+			{
+				iCityValue *= 200;
+				iCityValue /= 100;
+			}
+			// Another major's original capital, or their Holy City
+			else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false)))
+			{
+				iCityValue *= 150;
+				iCityValue /= 100;
+			}
+			// A City-State's capital, or another major's Holy City
+			else if (pLoopCity->IsOriginalMinorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+			{
+				iCityValue *= 125;
+				iCityValue /= 100;
+			}
+
+			iLoopCurrentValue += iCityValue;
+		}
+
+		// Unit value
+		for (CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iValueLoop))
+		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+			if (pkUnitInfo)
+			{
+				int iUnitValue = (pkUnitInfo->GetPower() * 100);
+
+				if (iUnitValue > 0)
+				{
+					// Compare to strongest unit they can build in that domain, for an apples to apples comparison
+					// Best unit that can be currently built in a domain is given a value of 100
+					DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+
+					if (eDomain == DOMAIN_AIR)
+					{
+						if (iTypicalAirPower > 0)
+						{
+							iUnitValue /= iTypicalAirPower;
+						}
+						else
+						{
+							iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+						}
+					}
+					else if (eDomain == DOMAIN_SEA)
+					{
+						if (iTypicalNavalPower > 0)
+						{
+							iUnitValue /= iTypicalNavalPower;
+						}
+						else
+						{
+							iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+						}
+					}
+					else
+					{
+						if (iTypicalLandPower > 0)
+						{
+							iUnitValue /= iTypicalLandPower;
+						}
+						else
+						{
+							iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+						}
+					}
+
+					iLoopCurrentValue += iUnitValue;
+				}
+			}
+		}
+
+		CurrentValues.insert(std::make_pair(eLoopPlayer, iLoopCurrentValue));
+	}
+
+	// Now compare each player's war damage (that we know of) to get a war damage level estimate
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		// We handle ourselves in DoUpdateWarDamageLevels()
+		if (eLoopPlayer == GetPlayer()->GetID())
+			continue;
+
+		// Must be a valid player
+		if (!IsPlayerValid(eLoopPlayer, true))
+			continue;
+
+		// Loop through every other player that we've met (including us)
+		for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+		{
+			PlayerTypes eLoopOtherPlayer = (PlayerTypes) iPlayerLoop2;
+
+			if (!IsPlayerValid(eLoopOtherPlayer, true))
+				continue;
+
+			// Get our current value estimate from the map
+			int iLoopCurrentValue = 0;
+
+			std::map<PlayerTypes, int>::iterator CurrentValuePointer = CurrentValues.find(eLoopPlayer);
+			if (CurrentValuePointer != CurrentValues.end())
+			{
+				iLoopCurrentValue = CurrentValuePointer->second;
+			}
+
+			// Get our estimate of war value lost
+			int iLoopWarValueLost = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopOtherPlayer);
+			int iLoopValueLostRatio = 0;
+			WarDamageLevelTypes eLoopWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
+
+			if (iLoopWarValueLost > 0)
+			{
+				if (iLoopCurrentValue > 0)
+				{
+					iLoopValueLostRatio = ((iLoopWarValueLost * 100) / (iLoopWarValueLost + iLoopCurrentValue));
+				}
+				else
+				{
+					iLoopValueLostRatio = iLoopWarValueLost;
+				}
+
+				// Now do the final assessment
+				if (iLoopValueLostRatio >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
+					eLoopWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
+				else if (iLoopValueLostRatio >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
+					eLoopWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
+				else if (iLoopValueLostRatio >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
+					eLoopWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
+				else if (iLoopValueLostRatio >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
+					eLoopWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
+			}
+
+			SetOtherPlayerWarDamageLevel(eLoopPlayer, eLoopOtherPlayer, eLoopWarDamageLevel);
+		}
+	}
+}
+
+//	-----------------------------------------------------------------------------------------------
 
 /// Increment our turn counters
 void CvDiplomacyAI::DoCounters()
@@ -21792,80 +22167,6 @@ void CvDiplomacyAI::SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes e
 	m_paeWarDamageLevel[ePlayer] = eDamageLevel;
 }
 
-/// Updates how much damage we have taken in wars against all players
-void CvDiplomacyAI::DoUpdateWarDamageLevel()
-{
-	// Calculate the value of what we have currently
-	// This is invariant so we will just do it once
-	int iCurrentValue = 0;
-	int iTypicalPower = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
-	int iValueLoop;
-
-	// City value
-	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
-	{
-		iCurrentValue += (pLoopCity->getPopulation() * /*140*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-		if (pLoopCity->IsOriginalCapital()) // anybody's
-		{
-			iCurrentValue *= 3;
-			iCurrentValue /= 2;
-		}
-	}
-
-	// Unit value
-	for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iValueLoop))
-	{
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-		if (pkUnitInfo)
-		{
-			int iUnitValue = pkUnitInfo->GetPower();
-			if (iTypicalPower > 0)
-			{
-				iUnitValue = iUnitValue * 100 / iTypicalPower;
-			}
-			else
-			{
-				iUnitValue = /*115*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-			}
-			iCurrentValue += iUnitValue;
-		}
-	}
-
-	// Loop through all (known) Players
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (IsPlayerValid(eLoopPlayer))
-		{
-			WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
-			int iValueLost = GetWarValueLost(eLoopPlayer);
-			int iValueLostRatio = 0;
-
-			if (iValueLost > 0)
-			{
-				// Total original value is the current value plus the amount lost, so compute the percentage on that
-				if (iCurrentValue > 0)
-					iValueLostRatio = iValueLost * 100 / (iCurrentValue + iValueLost);
-				else
-					iValueLostRatio = iValueLost;
-
-				if (iValueLostRatio >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
-				else if (iValueLostRatio >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
-				else if (iValueLostRatio >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
-				else if (iValueLostRatio >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
-			}
-
-			SetWarDamageValue(eLoopPlayer, iValueLostRatio);
-			SetWarDamageLevel(eLoopPlayer, eWarDamageLevel);
-		}
-	}
-}
-
 /// How much damage have we taken in a war against a particular player?
 int CvDiplomacyAI::GetWarDamageValue(PlayerTypes ePlayer) const
 {
@@ -21880,88 +22181,6 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paiWarDamageValue[ePlayer] = iValue;
-}
-
-/// Every turn we're at peace war damage goes down a bit
-void CvDiplomacyAI::DoWarDamageDecay()
-{
-	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
-		return;
-
-	int iValue;
-
-	TeamTypes eLoopThirdTeam;
-	PlayerTypes eLoopThirdPlayer;
-	int iThirdPlayerLoop;
-
-	// Loop through all (known) Players
-	TeamTypes eLoopTeam;
-	PlayerTypes eLoopPlayer;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-
-		if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true))
-		{
-			// Update war damage we've suffered
-			if (!IsAtWar(eLoopPlayer))
-			{
-				iValue = GetWarValueLost(eLoopPlayer);
-
-				if (iValue > 0)
-				{
-					// Go down by 1/10th every turn at peace (minimum 1)
-					iValue = max(1, iValue/10);
-					ChangeWarValueLost(eLoopPlayer, -iValue, /*bNoRatingChange*/ true);
-				}
-			}
-			// Update war damage we've suffered while at war (slower, but necessary to bring chance of white peace)
-			else
-			{
-				iValue = GetWarValueLost(eLoopPlayer);
-
-				if (iValue > 0)
-				{
-					// Go down by 1/50th every turn at war (slower, but necessary to bring chance of white peace)
-					iValue = max(1, iValue/50);
-					ChangeWarValueLost(eLoopPlayer, -iValue, /*bNoRatingChange*/ true);
-				}
-			}
-
-			// Update war damage other players have suffered from our viewpoint
-			for (iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_CIV_PLAYERS; iThirdPlayerLoop++)
-			{
-				eLoopThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
-				eLoopThirdTeam = GET_PLAYER(eLoopThirdPlayer).getTeam();
-
-				// These two players not at war?
-				if (!GET_TEAM(eLoopThirdTeam).isAtWar(eLoopTeam))
-				{
-					iValue = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer);
-
-					if (iValue > 0)
-					{
-						// Go down by 1/10th every turn at peace
-						iValue = max(1, iValue/10);
-						ChangeOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer, -iValue);
-					}
-				}
-				// Update war damage they've suffered while at war
-				else
-				{
-					iValue = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer);
-
-					if (iValue > 0)
-					{
-						// Go down by 1/50 every turn at war
-						iValue = max(1, iValue/50);
-						ChangeOtherPlayerWarValueLost(eLoopPlayer, eLoopThirdPlayer, -iValue);
-					}
-				}
-			}
-		}
-	}
 }
 
 // What is the value of stuff (Units & Cities) lost in a war against a particular player?
@@ -21986,32 +22205,26 @@ void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 }
 
 // Changes the value of stuff (Units & Cities) lost in a war against a particular player
-void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange, bool bNoRatingChange /* = false */)
+void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 {
 	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
 
-	// Update military rating for both players
-	if (!bNoRatingChange)
+	if (iChange > 0)
 	{
-		GET_PLAYER(ePlayer).ChangeMilitaryRating(iChange); // rating up for winner (them)
-		GetPlayer()->ChangeMilitaryRating(-iChange); // rating down for loser (us)
-	}
-
-	if(iChange > 0)
-	{
-		// Loop through all the other major civs and see if any of them are fighting us.  If so, they are happy this player damaged us.
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		// Loop through all the other major civs that we've met
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if(eLoopPlayer != ePlayer && eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
+			if (eLoopPlayer != GetPlayer()->GetID() && IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
-				// Are they at war with me too?
-				CvPlayer& kOtherPlayer = GET_PLAYER(eLoopPlayer);
-				if(IsAtWar(eLoopPlayer))
+				// Major civs update their perception of the war damage we've suffered!
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(GetPlayer()->GetID(), ePlayer, iChange);
+
+				// Are they at war with me too? Then they're happy that this player damaged us!
+				if (IsAtWar(eLoopPlayer))
 				{
-					kOtherPlayer.GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange);
 				}
 			}
 		}
@@ -22039,90 +22252,6 @@ void CvDiplomacyAI::SetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerType
 	CvAssertMsg(eDamageLevel >= 0, "DIPLOMACY_AI: Invalid WarDamageLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eDamageLevel < NUM_WAR_DAMAGE_LEVEL_TYPES, "DIPLOMACY_AI: Invalid WarDamageLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_ppaaeOtherPlayerWarDamageLevel[ePlayer][eLostToPlayer] = eDamageLevel;
-}
-
-/// Updates what our guess is as to the amount of war damage a player has suffered to another player
-void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevel()
-{
-	PlayerTypes eLoopOtherPlayer;
-	int iOtherPlayerLoop;
-
-	int iValueLost;
-	int iCurrentValue;
-	int iValueLostRatio;
-
-	CvCity* pLoopCity;
-	int iValueLoop;
-
-	WarDamageLevelTypes eWarDamageLevel;
-
-	// Loop through all (known) Majors
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if(IsPlayerValid(eLoopPlayer))
-		{
-			// Now loop through every player HE knows
-			for(iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
-			{
-				eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
-
-				// Don't compare a player to himself
-				if(eLoopPlayer != eLoopOtherPlayer)
-				{
-					// Do both we and the guy we're looking at know the third guy?
-					if(IsPlayerValid(eLoopOtherPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
-					{
-						// At War?
-						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GET_PLAYER(eLoopOtherPlayer).getTeam()))
-						{
-							iValueLost = GetOtherPlayerWarValueLost(eLoopPlayer, eLoopOtherPlayer);
-
-							// Calculate the value of what we have currently
-							iCurrentValue = 0;
-
-							// City value
-							if(GET_PLAYER(eLoopPlayer).getNumCities() > 0)
-							{
-								for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iValueLoop))
-								{
-									iCurrentValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-									if (pLoopCity->IsOriginalCapital()) // anybody's
-									{
-										iCurrentValue *= 3;
-										iCurrentValue /= 2;
-									}
-								}
-							}
-
-							// Prevents divide by 0
-							iCurrentValue = max(1,iCurrentValue);
-
-							iValueLostRatio = iValueLost * 100 / iCurrentValue;
-
-							if(iValueLostRatio >= /*50*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
-								eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
-							else if(iValueLostRatio >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
-								eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
-							else if(iValueLostRatio >= /*20*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
-								eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
-							else if(iValueLostRatio >= /*10*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
-								eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
-							else
-								eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
-						}
-
-						else
-							eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
-
-						SetOtherPlayerWarDamageLevel(eLoopPlayer, eLoopOtherPlayer, eWarDamageLevel);
-					}
-				}
-			}
-		}
-	}
 }
 
 /// What is the value of stuff (Units & Cities) we estimate a player has lost in a war against another player?
@@ -31497,7 +31626,7 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
 		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
 		{
-			DoUpdateWarDamageLevel();
+			DoUpdateWarDamageLevels();
 			DoUpdatePeaceTreatyWillingness();
 		}
 #endif
@@ -35598,7 +35727,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	DoUpdateWarDamageLevel();
+	DoUpdateWarDamageLevels();
 
 	MajorCivApproachTypes eVisibleApproach = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ true);
 	WarProjectionTypes eWarProjection = GetWarProjection(eHuman);
@@ -41915,6 +42044,10 @@ void CvDiplomacyAI::SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue)
 /// Changes how many times this player has stolen our territory
 void CvDiplomacyAI::ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange)
 {
+	// No diplomacy penalties for stealing territory while at war.
+	if (IsAtWar(ePlayer))
+		return;
+
 	SetNumTimesCultureBombed(ePlayer, GetNumTimesCultureBombed(ePlayer) + iChange);
 }
 
@@ -42694,8 +42827,8 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(GetNumTimesCultureBombed(ePlayer) > 0)
-		iOpinionWeight += (GetNumTimesCultureBombed(ePlayer) * /*30*/ GC.getOPINION_WEIGHT_CULTURE_BOMBED());
+	if (GetNumTimesCultureBombed(ePlayer) > 0)
+		iOpinionWeight += (GetNumTimesCultureBombed(ePlayer) * /*10*/ GC.getOPINION_WEIGHT_CULTURE_BOMBED());
 	
 	return iOpinionWeight;
 }
@@ -44632,7 +44765,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 			break;
 		case THEFT_TYPE_PLOT: // America UA
 			// Steal Natural Wonders and other teams' embassies, the City-State's feelings be damned!
-			if (pPlot->IsNaturalWonder(false))
+			if (pPlot->IsNaturalWonder())
 			{
 				return false;
 			}

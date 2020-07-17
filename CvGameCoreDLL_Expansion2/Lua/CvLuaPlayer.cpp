@@ -6465,7 +6465,7 @@ int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
-	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamageLevel();
+	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamageLevels();
 	return 0;
 }
 

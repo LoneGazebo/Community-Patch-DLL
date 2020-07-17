@@ -256,9 +256,9 @@ UPDATE Defines
 SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_MADE_DEMAND_OF_US';
 
--- 30 (unchanged)
+-- 30
 UPDATE Defines
-SET Value = '30'
+SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_CULTURE_BOMBED';
 
 -- 5 (unchanged)

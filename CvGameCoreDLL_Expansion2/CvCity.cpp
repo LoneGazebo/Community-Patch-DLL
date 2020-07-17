@@ -20706,34 +20706,29 @@ bool CvCity::DoRazingTurn()
 		{
 			return false;
 		}
-		
-		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
 		// Notify Diplo AI that damage has been done
-		int iValue = iDefaultCityValue;
+		int iRazeValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
-		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
-		iValue /= max(1, (GetRazingTurns() / 2));
+		iRazeValue += (getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		iRazeValue += (getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+		iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
 
-		int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
-		if (iWarscoremod != 0)
+		// Does the owner have a bonus to war score accumulation?
+		iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+		iRazeValue /= 100;
+
+		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iRazeValue);
+
+		// Diplomacy penalty for razing cities
+		if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
 		{
-			iValue *= (iWarscoremod + 100);
-			iValue /= 100;
-		}
+			int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
+			if (iEra <= 0)
+			{
+				iEra = 1;
+			}
 
-		// My viewpoint
-		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
-		// Bad guy's viewpoint
-		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue, /*bNoRatingChange*/ true);
-
-		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		if(!GET_PLAYER(getOwner()).isMinorCiv())
-		{
 			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
 		}
 
@@ -28499,28 +28494,137 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (iCost > 0) 
+	if (iCost > 0 && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 	{
-		//Did we buy this plot from someone? Oh no!
-		if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
+		// Did we buy this plot from someone? They're gonna be mad!
+		PlayerTypes ePlotOwner = pPlot->getOwner();
+		int iTileValue = /*80*/ GC.getSTOLEN_TILE_BASE_WAR_VALUE();
+		int iValueMultiplier = 0;
+		bool bStoleHighValueTile = false;
+
+		if (pPlot->IsNaturalWonder())
 		{
-			if (!GET_PLAYER(pPlot->getOwner()).isHuman() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+			iValueMultiplier += 200;
+			bStoleHighValueTile = true;
+		}
+		else
+		{
+			if (pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
 			{
-				if(GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+				CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
+				if (pInfo)
 				{
-					if (!GET_TEAM(GET_PLAYER(pPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+					switch (pInfo->getResourceUsage())
 					{
-						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+					case RESOURCEUSAGE_STRATEGIC:
+						iValueMultiplier += 100;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_LUXURY:
+						iValueMultiplier += 50;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_BONUS:
+						iValueMultiplier += 20;
+						break;
 					}
 				}
-				else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+			}
+			if (pPlot->IsChokePoint())
+			{
+				iValueMultiplier += 50;
+				bStoleHighValueTile = true;
+			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
+			if (pkImprovement)
+			{
+				if (pkImprovement->IsCreatedByGreatPerson())
 				{
-					GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+					iValueMultiplier += 100;
+					bStoleHighValueTile = true;
 				}
+			}
+			// Stole a major civ's embassy from a City-State?
+			if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				PlayerTypes eEmbassyOwner = pPlot->GetPlayerThatBuiltImprovement();
+				if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+				{
+					// Notify the embassy owner
+					CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+					}
+
+					// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
+					if (!GET_PLAYER(eEmbassyOwner).isHuman())
+					{
+						int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
+						GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+					}
+
+					// Stole from the City-State's ally? The City-State is furious!
+					if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+					{
+						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+					}
+					// Stole from the City-State's friend? Reset Influence to 0.
+					else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+					{
+						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+					}
+				}
+			}
+		}
+
+		iTileValue *= (100 + iValueMultiplier);
+		iTileValue /= 100;
+
+		// If the players are at war, this counts for war value!
+		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
+		{
+			// Update military rating for both players
+			if (GET_PLAYER(getOwner()).isMajorCiv())
+			{
+				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+			}
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+			}
+
+			// Does the city owner have a bonus to war score accumulation?
+			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+			iTileValue /= 100;
+
+			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+		}
+
+		// Diplomacy penalty for stealing territory!
+		if (GET_PLAYER(getOwner()).isMajorCiv())
+		{
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				int iPenalty = bStoleHighValueTile ? 3 : 1;
+				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+			}
+			else if (GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				int iEra = GC.getGame().getCurrentEra();
+				if (iEra <= 0)
+				{
+					iEra = 1;
+				}
+				
+				GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), (iEra * -20));
 			}
 		}
 	}
 #endif
+
 #if defined(MOD_UI_CITY_EXPANSION)
 	if (iCost > 0) 
 	{

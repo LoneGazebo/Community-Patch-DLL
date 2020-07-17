@@ -427,22 +427,20 @@ public:
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 	void SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel);
-	void DoUpdateWarDamageLevel();
-#if defined(MOD_BALANCE_CORE)
+	void DoUpdateWarDamageLevels();
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-#endif
 	void DoWarDamageDecay();
 
 	// War Value Lost: the int value of damage ePlayer has inflicted on us in war
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
-	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange, bool bNoRatingChange = false);
+	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
 
 	// Other Player War Damage Level: how much damage we've inflicted UPON ePlayer
 	WarDamageLevelTypes GetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const;
 	void SetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, WarDamageLevelTypes eDamageLevel);
-	void DoUpdateOtherPlayerWarDamageLevel();
+	void DoUpdateOtherPlayerWarDamageLevels();
 
 	// Other Player War Value Lost: the int value of damage we've inflicted UPON ePlayer in war
 	int GetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const;
