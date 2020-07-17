@@ -12925,8 +12925,8 @@ void CvUnit::PerformCultureBomb(int iRadius)
 							{
 								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), GC.getMINOR_FRIENDSHIP_AT_WAR());
 							}
-							// Stole from the City-State's friend? Reset Influence to 0.
-							else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+							// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+							else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
 							{
 								if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
 								{
