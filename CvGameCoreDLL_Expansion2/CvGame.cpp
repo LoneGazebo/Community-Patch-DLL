@@ -6506,7 +6506,7 @@ bool CvGame::IsPeaceOffersDisabled() const
 }
 
 /// Disable All Statements
-/// Only affects human players. Affects requests sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
+/// Only affects human players. Affects statements sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
 bool CvGame::IsAllDiploStatementsDisabled() const
 {
 	if (GC.getDIPLOAI_DISABLE_ALL_STATEMENTS() > 0)
@@ -6553,6 +6553,14 @@ bool CvGame::IsAIPassiveTowardsHumans() const
 /// Can also pass in optional parameter eMakePeacePlayer to determine if making peace with a player would lock a player out of attempting a Domination Victory
 bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer /* = NO_PLAYER */) const
 {
+	// Game has already been won
+	if (IsGameWon())
+		return false;
+
+	// Domination Victory is disabled
+	if (!isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true)))
+		return false;
+
 	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs
