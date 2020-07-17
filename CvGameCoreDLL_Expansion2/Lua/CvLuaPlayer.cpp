@@ -470,6 +470,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
 	Method(GetNumPoliciesInBranch);
+	Method(GetNumPoliciesPurchasedInBranch);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
@@ -6647,6 +6648,18 @@ int CvLuaPlayer::lGetNumPoliciesInBranch(lua_State* L)
 	const PolicyBranchTypes eIndex = (PolicyBranchTypes)lua_tointeger(L, 2);
 
 	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int GetNumPolicies();
+int CvLuaPlayer::lGetNumPoliciesPurchasedInBranch(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyBranchTypes eIndex = (PolicyBranchTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesPurchasedInBranch(eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -13883,14 +13896,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 	iValue = pDiploAI->GetCitiesRazedScore(eWithPlayer);
 	int iValue2 = pDiploAI->GetCitiesRazedGlobalScore(eWithPlayer);
-	if (iValue != 0)
+	if (iValue != 0 && iValue > iValue2)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = (iValue + iValue2);
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 		aOpinions.push_back(kOpinion);
 	}
-	else if(iValue2 != 0)
+	else if (iValue2 != 0)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue2;
@@ -13902,14 +13915,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
-		aOpinions.push_back(kOpinion);
-	}
-	else if (iValue > 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+
+		if (iValue > 0)
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
+		}
+
 		aOpinions.push_back(kOpinion);
 	}
 	iValue = pDiploAI->GetPtPSameCSScore(eWithPlayer);

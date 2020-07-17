@@ -2651,7 +2651,7 @@ local function GetMoodInfo( playerID )
 	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale_ToLower("TXT_KEY_VP_TECH") ) )
 	-- Policies
 	for policyBranch in GameInfo.PolicyBranchTypes() do
-		local policyCount = player:GetNumPoliciesInBranchForDisplay(policyBranch.ID)
+		local policyCount = player:GetNumPoliciesPurchasedInBranch(policyBranch.ID)
 
 		if (policyCount > 0) then
 			tips:insert(policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) ) 

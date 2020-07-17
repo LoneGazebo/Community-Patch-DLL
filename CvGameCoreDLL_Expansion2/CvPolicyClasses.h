@@ -1051,6 +1051,7 @@ public:
 	int GetNumPoliciesOwned() const;
 #endif
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
+	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
 #if defined(MOD_BALANCE_CORE)
 	void ClearCache();
