@@ -6453,6 +6453,131 @@ bool CvGame::IsAIPassiveTowardsHumans() const
 	return false;
 }
 
+/// Helper function to determine if a given player can attempt a Domination Victory (returns true if it is currently possible for them to win one)
+/// Can also pass in optional parameter eMakePeacePlayer to determine if making peace with a player would lock a player out of attempting a Domination Victory
+bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer /* = NO_PLAYER */) const
+{
+	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	{
+		// Loop through all major civs
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			// Ignore this player and their teammates
+			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
+				continue;
+
+			// Ignore players who never founded an original capital
+			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			int iX = kPlayer.GetOriginalCapitalX();
+			int iY = kPlayer.GetOriginalCapitalY();
+			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+				continue;
+
+			PlayerTypes eCapitalOwner = pCapitalPlot->getOwner();
+			CvPlayerAI& kCapitalOwner = GET_PLAYER(eCapitalOwner);
+			if (eCapitalOwner != NO_PLAYER && !kCapitalOwner.isBarbarian())
+			{
+				// Not already at war?
+				if (!kCapitalOwner.IsAtWarWith(ePlayer))
+				{
+					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
+						{
+							return false;
+						}
+						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+						{
+							return false;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+	else if (!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveTowardsHumans())
+	{
+		// Loop through all major civs
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			// Ignore this AI and their teammates
+			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
+				continue;
+
+			// Ignore players who never founded an original capital
+			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			int iX = kPlayer.GetOriginalCapitalX();
+			int iY = kPlayer.GetOriginalCapitalY();
+			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+				continue;
+
+			PlayerTypes eCapitalOwner = pCapitalPlot->getOwner();
+			CvPlayerAI& kCapitalOwner = GET_PLAYER(eCapitalOwner);
+			if (eCapitalOwner != NO_PLAYER && kCapitalOwner.isHuman()) // Capital owned by human?
+			{
+				// Not already at war?
+				if (!kCapitalOwner.IsAtWarWith(ePlayer))
+				{
+					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
+						{
+							return false;
+						}
+						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+						{
+							return false;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+/// Would making peace with this player prevent us from achieving a Domination Victory?
+bool CvGame::WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return false;
+
+	return (CanPlayerAttemptDominationVictory(ePlayer) && !CanPlayerAttemptDominationVictory(ePlayer, eMakePeacePlayer));
+}
+
 /// Aggressive Mode (towards all players)
 bool CvGame::IsAIAggressiveMode() const
 {

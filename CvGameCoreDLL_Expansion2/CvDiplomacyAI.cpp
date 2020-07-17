@@ -12911,6 +12911,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// Evaluate our danger and their danger from this war
+	int iWarScore = GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer);
 	int iOurDanger = 0;
 	int iTheirDanger = 0;
 	bool bSeriousDangerUs = false;
@@ -13051,7 +13052,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		// -95 or worse against a major civ and we're in danger? If we got this far, always make peace.
-		if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 && iOurDanger > 0)
+		if (GET_PLAYER(ePlayer).isMajorCiv() && iWarScore <= -95 && iOurDanger > 0)
 		{
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -13254,6 +13255,51 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 	}
 
+	// If game options are configured in such a way that making peace with this player would lock us out of Domination Victory, let's not make peace (unless we have to).
+	if (GetWarState(ePlayer) != WAR_STATE_NEARLY_DEFEATED && !GetPlayer()->IsEmpireVeryUnhappy() && GC.getGame().WouldMakingPeacePreventDominationVictory(GetPlayer()->GetID(), ePlayer))
+	{
+		// Only block peace if we're actually going for Domination Victory
+		if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strDesc;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_Peace_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+				strBaseString += playerName + " VS. " + otherPlayerName;
+
+				strOutBuf.Format("No peace! If we make peace, we'll lose our shot at Domination Victory!");
+
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+			return false;
+		}
+	}
+
 	int iWantPeace = 0;
 	int iRequestPeaceTurnThreshold = /*11*/ GC.getREQUEST_PEACE_TURN_THRESHOLD() - m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
@@ -13266,9 +13312,6 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	{
 		iWantPeace -= 5;
 	}
-
-	// War score
-	int iWarScore = GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer);
 
 	// Negative warscore means we're losing, so peace desire is higher!
 	if (iWarScore < 0)
@@ -44833,32 +44876,9 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 /// Is this player close to a domination victory?
 bool CvDiplomacyAI::IsCloseToDominationVictory() const
 {
-	// Not close to victory if AI is set to Passive Mode.
-	if (!GetPlayer()->isHuman())
-	{
-		if (GC.getGame().IsAIPassiveMode())
-		{
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
-				{
-					return false;
-				}
-			}
-		}
-		else if (GC.getGame().IsAIPassiveTowardsHumans())
-		{
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isHuman() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
-				{
-					return false;
-				}
-			}
-		}
-	}
+	// Not close to victory if player cannot attempt Domination Victory.
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID()))
+		return false;
 
 	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 75)
 		return true;

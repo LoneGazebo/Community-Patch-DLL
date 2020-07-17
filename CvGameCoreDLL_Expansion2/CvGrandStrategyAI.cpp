@@ -467,29 +467,8 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 	
 	// Game options have disabled war as an option to win, so pick something else
-	if (GC.getGame().IsAIPassiveMode())
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-			if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
-			{
-				return -100;
-			}
-		}
-	}
-	// Allow Domination during AI-only games if not globally disabled (or if no humans have their original capital)
-	else if (GC.getGame().IsAIPassiveTowardsHumans())
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-			if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isHuman() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
-			{
-				return -100;
-			}
-		}
-	}
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID()))
+		return -100;
 
 	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	int iGeneralHostility = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_HOSTILE);
@@ -2019,6 +1998,10 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 /// Guess as to how much another Player is prioritizing Conquest as his means of winning the game
 int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, int iWorldMilitaryAverage)
 {
+	// If they can't attempt Domination Victory because of game options, then don't bother with any of this.
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer))
+		return -100;
+
 	int iConquestPriority = 0;
 
 	// Compare their Military to the world average; Possible range is 100 to -100 (but will typically be around -20 to 20)

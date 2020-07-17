@@ -45,13 +45,13 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 -- Advanced Options
 
 -- [PASSIVE MODE (TOWARDS HUMANS)]
--- If set to 1, AI civilizations will never declare war on human players or attempt Domination Victories.
+-- If set to 1, AI civilizations will never declare war on human players. They also won't attempt Domination Victories, unless they can win one without declaring war on a human.
 -- Humans can still declare war on AI players, and AI players already at war will still fight their opponents.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_PASSIVE_MODE_HUMANS', '0';
 
 -- [PASSIVE MODE (GLOBAL)]
--- If set to 1, AI civilizations will never declare war on any other civilizations or City-States or attempt Domination Victories.
+-- If set to 1, AI civilizations will never declare war on any other civilizations or City-States. They also won't attempt Domination Victories, unless they can win one without declaring war.
 -- Humans can still declare war on AI players, and AI players already at war will still fight their opponents.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_PASSIVE_MODE_GLOBAL', '0';

@@ -339,6 +339,8 @@ public:
 	// Advanced Options
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
+	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer = NO_PLAYER) const;
+	bool WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const;
 	bool IsAIAggressiveMode() const;
 	bool IsAIAggressiveTowardsHumans() const;
 
