@@ -13053,7 +13053,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 
 				// Message for human
-				if (getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)
+				if (getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !GC.getGame().IsAllDiploStatementsDisabled())
 				{
 					bAlreadyShownLeader = true;
 

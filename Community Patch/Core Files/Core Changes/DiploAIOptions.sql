@@ -1,5 +1,5 @@
 -- Diplomacy AI Options
--- These options are savegame compatible (enabling/disabling them and then loading the game will activate/deactivate them with no issues).
+-- All of these options are savegame compatible (enabling/disabling them and then loading a saved game will activate/deactivate them with no issues).
 
 -- [DISABLE VICTORY COMPETITION]
 -- If set to 1, AI civilizations will not receive any aggression boosts or reductions towards other players based on their victory progress.
@@ -20,6 +20,17 @@ SELECT 'DIPLOAI_DISABLE_ENDGAME_AGGRESSION', '0';
 -- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
+
+-- [DISABLE INSULT MESSAGES]
+-- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
+-- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_INSULT_MESSAGES', '0';
+
+-- [DISABLE COMPLIMENT MESSAGES]
+-- If set to 1, AI civilizations will not send friendly compliments such as "FYI, we befriended your friend" to human players.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_COMPLIMENT_MESSAGES', '0';
 
 -- [SHOW ALL OPINION MODIFIERS]
 -- If set to 1, AI civilizations will never hide Opinion modifiers. They often hide modifiers when they are FRIENDLY (or pretending to be).
@@ -43,6 +54,46 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 
 
 -- Advanced Options
+
+-- [DISABLE FRIENDSHIP REQUESTS]
+-- If set to 1, AI civilizations will not ask human players to make a Declaration of Friendship.
+-- Humans can still ask the AI for a Declaration of Friendship.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_FRIENDSHIP_REQUESTS', '0';
+
+-- [DISABLE GIFT OFFERS]
+-- If set to 1, AI civilizations will not offer gifts to human players.
+-- Humans can still request help from AI players on their own turn.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_GIFT_OFFERS', '0';
+
+-- [DISABLE HELP REQUESTS]
+-- If set to 1, AI civilizations will not request help (gold/resources/etc.) from human players.
+-- Does not affect the human's ability to request help from the AI.
+-- Humans can still offer gifts to AI players on their own turn.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_HELP_REQUESTS', '0';
+
+-- [DISABLE TRADE OFFERS]
+-- If set to 1, AI civilizations will not send trade offers to human players (except peace offers).
+-- Humans can still trade with AI players on their own turn.
+-- Does not prevent the AI from making demands.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_TRADE_OFFERS', '0';
+
+-- [DISABLE PEACE OFFERS]
+-- If set to 1, AI civilizations will not request peace from human players.
+-- NOTE: Offers to make peace with a third party are treated as a trade offer.
+-- Humans can still make peace with AI players on their own turn.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_PEACE_OFFERS', '0';
+
+-- [DISABLE ALL STATEMENTS]
+-- If set to 1, AI civilizations will never send ANY messages to human players on their turn.
+-- This also disables popup messages, e.g. from returning civilians or stealing territory.
+-- Humans can still interact with the AI normally through the diplomacy screen.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_ALL_STATEMENTS', '0';
 
 -- [PASSIVE MODE (TOWARDS HUMANS)]
 -- If set to 1, AI civilizations will never declare war on human players. They also won't attempt Domination Victories, unless they can win one without declaring war on a human.

@@ -6356,6 +6356,30 @@ bool CvGame::IsNuclearGandhiEnabled() const
 	return false;
 }
 
+/// Disable Insult Messages
+/// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
+bool CvGame::IsInsultMessagesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_INSULT_MESSAGES() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Compliment Messages
+/// Only affects human players, and only applies to friendly messages sent by the AI on their turn.
+bool CvGame::IsComplimentMessagesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_COMPLIMENT_MESSAGES() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Show All Opinion Modifiers
 /// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
 bool CvGame::IsShowAllOpinionModifiers() const
@@ -6414,6 +6438,78 @@ bool CvGame::IsShowBaseHumanOpinion() const
 	}
 
 	if (IsShowAllOpinionModifiers())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Friendship Requests
+/// Only affects human players, and only affects requests sent by the AI on their turn.
+bool CvGame::IsFriendshipRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_FRIENDSHIP_REQUESTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Gift Offers
+/// Only affects human players, and only affects gift offers sent by the AI on their turn.
+bool CvGame::IsGiftOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_GIFT_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Help Requests
+/// Only affects human players, and only affects help requests sent by the AI on their own turn.
+bool CvGame::IsHelpRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_HELP_REQUESTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Trade Offers
+/// Only affects human players, and only affects trade offers sent by the AI on their turn. Does not affect peace offers.
+bool CvGame::IsTradeOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Peace Offers
+/// Only affects human players, and only affects peace offers sent by the AI on their turn.
+bool CvGame::IsPeaceOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_PEACE_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable All Statements
+/// Only affects human players. Affects requests sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
+bool CvGame::IsAllDiploStatementsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_ALL_STATEMENTS() > 0)
 	{
 		return true;
 	}

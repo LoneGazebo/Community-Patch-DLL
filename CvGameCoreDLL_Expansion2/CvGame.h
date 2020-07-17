@@ -332,11 +332,19 @@ public:
 	bool IsVictoryCompetitionEnabled() const;
 	bool IsEndgameAggressionEnabled() const;
 	bool IsNuclearGandhiEnabled() const;
+	bool IsInsultMessagesDisabled() const; // Only affects humans
+	bool IsComplimentMessagesDisabled() const; // Only affects humans
 	bool IsShowAllOpinionModifiers() const;
 	bool IsShowAllOpinionValues() const;
 	bool IsShowBaseHumanOpinion() const;
 
 	// Advanced Options
+	bool IsFriendshipRequestsDisabled() const; // Only affects humans
+	bool IsGiftOffersDisabled() const; // Only affects humans
+	bool IsHelpRequestsDisabled() const; // Only affects humans
+	bool IsTradeOffersDisabled() const; // Only affects humans
+	bool IsPeaceOffersDisabled() const; // Only affects humans
+	bool IsAllDiploStatementsDisabled() const; // Only affects humans
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
 	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer = NO_PLAYER) const;
