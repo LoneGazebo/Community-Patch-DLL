@@ -467,9 +467,20 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 	
 	// Game options have disabled war as an option to win, so pick something else
-	if (GC.getGame().IsAIPassiveMode() || GC.getGame().IsAIPassiveTowardsHumans())
+	if (GC.getGame().IsAIPassiveMode())
 	{
 		return -100;
+	}
+	// Allow Domination during AI Autoplay games if not globally disabled
+	else if (GC.getGame().IsAIPassiveTowardsHumans())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			if (GET_PLAYER((PlayerTypes)iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive())
+			{
+				return -100;
+			}
+		}
 	}
 
 	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
