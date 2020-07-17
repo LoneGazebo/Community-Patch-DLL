@@ -9571,7 +9571,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// AGGRESSIVE MODE MULTIPLIER
 	////////////////////////////////////
 
-	if (GC.getGame().IsAIAggressiveMode() || (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsAIAggressiveTowardsHumans()))
+	if (GET_PLAYER(ePlayer).isHuman())
+	{
+		if (GC.getGame().IsAIAggressiveTowardsHumans())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 2;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 2;
+		}
+	}
+	else if (GC.getGame().IsAIAggressiveMode())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 2;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 2;
@@ -44825,8 +44833,11 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 /// Is this player close to a domination victory?
 bool CvDiplomacyAI::IsCloseToDominationVictory() const
 {
-	int iNumCivs = GetPlayer()->GetFractionOriginalCapitalsUnderControl();
-	if(iNumCivs >= 75)
+	// Not close to victory if AI is set to Passive Mode.
+	if (!GetPlayer()->isHuman() && GC.getGame().IsAIPassiveMode())
+		return false;
+
+	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 75)
 		return true;
 
 	return false;
