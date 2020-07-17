@@ -13914,7 +13914,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if (pDiploAI->GetNumSamePolicies(eWithPlayer) != 0)
 	{
 		Opinion kOpinion;
-		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);
+		iValue = pDiploAI->GetPolicyScore(eWithPlayer);
+		kOpinion.m_iValue = iValue;
 
 		if (iValue > 0)
 		{
