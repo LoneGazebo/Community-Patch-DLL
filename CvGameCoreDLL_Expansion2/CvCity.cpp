@@ -28574,7 +28574,10 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					// Stole from the City-State's friend? Reset Influence to 0.
 					else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
 					{
-						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+						if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
+						{
+							GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+						}
 					}
 				}
 			}
