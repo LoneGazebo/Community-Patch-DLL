@@ -1427,7 +1427,6 @@ public:
 	bool WasResurrectedThisTurnBy(PlayerTypes ePlayer) const;
 	void SetResurrectedBy(PlayerTypes ePlayer, bool bValue);
 	bool WasResurrectedByAnyone() const;
-	void SetResurrectedByAnyone(bool bValue);
 
 	int GetNumTimesCultureBombed(PlayerTypes ePlayer) const;
 	void SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue);
@@ -2081,7 +2080,6 @@ private:
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
-	bool m_bWasResurrected;
 
 	char m_eCSWarTarget;
 	char m_eCSBullyTarget;

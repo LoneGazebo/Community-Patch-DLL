@@ -215,18 +215,8 @@ void CvTeam::uninit()
 	m_iNumMinorCivsAttacked = 0;
 
 	m_bMapCentering = false;
-	m_bHasBrokenPeaceTreaty = false;
 	m_bHomeOfUnitedNations = false;
 	m_bHasTechForWorldCongress = false;
-
-	m_bBrokenMilitaryPromise = false;
-	m_bBrokenExpansionPromise = false;
-	m_bBrokenBorderPromise = false;
-	m_bBrokenCityStatePromise = false;
-
-#if defined(MOD_BALANCE_CORE)
-	m_bCivilianKiller = false;
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iVassalageTradingAllowedCount = 0;
@@ -1466,28 +1456,14 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	{
 		SetHasDefensivePact(eTeam, false);
 		GET_TEAM(eTeam).SetHasDefensivePact(GetID(), false);
-		SetBrokenMilitaryPromise(true);
 	}
 
-	//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
-	if (!bDefensivePact && bAggressor)
+	//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal (C4DF)
+	if (!bDefensivePact && bAggressor && !GET_TEAM(eTeam).isMinorCiv())
 	{
-		// If we've made a peace treaty before, this is bad news (no minors though)
-		if (!GET_TEAM(eTeam).isMinorCiv())
-		{
-			//DPs should only cancel v. major civs.
-			cancelDefensivePacts();
-			int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
-			if (iPeaceTreatyTurn != -1)
-			{
-				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-				if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
-				{
-					SetHasBrokenPeaceTreaty(true);
-				}
-			}
-		}
+		cancelDefensivePacts();
 	}
+
 	GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
 	GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
 
@@ -3030,18 +3006,14 @@ int CvTeam::GetNumMinorCivsAttacked() const
 /// Sets the number of Minor Civs this player has declared war on
 void CvTeam::SetNumMinorCivsAttacked(int iValue)
 {
-	if(GetNumMinorCivsAttacked() != iValue)
-	{
-		m_iNumMinorCivsAttacked = iValue;
-	}
+	m_iNumMinorCivsAttacked = iValue;
 }
 
 //	--------------------------------------------------------------------------------
 /// Changes the number of Minor Civs this player has declared war on
 void CvTeam::ChangeNumMinorCivsAttacked(int iChange)
 {
-	if(iChange != 0)
-		SetNumMinorCivsAttacked(GetNumMinorCivsAttacked() + iChange);
+	SetNumMinorCivsAttacked(GetNumMinorCivsAttacked() + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3049,7 +3021,7 @@ void CvTeam::ChangeNumMinorCivsAttacked(int iChange)
 bool CvTeam::IsMinorCivAggressor() const
 {
 	// Player has attacked enough Minors that they're getting antsy
-	if(GetNumMinorCivsAttacked() >= /*2*/ GC.getMINOR_CIV_AGGRESSOR_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*2*/ GC.getMINOR_CIV_AGGRESSOR_THRESHOLD())
 		return true;
 
 	return false;
@@ -3060,80 +3032,11 @@ bool CvTeam::IsMinorCivAggressor() const
 bool CvTeam::IsMinorCivWarmonger() const
 {
 	// Player has attacked enough Minors that an Alliance has formed
-	if(GetNumMinorCivsAttacked() >= /*4*/ GC.getMINOR_CIV_WARMONGER_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*4*/ GC.getMINOR_CIV_WARMONGER_THRESHOLD())
 		return true;
 
 	return false;
 }
-
-//	--------------------------------------------------------------------------------
-// Some diplo stuff
-bool CvTeam::IsBrokenMilitaryPromise() const
-{
-	return m_bBrokenMilitaryPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenMilitaryPromise(bool bValue)
-{
-	if(IsBrokenMilitaryPromise() != bValue)
-		m_bBrokenMilitaryPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsBrokenExpansionPromise() const
-{
-	return m_bBrokenExpansionPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenExpansionPromise(bool bValue)
-{
-	if(IsBrokenExpansionPromise() != bValue)
-		m_bBrokenExpansionPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsBrokenBorderPromise() const
-{
-	return m_bBrokenBorderPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenBorderPromise(bool bValue)
-{
-	if(IsBrokenBorderPromise() != bValue)
-		m_bBrokenBorderPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-// Broke a promise to not attack a city-state?
-bool CvTeam::IsBrokenCityStatePromise() const
-{
-	return m_bBrokenCityStatePromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenCityStatePromise(bool bValue)
-{
-	if(IsBrokenCityStatePromise() != bValue)
-		m_bBrokenCityStatePromise = bValue;
-}
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-// Broke a promise to not attack a city-state?
-bool CvTeam::IsCivilianKiller() const
-{
-	return m_bCivilianKiller;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetCivilianKiller(bool bValue)
-{
-	if(IsCivilianKiller() != bValue)
-		m_bCivilianKiller = bValue;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 PlayerTypes CvTeam::getLeaderID() const
@@ -4718,18 +4621,6 @@ void CvTeam::SetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex, int iNewValue)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTurnMadePeaceTreatyWithTeam[eIndex] = iNewValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsHasBrokenPeaceTreaty() const
-{
-	return m_bHasBrokenPeaceTreaty;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetHasBrokenPeaceTreaty(bool bValue)
-{
-	m_bHasBrokenPeaceTreaty = bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9065,17 +8956,8 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iNumMinorCivsAttacked;
 
 	kStream >> m_bMapCentering;
-	kStream >> m_bHasBrokenPeaceTreaty;
 	kStream >> m_bHomeOfUnitedNations;
 	kStream >> m_bHasTechForWorldCongress;
-
-	kStream >> m_bBrokenMilitaryPromise;
-	kStream >> m_bBrokenExpansionPromise;
-	kStream >> m_bBrokenBorderPromise;
-	kStream >> m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bCivilianKiller;
-#endif
 
 	kStream >> m_eID;
 
@@ -9296,17 +9178,8 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_iNumMinorCivsAttacked;
 
 	kStream << m_bMapCentering;
-	kStream << m_bHasBrokenPeaceTreaty;
 	kStream << m_bHomeOfUnitedNations;
 	kStream << m_bHasTechForWorldCongress;
-
-	kStream << m_bBrokenMilitaryPromise;
-	kStream << m_bBrokenExpansionPromise;
-	kStream << m_bBrokenBorderPromise;
-	kStream << m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bCivilianKiller;
-#endif
 
 	kStream << m_eID;
 

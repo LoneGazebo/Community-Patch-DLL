@@ -1380,7 +1380,6 @@ void CvDiplomacyAI::Reset()
 	m_eCSWarTarget = NO_PLAYER;
 	m_eCSBullyTarget = NO_PLAYER;
 	m_bDemandReady = false;
-	m_bWasResurrected = false;
 
 	m_iVictoryCompetitiveness = 0;
 	m_iWonderCompetitiveness = 0;
@@ -1802,7 +1801,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_eDiploPersonalityType;
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
-	kStream >> m_bWasResurrected;
 
 	kStream >> m_eCSWarTarget;
 	kStream >> m_eCSBullyTarget;
@@ -2251,7 +2249,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << m_eDiploPersonalityType;
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
-	kStream << m_bWasResurrected;
 
 	kStream << m_eCSWarTarget;
 	kStream << m_eCSBullyTarget;
@@ -4908,16 +4905,6 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							}
 						}
 #endif
-						
-						// Global penalty for breaking a military promise?
-						if (GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsBrokenMilitaryPromise())
-							iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
-						
-						// Global penalty for breaking a City-State attack promise?
-						if (GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsBrokenCityStatePromise())
-							iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
-						
-						
 						//////////////////////////////////////
 						// DISPUTE ESTIMATES
 						//////////////////////////////////////						
@@ -35616,10 +35603,12 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	//	return GetDiploStringForMessage(DIPLO_MESSAGE_GREETING_RESEARCH_AGREEMENT);
 
 	// Player has broken promises about playing nice militarily
-	if(eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+	if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 	{
-		if(pHumanTeam->IsBrokenMilitaryPromise())
+		if (IsPlayerBrokenMilitaryPromise(eHuman) || GetBrokenMilitaryPromiseWithAnybodyScore(eHuman) > 0)
+		{
 			veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_BROKEN_MILITARY_PROMISE);
+		}
 	}
 
 	// Players are working together
@@ -40450,41 +40439,6 @@ void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bVa
 	}
 	
 	m_pabPlayerBrokenMilitaryPromise[ePlayer] = bValue;
-
-	if (bValue) // apply the global penalty
-	{
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenMilitaryPromise(true);
-		SetEverBackstabbedBy(ePlayer, true);
-	}
-	else
-	{
-		// Loop through all major civs...if there are no civs they've broken a promise with, then remove the global penalty.
-		PlayerTypes eLoopPlayer;
-		PlayerTypes eLoopPlayer2;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			
-			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(ePlayer).getTeam())
-			{
-				for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-					
-					if (GET_PLAYER(eLoopPlayer2).isMajorCiv() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsTeammate(ePlayer))
-					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(eLoopPlayer2))
-						{
-							return;
-						}
-					}
-				}
-			}
-		}
-		
-		// No civs they've broken a promise with?
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenMilitaryPromise(false);
-	}
 }
 
 /// Did ePlayer ignore our request to make a military promise?
@@ -40635,7 +40589,6 @@ void CvDiplomacyAI::SetPlayerBrokenExpansionPromise(PlayerTypes ePlayer, bool bV
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBrokenExpansionPromise(GetPlayer()->GetID(), true);
 		}
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenExpansionPromise(true);
 	}
 }
 
@@ -40797,11 +40750,6 @@ void CvDiplomacyAI::SetPlayerBrokenBorderPromise(PlayerTypes ePlayer, bool bValu
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabPlayerBrokenBorderPromise[ePlayer] = bValue;
-
-	if(bValue)
-	{
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenBorderPromise(true);
-	}
 }
 
 /// Did this player ignore our request to make a border promise?
@@ -40965,49 +40913,14 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 	
 	if (bValue)
 	{
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
-		return;
+		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+			return;
 	
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 			return;
 	}
 	
 	m_pabPlayerBrokenAttackCityStatePromise[ePlayer] = bValue;
-
-	if (bValue) // apply the global penalty
-	{
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenCityStatePromise(true);
-		SetEverBackstabbedBy(ePlayer, true);
-	}
-	else
-	{
-		// Loop through all major civs...if there are no civs they've broken a promise with, then remove the global penalty.
-		PlayerTypes eLoopPlayer;
-		PlayerTypes eLoopPlayer2;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			
-			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(ePlayer).getTeam())
-			{
-				for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-					
-					if (GET_PLAYER(eLoopPlayer2).isMajorCiv() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsTeammate(ePlayer))
-					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(eLoopPlayer2))
-						{
-							return;
-						}
-					}
-				}
-			}
-		}
-		
-		// No civs they've broken a promise with?
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetBrokenCityStatePromise(false);
-	}
 }
 
 /// Did this player ignore our request to stop attacking one of our protected Minors?
@@ -41830,7 +41743,6 @@ void CvDiplomacyAI::SetResurrectedBy(PlayerTypes ePlayer, bool bValue)
 	if (bValue)
 	{
 		m_paiResurrectedOnTurn[ePlayer] = GC.getGame().getGameTurn();
-		SetResurrectedByAnyone(true);
 	}
 	else
 	{
@@ -41841,13 +41753,7 @@ void CvDiplomacyAI::SetResurrectedBy(PlayerTypes ePlayer, bool bValue)
 /// Were we ever resurrected by anyone?
 bool CvDiplomacyAI::WasResurrectedByAnyone() const
 {
-	return m_bWasResurrected;
-}
-
-/// Sets if we were ever resurrected by anyone
-void CvDiplomacyAI::SetResurrectedByAnyone(bool bValue)
-{
-	m_bWasResurrected = bValue;
+	return (GET_TEAM(GetPlayer()->getTeam()).GetLiberatedByTeam() != NO_TEAM);
 }
 
 /// How many times has this player stolen our territory?
@@ -43143,7 +43049,7 @@ int CvDiplomacyAI::GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	// Don't add this if they broke a military promise with anyone
-	if(IsPlayerIgnoredMilitaryPromise(ePlayer) && !IsPlayerBrokenMilitaryPromise(ePlayer) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise())
+	if (IsPlayerIgnoredMilitaryPromise(ePlayer) && !IsPlayerBrokenMilitaryPromise(ePlayer) && GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer) == 0)
 		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_IGNORED_MILITARY_PROMISE();
 	return iOpinionWeight;
 }
@@ -43279,7 +43185,7 @@ int CvDiplomacyAI::GetIgnoredAttackCityStatePromiseScore(PlayerTypes ePlayer)
 	// Ignored our request for them to make a City-State attack promise?
 	
 	// Don't add this if they broke a City-State attack promise with anyone
-	if(IsPlayerIgnoredAttackCityStatePromise(ePlayer) && !IsPlayerBrokenAttackCityStatePromise(ePlayer) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise())
+	if (IsPlayerIgnoredAttackCityStatePromise(ePlayer) && !IsPlayerBrokenAttackCityStatePromise(ePlayer) && GetBrokenAttackCityStatePromiseWithAnybodyScore(ePlayer) == 0)
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE(); //antonjs: todo: rename
 	
 	return iOpinionWeight;
@@ -44029,22 +43935,9 @@ int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetCitiesRazedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(GetNumTimesRazed(ePlayer) > 0)
+	if (GetNumTimesRazed(ePlayer) > 0)
 	{
 		iOpinionWeight += (min(GetNumTimesRazed(ePlayer), /*50*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_MAX()) * /*1*/ GC.getOPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE());
-
-		//We high enough up to incur a global penalty?
-		if ((GetNumTimesRazed(ePlayer) >= GC.getOPINION_WEIGHT_CIVILIAN_KILLER_MAX()))
-		{
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
-			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetCivilianKiller(true);
-		}
-		}
-		else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
-		{
-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetCivilianKiller(false);
-		}
 	}
 
 	return iOpinionWeight;
@@ -44053,11 +43946,21 @@ int CvDiplomacyAI::GetCitiesRazedScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_NEUTRAL && !GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) && !IsDoFAccepted(ePlayer))
+
+	// If they have a larger penalty with us, ignore.
+	if (GetCitiesRazedScore(ePlayer) > /*20*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD())
+		return 0;
+
+	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_NEUTRAL && !IsDoFAccepted(ePlayer) && !IsHasDefensivePact(ePlayer))
 	{
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD();
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTimesRazed(ePlayer) >= 50)
+			{
+				iOpinionWeight = /*20*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD();
+				break;
+			}
 		}
 	}
 
@@ -44066,9 +43969,6 @@ int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 {
-	if (!MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		return 0;
-
 	int iOpinionWeight = 0;
 	int iNumPolicies = GetNumSamePolicies(ePlayer);
 	
