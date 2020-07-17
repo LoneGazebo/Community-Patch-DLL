@@ -469,14 +469,22 @@ int CvGrandStrategyAI::GetConquestPriority()
 	// Game options have disabled war as an option to win, so pick something else
 	if (GC.getGame().IsAIPassiveMode())
 	{
-		return -100;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
+			{
+				return -100;
+			}
+		}
 	}
-	// Allow Domination during AI Autoplay games if not globally disabled
+	// Allow Domination during AI-only games if not globally disabled (or if no humans have their original capital)
 	else if (GC.getGame().IsAIPassiveTowardsHumans())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			if (GET_PLAYER((PlayerTypes)iPlayerLoop).isHuman() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive())
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isHuman() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
 			{
 				return -100;
 			}

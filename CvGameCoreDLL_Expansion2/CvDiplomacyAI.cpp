@@ -44834,8 +44834,31 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 bool CvDiplomacyAI::IsCloseToDominationVictory() const
 {
 	// Not close to victory if AI is set to Passive Mode.
-	if (!GetPlayer()->isHuman() && GC.getGame().IsAIPassiveMode())
-		return false;
+	if (!GetPlayer()->isHuman())
+	{
+		if (GC.getGame().IsAIPassiveMode())
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+				if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
+				{
+					return false;
+				}
+			}
+		}
+		else if (GC.getGame().IsAIPassiveTowardsHumans())
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+				if (kPlayer.getTeam() != GetPlayer()->getTeam() && kPlayer.isHuman() && kPlayer.isAlive() && kPlayer.getNumCities() > 0 && kPlayer.GetNumCitiesFounded() > 0 && GET_PLAYER(kPlayer.GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && !kPlayer.IsAtWarWith(GetPlayer()->GetID()))
+				{
+					return false;
+				}
+			}
+		}
+	}
 
 	if (GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 75)
 		return true;
