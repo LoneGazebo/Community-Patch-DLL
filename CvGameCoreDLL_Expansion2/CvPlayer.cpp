@@ -1275,7 +1275,7 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_iCenterOfMassX = 0;
 	m_iCenterOfMassY = 0;
-	m_iReferenceFoundValue = 50000;
+	m_iReferenceFoundValue = 10000;
 	m_iReformationFollowerReduction = 0;
 	m_bIsReformation = false;
 #endif
@@ -50603,6 +50603,14 @@ void CvPlayer::invalidatePlotFoundValues()
 
 void CvPlayer::computeAveragePlotFoundValue()
 {
+	//minors are not so discriminating ...
+	//should they ever have a settler, just take the best available spot
+	if (!isMajorCiv())
+	{
+		m_iReferenceFoundValue = 0;
+		return;
+	}
+
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
@@ -50623,7 +50631,7 @@ void CvPlayer::computeAveragePlotFoundValue()
 
 	//assuming a normal distribution, this should allow all but the worst plots
 	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
-	m_iReferenceFoundValue = iAvg - iAvg / 3;
+	m_iReferenceFoundValue = iAvg/2;
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
@@ -50642,21 +50650,13 @@ void CvPlayer::UpdatePlotFoundValues()
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
 	m_viPlotFoundValues = std::vector<int>(GC.getMap().numPlots(), -1);
 
-	//don't need to update if never going to settle
-	if (isBarbarian() || isMinorCiv())
+	//don't need to update if not going to settle
+	if (isBarbarian())
 		return;
 
-	//don't need to update if never going to settle again
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-	if (EconomicAIHelpers::CannotMinorCiv(this, eCanSettle))
-#else
-	if (isMinorCiv())
-#endif
-	{
-		if (GetNumCitiesFounded()>0)
-			return;
-	}
+	//in some mods minors can have settlers ... and they should be able to use them
+	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE)==0)
+		return;
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);

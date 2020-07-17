@@ -4777,8 +4777,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				//for enemy units, treat embarked as combat because we cannot stack
-				if (bCombat != pLoopUnit->IsCanDefend())
+				if (bCombat && !pLoopUnit->IsCanDefend())
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
@@ -4815,14 +4814,8 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat)
-				{
-					//for neutral units, treat embarked as civilian because we can stack
-					//fixme: unfortunately it also depends the combination of civilian/combat units whether stacking is possible
-					//but we don't know that here. who the fuck made up these rules?
-					if (!pLoopUnit->IsCanDefend() || pLoopUnit->isEmbarked())
-						continue;
-				}
+				if (bCombat && !pLoopUnit->IsCanDefend())
+					continue;
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;

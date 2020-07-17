@@ -813,7 +813,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 {
 	initFreeState(kInitialItemOverrides);
 
-	if(CvPreGame::isWBMapScript())
+	if (CvPreGame::isWBMapScript())
 		assignStartingPlots();
 
 	// Adjust FLAVOR_GROWTH and FLAVOR_EXPANSION based on map size
@@ -860,8 +860,10 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
-				GET_PLAYER(ePlayer).SetMilitaryRating(1000);
-				GET_PLAYER(ePlayer).computeAveragePlotFoundValue(); // To have an orientation which plots are relatively good or bad
+
+				// Military skill rating
+				int iStartingMilitaryRating = (getStartEra() > 0) ? (1000 * getStartEra()) : 1000;
+				GET_PLAYER(ePlayer).SetMilitaryRating(iStartingMilitaryRating);
 			}
 			// Minor Civ init
 			else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -871,6 +873,9 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
+
+			// To have an orientation of which plots are relatively good or bad
+			GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
 		}
 	}
 

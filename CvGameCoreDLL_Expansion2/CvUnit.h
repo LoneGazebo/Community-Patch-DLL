@@ -1723,6 +1723,11 @@ public:
 
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
+
+	bool CanPushOutUnitHere(CvPlot& atPlot) const;
+	CvUnit* GetPotentialUnitToPushOut(CvPlot& atPlot) const;
+	bool PushBlockingUnitOutOfPlot(CvPlot& atPlot);
+
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
 	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
 
