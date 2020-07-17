@@ -2838,7 +2838,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (!bVassal && !pDiploAI->IsNoVictoryCompetition() && !pDiploAI->WasResurrectedBy(eOtherPlayer) && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY)
+		if (pDiploAI->IsCompetingForVictory() && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY)
 		{
 			// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
@@ -3271,7 +3271,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		{
 			// Captured our capital or Holy City? Close to winning the game? Don't accept peace bribes.
 			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() ||
-				(GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !pDiploAI->IsNoVictoryCompetition()))
+				(GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && pDiploAI->IsEndgameAggressive()))
 			{
 				return INT_MAX;
 			}
@@ -3541,11 +3541,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 	//Are the asked in a DOF with the player? Don't do it!
 	if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
-	{
-		return INT_MAX;
-	}
-	// Disallowed by game options
-	if (pDiploAI->IsWarDisallowed(eWithPlayer))
 	{
 		return INT_MAX;
 	}
@@ -3908,7 +3903,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			
 			// Target is close to winning the game? Halve the value.
-			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !pDiploAI->IsNoVictoryCompetition())
+			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && pDiploAI->IsEndgameAggressive())
 			{
 				iItemValue /= 2;
 			}
@@ -4126,7 +4121,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 
 		// Target is close to winning the game? Double the value.
-		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition())
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && GetPlayer()->GetDiplomacyAI()->IsEndgameAggressive())
 		{
 			iItemValue *= 2;
 		}
@@ -4693,17 +4688,6 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Them, but them is us. Please send Anton your save file and version.");
 	
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
-	{
-		return;
-	}
-	
-	// Don't ask humans for third party war if AI is set to passive mode, that's weird
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eThem).isHuman())
-	{
-		return;
-	}
-	
 #if defined(MOD_BALANCE_CORE)
 	CvWeightedVector<int> viTradeValues;
 #endif
@@ -4797,17 +4781,6 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
-
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
-	{
-		return;
-	}
-	
-	// Don't offer humans third party war if AI is set to passive mode, that's weird
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eThem).isHuman())
-	{
-		return;
-	}
 	
 	if(!bDontChangeMyExistingItems)
 	{
@@ -7399,17 +7372,6 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		return false;
 	}
 	
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
-	{
-		return false;
-	}
-	
-	// Don't ask humans for war if AI is set to passive mode, that's weird
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eOtherPlayer).isHuman())
-	{
-		return false;
-	}
-	
 	// Don't ask humans' AI teammates
 	if (GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
 	{
@@ -7467,11 +7429,6 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	{
 		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
 		if (eAgainstPlayer == NO_PLAYER)
-		{
-			continue;
-		}
-		//Disallowed by game options
-		if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowed(eAgainstPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWarDisallowed(eAgainstPlayer))
 		{
 			continue;
 		}

@@ -677,18 +677,9 @@ public:
 	// Tech Dispute (for scientific civs)
 	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
 	
-	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
-	bool IsShowOpinionValues() const;
-	bool IsAlwaysShowTrueApproaches() const;
-	bool IsNoVictoryCompetition() const;
-	bool IsWarDisallowedHuman() const;
-	bool IsWarDisallowedGlobal() const;
-	bool IsWarDisallowed(PlayerTypes ePlayer) const;
-	bool IsNuclearGandhiEnabled() const;
-	
-	// Purely visual stuff
-	bool IsShowBaseOpinionScore() const;
-	bool IsHideNeutralOpinionValues() const;
+	// Diplomacy AI Options
+	bool IsCompetingForVictory() const;
+	bool IsEndgameAggressive() const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -1435,6 +1426,8 @@ public:
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
 	bool WasResurrectedThisTurnBy(PlayerTypes ePlayer) const;
 	void SetResurrectedBy(PlayerTypes ePlayer, bool bValue);
+	bool WasResurrectedByAnyone() const;
+	void SetResurrectedByAnyone(bool bValue);
 
 	int GetNumTimesCultureBombed(PlayerTypes ePlayer) const;
 	void SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue);
@@ -2088,6 +2081,7 @@ private:
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
+	bool m_bWasResurrected;
 
 	char m_eCSWarTarget;
 	char m_eCSBullyTarget;

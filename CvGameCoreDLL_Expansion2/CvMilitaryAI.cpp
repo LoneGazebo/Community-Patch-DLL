@@ -6181,13 +6181,13 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirUnits(CvPlayer* pPlayer, int iNumA
 /// "Need A Nuke" Player Strategy: If a player has no nukes but he could
 bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 {
-	if(GC.getGame().isNoNukes())
+	if (GC.getGame().isNoNukes())
 	{
 		return false;
 	}
 	
 #if defined(MOD_BALANCE_CORE)
-	if (pPlayer->GetDiplomacyAI()->IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+	if (GC.getGame().IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 	{
 		return true;
 	}

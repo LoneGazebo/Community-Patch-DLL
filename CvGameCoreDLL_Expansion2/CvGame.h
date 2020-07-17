@@ -327,6 +327,25 @@ public:
 
 	int GetDefaultFlavorValue() const;
 
+	// Diplomacy AI Options (configurable in DiploAIOptions.sql)
+	// Also consolidates some checks from various game options, for simplicity.
+	bool IsVictoryCompetitionEnabled() const;
+	bool IsEndgameAggressionEnabled() const;
+	bool IsNuclearGandhiEnabled() const;
+	bool IsShowAllOpinionModifiers() const;
+	bool IsShowAllOpinionValues() const;
+	bool IsShowBaseHumanOpinion() const;
+
+	// Advanced Options
+	bool IsAIPassiveMode() const;
+	bool IsAIPassiveTowardsHumans() const;
+	bool IsAIAggressiveMode() const;
+	bool IsAIAggressiveTowardsHumans() const;
+
+	// Debug Mode Options
+	bool IsDiploDebugModeEnabled() const;
+	bool IsAIMustAcceptHumanDiscussRequests() const;
+
 	UnitTypes getBestLandUnit();
 	int getBestLandUnitCombat();
 	void setBestLandUnit(UnitTypes eNewValue);

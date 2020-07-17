@@ -6295,7 +6295,221 @@ int CvGame::GetDefaultFlavorValue() const
 	return iDefaultFlavorValue;
 }
 
-//	-----------------------------------------------------------------------------------------------
+///	-----------------------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Diplomacy AI Options - Configurable in DiploAIOptions.sql
+/// Also consolidates some checks from various game options, for simplicity.
+
+/// Disable Victory Competition
+bool CvGame::IsVictoryCompetitionEnabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_VICTORY_COMPETITION() > 0)
+	{
+		return false;
+	}
+
+	// Victory competition automatically ends when someone wins the game.
+	if (IsGameWon())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/// Disable Endgame Aggression Boost
+bool CvGame::IsEndgameAggressionEnabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_ENDGAME_AGGRESSION() > 0)
+	{
+		return false;
+	}
+
+	// Automatically disabled if victory competition is disabled.
+	if (!IsVictoryCompetitionEnabled())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/// Enable Nuclear Gandhi
+/// NOTE: Only affects his extra personality changes, not his NUKE or USE_NUKE flavors.
+bool CvGame::IsNuclearGandhiEnabled() const
+{
+	if (isNoNukes())
+	{
+		return false;
+	}
+	
+	if (isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_ENABLE_NUCLEAR_GANDHI() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Show All Opinion Modifiers
+/// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
+bool CvGame::IsShowAllOpinionModifiers() const
+{
+	if (GC.getDIPLOAI_SHOW_ALL_OPINION_MODIFIERS() > 0)
+	{
+		return true;
+	}
+
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	{
+		return true;
+	}
+#endif
+
+	return false;
+}
+
+/// Show Opinion Values
+/// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
+bool CvGame::IsShowAllOpinionValues() const
+{
+	if (GC.getDIPLOAI_SHOW_ALL_OPINION_VALUES() > 0)
+	{
+		return true;
+	}
+
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	{
+		return true;
+	}
+#endif
+
+	return false;
+}
+
+/// Show Base Human Opinion
+/// CvDiplomacyAI::GetBaseOpinionScore()
+bool CvGame::IsShowBaseHumanOpinion() const
+{
+	if (GC.getDIPLOAI_SHOW_BASE_HUMAN_OPINION() > 0)
+	{
+		return true;
+	}
+
+	if (IsShowAllOpinionModifiers())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Passive Mode (towards all players)
+bool CvGame::IsAIPassiveMode() const
+{
+	if (GC.getDIPLOAI_PASSIVE_MODE_GLOBAL() > 0)
+	{
+		return true;
+	}
+
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Passive Mode (towards humans)
+bool CvGame::IsAIPassiveTowardsHumans() const
+{
+	if (GC.getDIPLOAI_PASSIVE_MODE_HUMANS() > 0)
+	{
+		return true;
+	}
+
+	if (IsAIPassiveMode())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Aggressive Mode (towards all players)
+bool CvGame::IsAIAggressiveMode() const
+{
+	if (IsAIPassiveMode())
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE_GLOBAL() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Aggressive Mode (towards humans)
+bool CvGame::IsAIAggressiveTowardsHumans() const
+{
+	if (IsAIPassiveTowardsHumans())
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE_HUMANS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Diplomacy AI Debug Mode
+/// Enables the debug mode
+bool CvGame::IsDiploDebugModeEnabled() const
+{
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Forces the AI to accept all Discuss requests from human players
+bool CvGame::IsAIMustAcceptHumanDiscussRequests() const
+{
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() == 2)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///	-----------------------------------------------------------------------------------------------
 UnitTypes CvGame::getBestLandUnit()
 {
 	return m_eBestLandUnit;

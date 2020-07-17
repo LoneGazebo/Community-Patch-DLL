@@ -1245,46 +1245,83 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	PlayerTypes eOriginatingPlayer = NO_PLAYER;
 #endif
 
-	if(eTeam == GetID())
+	if (eTeam == GetID())
 	{
 		return false;
 	}
 
-	if(!(isAlive()) || !(GET_TEAM(eTeam).isAlive()))
+	if (!(isAlive() && GET_TEAM(eTeam).isAlive()))
 	{
 		return false;
 	}
 
-	if(isAtWar(eTeam))
+	if (isAtWar(eTeam))
 	{
 		return false;
 	}
 
-	if(!isHasMet(eTeam))
+	if (!isHasMet(eTeam))
 	{
 		return false;
 	}
 
-	if(isForcePeace(eTeam))
+	if (isForcePeace(eTeam))
 	{
 		return false;
 	}
 
-	if(!canChangeWarPeace(eTeam))
+	if (!canChangeWarPeace(eTeam))
 	{
 		return false;
 	}
 
-	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
 	{
 		return false;
 	}
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
 		return false;
 	}
 #endif
+
+	// Blocked by Diplomacy AI options?
+	if (!GET_PLAYER(eOriginatingPlayer).isHuman())
+	{
+		if (GC.getGame().IsAIPassiveMode())
+		{
+			return false;
+		}
+		else if (GC.getGame().IsAIPassiveTowardsHumans())
+		{
+			if (GET_TEAM(eTeam).isHuman())
+			{
+				return false;
+			}
+			// Any human Defensive Pacts?
+			for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+			{
+				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+				if (GET_TEAM(eLoopTeam).isHuman())
+				{
+					if (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam))
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					// Human vassals or masters?
+					if (GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam))
+					{
+						return false;
+					}
+#endif
+				}
+			}
+		}
+	}
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
@@ -2927,16 +2964,12 @@ CvTeamTechs* CvTeam::GetTeamTechs() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isHuman() const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getTeam() == GetID())
 		{
-			if(GET_PLAYER((PlayerTypes)iI).isHuman())
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 

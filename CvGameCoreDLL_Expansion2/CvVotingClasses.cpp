@@ -12075,7 +12075,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Speaking of Gandhi, he's very nuke happy!
-		if (GetPlayer()->GetDiplomacyAI()->IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 		{
 			iScore += -5000;
 		}

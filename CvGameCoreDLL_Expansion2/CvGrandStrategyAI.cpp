@@ -466,8 +466,8 @@ int CvGrandStrategyAI::GetConquestPriority()
 		}
 	}
 	
-	// Human has disabled war as an option to win, so pick something else
-	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal() || GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman())
+	// Game options have disabled war as an option to win, so pick something else
+	if (GC.getGame().IsAIPassiveMode() || GC.getGame().IsAIPassiveTowardsHumans())
 	{
 		return -100;
 	}
