@@ -41695,7 +41695,7 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 	{
 		SetCiviliansReturnedToMeTurn(ePlayer, GC.getGame().getGameTurn());
 
-		if (!GC.getGame().IsAllDiploStatementsDisabled())
+		if (!GC.getGame().IsComplimentMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 		{
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
