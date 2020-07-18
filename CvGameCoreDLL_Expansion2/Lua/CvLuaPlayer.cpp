@@ -470,6 +470,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
 	Method(GetNumPoliciesInBranch);
+	Method(GetNumPoliciesInBranchForDisplay);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
@@ -6650,7 +6651,17 @@ int CvLuaPlayer::lGetNumPoliciesInBranch(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetNumPolicies();
+int CvLuaPlayer::lGetNumPoliciesInBranchForDisplay(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyBranchTypes eIndex = (PolicyBranchTypes)lua_tointeger(L, 2);
 
+	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwnedInBranchForDisplay(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool hasPolicy(PolicyTypes  iIndex);
 int CvLuaPlayer::lHasPolicy(lua_State* L)
@@ -13921,14 +13932,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = pDiploAI->GetPolicyScore(eWithPlayer);
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
-		aOpinions.push_back(kOpinion);
-	}
-	else if (iValue > 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+
+		if (pDiploAI->GetNumSamePolicies(eWithPlayer) > 0)
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
+		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+		}
+
 		aOpinions.push_back(kOpinion);
 	}
 	iValue = pDiploAI->GetPtPSameCSScore(eWithPlayer);

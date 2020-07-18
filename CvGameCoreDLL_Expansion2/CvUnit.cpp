@@ -1069,7 +1069,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
 	iXP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iXP /= 100;
-	if (iXP && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
+	if (iXP && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
@@ -1082,7 +1082,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	int iXPPercent = GC.getGame().getHandicapInfo().getAIFreeXPPercent();
 	iXPPercent *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iXPPercent /= 100;
-	if (iXPPercent && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
+	if (iXPPercent && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
 		changeExperiencePercent(iXPPercent);
 	}
@@ -21317,11 +21317,12 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			}
 		}
 
-		if(getExperiencePercent() != 0)
+		if (getExperiencePercent() != 0)
 		{
 #if defined(MOD_UNITS_XP_TIMES_100)
-			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 + getExperiencePercent()) / 100;
-			if (!MOD_UNITS_XP_TIMES_100) {
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
+			if (!MOD_UNITS_XP_TIMES_100) 
+			{
 				// If NOT using XP times 100, remove any fractional part
 				iUnitBonusXpTimes100 -= (iUnitBonusXpTimes100 % 100);
 			}
