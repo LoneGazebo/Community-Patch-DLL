@@ -3431,8 +3431,8 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			if (!pLoopCity || plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) > pLoopUnit->GetRange())
 				continue;
 
-			//don't nuke if we're about to capture it
-			if (pLoopCity->isInDangerOfFalling())
+			//don't nuke if we're about to capture it or if it was captured from us
+			if (pLoopCity->isInDangerOfFalling() || pLoopCity->getOriginalOwner()==m_eOwner)
 				continue;
 
 			CvPlot* pCityPlot = pLoopCity->plot();

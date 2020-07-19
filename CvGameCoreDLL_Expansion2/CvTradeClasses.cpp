@@ -123,6 +123,18 @@ bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const S
 	return false;
 }
 
+const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
+{
+	if (!pOriginCity)
+		return std::map<int, SPath>();
+
+	//make sure we're up to date
+	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+	UpdateTradePathCache(eOriginPlayer);
+
+	return bWater ? m_aPotentialTradePathsWater[pOriginCity->GetID()] : m_aPotentialTradePathsLand[pOriginCity->GetID()];
+}
+
 bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
 {
 	if (!pOriginCity || !pDestCity)

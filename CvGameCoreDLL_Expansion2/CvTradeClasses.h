@@ -198,6 +198,7 @@ public:
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
 	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
+	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(uint iOriginPlayer);
 	void InvalidateTradePathCache(uint iPlayer);

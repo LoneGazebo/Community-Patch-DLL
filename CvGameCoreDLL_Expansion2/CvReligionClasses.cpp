@@ -5278,6 +5278,8 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pLoopCity, m_pCity))
 					continue;
 
+				//it would be nice to use CvGameTrade::GetAllPotentialTradeRoutesFromCity() for each of our cities
+				//to save the loop over all players, but unfortunately we also need to check incoming trade routes
 				bool bConnectedWithTrade;
 				int iRelativeDistancePercent;
 				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))

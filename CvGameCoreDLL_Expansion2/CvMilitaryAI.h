@@ -264,6 +264,8 @@ public:
 	void ResetDistanceCaches();
 	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
 	bool IsPlayerValid(PlayerTypes eOtherPlayer);
+
+	vector<CvMilitaryTarget> GetBestTargetsGlobal(size_t nMaxTargets);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType, int iMaxTurnsAway);

@@ -472,13 +472,9 @@ int CvLuaPlot::lIsBlockaded(lua_State* L)
 int CvLuaPlot::lSetFeatureType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-
 	const int featureType = lua_tointeger(L, 2);
-	const int variety = luaL_optinteger(L, 3, -1);
 
-
-	pkPlot->setFeatureType((FeatureTypes)featureType, variety);
-
+	pkPlot->setFeatureType((FeatureTypes)featureType);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -1180,7 +1176,8 @@ int CvLuaPlot::lSetArea(lua_State* L)
 //int getFeatureVariety();
 int CvLuaPlot::lGetFeatureVariety(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getFeatureVariety);
+	lua_pushinteger(L, 0);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

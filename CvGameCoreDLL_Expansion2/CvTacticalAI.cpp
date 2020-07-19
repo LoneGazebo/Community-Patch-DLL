@@ -3664,7 +3664,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 				//now that the neighbor plots are revealed, maybe it's better to retreat?
 				CvPlot* pSafePlot = NULL;
-				if (!TacticalAIHelpers::IsEnemyCitadel(pUnit->plot(), m_pPlayer->GetID()))
+				if (!TacticalAIHelpers::IsEnemyCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
 				{
 					int iVal = pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT();
 					if (pUnit->IsGainsXPFromPillaging())
@@ -4119,7 +4119,10 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 		//civilians can stack ...
 		if (pUnit->IsCombatUnit())
+		{
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		}
 
 		CvPlot* pOldPlot = pUnit->plot();
 		ExecuteMoveToPlot(pUnit, pClosestUnit, true, iFlags);
@@ -7566,19 +7569,22 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	result.iSelfDamage = iDamageReceived;
 }
 
-bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
+bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar)
 {
-	if (!pPlot || ePlayer==NO_PLAYER)
+	if (!pPlot || ePlayer==NO_PLAYER || !pPlot->isOwned())
 		return false;
 
-	ImprovementTypes eImprovement = pPlot->getImprovementType();
-
 	// Citadel here?
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
-		int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() == 0)
+			return false;
 
-		return (iDamage != 0) && (pPlot->getOwner() != NO_PLAYER) && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner());
+		if (bCheckWar)
+			return GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner());
+		else
+			return true;
 	}
 	
 	return false;
@@ -7741,7 +7747,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 			if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
 			{
 				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-				if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer()))
+				if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(),true))
 				{
 					iMiscScore += 50;
 					if (movePlot.iMovesLeft > 0) //if we can do it right away ...
@@ -7909,7 +7915,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 		if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
 		{
 			//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-			if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer()))
+			if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(),true))
 			{
 				result.iScore  += 6;
 				if (movePlot.iMovesLeft > 0) //if we can do it right away ...
@@ -8192,7 +8198,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	}
 
 	//a slight boost for attacking the "real" target or a citadel
-	if (pEnemyPlot == assumedPosition.getTarget() || TacticalAIHelpers::IsEnemyCitadel(pEnemyPlot, assumedPosition.getPlayer()))
+	if (pEnemyPlot == assumedPosition.getTarget() || TacticalAIHelpers::IsEnemyCitadel(pEnemyPlot, assumedPosition.getPlayer(), true))
 		result.iScore += 3; 
 
 	//combo bonus
@@ -8521,7 +8527,7 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 				//if the neighbor is invisible but passable be careful as well, enemies might be hiding there
 				bEdgeOfTheKnownWorld |= !pNeighbor->isImpassable();
 
-			if (TacticalAIHelpers::IsEnemyCitadel(pNeighbor, currentPosition.getPlayer()))
+			if (TacticalAIHelpers::IsEnemyCitadel(pNeighbor, currentPosition.getPlayer(), true))
 				bAdjacentToEnemyCitadel = true;
 		}
 
@@ -9112,7 +9118,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 		//we won't attack them but we won't ignore them either
 		it->checkEdgePlotsForSurprises(*this,landEnemies,seaEnemies);
 
-		if (TacticalAIHelpers::IsEnemyCitadel(it->getPlot(), getPlayer()) && !plotHasAssignmentOfType(it->getPlotIndex(), A_PILLAGE))
+		if (TacticalAIHelpers::IsEnemyCitadel(it->getPlot(), getPlayer(), true) && !plotHasAssignmentOfType(it->getPlotIndex(), A_PILLAGE))
 			citadels.push_back(it->getPlotIndex());
 	}
 
@@ -9621,7 +9627,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	}
 	case A_PILLAGE:
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
-		if (TacticalAIHelpers::IsEnemyCitadel( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer()))
+		if (TacticalAIHelpers::IsEnemyCitadel( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer(), true))
 			refreshVolatilePlotProperties();
 		break;
 	case A_FINISH:

@@ -3072,8 +3072,8 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 
 	// it's a difference whether coast is cheaper or high seas are more expensive
 	// because it influences the normalized distance of the path!
-	if (pToPlot->isShallowWater())
-		iCost -= PATH_BASE_COST/3;
+	if (pToPlot->isDeepWater() && !pCacheData->m_bCanCrossOcean)
+		iCost += PATH_BASE_COST/3;
 
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();

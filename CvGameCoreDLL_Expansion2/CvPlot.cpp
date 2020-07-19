@@ -222,7 +222,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_iArea = -1;
 	m_iLandmass = -1;
-	m_iFeatureVariety = 0;
+	m_iDummy = 0;
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
@@ -245,7 +245,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bImprovementPillaged = false;
 	m_bRoutePillaged = false;
 	m_bBarbCampNotConverting = false;
-	m_bRoughFeature = false;
+	m_bHighMoveCost = false;
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
@@ -5209,14 +5209,6 @@ void CvPlot::setLandmass(int iNewValue)
 	}
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvPlot::getFeatureVariety() const
-{
-	return m_iFeatureVariety;
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvPlot::getOwnershipDuration() const
 {
@@ -6628,21 +6620,6 @@ bool CvPlot::isFlatlands() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsRoughFeature() const
-{
-	return m_bRoughFeature;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetRoughFeature(bool bValue)
-{
-	if(IsRoughFeature() != bValue)
-	{
-		m_bRoughFeature = bValue;
-	}
-}
-
-//	--------------------------------------------------------------------------------
 void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGraphics, bool bEraseUnitsIfWater)
 {
 	CvArea* pNewArea;
@@ -6962,7 +6939,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
+void CvPlot::setFeatureType(FeatureTypes eNewValue)
 {
 	FeatureTypes eOldFeature;
 	bool bUpdateSight;
@@ -6974,9 +6951,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 	eOldFeature = getFeatureType();
 
-	iVariety = 0;
-
-	if((eOldFeature != eNewValue) || (m_iFeatureVariety != iVariety))
+	if(eOldFeature != eNewValue)
 	{
 		if((eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
@@ -7064,14 +7039,6 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		{
 			updateSeeFromSight(true,true);
 		}
-		m_iFeatureVariety = iVariety;
-
-		// Rough feature?
-		bool bRough = false;
-		if(eNewValue != NO_FEATURE)
-			bRough = GC.getFeatureInfo(eNewValue)->IsRough();
-
-		SetRoughFeature(bRough);
 
 		if(eNewValue != NO_FEATURE)
 		{
@@ -12699,7 +12666,7 @@ void CvPlot::read(FDataStream& kStream)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
 
 	kStream >> m_iArea;
-	kStream >> m_iFeatureVariety;
+	kStream >> m_iDummy;
 	kStream >> m_iOwnershipDuration;
 	kStream >> m_iImprovementDuration;
 	kStream >> m_iUpgradeProgress;
@@ -12735,7 +12702,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> bitPackWorkaround;
 	m_bBarbCampNotConverting = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
-	m_bRoughFeature = bitPackWorkaround;
+	m_bHighMoveCost = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bResourceLinkedCityActive = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
@@ -12905,7 +12872,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iArea;
-	kStream << m_iFeatureVariety;
+	kStream << m_iDummy;
 	kStream << m_iOwnershipDuration;
 	kStream << m_iImprovementDuration;
 	kStream << m_iUpgradeProgress;
@@ -12927,7 +12894,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bImprovementPillaged;
 	kStream << m_bRoutePillaged;
 	kStream << m_bBarbCampNotConverting;
-	kStream << m_bRoughFeature;
+	kStream << m_bHighMoveCost;
 	kStream << m_bResourceLinkedCityActive;
 	kStream << m_bImprovedByGiftFromMajor;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -13910,6 +13877,9 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
+	//not really related but a good chance to update it
+	m_bHighMoveCost = false;
+
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
 	if (eTeam != NO_TEAM)
@@ -13949,7 +13919,13 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 								SetTeamImpassable((TeamTypes)i, false);
 						}
 					}
-				}	
+				}
+
+				//update the "rough plot" flag as well
+				int iMoveCost = pkTerrainInfo->getMovementCost();
+				if (isHills() || isMountain())
+					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
+				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
 			}
 		}
 		else
@@ -13981,6 +13957,12 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}	
+
+				//update the "rough plot" flag as well
+				int iMoveCost = pkFeatureInfo->getMovementCost();
+				if (isHills() || isMountain())
+					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
+				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
 			}
 		}
 	}

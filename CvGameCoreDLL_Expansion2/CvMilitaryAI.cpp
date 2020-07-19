@@ -1466,6 +1466,10 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 		//passing another city of our enemy? then we should attack that one first
 		if (pCity->getOwner()==eIntendedEnemy)
 			return false;
+
+		//seems we have a better muster plot?
+		if (pCity->getOwner() == m_pPlayer->GetID() && path.get(0)->getOwningCityID() != pCity->GetID())
+			return false;
 	}
 
 	return true;
@@ -2295,89 +2299,90 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pMusterCit
 		return ATTACK_APPROACH_NONE;
 
 	//should not happen ...
-	if (path.length()<3)
-		return ATTACK_APPROACH_NONE;
+	if (path.length()<4)
+		return ATTACK_APPROACH_NEUTRAL;
 
 	//a the plot around which we ideally want to position our units
-	CvPlot* pStagingPlot = path.get(path.length() - 3);
+	//the city plot counts, so this is three plots before the city
+	//we will look at all plots between staging and target
+	CvPlot* pStagingPlot = path.get(path.length() - 4);
+	CvPlot* pTargetPlot = pTargetCity->plot();
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
-	int iNumPlots = 0;
-	int iNumBlocked = 0;
-	int iNumTough = 0;
-	int iMaxRing = 3; //at most 5
-	
-	for (int iRing = 1; iRing <= iMaxRing; iRing++)
+	int nGoodPlots = 0;
+	int nUsablePlots = 0;
+
+	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 	{
-		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pTargetCity->plot(),i);
-			if(pLoopPlot == NULL)
+		bool bIsGood = false;
+		CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot,i);
+		if (pLoopPlot == NULL)
+			continue;
+
+		//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
+		if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),false) || pLoopPlot->isCity())
+			continue;
+
+		//ignore plots owned by third parties
+		if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pTargetCity->getTeam())
+			if (!GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(pLoopPlot->getTeam()))
 				continue;
 
-			//inner rings count more
-			int iWeight = 1 + iMaxRing - iRing;
+		//ignore plots outside of the zone
+		int iStagingDistance = plotDistance(*pStagingPlot, *pLoopPlot);
+		int iTargetDistance = plotDistance(*pTargetPlot, *pLoopPlot);
+		if (iTargetDistance > 3 || iStagingDistance > 3)
+			continue;
 
-			bool bBlocked = false;
-			bool bTough = false;
+		//correct area?
+		if (!pTargetCity->isMatchingArea(pLoopPlot))
+			continue;
 
-			//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
-			if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),false) || pLoopPlot->isCity())
-				bBlocked = true;
+		if (bAttackByLand && !bAttackBySea)
+			//siege weapons cannot set up here
+			if (pLoopPlot->isWater())
+				continue;
 
-			//careful with plots which are "behind" the city if it's a foreign city
-			if (m_pPlayer->GetID() != pTargetCity->getOwner() && plotDistance(*pStagingPlot,*pLoopPlot) > iMaxRing)
-				bTough = true;
+		if (bAttackBySea && !bAttackByLand)
+			//ships cannot go here
+			if (!pLoopPlot->isWater())
+				continue;
 
-			//ignore plots owned by third parties
-			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pTargetCity->getTeam())
-				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
+		//enemy citadels are dangerous, pretend we cannot use those plots
+		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, m_pPlayer->GetID(),false))
+			continue;
 
-			//makes us slow
-			if(	pLoopPlot->isRoughGround() )
-				bTough = true;
+		//for naval invasions we need lots of coastal plots
+		if (bAttackBySea && bAttackByLand)
+			if (!pLoopPlot->isCoastalLand())
+				bIsGood = true;
 
-			//correct area?
-			if ( !pTargetCity->isMatchingArea(pLoopPlot) )
-				bBlocked = true;
+		//makes us slow
+		if(!pLoopPlot->isRoughGround())
+			bIsGood = true;
 
-			if (bAttackByLand && !bAttackBySea)
-				//siege weapons cannot set up here
-				if (pLoopPlot->isWater())
-					bBlocked = true;
+		//we want to have plots for our siege units
+		if (iTargetDistance == 2 && !pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION))
+			bIsGood = true;
 
-			if (bAttackBySea && !bAttackByLand)
-				//ships cannot go here
-				if (!pLoopPlot->isWater())
-					bBlocked = true;
-
-			//Invasion logic slightly different - we need lots of coastal plots.
-			if (bAttackBySea && bAttackByLand)
-				if (!pLoopPlot->isCoastalLand() && !pLoopPlot->isShallowWater())
-					bTough = true;
-
-			//todo: what about air attack?
-			iNumPlots+=iWeight;
-
-			if (bBlocked)
-				iNumBlocked+=iWeight;
-			else if (bTough)
-				iNumTough+=iWeight;
-		}
+		if (bIsGood)
+			nGoodPlots++;
+		else
+			nUsablePlots++;
 	}
 
-	//with weighting, maximum score for 3 rings is 6*3 + 12*2 + 18 = 60
-	int iFree = iNumPlots - iNumBlocked - iNumTough/2;
+	//we have 15 eligible plots, so max score is 30
+	int iScore = nGoodPlots * 2 + nUsablePlots;
 
-	if (iFree > 27)
+	if (iScore > 25)
 		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-	else if (iFree > 17)
+	else if (iScore > 20)
 		eRtnValue = ATTACK_APPROACH_OPEN;
-	else if (iFree > 11)
+	else if (iScore > 15)
 		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-	else if (iFree > 7)
+	else if (iScore > 10)
 		eRtnValue = ATTACK_APPROACH_LIMITED;
-	else if (iFree > 3)
+	else if (iScore > 5)
 		eRtnValue = ATTACK_APPROACH_RESTRICTED;
 	else
 		eRtnValue = ATTACK_APPROACH_NONE;
@@ -2386,7 +2391,8 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pMusterCit
 	{
 		const char* approachName[] = { "none", "restricted", "limited", "neutral", "open", "unrestricted" };
 		const char* mode = bAttackBySea ? (bAttackByLand ? "combined" : "naval") : (bAttackByLand ? "land" : "invalid");
-		OutputDebugString(CvString::format("%s attack approach on %s is %s for %s (score %d)\n", mode, pTargetCity->getNameKey(), approachName[eRtnValue], m_pPlayer->getNameKey(), iFree).c_str());
+		OutputDebugString(CvString::format("%s attack approach on %s from %s is %s. staging at (%d:%d), good %d, ok %d\n", 
+			mode, pTargetCity->getNameKey(), pMusterCity->getNameKey(), approachName[eRtnValue], pStagingPlot->getX(), pStagingPlot->getY(), nGoodPlots, nUsablePlots).c_str());
 	}
 
 	return eRtnValue;

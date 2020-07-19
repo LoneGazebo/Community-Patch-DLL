@@ -371,8 +371,6 @@ public:
 	}
 	void setLandmass(int iNewValue);
 
-	int getFeatureVariety() const;
-
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;
 	void setOwnershipDuration(int iNewValue);
@@ -467,9 +465,7 @@ public:
 	};
 	bool isOpenGround()     const
 	{
-		if( isHills() || isMountain() || m_bRoughFeature) 
-			return false;
-		return true;
+		return !isRoughGround();
 	}
 	bool isMountain()       const
 	{
@@ -550,21 +546,13 @@ public:
 
 	bool isRoughGround() const
 	{
-		if(isHills() || isMountain())
-			return true;
-
-		return m_bRoughFeature;
+		return m_bHighMoveCost;
 	}
 
 	bool isFlatlands() const;
 	void setPlotType(PlotTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true, bool bEraseUnitsIfWater = true);
-
-	bool IsRoughFeature() const;
-	void SetRoughFeature(bool bValue);
-
 	void setTerrainType(TerrainTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true);
-
-	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);
+	void setFeatureType(FeatureTypes eNewValue);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 	bool IsNaturalWonder(bool orPseudoNatural = true) const;
 #else
@@ -1092,7 +1080,7 @@ protected:
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSEFlowDirection; // flow direction on the SE edge (isNWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSWFlowDirection; // flow direction on the SW edge (isNEofRiver)
-	char m_iFeatureVariety;
+	char m_iDummy; //unused
 	char m_iNumMajorCivsRevealed;
 	char m_iCityRadiusCount;
 	char m_iReconCount;
@@ -1116,7 +1104,7 @@ protected:
 	bool m_bPlotLayoutDirty:1;
 	bool m_bLayoutStateWorked:1;
 	bool m_bBarbCampNotConverting:1;
-	bool m_bRoughFeature:1;
+	bool m_bHighMoveCost:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsImpassable:1;
