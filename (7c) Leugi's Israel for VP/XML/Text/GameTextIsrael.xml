@@ -229,7 +229,7 @@
 			<Text>Kibbutz</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KIBBUTZ_HELP">
-			<Text>Only Israel may build it. May only be built on farms and never adjacent to another Kibbutz. +1 [ICON_FOOD] Food to adjacent Farms and +2 [ICON_PRODUCTION] Production to adjacent Great Person Improvements.</Text>
+			<Text>Only Israel may build it. May only be built on farms and never adjacent to another Kibbutz. +1 [ICON_PRODUCTION] Production to adjacent Farms and Great Person Tile Improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KIBBUTZ_TEXT">
 			<Text>A kibbutz is a collective community in Israel that was traditionally based on agriculture. The first kibbutz, Degania, was established in 1909 by predominantly Russian and Eastern European Jewish farmers. Kibbutzim began as an outgrowth of the Bilu movement, a combination of socialism and Zionism set on the agricultural settlement of the Land of Israel in reaction to the Russian Jewish Pogroms.[NEWLINE][NEWLINE]Today, farming has been partly supplanted by other economies, including industrial plants and high-tech enterprises. In recent decades, some kibbutzim have been privatized and changes have been made in the communal lifestyle. There were 270 kibbutzim in Israel as of 2010; their factories and farms account for 9% of Israel’s industrial, and 40% of its agricultural output, worth over 9.7 billion USD. Some Kibbutzim have developed high-tech and military industries, including military plastics and ammunition.</Text>
@@ -238,7 +238,7 @@
 			<Text>Establish a [LINK=IMPROVEMENT_KIBBUTZ]Kibbutz[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KIBBUTZ_HELP">
-			<Text>Only Israel may build it. May only be built on farms and never adjacent to another Kibbutz. Provides Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. [NEWLINE]+1 [ICON_PRODUCTION] Production to adjacent Farms and +2 [ICON_PRODUCTION] Production to adjacent Great Person Improvements.</Text>
+			<Text>Only Israel may build it. May only be built on farms and never adjacent to another Kibbutz. Provides Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. [NEWLINE]+1 [ICON_PRODUCTION] Production to adjacent Farms and Great Person Tile Improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KIBBUTZ_REC">
 			<Text>Establishing a Kibbutz will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science and [ICON_CULTURE] Culture!</Text>

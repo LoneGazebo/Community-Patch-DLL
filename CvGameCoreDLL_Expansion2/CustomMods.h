@@ -74,6 +74,9 @@
 /// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
 //#define MOD_CORE_TWO_PASS_DANGER
 
+/// define this if you need hovercraft support, but it costs performance
+//#define MOD_CORE_HOVERING_UNITS
+
 /// unrevealed plots are impassable instead of passable by default
 #define MOD_CORE_UNREVEALED_IMPASSABLE
 
@@ -185,11 +188,6 @@
 #define MOD_GLOBAL_EARLY_COOP_WAR_LOCK				gCustomMods.isGLOBAL_EARLY_COOP_WAR_LOCK()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
-// This is the "No More Civilian Traffic Jams (NMCTJs) Mod" by Pazyryk - see http://forums.civfanatics.com/showthread.php?t=519754 (v45)
-#define MOD_GLOBAL_BREAK_CIVILIAN_1UPT              gCustomMods.isGLOBAL_BREAK_CIVILIAN_1UPT()
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-#define MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS     (MOD_GLOBAL_BREAK_CIVILIAN_1UPT && gCustomMods.isGLOBAL_BREAK_CIVILIAN_RESTRICTIONS())
-#endif
 // Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
 #define MOD_GLOBAL_LOCAL_GENERALS                   gCustomMods.isGLOBAL_LOCAL_GENERALS()
 // Separates out the repair fleet and change port abilities of the Great Admiral (v61)
@@ -331,7 +329,6 @@
 #define MOD_BALANCE_CORE_FOLLOWER_POP_WONDER		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_FOLLOWER_POP_WONDER())
 #define MOD_BALANCE_CORE_POLICIES					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_POLICIES())
 #define MOD_BALANCE_CORE_BARBARIAN_THEFT			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BARBARIAN_THEFT())
-#define MOD_BALANCE_CORE_SETTLER_MOVE				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SETTLER_MOVE())
 #define MOD_BALANCE_CORE_RESOURCE_FLAVORS			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_RESOURCE_FLAVORS())
 #define MOD_BALANCE_CORE_PURCHASE_COST_INCREASE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PURCHASE_COST_INCREASE())
 #define MOD_BALANCE_CORE_PUPPET_PURCHASE			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PUPPET_PURCHASE())
@@ -434,6 +431,10 @@
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
 #define MOD_POLICIES_CITY_AUTOMATON_WORKERS         gCustomMods.isPOLICIES_CITY_AUTOMATON_WORKERS()
+
+// If defined city yields can be influenced by the presence of units with special abilities
+// This is a performance hit, so it's disabled by default
+//#define MOD_YIELD_MODIFIER_FROM_UNITS
 
 // Restricts a Team from passing into the next era before they have found all techs of their current era
 #define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
@@ -1486,7 +1487,6 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_FOLLOWER_POP_WONDER);
 	MOD_OPT_DECL(BALANCE_CORE_POLICIES);
 	MOD_OPT_DECL(BALANCE_CORE_BARBARIAN_THEFT);
-	MOD_OPT_DECL(BALANCE_CORE_SETTLER_MOVE);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_FLAVORS);
 	MOD_OPT_DECL(BALANCE_CORE_PURCHASE_COST_INCREASE);
 	MOD_OPT_DECL(BALANCE_CORE_PUPPET_PURCHASE);

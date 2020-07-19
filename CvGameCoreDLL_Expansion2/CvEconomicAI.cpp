@@ -3886,17 +3886,14 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 }
 
 /// "Found City" Player Strategy: If there is a settler who isn't in an operation?  If so, find him a city site
-// Very dependent on the fact that the player probably won't have more than 2 settlers available at a time; needs an
-//   upgrade if that assumption is no longer true
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 #else
-bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStrategy*/, CvPlayer* pPlayer)
-{
+	eStrategy;
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
 		return false;
 #endif

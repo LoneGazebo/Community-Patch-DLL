@@ -483,6 +483,8 @@ public:
 	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
+	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive);
+	bool IsCityConnectionPlot(const CvPlot* pPlot) const;
 
 	// Culture
 	int GetTotalJONSCulturePerTurn() const;
@@ -1694,6 +1696,7 @@ public:
 	void changeConversionTimer(int iChange);
 
 	CvCity* getCapitalCity() const;
+	int getCapitalCityID() const;
 	void setCapitalCity(CvCity* pNewCapitalCity);
 
 	int GetOriginalCapitalX() const;
@@ -1789,13 +1792,11 @@ public:
 	uint getTotalTimePlayed() const;
 
 	bool isMinorCiv() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	bool IsVassalOfSomeone() const;
 	int GetNumVassals() const;
-#endif
+
 	int GetNumValidMajorsMet(bool bJustMetBuffer) const;
 	bool HasMetValidMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
@@ -2197,6 +2198,10 @@ public:
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
 	int GetMonopolyPercent(ResourceTypes eResource) const;
+	//cache these because we need them a lot
+	int GetCombatAttackBonusFromMonopolies() const;
+	int GetCombatDefenseBonusFromMonopolies() const;
+	void UpdateMonopolyCache();
 
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
@@ -3007,11 +3012,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
-
-	//FAutoVariable<int, CvPlayer> m_iCultureAverage;
-//	FAutoVariable<int, CvPlayer> m_iScienceAverage;
-//	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
-//	FAutoVariable<int, CvPlayer> m_iGoldAverage;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3041,7 +3041,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iVassalCSBonusModifier;		
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
-	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
+	FAutoVariable<int, CvPlayer> m_iDummy;  //unused
 	FAutoVariable<int, CvPlayer> m_iWoundedUnitDamageMod;
 	FAutoVariable<int, CvPlayer> m_iUnitUpgradeCostMod;
 	FAutoVariable<int, CvPlayer> m_iBarbarianCombatBonus;
@@ -3585,6 +3585,8 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
+	int m_iCombatAttackBonusFromMonopolies;
+	int m_iCombatDefenseBonusFromMonopolies;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
@@ -3614,15 +3616,12 @@ protected:
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
-	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
-
-	// Obsolete: only used to read old saves
-	FAutoVariable< std::vector< Firaxis::Array< int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiBuildingClassYieldMod;
 
 	CvUnitCycler	m_UnitCycle;	
 
@@ -3783,6 +3782,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMilitaryLandMight;
 #endif
 
+	std::vector<int> m_vCityConnectionPlots; //serialized
 };
 
 bool CancelActivePlayerEndTurn();

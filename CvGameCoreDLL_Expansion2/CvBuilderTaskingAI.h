@@ -75,7 +75,6 @@ public:
 	void UpdateRoutePlots(void);
 
 	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
-	int FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const; // returns -1 if no path can be found, otherwise it returns the # of turns to get there
 	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
 
 	void AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway);
@@ -94,6 +93,8 @@ public:
 
 	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
+	bool WantRouteAtPlot(const CvPlot* pPlot) const;
+	bool NeedRouteAtPlot(const CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
@@ -121,10 +122,17 @@ protected:
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
+	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	int GetRouteValue(CvPlot* pPlot);
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
 	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
+
+	//plotindex,type,value
+	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
+	RoutePlotContainer m_routeWantedPlots; //serialized
+	RoutePlotContainer m_routeNeededPlots; //serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
@@ -135,6 +143,7 @@ protected:
 	BuildTypes m_eFalloutRemove;
 	BuildTypes m_eRemoveRouteBuild;
 	BuildTypes m_eRouteBuild;
+
 	//some player dependent flags for unique improvements
 	bool m_bKeepMarshes;
 	bool m_bKeepJungle;

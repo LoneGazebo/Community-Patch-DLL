@@ -1220,6 +1220,9 @@ public:
 	int GetBuildingProductionModifier() const;
 	void ChangeBuildingProductionModifier(int iChange);
 
+	int GetBuildingProductionModifierPotentialFromMinorTrade() const;
+	void ChangeBuildingProductionModifierPotentialFromMinorTrade(int iChange);
+
 	int GetBuildingDefense() const;
 	void ChangeBuildingDefense(int iChange);
 	int GetBuildingDefenseMod() const;
@@ -1240,6 +1243,7 @@ private:
 
 	int m_iNumBuildings;
 	int m_iBuildingProductionModifier;
+	int m_iBuildingProductionModifierPotentialFromMinorTrade;
 	int m_iBuildingDefense;
 	int m_iBuildingDefenseMod;
 	int m_iMissionaryExtraSpreads;

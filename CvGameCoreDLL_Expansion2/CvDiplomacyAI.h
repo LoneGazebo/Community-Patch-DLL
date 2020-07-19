@@ -59,8 +59,8 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
-	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
 #if !defined(MOD_ACTIVE_DIPLOMACY)
+	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
 	enum DiplomacyPlayerType
 	{
 		DIPLO_FIRST_PLAYER		=  0,
@@ -78,6 +78,10 @@ public:
 		int iGoldAmount;
 	};
 
+	// ************************************
+	// Initialization & Serialization
+	// ************************************
+
 	CvDiplomacyAI(void);
 	~CvDiplomacyAI(void);
 	void Init(CvPlayer* pPlayer);
@@ -85,7 +89,6 @@ public:
 	void Reset();
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
-
 	void update();
 
 	// ************************************
@@ -101,7 +104,9 @@ public:
 	// ************************************
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
+	int GetNumValidMajorCivs() const;
 	vector<PlayerTypes> GetAllValidMajorCivs() const;
+
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsTeammate(PlayerTypes eOtherPlayer) const;
@@ -109,18 +114,16 @@ public:
 	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
 	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
 	bool IsHasEmbassy(PlayerTypes eOtherPlayer) const;
-	bool HavePermissionToCrossBorders(PlayerTypes eOtherPlayer) const;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsHasOpenBorders(PlayerTypes eOtherPlayer) const;
 	bool IsVassal(PlayerTypes eOtherPlayer) const;
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
-#endif
 
 	// ************************************
 	// Personality Values
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue);
+	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality();
 	void DoInitializeDiploPersonalityType();
 
@@ -148,6 +151,32 @@ public:
 	bool IsCultural() const;
 	bool IsScientist() const;
 
+	// Estimations of other players' tendencies
+	int GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerBoldness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerNeediness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerChattiness(PlayerTypes ePlayer) const;
+	int GetEstimatePlayerMeanness(PlayerTypes ePlayer) const;	
+	int GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
+	int GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, MinorCivApproachTypes eApproach) const;
+	int GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const;
+	int GetDifferenceFromAverageFlavorValue(int iValue) const;
+
+	// ************************************
+	// Memory Management
+	// ************************************
+
+
+
+
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
 	/////////////////////////////////////////////////////////
@@ -168,22 +197,22 @@ public:
 	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
 
 	// Our guess as to another player's opinion towards us
-	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
 	//void DoUpdateOpinionTowardsUsGuesses();
 	void DoEstimateOtherPlayerOpinions();
 
-	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivOpinionTypes ePlayerOpinion);
+	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivOpinionTypes eOpinion);
 
 	/////////////////////////////////////////////////////////
 	// Approach
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate);
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches);
+	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bBetweenTurnsUpdate = true);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bBetweenTurnsUpdate = true);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
@@ -204,13 +233,12 @@ public:
 	void DoUpdateMinorCivApproaches();
 	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog);
 
-	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes ePlayer) const;
-	void SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach);
+	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes eMinor) const;
+	void SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
 	int GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const;
 
-	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsWantToRouteConnectToMinor(PlayerTypes eMinor);
-
+	void SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant);
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
@@ -224,12 +252,12 @@ public:
 	void DoUpdateApproachTowardsUsGuesses();
 	void DoEstimateOtherPlayerApproaches();
 
-	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
+	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivApproachTypes eApproach);
 	
-	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iValue);
-	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iChange);
+	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iValue);
+	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Demands
@@ -278,8 +306,6 @@ public:
 	void DoMakePeaceWithVassals();
 #endif
 	void DoUpdatePeaceTreatyWillingness();
-
-	bool IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer);
 
 	// What are we willing to give up to ePlayer to make peace?
 	PeaceTreatyTypes GetTreatyWillingToOffer(PlayerTypes ePlayer) const;
@@ -338,6 +364,8 @@ public:
 	void DoUpdateWarProjections();
 
 	int GetHighestWarscore(bool bOnlyCurrentWars = true);
+	PlayerTypes GetHighestWarscorePlayer(bool bOnlyCurrentWars = true);
+
 	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug = false);
 
 	// War Goal: What is is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
@@ -346,9 +374,7 @@ public:
 	void DoUpdateWarGoals();
 
 	// Num Turns At War
-#if defined(MOD_API_EXTENSIONS)
 	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
-#endif
 	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
@@ -358,6 +384,7 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
+	bool HasVisibilityOfEnemyCityDanger(CvCity* pCity) const;
 
 	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
@@ -380,13 +407,11 @@ public:
 	StrengthTypes GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength);
 	void DoUpdatePlayerMilitaryStrengths();
-	void DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer);
 
 	// Economic Strength: How strong is ePlayer compared to US?
 	StrengthTypes GetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eEconomicStrength);
 	void DoUpdatePlayerEconomicStrengths();
-	void DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer);
 
 	// Target Value: how easy or hard of a target would ePlayer be to attack?
 	TargetValueTypes GetPlayerTargetValue(PlayerTypes ePlayer) const;
@@ -402,22 +427,20 @@ public:
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 	void SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel);
-	void DoUpdateWarDamageLevel();
-#if defined(MOD_BALANCE_CORE)
+	void DoUpdateWarDamageLevels();
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-#endif
 	void DoWarDamageDecay();
 
 	// War Value Lost: the int value of damage ePlayer has inflicted on us in war
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
-	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange, bool bNoRatingChange = false);
+	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
 
 	// Other Player War Damage Level: how much damage we've inflicted UPON ePlayer
 	WarDamageLevelTypes GetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const;
 	void SetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, WarDamageLevelTypes eDamageLevel);
-	void DoUpdateOtherPlayerWarDamageLevel();
+	void DoUpdateOtherPlayerWarDamageLevels();
 
 	// Other Player War Value Lost: the int value of damage we've inflicted UPON ePlayer in war
 	int GetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const;
@@ -481,15 +504,12 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer) const;
+	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
 	
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
 	
 	int GetNumDoFsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
-	
-	void DoAddWantsDoFWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer);
 	
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 
@@ -498,8 +518,6 @@ public:
 
 	int GetNumDefensivePactsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 
-	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
 
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
@@ -535,9 +553,6 @@ public:
 	int GetIgnoredBorderPromiseValue(PlayerTypes ePlayer);
 	void SetIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iValue);
 	void ChangeIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iChange);
-
-	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
-	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
 
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer) const;
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
@@ -662,18 +677,9 @@ public:
 	// Tech Dispute (for scientific civs)
 	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
 	
-	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
-	bool IsShowOpinionValues() const;
-	bool IsAlwaysShowTrueApproaches() const;
-	bool IsNoVictoryCompetition() const;
-	bool IsWarDisallowedHuman() const;
-	bool IsWarDisallowedGlobal() const;
-	bool IsWarDisallowed(PlayerTypes ePlayer) const;
-	bool IsNuclearGandhiEnabled() const;
-	
-	// Purely visual stuff
-	bool IsShowBaseOpinionScore() const;
-	bool IsHideNeutralOpinionValues() const;
+	// Diplomacy AI Options
+	bool IsCompetingForVictory() const;
+	bool IsEndgameAggressive() const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -743,7 +749,6 @@ public:
 	void SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
@@ -755,16 +760,11 @@ public:
 	int GetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
-#endif
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
 	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iValue);
-#if defined(MOD_API_EXTENSIONS)
 	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
-#else
-	void ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iChange);
-#endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -1030,7 +1030,7 @@ public:
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 	
 	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
-	bool WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const;
+	bool WasOurTeamEverBackstabbedBy(PlayerTypes ePlayer) const;
 	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
 	
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
@@ -1384,12 +1384,12 @@ public:
 	void SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const;
-	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
 	void SetNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iValue);
+	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
 
 	int GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const;
-	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
 	void SetNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iValue);
+	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
 	int GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const;
@@ -1426,51 +1426,50 @@ public:
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
 	bool WasResurrectedThisTurnBy(PlayerTypes ePlayer) const;
 	void SetResurrectedBy(PlayerTypes ePlayer, bool bValue);
+	bool WasResurrectedByAnyone() const;
 
 	int GetNumTimesCultureBombed(PlayerTypes ePlayer) const;
-	void ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange);
 
 	int GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const;
-	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
 	void SetNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iValue);
+	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
 
 	int GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const;
-	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 	void SetNegativeArchaeologyPoints(PlayerTypes ePlayer, int iValue);
+	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	bool HasPlayerEverConvertedCity(PlayerTypes ePlayer) const;
 	void SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue);
 	
 	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
-	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
+	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 
 	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
-	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
-	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesRazed(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
-	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
 	void SetNumTradeRoutesPlundered(PlayerTypes ePlayer, int iValue);
-#endif
+	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesNuked(PlayerTypes ePlayer) const;
-	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesNuked(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesRobbedBy(PlayerTypes ePlayer) const;
-	void ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesRobbedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange);
 
 	int GetNumTimesIntrigueSharedBy(PlayerTypes ePlayer) const;
-	void ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange);
 	void SetNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Opinion modifiers
@@ -1885,7 +1884,6 @@ private:
 		short m_aiBrokenBorderPromiseValue[MAX_MAJOR_CIVS];
 		short m_aiIgnoredBorderPromiseValue[MAX_MAJOR_CIVS];
 
-		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
 		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
 		bool m_abPlayerCapturedCapital[MAX_MAJOR_CIVS];
 		bool m_abPlayerCapturedHolyCity[MAX_MAJOR_CIVS];
@@ -1954,15 +1952,11 @@ private:
 		char m_aiOtherPlayerNumMinorsConquered[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
+		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 
-#if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
 		char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
-		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
-#else
-		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
-#endif
 
 		short m_aiOtherPlayerTurnsSinceWeLikedTheirProposal[MAX_MAJOR_CIVS];
 		short m_aiOtherPlayerTurnsSinceWeDislikedTheirProposal[MAX_MAJOR_CIVS];
@@ -2229,7 +2223,6 @@ private:
 	short* m_paiIgnoredExpansionPromiseValue;
 	short* m_paiBrokenBorderPromiseValue;
 	short* m_paiIgnoredBorderPromiseValue;
-	short* m_paiDeclaredWarOnFriendValue;
 	short* m_paiTradeValue;
 	short* m_paiCommonFoeValue;
 	short* m_paiAssistValue;
@@ -2334,14 +2327,11 @@ private:
 	char* m_paiOtherPlayerNumMinorsConquered;
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
-#if defined(MOD_API_EXTENSIONS)
+	int* m_paiOtherPlayerWarmongerAmountTimes100;
+
 	char* m_paiTheyPlottedAgainstUs;
 	char* m_paiTheyLoweredOurInfluence;
 	char* m_paiPerformedCoupAgainstUs;
-	int*  m_paiOtherPlayerWarmongerAmountTimes100;
-#else
-	int*  m_paiOtherPlayerWarmongerAmount;
-#endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;
 	short* m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal;
@@ -2375,17 +2365,11 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
-#if defined(MOD_CONFIG_AI_IN_XML)
 	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
 	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
-#else
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
-#endif
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

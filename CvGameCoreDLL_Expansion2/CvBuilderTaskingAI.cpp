@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -168,6 +168,9 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
+
+	kStream >> m_routeNeededPlots;
+	kStream >> m_routeWantedPlots;
 }
 
 /// Serialization write
@@ -177,6 +180,9 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	uint uiVersion = 2;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
+
+	kStream << m_routeNeededPlots;
+	kStream << m_routeWantedPlots;
 }
 
 /// Update
@@ -429,11 +435,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 				continue;
 		}
 
-		// mark nodes and reset values
-		pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
-		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue(iValue);
-		pPlot->SetBuilderAIScratchPadRoute(eRoute);
+		//remember it
+		AddRoutePlot(pPlot, eRoute, iValue);
 	}
 }
 
@@ -460,7 +463,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
 	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
-		int iGameTurn = GC.getGame().getGameTurn();
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
 			CvPlot* pPlot = newPath.get(i);
@@ -473,23 +475,60 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 				continue;
 
-			// mark nodes and reset values
-			pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
-			pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-			pPlot->SetBuilderAIScratchPadValue(10);
-			pPlot->SetBuilderAIScratchPadRoute(eRoute);
+			//remember it
+			AddRoutePlot(pPlot, eRoute, 10);
 		}
 	}
 }
 
 //helper function. don't panic if a a plot isn't marked for a short time
-bool WantRoute(CvPlot* pPlot, PlayerTypes ePlayer, int iMaxAge)
+bool CvBuilderTaskingAI::WantRouteAtPlot(const CvPlot* pPlot) const
 {
-	return (pPlot->GetBuilderAIScratchPadTurn() >= (GC.getGame().getGameTurn() - iMaxAge) && 
-		pPlot->GetBuilderAIScratchPadPlayer() == ePlayer &&
-		pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE
-		);
+	if (!pPlot)
+		return false;
+
+	RoutePlotContainer::const_iterator it = m_routeWantedPlots.find(pPlot->GetPlotIndex());
+	return (it != m_routeWantedPlots.end());
 }
+
+bool CvBuilderTaskingAI::NeedRouteAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+	return (it != m_routeNeededPlots.end());
+}
+
+void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
+{
+	if (!pPlot)
+		return;
+
+	// if we already know about this plot, continue on
+	if(WantRouteAtPlot(pPlot) || NeedRouteAtPlot(pPlot))
+		return;
+
+	//if it is the right route, add to needed plots
+	if (pPlot->getRouteType() == eRoute)
+		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+	else
+		//if no matching route, add to wanted plots
+		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+}
+
+int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
+{
+	if (!pPlot)
+		return false;
+
+	RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeNeededPlots.end())
+		return it->second.second;
+	else
+		return -1;
+}
+
 
 void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute)
 {
@@ -519,15 +558,8 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		if(pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
 			continue;
 
-		// if we already know about this plot, continue on
-		if(WantRoute(pPlot,m_pPlayer->GetID(),1))
-			continue;
-
-		// mark nodes and reset values
-		pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
-		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue( pPlot->IsAdjacentToRoute() ? 150 : 100);
-		pPlot->SetBuilderAIScratchPadRoute(eRoute);
+		//remember it
+		AddRoutePlot(pPlot, eRoute, pPlot->IsAdjacentToRoute() ? 150 : 100);
 	}
 }
 
@@ -565,9 +597,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (pPlot->getOwner() != m_pPlayer->GetID())
 			break;
 
-		//we set this to keep the route alive.
-		pPlot->SetStrategicRoute(m_pPlayer->getTeam(), true);
-
 		//and this to see if we actually build it
 		if (bTooExpensive)
 			continue;
@@ -575,15 +604,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
 			continue;
 
-		// if we already know about this plot, continue on
-		if(WantRoute(pPlot,m_pPlayer->GetID(),1))
-			continue;
-
-		// mark nodes and reset values
-		pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
-		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue(10);
-		pPlot->SetBuilderAIScratchPadRoute(eRoute);
+		// remember the plot
+		AddRoutePlot(pPlot, eRoute, 10);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -605,13 +627,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
-	//reset this each turn, as our improvements may change
-	for (PlotIndexContainer::const_iterator it = m_pPlayer->GetPlots().begin(); it != m_pPlayer->GetPlots().end(); ++it)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		pPlot->SetStrategicRoute(m_pPlayer->getTeam(), false);
-	}
-
 	// find a builder, if I don't have a builder, bail!
 	int iBuilderCount = 0;
 	int iLoopUnit;
@@ -624,13 +639,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 			//mark the plot if one of our builders is already active there
 			const MissionData* pMission = pLoopUnit->GetHeadMissionData();
 			if (pMission && pMission->eMissionType==CvTypes::getMISSION_BUILD() && pMission->iData2==BuilderDirective::BUILD_ROUTE)
-			{
-				CvPlot* pPlot = pLoopUnit->plot();
-				pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
-				pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-				pPlot->SetBuilderAIScratchPadValue(200);
-				pPlot->SetBuilderAIScratchPadRoute(eBestRoute);
-			}
+				AddRoutePlot(pLoopUnit->plot(), eBestRoute, 200);
 		}
 	}
 
@@ -1299,13 +1308,11 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 
 	// the plot was flagged recently, so ignore
-	if (WantRoute(pPlot,pUnit->getOwner(),5))
+	if (WantRouteAtPlot(pPlot))
 		return;
 
-	if (pPlot->IsStrategicRoute(m_pPlayer->getTeam()))
-		return;
-
-	if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+	// keep routes which are needed
+	if (NeedRouteAtPlot(pPlot))
 		return;
 
 	//don't touch master's roads!
@@ -1363,7 +1370,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 		return;
 
 	// the plot was not flagged recently, so ignore
-	if (!WantRoute(pPlot,pUnit->getOwner(),1))
+	if (!WantRouteAtPlot(pPlot))
 		return;
 
 	if(GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS))
@@ -1384,7 +1391,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRouteBuild, false);
-	iWeight += pPlot->GetBuilderAIScratchPadValue();
+	iWeight += GetRouteValue(pPlot);
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 	BuilderDirective directive;

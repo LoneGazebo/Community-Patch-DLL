@@ -622,7 +622,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
 					{
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
-						if(!pUnit2->AreUnitsOfSameType(*hUnit))
+
+						//only combat units need to swap
+						if(!pUnit2->IsCombatUnit())
 							continue;
 
 						if(pUnit2->ReadyToSwap())
@@ -1101,7 +1103,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_REBASE())
 	{
-		if(hUnit->canRebaseAt(pPlot, iData1, iData2))
+		if(hUnit->canRebaseAt(iData1, iData2))
 		{
 			return true;
 		}

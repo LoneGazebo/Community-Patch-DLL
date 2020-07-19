@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT14" FontStyle="Base" Color="Beige" Color1="Black" >
+
+<Box Style="BGBlock_ClearTopBar" />
+
+<ScrollPanel Disabled="1" Anchor="C,C" Offset="0,20" Size="971.565" FullClip="1" >
+<Image Anchor="R,T" Size="971.565" Sampler="Linear" ID="WonderSplash" />
+</ScrollPanel>
+
+<Box Size="990,650" Anchor="C,C" Offset="0,26"  Color="White.0"  >
+<!--  <Image Anchor="L,T" Offset="17,43" Size="100,100"  Texture="TopLeftCorner.dds"  />
+<Image Anchor="R,T" Offset="16,43" Size="100,100"  Texture="TopRightCorner.dds"  />
+-->
+</Box>
+
+<Grid Size="990,650" Anchor="C,C" Offset="0,26" Style="Grid9DetailThree140" >
+
+<Label Anchor="C,T" Offset="0,18" Font="TwCenMT22" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Wonders Name" ID="Title" />
+
+<Image Anchor="C,T" AnchorSide="I.O"  Offset="0,-16" Texture="Assets/UI/Art/Controls/WonderPopupTop300.dds" Size="300.120" />
+
+<!-- Change the second value of Size to modify the horizontal text delimitator position from the wonder popup-->
+<Box Size="960,180" Anchor="C,B" Color="Black.200" AnchorSide="O.I" Offset="0,42" >
+<Label Anchor="L,T" Offset="10,-4" WrapWidth="420" LeadingOffset="-4"  String="[NEWLINE]wisdom:" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Quote" />
+
+<Image Anchor="C,T" Offset="0,0" Size="128,128"  Texture="CitizenFrame128.dds" >
+<Image Anchor="C,T" Offset="0,-1" Size="128,128"  Texture="WonderAtlas1024.dds" ID="WonderIcon" />
+</Image>
+
+<Box Anchor="R,T" Size="420,1" Offset="10,24" Color="255,255,200,200" >
+<Label Anchor="L,B" Offset="0,4" WrapWidth="420" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="WONDERS NAME" ID="LowerTitle" />
+<Label Anchor="L,B" AnchorSide="I.O" Offset="6,4" WrapWidth="420" LeadingOffset="-4"  String="Bonus information" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Stats" />
+</Box>
+
+<Image Anchor="C,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="960.5" />
+</Box>
+
+<!-- Side treatments -->
+<Box Style="MenuLeftSideTreatment"/>
+<Box Style="MenuRightSideTreatment"/>
+
+<!-- CLOSE BUTTON TopLeftCorner WonderAtlas512-->
+<GridButton Size="200,32" Anchor="C,B" AnchorSide="I.O" Offset="0,-6" ID="CloseButton" Hidden="0">
+<GridData Style="Grid9DarkBlue8Button" />
+
+<Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_CLOSE"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT22" FontStyle="Shadow" />
+
+<Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+
+<ShowOnMouseOver>
+<AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+<AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+<Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+<Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+<AlphaAnim Anchor="C,C" Offset="0,0" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".99" Hidden="0">
+<Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Highlight8" />
+</AlphaAnim>
+</ShowOnMouseOver>
+
+</GridButton>
+</Grid>
+</Context>
