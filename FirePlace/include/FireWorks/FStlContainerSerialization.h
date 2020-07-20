@@ -38,6 +38,7 @@
 #include <set>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 
 
 template<typename FirstType, typename SecondType>
@@ -152,8 +153,7 @@ void SerializeToAssociativeContainer(FDataStream & loadFrom, ContainerType & con
 	if (count == 0xFFFFFFFF)
 		return;
 
-	size_t i = 0;
-	for(i = 0; i < count; ++i)
+	for(size_t i = 0; i < count; ++i)
 	{
 		ElementType e;
 		loadFrom >> e;
@@ -172,6 +172,13 @@ template<typename KeyType, typename ElementType>
 FDataStream & operator<<(FDataStream & saveTo, const stdext::hash_map<KeyType, ElementType> & readFrom)
 {
 	std::for_each(readFrom.begin(), readFrom.end(), SerializeFromAssociativeContainer<std::pair<KeyType, ElementType>, const stdext::hash_map<KeyType, ElementType> >(saveTo, readFrom));
+	return saveTo;
+}
+
+template<typename KeyType, typename ElementType>
+FDataStream & operator<<(FDataStream & saveTo, const std::tr1::unordered_map<KeyType, ElementType> & readFrom)
+{
+	std::for_each(readFrom.begin(), readFrom.end(), SerializeFromAssociativeContainer<std::pair<KeyType, ElementType>, const std::tr1::unordered_map<KeyType, ElementType> >(saveTo, readFrom));
 	return saveTo;
 }
 
@@ -253,6 +260,13 @@ template<typename KeyType, typename ElementType>
 FDataStream & operator>>(FDataStream & loadFrom, stdext::hash_map<KeyType, ElementType> & writeTo)
 {
 	SerializeToAssociativeContainer<std::pair<KeyType, ElementType>, stdext::hash_map<KeyType, ElementType> >(loadFrom, writeTo);
+	return loadFrom;
+}
+
+template<typename KeyType, typename ElementType>
+FDataStream & operator>>(FDataStream & loadFrom, std::tr1::unordered_map<KeyType,ElementType> & writeTo)
+{
+	SerializeToAssociativeContainer<std::pair<KeyType, ElementType>, std::tr1::unordered_map<KeyType,ElementType> >(loadFrom, writeTo);
 	return loadFrom;
 }
 

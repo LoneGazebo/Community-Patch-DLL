@@ -80,17 +80,7 @@ function InitMajorCivList()
 				for pPolicyBranch in GameInfo.PolicyBranchTypes() do
 					local iPolicyBranch = pPolicyBranch.ID;
 					
-					local iCount = 0;
-					
-					for pPolicy in GameInfo.Policies() do
-						local iPolicy = pPolicy.ID;
-						
-						if (pPolicy.PolicyBranchType == pPolicyBranch.Type) then
-							if (pOtherPlayer:HasPolicy(iPolicy)) then
-								iCount = iCount + 1;
-							end
-						end
-					end
+					local iCount = pOtherPlayer:GetNumPoliciesPurchasedInBranch(iPolicyBranch);
 					
 				 	if (iCount > 0) then
 						local textControls = {};

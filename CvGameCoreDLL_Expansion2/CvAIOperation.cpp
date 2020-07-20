@@ -2611,7 +2611,8 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pDiplomat->plot()->GetAdjacentCity()->getName().c_str());
+			CvCity* pTargetCity = pDiplomat->plot()->GetAdjacentCity();
+			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pTargetCity ? pTargetCity->getName().c_str() : "UNKNOWN");
 			LogOperationSpecialMessage(strMsg);
 		}
 		return true;

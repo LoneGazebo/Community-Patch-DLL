@@ -61,8 +61,6 @@ public:
 
 	int GetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam) const;
 	void SetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam, int iNewValue);
-	bool IsHasBrokenPeaceTreaty() const;
-	void SetHasBrokenPeaceTreaty(bool bValue);
 
 	void meet(TeamTypes eTeam, bool bSuppressMessages);
 
@@ -99,29 +97,13 @@ public:
 	bool isObserver() const;
 	bool isBarbarian() const;
 	bool isMinorCiv() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
-#endif
 
 	int GetNumMinorCivsAttacked() const;
 	void SetNumMinorCivsAttacked(int iValue);
 	void ChangeNumMinorCivsAttacked(int iChange);
 	bool IsMinorCivAggressor() const;
 	bool IsMinorCivWarmonger() const;
-
-	// Some diplo stuff
-	bool IsBrokenMilitaryPromise() const;
-	void SetBrokenMilitaryPromise(bool bValue);
-	bool IsBrokenExpansionPromise() const;
-	void SetBrokenExpansionPromise(bool bValue);
-	bool IsBrokenBorderPromise() const;
-	void SetBrokenBorderPromise(bool bValue);
-	bool IsBrokenCityStatePromise() const;
-	void SetBrokenCityStatePromise(bool bValue);
-#if defined(MOD_BALANCE_CORE)
-	bool IsCivilianKiller() const;
-	void SetCivilianKiller(bool bValue);
-#endif
 
 	PlayerTypes getLeaderID() const;
 	PlayerTypes getSecretaryID() const;
@@ -599,17 +581,8 @@ protected:
 	int m_iNumMinorCivsAttacked;
 
 	bool m_bMapCentering;
-	bool m_bHasBrokenPeaceTreaty;
 	bool m_bHomeOfUnitedNations;
 	bool m_bHasTechForWorldCongress;
-
-	bool m_bBrokenMilitaryPromise;
-	bool m_bBrokenExpansionPromise;
-	bool m_bBrokenBorderPromise;
-	bool m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	bool m_bCivilianKiller;
-#endif
 
 	EraTypes m_eCurrentEra;
 

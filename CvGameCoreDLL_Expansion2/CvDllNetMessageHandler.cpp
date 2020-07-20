@@ -1355,7 +1355,7 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 			{
 				CvUnit* pkUnit2 = pkTargetPlot->getUnitByIndex(iI);
 
-				if(pkUnit2 && pkUnit2->AreUnitsOfSameType(*pkUnit,pkTargetPlot->needsEmbarkation(pkUnit)))
+				if(pkUnit2 && pkUnit2->IsCombatUnit() && pkUnit->IsCombatUnit())
 				{
 					// Start the swap
 					pkUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iData1, iData2, CvUnit::MOVEFLAG_IGNORE_STACKING, bShift, true);

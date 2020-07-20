@@ -215,18 +215,8 @@ void CvTeam::uninit()
 	m_iNumMinorCivsAttacked = 0;
 
 	m_bMapCentering = false;
-	m_bHasBrokenPeaceTreaty = false;
 	m_bHomeOfUnitedNations = false;
 	m_bHasTechForWorldCongress = false;
-
-	m_bBrokenMilitaryPromise = false;
-	m_bBrokenExpansionPromise = false;
-	m_bBrokenBorderPromise = false;
-	m_bBrokenCityStatePromise = false;
-
-#if defined(MOD_BALANCE_CORE)
-	m_bCivilianKiller = false;
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iVassalageTradingAllowedCount = 0;
@@ -1245,46 +1235,83 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	PlayerTypes eOriginatingPlayer = NO_PLAYER;
 #endif
 
-	if(eTeam == GetID())
+	if (eTeam == GetID())
 	{
 		return false;
 	}
 
-	if(!(isAlive()) || !(GET_TEAM(eTeam).isAlive()))
+	if (!(isAlive() && GET_TEAM(eTeam).isAlive()))
 	{
 		return false;
 	}
 
-	if(isAtWar(eTeam))
+	if (isAtWar(eTeam))
 	{
 		return false;
 	}
 
-	if(!isHasMet(eTeam))
+	if (!isHasMet(eTeam))
 	{
 		return false;
 	}
 
-	if(isForcePeace(eTeam))
+	if (isForcePeace(eTeam))
 	{
 		return false;
 	}
 
-	if(!canChangeWarPeace(eTeam))
+	if (!canChangeWarPeace(eTeam))
 	{
 		return false;
 	}
 
-	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
 	{
 		return false;
 	}
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
 		return false;
 	}
 #endif
+
+	// Blocked by Diplomacy AI options?
+	if (!GET_PLAYER(eOriginatingPlayer).isHuman())
+	{
+		if (GC.getGame().IsAIPassiveMode())
+		{
+			return false;
+		}
+		else if (GC.getGame().IsAIPassiveTowardsHumans())
+		{
+			if (GET_TEAM(eTeam).isHuman())
+			{
+				return false;
+			}
+			// Any human Defensive Pacts?
+			for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+			{
+				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+				if (GET_TEAM(eLoopTeam).isHuman())
+				{
+					if (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam))
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					// Human vassals or masters?
+					if (GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam))
+					{
+						return false;
+					}
+#endif
+				}
+			}
+		}
+	}
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
@@ -1429,28 +1456,14 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	{
 		SetHasDefensivePact(eTeam, false);
 		GET_TEAM(eTeam).SetHasDefensivePact(GetID(), false);
-		SetBrokenMilitaryPromise(true);
 	}
 
-	//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
-	if (!bDefensivePact && bAggressor)
+	//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal (C4DF)
+	if (!bDefensivePact && bAggressor && !GET_TEAM(eTeam).isMinorCiv())
 	{
-		// If we've made a peace treaty before, this is bad news (no minors though)
-		if (!GET_TEAM(eTeam).isMinorCiv())
-		{
-			//DPs should only cancel v. major civs.
-			cancelDefensivePacts();
-			int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
-			if (iPeaceTreatyTurn != -1)
-			{
-				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-				if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
-				{
-					SetHasBrokenPeaceTreaty(true);
-				}
-			}
-		}
+		cancelDefensivePacts();
 	}
+
 	GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
 	GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
 
@@ -1783,81 +1796,49 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 	}
 
-	int iMinorCivLoop;
-	int iMajorCivLoop;
-
-	// Minor Civs declaring war
-	if (isMinorCiv())
-	{
-
-	}
 	// Major is declaring War
-	else
+	if (isMajorCiv())
 	{
-		int iMajorCivLoop2;
-
 		// Update what every Major Civ sees
-		for (iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
+		for (int iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
 		{
-			if (GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam() == GetID())
+			PlayerTypes eAttacker = (PlayerTypes) iMajorCivLoop;
+
+			if (GET_PLAYER(eAttacker).getTeam() == GetID() && GET_PLAYER(eAttacker).isAlive())
 			{
-				if (GET_PLAYER((PlayerTypes)iMajorCivLoop).isAlive())
+				// All other major civs should take note of this war declaration
+				for (int iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
 				{
-					// Alter Grand Strategy stats for all Majors in the game who've met this Major declaring war
-					for (iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
+					PlayerTypes eMajor = (PlayerTypes) iMajorCivLoop2;
+
+					// If we've met the player, update Diplo stuff
+					if (GET_PLAYER(eMajor).getTeam() != GetID() && GET_PLAYER(eMajor).GetDiplomacyAI()->IsHasMet(eAttacker, /*bMyTeamIsValid*/ true))
 					{
-						// I don't care if it's me
-						if (iMajorCivLoop != iMajorCivLoop2)
-						{
-							// Have I actually met this player declaring war?
-							if (GET_TEAM(GET_PLAYER((PlayerTypes)iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam()))
-							{
-								// Update Diplo stuff
-#if defined(MOD_BALANCE_CORE)
-								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam, bDefensivePact);
-#else
-								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam);
-#endif
-								if (!bDefensivePact)
-								{
-									// Major declaring war on Minor
-									if (GET_TEAM(eTeam).isMinorCiv())
-									{
-										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMinorsAttacked((PlayerTypes)iMajorCivLoop, 1, eTeam);
-									}
-									// Major declaring war on Major
-									else
-									{
-										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMajorsAttacked((PlayerTypes)iMajorCivLoop, 1, eTeam);
-									}
-								}
-							}
-						}
+						GET_PLAYER(eMajor).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone(eAttacker, eTeam, bDefensivePact);
 					}
+				}
 
-					// Declaring war on Minor
-					for (iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+				// Attacker should reevaluate approaches towards all other major civs
+				vector<PlayerTypes> v = GET_PLAYER(eAttacker).GetDiplomacyAI()->GetAllValidMajorCivs();
+				GET_PLAYER(eAttacker).GetDiplomacyAI()->DoUpdateOpinions();
+				GET_PLAYER(eAttacker).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+			}
+
+			// Declaring war on Minor
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+
+				// Now loop through all players on this team to nullify Quests for them
+				if (GET_PLAYER(eMinor).getTeam() == eTeam && GET_PLAYER(eMinor).isAlive())
+				{
+					// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
+					// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
+					//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
+					if (!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
 					{
-						// Now loop through all players on this team to nullify Quests for them
-						if (GET_PLAYER((PlayerTypes)iMinorCivLoop).getTeam() == eTeam)
-						{
-							if (GET_PLAYER((PlayerTypes)iMinorCivLoop).isAlive())
-							{
-								// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
-								// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
-								//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
-#if defined(MOD_BALANCE_CORE)
-								if (!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
-#else
-								if (!isMinorCiv() && !bDefensivePact)
-#endif
-								{
-									ChangeNumMinorCivsAttacked(1);
-
-									GET_PLAYER((PlayerTypes)iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
-								}
-							}
-						}
+						ChangeNumMinorCivsAttacked(1);
+						GET_PLAYER((PlayerTypes)iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
 					}
 				}
 			}
@@ -2959,23 +2940,17 @@ CvTeamTechs* CvTeam::GetTeamTechs() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isHuman() const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getTeam() == GetID())
 		{
-			if(GET_PLAYER((PlayerTypes)iI).isHuman())
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 
 	return false;
 }
-
-#if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
@@ -2996,111 +2971,29 @@ bool CvTeam::isObserver() const
 void CvTeam::updateTeamStatus()
 {
 	m_bIsMinorTeam = false;
-	m_bIsObserverTeam = true;
+	m_bIsObserverTeam = false;
 
-	//the first alive player determines the result
+	//one member determines the result
 	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
+		if (CvPreGame::isMinorCiv(*iI))
+		{
+			m_bIsMinorTeam = true;
+		}
+
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
-		if(kPlayer.isAlive())
+		if (kPlayer.isObserver())
 		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-		else if (CvPreGame::isMinorCiv(*iI))
-		{
-			m_bIsMinorTeam = kPlayer.isMinorCiv();
-			break;
-		}
-	}
-
-	//the first member determines the result
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if (kPlayer.getTeam() == GetID())
-		{
-			m_bIsObserverTeam = kPlayer.isObserver();
-			break;
-		}
-	}
-
-	//make sure team membership is correct
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-
-		if (kPlayer.getTeam() == GetID())
-		{
-			if (!isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for membership in CvTeam()\n");
-		}
-		else
-		{
-			if (isMember(kPlayer.GetID()))
-				OutputDebugString("inconsistent state for non-membership in CvTeam()\n");
+			m_bIsObserverTeam = true;
 		}
 	}
 }
 
-#else
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isObserver() const
-{
-	int iI;
-	for(iI = 0; iI < MAX_PLAYERS; iI++){
-		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
-		if(player.getTeam() == GetID() && player.isObserver()){
-			return true;
-		}
-	}
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isBarbarian() const
-{
-	return (m_eID == BARBARIAN_TEAM);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isMinorCiv() const
-{
-	bool bValid = false;
-
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
-		{
-			if(kPlayer.getTeam() == GetID())
-			{
-				if(kPlayer.isMinorCiv())
-				{
-					bValid = true;
-					break;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return bValid;
-}
-#endif
-
-#if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isMajorCiv() const
 {
 	return !(isMinorCiv() || isBarbarian() || isObserver());
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// The number of Minor Civs this player has declared war on
@@ -3113,18 +3006,14 @@ int CvTeam::GetNumMinorCivsAttacked() const
 /// Sets the number of Minor Civs this player has declared war on
 void CvTeam::SetNumMinorCivsAttacked(int iValue)
 {
-	if(GetNumMinorCivsAttacked() != iValue)
-	{
-		m_iNumMinorCivsAttacked = iValue;
-	}
+	m_iNumMinorCivsAttacked = iValue;
 }
 
 //	--------------------------------------------------------------------------------
 /// Changes the number of Minor Civs this player has declared war on
 void CvTeam::ChangeNumMinorCivsAttacked(int iChange)
 {
-	if(iChange != 0)
-		SetNumMinorCivsAttacked(GetNumMinorCivsAttacked() + iChange);
+	SetNumMinorCivsAttacked(GetNumMinorCivsAttacked() + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3132,7 +3021,7 @@ void CvTeam::ChangeNumMinorCivsAttacked(int iChange)
 bool CvTeam::IsMinorCivAggressor() const
 {
 	// Player has attacked enough Minors that they're getting antsy
-	if(GetNumMinorCivsAttacked() >= /*2*/ GC.getMINOR_CIV_AGGRESSOR_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*2*/ GC.getMINOR_CIV_AGGRESSOR_THRESHOLD())
 		return true;
 
 	return false;
@@ -3143,80 +3032,11 @@ bool CvTeam::IsMinorCivAggressor() const
 bool CvTeam::IsMinorCivWarmonger() const
 {
 	// Player has attacked enough Minors that an Alliance has formed
-	if(GetNumMinorCivsAttacked() >= /*4*/ GC.getMINOR_CIV_WARMONGER_THRESHOLD())
+	if (GetNumMinorCivsAttacked() >= /*4*/ GC.getMINOR_CIV_WARMONGER_THRESHOLD())
 		return true;
 
 	return false;
 }
-
-//	--------------------------------------------------------------------------------
-// Some diplo stuff
-bool CvTeam::IsBrokenMilitaryPromise() const
-{
-	return m_bBrokenMilitaryPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenMilitaryPromise(bool bValue)
-{
-	if(IsBrokenMilitaryPromise() != bValue)
-		m_bBrokenMilitaryPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsBrokenExpansionPromise() const
-{
-	return m_bBrokenExpansionPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenExpansionPromise(bool bValue)
-{
-	if(IsBrokenExpansionPromise() != bValue)
-		m_bBrokenExpansionPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsBrokenBorderPromise() const
-{
-	return m_bBrokenBorderPromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenBorderPromise(bool bValue)
-{
-	if(IsBrokenBorderPromise() != bValue)
-		m_bBrokenBorderPromise = bValue;
-}
-
-//	--------------------------------------------------------------------------------
-// Broke a promise to not attack a city-state?
-bool CvTeam::IsBrokenCityStatePromise() const
-{
-	return m_bBrokenCityStatePromise;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetBrokenCityStatePromise(bool bValue)
-{
-	if(IsBrokenCityStatePromise() != bValue)
-		m_bBrokenCityStatePromise = bValue;
-}
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-// Broke a promise to not attack a city-state?
-bool CvTeam::IsCivilianKiller() const
-{
-	return m_bCivilianKiller;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetCivilianKiller(bool bValue)
-{
-	if(IsCivilianKiller() != bValue)
-		m_bCivilianKiller = bValue;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 PlayerTypes CvTeam::getLeaderID() const
@@ -4801,18 +4621,6 @@ void CvTeam::SetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex, int iNewValue)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTurnMadePeaceTreatyWithTeam[eIndex] = iNewValue;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsHasBrokenPeaceTreaty() const
-{
-	return m_bHasBrokenPeaceTreaty;
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetHasBrokenPeaceTreaty(bool bValue)
-{
-	m_bHasBrokenPeaceTreaty = bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9148,17 +8956,8 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iNumMinorCivsAttacked;
 
 	kStream >> m_bMapCentering;
-	kStream >> m_bHasBrokenPeaceTreaty;
 	kStream >> m_bHomeOfUnitedNations;
 	kStream >> m_bHasTechForWorldCongress;
-
-	kStream >> m_bBrokenMilitaryPromise;
-	kStream >> m_bBrokenExpansionPromise;
-	kStream >> m_bBrokenBorderPromise;
-	kStream >> m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bCivilianKiller;
-#endif
 
 	kStream >> m_eID;
 
@@ -9379,17 +9178,8 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_iNumMinorCivsAttacked;
 
 	kStream << m_bMapCentering;
-	kStream << m_bHasBrokenPeaceTreaty;
 	kStream << m_bHomeOfUnitedNations;
 	kStream << m_bHasTechForWorldCongress;
-
-	kStream << m_bBrokenMilitaryPromise;
-	kStream << m_bBrokenExpansionPromise;
-	kStream << m_bBrokenBorderPromise;
-	kStream << m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bCivilianKiller;
-#endif
 
 	kStream << m_eID;
 

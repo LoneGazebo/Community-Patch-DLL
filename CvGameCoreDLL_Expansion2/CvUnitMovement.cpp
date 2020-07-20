@@ -194,7 +194,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //case with route is already handled above
+	//case with route is already handled above
+	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}
@@ -388,7 +389,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}
@@ -485,7 +486,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}

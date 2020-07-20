@@ -5054,18 +5054,15 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				// Update diplomacy
 				if (ui == ePreviousAlly)
 				{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 2);
+					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 2);
 				}
 				else
 				{
 					// Don't apply the diplo penalty if this player hates the previous ally (or they're at war).
-					if (GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE &&
-						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasEverBackstabbedBy(ePreviousAlly) &&
-						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasTeammateEverBackstabbedBy(ePreviousAlly) &&
-						!GET_TEAM(GET_PLAYER((PlayerTypes)ui).getTeam()).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
+					if (!GET_PLAYER((PlayerTypes)ui).IsAtWarWith(ePreviousAlly) && GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE
+						&& !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(ePreviousAlly) && !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->IsUntrustworthyFriend(ePreviousAlly))
 					{
-						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
 					}
 				}
@@ -9687,12 +9684,18 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 	std::vector<ScoreCityEntry> aCityScores;
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
-	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes)ui;
 
 		// don't count the player's own cities
-		if(eTargetPlayer == ePlayer)
+		if (eTargetPlayer == ePlayer)
+		{
+			continue;
+		}
+
+		// If we promised not to spy or it's a bad idea to spy on them, then don't spy on them!
+		if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
 		{
 			continue;
 		}
@@ -9700,7 +9703,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 		TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 		CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eTargetPlayer).GetDiplomacyAI();
 
-		for(pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+		for (pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvAssertMsg(pCityPlot, "City plot is null!");
@@ -9769,13 +9772,6 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				}
 				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
 				{
-					// if we promised not to spy or it's a bad idea to spy on them, make it less likely that we will spy
-					if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
-					{
-						// target far less frequently
-						iDiploModifier -= 750;
-					}
-
 					// if we've denounced them or they've denounced us, spy bonus!
 					if (pDiploAI->IsDenouncedPlayer(eTargetPlayer) || pTargetDiploAI->IsDenouncedPlayer(ePlayer))
 					{

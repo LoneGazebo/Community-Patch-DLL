@@ -110,6 +110,53 @@ void ClearCityDeltas()
 }
 }
 
+//helper function for managing extra yields
+template <typename T>
+bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int value, bool modifyExisting)
+{
+	for (vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
+	{
+		if (it->first == key)
+		{
+			if (modifyExisting && value != 0)
+			{
+				it->second += value;
+				if (it->second == 0)
+					container.erase(it);
+				return true; //update was made
+			}
+		
+			if (!modifyExisting && value != it->second)
+			{
+				it->second = value;
+				if (it->second == 0)
+					container.erase(it);
+				return true; //update was made
+			}
+
+			return false; //no change
+		}
+	}
+
+	//if we're here we don't have an entry yet
+	if (value != 0)
+	{
+		container.push_back(make_pair(key, value));
+		return true; //update was made
+	}
+
+	return false;
+}
+
+template <typename T>
+int ModifierLookup(const vector<pair<T, int>>& container, T key)
+{
+	for (vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
+		if (it->first == key)
+			return it->second;
+
+	return 0;
+}
 
 //	--------------------------------------------------------------------------------
 // Public Functions...
@@ -284,10 +331,6 @@ CvCity::CvCity() :
 	, m_bRouteToCapitalConnectedThisTurn("CvCity::m_bRouteToCapitalConnectedThisTurn", m_syncArchive)
 	, m_strName("CvCity::m_strName", m_syncArchive)
 	, m_orderQueue()
-	, m_aaiBuildingSpecialistUpgradeProgresses(0)
-	, m_ppaiResourceYieldChange(0)
-	, m_ppaiFeatureYieldChange(0)
-	, m_ppaiTerrainYieldChange(0)
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
 	, m_pCityCitizens(FNEW(CvCityCitizens, c_eCiv5GameplayDLL, 0))
@@ -436,33 +479,8 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE)
-	, m_ppaiImprovementYieldChange(0)
-	, m_ppaiYieldFromYield(0)
-	, m_ppaiActualYieldFromYield(0)
-	, m_ppaaiSpecialistExtraYield("CvCity::m_ppaaiSpecialistExtraYield", m_syncArchive)
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	, m_ppaiPlotYieldChange(0)
-	, m_ppaiYieldPerXTerrainFromBuildings(0)
-	, m_ppaiYieldPerXFeatureFromBuildings(0)
-	, m_ppaiYieldPerXTerrainFromReligion(0)
-	, m_ppaiYieldPerXTerrain(0)
-	, m_ppaiYieldPerXFeature(0)
-	, m_ppaiYieldPerXFeatureFromReligion(0)
-	, m_ppaiYieldPerXUnimprovedFeature(0)
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	, m_ppaiReligionBuildingYieldRateModifier(0)
-	, m_ppaiLocalBuildingClassYield(0)
-	, m_ppaiEventBuildingClassYield(0)
-	, m_ppaiEventBuildingClassYieldModifier(0)
-	, m_ppaiEventImprovementYield(0)
-	, m_ppaiEventResourceYield(0)
-	, m_ppaiEventTerrainYield(0)
-	, m_ppaiEventFeatureYield(0)
-	, m_ppaiEventSpecialistYield(0)
-#endif
+	, m_yieldChanges( NUM_YIELD_TYPES )
+	, m_eventYields ( NUM_YIELD_TYPES )
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppiGreatPersonProgressFromConstruction()
 #endif
@@ -1293,161 +1311,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 void CvCity::uninit()
 {
 	VALIDATE_OBJECT
-
-	if(m_aaiBuildingSpecialistUpgradeProgresses)
-	{
-		for(int i=0; i < GC.getNumBuildingInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_aaiBuildingSpecialistUpgradeProgresses[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_aaiBuildingSpecialistUpgradeProgresses);
-
-	if(m_ppaiResourceYieldChange)
-	{
-		for(int i=0; i < GC.getNumResourceInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiResourceYieldChange[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiResourceYieldChange);
-#if defined(MOD_BALANCE_CORE)
-	if(m_ppaiFeatureYieldChange || m_ppaiYieldPerXFeature || m_ppaiYieldPerXUnimprovedFeature || m_ppaiEventFeatureYield || m_ppaiYieldPerXFeatureFromBuildings || m_ppaiYieldPerXFeatureFromReligion)
-#else
-	if(m_ppaiFeatureYieldChange)
-#endif
-	{
-		for(int i=0; i < GC.getNumFeatureInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange[i]);
-#if defined(MOD_BALANCE_CORE)
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature[i]);
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature[i]);
-			SAFE_DELETE_ARRAY(m_ppaiEventFeatureYield[i]);
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeatureFromBuildings[i]);
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeatureFromReligion[i]);
-#endif
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange);
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature);
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeatureFromBuildings);
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature);
-	SAFE_DELETE_ARRAY(m_ppaiEventFeatureYield);
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeatureFromReligion);
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	if(m_ppaiEventResourceYield)
-	{
-		for(int i=0; i < GC.getNumResourceInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiEventResourceYield[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiEventResourceYield);
-
-	if(m_ppaiEventSpecialistYield)
-	{
-		for(int i=0; i < GC.getNumSpecialistInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiEventSpecialistYield[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiEventSpecialistYield);
-	
-	if(m_ppaiEventImprovementYield)
-	{
-		for(int i=0; i < GC.getNumImprovementInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiEventImprovementYield[i]);
-		}
-	}
-
-	if (m_ppaiImprovementYieldChange)
-	{
-		for (int i = 0; i < GC.getNumImprovementInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange[i]);
-		}
-	}
-
-	if (m_ppaiYieldFromYield)
-	{
-		for (int i = 0; i < NUM_YIELD_TYPES; i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiYieldFromYield[i]);
-		}
-	}
-
-	if (m_ppaiActualYieldFromYield)
-	{
-		for (int i = 0; i < NUM_YIELD_TYPES; i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiActualYieldFromYield[i]);
-		}
-	}
-
-	SAFE_DELETE_ARRAY(m_ppaiYieldFromYield);
-	SAFE_DELETE_ARRAY(m_ppaiActualYieldFromYield);
-	SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange);
-	SAFE_DELETE_ARRAY(m_ppaiEventImprovementYield);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(m_ppaiEventTerrainYield || m_ppaiTerrainYieldChange || m_ppaiYieldPerXTerrainFromBuildings || m_ppaiYieldPerXTerrainFromReligion || m_ppaiYieldPerXTerrain)
-#else
-	if(m_ppaiTerrainYieldChange)
-#endif
-	{
-		for(int i=0; i < GC.getNumTerrainInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange[i]);
-#if defined(MOD_BALANCE_CORE)
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings[i]);
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion[i]);
-			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain[i]);
-			SAFE_DELETE_ARRAY(m_ppaiEventTerrainYield[i]);
-#endif
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange);
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings);
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion);
-	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain);
-	SAFE_DELETE_ARRAY(m_ppaiEventTerrainYield);
 	m_aiYieldPerPopInEmpire.clear();
-#endif
 
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	if(m_ppaiPlotYieldChange)
-	{
-		for(int i=0; i < GC.getNumPlotInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiPlotYieldChange[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiPlotYieldChange);
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(m_ppaiReligionBuildingYieldRateModifier || m_ppaiLocalBuildingClassYield || m_ppaiEventBuildingClassYield || m_ppaiEventBuildingClassYieldModifier)
-	{
-		for(int i=0; i < GC.getNumBuildingClassInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiReligionBuildingYieldRateModifier[i]);
-			SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield[i]);
-			SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYield[i]);
-			SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYieldModifier[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiReligionBuildingYieldRateModifier);
-	SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield);
-	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYield);
-	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYieldModifier);
-
-	m_ppaaiSpecialistExtraYield.clear();
-#endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonProgressFromConstruction.clear();
 #endif
@@ -1460,6 +1325,9 @@ void CvCity::uninit()
 	m_pCityEspionage->Uninit();
 
 	m_orderQueue.clear();
+
+	m_yieldChanges.clear();
+	m_eventYields.clear();
 }
 
 //	--------------------------------------------------------------------------------
@@ -2076,101 +1944,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		{
 			m_paiHurryModifier.setAt(iI, 0);
 		}
-
-		Firaxis::Array< int, NUM_YIELD_TYPES > yield;
-		for( unsigned int j = 0; j < NUM_YIELD_TYPES; ++j )
-		{
-			yield[j] = 0;
-		}
-
-		m_ppaaiSpecialistExtraYield.clear();
-		m_ppaaiSpecialistExtraYield.resize(GC.getNumSpecialistInfos());
-		for( unsigned int i = 0; i < m_ppaaiSpecialistExtraYield.size(); ++i )
-		{
-			m_ppaaiSpecialistExtraYield.setAt( i, yield );
-		}
 #endif
 
-		int iJ;
-
-		int iNumBuildingInfos = GC.getNumBuildingInfos();
-		int iMAX_SPECIALISTS_FROM_BUILDING = GC.getMAX_SPECIALISTS_FROM_BUILDING();
-		CvAssertMsg(m_aaiBuildingSpecialistUpgradeProgresses==NULL, "about to leak memory, CvCity::m_aaiBuildingSpecialistUpgradeProgresses");
-		m_aaiBuildingSpecialistUpgradeProgresses = FNEW(int*[iNumBuildingInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumBuildingInfos; iI++)
-		{
-			m_aaiBuildingSpecialistUpgradeProgresses[iI] = FNEW(int[iMAX_SPECIALISTS_FROM_BUILDING], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < iMAX_SPECIALISTS_FROM_BUILDING; iJ++)
-			{
-				m_aaiBuildingSpecialistUpgradeProgresses[iI][iJ] = -1;
-			}
-		}
-
-		int iNumResourceInfos = GC.getNumResourceInfos();
-		CvAssertMsg(m_ppaiResourceYieldChange==NULL, "about to leak memory, CvCity::m_ppaiResourceYieldChange");
-		m_ppaiResourceYieldChange = FNEW(int*[iNumResourceInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumResourceInfos; iI++)
-		{
-			m_ppaiResourceYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiResourceYieldChange[iI][iJ] = 0;
-			}
-		}
-
-		int iNumFeatureInfos = GC.getNumFeatureInfos();
-		CvAssertMsg(m_ppaiFeatureYieldChange==NULL, "about to leak memory, CvCity::m_ppaiFeatureYieldChange");
-		m_ppaiFeatureYieldChange = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiFeatureYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiFeatureYieldChange[iI][iJ] = 0;
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		CvAssertMsg(m_ppaiImprovementYieldChange==NULL, "about to leak memory, CvCity::m_ppaiImprovementYieldChange");
-		m_ppaiImprovementYieldChange = FNEW(int*[iNumImprovementInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumImprovementInfos; iI++)
-		{
-			m_ppaiImprovementYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiImprovementYieldChange[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldFromYield == NULL, "about to leak memory, CvCity::m_ppaiYieldFromYield");
-		m_ppaiYieldFromYield = FNEW(int*[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-
-		CvAssertMsg(m_ppaiActualYieldFromYield == NULL, "about to leak memory, CvCity::m_ppaiActualYieldFromYield");
-		m_ppaiActualYieldFromYield = FNEW(int*[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-
-		
-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			m_ppaiYieldFromYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			m_ppaiActualYieldFromYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldFromYield[iI][iJ] = 0;
-				m_ppaiActualYieldFromYield[iI][iJ] = 0;
-			}
-		}
-		
-#endif
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
-		CvAssertMsg(m_ppaiTerrainYieldChange==NULL, "about to leak memory, CvCity::m_ppaiTerrainYieldChange");
-		m_ppaiTerrainYieldChange = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			m_ppaiTerrainYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiTerrainYieldChange[iI][iJ] = 0;
-			}
-		}
+		int iNumFeatureInfos = GC.getNumFeatureInfos();
+		int iNumResourceInfos = GC.getNumResourceInfos();
+
 #if defined(MOD_BALANCE_CORE)
 		m_paiNumTerrainWorked.clear();
 		m_paiNumFeaturelessTerrainWorked.clear();
@@ -2203,199 +1982,14 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiNumImprovementWorked.setAt(iI, 0);
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		CvAssertMsg(m_ppaiYieldPerXTerrainFromBuildings==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrainFromBuildings");
-		m_ppaiYieldPerXTerrainFromBuildings = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			m_ppaiYieldPerXTerrainFromBuildings[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXTerrainFromBuildings[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXFeatureFromBuildings == NULL, "about to leak memory, CvCity::m_ppaiYieldPerXFeatureFromBuildings");
-		m_ppaiYieldPerXFeatureFromBuildings = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for (iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiYieldPerXFeatureFromBuildings[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXFeatureFromBuildings[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXTerrainFromReligion==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrainFromReligion");
-		m_ppaiYieldPerXTerrainFromReligion = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			m_ppaiYieldPerXTerrainFromReligion[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXTerrainFromReligion[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXTerrain==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXTerrain");
-		m_ppaiYieldPerXTerrain = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			m_ppaiYieldPerXTerrain[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXTerrain[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXFeature==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXFeature");
-		m_ppaiYieldPerXFeature = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiYieldPerXFeature[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXFeature[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXFeatureFromReligion == NULL, "about to leak memory, CvCity::m_ppaiYieldPerXFeatureFromReligion");
-		m_ppaiYieldPerXFeatureFromReligion = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for (iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiYieldPerXFeatureFromReligion[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXFeatureFromReligion[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiYieldPerXUnimprovedFeature==NULL, "about to leak memory, CvCity::m_ppaiYieldPerXUnimprovedFeature");
-		m_ppaiYieldPerXUnimprovedFeature = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiYieldPerXUnimprovedFeature[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiYieldPerXUnimprovedFeature[iI][iJ] = 0;
-			}
-		}
-#endif
-
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-		int iNumPlotInfos = GC.getNumPlotInfos();
-		CvAssertMsg(m_ppaiPlotYieldChange==NULL, "about to leak memory, CvCity::m_ppaiPlotYieldChange");
-		m_ppaiPlotYieldChange = FNEW(int*[iNumPlotInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumPlotInfos; iI++)
-		{
-			m_ppaiPlotYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiPlotYieldChange[iI][iJ] = 0;
-			}
-		}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-		CvAssertMsg(m_ppaiReligionBuildingYieldRateModifier==NULL, "about to leak memory, CvCity::m_ppaiReligionBuildingYieldRateModifier");
-		m_ppaiReligionBuildingYieldRateModifier = FNEW(int*[iNumBuildingClassInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
-		{
-			m_ppaiReligionBuildingYieldRateModifier[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiReligionBuildingYieldRateModifier[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiLocalBuildingClassYield==NULL, "about to leak memory, CvCity::m_ppaiLocalBuildingClassYield");
-		m_ppaiLocalBuildingClassYield = FNEW(int*[iNumBuildingClassInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
-		{
-			m_ppaiLocalBuildingClassYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiLocalBuildingClassYield[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiEventBuildingClassYield==NULL, "about to leak memory, CvCity::m_ppaiEventBuildingClassYield");
-		m_ppaiEventBuildingClassYield = FNEW(int*[iNumBuildingClassInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
-		{
-			m_ppaiEventBuildingClassYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventBuildingClassYield[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiEventBuildingClassYieldModifier==NULL, "about to leak memory, CvCity::m_ppaiEventBuildingClassYieldModifier");
-		m_ppaiEventBuildingClassYieldModifier = FNEW(int*[iNumBuildingClassInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
-		{
-			m_ppaiEventBuildingClassYieldModifier[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventBuildingClassYieldModifier[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiEventImprovementYield==NULL, "about to leak memory, CvCity::m_ppaiEventImprovementYield");
-		m_ppaiEventImprovementYield = FNEW(int*[iNumImprovementInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumImprovementInfos; iI++)
-		{
-			m_ppaiEventImprovementYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventImprovementYield[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiEventResourceYield==NULL, "about to leak memory, CvCity::m_ppaiEventResourceYield");
-		m_ppaiEventResourceYield = FNEW(int*[iNumResourceInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumResourceInfos; iI++)
-		{
-			m_ppaiEventResourceYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventResourceYield[iI][iJ] = 0;
-			}
-		}
-
-		CvAssertMsg(m_ppaiEventSpecialistYield==NULL, "about to leak memory, CvCity::m_ppaiEventSpecialistYield");
-		m_ppaiEventSpecialistYield = FNEW(int*[iNumSpecialistInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumSpecialistInfos; iI++)
-		{
-			m_ppaiEventSpecialistYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventSpecialistYield[iI][iJ] = 0;
-			}
-		}
-		
-		CvAssertMsg(m_ppaiEventTerrainYield==NULL, "about to leak memory, CvCity::m_ppaiEventTerrainYield");
-		m_ppaiEventTerrainYield = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumTerrainInfos; iI++)
-		{
-			m_ppaiEventTerrainYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventTerrainYield[iI][iJ] = 0;
-			}
-		}
-		CvAssertMsg(m_ppaiEventFeatureYield==NULL, "about to leak memory, CvCity::m_ppaiEventFeatureYield");
-		m_ppaiEventFeatureYield = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumFeatureInfos; iI++)
-		{
-			m_ppaiEventFeatureYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiEventFeatureYield[iI][iJ] = 0;
-			}
-		}
-#endif
-		
 	}
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonProgressFromConstruction.clear();
 #endif
 
+	m_yieldChanges = vector<SCityExtraYields>(NUM_YIELD_TYPES);
+	m_eventYields = vector<SCityEventYields>(NUM_YIELD_TYPES);
 	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
 
 	if(!bConstructorCall)
@@ -3833,7 +3427,7 @@ int CvCity::GetEventBuildingClassCityYield(BuildingClassTypes eIndex1, YieldType
 	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventBuildingClassYield[eIndex1][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forBuilding, eIndex1);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
@@ -3843,11 +3437,9 @@ void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldType
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventBuildingClassYield[eIndex1][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forBuilding,eIndex1,iChange,true))
 		updateYield(false);
-	}
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventBuildingClassCityYieldModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
@@ -3856,7 +3448,7 @@ int CvCity::GetEventBuildingClassCityYieldModifier(BuildingClassTypes eIndex1, Y
 	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventBuildingClassYieldModifier[eIndex1][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forBuildingModifier, eIndex1);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
@@ -3866,11 +3458,9 @@ void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, Y
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventBuildingClassYieldModifier[eIndex1][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forBuildingModifier,eIndex1,iChange,true))
 		updateYield(false);
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -3880,7 +3470,7 @@ int CvCity::GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes e
 	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventImprovementYield[eImprovement][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forImprovement, eImprovement);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2, int iChange)
@@ -3890,11 +3480,9 @@ void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTyp
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventImprovementYield[eImprovement][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forImprovement,eImprovement,iChange,true))
 		updateYield();
-	}
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventResourceYield(ResourceTypes eResource, YieldTypes eIndex2)	const
@@ -3903,7 +3491,7 @@ int CvCity::GetEventResourceYield(ResourceTypes eResource, YieldTypes eIndex2)	c
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventResourceYield[eResource][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forResource, eResource);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex2, int iChange)
@@ -3913,11 +3501,9 @@ void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventResourceYield[eResource][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forResource,eResource,iChange,true))
 		updateYield();
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -3927,7 +3513,7 @@ int CvCity::GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eInd
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventSpecialistYield[eSpecialist][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forSpecialist, eSpecialist);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2, int iChange)
@@ -3937,11 +3523,9 @@ void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes 
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventSpecialistYield[eSpecialist][eIndex2] += iChange;
-		updateYield(false);
-	}
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forSpecialist,eSpecialist,iChange,true))
+		updateYield();
 }
 
 //	--------------------------------------------------------------------------------
@@ -3951,7 +3535,7 @@ int CvCity::GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2)	cons
 	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventTerrainYield[eTerrain][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forTerrain, eTerrain);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2, int iChange)
@@ -3961,11 +3545,9 @@ void CvCity::ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2, 
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventTerrainYield[eTerrain][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forTerrain,eTerrain,iChange,true))
 		updateYield();
-	}
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2)	const
@@ -3974,7 +3556,7 @@ int CvCity::GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2)	cons
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiEventFeatureYield[eFeature][eIndex2];
+	return ModifierLookup(m_eventYields[eIndex2].forFeature, eFeature);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, int iChange)
@@ -3984,11 +3566,9 @@ void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, 
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiEventFeatureYield[eFeature][eIndex2] += iChange;
+	SCityEventYields& y = m_eventYields[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forFeature,eFeature,iChange,true))
 		updateYield();
-	}
 }
 void CvCity::DoEvents()
 {
@@ -9096,7 +8676,7 @@ int CvCity::GetResourceExtraYield(ResourceTypes eResource, YieldTypes eYield) co
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiResourceYieldChange[eResource][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forResource, eResource);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9106,12 +8686,9 @@ void CvCity::ChangeResourceExtraYield(ResourceTypes eResource, YieldTypes eYield
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaiResourceYieldChange[eResource][eYield] += iChange;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forResource,eResource,iChange,true))
 		updateYield();
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -9122,7 +8699,7 @@ int CvCity::GetFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield) const
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiFeatureYieldChange[eFeature][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forFeature, eFeature);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9132,13 +8709,11 @@ void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, i
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaiFeatureYieldChange[eFeature][eYield] += iChange;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forFeature,eFeature,iChange,true))
 		updateYield();
-	}
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Extra yield for a improvement this city is working?
@@ -9147,8 +8722,7 @@ int CvCity::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes e
 	VALIDATE_OBJECT
 	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-	return m_ppaiImprovementYieldChange[eImprovement][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forImprovement, eImprovement);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9158,12 +8732,9 @@ void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTyp
 	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaiImprovementYieldChange[eImprovement][eYield] += iChange;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forImprovement,eImprovement,iChange,true))
 		updateYield();
-	}
 }
 
 /// Extra yield for a building this city is lacking resources for?
@@ -9189,7 +8760,7 @@ int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiTerrainYieldChange[eTerrain][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forTerrain, eTerrain);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9199,12 +8770,9 @@ void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, i
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaiTerrainYieldChange[eTerrain][eYield] += iChange;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forTerrain,eTerrain,iChange,true))
 		updateYield();
-	}
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -9213,31 +8781,15 @@ void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, i
 int CvCity::GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Plot index.");
-		CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-		return m_ppaiPlotYieldChange[ePlot][eYield];
-	} else {
-		return 0;
-	}
+	return ModifierLookup(m_yieldChanges[eYield].forPlot, ePlot);
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange)
 {
-	VALIDATE_OBJECT
-	if (MOD_API_PLOT_YIELDS) {
-		CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Plot index.");
-		CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-		if(iChange != 0)
-		{
-			m_ppaiPlotYieldChange[ePlot][eYield] += iChange;
-
-			updateYield();
-		}
-	}
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forPlot,ePlot,iChange,true))
+		updateYield();
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -15153,6 +14705,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeMilitaryProductionModifier(pBuildingInfo->GetMilitaryProductionModifier() * iChange);
 		changeSpaceProductionModifier(pBuildingInfo->GetSpaceProductionModifier() * iChange);
 		m_pCityBuildings->ChangeBuildingProductionModifier(pBuildingInfo->GetBuildingProductionModifier() * iChange);
+		m_pCityBuildings->ChangeBuildingProductionModifierPotentialFromMinorTrade(pBuildingInfo->GetCityStateTradeRouteProductionModifier() * iChange);
 		m_pCityBuildings->ChangeMissionaryExtraSpreads(pBuildingInfo->GetExtraMissionarySpreads() * iChange);
 		m_pCityBuildings->ChangeLandmarksTourismPercent(pBuildingInfo->GetLandmarksTourismPercent() * iChange);
 		m_pCityBuildings->ChangeGreatWorksTourismModifier(pBuildingInfo->GetGreatWorksTourismModifier() * iChange);
@@ -16338,7 +15891,7 @@ bool CvCity::isVisible(TeamTypes eTeam, bool bDebug) const
 bool CvCity::isCapital() const
 {
 	VALIDATE_OBJECT
-	return (GET_PLAYER(getOwner()).getCapitalCity() == this);
+	return (GET_PLAYER(getOwner()).getCapitalCityID() == GetID());
 }
 
 //	--------------------------------------------------------------------------------
@@ -16362,10 +15915,9 @@ bool CvCity::IsOriginalMajorCapital() const
 {
 	VALIDATE_OBJECT
 
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
 		{
@@ -16382,15 +15934,32 @@ bool CvCity::IsOriginalMinorCapital() const
 {
 	VALIDATE_OBJECT
 
-		PlayerTypes ePlayer;
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
 		{
 			return true;
 		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+/// Was this city a player's original capital?
+bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
+		return false;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
+	{
+		return true;
 	}
 
 	return false;
@@ -19608,6 +19177,7 @@ void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChan
 	m_paiNumImprovementWorked.setAt(eImprovement, m_paiNumImprovementWorked[eImprovement] + iChange);
 	CvAssert(GetNumImprovementWorked(eImprovement) >= 0);
 }
+
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
@@ -19615,12 +19185,9 @@ void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int i
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(m_ppaiYieldPerXTerrain[eTerrain][eYield] != iValue)
-	{
-		m_ppaiYieldPerXTerrain[eTerrain][eYield] = iValue;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forXTerrain,eTerrain,iValue,false))
 		updateYield();
-	}
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
@@ -19629,12 +19196,9 @@ void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes e
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield] != iValue)
-	{
-		m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield] = iValue;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forTerrainFromReligion,eTerrain,iValue,false))
 		updateYield();
-	}
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -19644,7 +19208,7 @@ int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXTerrain[eTerrain][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forXTerrain, eTerrain);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -19654,7 +19218,7 @@ int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eY
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXTerrainFromReligion[eTerrain][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forTerrainFromReligion, eTerrain);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -19664,7 +19228,7 @@ int CvCity::GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, Yiel
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXTerrainFromBuildings[eTerrain][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forTerrainFromBuildings, eTerrain);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19674,13 +19238,9 @@ void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, 
 	CvAssertMsg(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaiYieldPerXTerrainFromBuildings[eTerrain][eYield] += iChange;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forTerrainFromBuildings,eTerrain,iChange,true))
 		updateYield();
-		UpdateYieldPerXTerrain(eYield, eTerrain);
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -19688,23 +19248,22 @@ void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, 
 int CvCity::GetYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXFeatureFromBuildings[eFeature][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forFeatureFromBuildings, eFeature);
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if (iChange != 0)
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forFeatureFromBuildings, eFeature, iChange, true))
 	{
-		m_ppaiYieldPerXFeatureFromBuildings[eFeature][eYield] += iChange;
-
 		updateYield();
 		UpdateYieldPerXFeature(eYield, eFeature);
 	}
@@ -19718,15 +19277,16 @@ int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXFeature[eFeature][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forXFeature, eFeature);
 }
+
 int CvCity::GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXFeatureFromReligion[eFeature][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forFeatureFromReligion, eFeature);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19737,7 +19297,7 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTy
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Terrain index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield];
+	return ModifierLookup(m_yieldChanges[eYield].forFeatureUnimproved, eFeature);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
@@ -19746,27 +19306,21 @@ void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int i
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(m_ppaiYieldPerXFeature[eFeature][eYield] != iValue)
-	{
-		m_ppaiYieldPerXFeature[eFeature][eYield] = iValue;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forXFeature, eFeature, iValue, false))
 		updateYield();
-	}
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
+	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if (m_ppaiYieldPerXFeatureFromReligion[eFeature][eYield] != iValue)
-	{
-		m_ppaiYieldPerXFeatureFromReligion[eFeature][eYield] = iValue;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forFeatureFromReligion, eFeature, iValue, false))
 		updateYield();
-	}
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
@@ -19775,13 +19329,11 @@ void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYi
 	CvAssertMsg(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
 	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield] != iValue)
-	{
-		m_ppaiYieldPerXUnimprovedFeature[eFeature][eYield] = iValue;
-
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.forFeatureUnimproved, eFeature, iValue, false))
 		updateYield();
-	}
 }
+
 void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature)
 {
 	VALIDATE_OBJECT
@@ -20127,7 +19679,7 @@ int CvCity::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2)
 	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
-	return m_ppaaiSpecialistExtraYield[eIndex1][eIndex2];
+	return ModifierLookup(m_yieldChanges[eIndex2].forSpecialist, eIndex1);
 }
 
 
@@ -20139,15 +19691,9 @@ void CvCity::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eInd
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
-	if (iChange != 0)
-	{
-		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eIndex1];
-		yields[eIndex2] = (m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] + iChange);
-		m_ppaaiSpecialistExtraYield.setAt(eIndex1, yields);
-		CvAssert(getSpecialistExtraYield(eIndex1, eIndex2) >= 0);
-
+	SCityExtraYields& y = m_yieldChanges[eIndex2];
+	if (ModifierUpdateInsertRemove(y.forSpecialist,eIndex1,iChange,true))
 		updateExtraSpecialistYield();
-	}
 }
 
 #endif
@@ -21160,34 +20706,29 @@ bool CvCity::DoRazingTurn()
 		{
 			return false;
 		}
-		
-		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
 		// Notify Diplo AI that damage has been done
-		int iValue = iDefaultCityValue;
+		int iRazeValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
-		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
-		iValue /= max(1, (GetRazingTurns() / 2));
+		iRazeValue += (getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		iRazeValue += (getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+		iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
 
-		int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
-		if (iWarscoremod != 0)
+		// Does the owner have a bonus to war score accumulation?
+		iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+		iRazeValue /= 100;
+
+		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iRazeValue);
+
+		// Diplomacy penalty for razing cities
+		if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
 		{
-			iValue *= (iWarscoremod + 100);
-			iValue /= 100;
-		}
+			int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
+			if (iEra <= 0)
+			{
+				iEra = 1;
+			}
 
-		// My viewpoint
-		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
-		// Bad guy's viewpoint
-		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue, /*bNoRatingChange*/ true);
-
-		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		if(!GET_PLAYER(getOwner()).isMinorCiv())
-		{
 			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
 		}
 
@@ -21513,13 +21054,9 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
-	if (iHappinessPerGarrison > 0)
+	if (iHappinessPerGarrison > 0 && HasGarrison())
 	{
-		CvUnit* pDefender = plot()->getBestDefender(getOwner());
-		if (pDefender)
-		{
-			iTotalHappiness += iHappinessPerGarrison;
-		}
+		iTotalHappiness += iHappinessPerGarrison;
 	}
 	
 	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
@@ -21608,7 +21145,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 	if (kPlayer.GetHappinessPerActiveTradeRoute() > 0)
 	{
-		iTotalHappiness += (kPlayer.GetTrade()->GetNumberOfTradeRoutesFromCity(kPlayer.getCity(GetID())) * kPlayer.GetHappinessPerActiveTradeRoute());
+		iTotalHappiness += (kPlayer.GetTrade()->GetNumberOfTradeRoutesFromCity(this) * kPlayer.GetHappinessPerActiveTradeRoute());
 	}
 
 	return iTotalHappiness;
@@ -24387,15 +23924,14 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	int iModifier = 0;
-	int iTempMod;
 
 	// Yield Rate Modifier
-	iTempMod = getYieldRateModifier(eIndex);
-	iModifier += iTempMod;
+	int iTempMod = getYieldRateModifier(eIndex);
+	int iModifier = iTempMod;
 	if(toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD", iTempMod);
 
+#if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
 	CvPlot* pCityPlot = plot();
 	for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
@@ -24409,6 +23945,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			}
 		}
 	}
+#endif
 
 	// Resource Yield Rate Modifier
 	iTempMod = getResourceYieldRateModifier(eIndex);
@@ -24558,7 +24095,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if(pReligion)
 	{
 		int iMaxVal = 0;
-		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(iMaxVal, eIndex, getOwner(), this);
 		if (iReligionYieldMaxFollowersPercent > 0)
 		{
 			int iVal = GetCityReligions()->GetNumFollowers(eMajority) * iReligionYieldMaxFollowersPercent;
@@ -24577,7 +24114,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 		else
 		{
-			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(eIndex, getOwner(), this);
 			if (iReligionYieldMaxFollowers > 0)
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
@@ -25021,6 +24558,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	}
 #endif
 
+#if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
 	CvPlot* pCityPlot = plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
@@ -25030,6 +24568,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 			iValue += iTempVal;
 		}
 	}
+#endif
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -25780,12 +25319,12 @@ int CvCity::GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
-	return m_ppaiActualYieldFromYield[eIndex1][eIndex2];
+	return ModifierLookup(m_yieldChanges[eIndex2].forActualYield, eIndex1);
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iChange)
+void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
 {
 	VALIDATE_OBJECT
 		CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
@@ -25793,8 +25332,7 @@ void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int i
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
-	if (iChange != m_ppaiActualYieldFromYield[eIndex1][eIndex2])
-		m_ppaiActualYieldFromYield[eIndex1][eIndex2] = iChange;
+	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forActualYield, eIndex1, iValue, false);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -25806,12 +25344,12 @@ int CvCity::GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) co
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	return m_ppaiYieldFromYield[eIndex1][eIndex2];
+	return ModifierLookup(m_yieldChanges[eIndex2].forYield, eIndex1);
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iChange)
+void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
@@ -25819,10 +25357,7 @@ void CvCity::ChangeBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
-	{
-		m_ppaiYieldFromYield[eIndex1][eIndex2] += iChange;
-	}
+	ModifierUpdateInsertRemove(m_yieldChanges[eIndex2].forYield, eIndex1, iValue, false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26156,22 +25691,13 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
-	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-	{
-		TerrainTypes eTerrain = (TerrainTypes) iI;
-		if(eTerrain != NO_TERRAIN)
-		{
-			iBaseYield += GetYieldPerXTerrainFromReligion(eTerrain, eIndex);
-		}
-	}
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes) iI;
-		if(eFeature != NO_FEATURE)
-		{
-			iBaseYield += GetYieldPerXFeatureFromReligion(eFeature, eIndex);
-		}
-	}
+
+	const SCityExtraYields& y = GetYieldChanges(eIndex);
+	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
+		iBaseYield += it->second;
+	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
+		iBaseYield += it->second;
+
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
 	{
 		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
@@ -27211,52 +26737,30 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
-int CvCity::getReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
+int CvCity::getReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield)	const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiReligionBuildingYieldRateModifier[eIndex1][eIndex2];
+	return ModifierLookup(m_yieldChanges[eYield].forReligionBuilding, eBuilding);
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
+void CvCity::changeReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-
-	if(iChange != 0)
-	{
-		m_ppaiReligionBuildingYieldRateModifier[eIndex1][eIndex2] += iChange;
-	}
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	ModifierUpdateInsertRemove(y.forReligionBuilding, eBuilding, iChange, true);
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const
+int CvCity::getLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield)	const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppaiLocalBuildingClassYield[eIndex1][eIndex2];
+	return ModifierLookup(m_yieldChanges[eYield].forLocalBuilding, eBuilding);
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
+void CvCity::changeLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange)
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-
-	if(iChange != 0)
-	{
-		m_ppaiLocalBuildingClassYield[eIndex1][eIndex2] += iChange;
-	}
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	ModifierUpdateInsertRemove(y.forLocalBuilding, eBuilding, iChange, true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -28990,28 +28494,140 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (iCost > 0) 
+	if (iCost > 0 && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 	{
-		//Did we buy this plot from someone? Oh no!
-		if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
+		// Did we buy this plot from someone? They're gonna be mad!
+		PlayerTypes ePlotOwner = pPlot->getOwner();
+		int iTileValue = /*80*/ GC.getSTOLEN_TILE_BASE_WAR_VALUE();
+		int iValueMultiplier = 0;
+		bool bStoleHighValueTile = false;
+
+		if (pPlot->IsNaturalWonder())
 		{
-			if (!GET_PLAYER(pPlot->getOwner()).isHuman() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+			iValueMultiplier += 200;
+			bStoleHighValueTile = true;
+		}
+		else
+		{
+			if (pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
 			{
-				if(GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+				CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
+				if (pInfo)
 				{
-					if (!GET_TEAM(GET_PLAYER(pPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+					switch (pInfo->getResourceUsage())
 					{
-						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+					case RESOURCEUSAGE_STRATEGIC:
+						iValueMultiplier += 100;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_LUXURY:
+						iValueMultiplier += 50;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_BONUS:
+						iValueMultiplier += 20;
+						break;
 					}
 				}
-				else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+			}
+			if (pPlot->IsChokePoint())
+			{
+				iValueMultiplier += 50;
+				bStoleHighValueTile = true;
+			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
+			if (pkImprovement)
+			{
+				if (pkImprovement->IsCreatedByGreatPerson())
 				{
-					GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+					iValueMultiplier += 100;
+					bStoleHighValueTile = true;
 				}
+			}
+			// Stole a major civ's embassy from a City-State?
+			if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				PlayerTypes eEmbassyOwner = pPlot->GetPlayerThatBuiltImprovement();
+				if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+				{
+					// Notify the embassy owner
+					CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+					}
+
+					// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
+					if (!GET_PLAYER(eEmbassyOwner).isHuman())
+					{
+						int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
+						GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+					}
+
+					// Stole from the City-State's ally? The City-State is furious!
+					if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+					{
+						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+					}
+					// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+					else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+					{
+						if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
+						{
+							GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+						}
+					}
+				}
+			}
+		}
+
+		iTileValue *= (100 + iValueMultiplier);
+		iTileValue /= 100;
+
+		// If the players are at war, this counts for war value!
+		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
+		{
+			// Update military rating for both players
+			if (GET_PLAYER(getOwner()).isMajorCiv())
+			{
+				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+			}
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+			}
+
+			// Does the city owner have a bonus to war score accumulation?
+			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+			iTileValue /= 100;
+
+			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+		}
+
+		// Diplomacy penalty for stealing territory!
+		if (GET_PLAYER(getOwner()).isMajorCiv())
+		{
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				int iPenalty = bStoleHighValueTile ? 3 : 1;
+				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+			}
+			else if (GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				int iEra = GC.getGame().getCurrentEra();
+				if (iEra <= 0)
+				{
+					iEra = 1;
+				}
+				
+				GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), (iEra * -20));
 			}
 		}
 	}
 #endif
+
 #if defined(MOD_UI_CITY_EXPANSION)
 	if (iCost > 0) 
 	{
@@ -29315,11 +28931,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	iRtnValue += iYieldValue;
 
-	if (pPlot->IsStrategicRoute(getTeam()))
-	{
-		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
-	}
-	if (pPlot->GetBuilderAIScratchPadPlayer() == getOwner() && pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE)
+	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}
@@ -30037,11 +29649,11 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 							if (!canTrain(eUnit))
 							{
 								continue;
-							}
+	}
 							if (pUnitEntry->GetRangedCombat() > 0)
-							{
+	{
 								continue;
-							}
+	}
 							if (pUnitEntry->GetDomainType() == DOMAIN_LAND)
 							{
 								bool bBad = false;
@@ -30053,7 +29665,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 									if (iNumResource > 0)
 									{
 										if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
-										{
+	{
 											bBad = true;
 											break;
 										}
@@ -30074,65 +29686,65 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 #endif
 								}
 								if (bBad)
-								{
+	{
 									continue;
-								}
+	}
 								int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
 								if (iCombatLandStrength > iStrengthBestLandCombat)
-								{
+	{
 									iStrengthBestLandCombat = iCombatLandStrength;
 									eBestLandUnit = eUnit;
 								}
-							}
-						}
-					}
-				}
+	}
+	}
+		}
+	}
 				if (eBestLandUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
 					if (pkbUnitEntry)
-					{
+	{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
-						{
+		{
 							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
-							{
+			{
 								pUnit2->kill(false);	// Could not find a valid spot!
-							}
+			}
 							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 							if (pNotifications)
-							{
+			{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
 								strText << pUnit2->getNameKey() << getNameKey();
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
 								strSummary << getNameKey();
 								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
 							}
-						}
-					}
-				}
+			}
+		}
+	}
 				else
 				{
 					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
 					if (pkbUnitEntry)
-					{
+	{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
-						{
+		{
 							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
-							{
+			{
 								pUnit2->kill(false);	// Could not find a valid spot!
 							}
 							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 							if (pNotifications)
-							{
+				{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
 								strText << pUnit2->getNameKey() << getNameKey();
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
@@ -30140,10 +29752,10 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
 							}
 						}
-					}
 				}
 			}
-		}
+				}
+			}
 		if (kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
@@ -30152,19 +29764,19 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 			{
 				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 				if (pkcUnitEntry)
-				{
+			{
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
 					pZuluImpi->convert(pUnit, true);
-				}
 			}
 		}
+	}
 #endif
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY)
-		{
+	{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
-		}
+	}
 		else
 		{
 #endif
@@ -30180,40 +29792,40 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
-			}
+	}
 #if defined(MOD_EVENTS_CITY)
-		}
+}
 #endif
 
 		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
 		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
-		{
+{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
 #endif
 		if (bCanOverflow)
 		{
-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
-			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-			iOverflow = std::min(iMaxOverflow, iOverflow);
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
 
-			if (iOverflow > 0)
-			{
-				changeOverflowProductionTimes100(iOverflow);
-			}
-			setUnitProduction(eTrainUnit, 0);
+		if (iOverflow > 0)
+	{
+			changeOverflowProductionTimes100(iOverflow);
+	}
+		setUnitProduction(eTrainUnit, 0);
 
-			int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-			if (iProductionGold > 0)
-			{
-				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-			}
+		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+	{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
 		}
-		else
-		{
+	}
+	else
+	{
 			changeUnitProductionTimes100(eTrainUnit, -iProductionNeeded);
 		}
 	}
@@ -30224,7 +29836,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 		CvNotifications* pNotifications = kOwner.GetNotifications();
 		if (pNotifications)
-		{
+	{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
 			strText << getNameKey();
 			strText << GC.getUnitInfo(eTrainUnit)->GetDescription();
@@ -30753,7 +30365,7 @@ int CvCity::getProjectCount(ProjectTypes eProject) const
 	return m_aiNumProjects[eProject];
 }
 
-bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitType, CvUnitEntry* pkUnitInfo)
+bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkUnitInfo)
 {
 	if (!pPlot->isValidMovePlot(ePlayer))
 		return false;
@@ -30778,7 +30390,6 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitT
 	if (!bAccept)
 		return false;
 
-	bool bCanPlace = true;
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
@@ -30786,14 +30397,14 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitT
 		if(pLoopUnit != NULL)
 		{
 			// check stacking
-			if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
-				bCanPlace = false;
+			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCombatUnit())
+				return false;
 		}
 
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 	}
 	
-	return bCanPlace;
+	return true;
 }
 
 CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
@@ -30822,7 +30433,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		if (pPlot == NULL)
 			continue;
 
-		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
+		if (IsValidPlotForUnitType(pPlot,getOwner(),pkUnitInfo))
 			validChoices.push_back(pPlot);
 	}
 
@@ -30855,7 +30466,7 @@ bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
 		if (!pPlot)
 			continue;
 
-		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
+		if (IsValidPlotForUnitType(pPlot,getOwner(),pkUnitInfo))
 			return true;
 	}
 
@@ -32829,41 +32440,8 @@ void CvCity::read(FDataStream& kStream)
 
 	kStream >> *m_pCityEspionage;
 
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-
-#if defined(MOD_BALANCE_CORE)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXFeatureFromBuildings, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrainFromReligion, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXTerrain, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXFeatureFromReligion, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-	
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiYieldFromYield, NUM_YIELD_TYPES, NUM_YIELD_TYPES);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiActualYieldFromYield, NUM_YIELD_TYPES, NUM_YIELD_TYPES);
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventBuildingClassYieldModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventImprovementYield, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventResourceYield, NUM_YIELD_TYPES, GC.getNumResourceInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
-#endif
+	kStream >> m_yieldChanges;
+	kStream >> m_eventYields;
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	kStream >> m_ppiGreatPersonProgressFromConstruction;
@@ -32950,40 +32528,8 @@ VALIDATE_OBJECT
 	m_pEmphases->Write(kStream);
 	kStream << *m_pCityEspionage;
 
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-
-#if defined(MOD_BALANCE_CORE)
-	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromBuildings, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXFeatureFromBuildings, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrainFromReligion, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiYieldPerXTerrain, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXFeatureFromReligion, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiYieldPerXUnimprovedFeature, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiLocalBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiYieldFromYield, NUM_YIELD_TYPES, NUM_YIELD_TYPES);
-	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiActualYieldFromYield, NUM_YIELD_TYPES, NUM_YIELD_TYPES);
-
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiEventBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiEventBuildingClassYieldModifier, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
-
-	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiEventImprovementYield, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiEventResourceYield, NUM_YIELD_TYPES, GC.getNumResourceInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
-#endif
+	kStream << m_yieldChanges;
+	kStream << m_eventYields;
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	kStream << m_ppiGreatPersonProgressFromConstruction;
@@ -33681,7 +33227,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	else if (pDefender != NULL) //attacking a unit
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend(pInPlot))
+		if (!pDefender->IsCanDefend())
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}
@@ -35886,3 +35432,68 @@ int CvCity::GetYieldFromDevelopment(YieldTypes eYield) const
 }
 
 #endif
+
+
+FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)
+{
+	saveTo << readFrom.forXFeature;
+	saveTo << readFrom.forFeatureFromBuildings;
+	saveTo << readFrom.forFeatureFromReligion;
+	saveTo << readFrom.forFeatureUnimproved;
+	saveTo << readFrom.forXTerrain;
+	saveTo << readFrom.forTerrainFromBuildings;
+	saveTo << readFrom.forTerrainFromReligion;
+
+	saveTo << readFrom.forImprovement;
+	saveTo << readFrom.forSpecialist;
+	saveTo << readFrom.forResource;
+	saveTo << readFrom.forPlot;
+	saveTo << readFrom.forYield;
+	saveTo << readFrom.forActualYield;
+	saveTo << readFrom.forLocalBuilding;
+	saveTo << readFrom.forReligionBuilding;
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SCityExtraYields& writeTo)
+{
+	loadFrom >> writeTo.forXFeature;
+	loadFrom >> writeTo.forFeatureFromBuildings;
+	loadFrom >> writeTo.forFeatureFromReligion;
+	loadFrom >> writeTo.forFeatureUnimproved;
+	loadFrom >> writeTo.forXTerrain;
+	loadFrom >> writeTo.forTerrainFromBuildings;
+	loadFrom >> writeTo.forTerrainFromReligion;
+
+	loadFrom >> writeTo.forImprovement;
+	loadFrom >> writeTo.forSpecialist;
+	loadFrom >> writeTo.forResource;
+	loadFrom >> writeTo.forPlot;
+	loadFrom >> writeTo.forYield;
+	loadFrom >> writeTo.forActualYield;
+	loadFrom >> writeTo.forLocalBuilding;
+	loadFrom >> writeTo.forReligionBuilding;
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SCityEventYields& readFrom)
+{
+	saveTo << readFrom.forBuilding;
+	saveTo << readFrom.forBuildingModifier;
+	saveTo << readFrom.forFeature;
+	saveTo << readFrom.forImprovement;
+	saveTo << readFrom.forResource;
+	saveTo << readFrom.forSpecialist;
+	saveTo << readFrom.forTerrain;
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SCityEventYields& writeTo)
+{
+	loadFrom >> writeTo.forBuilding;
+	loadFrom >> writeTo.forBuildingModifier;
+	loadFrom >> writeTo.forFeature;
+	loadFrom >> writeTo.forImprovement;
+	loadFrom >> writeTo.forResource;
+	loadFrom >> writeTo.forSpecialist;
+	loadFrom >> writeTo.forTerrain;
+	return loadFrom;
+}

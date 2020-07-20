@@ -259,8 +259,8 @@ public:
 	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 
-	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway);
-	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway);
+	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
+	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
 	void ResetDistanceCaches();
 	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
 	bool IsPlayerValid(PlayerTypes eOtherPlayer);
@@ -268,7 +268,7 @@ public:
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType, int iMaxTurnsAway);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
-	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
+	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pMusterCity, CvCity* pTargetCity, bool bAttackByLand, bool bAttackBySea);
 
 	// Accessors to provide military data to other AI subsystems
 	ThreatTypes GetHighestThreat();

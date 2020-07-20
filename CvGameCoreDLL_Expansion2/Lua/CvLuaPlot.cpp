@@ -1044,8 +1044,7 @@ int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
-	//hack this
-	int iResult = pkUnit->CanStackUnitAtPlot(pkPlot) ? 0 : pkPlot->getUnitLimit();
+	int iResult = pkUnit->CountStackingUnitsAtPlot(pkPlot);
 
 	lua_pushinteger(L, iResult);
 	return 1;
