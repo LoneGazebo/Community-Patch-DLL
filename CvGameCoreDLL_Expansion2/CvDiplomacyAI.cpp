@@ -9474,8 +9474,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// NO WAR?
 	if (!bDominationVictoryEnabled)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
+		if (GET_PLAYER(ePlayer).isHuman())
+		{
+			if (!GC.getGame().IsAIAggressiveTowardsHumans())
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
+			}
+		}
+		else if (!GC.getGame().IsAIAggressiveMode())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
+		}			
 	}
 
 	////////////////////////////////////
@@ -9559,6 +9570,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// AGGRESSIVE MODE MULTIPLIER
 	////////////////////////////////////
 
+	// Only war? ONLY WAR!!!!
+	// (This mode is automatically enabled if only Domination and/or Time Victories are enabled.)
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
 		if (GC.getGame().IsAIAggressiveTowardsHumans())
