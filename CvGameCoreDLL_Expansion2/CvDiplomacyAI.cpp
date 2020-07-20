@@ -18259,35 +18259,20 @@ int CvDiplomacyAI::GetCommonFoeValue(PlayerTypes ePlayer)
 /// Changes the value of combat damage inflicted on a common enemy
 void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 {
-	if(iChange != 0 && ePlayer < MAX_MAJOR_CIVS)
+	if (iChange > 0)
 	{
-		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+		// If we're at permanent war anyway, this means nothing.
+		if (IsAlwaysAtWar(ePlayer))
+			return;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES && iChange > 0)
+		// Capitulated vassals don't care.
+		if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
 		{
-			// Capitulated vassals don't care.
-			if (IsVassal(ePlayer))
-			{
-				if (!GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
-				{
-					return;
-				}
-			}
+			return;
 		}
 #endif
-		m_paiCommonFoeValue[ePlayer] += iChange;
-		short iMaxOpinionValue = GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT() * -(GC.getOPINION_WEIGHT_COMMON_FOE_MAX());
-
-		// Must be between 0 and maximum possible boost to opinion
-		if(m_paiCommonFoeValue[ePlayer] < 0)
-		{
-			m_paiCommonFoeValue[ePlayer] = 0;
-		}
-		else if(m_paiCommonFoeValue[ePlayer] > iMaxOpinionValue)
-		{
-			m_paiCommonFoeValue[ePlayer] = iMaxOpinionValue;
-		}
+		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iChange);
 	}
 }
 
