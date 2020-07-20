@@ -5176,7 +5176,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			
 			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
 			{
-				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && GetWarState(eLoopPlayer) != WAR_STATE_DEFENSIVE && GetWarState(eLoopPlayer) != WAR_STATE_NEARLY_DEFEATED)
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && !bWeLostCapital && GetWarState(eLoopPlayer) != WAR_STATE_DEFENSIVE && GetWarState(eLoopPlayer) != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -6111,7 +6111,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// No opportunity attacks at all if we're doing terribly already!
-	if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+	if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && !bWeLostCapital)
 	{
 		// Don't be aggressive towards our friends or distant players without a good reason.
 		if (bModerateAggressiveDesire)
@@ -6596,74 +6596,77 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// TECH COMPETITION
 	////////////////////////////////////
 
-	eDisputeLevel = GetTechDisputeLevel(ePlayer);
-	iMultiplier = 1;
-	bBonus = false;
-	bVictoryConcern = false;
-
-	if (bScientist || bScientistTraits)
+	if (bVictoryCompetition)
 	{
-		iMultiplier++;
-		if (iEra >= 3 || bScientistTraits)
-			bBonus = true;
-	}
-	if (iEra >= 3 && bGoingForScienceVictory)
-	{
-		iMultiplier++;
-		bBonus = true;
-		bVictoryConcern = true;
-	}
-	if (bCloseToScienceVictory)
-	{
-		iMultiplier++;
-		bBonus = true;
-		bVictoryConcern = true;
-	}
-	if (bTheyAreCloseToScienceVictory && bEndgameAggressive)
-	{
-		iMultiplier++;
+		eDisputeLevel = GetTechDisputeLevel(ePlayer);
+		iMultiplier = 1;
 		bBonus = false;
-		bVictoryConcern = true;
-	}
-	if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
-	{
-		iMultiplier++;
-		bBonus = false;
-	}
+		bVictoryConcern = false;
 
-	// Additional multiplier increase if dispute level is fierce
-	if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
-	{
-		if (bVictoryConcern)
-		{
-			iMultiplier *= 2;
-		}
-		else if (bScientist || bScientistTraits)
+		if (bScientist || bScientistTraits)
 		{
 			iMultiplier++;
+			if (iEra >= 3 || bScientistTraits)
+				bBonus = true;
 		}
-	}
+		if (iEra >= 3 && bGoingForScienceVictory)
+		{
+			iMultiplier++;
+			bBonus = true;
+			bVictoryConcern = true;
+		}
+		if (bCloseToScienceVictory)
+		{
+			iMultiplier++;
+			bBonus = true;
+			bVictoryConcern = true;
+		}
+		if (bTheyAreCloseToScienceVictory && bEndgameAggressive)
+		{
+			iMultiplier++;
+			bBonus = false;
+			bVictoryConcern = true;
+		}
+		if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
+		{
+			iMultiplier++;
+			bBonus = false;
+		}
 
-	switch (eDisputeLevel)
-	{
-	case DISPUTE_LEVEL_NONE:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier) : 0;
-		break;
-	case DISPUTE_LEVEL_WEAK:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (bVictoryConcern || bScientist || bScientistTraits) ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier) : 0;
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * iMultiplier);
-		break;
-	case DISPUTE_LEVEL_STRONG:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
-		break;
-	case DISPUTE_LEVEL_FIERCE:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
-		break;
+		// Additional multiplier increase if dispute level is fierce
+		if (eDisputeLevel == DISPUTE_LEVEL_FIERCE)
+		{
+			if (bVictoryConcern)
+			{
+				iMultiplier *= 2;
+			}
+			else if (bScientist || bScientistTraits)
+			{
+				iMultiplier++;
+			}
+		}
+
+		switch (eDisputeLevel)
+		{
+		case DISPUTE_LEVEL_NONE:
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier) : 0;
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += bBonus ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier) : 0;
+			break;
+		case DISPUTE_LEVEL_WEAK:
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (bVictoryConcern || bScientist || bScientistTraits) ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier) : 0;
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * iMultiplier);
+			break;
+		case DISPUTE_LEVEL_STRONG:
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+			break;
+		case DISPUTE_LEVEL_FIERCE:
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+			break;
+		}
 	}
 
 	////////////////////////////////////
@@ -7725,7 +7728,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				continue;
 
 			// If we're winning against them or they're losing all their wars, don't count this player as a deterrent.
-			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy() && !bWeLostCapital)
 			{
 				if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 					continue;
@@ -12651,7 +12654,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 				int iWillingToAcceptScore = 0;
 
 				// If we want conquest, but the war has stalled out and/or we're losing all our wars, let's consider peace.
-				if (GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
+				if (GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy() || GetPlayer()->IsHasLostCapital())
 				{
 					// What we're willing to give up.  The higher the number the more we're willing to part with
 					int iWarScore = GetWarScore(eLoopPlayer, false);
@@ -22130,10 +22133,7 @@ bool CvDiplomacyAI::IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const
 /// What is our level of Dispute with a player over Technology?
 DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (GetPlayer()->IsVassalOfSomeone())
-		return DISPUTE_LEVEL_NONE;
-
-	if (WasResurrectedBy(ePlayer) || GET_TEAM(GetPlayer()->getTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (!IsCompetingForVictory())
 		return DISPUTE_LEVEL_NONE;
 
 	int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
@@ -22556,6 +22556,10 @@ bool CvDiplomacyAI::IsCompetingForVictory() const
 	if (WasResurrectedByAnyone())
 		return false;
 
+	// If we've lost our original capital, we're not competing for victory.
+	if (GetPlayer()->IsHasLostCapital())
+		return false;
+
 	// Victory competition is disabled by game options
 	if (!GC.getGame().IsVictoryCompetitionEnabled())
 		return false;
@@ -22567,9 +22571,7 @@ bool CvDiplomacyAI::IsCompetingForVictory() const
 bool CvDiplomacyAI::IsEndgameAggressive() const
 {
 	if (!IsCompetingForVictory())
-	{
 		return false;
-	}
 
 	return GC.getGame().IsEndgameAggressionEnabled();
 }
