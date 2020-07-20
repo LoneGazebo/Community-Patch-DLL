@@ -6562,11 +6562,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 	if (IsGameWon())
 		return false;
 
-	// Domination Victory is disabled
-	if (!isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true)))
-		return false;
-
-	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
