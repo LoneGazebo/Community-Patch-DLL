@@ -18272,8 +18272,8 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 			return;
 		}
 #endif
-		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iChange);
 	}
+	SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iChange);
 }
 
 /// Sets the value of combat damage inflicted on a common enemy
