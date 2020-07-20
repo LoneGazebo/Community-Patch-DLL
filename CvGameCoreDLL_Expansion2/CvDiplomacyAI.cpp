@@ -7778,11 +7778,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					bOtherWarPlayerCloseToTarget = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE;
 
-					if (bMajorCompetitor)
+					if (bMajorCompetitor || bEarlyGameCompetitor)
 					{
 						bThinkingAboutDogpiling = true;
 					}
-					else if (bEarlyGameCompetitor)
+					else if (GetOtherPlayerWarDamageLevel(ePlayer, eLoopPlayer) >= WAR_DAMAGE_LEVEL_SERIOUS)
 					{
 						bThinkingAboutDogpiling = true;
 					}
@@ -7816,21 +7816,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (iBonus / 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (iBonus / 2);
 		}
-	}
-
-	////////////////////////////////////
-	// DISABLED VICTORY CONDITIONS
-	////////////////////////////////////
-
-	bool bDiplomaticVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
-	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
-	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
-
-	//// Only war? ONLY WAR!!!!
-	if (!bDiplomaticVictoryEnabled && !bScienceVictoryEnabled && !bCultureVictoryEnabled)
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
 	}
 
 	////////////////////////////////////

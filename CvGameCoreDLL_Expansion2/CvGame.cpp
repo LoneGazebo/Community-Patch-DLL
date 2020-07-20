@@ -6394,7 +6394,7 @@ bool CvGame::IsShowAllOpinionModifiers() const
 		return true;
 	}
 
-	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	if (IsDiploDebugModeEnabled())
 	{
 		return true;
 	}
@@ -6418,7 +6418,7 @@ bool CvGame::IsShowAllOpinionValues() const
 		return true;
 	}
 
-	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	if (IsDiploDebugModeEnabled())
 	{
 		return true;
 	}
@@ -6696,6 +6696,15 @@ bool CvGame::IsAIAggressiveMode() const
 	}
 
 	if (GC.getDIPLOAI_AGGRESSIVE_MODE_GLOBAL() > 0)
+	{
+		return true;
+	}
+
+	bool bDiplomaticVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
+	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
+	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
+
+	if (!bDiplomaticVictoryEnabled && !bScienceVictoryEnabled && !bCultureVictoryEnabled)
 	{
 		return true;
 	}
