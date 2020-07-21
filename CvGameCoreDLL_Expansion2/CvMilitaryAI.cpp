@@ -1444,6 +1444,8 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 	if (path.vPlots.size() < 4)
 		return true;
 
+	int iThirdPartyPlots = 0;
+
 	//ignore beginning and end of path!
 	for (size_t i = 3; i < path.vPlots.size() - 3; i++)
 	{
@@ -1459,20 +1461,26 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 		if (!pCity)
 			continue;
 
-		//passing through a warzone? not good
-		if (pCity->getOwner() != eIntendedEnemy && m_pPlayer->IsAtWarWith(pCity->getOwner()))
-			return false;
-
 		//passing another city of our enemy? then we should attack that one first
 		if (pCity->getOwner()==eIntendedEnemy)
 			return false;
+
+		//passing through a different warzone? not good
+		if (m_pPlayer->IsAtWarWith(pCity->getOwner()))
+			return false;
+
+		//the trade path may lead through third-party territory
+		if (!pPlot->IsFriendlyTerritory(m_pPlayer->GetID()))
+			iThirdPartyPlots++;
 
 		//seems we have a better muster plot?
 		if (pCity->getOwner() == m_pPlayer->GetID() && path.get(0)->getOwningCityID() != pCity->GetID())
 			return false;
 	}
 
-	return true;
+	//the trade paths often lead through third party territory which an army may not be able to pass
+	//if we need open borders and there is no easy detour, exclude this path
+	return (iThirdPartyPlots<3);
 }
 
 bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
@@ -2349,7 +2357,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pMusterCit
 				continue;
 
 		//enemy citadels are dangerous, pretend we cannot use those plots
-		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, m_pPlayer->GetID(),false))
+		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, m_pPlayer->GetID(), false))
 			continue;
 
 		//for naval invasions we need lots of coastal plots

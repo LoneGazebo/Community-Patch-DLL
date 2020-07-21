@@ -4418,6 +4418,9 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = pkUnitPlot->getPlotCity();
 
+	//make sure we always have fresh data
+	GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkPlayer->GetID());
+
 	lua_createtable(L, 0, 0);
 	int index = 1;
 

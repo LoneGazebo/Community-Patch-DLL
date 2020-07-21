@@ -1107,11 +1107,14 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotBlockadeMoves();
 
 	//pure defense
-	PlotEscortEmbarkedMoves();
 	PlotGarrisonMoves(4);
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
-	PlotRepositionMoves();
+
+	//do this last after the units in need have already moved
+	PlotRepositionMoves(false);
+	PlotEscortEmbarkedMoves();
+	PlotRepositionMoves(true);
 
 	//civilians move out of harms way last, when all potential defenders are set in place
 	PlotMovesToSafety(false);
@@ -1557,7 +1560,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 }
 
 /// Move units to a better location
-void CvTacticalAI::PlotRepositionMoves()
+void CvTacticalAI::PlotRepositionMoves(bool bWater)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_REPOSITION);
 
@@ -1569,6 +1572,11 @@ void CvTacticalAI::PlotRepositionMoves()
 		{
 			// Never use this (default) move for Great Admirals or Generals
 			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
+				continue;
+
+			if (bWater && pUnit->getDomainType() != DOMAIN_SEA)
+				continue;
+			if (!bWater && pUnit->getDomainType() != DOMAIN_LAND)
 				continue;
 
 			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
@@ -1750,7 +1758,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+				ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -2290,7 +2298,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit->isEmbarked() && pLoopUnit->getDomainType() != DOMAIN_SEA)
+		if (pLoopUnit->isEmbarked() && pLoopUnit->plot()->GetNumFriendlyUnitsAdjacent(pLoopUnit->getTeam(),DOMAIN_SEA)<2)
 			vEmbarkedUnits.push_back(pLoopUnit);
 	}
 
@@ -2304,7 +2312,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 			if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCanAttack())
 			{
 				//any embarked unit close by?
-				int iMaxDist = pUnit->baseMoves()*2;
+				int iMaxDist = pUnit->getMoves();
 				for (size_t i=0; i<vEmbarkedUnits.size(); i++)
 				{
 					if (plotDistance(*pUnit->plot(),*vEmbarkedUnits[i]->plot())<=iMaxDist)
@@ -2319,7 +2327,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		ExecuteEscortEmbarkedMoves();
+		ExecuteEscortEmbarkedMoves(vEmbarkedUnits);
 	}
 }
 
@@ -2666,8 +2674,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						else //did not switch
 						{
 							//Let's have them move forward, see if that clears things up.
-							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
-							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),true,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(),true,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 							//try again next turn
 							pOperation->SetMusterPlot(pCivilian->plot());
@@ -2700,10 +2708,10 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				else
 				{
 					// Civilian is not yet there - both must move
-					if (!ExecuteMoveToPlot(pCivilian, pOperation->GetMusterPlot(),false))
+					if (!ExecuteMoveToPlot(pCivilian, pOperation->GetMusterPlot()))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 					// use approximate pathfinding to avoid embarked stacking problems - but only for one of them, else they will never come close
-					else if (!ExecuteMoveToPlot(pEscort, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+					else if (!ExecuteMoveToPlot(pEscort, pOperation->GetMusterPlot(),true,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 				}
 
@@ -2732,10 +2740,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION ||
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION)
 	{
-		// are we there yet?
-		if(pCivilian->plot() == pOperation->GetTargetPlot())
-			return;
-
 		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 		//if necessary and possible, avoid plots where our escort cannot follow
 		if (pEscort && !pOperation->GetTargetPlot()->isNeutralUnit(pEscort->getOwner(),true,true))
@@ -2744,13 +2748,17 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		pThisArmy->SetXY(pCivilian->getX(), pCivilian->getY());
 	
 		// the escort leads the way
-		bool bHavePathEscort = false;
 		bool bPathFound = false;
-		bool bSaveMoves = true;
 		CvString strLogString;
 		if(pEscort)
 		{
-			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
+			//the target plot may be a city, so we need to check if the escort can actually go there
+			//but the civilian uses the same flags so dump the escort when we're already there
+			CvPlot* pTargetPlot = pOperation->GetTargetPlot();
+			if (!pEscort->canMoveInto(*pTargetPlot) && !pEscort->plot()->isAdjacent(pTargetPlot))
+				iMoveFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
+			bool bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathEscort)
 			{
 				CvPlot* pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
@@ -2761,43 +2769,15 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns, true);
 					if (bHavePathCivilian)
 					{
-						bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
 						bPathFound = true;
 
 						if (iTurns > 1)
-						{
-							//strange, escort seems to be faster than the civilian, let's hope it's better the other way around
-							CvPlot* pAltPlot = pCivilian->GetPathEndFirstTurnPlot();
-							if (pAltPlot != NULL)
-							{
-								if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
-									pCommonPlot = pAltPlot;
-								else
-								{
-									pAltPlot = pCivilian->GetPathFirstPlot();
-									if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
-										pCommonPlot = pAltPlot;
-								}
-							}
-						}
+							//escort seems to be faster than the civilian, slow down
+							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 
-						//civilian goes first - we know by now that this must work
-						ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
-
-						//watch out: in CP embarked units cannot stack ...
-						if (pEscort->canMoveInto(*pCivilian->plot(), CvUnit::MOVEFLAG_DESTINATION))
-						{
-							ExecuteMoveToPlot(pEscort, pCivilian->plot(), bSaveMoves);
-						}
-						else
-						{
-							if (pCivilian->plot()->isAdjacent(pEscort->plot()))
-								//approximate move wouldn't make any progress - go straight to the target
-								ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-							else
-								//escort tries to stay close
-								ExecuteMoveToPlot(pEscort, pCivilian->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-						}
+						//we know they can stack
+						ExecuteMoveToPlot(pCivilian, pCommonPlot);
+						ExecuteMoveToPlot(pEscort, pCommonPlot);
 
 						if (GC.getLogging() && GC.getAILogging())
 						{
@@ -2810,6 +2790,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
+				//civilian leads the way since escort seems to be blocked
+				//but maybe we can at least find a way for this turn
 				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 				if(bHavePathCivilian)
 				{
@@ -2817,44 +2799,21 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					if(pCommonPlot != NULL)
 					{
 						int iTurns = INT_MAX;
+						if (!pEscort->canMoveInto(*pCommonPlot))
+							iMoveFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
 						bool bHavePathEscort = pEscort->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns);
 						if (bHavePathEscort)
 						{
-							bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
 							bPathFound = true;
 
 							if (iTurns>1)
-								//strange, civilian seems to be faster than the civilian, let's hope it's better the other way around
+								//civilian seems to be faster than the escort, slow down
 								pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
 
-							ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
-							//Did he actually move?
-							if (pEscort->plot() != pCivilian->plot())
-							{
-								//avoid problems with embarked stacking
-								if ( pEscort->plot()->needsEmbarkation(pCivilian) )
-								{
-									if ( pEscort->plot()->isAdjacent( pCivilian->plot() ) )
-										//approximate move wouldn't make any progress - go straight to the target
-										ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), bSaveMoves);
-									else
-										//simply stay close
-										ExecuteMoveToPlot(pCivilian, pEscort->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-								}
-								else
-									ExecuteMoveToPlot(pCivilian, pEscort->plot(), bSaveMoves);
-
-								if (GC.getLogging() && GC.getAILogging())
-								{
-									strLogString.Format("%s now at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.",
-										pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(),
-										pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str());
-								}
-							}
-							else
-							{
-								bPathFound = false;
-							}
+							//we know they can stack
+							ExecuteMoveToPlot(pEscort, pCommonPlot);
+							ExecuteMoveToPlot(pCivilian, pCommonPlot);
 						}
 						else
 						{
@@ -2862,7 +2821,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							CvUnit* pNewEscort = SwitchEscort(pCivilian,pCommonPlot,pEscort,pThisArmy);
 							if (pNewEscort)
 							{
-								ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+								ExecuteMoveToPlot(pCivilian, pCommonPlot);
 								pNewEscort->PushMission(CvTypes::getMISSION_SKIP());
 								UnitProcessed(pNewEscort->GetID());
 							}
@@ -2875,7 +2834,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			{
 				//we have a problem, apparently civilian and escort must split up
 				//use a special flag here to make sure we're not stuck in a dead end with limited sight (can happen with embarked units)
-				if (!ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), false, CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED))
+				if (!ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), true, CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED))
 				{
 					pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target. aborting.", 
@@ -2904,8 +2863,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							pTurnTarget = pAlternativeTarget;
 					}
 
-					bSaveMoves = (pTurnTarget == pOperation->GetTargetPlot());
-					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves);
+					ExecuteMoveToPlot(pCivilian, pTurnTarget);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -3640,12 +3598,12 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 			if (!TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
 				continue;
 
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 			TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
 		}
 		else //empty camp, move in and move on
 		{
-			ExecuteMoveToPlot(pUnit, pTargetPlot, true);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false);
 		}
 	}
 }
@@ -3660,7 +3618,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 		{
 			if (pUnit->shouldPillage(pTargetPlot))
 			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+				ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 
 				//now that the neighbor plots are revealed, maybe it's better to retreat?
 				CvPlot* pSafePlot = NULL;
@@ -3955,7 +3913,7 @@ bool CvTacticalAI::ExecuteSpotterMove(vector<CvUnit*> vUnits, CvPlot* pTargetPlo
 		// (retreat would be handled elsewhere)
 		if (pUnit->TurnsToReachTarget(pTargetPlot,iFlags|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1)==0)
 		{
-			ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, iFlags);
 			return pTargetPlot->isVisible(m_pPlayer->getTeam());
 		}
 	}
@@ -3972,7 +3930,7 @@ bool CvTacticalAI::ExecuteSpotterMove(vector<CvUnit*> vUnits, CvPlot* pTargetPlo
 
 		if (pUnit->GetDanger(pTargetPlot)<pUnit->GetCurrHitPoints()/2 && pUnit->TurnsToReachTarget(pTargetPlot,iFlags,1)==0)
 		{
-			ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, iFlags);
 			return pTargetPlot->isVisible(m_pPlayer->getTeam());
 		}
 	}
@@ -4117,15 +4075,16 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 		//embark only when it's safe
 		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+
 		//civilians can stack ...
-		if (pUnit->IsCombatUnit())
+		if (!pUnit->CanStackUnitAtPlot(pClosestUnit))
 		{
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		}
 
 		CvPlot* pOldPlot = pUnit->plot();
-		ExecuteMoveToPlot(pUnit, pClosestUnit, true, iFlags);
+		ExecuteMoveToPlot(pUnit, pClosestUnit, false, iFlags);
 
 		//important: only mark the unit as processed if we made a move!
 		//if we're stuck it should be used for other purposes
@@ -4536,7 +4495,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 					pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBetterPlot->getX(), pBetterPlot->getY());
 				}
 				else //plot should be free
-					ExecuteMoveToPlot(pUnit, pBetterPlot, true);
+					ExecuteMoveToPlot(pUnit, pBetterPlot);
 			}
 
 			UnitProcessed(pUnit->GetID());
@@ -4631,7 +4590,7 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 }
 
 /// Move unit to a specific tile (unit passed explicitly)
-bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves, int iFlags)
+bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed, int iFlags)
 {
 	bool bResult = false;
 
@@ -4647,7 +4606,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 		//don't call finish moves, otherwise we won't heal!
-		if (!bSaveMoves)
+		if (bSetProcessed)
 			UnitProcessed(pUnit->GetID());
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
@@ -4686,7 +4645,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 			//for inspection in GUI
 			pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
 
-			if (!bSaveMoves || !pUnit->canMove())
+			if (bSetProcessed || !pUnit->canMove())
 				UnitProcessed(pUnit->GetID());
 		}
 		//maybe units are blocking our way? try to find a good plot in the direction of the target and hope the block clears
@@ -4698,7 +4657,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 				//for inspection in GUI
 				pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
-				if (!bSaveMoves || !pUnit->canMove())
+				if (bSetProcessed || !pUnit->canMove())
 					UnitProcessed(pUnit->GetID());
 			}
 		}
@@ -4992,62 +4951,41 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 }
 
 /// Move naval units on top of embarked units in danger
-void CvTacticalAI::ExecuteEscortEmbarkedMoves()
+void CvTacticalAI::ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets)
 {
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		if(pUnit)
 		{
-			CvPlot *pBestTarget = NULL;
+			CvUnit* pBestTarget = NULL;
 			int iHighestDanger = -1;
-			//we cannot stack with embarked combat units, but with embarked civilians its fine
-			int iMoveFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+			int iBestMoveFlag = 0;
 
 			// Loop through all my embarked units that are: alone and within range
-			int iLoop;
-			for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+			for (size_t i=0; i<vTargets.size(); ++i)
 			{
-				if (pLoopUnit->getDomainType() != DOMAIN_LAND)
-				{
-					continue;
-				}
-				else if (!pLoopUnit->isEmbarked())
-				{
-					continue;
-				}
-				else if (plotDistance(*pUnit->plot(), *pLoopUnit->plot()) > pUnit->baseMoves()*2)
-				{
-					continue;
-				}
-				//Ignore guys that can still move.
-				else if(pLoopUnit->getMoves() > 0)
-				{
-					continue;
-				}
-			
-				//stack with civilians
-				if (!pLoopUnit->IsCanDefend())
-					iMoveFlag = 0;
+				CvUnit* pTarget = vTargets[i];
+				int iMoveFlag = pUnit->CanStackUnitAtPlot(pTarget->plot()) ? 0 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 				
-				CvPlot *pTarget = pLoopUnit->plot();
 				// Can this unit get to the embarked unit in two moves?
-				int iTurns = pUnit->TurnsToReachTarget(pTarget,iMoveFlag);
-				if (iTurns <= 1)
+				int iTurns = pUnit->TurnsToReachTarget(pTarget->plot(),iMoveFlag);
+				if (iTurns < 1)
 				{
 					//note: civilian in danger have INT_MAX
-					int iDanger = pUnit->GetDanger(pTarget);
+					int iDanger = pTarget->GetDanger();
 					if (iDanger > iHighestDanger)
 					{
 						iHighestDanger = iDanger;
 						pBestTarget = pTarget;
+						iBestMoveFlag = iMoveFlag;
 					}
 				}
 			}
 
 			if (pBestTarget)
 			{
-				ExecuteMoveToPlot(pUnit, pBestTarget, true, iMoveFlag);
+				ExecuteMoveToPlot(pUnit, pBestTarget->plot(), true, iBestMoveFlag);
 
 				//If we can shoot while doing this, do it!
 				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit))
@@ -5059,8 +4997,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 						LogTacticalMessage(strLogString);
 					}
 				}
-
-				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
 				{

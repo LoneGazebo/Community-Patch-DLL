@@ -2536,8 +2536,13 @@ CvAIOperationCivilianMerchantDelegation::~CvAIOperationCivilianMerchantDelegatio
 /// If at target, cash in; if at muster point, merge merchant and escort and move out
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1)
+		return false;
+
 	// If the merchant made it, we don't care about the entire army
-	if(pMerchant && pMerchant->plot()->getOwner() == GetTargetPlot()->getOwner() && pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
+	if(pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
 	{
 		if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
 		{
@@ -2599,13 +2604,20 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 		return NULL;
 
 	//this mission is for diplomacy bomb, constructing embassies is handled in homeland AI
+	//therefore use the messenger target selection
 	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit);
 }
 
 bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
-	if(pDiplomat && pDiplomat->plot() == GetTargetPlot() && pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pDiplomat || plotDistance(*pDiplomat->plot(), *GetTargetPlot()) > 1)
+		return false;
+
+	if(pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
 	{
+		//this is not an embassy, this is for influence
 		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -2701,7 +2713,12 @@ CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, i
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
-	if(pMusician && pMusician->plot() == GetTargetPlot() && pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pMusician || plotDistance(*pMusician->plot(), *GetTargetPlot()) > 1)
+		return false;
+
+	if(pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
 	{
 		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
 		if(GC.getLogging() && GC.getAILogging())

@@ -1884,8 +1884,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;
-					//we can't use the city plot itself as target ... so with the approximate path flag this is our target
-					pBestTargetPlot = pMerchant->GetPathLastPlot();
+					pBestTargetPlot = pCity->plot();
 				}
 			}
 		}

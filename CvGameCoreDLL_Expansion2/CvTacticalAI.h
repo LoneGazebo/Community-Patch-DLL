@@ -550,7 +550,7 @@ private:
 	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
-	void PlotRepositionMoves();
+	void PlotRepositionMoves(bool bWater);
 //--------------------------------
 
 	void PlotAirInterceptMoves();
@@ -606,7 +606,7 @@ private:
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianRoaming();
-	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
+	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirInterceptMoves();
@@ -614,7 +614,7 @@ private:
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
 	void ExecuteWithdrawMoves();
-	void ExecuteEscortEmbarkedMoves();
+	void ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets);
 
 	// Internal low-level utility routines
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);

@@ -125,12 +125,12 @@ bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const S
 
 const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
 {
-	if (!pOriginCity)
-		return std::map<int, SPath>();
-
 	//make sure we're up to date
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 	UpdateTradePathCache(eOriginPlayer);
+
+	if (!pOriginCity)
+		return m_dummyTradePaths; //always empty
 
 	return bWater ? m_aPotentialTradePathsWater[pOriginCity->GetID()] : m_aPotentialTradePathsLand[pOriginCity->GetID()];
 }
@@ -162,6 +162,8 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 void CvGameTrade::InvalidateTradePathCache(uint iPlayer)
 {
 	m_lastTradePathUpdate[iPlayer] = -1;
+	m_aPotentialTradePathsWater[iPlayer] = m_dummyTradePaths;
+	m_aPotentialTradePathsLand[iPlayer] = m_dummyTradePaths;
 }
 
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
@@ -186,6 +188,9 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			vDestPlots.push_back(pDestCity->plot());
 	}
+
+	//throw away the old data before adding the new
+	InvalidateTradePathCache(iPlayer1);
 
 	int iOriginCityLoop;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
