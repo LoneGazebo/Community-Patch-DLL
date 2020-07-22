@@ -2432,7 +2432,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 
 			int iCivValue = 0;
-			if (IsCivilianUnit() && !IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
+			if (IsCivilianUnit() && !IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && (GetOriginalOwner() == getOwner() || isBarbarian()))
 			{
 				// AI cares less about lost workers / etc in lategame
 				int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(getOwner()).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
