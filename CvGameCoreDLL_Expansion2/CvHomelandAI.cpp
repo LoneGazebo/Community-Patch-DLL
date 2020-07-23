@@ -3659,7 +3659,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		if(pTarget)
 		{
 			//not at target yet?
-			if( ((pUnit->plot() != pTarget) && (pUnit->plot()->getOwner() != pTarget->getOwner())) || !pUnit->canTrade(pUnit->plot()) )
+			if( (pUnit->plot() != pTarget) || (pUnit->plot()->getOwner() != pTarget->getOwner()) || !pUnit->canTrade(pUnit->plot()) )
 			{
 				//important to use the same flags as in FindBestMessengerTargetCity to avoid double pathfinding!
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
@@ -3673,23 +3673,38 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 
 			//now try to finish our mission
-			if (pUnit->plot()->getOwner() == pTarget->getOwner() && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+			if (plotDistance(*pUnit->plot(), *pTarget) < 2 && pUnit->canMove())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_TRADE());
-				PlayerTypes ePlayer = pUnit->plot()->getOwner();
-				if (ePlayer != NO_PLAYER)
+				if (pUnit->canTrade(pUnit->plot()))
 				{
-					if (GC.getLogging() && GC.getAILogging())
+					pUnit->PushMission(CvTypes::getMISSION_TRADE());
+					PlayerTypes ePlayer = pUnit->plot()->getOwner();
+					if (ePlayer != NO_PLAYER)
 					{
-						CvString strLogString;
-						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s",
-							GET_PLAYER(ePlayer).getCivilizationShortDescription(),
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
-						LogHomelandMessage(strLogString);
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s",
+								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
+							LogHomelandMessage(strLogString);
+						}
 					}
 				}
-
+				else
+				{
+					//uh, this should not happen? look for a neighboring plot
+					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pUnit->plot());
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						if (aNeighbors[iI] && pUnit->canTrade(aNeighbors[iI]))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+							break;
+						}
+					}
+				}
 			}
 		}
 		//Dangerous?

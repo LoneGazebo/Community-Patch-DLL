@@ -2538,11 +2538,11 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
 	//we don't actually have to be exactly at the target plot
 	//in fact we cannot go there if it's a city
-	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1)
+	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1 || !pMerchant->canMove())
 		return false;
 
 	// If the merchant made it, we don't care about the entire army
-	if(pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
+	if(pMerchant->canTrade(pMerchant->plot()))
 	{
 		if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
 		{
@@ -2567,9 +2567,22 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMerchant->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pMerchant->canTrade(aNeighbors[iI]))
+			{
+				pMerchant->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
-	return false;
-}
+	SetToAbort(AI_ABORT_NO_TARGET);
+	return false;}
 
 /// Find the plot where we want to settler
 CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
@@ -2612,10 +2625,10 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
 	//we don't actually have to be exactly at the target plot
 	//in fact we cannot go there if it's a city
-	if (!pDiplomat || plotDistance(*pDiplomat->plot(), *GetTargetPlot()) > 1)
+	if (!pDiplomat || plotDistance(*pDiplomat->plot(), *GetTargetPlot()) > 1 || !pDiplomat->canMove())
 		return false;
 
-	if(pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
+	if(pDiplomat->canTrade(pDiplomat->plot()))
 	{
 		//this is not an embassy, this is for influence
 		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
@@ -2629,7 +2642,21 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 		}
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pDiplomat->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pDiplomat->canTrade(aNeighbors[iI]))
+			{
+				pDiplomat->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
+	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
 
@@ -2715,10 +2742,10 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
 	//we don't actually have to be exactly at the target plot
 	//in fact we cannot go there if it's a city
-	if (!pMusician || plotDistance(*pMusician->plot(), *GetTargetPlot()) > 1)
+	if (!pMusician || plotDistance(*pMusician->plot(), *GetTargetPlot()) > 1 || !pMusician->canMove())
 		return false;
 
-	if(pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
+	if(pMusician->canBlastTourism(pMusician->plot()))
 	{
 		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
 		if(GC.getLogging() && GC.getAILogging())
@@ -2729,7 +2756,21 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 		}
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMusician->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pMusician->canBlastTourism(aNeighbors[iI]))
+			{
+				pMusician->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
+	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
 

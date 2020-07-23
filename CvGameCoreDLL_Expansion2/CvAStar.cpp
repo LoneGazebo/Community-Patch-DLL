@@ -951,6 +951,14 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
 			return false;
 
+		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
+		{
+			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
+			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
+			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
+				return false;
+		}
+
 		//need to make sure there are no mountains/ice plots in between
 		return CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY()));
 	}
@@ -963,7 +971,18 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		return ::plotDistance(iToX,iToY,GetDestX(),GetDestY()) < 2;
+		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 1)
+			return false;
+
+		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
+		{
+			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
+			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
+			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
+				return false;
+		}
+
+		return true;
 	}
 	else
 		return iToX==GetDestX() && iToY==GetDestY();
