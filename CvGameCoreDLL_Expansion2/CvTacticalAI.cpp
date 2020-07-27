@@ -7680,10 +7680,14 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		if (movePlot.iMovesLeft>0)
 		{
 			//would it make sense to pillage here?
-			if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
+			if (pUnit->shouldPillage(pTestPlot, true, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
 			{
 				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-				if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(),true))
+				bool bStrategicPillage = TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(), true);
+				if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					bStrategicPillage = true;
+
+				if (bStrategicPillage)
 				{
 					iMiscScore += 50;
 					if (movePlot.iMovesLeft > 0) //if we can do it right away ...
@@ -7694,7 +7698,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 						result.eAssignmentType = A_PILLAGE;
 					}
 				}
-				//if it's an improvement we pillage to heal if we have moves to spare
+				//if it's an improvement we pillage to heal when we have moves to spare (pillaging roads doesn't give health)
 				else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && (movePlot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
 				{
 					iMiscScore += 20;

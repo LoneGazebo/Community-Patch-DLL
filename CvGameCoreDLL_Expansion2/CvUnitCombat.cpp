@@ -1695,18 +1695,23 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, true, &plot);
 			}
 		}
+
+		//set these even if the interception failed (ie zero damage)
+		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
+		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);
+		pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
+		pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, true );
+		pkCombatInfo->setAttackIsBombingMission(true);
+		pkCombatInfo->setDefenderRetaliates(false);
+		//no experience by default, may be overwritten
+		pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
+
+		//is the attack aborted?
 		if (iInterceptionDamage > 0)
 		{
-			pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
-			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);		// Damage inflicted this round
-
 			int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
 			pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
 			pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, MAX_INT );
-			pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
-			pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, true );
-			pkCombatInfo->setAttackIsBombingMission(true);
-			pkCombatInfo->setDefenderRetaliates(false);
 
 			//make sure we have zero values everywhere else
 			pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, 0);
@@ -1718,7 +1723,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 			pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
 			pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
-			pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());	// Not really correct
+			pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
 
 			pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, 0);

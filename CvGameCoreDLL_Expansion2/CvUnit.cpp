@@ -10276,7 +10276,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	}
 
 	CvCity* pOriginCity = getOriginCity();
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for (int iI = 0; iI < YIELD_GREAT_GENERAL_POINTS; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 		if (GET_PLAYER(getOwner()).GetYieldFromPillage(eYield) > 0 || (pOriginCity && pOriginCity->GetYieldFromPillage(eYield) > 0))
