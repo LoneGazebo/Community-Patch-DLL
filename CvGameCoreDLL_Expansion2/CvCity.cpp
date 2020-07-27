@@ -35313,13 +35313,16 @@ int CvCity::GetYieldFromDevelopment(YieldTypes eYield) const
 
 FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)
 {
+	saveTo << readFrom.forTerrain;
+	saveTo << readFrom.forXTerrain;
+	saveTo << readFrom.forTerrainFromBuildings;
+	saveTo << readFrom.forTerrainFromReligion;
+
+	saveTo << readFrom.forFeature;
 	saveTo << readFrom.forXFeature;
 	saveTo << readFrom.forFeatureFromBuildings;
 	saveTo << readFrom.forFeatureFromReligion;
 	saveTo << readFrom.forFeatureUnimproved;
-	saveTo << readFrom.forXTerrain;
-	saveTo << readFrom.forTerrainFromBuildings;
-	saveTo << readFrom.forTerrainFromReligion;
 
 	saveTo << readFrom.forImprovement;
 	saveTo << readFrom.forSpecialist;
@@ -35333,13 +35336,16 @@ FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)
 }
 FDataStream& operator>>(FDataStream& loadFrom, SCityExtraYields& writeTo)
 {
+	loadFrom >> writeTo.forTerrain;
+	loadFrom >> writeTo.forXTerrain;
+	loadFrom >> writeTo.forTerrainFromBuildings;
+	loadFrom >> writeTo.forTerrainFromReligion;
+
+	loadFrom >> writeTo.forFeature;
 	loadFrom >> writeTo.forXFeature;
 	loadFrom >> writeTo.forFeatureFromBuildings;
 	loadFrom >> writeTo.forFeatureFromReligion;
 	loadFrom >> writeTo.forFeatureUnimproved;
-	loadFrom >> writeTo.forXTerrain;
-	loadFrom >> writeTo.forTerrainFromBuildings;
-	loadFrom >> writeTo.forTerrainFromReligion;
 
 	loadFrom >> writeTo.forImprovement;
 	loadFrom >> writeTo.forSpecialist;
