@@ -11438,23 +11438,19 @@ bool CvUnit::DoRemoveHeresy()
 				gDLL->GameplayUnitActivate(pDllUnit.get());
 			}
 
-			ReligionTypes eBeforeMajority = pCity->GetCityReligions()->GetReligiousMajority();
-			if (eBeforeMajority != NO_RELIGION)
+			int iBeforeFollowers = pCity->GetCityReligions()->GetNumFollowers(GetReligionData()->GetReligion());
+			pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
+			int iAfterFollowers = pCity->GetCityReligions()->GetNumFollowers(GetReligionData()->GetReligion());
+
+			int iDelta = iAfterFollowers - iBeforeFollowers;
+			if (iDelta>0)
 			{
-				int iBeforePop = pCity->GetCityReligions()->GetNumFollowers(eBeforeMajority);
-				pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
-				int iAfterPop = pCity->GetCityReligions()->GetNumFollowers(eBeforeMajority);
-				int iDelta = iBeforePop - iAfterPop;
-				if (iDelta > 0)
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
+				if (pReligion)
 				{
-					
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
-					if (pReligion)
-					{
-						CvCity* pHolyCity = pReligion->GetHolyCity();
-						if (pHolyCity != NULL)
-							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REMOVE_HERESY, false, NO_GREATPERSON, NO_BUILDING, iDelta, true, NO_PLAYER, NULL, false, pHolyCity);
-					}
+					CvCity* pHolyCity = pReligion->GetHolyCity();
+					if (pHolyCity != NULL)
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REMOVE_HERESY, false, NO_GREATPERSON, NO_BUILDING, iDelta, true, NO_PLAYER, NULL, false, pHolyCity);
 				}
 			}
 
@@ -16407,11 +16403,10 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 //	--------------------------------------------------------------------------------
 int CvUnit::GetEmbarkedUnitDefense() const
 {
-	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-	EraTypes eEra = kPlayer.GetCurrentEra();
+	//embarked strength is simply base combat strength without any promotions
+	int iRtnValue = GetBaseCombatStrength() * 100;
 
-	int iRtnValue = GC.getEraInfo(eEra)->getEmbarkedUnitDefense() * 100 + GetBaseCombatStrength() * 20;
-
+	//except for one
 	int iModifier = GetEmbarkDefensiveModifier();
 	if(iModifier > 0)
 	{
