@@ -16391,7 +16391,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 					}
 				}
 
-				iProductionNeeded *= (100 - iTotalEraMod);
+				iProductionNeeded *= (100 + iTotalEraMod);
 				iProductionNeeded /= 100;
 			}
 		}
@@ -16414,7 +16414,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			}
 		}
 
-		iProductionNeeded *= (100 - iTotalEraMod);
+		iProductionNeeded *= (100 + iTotalEraMod);
 		iProductionNeeded /= 100;
 	}
 
