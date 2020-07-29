@@ -4665,13 +4665,14 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 					if (pUnit->canMove())
-						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-					if (GC.getLogging() && GC.getAILogging())
 					{
-						CvString strLogString;
-						strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-						LogHomelandMessage(strLogString);
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Removing heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+							LogHomelandMessage(strLogString);
+						}
 					}
 
 					UnitProcessed(pUnit->GetID());
@@ -4683,40 +4684,23 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Moving to remove heresy at %s (%d:%d), currently (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 				}
 			}
 			else
 			{
-				if (iTargetTurns == 0)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+
+				if (GC.getLogging() && GC.getAILogging())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-					if (pUnit->canMove())
-						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Move to garrison against heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					UnitProcessed(pUnit->GetID());
+					CvString strLogString;
+					strLogString.Format("Move to garrison against heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+					LogHomelandMessage(strLogString);
 				}
-				else
-				{
-					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
 
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving to plot adjacent to garrison against heresy in city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-				}
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 	}
