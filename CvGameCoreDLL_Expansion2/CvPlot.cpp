@@ -3473,21 +3473,21 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
     if (!pUnit)
         return true;
 
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-    if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
-    {
-        return isDeepWater();
-    }
-    else
-#endif
     //only land units need to embark
-    if (pUnit->getDomainType()==DOMAIN_LAND)
-    {
-		//do not check for transport boats any more
-        return !pUnit->canMoveAllTerrain() && !pUnit->isConvertUnit();
-    }
-    else
+    if (pUnit->getDomainType()!=DOMAIN_LAND || pUnit->canMoveAllTerrain())
         return false;
+
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+    if (pUnit->IsEmbarkDeepWater())
+        return isDeepWater();
+#endif
+
+	//some units can flip between different types
+	if (pUnit->isConvertUnit())
+		return false;
+
+	//we know it's a land unit and a water plot by now
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
