@@ -302,7 +302,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
 
 		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
-		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
+		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves(false)) )
 			continue;
 
 		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());

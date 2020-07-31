@@ -3432,7 +3432,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
@@ -3443,7 +3443,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;

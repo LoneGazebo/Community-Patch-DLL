@@ -18,7 +18,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
 		return INT_MAX;
 	}
-	else if (pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
+	else if (pUnit->getDomainType() == DOMAIN_AIR)
 	{
 		return iMoveDenominator;
 	}
@@ -70,7 +70,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
 
 		//routes only on land
-		int iBaseMoves = pUnit->baseMoves(DOMAIN_LAND);
+		int iBaseMoves = pUnit->baseMoves(false);
 
 		int iRouteVariableCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
@@ -146,6 +146,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			return iMoveDenominator;
 		}
 	}
+
+	//flat cost only after embarkation/disembarkation
+	 if (pUnit->flatMovementCost())
+		return iMoveDenominator;
 
 	//in some cases we ignore terrain / feature cost
 	if (bFasterInHills && pToPlot->isHills())

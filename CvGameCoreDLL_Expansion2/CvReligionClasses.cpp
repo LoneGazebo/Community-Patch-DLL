@@ -7358,7 +7358,8 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					ReligionTypes eMajorityReligion = pCR->GetReligiousMajority();
 
 					int iDummy = 0;
-					int iOurPressure = pCR->GetPressurePerTurn(eReligion, iDummy);
+					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
+
 					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
 
 					// Score this city

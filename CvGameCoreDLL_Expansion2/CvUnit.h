@@ -329,7 +329,7 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bTestVisible = false, bool bCheckMovement = true) const;
+	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true) const;
 	bool canSentry(const CvPlot* pPlot) const;
 
 	int healRate(const CvPlot* pPlot) const;
@@ -541,7 +541,7 @@ public:
 #endif
 	bool canChangeVisibility() const;
 
-	int baseMoves(DomainTypes eIntoDomain = NO_DOMAIN) const;
+	int baseMoves(bool bPretendEmbarked) const;
 	int maxMoves() const;
 	int movesLeft() const;
 	bool canMove() const;

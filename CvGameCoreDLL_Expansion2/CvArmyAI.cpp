@@ -203,7 +203,7 @@ int CvArmyAI::GetMovementRate()
 	while(pUnit)
 	{
 		iNumUnits++;
-		iTotalMovementAllowance += pUnit->baseMoves();
+		iTotalMovementAllowance += pUnit->baseMoves(pUnit->isEmbarked());
 		pUnit = GetNextUnit(pUnit);
 	}
 

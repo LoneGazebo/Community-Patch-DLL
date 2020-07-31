@@ -5120,20 +5120,9 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		}
 
 		// Check to see if any units are present at this full-turn move plot
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && plot.getUnitLimit() > 0)
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
 			if (!CanStackUnitAtPlot(&plot))
-			{
-				return FALSE;
-			}
-		}
-	}
-
-	if(isNoCapture())
-	{
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
-		{
-			if(plot.isEnemyCity(*this))
 			{
 				return false;
 			}
@@ -5163,31 +5152,35 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		}
 	}
 
-	// Can't enter an enemy city until it's "defeated"
-	if(plot.isEnemyCity(*this))
+	if (plot.isEnemyCity(*this))
 	{
-		if(plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints() && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
+		if (isNoCapture())
 		{
 			return false;
 		}
-		if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
+		// Can't enter an enemy city until it's "defeated"
+		if (plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints() && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
-			if(getDomainType() == DOMAIN_AIR)
+			return false;
+		}
+		if (iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
+		{
+			if (getDomainType() == DOMAIN_AIR)
 				return false;
-			if(isHasPromotion((PromotionTypes)GC.getPROMOTION_ONLY_DEFENSIVE()))
+			if (isHasPromotion((PromotionTypes)GC.getPROMOTION_ONLY_DEFENSIVE()))
 				return false;	// Can't advance into an enemy city
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	else
 	{
-		if (!IsCivilianUnit() && plot.isCity() && plot.getOwner() != getOwner())
+		//combat units cannot even pass through other teams' cities
+		if (!IsCivilianUnit() && plot.isCity() && plot.getTeam() != getTeam())
 		{
 			return false;
 		}
 	}
-#endif
 
+	//air units use move missions to do range attacks, wtf
 	if(getDomainType() == DOMAIN_AIR)
 	{
 		if(iMoveFlags & CvUnit::MOVEFLAG_ATTACK)
@@ -5215,8 +5208,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 			}
 
-			// can't embark and attack in one go. however, disembark to attack is allowed
-			if(CanEverEmbark() && plot.needsEmbarkation(this))
+			//cannot attack into non-native domain. but allow ships to capture cities
+			if(!isNativeDomain(&plot) && !plot.isCity())
 			{
 				return false;
 			}
@@ -6835,83 +6828,15 @@ void CvUnit::setSetUpForRangedAttack(bool /*bValue*/)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
+bool CvUnit::canEmbarkAtPlot(const CvPlot*) const
 {
-	if(!CanEverEmbark())
-	{
-		return false;
-	}
-
-	if(isEmbarked())
-	{
-		return false;
-	}
-
-	if(movesLeft() <= 0)
-	{
-		return false;
-	}
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	// ... or shallow water
-	bool bCanEmbark = pPlot->isCoastalLand();
-	bCanEmbark = bCanEmbark || (IsHoveringUnit() && pPlot->isShallowWater());
-	if(!bCanEmbark)
-#else
-	if(!pPlot->isCoastalLand())
-#endif
-	{
-		return false;
-	}
-
-#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-	if(!IsHasEmbarkAbility() && !IsEmbarkDeepWater())
-#else
-	if(!IsHasEmbarkAbility())
-#endif
-	{
-		return false;
-	}
-
-	// search the water plots around this plot to see if any are vacant
-	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(pPlot);
-	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
-	{
-		CvPlot* pEvalPlot = aNeighbors[i];
-		if(pEvalPlot && canEmbarkOnto(*plot(), *pEvalPlot))
-			return true;
-	}
-
-	return false;
+	return false; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkAtPlot(const CvPlot* pPlot) const
+bool CvUnit::canDisembarkAtPlot(const CvPlot*) const
 {
-	if(!CanEverEmbark())
-	{
-		return false;
-	}
-
-	if(!isEmbarked())
-	{
-		return false;
-	}
-
-	if(movesLeft() <= 0)
-	{
-		return false;
-	}
-
-	// search the water plots around this plot to see if any are vacant
-	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(pPlot);
-	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
-	{
-		CvPlot* pEvalPlot = aNeighbors[i];
-		if(pEvalPlot && canDisembarkOnto(*plot(), *pEvalPlot))
-			return true;
-	}
-
-	return false;
+	return false; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
@@ -7061,6 +6986,9 @@ bool CvUnit::IsHasEmbarkAbility() const
 		return false;
 	}
 #endif
+
+	if (IsEmbarkDeepWater())
+		return true;
 
 	return GetEmbarkAbilityCount() > 0;
 }
@@ -7529,7 +7457,7 @@ int CvUnit::GetPower() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement) const
+bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT
 
@@ -7600,6 +7528,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		}
 	}
 #endif
+
 #if defined(MOD_NO_HEALING_ON_MOUNTAINS)
 	if(MOD_NO_HEALING_ON_MOUNTAINS)
 	{
@@ -7608,22 +7537,19 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 			return false;
 	}
 #endif
-	// Unit now has to be able to Fortify to Heal (since they're very similar states, and Heal gives a defense bonus)
-	if(!bTestVisible)
+
+	// Embarked Units can't heal
+	if(pPlot->needsEmbarkation(this) && !isCargo())
 	{
-		// Embarked Units can't heal
-		if(pPlot->needsEmbarkation(this) && !isCargo())
+		return false;
+	}
+
+	// Boats can only heal in friendly territory (without promotion)
+	if(getDomainType() == DOMAIN_SEA)
+	{
+		if(!pPlot->IsFriendlyTerritory(getOwner()) && !isHealOutsideFriendly())
 		{
 			return false;
-		}
-
-		// Boats can only heal in friendly territory (without promotion)
-		if(getDomainType() == DOMAIN_SEA)
-		{
-			if(!pPlot->IsFriendlyTerritory(getOwner()) && !isHealOutsideFriendly())
-			{
-				return false;
-			}
 		}
 	}
 
@@ -14892,13 +14818,23 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	if (!pPlot)
 		return false;
 
+	if (isCargo())
+		return false;
+
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater() || IsHoveringUnit() || isCargo() || (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater());
+		if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
+			return true;
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+		if (IsEmbarkDeepWater())
+			return !pPlot->isDeepWater();
+		else
+#endif
+			return !pPlot->isWater();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -15028,12 +14964,7 @@ int CvUnit::reconRange() const
 
 //	---------------------------------------------------------------------------
 // Get the base movement points for the unit.
-// Parameters:
-//		eIntoDomain	- If NO_DOMAIN, this will use the units current domain.
-//					  This can give different results based on whether the unit is currently embarked or not.
-//					  Passing in DOMAIN_SEA will return the units baseMoves as if it were already embarked.
-//					  Passing in DOMAIN_LAND will return the units baseMoves as if it were on land, even if it is currently embarked.
-int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
+int CvUnit::baseMoves(bool bPretendEmbarked) const
 {
 	VALIDATE_OBJECT
 	CvTeam& thisTeam = GET_TEAM(getTeam());
@@ -15042,8 +14973,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	DomainTypes eDomain = getDomainType();
 
 	//hover units don't embark but movement speed may change!
-	bool bWantEmbarkedMovement = (eIntoDomain == DOMAIN_SEA && (CanEverEmbark() || IsHoveringUnit() && IsEmbarkDeepWater()) ) || (eIntoDomain == NO_DOMAIN && isEmbarked());
-	if(bWantEmbarkedMovement)
+	if(bPretendEmbarked)
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
 		return GC.getEMBARKED_UNIT_MOVEMENT() + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES);
@@ -15104,7 +15034,10 @@ int CvUnit::maxMoves() const
 	if (plot() == NULL)
 		return 0;
 	// WARNING: Depends on the current embark state of the unit!
-	return (plot()->getOwner() == getOwner() ? ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR()) : (baseMoves() * GC.getMOVE_DENOMINATOR()));
+	if (plot()->getOwner() == getOwner())
+		return (baseMoves(isEmbarked()) + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR();
+	else
+		return baseMoves(isEmbarked()) * GC.getMOVE_DENOMINATOR();
 }
 
 //	--------------------------------------------------------------------------------
@@ -29936,7 +29869,7 @@ bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
 		// Does attacker have a speed greater than 1?
-		int iAttackerMovementRange = attacker.baseMoves();
+		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
 		if(iAttackerMovementRange > 2)
 		{
 			iWithdrawChance += (GC.getWITHDRAW_MOD_ENEMY_MOVES() * (iAttackerMovementRange - 2));
@@ -31617,7 +31550,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 			iDistance -= 1;
 
 		//default range
-		int iMoves = baseMoves() + getExtraMoves();
+		int iMoves = baseMoves(isEmbarked()) + getExtraMoves();
 		int iRange = iMoves * iTargetTurns;
 
 		//catch stupid cases

@@ -2862,6 +2862,21 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						if (pAlternativeTarget)
 							pTurnTarget = pAlternativeTarget;
 					}
+					else
+					{
+						//maybe we can find ourselves an escort!
+						CvUnit* pDefender = pTurnTarget->getBestDefender(m_pPlayer->GetID());
+						if (pDefender && pDefender->getArmyID() == -1 && pDefender->getDomainType() == pCivilian->getDomainType())
+						{
+							pThisArmy->AddUnit(pDefender->GetID(), 1);
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("SingleHexOperationMoves: Grabbed an escort along the way.");
+							}
+							pDefender->SetTurnProcessed(true);
+						}
+					}
 
 					ExecuteMoveToPlot(pCivilian, pTurnTarget);
 					if(GC.getLogging() && GC.getAILogging())
@@ -5261,7 +5276,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 			continue;
 
 		// Don't bother with pathfinding if we're very far away
-		if (plotDistance(*pLoopUnit->plot(),*pTarget) > pLoopUnit->baseMoves()*4)
+		if (plotDistance(*pLoopUnit->plot(),*pTarget) > pLoopUnit->baseMoves(false)*4)
 			continue;
 
 		//if it's a fighter plane, don't use it here, we need it for interceptions / sweeps
@@ -6823,7 +6838,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		return NULL;
 
 	//first see if the current plot is good
-	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), false, true))
+	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), true))
 		return pUnit->plot();
 
 	std::vector<SPlotWithScore> vCandidates;
@@ -6839,13 +6854,13 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		//don't check movement, don't need to heal right now
 		if (pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			if (!pUnit->canHeal(pPlot, false, true))
+			if (!pUnit->canHeal(pPlot, true))
 				continue;
 		}
 		else
 		{
 			//naval units usually must pillage to heal ...
-			if (!bPillage && !pUnit->canHeal(pPlot, false, true))
+			if (!bPillage && !pUnit->canHeal(pPlot, true))
 				continue;
 		}
 
