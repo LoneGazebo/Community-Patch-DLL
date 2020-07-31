@@ -11914,6 +11914,9 @@ bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(int iFriendship) const
 	int iFriendshipThresholdFriends = GetFriendsThreshold();
 #endif
 
+	if (m_pPlayer->GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	if(iFriendship >= iFriendshipThresholdFriends)
 	{
 		return true;
@@ -15234,18 +15237,22 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 	//
 	// +0 ~ +100
 	// **************************
-	const int iLocalMilitaryScoreMax = 100;
-
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (pMinorCapital == NULL)
 		return iFailScore;
 
 	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
-	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
+	int iOurPower = localPower.first + pMinorCapital->GetPower();
+	int iBullyPower = localPower.second;
+	int iLocalPowerRatio = 0;
+	//linear if the bully is weaker, sqrt if the bully is stronger
+	if (iBullyPower > iOurPower)
+		iLocalPowerRatio = sqrti(10000 * iBullyPower / iOurPower); //percent
+	else
+		iLocalPowerRatio = (100 * iBullyPower) / iOurPower;
 
-	iScore += min(iLocalMilitaryScoreMax,iLocalPowerRatio);
-
+	iScore += iLocalPowerRatio;
 	if (sTooltipSink)
 	{
 		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
@@ -15815,30 +15822,22 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
-	int iValue = 50;
-	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-	iValue /= 100;
+	int iValue = 100;
 
-	int iEra = GET_PLAYER(eBully).GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
-	iValue *= iEra;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if(pCapital == NULL)
 	{
 		CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-		return iValue;
+		return 0;
 	}
 	if(eBully == NO_PLAYER)
 	{
-		return iValue;
+		return 0;
 	}
 	CvCity* pCapitalCity = GET_PLAYER(eBully).getCapitalCity();
 	if(pCapitalCity == NULL)
 	{
-		return iValue;
+		return 0;
 	}	
 	switch(eYield)
 	{
@@ -15874,15 +15873,24 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 			break;
 	}
 
+	int iEra = GET_PLAYER(eBully).GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
+
+	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+	iValue /= 100;
+
+	iValue *= iEra;
+
+
 	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(500, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
 	{
 		iValue *= (iNumTurns + 100);
 		iValue /= max(400, GC.getGame().getMaxTurns());
 	}
-	
-	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
-	iValue /= 100;
 
 	if (!bIgnoreScaling)
 	{
@@ -15891,8 +15899,11 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 		iValue /= 100;
 	}
 
+	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
+	iValue /= 100;
+
 	if (iValue <= 0)
-		iValue = 0;
+		return 0;
 
 	return iValue;
 }

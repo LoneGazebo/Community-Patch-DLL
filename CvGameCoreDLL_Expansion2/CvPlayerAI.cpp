@@ -1884,8 +1884,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;
-					//we can't use the city plot itself as target ... so with the approximate path flag this is our target
-					pBestTargetPlot = pMerchant->GetPathLastPlot();
+					pBestTargetPlot = pCity->plot();
 				}
 			}
 		}
@@ -2502,50 +2501,16 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 	}
 
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
-	CvPlot* pBestTarget = NULL;
 	if(pCity == NULL)
 	{
 		return NULL;
 	}
 
-	// Find adjacent plot with no units (that aren't our own)
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-		if(pLoopPlot == NULL)
-			continue;
-
-		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
-			continue;
-
-		if(pUnit->GetDanger(pLoopPlot)>20) //allow some fog danger
-			continue;
-
-		// Make sure this is still owned by target and is revealed to us
-		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-		if(bRightOwner && bIsRevealed)
-		{
-			if(pLoopPlot->getNumUnits() <= 0)
-			{
-				pBestTarget = pLoopPlot;
-				break;
-			}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			else if(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-			{
-				pBestTarget = pLoopPlot;
-				break;
-			}
-		}
-#endif
-	}
-
 	//remember this city
-	if (pBestTarget && pvIgnoreCities)
+	if (pvIgnoreCities)
 		pvIgnoreCities->push_back(pCity->GetID());
 
-	return pBestTarget;
+	return pCity->plot();
 }
 #endif
 

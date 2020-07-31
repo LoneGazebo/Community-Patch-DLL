@@ -7880,9 +7880,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (MOD_BALANCE_CORE)
 	{
-		PolicyBranchTypes eAuthority = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true);
-		PolicyBranchTypes eImperialism = (PolicyBranchTypes) GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true);
-
 		////////////////////////////////////
 		// War Bonus
 		////////////////////////////////////
@@ -7917,6 +7914,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// If we picked offensive policy trees, war is better for us.
+		PolicyBranchTypes eAuthority = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
+		PolicyBranchTypes eImperialism = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
+		PolicyBranchTypes eIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
+
 		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eAuthority))
 		{
 			iWarBonus++;
@@ -7935,7 +7936,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				iWarBonus += 2;
 			}
 		}
-		if (eMyBranch == GC.getPOLICY_BRANCH_AUTOCRACY())
+		if (eIdeology == GC.getPOLICY_BRANCH_AUTOCRACY())
 		{
 			iWarBonus += 3;
 		}
@@ -11308,7 +11309,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
 		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
-		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
 		
 		if (iNormalSites > 0)
 		{
@@ -38352,7 +38353,7 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 	{
 		return 0;
 	}
-	
+
 	return (iNumSame - iNumDifferent);
 }
 #endif
@@ -41865,11 +41866,11 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	
 	else if (iOpinionWeight < 0)
 	{
-		if (IsConqueror() || IsCloseToDominationVictory())
+		if (IsConqueror())
 		{
-			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
 		}
-		else if (GetPlayer()->GetCurrentEra() <= 1)
+		if (GetPlayer()->GetCurrentEra() <= 1)
 		{
 			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
 		}
@@ -41956,11 +41957,11 @@ int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
+	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || IsNoVictoryCompetition() || GET_TEAM(GetTeam()).IsVassalOfSomeone())
+		return 0;
+	
 	// Only scientific civs care about this.
 	if (!IsScientist())
-		return 0;
-
-	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam() || IsNoVictoryCompetition() || GetPlayer()->IsVassalOfSomeone())
 		return 0;
 	
 	switch (GetTechDisputeLevel(ePlayer))
@@ -44510,12 +44511,10 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 		}
 
 		int iTotalTechs = GC.getNumTechInfos();
-		iTotalTechs *= 90;
-		iTotalTechs /= 100;
-
 		int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+		int iTechPercent = (iOurTechs * 100) / max(1, iTotalTechs);
 		
-		if (iOurTechs >= iTotalTechs)
+		if (iTechPercent > 85)
 		{
 			PlayerTypes eLoopPlayer;
 			int iNumCivsAheadScience = 0;
@@ -44529,7 +44528,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 
 				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != GetPlayer()->GetID())
 				{
-					if (GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() > GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown())
+					if (iOurTechs > GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown())
 					{
 						iNumCivsAheadScience++;
 					}
@@ -44540,7 +44539,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 					iNumCivsAlive++;
 				}
 			}
-			if (iNumCivsAlive > 0 && iNumCivsAheadScience > (iNumCivsBehindScience * 2))
+			if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
 			{
 				return true;
 			}

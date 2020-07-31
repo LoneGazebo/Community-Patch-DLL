@@ -222,7 +222,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_iArea = -1;
 	m_iLandmass = -1;
-	m_iFeatureVariety = 0;
+	m_iDummy = 0;
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
@@ -233,8 +233,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iResourceNum = 0;
 	m_cContinentType = 0;
 
-	m_uiCityConnectionBitFlags = 0;
-
 	m_bStartingPlot = false;
 	m_bHills = false;
 	m_bNEOfRiver = false;
@@ -243,10 +241,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bPotentialCityWork = false;
 	m_bPlotLayoutDirty = false;
 	m_bLayoutStateWorked = false;
+	m_bImprovementPassable = false;
 	m_bImprovementPillaged = false;
 	m_bRoutePillaged = false;
 	m_bBarbCampNotConverting = false;
-	m_bRoughFeature = false;
+	m_bHighMoveCost = false;
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
@@ -288,11 +287,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_eRiverSEFlowDirection = NO_FLOWDIRECTION;
 	m_eRiverSWFlowDirection = NO_FLOWDIRECTION;
 	m_cRiverCrossing = 0;
-
-	m_cBuilderAIScratchPadPlayer = 0;
-	m_sBuilderAIScratchPadTurn = 0;
-	m_sBuilderAIScratchPadValue = 0;
-	m_eBuilderAIScratchPadRoute = NO_ROUTE;
 
 	m_plotCity.reset();
 	m_owningCity.reset();
@@ -1537,6 +1531,8 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 		return;
 	}
 
+	vector<int>& scratchpad = GC.getMap().GetVisibilityScratchpad();
+
 #if defined(MOD_API_EXTENSIONS)
 	bool bBasedOnUnit = (pUnit != NULL);
 #endif
@@ -1621,7 +1617,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						iRingOfFirstInwardPlot = plotDistance(getX(),getY(),pFirstInwardPlot->getX(),pFirstInwardPlot->getY());
 						if(iRingOfFirstInwardPlot == thisRing - 1)
 						{
-							iFirstInwardLevel = pFirstInwardPlot->getScratchPad();
+							iFirstInwardLevel = scratchpad[ pFirstInwardPlot->GetPlotIndex() ];
 							if(iFirstInwardLevel >= HALF_BLOCKED)
 							{
 								iFirstInwardLevel -= HALF_BLOCKED;
@@ -1634,7 +1630,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						iRingOfSecondInwardPlot = plotDistance(getX(),getY(),pSecondInwardPlot->getX(),pSecondInwardPlot->getY());
 						if(iRingOfSecondInwardPlot == thisRing - 1)
 						{
-							iSecondInwardLevel = pSecondInwardPlot->getScratchPad();
+							iSecondInwardLevel = scratchpad[ pSecondInwardPlot->GetPlotIndex() ];
 							if(iSecondInwardLevel >= HALF_BLOCKED)
 							{
 								iSecondInwardLevel -= HALF_BLOCKED;
@@ -1685,7 +1681,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						if(fFirstDist - fSecondDist > 0.05)  // we are closer to the second point
 						{
 							int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
-							pPlotToCheck->setScratchPad(iHighestLevel);
+							scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 							if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
 #if defined(MOD_API_EXTENSIONS)
@@ -1698,7 +1694,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
 						{
 							int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
-							pPlotToCheck->setScratchPad(iHighestLevel);
+							scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 							if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
 #if defined(MOD_API_EXTENSIONS)
@@ -1716,11 +1712,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							int iHighestLowestLevel = (iLowestInwardLevel > iThisPlotLevel) ? iLowestInwardLevel : iThisPlotLevel;
 							if(iHighestInwardLevel > iThisPlotLevel)
 							{
-								pPlotToCheck->setScratchPad(iHighestLowestLevel + HALF_BLOCKED);
+								scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLowestLevel + HALF_BLOCKED;
 							}
 							else
 							{
-								pPlotToCheck->setScratchPad(iHighestLevel);
+								scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 							}
 							if(iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
@@ -1735,7 +1731,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					else if(iFirstInwardLevel != INVALID_RING && !bFirstHalfBlocked)
 					{
 						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
-						pPlotToCheck->setScratchPad(iHighestLevel);
+						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
 #if defined(MOD_API_EXTENSIONS)
@@ -1748,7 +1744,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					else if(iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
 					{
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
-						pPlotToCheck->setScratchPad(iHighestLevel);
+						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
 #if defined(MOD_API_EXTENSIONS)
@@ -1761,7 +1757,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					else if(iFirstInwardLevel != INVALID_RING)
 					{
 						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
-						pPlotToCheck->setScratchPad(iHighestLevel);
+						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
 #if defined(MOD_API_EXTENSIONS)
@@ -1774,7 +1770,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					else if(iSecondInwardLevel != INVALID_RING)
 					{
 						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
-						pPlotToCheck->setScratchPad(iHighestLevel);
+						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
 #if defined(MOD_API_EXTENSIONS)
@@ -1786,8 +1782,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					}
 					else // I have no idea how this can happen, but...
 					{
-						// set our value in the scratch pad
-						pPlotToCheck->setScratchPad(iThisPlotLevel);
+						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iThisPlotLevel;
 					}
 				}
 				else // this is the center point
@@ -1797,7 +1792,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 #else
 					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
 #endif
-					pPlotToCheck->setScratchPad(0);
+					scratchpad[ pPlotToCheck->GetPlotIndex() ] = 0;
 				}
 			}
 
@@ -2309,7 +2304,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
+	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
 	{
 		return false;
 	}
@@ -3437,7 +3432,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
@@ -3448,7 +3443,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
+	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GC.getMOVE_DENOMINATOR();
 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
@@ -3478,21 +3473,21 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
     if (!pUnit)
         return true;
 
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-    if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
-    {
-        return isDeepWater();
-    }
-    else
-#endif
     //only land units need to embark
-    if (pUnit->getDomainType()==DOMAIN_LAND)
-    {
-		//do not check for transport boats any more
-        return !pUnit->canMoveAllTerrain() && !pUnit->isConvertUnit();
-    }
-    else
+    if (pUnit->getDomainType()!=DOMAIN_LAND || pUnit->canMoveAllTerrain())
         return false;
+
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+    if (pUnit->IsEmbarkDeepWater())
+        return isDeepWater();
+#endif
+
+	//some units can flip between different types
+	if (pUnit->isConvertUnit())
+		return false;
+
+	//we know it's a land unit and a water plot by now
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4302,7 +4297,7 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 	return false;
 }
 
-bool CvPlot::MeleeAttackerAdvances() const
+bool CvPlot::MeleeAttackerAdvances(TeamTypes eAttackerTeam) const
 {
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
@@ -4312,12 +4307,14 @@ bool CvPlot::MeleeAttackerAdvances() const
 		static const  ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 		static const  ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
-		if (isCity() ||
-			(getImprovementType() == eImprovementFort && !IsImprovementPillaged()) ||
-			(getImprovementType() == eImprovementCitadel && !IsImprovementPillaged()) ||
-			(getImprovementType() == eImprovementCamp)) //only possible for barbarians
-		{
+		if (isCity())
 			return false;
+
+		if (getTeam() == eAttackerTeam && !IsImprovementPillaged())
+		{
+			ImprovementTypes eImprovement = getImprovementType();
+			if (eImprovement == eImprovementFort || eImprovement == eImprovementCitadel || eImprovement == eImprovementCamp)
+				return false;
 		}
 	}
 #endif
@@ -4331,10 +4328,9 @@ bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUn
 
 bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
 {
-	ImprovementTypes eImprovement = getRevealedImprovementType( GET_PLAYER(ePlayer).getTeam() );
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable() && !IsImprovementPillaged();
-	bool bIsCityOrPassable = isCity() || bIsPassableImprovement;
+	bool bIsCityOrPassable = isCity();
+	if (MOD_GLOBAL_PASSABLE_FORTS)
+		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged());
 
 	// Not a city or a fort
 	if (!bIsCityOrPassable)
@@ -4781,8 +4777,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				//for enemy units, treat embarked as combat because we cannot stack
-				if (bCombat != pLoopUnit->IsCanDefend())
+				if (bCombat && !pLoopUnit->IsCanDefend())
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
@@ -4819,14 +4814,8 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat)
-				{
-					//for neutral units, treat embarked as civilian because we can stack
-					//fixme: unfortunately it also depends the combination of civilian/combat units whether stacking is possible
-					//but we don't know that here. who the fuck made up these rules?
-					if (!pLoopUnit->IsCanDefend() || pLoopUnit->isEmbarked())
-						continue;
-				}
+				if (bCombat && !pLoopUnit->IsCanDefend())
+					continue;
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;
@@ -5051,19 +5040,10 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 //	--------------------------------------------------------------------------------
 void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 {
-	bool bWasConnection = IsCityConnection();
+	if (ePlayer == NO_PLAYER)
+		return;
 
-	uint uiNewBitValue = (1 << ePlayer);
-	if(bActive)
-	{
-		m_uiCityConnectionBitFlags |= uiNewBitValue;
-	}
-	else
-	{
-		m_uiCityConnectionBitFlags &= ~uiNewBitValue;
-	}
-
-	if(IsCityConnection() != bWasConnection)
+	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive) )
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -5089,27 +5069,14 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsCityConnection(PlayerTypes ePlayer) const
 {
-	if(ePlayer == NO_PLAYER)
-	{
-		if(m_uiCityConnectionBitFlags > 0)
-		{
-			return true;
-		}
-	}
-	else
-	{
-		uint uiNewBitValue = (1 << ePlayer);
-		if(m_uiCityConnectionBitFlags & uiNewBitValue)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	if (ePlayer == NO_PLAYER)
+		ePlayer = getOwner();
 
-	return false;
+	//hack: for unowned plots, pretend there is no connection
+	if (ePlayer == NO_PLAYER)
+		return false;
+
+	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -5241,14 +5208,6 @@ void CvPlot::setLandmass(int iNewValue)
 		}
 	}
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvPlot::getFeatureVariety() const
-{
-	return m_iFeatureVariety;
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getOwnershipDuration() const
@@ -6661,21 +6620,6 @@ bool CvPlot::isFlatlands() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsRoughFeature() const
-{
-	return m_bRoughFeature;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetRoughFeature(bool bValue)
-{
-	if(IsRoughFeature() != bValue)
-	{
-		m_bRoughFeature = bValue;
-	}
-}
-
-//	--------------------------------------------------------------------------------
 void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGraphics, bool bEraseUnitsIfWater)
 {
 	CvArea* pNewArea;
@@ -6995,7 +6939,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
+void CvPlot::setFeatureType(FeatureTypes eNewValue)
 {
 	FeatureTypes eOldFeature;
 	bool bUpdateSight;
@@ -7007,9 +6951,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 	eOldFeature = getFeatureType();
 
-	iVariety = 0;
-
-	if((eOldFeature != eNewValue) || (m_iFeatureVariety != iVariety))
+	if(eOldFeature != eNewValue)
 	{
 		if((eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
@@ -7097,14 +7039,6 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		{
 			updateSeeFromSight(true,true);
 		}
-		m_iFeatureVariety = iVariety;
-
-		// Rough feature?
-		bool bRough = false;
-		if(eNewValue != NO_FEATURE)
-			bRough = GC.getFeatureInfo(eNewValue)->IsRough();
-
-		SetRoughFeature(bRough);
 
 		if(eNewValue != NO_FEATURE)
 		{
@@ -7990,6 +7924,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #endif
+				//remember this to improve pathfinding performance
+				SetImprovementPassable(newImprovementEntry.IsMakesPassable());
 
 				// Maintenance
 				if(MustPayMaintenanceHere(owningPlayerID))
@@ -8026,8 +7962,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
 				}
-#endif
-#if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement();
@@ -8483,19 +8417,21 @@ bool CvPlot::IsImprovementEmbassy() const
 //	--------------------------------------------------------------------------------
 void CvPlot::SetImprovementEmbassy(bool bEmbassy)
 {
-	bool bWasEmbassy = m_bImprovementEmbassy;
-
-	if(bEmbassy != bWasEmbassy)
-	{
-		m_bImprovementEmbassy = bEmbassy;
-	}
-
-	if(bWasEmbassy != m_bImprovementEmbassy)
-	{
-		setLayoutDirty(true);
-	}
+	m_bImprovementEmbassy = bEmbassy;
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsImprovementPassable() const
+{
+	return m_bImprovementPassable;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetImprovementPassable(bool bPassable)
+{
+	m_bImprovementPassable = bPassable;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementPillaged() const
@@ -12730,7 +12666,7 @@ void CvPlot::read(FDataStream& kStream)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
 
 	kStream >> m_iArea;
-	kStream >> m_iFeatureVariety;
+	kStream >> m_iDummy;
 	kStream >> m_iOwnershipDuration;
 	kStream >> m_iImprovementDuration;
 	kStream >> m_iUpgradeProgress;
@@ -12740,12 +12676,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iReconCount;
 	kStream >> m_iRiverCrossingCount;
 	kStream >> m_iResourceNum;
-	kStream >> m_cBuilderAIScratchPadPlayer;
-	kStream >> m_sBuilderAIScratchPadTurn;
-	kStream >> m_sBuilderAIScratchPadValue;
-	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
-	kStream >> m_uiCityConnectionBitFlags;
 
 	// the following members specify bit packing and do not resolve to
 	// any serializable type.
@@ -12763,13 +12694,15 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> bitPackWorkaround;
 	m_bPotentialCityWork = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
+	m_bImprovementPassable = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
 	m_bImprovementPillaged = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bRoutePillaged = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bBarbCampNotConverting = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
-	m_bRoughFeature = bitPackWorkaround;
+	m_bHighMoveCost = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bResourceLinkedCityActive = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
@@ -12939,7 +12872,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iArea;
-	kStream << m_iFeatureVariety;
+	kStream << m_iDummy;
 	kStream << m_iOwnershipDuration;
 	kStream << m_iImprovementDuration;
 	kStream << m_iUpgradeProgress;
@@ -12949,12 +12882,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iReconCount;
 	kStream << m_iRiverCrossingCount;
 	kStream << m_iResourceNum;
-	kStream << m_cBuilderAIScratchPadPlayer;
-	kStream << m_sBuilderAIScratchPadTurn;
-	kStream << m_sBuilderAIScratchPadValue;
-	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
-	kStream << m_uiCityConnectionBitFlags;
 
 	kStream << m_bStartingPlot;
 	kStream << m_bHills;
@@ -12962,10 +12890,11 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bWOfRiver;
 	kStream << m_bNWOfRiver;
 	kStream << m_bPotentialCityWork;
+	kStream << m_bImprovementPassable;
 	kStream << m_bImprovementPillaged;
 	kStream << m_bRoutePillaged;
 	kStream << m_bBarbCampNotConverting;
-	kStream << m_bRoughFeature;
+	kStream << m_bHighMoveCost;
 	kStream << m_bResourceLinkedCityActive;
 	kStream << m_bImprovedByGiftFromMajor;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -13623,7 +13552,16 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam, bool bNoSuicide) const
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && DOMAIN_AIR == pLoopUnit->getDomainType() && !pLoopUnit->isCargo() && pLoopUnit->getTeam() == eTeam)
+		if (!pLoopUnit || pLoopUnit->isDelayedDeath())
+			continue;
+
+		if (pLoopUnit->getDomainType() != DOMAIN_AIR)
+			continue;
+
+		if (pLoopUnit->isCargo())
+			continue;
+
+		if(eTeam == NO_TEAM || pLoopUnit->getTeam() == eTeam)
 		{
 			if (bNoSuicide && !pLoopUnit->isSuicide())
 				iCount += pLoopUnit->getUnitInfo().GetAirUnitCap();
@@ -13633,68 +13571,6 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam, bool bNoSuicide) const
 	}
 
 	return iCount;
-}
-
-//	--------------------------------------------------------------------------------
-PlayerTypes CvPlot::GetBuilderAIScratchPadPlayer() const
-{
-	return (PlayerTypes)m_cBuilderAIScratchPadPlayer;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadPlayer(PlayerTypes ePlayer)
-{
-	m_cBuilderAIScratchPadPlayer = ePlayer;
-}
-
-//	--------------------------------------------------------------------------------
-short CvPlot::GetBuilderAIScratchPadTurn() const
-{
-	return m_sBuilderAIScratchPadTurn;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadTurn(short sNewTurnValue)
-{
-	m_sBuilderAIScratchPadTurn = sNewTurnValue;
-}
-
-//	--------------------------------------------------------------------------------
-RouteTypes CvPlot::GetBuilderAIScratchPadRoute() const
-{
-	return (RouteTypes)m_eBuilderAIScratchPadRoute;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadRoute(RouteTypes eRoute)
-{
-	m_eBuilderAIScratchPadRoute = eRoute;
-}
-
-//	--------------------------------------------------------------------------------
-short CvPlot::GetBuilderAIScratchPadValue() const
-{
-	return m_sBuilderAIScratchPadValue;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
-{
-	m_sBuilderAIScratchPadValue = sNewValue;
-}
-
-void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
-{
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if (m_abStrategicRoute[eTeam] != bValue)
-		m_abStrategicRoute[eTeam] = bValue;
-}
-bool CvPlot::IsStrategicRoute(TeamTypes eTeam) const
-{
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	return m_abStrategicRoute[eTeam];
 }
 
 //	--------------------------------------------------------------------------------
@@ -14001,6 +13877,9 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
+	//not really related but a good chance to update it
+	m_bHighMoveCost = false;
+
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
 	if (eTeam != NO_TEAM)
@@ -14040,7 +13919,13 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 								SetTeamImpassable((TeamTypes)i, false);
 						}
 					}
-				}	
+				}
+
+				//update the "rough plot" flag as well
+				int iMoveCost = pkTerrainInfo->getMovementCost();
+				if (isHills() || isMountain())
+					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
+				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
 			}
 		}
 		else
@@ -14072,6 +13957,12 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}	
+
+				//update the "rough plot" flag as well
+				int iMoveCost = pkFeatureInfo->getMovementCost();
+				if (isHills() || isMountain())
+					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
+				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
 			}
 		}
 	}

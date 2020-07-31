@@ -18,7 +18,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
 		return INT_MAX;
 	}
-	else if (pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
+	else if (pUnit->getDomainType() == DOMAIN_AIR)
 	{
 		return iMoveDenominator;
 	}
@@ -70,7 +70,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
 
 		//routes only on land
-		int iBaseMoves = pUnit->baseMoves(DOMAIN_LAND);
+		int iBaseMoves = pUnit->baseMoves(false);
 
 		int iRouteVariableCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
@@ -147,6 +147,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		}
 	}
 
+	//flat cost only after embarkation/disembarkation
+	 if (pUnit->flatMovementCost())
+		return iMoveDenominator;
+
 	//in some cases we ignore terrain / feature cost
 	if (bFasterInHills && pToPlot->isHills())
 		bIgnoreTerrainCost = true;
@@ -194,7 +198,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner())) //case with route is already handled above
+	//case with route is already handled above
+	else if (pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}
@@ -388,7 +393,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}
@@ -485,7 +490,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain == DOMAIN_HOVER)
+					if (pLoopUnit->IsHoveringUnit())
 					{
 						// continue on
 					}

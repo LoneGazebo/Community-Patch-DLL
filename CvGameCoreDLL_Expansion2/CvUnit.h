@@ -146,6 +146,7 @@ public:
 		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //abort if additional enemies become visible, irrespective of danger level
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
 		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
+		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
 	};
 
 	enum MoveResult
@@ -328,7 +329,7 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bTestVisible = false, bool bCheckMovement = true) const;
+	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true) const;
 	bool canSentry(const CvPlot* pPlot) const;
 
 	int healRate(const CvPlot* pPlot) const;
@@ -386,8 +387,9 @@ public:
 	int getExoticGoodsXPAmount();
 	bool sellExoticGoods();
 
+	int getRebaseRange() const;
 	bool canRebase() const;
-	bool canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const;
+	bool canRebaseAt(int iXDest, int iYDest) const;
 	bool rebase(int iX, int iY);
 
 	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
@@ -539,7 +541,7 @@ public:
 #endif
 	bool canChangeVisibility() const;
 
-	int baseMoves(DomainTypes eIntoDomain = NO_DOMAIN) const;
+	int baseMoves(bool bPretendEmbarked) const;
 	int maxMoves() const;
 	int movesLeft() const;
 	bool canMove() const;
@@ -1720,10 +1722,15 @@ public:
 
 	int GetPower() const;
 
-	bool AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked = false) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
+
+	bool CanPushOutUnitHere(CvPlot& atPlot) const;
+	CvUnit* GetPotentialUnitToPushOut(CvPlot& atPlot) const;
+	bool PushBlockingUnitOutOfPlot(CvPlot& atPlot);
+
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
+	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
 
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
@@ -1764,12 +1771,10 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	inline bool IsCivilianUnit() const
 	{
 		return !(IsCombatUnit() || isRanged());
 	}
-#endif
 
 	// Combat eligibility routines
 	inline bool IsCombatUnit() const
@@ -1783,7 +1788,7 @@ public:
 	bool IsCanAttackRanged() const;
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
-	bool IsCanDefend(const CvPlot* pPlot = NULL) const;
+	bool IsCanDefend() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
@@ -2389,63 +2394,6 @@ private:
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);
 FDataStream& operator>>(FDataStream&, CvUnit&);
-
-template<typename T>
-FDataStream & operator<<(FDataStream & writeTo, const std::map<T, int> & readFrom)
-{
-	writeTo << readFrom.size();
-	for (std::map<T, int>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
-	{
-		writeTo << (int)it->first;
-		writeTo << it->second;
-	}
-	return writeTo;
-}
-
-template<typename T>
-FDataStream & operator>>(FDataStream & readFrom, std::map<T, int> & writeTo)
-{
-	int nItems;
-	readFrom >> nItems;
-
-	for (int i = 0; i<nItems; i++)
-	{
-		int first, second;
-		readFrom >> first;
-		readFrom >> second;
-		writeTo[(T)first] = second;
-	}
-	return readFrom;
-}
-
-template<typename T>
-FDataStream & operator<<(FDataStream & writeTo, const std::vector<std::pair<T, int>> & readFrom)
-{
-	writeTo << readFrom.size();
-	for (std::vector<std::pair<T, int>>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
-	{
-		writeTo << (int)it->first;
-		writeTo << it->second;
-	}
-	return writeTo;
-}
-
-template<typename T>
-FDataStream & operator>>(FDataStream & readFrom, std::vector<std::pair<T, int>> & writeTo)
-{
-	int nItems;
-	readFrom >> nItems;
-
-	for (int i = 0; i<nItems; i++)
-	{
-		int first, second;
-		readFrom >> first;
-		readFrom >> second;
-		writeTo.push_back(std::make_pair(T(first), second));
-	}
-	return readFrom;
-}
-
 
 namespace FSerialization
 {

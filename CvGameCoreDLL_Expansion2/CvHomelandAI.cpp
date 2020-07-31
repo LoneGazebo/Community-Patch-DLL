@@ -302,7 +302,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
 
 		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
-		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
+		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves(false)) )
 			continue;
 
 		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
@@ -1650,25 +1650,25 @@ void CvHomelandAI::PlotAncientRuinMoves()
 		for(unsigned int iI = 0; iI < m_TargetedAncientRuins.size(); iI++)
 		{
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedAncientRuins[iI].GetTargetX(), m_TargetedAncientRuins[iI].GetTargetY());
-				CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
-				if(pIndy)
+			CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
+			if(pIndy)
+			{
+				ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
+				if (pIndy->canMove())
+					pIndy->PushMission(CvTypes::getMISSION_SKIP());
+
+				UnitProcessed(pIndy->GetID());
+
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
-					if (pIndy->canMove())
-						pIndy->PushMission(CvTypes::getMISSION_SKIP());
-
-					UnitProcessed(pIndy->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving %s %d to goody hut (non-explorer), X: %d, Y: %d", pIndy->getName().c_str(), pIndy->GetID(), m_TargetedAncientRuins[iI].GetTargetX(), m_TargetedAncientRuins[iI].GetTargetY());
-						LogHomelandMessage(strLogString);
-					}
+					CvString strLogString;
+					strLogString.Format("Moving %s %d to goody hut (non-explorer), X: %d, Y: %d", pIndy->getName().c_str(), pIndy->GetID(), m_TargetedAncientRuins[iI].GetTargetX(), m_TargetedAncientRuins[iI].GetTargetY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}
 	}
+}
 
 /// Find moves for great writers
 void CvHomelandAI::PlotWriterMoves()
@@ -3659,9 +3659,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		if(pTarget)
 		{
 			//not at target yet?
-			if( ((pUnit->plot() != pTarget) && (pUnit->plot()->getOwner() != pTarget->getOwner())) || !pUnit->canTrade(pUnit->plot()) )
+			if( (pUnit->plot() != pTarget) || (pUnit->plot()->getOwner() != pTarget->getOwner()) || !pUnit->canTrade(pUnit->plot()) )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+				//important to use the same flags as in FindBestMessengerTargetCity to avoid double pathfinding!
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 				
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -3672,23 +3673,38 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 
 			//now try to finish our mission
-			if (((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+			if (plotDistance(*pUnit->plot(), *pTarget) < 2 && pUnit->canMove())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_TRADE());
-				PlayerTypes ePlayer = pUnit->plot()->getOwner();
-				if (ePlayer != NO_PLAYER)
+				if (pUnit->canTrade(pUnit->plot()))
 				{
-					if (GC.getLogging() && GC.getAILogging())
+					pUnit->PushMission(CvTypes::getMISSION_TRADE());
+					PlayerTypes ePlayer = pUnit->plot()->getOwner();
+					if (ePlayer != NO_PLAYER)
 					{
-						CvString strLogString;
-						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s",
-							GET_PLAYER(ePlayer).getCivilizationShortDescription(),
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
-						LogHomelandMessage(strLogString);
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s",
+								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
+							LogHomelandMessage(strLogString);
+						}
 					}
 				}
-
+				else
+				{
+					//uh, this should not happen? look for a neighboring plot
+					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pUnit->plot());
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						if (aNeighbors[iI] && pUnit->canTrade(aNeighbors[iI]))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+							break;
+						}
+					}
+				}
 			}
 		}
 		//Dangerous?
@@ -3935,50 +3951,9 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	CHomelandUnitArray::iterator it;
-
-	// Do we have an Apollo program to stay clear of?
-	bool bHaveApolloInCapital = false;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	{
-#endif
-		ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-		if(eApolloProgram != NO_PROJECT)
-		{
-			if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
-			{
-				bHaveApolloInCapital = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	}
-#endif
-	// Do we have a holy city to stay clear of?
-	bool bKeepHolyCityClear = false;
-	CvCity* pHolyCity = NULL;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) 
-	{
-#endif
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if(pMyReligion)
-		{
-			pHolyCity = pMyReligion->GetHolyCity();
-			if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
-			{
-				bKeepHolyCityClear = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	}
-#endif
-
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	std::vector<CvPlot*> vPlotsToAvoid;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4244,44 +4219,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
 				int iNumCommanders = 0;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-				if (bHaveApolloInCapital && pLoopCity->isCapital())
-				{
-					continue;
-				}
-
-				if (bKeepHolyCityClear && pLoopCity == pHolyCity)
-				{
-					continue;
-				}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				}
-#endif
 				// Don't go here if a different general or admiral is already present
 				bool bSkipCity = false;
 				CvPlot* pTarget = pLoopCity->plot();
 				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 				{
 					CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-					if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
-					{
-#endif
-						if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
-						{
-							bSkipCity = true;
-							break;
-						}
-						else if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-						{
-							bSkipCity = true;
-							break;
-						}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-					}
-#endif
 					if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
 					{
 						iNumCommanders++;
@@ -4372,45 +4315,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 /// Moves a great admiral into an important coastal city to aid its defense
 void CvHomelandAI::ExecuteAdmiralMoves()
 {
-	CHomelandUnitArray::iterator it;
-	// Do we have an Apollo program to stay clear of?
-	bool bHaveApolloInCapital = false;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-	if(eApolloProgram != NO_PROJECT)
-	{
-		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
-		{
-			bHaveApolloInCapital = true;
-		}
-	}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-	// Do we have a holy city to stay clear of?
-	bool bKeepHolyCityClear = false;
-	CvCity* pHolyCity = NULL;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
-	{
-#endif
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if(pMyReligion)
-		{
-			pHolyCity = pMyReligion->GetHolyCity();
-			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
-			{
-				bKeepHolyCityClear = true;
-			}
-		}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	}
-#endif
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4423,7 +4328,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			ExecuteGoldenAgeMove(pUnit);
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
+
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
@@ -4510,247 +4415,159 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 		}
 
-
 		//if he's a commander but not in an army, put him up in a city for a while
 		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
-#endif
-
-		bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
+			bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
 
 			// Score cities to move to
-		CvCity* pLoopCity;
-		int iLoopCity = 0;
-		CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			int iNumCommanders = 0;
-#endif
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-			if (bHaveApolloInCapital && pLoopCity->isCapital())
+			CvCity* pLoopCity;
+			int iLoopCity = 0;
+			CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> weightedCityList;
+			for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
-				continue;
-			}
-
-			if (bKeepHolyCityClear && pLoopCity == pHolyCity)
-			{
-				continue;
-			}
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			}
-#endif
-			if (!pLoopCity->isCoastal())
-			{
-				continue;
-			}
-
-			// Don't go here if a different general or admiral is already present
-			bool bSkipCity = false;
-			CvPlot* pTarget = pLoopCity->plot();
-			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-			{
-				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-				else if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-#else
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-				else if(pLoopUnit->AI_getUnitAIType() == UNITAI_ADMIRAL && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					bSkipCity = true;
-					break;
-				}
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				}
-				if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
-				{
-					iNumCommanders++;
-				}
-#endif
-			}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			int iUnitLoop = 0;
-			int iTotalAdmirals = 0;
-			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-			{
-				if (pLoopUnit != NULL && pLoopUnit->IsGreatAdmiral())
-				{
-					iTotalAdmirals++;
-				}
-			}
-			if(iNumCommanders > 0)
-			{
-				bSkipCity = true;
-			}
-			if(iTotalAdmirals > m_pPlayer->getNumCities())
-			{
-				bSkipCity = false;
-			}
-			if(bSkipCity)
-			{
-				continue;
-			}
-			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot(),false,false,23);
-
-			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-			if (bNotAtFriendlyCity)
-			{
-				if (iTurns == MAX_INT)
+				int iNumCommanders = 0;
+				if (!pLoopCity->isCoastal())
 				{
 					continue;
 				}
-			}
 
-			// Weight is size of largest adjacent ocean
-			int iWeight = pTarget->GetSizeLargestAdjacentWater();
+				// Don't go here if a different general or admiral is already present
+				bool bSkipCity = false;
+				CvPlot* pTarget = pLoopCity->plot();
+				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
+				{
+					CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
+					if(pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
+					{
+						iNumCommanders++;
+					}
+				}
 
-			// If this city is damaged, divide weight by the damage level
-			if (pLoopCity->getDamage() > 0)
-			{
-				iWeight /= pLoopCity->getDamage();
-			}
-
-			// Subtract off turns to reach
-			if (iTurns != MAX_INT)
-			{
-				iWeight -= iTurns;
-			}
-			if(pLoopCity->HasGarrison())
-			{
-				iWeight *= 2;
-			}
-			if(iNumCommanders > 0)
-			{
-				iWeight /= (iNumCommanders + 1);
-			}
-
-#else
-			if(bSkipCity)
-			{
-				continue;
-			}
-
-			int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot());
-
-			// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
-			if (bNotAtFriendlyCity)
-			{
-				if (iTurns == MAX_INT)
+				int iUnitLoop = 0;
+				int iTotalAdmirals = 0;
+				for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+				{
+					if (pLoopUnit != NULL && pLoopUnit->IsGreatAdmiral())
+					{
+						iTotalAdmirals++;
+					}
+				}
+				if(iNumCommanders > 0)
+				{
+					bSkipCity = true;
+				}
+				if(iTotalAdmirals > m_pPlayer->getNumCities())
+				{
+					bSkipCity = false;
+				}
+				if(bSkipCity)
 				{
 					continue;
 				}
-			}
+				int iTurns = pUnit->TurnsToReachTarget(pLoopCity->plot(),false,false,23);
 
-			// Weight is size of largest adjacent ocean
-			int iWeight = pTarget->GetSizeLargestAdjacentWater();
-
-			// If this city is damaged, divide weight by the damage level
-			if (pLoopCity->getDamage() > 0)
-			{
-				iWeight /= pLoopCity->getDamage();
-			}
-
-			// Subtract off turns to reach
-			if (iTurns != MAX_INT)
-			{
-				iWeight -= iTurns;
-			}
-#endif
-
-			weightedCityList.push_back(pLoopCity, iWeight);
-		}
-
-		weightedCityList.SortItems();
-		if (weightedCityList.size() > 0)
-		{
-			CvCity *pChosenCity = weightedCityList.GetElement(0);
-
-			// Am I already in chosen city?
-			if (pUnit->plot() == pChosenCity->plot())
-			{
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
+				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
+				if (bNotAtFriendlyCity)
 				{
-					CvString strLogString;
-					strLogString.Format("Great Admiral still in most favored city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
-					LogHomelandMessage(strLogString);
+					if (iTurns == MAX_INT)
+					{
+						continue;
+					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				continue;
-#endif
+
+				// Weight is size of largest adjacent ocean
+				int iWeight = pTarget->GetSizeLargestAdjacentWater();
+
+				// If this city is damaged, divide weight by the damage level
+				if (pLoopCity->getDamage() > 0)
+				{
+					iWeight /= pLoopCity->getDamage();
+				}
+
+				// Subtract off turns to reach
+				if (iTurns != MAX_INT)
+				{
+					iWeight -= iTurns;
+				}
+				if(pLoopCity->HasGarrison())
+				{
+					iWeight *= 2;
+				}
+				if(iNumCommanders > 0)
+				{
+					iWeight /= (iNumCommanders + 1);
+				}
+
+				weightedCityList.push_back(pLoopCity, iWeight);
 			}
+
+			weightedCityList.SortItems();
+			if (weightedCityList.size() > 0)
+			{
+				CvCity *pChosenCity = weightedCityList.GetElement(0);
+
+				// Am I already in chosen city?
+				if (pUnit->plot() == pChosenCity->plot())
+				{
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Great Admiral still in most favored city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
 			
-			// Am I currently in a different friendly city?
-			else if (!bNotAtFriendlyCity)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_CHANGE_ADMIRAL_PORT(), pChosenCity->getX(), pChosenCity->getY());
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
+				// Am I currently in a different friendly city?
+				else if (!bNotAtFriendlyCity)
 				{
-					CvString strLogString;
-					strLogString.Format("Transferring Great Admiral to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
-					LogHomelandMessage(strLogString);
-				}
-#if defined(MOD_BALANCE_CORE)
-				continue;
-#endif
-			}
+					pUnit->PushMission(CvTypes::getMISSION_CHANGE_ADMIRAL_PORT(), pChosenCity->getX(), pChosenCity->getY());
+					UnitProcessed(pUnit->GetID());
 
-			// Move normally to this city
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Transferring Great Admiral to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
+
+				// Move normally to this city
+				else
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+					UnitProcessed(pUnit->GetID());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					continue;
+				}
+			}
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 				UnitProcessed(pUnit->GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving Great Admiral normally to city of %s, X: %d, Y: %d", pChosenCity->getName().GetCString(), pChosenCity->getX(), pChosenCity->getY());
+					strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-#if defined(MOD_BALANCE_CORE)	
-				continue;
-#endif
-			}
-		}
-		else
-		{
-			UnitProcessed(pUnit->GetID());
 
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("No place to move Great Admiral at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
+				continue;
 			}
-#if defined(MOD_BALANCE_CORE)
-			continue;
-#endif
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		}
-#endif
 	}
 }
 
@@ -4792,6 +4609,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
+				//same flags as in ChooseMissionaryTargetCity!
 				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -4847,13 +4665,14 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 					if (pUnit->canMove())
-						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-					if (GC.getLogging() && GC.getAILogging())
 					{
-						CvString strLogString;
-						strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-						LogHomelandMessage(strLogString);
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Removing heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+							LogHomelandMessage(strLogString);
+						}
 					}
 
 					UnitProcessed(pUnit->GetID());
@@ -4865,40 +4684,23 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Moving to remove heresy at %s (%d:%d), currently (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 				}
 			}
 			else
 			{
-				if (iTargetTurns == 0)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+
+				if (GC.getLogging() && GC.getAILogging())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-					if (pUnit->canMove())
-						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Move to garrison against heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					UnitProcessed(pUnit->GetID());
+					CvString strLogString;
+					strLogString.Format("Move to garrison against heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+					LogHomelandMessage(strLogString);
 				}
-				else
-				{
-					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
 
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving to plot adjacent to garrison against heresy in city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-				}
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 	}
@@ -4970,7 +4772,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	if (m_CurrentMoveUnits.empty())
 		return;
 	
-	int iTargetRange = 6; //basic aircraft and guided missile range
 	int nAirUnitsInCarriers = 0;
 	int nAirUnitsInCities = 0;
 	int nSlotsInCarriers = 0;
@@ -5032,7 +4833,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID(), iTargetRange );
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID() );
 			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
 			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
@@ -5043,7 +4844,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID(), iTargetRange );
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID() );
 		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
 		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
@@ -5106,7 +4907,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					continue;
 
 				//see if we can rebase there directly
-				if (pUnit->canRebaseAt(pUnit->plot(),it->pPlot->getX(),it->pPlot->getY()))
+				if (pUnit->canRebaseAt(it->pPlot->getX(),it->pPlot->getY()))
 				{
 					pNewBase = it->pPlot;
 					break;
@@ -5193,7 +4994,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 
 			//see if we can rebase there directly
-			if (pUnit->canRebaseAt(pUnit->plot(),it->pPlot->getX(),it->pPlot->getY()))
+			if (pUnit->canRebaseAt(it->pPlot->getX(),it->pPlot->getY()))
 			{
 				pNewBase = it->pPlot;
 				break;
@@ -5884,8 +5685,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
-	std::vector<CvHomelandTarget>::iterator it;
-	for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+	for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
 	{
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 		if (pUnit->plot()==pTarget)
@@ -5942,7 +5742,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	// Erase this site from future contention
 	if (pBestTarget)
 	{
-		for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
+		for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
 		{
 			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
 			{
@@ -6500,9 +6300,9 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 	return true;
 }
 
-int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int iRange)
+int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 {
-	if (!pBasePlot || iRange<0)
+	if (!pBasePlot || ePlayer==NO_PLAYER)
 		return false;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -6550,10 +6350,6 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
-		// Is this target near enough?
-		if(plotDistance(pBasePlot->getX(), pBasePlot->getY(), allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY()) > iRange)
-			continue;
-
 		// Is the target of an appropriate type?
 		switch (allTargets[iI].GetTargetType())
 		{

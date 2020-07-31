@@ -825,12 +825,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		}
 	}
 #endif
-	// Deal leeway with human
-	iPercentOverWeWillRequest = GetDealPercentLeewayWithHuman();
-	iPercentUnderWeWillOffer = GetDealPercentLeewayWithHuman();
-
-	// Now do the valuation
-	iTotalValueToMe = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We're offering help to a player
@@ -839,6 +833,37 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		return true;
 	}
 #endif
+
+	// We're surrendering
+	if (pDeal->GetSurrenderingPlayer() == GetPlayer()->GetID())
+	{
+		int iMaxPeace = (GetCachedValueOfPeaceWithHuman() * -1);
+		if (iTotalValueToMe < 0)
+		{
+			iTotalValueToMe *= -1;
+		}
+		if (iTotalValueToMe <= iMaxPeace)
+		{
+			return true;
+		}
+	}
+
+	// Peace deal where we're not surrendering, value must equal cached value
+	else if (pDeal->IsPeaceTreatyTrade(eOtherPlayer))
+	{
+		int iMaxPeace = GetCachedValueOfPeaceWithHuman();
+		if (iTotalValueToMe >= iMaxPeace)
+		{
+			return true;
+		}
+	}
+
+	// Deal leeway with human
+	iPercentOverWeWillRequest = GetDealPercentLeewayWithHuman();
+	iPercentUnderWeWillOffer = GetDealPercentLeewayWithHuman();
+
+	// Now do the valuation
+	iTotalValueToMe = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
 
 	// Important: check invalid return value!
 	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==(INT_MAX * -1))
@@ -880,29 +905,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	iAmountUnderWeWillOffer *= iPercentUnderWeWillOffer;
 	iAmountUnderWeWillOffer /= 100;
 
-	// We're surrendering
-	if(pDeal->GetSurrenderingPlayer() == GetPlayer()->GetID())
-	{
-		int iMaxPeace = (GetCachedValueOfPeaceWithHuman() * -1);
-		if(iTotalValueToMe < 0)
-		{
-			iTotalValueToMe *= -1;
-		}
-		if (iTotalValueToMe <= iMaxPeace)
-		{
-			return true;
-		}
-	}
-
-	// Peace deal where we're not surrendering, value must equal cached value
-	else if (pDeal->IsPeaceTreatyTrade(eOtherPlayer))
-	{
-		int iMaxPeace = GetCachedValueOfPeaceWithHuman();
-		if (iTotalValueToMe >= iMaxPeace)
-		{
-			return true;
-		}
-	}
+	
 
 	// If we've gotten the deal to a point where we're happy, offer it up
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer) && !bFirstPass)
@@ -1545,7 +1548,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
-	int iItemValue = max(1, iBaseHappiness) * iNumTurns;
+	int iItemValue = max(1, iBaseHappiness);
+	iItemValue += (GC.getGame().getCurrentEra() - 2);
+	iItemValue *= iNumTurns;
+	if (iItemValue <= 0)
+		iItemValue = 1;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1805,7 +1812,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 10 + (2 * GC.getGame().getCurrentEra());
+	int iItemValue = 10 + (GC.getGame().getCurrentEra() - 3);
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1865,8 +1872,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			//If they're stronger than us, strategic resources are valuable.
 			if (GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
-				iItemValue *= 5;
-				iItemValue /= 3;
+				iItemValue *= 10;
+				iItemValue /= 9;
 			}
 			else
 			{
@@ -1889,13 +1896,13 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 			if (bGood)
 			{
-				iItemValue *= 3;
+				iItemValue *= 2;
 			}
 			//Are they close, or far away? We should always be a bit less eager to sell war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				iItemValue *= 3;
-				iItemValue /= 2;
+				iItemValue *= 10;
+				iItemValue /= 9;
 			}
 			//Are we going for science win? Don't sell aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -1924,7 +1931,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//Increase value based on number remaining (up to 10).
-			iItemValue += ((10 - min(10, iNumRemaining)) * (10 - min(10, iNumRemaining)) * 10);
+			iItemValue += ((10 - min(10, iNumRemaining)) * (10 - min(10, iNumRemaining)));
 
 			//How much do we have compared to them?
 			int iResourceRatio = GetResourceRatio(GetPlayer()->GetID(), eOtherPlayer, eResource, iResourceQuantity);
@@ -1984,8 +1991,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			//If they're stronger than us, strategic resources are less valuable, as we might war soon.
 			if (GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
-				iItemValue *= 3;
-				iItemValue /= 5;
+				iItemValue *= 8;
+				iItemValue /= 10;
 			}
 			else
 			{
@@ -2013,8 +2020,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			//Are they close, or far away? We should always be a bit less eager to buy war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				iItemValue *= 2;
-				iItemValue /= 3;
+				iItemValue *= 7;
+				iItemValue /= 10;
 			}
 			//Are we going for science win? Buy aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -2025,8 +2032,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 					ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 					if (eResource == eAluminumResource)
 					{
-						iItemValue *= 3;
-						iItemValue /= 2;
+						iItemValue *= 10;
+						iItemValue /= 8;
 					}
 				}
 			}
@@ -2038,8 +2045,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				{
 					if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
 					{
-						iItemValue *= 3;
-						iItemValue /= 2;
+						iItemValue *= 10;
+						iItemValue /= 8;
 					}
 				}
 			}

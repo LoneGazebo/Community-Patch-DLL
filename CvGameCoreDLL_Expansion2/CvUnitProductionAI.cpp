@@ -1000,36 +1000,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
-				iBonus += 1000;
+				iBonus += 10000;
 			}
 			else
 			{
-				iBonus += 500;
+				iBonus += 1000;
 			}
 			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iBonus += 1000;
+				iBonus += 10000;
 			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
+			else
 			{
-				iBonus += 500;
-			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
-			{
-				iBonus += 350;
-			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory())
-			{
-				iBonus += 400;
+				iBonus += 2500;
 			}
 
 			if(m_pCity->getSpaceProductionModifier() > 0)
 			{
-				iBonus += (m_pCity->getSpaceProductionModifier() * 10);
-			}
-			else
-			{
-				iBonus -= 100;
+				iBonus += (m_pCity->getSpaceProductionModifier() * 100);
 			}
 			//Don't zero out because of this penalty.
 			if (iBonus <= 0)

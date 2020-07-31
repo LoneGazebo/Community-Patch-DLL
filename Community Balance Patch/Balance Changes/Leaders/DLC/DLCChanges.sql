@@ -174,6 +174,11 @@ INSERT INTO Improvement_AdjacentImprovementYieldChanges
 VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
 
+INSERT INTO Improvement_YieldAdjacentSameType
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1);
+
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
@@ -326,6 +331,7 @@ INSERT INTO Trait_MountainRangeYield
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '1'),
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '1'),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FOOD', '1');
 
 INSERT INTO Trait_UnimprovedFeatureYieldChanges

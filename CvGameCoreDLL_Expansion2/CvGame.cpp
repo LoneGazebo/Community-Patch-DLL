@@ -873,8 +873,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
 
 			// To have an orientation which plots are relatively good or bad
-			if (GET_PLAYER(ePlayer).isMajorCiv())
-				GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
+			GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
 		}
 	}
 
@@ -4524,25 +4523,22 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
-	int iEra;
-	int iCount;
-	int iI;
+	float fEra = 0;
+	int iCount = 0;
 
-	iEra = 0;
-	iCount = 0;
-
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			iEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
+			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
 
 	if(iCount > 0)
 	{
-		return ((EraTypes)(iEra / iCount));
+		int iRoundedEra = int(fEra / iCount + 0.5f);
+		return ((EraTypes)iRoundedEra);
 	}
 
 	return NO_ERA;

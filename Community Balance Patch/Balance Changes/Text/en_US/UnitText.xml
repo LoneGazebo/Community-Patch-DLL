@@ -268,7 +268,7 @@
 			<Text>Gift of the Pharaoh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
-			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an Enemy Unit.</Text>
+			<Text>Receive [ICON_PRODUCTION] Production in unit's City of origin when you defeat an Enemy Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
 			<Text>Raider</Text>

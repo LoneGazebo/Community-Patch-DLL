@@ -265,6 +265,8 @@ public:
 	}
 
 	void PrecalcNeighbors();
+
+	vector<int>& GetVisibilityScratchpad() { return m_vVisibilityScratchpad; }
 #endif
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
@@ -360,6 +362,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
+	vector<int> m_vVisibilityScratchpad;
 #endif
 
 	uint8* m_pYields;

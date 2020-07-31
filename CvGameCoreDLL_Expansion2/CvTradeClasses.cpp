@@ -71,6 +71,7 @@ void CvGameTrade::Uninit (void)
 void CvGameTrade::Reset (void)
 {
 	m_aTradeConnections.clear();
+	m_routesPerPlayer = vector<vector<int>>(MAX_PLAYERS);
 	m_iNextID = 0;
 	m_CurrentTemporaryPopupRoute.iPlotX = 0;
 	m_CurrentTemporaryPopupRoute.iPlotY = 0;
@@ -122,6 +123,18 @@ bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const S
 	return false;
 }
 
+const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
+{
+	//make sure we're up to date
+	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+	UpdateTradePathCache(eOriginPlayer);
+
+	if (!pOriginCity)
+		return m_dummyTradePaths; //always empty
+
+	return bWater ? m_aPotentialTradePathsWater[pOriginCity->GetID()] : m_aPotentialTradePathsLand[pOriginCity->GetID()];
+}
+
 bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
 {
 	if (!pOriginCity || !pDestCity)
@@ -149,6 +162,8 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 void CvGameTrade::InvalidateTradePathCache(uint iPlayer)
 {
 	m_lastTradePathUpdate[iPlayer] = -1;
+	m_aPotentialTradePathsWater[iPlayer] = m_dummyTradePaths;
+	m_aPotentialTradePathsLand[iPlayer] = m_dummyTradePaths;
 }
 
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
@@ -173,6 +188,9 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			vDestPlots.push_back(pDestCity->plot());
 	}
+
+	//throw away the old data before adding the new
+	InvalidateTradePathCache(iPlayer1);
 
 	int iOriginCityLoop;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
@@ -531,6 +549,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 #if defined(MOD_API_TRADEROUTES)
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitRecalled = false;
 #endif
+
+	//update cache
+	m_routesPerPlayer[eOriginPlayer].push_back(iNewTradeRouteIndex);
+	m_routesPerPlayer[eDestPlayer].push_back(iNewTradeRouteIndex);
+	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
@@ -1080,6 +1103,13 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 		}
 	}
 #endif
+	
+	//update cache
+	vector<int>& originRoutes = m_routesPerPlayer[eOriginPlayer];
+	vector<int>& destRoutes = m_routesPerPlayer[eDestPlayer];
+	originRoutes.erase(std::remove(originRoutes.begin(), originRoutes.end(), iIndex), originRoutes.end());
+	destRoutes.erase(std::remove(destRoutes.begin(), destRoutes.end(), iIndex), destRoutes.end());
+	//OutputDebugString(CvString::format("cleared TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iIndex).c_str());
 
 	//reset to default
 	kTradeConnection = TradeConnection();
@@ -2191,6 +2221,15 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg)
 	}
 }
 
+const vector<int>& CvGameTrade::GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const
+{
+	if (ePlayer>=0 && (size_t)ePlayer<m_routesPerPlayer.size())
+		return m_routesPerPlayer[ePlayer];
+
+	//should be the barbarians, always empty
+	return m_routesPerPlayer.back();
+}
+
 //	----------------------------------------------------------------------------
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, TradeConnection& writeTo)
@@ -2279,6 +2318,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 			gDLL->TradeVisuals_UpdateRouteDirection(i, writeTo.m_aTradeConnections[i].m_bTradeUnitMovingForward);
 		}
 	}
+
+	loadFrom >> writeTo.m_routesPerPlayer;
 
 	if (uiVersion >= 3)
 	{
@@ -2383,6 +2424,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameTrade& readFrom)
 	{
 		saveTo << readFrom.m_aTradeConnections[ui];
 	}
+
+	saveTo << readFrom.m_routesPerPlayer;
 
 	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
@@ -4327,28 +4370,28 @@ int CvPlayerTrade::GetTradeValuesAtCityTimes100 (const CvCity *const pCity, Yiel
 	int iCityY = pCity->getY();
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	const vector<int>& vConnections = pTrade->GetTradeConnectionsForPlayer(pCity->getOwner());
+	for (uint ui = 0; ui < vConnections.size(); ui++)
 	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (pTrade->IsTradeRouteIndexEmpty(ui))
-		{
+		//should not happen?
+		if (pTrade->IsTradeRouteIndexEmpty( vConnections[ui] ))
 			continue;
-		}
 
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		const TradeConnection& connection = pTrade->GetTradeConnection( vConnections[ui] );
+
+		if (connection.m_eOriginOwner == m_pPlayer->GetID())
 		{
-			if (pConnection->m_iOriginX == iCityX && pConnection->m_iOriginY == iCityY)
+			if (connection.m_iOriginX == iCityX && connection.m_iOriginY == iCityY)
 			{
-				iResult += pConnection->m_aiOriginYields[eYield];
+				iResult += connection.m_aiOriginYields[eYield];
 			}
 		}
 		
-		if (pConnection->m_eDestOwner == m_pPlayer->GetID())
+		if (connection.m_eDestOwner == m_pPlayer->GetID())
 		{
-			if (pConnection->m_iDestX == iCityX && pConnection->m_iDestY == iCityY)
+			if (connection.m_iDestX == iCityX && connection.m_iDestY == iCityY)
 			{
-				iResult += pConnection->m_aiDestYields[eYield];
+				iResult += connection.m_aiDestYields[eYield];
 			}
 		}
 	}
@@ -4738,7 +4781,7 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
 	return iNumConnections;
 }
 
-int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
+int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(const CvCity* pCity)
 {
 	if (!pCity)
 		return 0;

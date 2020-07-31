@@ -1184,8 +1184,13 @@ private:
 	PolicyBranchTypes m_eBranchPicked2;
 	PolicyBranchTypes m_eBranchPicked3;
 
+	//cache for repeated calls
 	typedef std::map<PolicyModifierType,std::pair<int,int>> ModifierMap;
 	ModifierMap mModifierLookup;
+
+	//these are used so often, make an even faster cache
+	pair<int, int> currentHappinessModifier;
+	pair<int, int> currentHappinessModifierPerCity;
 };
 
 namespace PolicyHelpers

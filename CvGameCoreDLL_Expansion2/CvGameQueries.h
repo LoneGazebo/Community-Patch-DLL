@@ -18,7 +18,6 @@ class CvGameQueries
 public:
 	static UnitClassTypes	GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom = false);
 	static int				GetTeamClosenessScore(int** aaiDistances, int* aiStartingLocs);
-	static bool				AreUnitsSameType(UnitTypes eFirstUnitType, UnitTypes eSecondUnitType);
 
 };
 

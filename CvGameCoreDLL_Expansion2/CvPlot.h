@@ -234,7 +234,7 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool MeleeAttackerAdvances() const;
+	bool MeleeAttackerAdvances(TeamTypes eAttackerTeam) const;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
@@ -316,9 +316,10 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
-	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
-	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
+	//if there is a combat unit we can't stack. should really call CvUnit::CanStackWithUnitHere() but sometimes we don't know the unit yet
+	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
+	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
+	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
@@ -369,8 +370,6 @@ public:
 		return m_iLandmass;
 	}
 	void setLandmass(int iNewValue);
-
-	int getFeatureVariety() const;
 
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;
@@ -466,9 +465,7 @@ public:
 	};
 	bool isOpenGround()     const
 	{
-		if( isHills() || isMountain() || m_bRoughFeature) 
-			return false;
-		return true;
+		return !isRoughGround();
 	}
 	bool isMountain()       const
 	{
@@ -549,21 +546,13 @@ public:
 
 	bool isRoughGround() const
 	{
-		if(isHills() || isMountain())
-			return true;
-
-		return m_bRoughFeature;
+		return m_bHighMoveCost;
 	}
 
 	bool isFlatlands() const;
 	void setPlotType(PlotTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true, bool bEraseUnitsIfWater = true);
-
-	bool IsRoughFeature() const;
-	void SetRoughFeature(bool bValue);
-
 	void setTerrainType(TerrainTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true);
-
-	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);
+	void setFeatureType(FeatureTypes eNewValue);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 	bool IsNaturalWonder(bool orPseudoNatural = true) const;
 #else
@@ -588,6 +577,8 @@ public:
 	bool IsImprovementEmbassy() const;
 	void SetImprovementEmbassy(bool bEmbassy);
 #endif
+	bool IsImprovementPassable() const;
+	void SetImprovementPassable(bool bPassable);
 	bool IsImprovementPillaged() const;
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	void SetImprovementPillaged(bool bPillaged, bool bEvents = true);
@@ -842,30 +833,6 @@ public:
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 
-	inline int getScratchPad() const
-	{
-		return m_iScratchPad;
-	}
-	inline void setScratchPad(int iNewValue)
-	{
-		m_iScratchPad = iNewValue;
-	}
-
-	PlayerTypes GetBuilderAIScratchPadPlayer() const;
-	void SetBuilderAIScratchPadPlayer(PlayerTypes ePlayer);
-
-	short GetBuilderAIScratchPadTurn() const;
-	void SetBuilderAIScratchPadTurn(short sNewValue);
-
-	RouteTypes GetBuilderAIScratchPadRoute() const;
-	void SetBuilderAIScratchPadRoute(RouteTypes eRoute);
-
-	short GetBuilderAIScratchPadValue() const;
-	void SetBuilderAIScratchPadValue(short sNewValue);
-
-	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
-	bool IsStrategicRoute(TeamTypes eTeam) const;
-
 	int GetPlotIndex() const;
 
 	char GetContinentType() const;
@@ -985,7 +952,8 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		enum config { eCount = 4, eSize = 32 };
+		//two 32 bit DWORDS for 64 bit capacity
+		enum config { eCount = 2, eSize = 32 };
 		DWORD m_dwBits[eCount];
 
 		bool GetBit(const uint uiEntry) const
@@ -1079,20 +1047,9 @@ protected:
 
 	short m_iArea;
 	short m_iLandmass;
-
-	// This is a variable that you can use for whatever nefarious deeds you need to do
-	// it will not be saved or loaded - you should assume that it is filled with garbage
-	// when you get it
-	int m_iScratchPad;
-	char m_cBuilderAIScratchPadPlayer;
-	short m_sBuilderAIScratchPadTurn;
-	short m_sBuilderAIScratchPadValue;
-	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
-
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
-	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
@@ -1123,7 +1080,7 @@ protected:
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSEFlowDirection; // flow direction on the SE edge (isNWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSWFlowDirection; // flow direction on the SW edge (isNEofRiver)
-	char m_iFeatureVariety;
+	char m_iDummy; //unused
 	char m_iNumMajorCivsRevealed;
 	char m_iCityRadiusCount;
 	char m_iReconCount;
@@ -1135,6 +1092,7 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool m_bImprovementEmbassy:1;
 #endif
+	bool m_bImprovementPassable:1;
 	bool m_bImprovementPillaged:1;
 	bool m_bRoutePillaged:1;
 	bool m_bStartingPlot:1;
@@ -1146,7 +1104,7 @@ protected:
 	bool m_bPlotLayoutDirty:1;
 	bool m_bLayoutStateWorked:1;
 	bool m_bBarbCampNotConverting:1;
-	bool m_bRoughFeature:1;
+	bool m_bHighMoveCost:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsImpassable:1;

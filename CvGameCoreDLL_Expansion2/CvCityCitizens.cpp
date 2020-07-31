@@ -864,6 +864,10 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			iBonus += iTempBonusPlusOne;
 	}
 
+	//emphasize these, as they're harder to get on tiles.
+	if (eYield >= YIELD_SCIENCE)
+		iBonus *= 4;
+
 	return iBonus;
 }
 /// What is the overall value of the current Plot?
@@ -927,7 +931,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = store.iExcessFoodTimes100 <= 200 ? GC.getAI_CITIZEN_VALUE_FOOD() * 10 : GC.getAI_CITIZEN_VALUE_FOOD();
+					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 75) - store.iExcessFoodTimes100;
+					int iMultiplier = max(iNoStarveModifier, GC.getAI_CITIZEN_VALUE_FOOD());
 					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
@@ -4660,25 +4665,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #endif
 		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			{
-				if (GetCity())
-				{
-					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else
-				{
-					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-				}
-			}
-			else
-			{
-				newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-			}
-#else
 			newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-#endif
 			newUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 			newUnit->GetReligionData()->SetReligion(eReligion);
 		}

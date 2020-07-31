@@ -470,7 +470,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
 	Method(GetNumPoliciesInBranch);
-	Method(GetNumPoliciesInBranchForDisplay);
+	Method(GetNumPoliciesPurchasedInBranch);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
@@ -4419,6 +4419,9 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = pkUnitPlot->getPlotCity();
 
+	//make sure we always have fresh data
+	GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkPlayer->GetID());
+
 	lua_createtable(L, 0, 0);
 	int index = 1;
 
@@ -6651,10 +6654,9 @@ int CvLuaPlayer::lGetNumPoliciesInBranch(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
 //------------------------------------------------------------------------------
 //int GetNumPolicies();
-int CvLuaPlayer::lGetNumPoliciesInBranchForDisplay(lua_State* L)
+int CvLuaPlayer::lGetNumPoliciesPurchasedInBranch(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PolicyBranchTypes eIndex = (PolicyBranchTypes)lua_tointeger(L, 2);
@@ -6663,7 +6665,6 @@ int CvLuaPlayer::lGetNumPoliciesInBranchForDisplay(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
 //------------------------------------------------------------------------------
 //bool hasPolicy(PolicyTypes  iIndex);
 int CvLuaPlayer::lHasPolicy(lua_State* L)
