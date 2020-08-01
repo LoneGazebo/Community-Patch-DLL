@@ -5804,7 +5804,7 @@ void CvPlayer::DoEvents()
 						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 						strBaseString += playerName + ", ";
-						strOutBuf.Format("Event Choice Cooldown: %s Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+						strOutBuf.Format("Event Choice: %s Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
 						strBaseString += strOutBuf;
 						pLog->Msg(strBaseString);
 					}
@@ -5830,7 +5830,7 @@ void CvPlayer::DoEvents()
 			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("Player Event: Global Cooldown Active. Cooldown: %d", GetPlayerEventCooldown());
+			strOutBuf.Format("Player Event: Global Cooldown Active: %d", GetPlayerEventCooldown());
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
@@ -5850,6 +5850,9 @@ void CvPlayer::DoEvents()
 			{
 				continue;
 			}
+
+			if (pkEventInfo->isGlobal() && !isHuman())
+				continue;
 
 			if (pkEventInfo->getRandomChance() == -1)
 				continue;
@@ -5880,7 +5883,7 @@ void CvPlayer::DoEvents()
 						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 						strBaseString += playerName + ", ";
-						strOutBuf.Format("Player Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
+						strOutBuf.Format("Player Event: %s. Cooldown Active: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
 						strBaseString += strOutBuf;
 						pLog->Msg(strBaseString);
 					}
@@ -5897,6 +5900,21 @@ void CvPlayer::DoEvents()
 			//most expensive check last
 			if (IsEventValid(eEvent))
 			{
+				if (GC.getLogging())
+				{
+					CvString playerName;
+					FILogFile* pLog;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					playerName = getCivilizationShortDescription();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Seeded: %s. Weight: %d", pkEventInfo->GetDescription(), (pkEventInfo->getRandomChance() + GetEventIncrement(eEvent)));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
 				veValidEvents.push_back(eEvent, (pkEventInfo->getRandomChance() + GetEventIncrement(eEvent)));
 			}
 		}
@@ -5906,7 +5924,7 @@ void CvPlayer::DoEvents()
 
 	if(veValidEvents.size() > 0)
 	{
-		veValidEvents.SortItems();
+		int iRandIndex = GC.getGame().getJonRandNum(2000, "Picking random event for player.");
 		if(GC.getLogging())
 		{
 			CvString strBaseString;
@@ -5916,12 +5934,10 @@ void CvPlayer::DoEvents()
 			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
+			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), iRandIndex);
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-
-		int iRandIndex = GC.getGame().getJonRandNum(1000, "Picking random event for player.");
 
 		//which one is it?
 		int iWeight = 0;
@@ -5932,7 +5948,7 @@ void CvPlayer::DoEvents()
 			if (!pkEventInfo)
 				continue;
 
-			iWeight = veValidEvents.GetWeight(iLoop);
+			iWeight += veValidEvents.GetWeight(iLoop);
 			if (iRandIndex < iWeight)
 			{
 				eChosenEvent = eEvent;
@@ -5959,20 +5975,7 @@ void CvPlayer::DoEvents()
 						GET_PLAYER(ePlayer).ChangePlayerEventCooldown(GC.getEVENT_MIN_DURATION_BETWEEN());
 
 						//reset probability
-						IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
-						if (GC.getLogging())
-						{
-							CvString strBaseString;
-							CvString strOutBuf;
-							CvString strFileName = "EventLogging.csv";
-							CvString playerName = getCivilizationShortDescription();
-							FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-							strBaseString += playerName + ", ";
-							strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
-							strBaseString += strOutBuf;
-							pLog->Msg(strBaseString);
-						}
+						GET_PLAYER(ePlayer).IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
 					}
 				}
 			}
@@ -5996,19 +5999,6 @@ void CvPlayer::DoEvents()
 			if (pkEventInfo->getRandomChanceDelta() > 0)
 			{
 				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-				if (GC.getLogging())
-				{
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
-					CvString playerName = getCivilizationShortDescription();
-					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
-				}
 			}
 		}
 	}
@@ -6062,7 +6052,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 		return false;
 
 	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
@@ -6552,7 +6542,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("Event choice already active for player, skipping: %s, Event: %s. Cooldown: %d", pkEventInfo->GetDescription(), pkEventInfo->GetDescription(), GetEventChoiceDuration(eChosenEventChoice));
+			strOutBuf.Format("Event choice already active for player, skipping: %s. Cooldown: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eChosenEventChoice));
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
@@ -6563,7 +6553,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 		return false;
 
 	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
@@ -8898,7 +8888,21 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			{
 				int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 				int iLimit = pkEventChoiceInfo->getEventChance();
-				if(iRandom < iLimit)
+				if(GC.getLogging())
+				{
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					CvString playerName = getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Event Chance=%d Random=%d %s", iLimit, iRandom, ( (iRandom < iLimit) ? "Occurs" : "Fails"));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+
+				if(!(iRandom < iLimit))
 				{
 					//Notify if it did not work.
 					CvNotifications* pNotifications = GetNotifications();

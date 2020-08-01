@@ -188,6 +188,12 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_3_HELP">
 			<Text>No negative effect.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_4">
+			<Text>Let's deal with problems as they arise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_4_HELP">
+			<Text>Expect the cold to cause problems in our Cities.</Text>
+		</Row>
 
 		<!-- Revolution -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_DESCRIPTION">
