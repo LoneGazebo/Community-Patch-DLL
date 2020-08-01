@@ -5259,19 +5259,13 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if((eOwningPlayer != NO_PLAYER && !m_pPlayer->isBarbarian() && !GET_PLAYER(eOwningPlayer).isBarbarian()) && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
 	{
 		// Notify Diplo AI that damage has been done
-		int iValue = iPlunderGoldValue/2;
-		if(iValue > 0)
+		int iValue = (iPlunderGoldValue/2);
+		if (iValue > 0)
 		{
-			int iWarscoremod = m_pPlayer->GetWarScoreModifier();
-			if (iWarscoremod != 0)
-			{
-				iValue *= (iWarscoremod + 100);
-				iValue /= 100;
-			}
+			// Do we have a bonus to war score accumulation?
+			iValue *= (100 + m_pPlayer->GetWarScoreModifier());
+			iValue /= 100;
 
-			// My viewpoint
-			m_pPlayer->GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eOwningPlayer, m_pPlayer->GetID(), iValue);
-			// Bad guy's viewpoint
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 		}
 	}

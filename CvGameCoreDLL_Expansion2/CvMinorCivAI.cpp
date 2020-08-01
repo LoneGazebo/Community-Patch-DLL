@@ -4546,18 +4546,16 @@ void CvMinorCivAI::DoPickPersonality()
 	SetBullyUnit();
 #endif
 
-	switch(eRandPersonality)
+	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
+	int iSeed = 0;
+
+	switch (eRandPersonality)
 	{
 	case MINOR_CIV_PERSONALITY_FRIENDLY:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], -2, 0, 10);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], -2, 0, 10);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], -2, 0, 10);
-		pFlavorManager->ResetToBasePersonality();
-		break;
 	case MINOR_CIV_PERSONALITY_HOSTILE:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10);
+		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10, iSeed);
+		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10, iSeed);
+		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, iSeed);
 		pFlavorManager->ResetToBasePersonality();
 		break;
 	}
@@ -12409,8 +12407,12 @@ void CvMinorCivAI::DoDefection()
 /// Is a player allowed to be inside someone else's borders?
 bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 {
+	// At war?
+	if (IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	// Special trait?
-	if(IsPlayerHasOpenBordersAutomatically(ePlayer))
+	if (IsPlayerHasOpenBordersAutomatically(ePlayer))
 		return true;
 
 	if (m_bAllowMajorsToIntrude)
@@ -12423,7 +12425,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 		return true;
 
 	return false;

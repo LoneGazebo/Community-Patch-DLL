@@ -522,6 +522,7 @@ public:
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
 	bool IsOriginalMinorCapital() const;
+	bool IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)

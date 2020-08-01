@@ -864,10 +864,6 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			iBonus += iTempBonusPlusOne;
 	}
 
-	//emphasize these, as they're harder to get on tiles.
-	if (eYield >= YIELD_SCIENCE)
-		iBonus *= 4;
-
 	return iBonus;
 }
 /// What is the overall value of the current Plot?

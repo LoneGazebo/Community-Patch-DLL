@@ -12075,7 +12075,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Speaking of Gandhi, he's very nuke happy!
-		if (GetPlayer()->GetDiplomacyAI()->IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 		{
 			iScore += -5000;
 		}
@@ -12777,7 +12777,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if(eTargetPlayer == GetPlayer()->GetID())
 				{
-					iScore -= 5000 * max(iAllies, 1);
+					iScore -= 1000 * max(iAllies, 1);
 					if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
 						iScore -= 5000;
 				}
@@ -12840,63 +12840,72 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Spaceship Control Committee
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iLimitSpaceshipProduction)
 	{
-		int eMajorScience = 0;
-		TeamTypes eTeam;
-		for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
-		{
-			eTeam = (TeamTypes) iTeamLoop;
+		bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 
-			if (GET_TEAM(eTeam).isAlive())
+		if (bScienceVictoryEnabled)
+		{
+			int eMajorScience = 0;
+			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 			{
-				ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-				if(eApolloProgram != NO_PROJECT)
+				TeamTypes eTeam = (TeamTypes) iTeamLoop;
+
+				if (GET_TEAM(eTeam).isAlive())
 				{
-					if(GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
+					ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+					if (eApolloProgram != NO_PROJECT)
 					{
-						eMajorScience++;
+						if (GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
+						{
+							eMajorScience++;
+						}
 					}
 				}
 			}
-		}
-		if (bSeekingScienceVictory)
-		{
-			iScore -= -500;
-		}
-		else if(eMajorScience > 0)
-		{
-			iScore += 100 * eMajorScience;
-		}
-
-		float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
-		fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
-		
-		// We are better than average
-		if (fTechRatio < 0.0f)
-		{
-			int iFactor = 30;
-			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
-				iScore += -50;
+				iScore -= 500;
 			}
+			else if (eMajorScience > 0)
+			{
+				iScore += 100 * eMajorScience;
+			}
+
+			float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
+			fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
+			
+			// We are better than average
+			if (fTechRatio < 0.0f)
+			{
+				int iFactor = 30;
+				iScore += (int) (fTechRatio * iFactor);
+				if (bSeekingScienceVictory)
+				{
+					iScore += -50;
+				}
+				else
+				{
+					iScore += -25;
+				}
+			}
+			// At or worse than average
 			else
 			{
-				iScore += -25;
+				int iFactor = 50;
+				iScore += (int) (fTechRatio * iFactor);
+				if (!bSeekingScienceVictory)
+				{
+					iScore += 75;
+				}
+				else
+				{
+					iScore += 15;
+				}
 			}
 		}
-		// At or worse than average
+		// Science Victory is disabled - don't care
 		else
 		{
-			int iFactor = 50;
-			iScore += (int) (fTechRatio * iFactor);
-			if (!bSeekingScienceVictory)
-			{
-				iScore += 75;
-			}
-			else
-			{
-				iScore += 15;
-			}
+			iScore = 0;
 		}
 	}
 	//Just War

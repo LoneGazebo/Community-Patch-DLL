@@ -4314,7 +4314,7 @@ int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) con
 }
 
 /// Number of policies purchased in this branch - used for LUA display
-int CvPlayerPolicies::GetNumPoliciesOwnedInBranchForDisplay(PolicyBranchTypes eBranch) const
+int CvPlayerPolicies::GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const
 {
 	int rtnValue = 0;
 
