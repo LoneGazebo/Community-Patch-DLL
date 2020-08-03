@@ -1179,7 +1179,7 @@ public:
 	bool IsUnableToCancelRazing() const
 	{
 		return m_bUnableToCancelRazing;
-	}
+	};
 	int GetWLTKDGPImprovementModifier() const
 	{
 		return m_iWLTKDGPImprovementModifier;

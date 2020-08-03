@@ -991,6 +991,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- Normal Melee Combat
 			else
 				
+				-- checks for embarkation ...
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
@@ -999,7 +1000,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false, NULL);
-				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
+
+				if (pTheirUnit:IsEmbarked()) then
+				    iTheirDamageInflicted = 0
+				else
+    				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
+    		    end
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 				
 			end

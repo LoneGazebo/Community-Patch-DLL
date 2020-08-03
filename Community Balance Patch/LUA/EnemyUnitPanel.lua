@@ -3549,7 +3549,7 @@ function OnMouseOverHex( hexX, hexY )
 							for i = 0, iNumUnits do
 								pUnit = pPlot:GetUnit(i);
 								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
-									 if (pUnit:IsCanDefend()) then
+									 if (pUnit:GetBaseCombatStrength() > 0 or pHeadUnit:IsRanged()) then
 										UpdateUnitPortrait(pUnit);
 										UpdateUnitPromotions(pUnit);
 										UpdateUnitStats(pUnit);

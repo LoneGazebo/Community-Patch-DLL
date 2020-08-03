@@ -12860,7 +12860,7 @@ void CvPlayer::raze(CvCity* pCity)
 //	--------------------------------------------------------------------------------
 void CvPlayer::unraze(CvCity* pCity)
 {
-	if (GetPlayerTraits()->IsUnableToCancelRazing() == false)
+	if (!GetPlayerTraits()->IsUnableToCancelRazing())
 	{
 		if (GetPlayerTraits()->IsNoAnnexing())
 		{

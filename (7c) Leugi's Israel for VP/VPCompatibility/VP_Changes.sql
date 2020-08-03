@@ -76,7 +76,7 @@ VALUES		('BUILDING_LEUGI_JERUSALEM_TEMPLE',	'FLAVOR_RELIGION',			140),
 INSERT INTO Building_YieldChanges
 			(BuildingType,						YieldType, 		 	Yield)
 VALUES		('BUILDING_LEUGI_JERUSALEM_TEMPLE', 'YIELD_FAITH', 	 	5),
-			('BUILDING_LEUGI_JERUSALEM_TEMPLE', 'YIELD_CULTURE', 	2),
+			('BUILDING_LEUGI_JERUSALEM_TEMPLE', 'YIELD_CULTURE', 	3),
 			('BUILDING_LEUGI_JERUSALEM_TEMPLE', 'YIELD_GOLD', 		1);
 ------------------------------	
 -- Building_YieldFromPolicyUnlock
@@ -114,7 +114,7 @@ VALUES		('BUILDING_LEUGI_JERUSALEM_TEMPLE', 'YIELD_CULTURE', 	5),
 ------------------------------	
 INSERT INTO Building_ThemingBonuses	
 			(BuildingType,						Description,								  	Bonus,	SameEra,	RequiresSamePlayer,	AIPriority)
-VALUES		('BUILDING_LEUGI_JERUSALEM_TEMPLE',	'TXT_KEY_THEMING_BONUS_JERUSALEM_TEMPLE',		10,		0,		    1,			     2);
+VALUES		('BUILDING_LEUGI_JERUSALEM_TEMPLE',	'TXT_KEY_THEMING_BONUS_JERUSALEM_TEMPLE',		8,		0,		    1,			     2);
 --==========================================================================================================================	
 -- PROMOTIONS
 --==========================================================================================================================	

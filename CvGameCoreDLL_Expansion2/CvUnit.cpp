@@ -1067,8 +1067,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// free XP from handicap?
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
-	iXP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iXP /= 100;
 	if (iXP && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -1080,8 +1078,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// bonus xp in combat from handicap?
 	int iXPPercent = GC.getGame().getHandicapInfo().getAIFreeXPPercent();
-	iXPPercent *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iXPPercent /= 100;
 	if (iXPPercent && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
 		changeExperiencePercent(iXPPercent);
@@ -12748,28 +12744,139 @@ void CvUnit::PerformCultureBomb(int iRadius)
 		{
 			pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), i, j, iBombRange);
 
-			if(pLoopPlot == NULL)
-				continue;
-
-			// Can't be our plot
-			if(pLoopPlot->getOwner() == getOwner())
+			if (pLoopPlot == NULL)
 				continue;
 
 			// Can't flip Cities, sorry
-			if(pLoopPlot->isCity())
+			if (pLoopPlot->isCity())
 				continue;
 
-			if(pLoopPlot->getOwner() != NO_PLAYER){
+			PlayerTypes ePlotOwner = pLoopPlot->getOwner();
+
+			// Can't be our plot
+			if (ePlotOwner == getOwner())
+				continue;
+
+			if (ePlotOwner != NO_PLAYER)
+			{
 				// Notify plot owner
-				if(pLoopPlot->getOwner() != getOwner() && !vePlayersBombed[pLoopPlot->getOwner()]){
+				if (!vePlayersBombed[ePlotOwner])
+				{
 					CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-					if(pNotifications){
+					if (pNotifications)
+					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
 						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), -1);
 					}
 				}
-				vePlayersBombed[pLoopPlot->getOwner()] = true;
+				vePlayersBombed[ePlotOwner] = true;
+
+				// Diplomacy stuff!
+				int iTileValue = /*80*/ GC.getSTOLEN_TILE_BASE_WAR_VALUE();
+				int iValueMultiplier = 0;
+
+				if (pLoopPlot->IsNaturalWonder())
+				{
+					iValueMultiplier += 200;
+					vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+				}
+				else
+				{
+					if (pLoopPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
+					{
+						CvResourceInfo* pInfo = GC.getResourceInfo(pLoopPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
+						if (pInfo)
+						{
+							switch (pInfo->getResourceUsage())
+							{
+							case RESOURCEUSAGE_STRATEGIC:
+								iValueMultiplier += 100;
+								vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+								break;
+							case RESOURCEUSAGE_LUXURY:
+								iValueMultiplier += 50;
+								vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+								break;
+							case RESOURCEUSAGE_BONUS:
+								iValueMultiplier += 20;
+								break;
+							}
+						}
+					}
+					if (pLoopPlot->IsChokePoint())
+					{
+						iValueMultiplier += 50;
+						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+					}
+					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if (pkImprovement)
+					{
+						if (pkImprovement->IsCreatedByGreatPerson())
+						{
+							iValueMultiplier += 100;
+							vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+						}
+					}
+					// Stole a major civ's embassy from a City-State?
+					if (pLoopPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
+					{
+						PlayerTypes eEmbassyOwner = pLoopPlot->GetPlayerThatBuiltImprovement();
+						if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+						{
+							// Notify the embassy owner
+							if (!vePlayersBombed[eEmbassyOwner])
+							{
+								CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+								if (pNotifications)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), -1);
+								}
+							}
+							vePlayersBombed[eEmbassyOwner] = true;
+							vePlayersStoleHighValueTileFrom[eEmbassyOwner] = true;
+
+							// Stole from the City-State's ally? The City-State is furious!
+							if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+							{
+								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+							}
+							// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+							else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+							{
+								if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
+								{
+									GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+								}
+							}
+						}
+					}
+				}
+
+				iTileValue *= (100 + iValueMultiplier);
+				iTileValue /= 100;
+
+				// If the players are at war, this counts for war value!
+				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
+				{
+					// Update military rating for both players
+					if (GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+					}
+					if (GET_PLAYER(ePlotOwner).isMajorCiv())
+					{
+						GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+					}
+
+					// Does the city owner have a bonus to war score accumulation?
+					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+					iTileValue /= 100;
+
+					GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+				}
 			}
 #if defined(MOD_BALANCE_CORE)
 			// Instant yield from tiles gained by culture bombing
@@ -15001,7 +15108,7 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue = (isHuman() || IsGainsXPFromScouting()) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+	int iRtnValue = (isHuman() || IsGainsXPFromScouting() || isTrade()) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 
 	if(isEmbarked())
 	{

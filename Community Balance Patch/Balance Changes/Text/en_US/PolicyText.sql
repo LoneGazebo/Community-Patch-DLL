@@ -774,7 +774,7 @@ SET Text = 'Equality'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness in a City per every 10 [ICON_CITIZEN] Citizens it has. [ICON_HAPPINESS_3] Unhappiness Needs Modifier from [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, [ICON_CULTURE] Boredom, and [ICON_FOOD]/[ICON_PRODUCTION] Distress reduced by 10% in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness in a City per every 8 [ICON_CITIZEN] Citizens it has. [ICON_HAPPINESS_3] Unhappiness Needs Modifier from [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, [ICON_CULTURE] Boredom, and [ICON_FOOD]/[ICON_PRODUCTION] Distress reduced by 10% in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

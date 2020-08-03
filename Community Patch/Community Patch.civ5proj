@@ -399,11 +399,6 @@
       </Action>
       <Action>
         <Set>OnModActivated</Set>
-        <Type>UpdateUserData</Type>
-        <FileName>Core Files/PNM Mods DB/UNITS/NoSupply.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/UNITS/MaxHp.sql</FileName>
       </Action>
@@ -577,6 +572,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/FasterAircraft.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/UNITS/NoSupply.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -616,6 +616,12 @@
         <Name>EventOverview.lua</Name>
         <Description>EventOverview.lua</Description>
         <FileName>Core Files/CoreLua/EventOverview.xml</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Communitu_79</Name>
+        <Description>Communitas Rewrite By tu_79</Description>
+        <FileName>Mapscripts/Communitu_79a v1.18.0.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -1651,6 +1657,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Mapscripts\Communitas.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Communitu_79a v1.18.0.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
