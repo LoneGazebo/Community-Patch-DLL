@@ -6711,6 +6711,11 @@ bool CvGame::IsAIAggressiveMode() const
 /// Aggressive Mode (towards humans)
 bool CvGame::IsAIAggressiveTowardsHumans() const
 {
+	if (IsAIAggressiveMode())
+	{
+		return true;
+	}
+
 	if (IsAIPassiveTowardsHumans())
 	{
 		return false;
