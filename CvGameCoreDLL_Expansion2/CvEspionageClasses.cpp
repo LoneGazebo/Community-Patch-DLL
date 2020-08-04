@@ -1857,7 +1857,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 	CvCityEspionage* pCityEspionage = NULL;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	PlayerTypes eCityOwner = NO_PLAYER;
-	int iRank = pSpy->GetSpyRank(ePlayer) + 1;
+	int iRank = pSpy->GetSpyRank(ePlayer);
 	int iCityValue = 0;
 
 	//Let's give spies a few new tricks, eh?
@@ -1870,6 +1870,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 			pCityEspionage = pCity->GetCityEspionage();
 			iRank += pCity->GetRank();
 			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
+
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
@@ -1889,11 +1890,15 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 		if(aiAdvancedAction.size() > 1)
 		{
 			int	iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-			if (iSpyResult <= 50)
+			if (iSpyResult <= 75)
 				return;
-			iSpyResult += (pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
+
+			iSpyResult *= 100 + ((pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier()) * -1);
+			iSpyResult /= 100;
+
 			iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 			iSpyResult /= 100;
+
 			iSpyResult -= iCityValue;
 
 			bool bCanDie = false;
@@ -3071,7 +3076,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	}
 	else
 	{
-		int iRank = pCity->GetRank();;
+		int iRank = pCity->GetRank();
 
 		int iSpy = GetSpyIndexInCity(pCity);
 		CvEspionageSpy* pSpy = &(m_aSpyList[iSpy]);
@@ -9720,6 +9725,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			int iValue = pLoopCity->GetRank() * 10;
 			if(iValue <= 0)
 				continue;
+
 			//Randomness to try and make the AI less spammy
 			iValue += GC.getGame().getSmallFakeRandNum(iValue, *pCityPlot);
 			int iAdvancedPenalty = pLoopCity->GetBlockBuildingDestruction() + pLoopCity->GetBlockWWDestruction() + pLoopCity->GetBlockUDestruction() + pLoopCity->GetBlockGPDestruction() + pLoopCity->GetBlockGold() + pLoopCity->GetBlockScience() + pLoopCity->GetBlockRebellion() + pLoopCity->GetBlockUnrest();

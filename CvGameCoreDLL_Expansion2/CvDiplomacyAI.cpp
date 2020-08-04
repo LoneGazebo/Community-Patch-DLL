@@ -2587,21 +2587,14 @@ bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 {
 	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	return GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam());
-#endif
-
-	return false;
 }
 
 /// Determine if we're a player's master
 bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
 {
 	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
-#endif
 
 	return false;
 }
@@ -6688,7 +6681,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 		break;
 	case WAR_PROJECTION_GOOD:
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		break;
 	case WAR_PROJECTION_VERY_GOOD:
@@ -6715,7 +6708,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		break;
 	case TARGET_VALUE_FAVORABLE:
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		break;
 	case TARGET_VALUE_SOFT:
@@ -7662,7 +7655,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
 
 				// Not significantly war weary? We should ignore certain players for the war state check.
-				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState != WAR_STATE_DEFENSIVE && eLoopWarState != WAR_STATE_NEARLY_DEFEATED)
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && !bWeLostCapital && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState != WAR_STATE_DEFENSIVE && eLoopWarState != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -50404,7 +50397,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 						}
 					}
 					//Religious enemies will not be allowed to expand!
-					else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingReligion(eConqueror))
+					else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingReligion(eConqueror) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreReligionDifferences(eConqueror))
 					{
 						//Increased penalties for religious enemies.
 						iWarmongerStatusModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
@@ -50432,7 +50425,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 						}
 					}
 					//Are the conqueror and I of different ideologies? We shall not overlook this (especially if they're fighting an ideological ally)!
-					else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingIdeology(eConqueror))
+					else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingIdeology(eConqueror) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eConqueror))
 					{
 						//Increased penalties for ideological enemies.
 						iWarmongerStatusModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();

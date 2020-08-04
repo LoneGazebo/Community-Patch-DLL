@@ -6711,14 +6711,14 @@ bool CvGame::IsAIAggressiveMode() const
 /// Aggressive Mode (towards humans)
 bool CvGame::IsAIAggressiveTowardsHumans() const
 {
-	if (IsAIAggressiveMode())
-	{
-		return true;
-	}
-
 	if (IsAIPassiveTowardsHumans())
 	{
 		return false;
+	}
+
+	if (IsAIAggressiveMode())
+	{
+		return true;
 	}
 
 	if (GC.getDIPLOAI_AGGRESSIVE_MODE_HUMANS() > 0)
@@ -14800,11 +14800,11 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
 
-	if (strCityName != "")
-	{
-		CvString localizedText = "TXT_KEY_FREE_CITY";
-		pNewCity->setName(strCityName, false, true);
-	}
+	//if (strCityName != "")
+	//{
+	//	CvString localizedText = "TXT_KEY_FREE_CITY";
+	//	pNewCity->setName(strCityName, false, true);
+	//}
 
 	pNewCity->ChangeNumTimesOwned(eNewPlayer, 1);
 	pNewCity->SetOccupied(false);
