@@ -11731,7 +11731,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strBaseString += playerName + " VS. " + otherPlayerName;
 
-			strOutBuf.Format("Cannot change war/peace yet!");
+			strOutBuf.Format(": Cannot change war/peace yet!");
 
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
@@ -11777,7 +11777,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 					otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 					strBaseString += playerName + " VS. " + otherPlayerName;
 
-					strOutBuf.Format("Vassals cannot change war/peace!");
+					strOutBuf.Format(": Vassals cannot change war/peace!");
 
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
@@ -11818,7 +11818,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 				strBaseString += playerName + " VS. " + otherPlayerName;
 
-				strOutBuf.Format("Vassals cannot change war/peace!");
+				strOutBuf.Format(": Vassals cannot change war/peace!");
 
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
@@ -11867,7 +11867,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strBaseString += playerName + " VS. " + otherPlayerName;
 
-			strOutBuf.Format("No peace! We're about to score, and our cities are safe!");
+			strOutBuf.Format(": No peace! We're about to score, and our cities are safe!");
 
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
@@ -11908,7 +11908,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 				strBaseString += playerName + " VS. " + otherPlayerName;
 
-				strOutBuf.Format("We want to conquer this minor!");
+				strOutBuf.Format(": We want to conquer this minor!");
 
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
@@ -11947,7 +11947,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 				strBaseString += playerName + " VS. " + otherPlayerName;
 
-				strOutBuf.Format("We no longer want to conquer this minor!");
+				strOutBuf.Format(": We no longer want to conquer this minor!");
 
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
@@ -11989,7 +11989,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 				strBaseString += playerName + " VS. " + otherPlayerName;
 
-				strOutBuf.Format("It is too soon to end war!");
+				strOutBuf.Format(": It is too soon to end war!");
 
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
@@ -12178,7 +12178,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strBaseString += playerName + " VS. " + otherPlayerName;
 
-			strOutBuf.Format(" Value Needed: %03d. Value Have: %03d.", iRequestPeaceTurnThreshold, iWantPeace);
+			strOutBuf.Format(": Value Needed: %03d. Value Have: %03d.", iRequestPeaceTurnThreshold, iWantPeace);
 
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
@@ -13885,7 +13885,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 										otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
 										strBaseString += playerName + " VS. " + otherPlayerName;
 
-										strOutBuf.Format("Unhappy or Very War Weary, we want peace!");
+										strOutBuf.Format(": Unhappy or Very War Weary, we want peace!");
 										strBaseString += strOutBuf;
 										pLog->Msg(strBaseString);
 									}
@@ -13932,7 +13932,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 												otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
 												strBaseString += playerName + " VS. " + otherPlayerName;
 
-												strOutBuf.Format("We are losing badly, we want peace!");
+												strOutBuf.Format(": We are losing badly, we want peace!");
 
 												strBaseString += strOutBuf;
 												pLog->Msg(strBaseString);
@@ -13978,7 +13978,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 												otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
 												strBaseString += playerName + " VS. " + otherPlayerName;
 
-												strOutBuf.Format("We are winning handily, we want peace!");
+												strOutBuf.Format(": We are winning handily, we want peace!");
 
 												strBaseString += strOutBuf;
 												pLog->Msg(strBaseString);

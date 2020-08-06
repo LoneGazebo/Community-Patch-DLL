@@ -8972,8 +8972,8 @@ bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextT
 	}
 
 	//initial score could have been even more negative
-	//must be better than before to catch the case where both are invalid
-	return (iNextTurnScore - iInitialScore) > 0;
+	//it's ok if we're not making it worse
+	return (iNextTurnScore - iInitialScore) >= 0;
 }
 
 //see if all the plots where our units would end their turn are acceptable
@@ -9620,7 +9620,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0)
 	{
-		if (itUnit->eLastAssignment != A_FINISH)
+		if (itUnit->eLastAssignment != A_FINISH && itUnit->eLastAssignment != A_BLOCKED)
 			notQuiteFinishedUnits.push_back(*itUnit);
 
 		availableUnits.erase(itUnit);

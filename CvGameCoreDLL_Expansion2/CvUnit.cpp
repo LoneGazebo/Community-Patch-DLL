@@ -10042,7 +10042,9 @@ bool CvUnit::rebase(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 {
-	VALIDATE_OBJECT
+	if (!pPlot)
+		return false;
+
 	if(isEmbarked())
 		return false;
 

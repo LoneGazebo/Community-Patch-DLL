@@ -604,22 +604,6 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
 				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
-				//this is stupid but we need extra code for scout healing 
-				if (pUnit->shouldHeal())
-				{
-					CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
-					if (!pPlot)
-						pPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-
-					if (pPlot)
-					{
-						ExecuteMoveToTarget(pUnit, pPlot, 0, true);
-						if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
-							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-						continue;
-					}
-				}
-
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -660,19 +644,6 @@ void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
 				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
-				//this is stupid but we need extra code for scout healing 
-				if (pUnit->shouldHeal())
-				{
-					CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
-					if (pPlot)
-					{
-						ExecuteMoveToTarget(pUnit, pPlot, 0, true);
-						if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
-							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-						continue;
-					}
-				}
-
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -2442,6 +2413,22 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
 			continue;
+
+		//this is stupid but we need extra code for scout healing 
+		if (pUnit->shouldHeal())
+		{
+			CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+			if (!pPlot)
+				pPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
+			if (pPlot)
+			{
+				ExecuteMoveToTarget(pUnit, pPlot, 0, true);
+				if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
+					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				continue;
+			}
+		}
 
 		//should be the same everywhere so we can reuse paths
 		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
