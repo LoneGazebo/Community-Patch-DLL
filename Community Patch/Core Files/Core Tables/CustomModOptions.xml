@@ -1008,8 +1008,6 @@
 	<Row Class="6" Name="BALANCE_CORE_POLICIES" Value="0"/>
 	<!-- The more dangerous barbarians element of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
-	<!-- Turn 0 Settler moves of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_SETTLER_MOVE" Value="0"/>
 	<!-- Resources given Flavor Value of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_RESOURCE_FLAVORS" Value="0"/>
 	<!-- Purchases Scale with # of Cities of COMMUNITY_PATCH -->

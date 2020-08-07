@@ -719,7 +719,7 @@ void CvPlayerAI::AI_considerAnnex()
 	std::stable_sort(aCityAndProductions.begin(), aCityAndProductions.end(), CityAndProductionEval());
 	
 	CvCity* pTargetCity = NULL;
-	float fCutoffValue = GC.getNORMAL_ANNEX();
+	float fCutoffValue = /*0.55*/ GC.getNORMAL_ANNEX();
 
 	bool bCourthouseImprovement = false;
 	if (eCourthouseType != NO_BUILDINGCLASS)
@@ -732,7 +732,7 @@ void CvPlayerAI::AI_considerAnnex()
 
 	if (bCourthouseImprovement)
 	{
-		fCutoffValue = GC.getAGGRESIVE_ANNEX();
+		fCutoffValue = /*0.8*/ GC.getAGGRESSIVE_ANNEX();
 	}
 
 	uint uiCutOff = (uint)(aCityAndProductions.size() * fCutoffValue);

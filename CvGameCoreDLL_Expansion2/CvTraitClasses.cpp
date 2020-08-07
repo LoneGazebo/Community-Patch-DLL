@@ -4267,7 +4267,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bGoldenAgeOnWar = true;
 			}
-			if (trait->IsUnableToCancelRazing()) {
+			if (trait->IsUnableToCancelRazing()) 
+			{
 				m_bUnableToCancelRazing = true;
 			}
 			if (trait->IsBestUnitSpawnOnImprovementDOW())

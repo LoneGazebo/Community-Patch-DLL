@@ -11174,7 +11174,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		LeagueProjectTypes eTreasureFleet = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_TREASURE_FLEET", true);
 		LeagueProjectTypes eWargames = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_WARGAMES", true);
-		LeagueProjectTypes eUN = (LeagueProjectTypes) GC.getInfoTypeForString("LEAGUE_PROJECT_UNITED_NATIONS", true);
+		LeagueProjectTypes eUN = (LeagueProjectTypes)GC.getInfoTypeForString("LEAGUE_PROJECT_UNITED_NATIONS", true);
 #endif
 
 		// Production might
@@ -11321,7 +11321,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				iScore += -500;
+				iScore += -100;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -11343,24 +11343,24 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iVoteRatio = (iVotes * 100) / iNeededVotes;
 				if(iVoteRatio < 25)
 				{
-					iScore += -1000;
+					iScore += -100;
 				}
 				if(iVoteRatio < 50)
 				{
-					iScore += -500;
+					iScore += -50;
 				}
 				if(iVoteRatio >= 50)
 				{
-					iScore += 500;
+					iScore += 250;
 				}
 				if(iVoteRatio >= 75)
 				{
-					iScore += 1000;
+					iScore += 500;
 				}
 			}
 			else
 			{
-				iScore -= 100;
+				iScore -= 50;
 			}
 		}
 #endif
@@ -12075,7 +12075,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Speaking of Gandhi, he's very nuke happy!
-		if (GetPlayer()->GetDiplomacyAI()->IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 		{
 			iScore += -5000;
 		}
@@ -12089,32 +12089,27 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvAssertMsg(eTargetReligion != NO_RELIGION, "Evaluating World Religion for NO_RELIGION. Please send Anton your save file and version.");
 		bool bFoundedReligion = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() == eTargetReligion;
 		bool bMajorityReligion = GetPlayer()->GetReligions()->HasReligionInMostCities(eTargetReligion);
-		if (bMajorityReligion)
+
+		if (bFoundedReligion)
 		{
-			iScore += 100;
-			if (bSeekingDiploVictory)
-			{
-				iScore += 100;
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (bFoundedReligion)
-			{ 
+			if (bSeekingDiploVictory || bSeekingCultureVictory)
 				iScore += 300;
-			}
 			else
-			{
-				iScore += -50;
-			}
-#endif
+				iScore += 100;
+		}
+#if defined(MOD_BALANCE_CORE)
+		else if (bMajorityReligion)
+		{
+			if (bSeekingDiploVictory || bSeekingCultureVictory)
+				iScore += 50;
+			else
+				iScore += 25;
 		}
 		else
 		{
-#if defined(MOD_BALANCE_CORE)
-			iScore += -500;
-#else
-			iScore += -30;
-#endif
+			iScore += -50;
 		}
+#endif
 
 		const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, GetPlayer()->GetID());
 		CvAssertMsg(pkTargetReligion, "Evaluating World Religion for an invalid religion. Please send Anton your save file and version.");
@@ -12124,32 +12119,26 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
 			{
 				// Don't let someone going for culture get away with a world religion easily
-				if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE)
+				if ((GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE 
+					&& GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()) == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+					|| GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					if (GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
+					if (bMajorityReligion)
 					{
-						if (bMajorityReligion)
-						{
-							iScore += -100;
-						}
-						else
-						{
-							iScore += -300;
-						}
+						iScore += 100;
 					}
-
+					else
+					{
+						iScore += -100;
+					}
 				}
 			}
 		}
-
-		if (bFoundedReligion)
-		{
-			iScore += 100;
-		}
-		else if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
+		
+		if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
 		{
 #if defined(MOD_BALANCE_CORE)
-			iScore += -50;
+			iScore += -25;
 #else
 			iScore += -20;
 #endif
@@ -12851,63 +12840,72 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Spaceship Control Committee
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iLimitSpaceshipProduction)
 	{
-		int eMajorScience = 0;
-		TeamTypes eTeam;
-		for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
-		{
-			eTeam = (TeamTypes) iTeamLoop;
+		bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 
-			if (GET_TEAM(eTeam).isAlive())
+		if (bScienceVictoryEnabled)
+		{
+			int eMajorScience = 0;
+			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
 			{
-				ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-				if(eApolloProgram != NO_PROJECT)
+				TeamTypes eTeam = (TeamTypes) iTeamLoop;
+
+				if (GET_TEAM(eTeam).isAlive())
 				{
-					if(GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
+					ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+					if (eApolloProgram != NO_PROJECT)
 					{
-						eMajorScience++;
+						if (GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
+						{
+							eMajorScience++;
+						}
 					}
 				}
 			}
-		}
-		if (bSeekingScienceVictory)
-		{
-			iScore -= -500;
-		}
-		else if(eMajorScience > 0)
-		{
-			iScore += 100 * eMajorScience;
-		}
-
-		float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
-		fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
-		
-		// We are better than average
-		if (fTechRatio < 0.0f)
-		{
-			int iFactor = 30;
-			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
-				iScore += -50;
+				iScore -= 500;
 			}
+			else if (eMajorScience > 0)
+			{
+				iScore += 100 * eMajorScience;
+			}
+
+			float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
+			fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
+			
+			// We are better than average
+			if (fTechRatio < 0.0f)
+			{
+				int iFactor = 30;
+				iScore += (int) (fTechRatio * iFactor);
+				if (bSeekingScienceVictory)
+				{
+					iScore += -50;
+				}
+				else
+				{
+					iScore += -25;
+				}
+			}
+			// At or worse than average
 			else
 			{
-				iScore += -25;
+				int iFactor = 50;
+				iScore += (int) (fTechRatio * iFactor);
+				if (!bSeekingScienceVictory)
+				{
+					iScore += 75;
+				}
+				else
+				{
+					iScore += 15;
+				}
 			}
 		}
-		// At or worse than average
+		// Science Victory is disabled - don't care
 		else
 		{
-			int iFactor = 50;
-			iScore += (int) (fTechRatio * iFactor);
-			if (!bSeekingScienceVictory)
-			{
-				iScore += 75;
-			}
-			else
-			{
-				iScore += 15;
-			}
+			iScore = 0;
 		}
 	}
 	//Just War
@@ -13086,7 +13084,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if(bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
 			//Boo!
-			iScore -= 2500;
+			iScore -= 5000;
 		}
 		int iTotalCivs = GC.getGame().countMajorCivsAlive();
 		int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
@@ -13115,25 +13113,25 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				//Do they have more influence than us?
 				int iTheirInfluence = GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn();
 				int iTheirPercent = ((iTheirInfluence * 100) / iTotalCivs);
-				if(GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > iCivs)
+				if (iTheirInfluence > iCivs)
 				{
-					iScore += 100;
+					iScore += 20;
 				}
 				if(iTheirPercent >= 75)
 				{
-					iScore += 250;
+					iScore += 500;
 				}
 				if(iTheirPercent >= 50)
 				{
-					iScore += 500;
+					iScore += 250;
 				}
 				if(iTheirPercent >= 25)
 				{
-					iScore += 250;
+					iScore += 50;
 				}
 				if (GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() / 100 > GetPlayer()->GetCulture()->GetTourism() / 100)
 				{
-					iScore += 100;
+					iScore += 15;
 				}
 			}
 		}
@@ -13144,26 +13142,26 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
 			//Yay!
-			iScore += 2500;
+			iScore += 5000;
 		}
 		int iTotalCivs = GC.getGame().countMajorCivsAlive();
 		int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
 		int iMyPercent = ((iCivs * 100) / iTotalCivs);		
-		if(iCivs > 0)
+		if(iCivs > 2)
 		{
 			iScore += 25 * iCivs;
 		}
 		if(iMyPercent >= 25)
 		{
-			iScore += 250;
+			iScore += 500;
 		}
 		if(iMyPercent >= 50)
 		{
-			iScore += 500;
+			iScore += 1000;
 		}
 		if(iMyPercent >= 75)
 		{
-			iScore += 1000;
+			iScore += 2500;
 		}
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
@@ -13176,25 +13174,25 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				//Do they have more influence than us?
 				int iTheirInfluence = GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn();
 				int iTheirPercent = ((iTheirInfluence * 100) / iTotalCivs);
-				if(GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > iCivs)
+				if (iTheirInfluence > iCivs)
 				{
-					iScore -= 100;
+					iScore -= 25;
 				}
 				if(iTheirPercent >= 75)
 				{
-					iScore -= 250;
+					iScore -= 1000;
 				}
 				if(iTheirPercent >= 50)
 				{
-					iScore -= 500;
+					iScore -= 250;
 				}
 				if(iTheirPercent >= 25)
 				{
-					iScore -= 250;
+					iScore -= 50;
 				}
 				if (GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() / 100 > GetPlayer()->GetCulture()->GetTourism() / 100)
 				{
-					iScore -= 100;
+					iScore -= 25;
 				}
 			}
 		}

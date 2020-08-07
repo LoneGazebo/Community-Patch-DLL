@@ -264,6 +264,7 @@
 			<GreatWorkCount>1</GreatWorkCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<GoldenAgeModifier>25</GoldenAgeModifier>
+			<CitySupplyFlat>4</CitySupplyFlat>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

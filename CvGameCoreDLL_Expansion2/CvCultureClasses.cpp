@@ -5207,7 +5207,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		int iDelta = iBoredom - GetBoredomCache();
 		if (iDelta > 0)
 		{
-			iMultiplier += (iDelta * 3);
+			iMultiplier += iDelta;
 		}
 	}
 
@@ -5426,7 +5426,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - GetBoredomCache();
-		iDelta *= 3;
 		if (iDelta > 0)
 		{	
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iDelta) + "[ENDCOLOR]";
@@ -7968,7 +7967,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		int iDelta = iBoredom - kCityPlayer.GetCulture()->GetBoredomCache();
 		if (iDelta > 0)
 		{
-			iMultiplier += (iDelta * 3);
+			iMultiplier += iDelta;
 		}
 	}
 

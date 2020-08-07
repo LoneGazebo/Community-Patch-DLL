@@ -522,6 +522,7 @@ public:
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
 	bool IsOriginalMinorCapital() const;
+	bool IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -1894,6 +1895,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iDemandResourceCounter;
 	FAutoVariable<int, CvCity> m_iResistanceTurns;
 	FAutoVariable<int, CvCity> m_iRazingTurns;
+	FAutoVariable<int, CvCity> m_iLowestRazingPop;
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
 	FAutoVariable<int, CvCity> m_iCheapestPlotInfluenceDistance;
 	FAutoVariable<int, CvCity> m_iEspionageModifier;

@@ -243,6 +243,7 @@ CvCity::CvCity() :
 	, m_iDemandResourceCounter("CvCity::m_iDemandResourceCounter", m_syncArchive, true)
 	, m_iResistanceTurns("CvCity::m_iResistanceTurns", m_syncArchive)
 	, m_iRazingTurns("CvCity::m_iRazingTurns", m_syncArchive)
+	, m_iLowestRazingPop("CvCity::m_iLowestRazingPop", m_syncArchive)
 	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
 	, m_iCheapestPlotInfluenceDistance("CvCity::m_iCheapestPlotInfluenceDistance", m_syncArchive)
 	, m_iEspionageModifier("CvCity::m_iEspionageModifier", m_syncArchive)
@@ -1444,6 +1445,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iDemandResourceCounter = 0;
 	m_iResistanceTurns = 0;
 	m_iRazingTurns = 0;
+	m_iLowestRazingPop = 0;
 	m_iCountExtraLuxuries = 0;
 	m_iCheapestPlotInfluenceDistance = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
@@ -3703,7 +3705,9 @@ void CvCity::DoEvents()
 
 	if(veValidEvents.size() > 0)
 	{
-		veValidEvents.SortItems();
+//		veValidEvents.SortItems();
+		int iRandIndex = GC.getGame().getSmallFakeRandNum(2500, veValidEvents.size() + GetID());
+
 		if(GC.getLogging())
 		{
 			CvString strBaseString;
@@ -3713,12 +3717,10 @@ void CvCity::DoEvents()
 			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
+			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), iRandIndex);
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-
-		int iRandIndex = GC.getGame().getSmallFakeRandNum(1000, veValidEvents.size() + GetID());
 
 		//which one is it?
 		int iWeight = 0;
@@ -3730,6 +3732,8 @@ void CvCity::DoEvents()
 				continue;
 
 			iWeight = veValidEvents.GetWeight(iLoop);
+			iWeight += veValidEvents.GetWeight(iLoop); //afw
+
 			if (iRandIndex < iWeight)
 			{
 				eChosenEvent = eEvent;
@@ -4019,7 +4023,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if (pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 		return false;
 
 	if(pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
@@ -4334,14 +4338,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	}
 
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-
-	//Exploit checks.
-	if(kPlayer.isEndTurn())
-	{
-		// Not sure what the exploits are in particular but global events are fired outside of human turns so we can't return here
-		if(!GC.getGame().isNetworkMultiPlayer()) // check simul/hybrid turns instead maybe? not sure yet.
-			return false;
-	}
 
 	if(!IsEventActive(eParentEvent))
 		return false;
@@ -6070,7 +6066,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 				int iLimit = pkEventChoiceInfo->getEventChance();
-				if(iRandom < iLimit)
+				if(iRandom > iLimit)
 				{
 					//Notify if it did not work.
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -15915,10 +15911,9 @@ bool CvCity::IsOriginalMajorCapital() const
 {
 	VALIDATE_OBJECT
 
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
 		{
@@ -15935,15 +15930,32 @@ bool CvCity::IsOriginalMinorCapital() const
 {
 	VALIDATE_OBJECT
 
-		PlayerTypes ePlayer;
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
 		{
 			return true;
 		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+/// Was this city a player's original capital?
+bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
+		return false;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
+	{
+		return true;
 	}
 
 	return false;
@@ -20660,6 +20672,15 @@ bool CvCity::DoRazingTurn()
 		ChangeRazingTurns(-1);
 		changePopulation(-iPopulationDrop, true);
 
+		bool bAllowRazingEvents = false;
+
+		//set our lowest 'razing' population so we can't exploit pop growth
+		if (getPopulation() < m_iLowestRazingPop)
+		{
+			m_iLowestRazingPop = getPopulation();
+			bAllowRazingEvents = true;
+		}
+
 		//don't kill the city on an 'off' turn.
 		if (GetRazingTurns() > 0 && getPopulation() <= 0)
 			setPopulation(1);
@@ -20691,120 +20712,119 @@ bool CvCity::DoRazingTurn()
 			return false;
 		}
 		
-		int iDefaultCityValue = /*150*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
-
-		// Notify Diplo AI that damage has been done
-		int iValue = iDefaultCityValue;
-
-		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
-		iValue /= max(1, (GetRazingTurns() / 2));
-
-		int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
-		if (iWarscoremod != 0)
+		if (bAllowRazingEvents)
 		{
-			iValue *= (iWarscoremod + 100);
-			iValue /= 100;
-		}
 
-		// My viewpoint
-		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
-		// Bad guy's viewpoint
-		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue, /*bNoRatingChange*/ true);
+			// Notify Diplo AI that damage has been done
+			int iRazeValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
-		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		if(!GET_PLAYER(getOwner()).isMinorCiv())
-		{
-			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
-		}
+			iRazeValue += (getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			iRazeValue += (getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
+			iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
 
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
-		{
-			if(GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
+			// Does the owner have a bonus to war score accumulation?
+			iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+			iRazeValue /= 100;
+
+			GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iRazeValue);
+
+			// Diplomacy penalty for razing cities
+			if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
 			{
-				GET_PLAYER(getOwner()).SetSpawnCooldown(0);
-			}
-			else
-			{
-				GET_PLAYER(getOwner()).ChangeSpawnCooldown(-1);
-			}
-			
-			if(GET_PLAYER(getOwner()).GetSpawnCooldown() > 0)
-			{
-				return false;
-			}
-
-			//Based on city size
-			int iNumRebels = GC.getGame().getSmallFakeRandNum( sqrti(getPopulation()), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-
-			//But min number scaling with era
-			if (iNumRebels < GC.getGame().getCurrentEra())
-				iNumRebels = GC.getGame().getCurrentEra();
-	
-			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
-			
-			if(GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
-			{
-				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(eFormerOwner, this, iNumRebels, true, false, false, true);
-				if(bNotification)
+				int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
+				if (iEra <= 0)
 				{
-					//the former owner hates the razing and wants it back
-					if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
-						GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone( plot(), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+					iEra = 1;
+				}
 
-					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
+			}
 
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
-						pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-					}
-					CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
-					if(pNotifications2)
-					{
-						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+			if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
+			{
+				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
+				{
+					GET_PLAYER(getOwner()).SetSpawnCooldown(0);
+				}
+				else
+				{
+					GET_PLAYER(getOwner()).ChangeSpawnCooldown(-1);
+				}
 
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
-						pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-					}
-					if(GC.getLogging() && GC.getAILogging())
+				if (GET_PLAYER(getOwner()).GetSpawnCooldown() > 0)
+				{
+					return false;
+				}
+
+				//Based on city size
+				int iNumRebels = GC.getGame().getSmallFakeRandNum(sqrti(getPopulation()), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+
+				//But min number scaling with era
+				if (iNumRebels < GC.getGame().getCurrentEra())
+					iNumRebels = GC.getGame().getCurrentEra();
+
+				GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
+
+				if (GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
+				{
+					bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(eFormerOwner, this, iNumRebels, true, false, false, true);
+					if (bNotification)
 					{
-						CvString strLogString;
-						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
-						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+						//the former owner hates the razing and wants it back
+						if (!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
+							GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(plot(), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+
+							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+						}
+						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
+						if (pNotifications2)
+						{
+							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+
+							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+						}
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
+							GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 				}
-			}
-			else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
-			{
-				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
-				if(bNotification)
+				else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 				{
-					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-					if(pNotifications)
+					bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
+					if (bNotification)
 					{
-						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
 
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
-						pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-					}
-					CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
-					if(pNotifications2)
-					{
-						Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+						}
+						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
+						if (pNotifications2)
+						{
+							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
 
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
-						pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
-						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+						}
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
+							GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 				}
 			}
@@ -27657,7 +27677,7 @@ void CvCity::updateStrengthValue()
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		int iStrengthFromGarrison = (pGarrisonedUnit->GetBaseCombatStrength() * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
 		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
@@ -27735,16 +27755,13 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				}
 			}
 
-			iValue *= (100 + iModifier);
-			iValue /= 100;
-
 			// OTHER UNIT is a Barbarian
 			if (pDefender != NULL)
 			{
 				if (pDefender->isBarbarian())
 				{
 					// Generic Barb Combat Bonus
-					iModifier = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+					iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 
 					const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
@@ -28483,28 +28500,140 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (iCost > 0) 
+	if (iCost > 0 && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 	{
-		//Did we buy this plot from someone? Oh no!
-		if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
+		// Did we buy this plot from someone? They're gonna be mad!
+		PlayerTypes ePlotOwner = pPlot->getOwner();
+		int iTileValue = /*80*/ GC.getSTOLEN_TILE_BASE_WAR_VALUE();
+		int iValueMultiplier = 0;
+		bool bStoleHighValueTile = false;
+
+		if (pPlot->IsNaturalWonder())
 		{
-			if (!GET_PLAYER(pPlot->getOwner()).isHuman() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+			iValueMultiplier += 200;
+			bStoleHighValueTile = true;
+		}
+		else
+		{
+			if (pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()) != NO_RESOURCE)
 			{
-				if(GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+				CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(ePlotOwner).getTeam()));
+				if (pInfo)
 				{
-					if (!GET_TEAM(GET_PLAYER(pPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+					switch (pInfo->getResourceUsage())
 					{
-						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+					case RESOURCEUSAGE_STRATEGIC:
+						iValueMultiplier += 100;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_LUXURY:
+						iValueMultiplier += 50;
+						bStoleHighValueTile = true;
+						break;
+					case RESOURCEUSAGE_BONUS:
+						iValueMultiplier += 20;
+						break;
 					}
 				}
-				else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+			}
+			if (pPlot->IsChokePoint())
+			{
+				iValueMultiplier += 50;
+				bStoleHighValueTile = true;
+			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
+			if (pkImprovement)
+			{
+				if (pkImprovement->IsCreatedByGreatPerson())
 				{
-					GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+					iValueMultiplier += 100;
+					bStoleHighValueTile = true;
 				}
+			}
+			// Stole a major civ's embassy from a City-State?
+			if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				PlayerTypes eEmbassyOwner = pPlot->GetPlayerThatBuiltImprovement();
+				if (GET_PLAYER(eEmbassyOwner).isAlive() && GET_PLAYER(eEmbassyOwner).isMajorCiv() && GET_PLAYER(eEmbassyOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+				{
+					// Notify the embassy owner
+					CvNotifications* pNotifications = GET_PLAYER(eEmbassyOwner).GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+					}
+
+					// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
+					if (!GET_PLAYER(eEmbassyOwner).isHuman())
+					{
+						int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
+						GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+					}
+
+					// Stole from the City-State's ally? The City-State is furious!
+					if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() == eEmbassyOwner)
+					{
+						GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+					}
+					// Stole from the City-State's friend and we're not their ally? Reset Influence to 0.
+					else if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() != getOwner() && GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsFriends(eEmbassyOwner))
+					{
+						if (GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(getOwner()) > 0)
+						{
+							GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
+						}
+					}
+				}
+			}
+		}
+
+		iTileValue *= (100 + iValueMultiplier);
+		iTileValue /= 100;
+
+		// If the players are at war, this counts for war value!
+		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
+		{
+			// Update military rating for both players
+			if (GET_PLAYER(getOwner()).isMajorCiv())
+			{
+				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
+			}
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
+			}
+
+			// Does the city owner have a bonus to war score accumulation?
+			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
+			iTileValue /= 100;
+
+			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iTileValue);
+		}
+
+		// Diplomacy penalty for stealing territory!
+		if (GET_PLAYER(getOwner()).isMajorCiv())
+		{
+			if (GET_PLAYER(ePlotOwner).isMajorCiv())
+			{
+				int iPenalty = bStoleHighValueTile ? 3 : 1;
+				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+			}
+			else if (GET_PLAYER(ePlotOwner).isMinorCiv())
+			{
+				int iEra = GC.getGame().getCurrentEra();
+				if (iEra <= 0)
+				{
+					iEra = 1;
+				}
+				
+				GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), (iEra * -20));
 			}
 		}
 	}
 #endif
+
 #if defined(MOD_UI_CITY_EXPANSION)
 	if (iCost > 0) 
 	{
@@ -29507,6 +29636,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 				pUnit->DoUpgrade(true);
 			}
 		}
+		SetUnitInvestment(pUnit->getUnitClassType(), false);
 		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsConquestOfTheWorld())
 		{
 			if (pUnit && (pUnit->isFound() || pUnit->IsFoundMid()))

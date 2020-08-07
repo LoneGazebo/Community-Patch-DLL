@@ -864,10 +864,6 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			iBonus += iTempBonusPlusOne;
 	}
 
-	//emphasize these, as they're harder to get on tiles.
-	if (eYield >= YIELD_SCIENCE)
-		iBonus *= 4;
-
 	return iBonus;
 }
 /// What is the overall value of the current Plot?
@@ -897,6 +893,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			break;
 
 		int iYield = pPlot->getYield(eYield);
+		int iYieldMod = 0;
 		
 		int iPlotBonus = GetBonusPlotValue(pPlot, eYield);
 		if (iPlotBonus > 0)
@@ -908,11 +905,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYield += 5;
+				iYieldMod += 2;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
-				iYield += 5;
+				iYieldMod += 2;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if (eYield == YIELD_FOOD)
@@ -925,12 +922,13 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				if (store.iExcessFoodTimes100 > 0 && bAvoidGrowth)
 				{
 					// If we at least have enough Food to feed everyone, zero out the value of additional food
-					iYield = 1;
+					iYield = 0;
 				}
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = store.iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 10 : GC.getAI_CITIZEN_VALUE_FOOD();
+					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 75) - store.iExcessFoodTimes100;
+					int iMultiplier = max(iNoStarveModifier, GC.getAI_CITIZEN_VALUE_FOOD());
 					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
@@ -943,15 +941,15 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				if (store.iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
 					iFoodEmphasisModifier /= 100;
 
-				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
 
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iYield += 5;
+					iYieldMod += 5;
 				}
 
 				iYield *= 100 + iFoodEmphasisModifier;
@@ -959,50 +957,50 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			}
 			else if (eYield == YIELD_PRODUCTION)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_PRODUCTION();
 				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
 				{
-					iYield += 5;
+					iYieldMod += 5;
 				}
 			}
 			else if (eYield == YIELD_GOLD)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iYield += 5;
+					iYieldMod += 5;
 				}
 			}
 			else if (eYield == YIELD_SCIENCE)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 			}
 			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_CULTURE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 			}
 			else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
+				iYieldMod += GC.getAI_CITIZEN_VALUE_FAITH();
 				if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 				{
-					iYield += 10;
+					iYieldMod += 10;
 				}
 			}
 
@@ -1013,32 +1011,32 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				case YIELD_GOLD:
 					if (store.iUnhappinessFromGold > 0)
 					{
-						iYield += store.iUnhappinessFromGold;
+						iYieldMod += store.iUnhappinessFromGold;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (store.iUnhappinessFromScience > 0)
 					{
-						iYield += store.iUnhappinessFromScience;
+						iYieldMod += store.iUnhappinessFromScience;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (store.iUnhappinessFromCulture> 0)
 					{
-						iYield += store.iUnhappinessFromCulture;
+						iYieldMod += store.iUnhappinessFromCulture;
 					}
 					break;
 				case YIELD_FAITH:
 					if (store.iUnhappinessFromReligion > 0)
 					{
-						iYield += store.iUnhappinessFromReligion;
+						iYieldMod += store.iUnhappinessFromReligion;
 					}
 					break;
 				case YIELD_PRODUCTION:
 				case YIELD_FOOD:
 					if (store.iUnhappinessFromDistress > 0)
 					{
-						iYield += store.iUnhappinessFromDistress;
+						iYieldMod += store.iUnhappinessFromDistress;
 					}
 					break;
 				}
@@ -1046,12 +1044,13 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
 			{
-				iYield += (pkProcessInfo->getProductionToYieldModifier(eYield) / 5);
+				iYieldMod += (pkProcessInfo->getProductionToYieldModifier(eYield) / 10);
 			}
 			
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
-				iYield /= 2;
+				iYieldMod /= 2;
 
+			iYield *= max(1, iYieldMod);
 			iValue += iYield;
 		}
 	}
@@ -4662,25 +4661,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #endif
 		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			{
-				if (GetCity())
-				{
-					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else
-				{
-					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-				}
-			}
-			else
-			{
-				newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-			}
-#else
 			newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-#endif
 			newUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 			newUnit->GetReligionData()->SetReligion(eReligion);
 		}

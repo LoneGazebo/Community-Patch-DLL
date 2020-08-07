@@ -2257,23 +2257,22 @@ void CvHomelandAI::ReviewUnassignedUnits()
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(pUnit)
+		if (pUnit)
 		{
-#if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
-			if( MOD_BALANCE_CORE_SETTLER_MOVE && GC.getSETTLER_MOVE_ON_START() > 0 && (m_pPlayer->isMajorCiv() || !pUnit->canFound(pUnit->plot())))
+			if (m_pPlayer->isMajorCiv() || !pUnit->canFound(pUnit->plot()))
 			{
 				int iInitialPlotValue = 0;
 				int iAdjacentValue = 0;
 				CvPlot* pBestAdjacentPlot = NULL;
 				//Let's check for a river estuary - those are always good
-				if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
+				if (pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FOUND());
 					UnitProcessed(pUnit->GetID());
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
@@ -2287,15 +2286,15 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 
 					if (GC.getGame().getElapsedGameTurns()<3 || iInitialPlotValue==0) //first two turns or we're in a bad spot
 					{
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 						{
 							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
+							if (pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
 							{
 								iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());
-								if(iAdjacentValue > iInitialPlotValue*1.1f) //should be at least ten percent better to justify the hassle
+								if (iAdjacentValue > iInitialPlotValue*1.1f) //should be at least ten percent better to justify the hassle
 								{
-									if(GC.getLogging() && GC.getAILogging())
+									if (GC.getLogging() && GC.getAILogging())
 									{
 										CvString strLogString;
 										strLogString.Format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue);
@@ -2308,14 +2307,14 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						}
 					}
 
-					if(pBestAdjacentPlot != NULL)
+					if (pBestAdjacentPlot != NULL)
 					{
 						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
-						if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+						if (pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_FOUND());
 							UnitProcessed(pUnit->GetID());
-							if(GC.getLogging() && GC.getAILogging())
+							if (GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
 								strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
@@ -2327,7 +2326,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						else
 						{
 							UnitProcessed(pUnit->GetID());
-							if(GC.getLogging() && GC.getAILogging())
+							if (GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
 								strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
@@ -2336,11 +2335,11 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 							break;
 						}
 					}
-					else if(pUnit->canFound(pUnit->plot()))
+					else if (pUnit->canFound(pUnit->plot()))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FOUND());
 						UnitProcessed(pUnit->GetID());
-						if(GC.getLogging() && GC.getAILogging())
+						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
 							strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
@@ -2357,19 +2356,19 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
-							if(pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+							if (pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
 							}
 						}
 					}
-					if(pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && pUnit->canFound(pLoopPlotSearch))
+					if (pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && pUnit->canFound(pLoopPlotSearch))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FOUND());
 						UnitProcessed(pUnit->GetID());
 					}
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
@@ -2383,23 +2382,13 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				//default behavior
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
 				UnitProcessed(pUnit->GetID());
-				if(GC.getLogging() && GC.getAILogging())
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
-#else
-			pUnit->PushMission(CvTypes::getMISSION_FOUND());
-			UnitProcessed(pUnit->GetID());
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
-			}
-#endif
 		}
 	}
 }

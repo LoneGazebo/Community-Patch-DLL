@@ -582,11 +582,6 @@ INSERT INTO Building_YieldFromYieldPercent
 VALUES
 	('BUILDING_COFFEE_HOUSE', 'YIELD_CULTURE', 'YIELD_SCIENCE', 10);
 
-INSERT INTO Building_ResourceYieldChanges
-	(BuildingType, ResourceType, YieldType, Yield)
-VALUES
-	('BUILDING_COFFEE_HOUSE', 'RESOURCE_BANANA', 'YIELD_GOLD', 2);
-
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)
 VALUES

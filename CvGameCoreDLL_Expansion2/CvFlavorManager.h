@@ -90,7 +90,7 @@ public:
 	int* GetAllPersonalityFlavors();
 	int GetPersonalityFlavorForDiplomacy(FlavorTypes eType);
 
-	int GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax);
+	int GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed);
 
 private:
 

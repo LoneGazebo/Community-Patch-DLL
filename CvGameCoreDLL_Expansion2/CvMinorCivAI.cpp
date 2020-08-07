@@ -4546,18 +4546,16 @@ void CvMinorCivAI::DoPickPersonality()
 	SetBullyUnit();
 #endif
 
-	switch(eRandPersonality)
+	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
+	int iSeed = 0;
+
+	switch (eRandPersonality)
 	{
 	case MINOR_CIV_PERSONALITY_FRIENDLY:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], -2, 0, 10);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], -2, 0, 10);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], -2, 0, 10);
-		pFlavorManager->ResetToBasePersonality();
-		break;
 	case MINOR_CIV_PERSONALITY_HOSTILE:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10);
+		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10, iSeed);
+		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10, iSeed);
+		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, iSeed);
 		pFlavorManager->ResetToBasePersonality();
 		break;
 	}
@@ -11914,6 +11912,9 @@ bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(int iFriendship) const
 	int iFriendshipThresholdFriends = GetFriendsThreshold();
 #endif
 
+	if (m_pPlayer->GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	if(iFriendship >= iFriendshipThresholdFriends)
 	{
 		return true;
@@ -12406,8 +12407,12 @@ void CvMinorCivAI::DoDefection()
 /// Is a player allowed to be inside someone else's borders?
 bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 {
+	// At war?
+	if (IsAtWarWithPlayersTeam(ePlayer))
+		return false;
+
 	// Special trait?
-	if(IsPlayerHasOpenBordersAutomatically(ePlayer))
+	if (IsPlayerHasOpenBordersAutomatically(ePlayer))
 		return true;
 
 	if (m_bAllowMajorsToIntrude)
@@ -12420,7 +12425,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 		return true;
 
 	return false;
@@ -15819,30 +15824,22 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
-	int iValue = 50;
-	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-	iValue /= 100;
+	int iValue = 100;
 
-	int iEra = GET_PLAYER(eBully).GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
-	iValue *= iEra;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if(pCapital == NULL)
 	{
 		CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-		return iValue;
+		return 0;
 	}
 	if(eBully == NO_PLAYER)
 	{
-		return iValue;
+		return 0;
 	}
 	CvCity* pCapitalCity = GET_PLAYER(eBully).getCapitalCity();
 	if(pCapitalCity == NULL)
 	{
-		return iValue;
+		return 0;
 	}	
 	switch(eYield)
 	{
@@ -15878,15 +15875,24 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 			break;
 	}
 
+	int iEra = GET_PLAYER(eBully).GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
+
+	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+	iValue /= 100;
+
+	iValue *= iEra;
+
+
 	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(500, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
 	{
 		iValue *= (iNumTurns + 100);
 		iValue /= max(400, GC.getGame().getMaxTurns());
 	}
-	
-	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
-	iValue /= 100;
 
 	if (!bIgnoreScaling)
 	{
@@ -15895,8 +15901,11 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 		iValue /= 100;
 	}
 
+	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
+	iValue /= 100;
+
 	if (iValue <= 0)
-		iValue = 0;
+		return 0;
 
 	return iValue;
 }
