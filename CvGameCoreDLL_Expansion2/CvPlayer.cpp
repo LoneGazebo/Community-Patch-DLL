@@ -330,7 +330,6 @@ CvPlayer::CvPlayer() :
 #endif
 	, m_iPopRushHurryCount("CvPlayer::m_iPopRushHurryCount", m_syncArchive)
 	, m_iTotalImprovementsBuilt("CvPlayer::m_iTotalImprovementsBuilt", m_syncArchive)
-	, m_iNextOperationID("CvPlayer::m_iNextOperationID", m_syncArchive)
 	, m_iCostNextPolicy("CvPlayer::m_iCostNextPolicy", m_syncArchive)
 	, m_iNumBuilders("CvPlayer::m_iNumBuilders", m_syncArchive, true)
 	, m_iMaxNumBuilders("CvPlayer::m_iMaxNumBuilders", m_syncArchive)
@@ -806,8 +805,6 @@ CvPlayer::CvPlayer() :
 
 	m_pNotifications = NULL;
 	m_pDiplomacyRequests = NULL;
-
-	m_iNextOperationID = 0;
 
 	m_aiPlots.clear();
 	m_bfEverConqueredBy.ClearAll();
@@ -1649,7 +1646,6 @@ void CvPlayer::uninit()
 	m_uiStartTime = 0;
 	m_bHasUUPeriod = false;
 	m_iTotalImprovementsBuilt = 0;
-	m_iNextOperationID = 0;
 	m_iCostNextPolicy = 0;
 	m_iNumBuilders = 0;
 	m_iMaxNumBuilders = 0;
@@ -41329,8 +41325,10 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 	if (!pNewOperation)
 		return NULL;
 
+	int m_iNextOperationID = GC.getGame().GetNextGlobalID();
+
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
+	m_AIOperations.insert(std::make_pair(m_iNextOperationID, pNewOperation));
 
 	//check if initialization works out
 	pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
@@ -41340,9 +41338,6 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 		deleteAIOperation(pNewOperation->GetID());
 		return NULL;
 	}
-
-	//success
-	m_iNextOperationID++;
 
 	return pNewOperation;
 }
