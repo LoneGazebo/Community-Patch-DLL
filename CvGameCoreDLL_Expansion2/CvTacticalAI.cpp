@@ -4505,7 +4505,7 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 					
 				//civilian to capture?
 				bool bMoved = false;
-				if (pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true))
+				if (pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true) && !pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 					bMoved = pUnit->at(pBestPlot->getX(), pBestPlot->getY());
