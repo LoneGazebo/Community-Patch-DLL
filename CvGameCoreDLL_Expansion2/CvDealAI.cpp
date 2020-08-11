@@ -95,28 +95,24 @@ int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer) const
 	switch (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 	{
 	case MAJOR_CIV_OPINION_ALLY:
-		iPercent = 100;
+		iPercent = 125;
 		break;
 	case MAJOR_CIV_OPINION_FRIEND:
-		iPercent = 75;
+		iPercent = 100;
 		break;
 	case MAJOR_CIV_OPINION_FAVORABLE:
-		iPercent = 50;
+		iPercent = 75;
 		break;
 	case MAJOR_CIV_OPINION_NEUTRAL:
-		iPercent = 25;
+		iPercent = 50;
 		break;
 	case MAJOR_CIV_OPINION_COMPETITOR:
-		iPercent = 10;
-		break;
 	case MAJOR_CIV_OPINION_ENEMY:
-		iPercent = 5;
-		break;
 	case MAJOR_CIV_OPINION_UNFORGIVABLE:
-		iPercent = 1;
+		iPercent = 25;
 		break;
 	default:
-		iPercent = 10;
+		iPercent = 25;
 		break;
 	}
 
@@ -5006,11 +5002,20 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 
 			iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
 
-			// Don't bother looking at this Resource if the other player doesn't even have any of it
+			// Don't bother looking at this Resource if we don't even have any of it
 			if (iResourceQuantity <= 0)
+			{
 				continue;
+			}
 
-			iResourceQuantity = min(5, iResourceQuantity);	// 3 or what they have, whichever is less
+			iResourceQuantity -= 3;
+			if (iResourceQuantity <= 0)
+				iResourceQuantity = 1;
+
+			//how do we judge this? A good rule of thumb: never give away more than we're getting.
+			iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eMyPlayer), iResourceQuantity);
+			if (iResourceQuantity <= 0)
+				iResourceQuantity = 1;
 
 			// See if they can actually trade it to us
 			if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
@@ -5047,11 +5052,15 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 
 					iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
 
-					// Don't bother looking at this Resource if the other player doesn't even have any of it
+					iResourceQuantity -= 3;
 					if (iResourceQuantity <= 0)
-						continue;
+						iResourceQuantity = 1;
 
-					iResourceQuantity = min(3, iResourceQuantity);
+					//how do we judge this? A good rule of thumb: never give away more than we're getting.
+					iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eMyPlayer), iResourceQuantity);
+
+					if (iResourceQuantity <= 0)
+						iResourceQuantity = 1;
 
 					if (pDeal->GetDemandingPlayer() != NO_PLAYER || !TooMuchAdded(eThem, iTotalValue, iWeight))
 					{
