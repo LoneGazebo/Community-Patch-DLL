@@ -319,10 +319,10 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 		if (pOtherPlayer:IsMinorCiv()) then
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN_CS", iOriginScience);
 		elseif (iPlayer == iOtherPlayer) then
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN", iOriginScience);
+			strResult = strResult .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN", iOriginScience);
 		else	
 			local iNumTechs = pOriginPlayer:GetNumTechDifference(iOtherPlayer);
-			local iInfluenceScience = pOriginPlayer:GetInfluenceTradeRouteScienceBonus(iOtherPlayer) / 100;
+			local iInfluenceScience = pOriginPlayer:GetInfluenceTradeRouteScienceBonus(iOtherPlayer);
 			local delta = iOriginScience - iInfluenceScience;
 			if (iPlayer == Game.GetActivePlayer()) then	
 				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN");
@@ -362,7 +362,7 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 		end
 	
 		local iNumTechs = pOtherPlayer:GetNumTechDifference(iPlayer);
-		local iInfluenceScience = pOtherPlayer:GetInfluenceTradeRouteScienceBonus(iPlayer) / 100;
+		local iInfluenceScience = pOtherPlayer:GetInfluenceTradeRouteScienceBonus(iPlayer);
 		local delta = iDestScience - iInfluenceScience;
 		if (iPlayer == Game.GetActivePlayer()) then
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_GAIN");

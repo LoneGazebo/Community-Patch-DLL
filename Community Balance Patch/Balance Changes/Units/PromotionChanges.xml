@@ -147,7 +147,7 @@
 			<Help>TXT_KEY_PROMOTION_BARRAGE_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -161,7 +161,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_1</PromotionPrereqOr1>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>7</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -175,7 +175,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -246,6 +246,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
 			<OrderPriority>3</OrderPriority>
 			<CityAttack>50</CityAttack>
 			<DamageReductionCityAssault>50</DamageReductionCityAssault>
@@ -420,6 +421,7 @@
 			<TechPrereq>TECH_COMBUSTION</TechPrereq>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
 			<OrderPriority>6</OrderPriority>
 			<PortraitIndex>3</PortraitIndex>
 			<RoughAttack>15</RoughAttack>
@@ -467,6 +469,7 @@
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
 			<DefenseMod>-15</DefenseMod>
@@ -483,6 +486,7 @@
 			<CanMoveAfterAttacking>true</CanMoveAfterAttacking>
 			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BOARDING_PARTY_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
 			<OrderPriority>7</OrderPriority>
 			<ExtraAttacks>1</ExtraAttacks>
 			<PortraitIndex>9</PortraitIndex>
@@ -497,6 +501,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
 			<RoughDefense>10</RoughDefense>
 			<OrderPriority>7</OrderPriority>
 			<PortraitIndex>56</PortraitIndex>
@@ -550,6 +555,7 @@
 			<PromotionPrereqOr5>PROMOTION_WOLFPACK_2</PromotionPrereqOr5>
 			<PromotionPrereqOr6>PROMOTION_FLIGHT_DECK_2</PromotionPrereqOr6>
 			<PromotionPrereqOr7>PROMOTION_ARMOR_PLATING_2</PromotionPrereqOr7>
+			<PromotionPrereqOr8>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr8>
 			<OrderPriority>7</OrderPriority>
 			<MovesChange>1</MovesChange>
 			<PortraitIndex>33</PortraitIndex>
@@ -2257,14 +2263,13 @@
 			<Description>TXT_KEY_PROMOTION_BUFFALO_CHEST</Description>
 			<Help>TXT_KEY_PROMOTION_BUFFALO_CHEST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_BUFFALO_LOINS</PromotionPrereq>
 			<PortraitIndex>9</PortraitIndex>
+			<PromotionPrereq>PROMOTION_IKLWA</PromotionPrereq>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>10</FlankAttackModifier>
-			<RangedDefenseMod>10</RangedDefenseMod>
+			<MaxHitPointsChange>25</MaxHitPointsChange>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_BUFFALO_LOINS</Type>
@@ -2272,13 +2277,13 @@
 			<Help>TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>9</PortraitIndex>
+			<PromotionPrereq>PROMOTION_BUFFALO_HORNS</PromotionPrereq>
 			<CannotBeChosen>true</CannotBeChosen>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
-			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>10</FlankAttackModifier>
-			<RangedDefenseMod>10</RangedDefenseMod>
+			<CombatPercent>15</CombatPercent>
+			<MovesChange>1</MovesChange>
 		</Replace>
 		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 		<Replace>
@@ -2291,9 +2296,8 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>
-			<FlankAttackModifier>10</FlankAttackModifier>
-			<MovesChange>1</MovesChange>
-			<RangedDefenseMod>10</RangedDefenseMod>
+			<FlankAttackModifier>75</FlankAttackModifier>
+			<CombatPercent>10</CombatPercent>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_GUNPOWDER</Type>
@@ -3229,6 +3233,7 @@
 			<Help>TXT_KEY_PROMOTION_SHOCK_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>1</OrderPriority>
 			<FlankAttackModifier>25</FlankAttackModifier>
 			<AOEDamageOnKill>10</AOEDamageOnKill>
@@ -3243,6 +3248,7 @@
 			<Help>TXT_KEY_PROMOTION_DRILL_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>2</OrderPriority>
 			<DefenseMod>35</DefenseMod>
 			<PortraitIndex>23</PortraitIndex>
@@ -4282,12 +4288,27 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<OrderPriority>6</OrderPriority>
-			<AttackMod>15</AttackMod>
+			<AttackMod>20</AttackMod>
 			<ExtraWithdrawal>50</ExtraWithdrawal>
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ALHAMBRA</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_IKLWA</Type>
+			<Description>TXT_KEY_PROMOTION_IKLWA</Description>
+			<Help>TXT_KEY_PROMOTION_IKLWA_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<OrderPriority>6</OrderPriority>
+			<AttackMod>15</AttackMod>
+			<GainsXPFromSpotting>true</GainsXPFromSpotting>
+			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_IKLWA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_MECH</Type>

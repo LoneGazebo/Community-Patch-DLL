@@ -2639,7 +2639,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			}
 
 			ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
-			if (eFeitoria != NO_IMPROVEMENT && getImprovementType() == eFeitoria)
+			if (eFeitoria != NO_IMPROVEMENT && getImprovementType() == eFeitoria && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isMinorCiv())
 				return false;
 
 			eFinalImprovementType = finalImprovementUpgrade(getImprovementType());
@@ -10091,9 +10091,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
+	FeatureTypes eFeature = getFeatureType();
+	TerrainTypes eTerrain = getTerrainType();
 
 	//plot yields
-	iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
+	iYield += pTraits->GetPlotYieldChange(getPlotType(), eYield);
 	iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
 
 	if (isMountain())
@@ -10104,8 +10107,8 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		if (!IsNaturalWonder())
 #endif
 		{
-			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
-			int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
+			int iRangeYield = pTraits->GetMountainRangeYield(eYield);
+			int iEra = kPlayer.GetCurrentEra();
 			if (iEra <= 0)
 			{
 				iEra = 1;
@@ -10115,17 +10118,18 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 		else
 		{
-			iYield += kPlayer.GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
+			iYield += pTraits->GetYieldChangeNaturalWonder(eYield);
 			iYield += kPlayer.GetYieldChangesNaturalWonder(eYield);
 
-			if (getFeatureType() != NO_FEATURE)
+			if (eFeature != NO_FEATURE)
 			{
-				CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(getFeatureType());
+				CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(eFeature);
+				if (pFeatureInfo)
 				{
 					int iNWYieldChange = pFeatureInfo->getYieldChange(eYield);
 
 					int iMod = 0;
-					iMod += kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+					iMod += pTraits->GetNaturalWonderYieldModifier();
 
 					//we only do this here because we need the natural yield right away.
 					if (pMajorityReligion)
@@ -10155,17 +10159,18 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 #endif
 	{
 
-		iYield += kPlayer.GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
+		iYield += pTraits->GetYieldChangeNaturalWonder(eYield);
 		iYield += kPlayer.GetYieldChangesNaturalWonder(eYield);
 
-		if (getFeatureType() != NO_FEATURE)
+		if (eFeature != NO_FEATURE)
 		{
-			CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(getFeatureType());
+			CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(eFeature);
+			if (pFeatureInfo)
 			{
 				int iNWYieldChange = pFeatureInfo->getYieldChange(eYield);
 
 				int iMod = 0;
-				iMod += kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+				iMod += pTraits->GetNaturalWonderYieldModifier();
 
 				//we only do this here because we need the natural yield right away.
 				if (pMajorityReligion)
@@ -10189,14 +10194,13 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	}
 	if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
-		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 		// Policy improvement yield changes
 		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
-		if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		if (!pTraits->IsTradeRouteOnly())
 		{
 			// Trait player improvement yield changes that don't require a trade route connection
-			iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+			iYield += pTraits->GetImprovementYieldChange(eImprovement, eYield);
 		}
 		// Team Tech Yield Changes
 		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
@@ -10213,13 +10217,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 	}
 	
-	FeatureTypes eFeature = getFeatureType();
 	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
-	if (kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getOwner() == kPlayer.GetID())
+	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
 	{
 		if (eFeature == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
 		{
-			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
 				if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
@@ -10239,7 +10242,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 		else
 		{
-			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
 				if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
@@ -10259,7 +10262,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 		if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			int iBonus2 = kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
 			if (iBonus2 > 0)
 			{
 				if (IsCityConnection(ePlayer) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
@@ -10280,10 +10283,10 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	}
 	else
 	{
-		iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+		iYield += pTraits->GetTerrainYieldChange(eTerrain, eYield);
 	}
 
-	iYield += kPlayer.getTerrainYieldChange(getTerrainType(), eYield);
+	iYield += kPlayer.getTerrainYieldChange(eTerrain, eYield);
 
 	if (kPlayer.getExtraYieldThreshold(eYield) > 0)
 	{
@@ -10293,10 +10296,10 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 	}
 
-	int iBonusYield = eFeature == NO_FEATURE ? kTeam.getTerrainYieldChange(getTerrainType(), eYield) : kTeam.getFeatureYieldChange(eFeature, eYield);
+	int iBonusYield = eFeature == NO_FEATURE ? kTeam.getTerrainYieldChange(eTerrain, eYield) : kTeam.getFeatureYieldChange(eFeature, eYield);
 	if (IsNaturalWonder())
 	{
-		int iMod = kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+		int iMod = pTraits->GetNaturalWonderYieldModifier();
 		if (iMod > 0)
 		{
 			iBonusYield *= (100 + iMod);
@@ -10315,7 +10318,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 				if (!isLake())
 				{
 					iYield += kPlayer.getSeaPlotYield(eYield);
-					iYield += kPlayer.GetPlayerTraits()->GetSeaPlotYieldChanges(eYield);
+					iYield += pTraits->GetSeaPlotYieldChanges(eYield);
 				}
 #else
 				iYield += kPlayer.getSeaPlotYield(eYield);
@@ -10355,9 +10358,9 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			}
 
 			// Extra yield for terrain
-			if (getTerrainType() != NO_TERRAIN)
+			if (eTerrain != NO_TERRAIN)
 			{
-				iYield += pOwningCity->GetTerrainExtraYield(getTerrainType(), eYield);
+				iYield += pOwningCity->GetTerrainExtraYield(eTerrain, eYield);
 			}
 		}
 
@@ -10367,9 +10370,9 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			{
 				if (pOwningCity->GetWeLoveTheKingDayCounter() > 0)
 				{
-					if (kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() > 0)
+					if (pTraits->GetWLTKDGPImprovementModifier() > 0)
 					{
-						int iBoon = kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+						int iBoon = pTraits->GetWLTKDGPImprovementModifier();
 						iYield *= (100 + iBoon);
 						iYield /= 100;
 					}
@@ -10402,32 +10405,35 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		if (eResource != NO_RESOURCE)
 		{
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo != NULL && kTeam.GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
+			if (pkResourceInfo)
 			{
-				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
+				if (kTeam.GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
 				{
-					// Extra yield from resources
-					iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
-
-					// Extra yield from Trait
-					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					if (pkResourceInfo->getPolicyReveal() == NO_POLICY || kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
 					{
-						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
+						// Extra yield from resources
+						iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
+
+						// Extra yield from Trait
+						if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						{
+							iYield += pTraits->GetYieldChangeStrategicResources(eYield);
+						}
 					}
 				}
-			}
 
-			iYield += pOwningCity->GetEventResourceYield(getResourceType(), eYield);
-			iYield += kPlayer.getResourceYieldChange(eResource, eYield);
-			iYield += kPlayer.GetPlayerTraits()->GetResourceYieldChange(eResource, eYield);
+				iYield += pOwningCity->GetEventResourceYield(getResourceType(), eYield);
+				iYield += kPlayer.getResourceYieldChange(eResource, eYield);
+				iYield += pTraits->GetResourceYieldChange(eResource, eYield);
 
-			if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
-			{
-				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
-				if (iTemp > 0)
+				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
 				{
-					iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();
-					iYield += iTemp;
+					int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+					if (iTemp > 0)
+					{
+						iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();
+						iYield += iTemp;
+					}
 				}
 			}
 		}
@@ -10436,9 +10442,9 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		{
 			iYield += pOwningCity->GetEventFeatureYield(eFeature, eYield);
 		}
-		if (getTerrainType() != NO_TERRAIN)
+		if (eTerrain != NO_TERRAIN)
 		{
-			iYield += pOwningCity->GetEventTerrainYield(getTerrainType(), eYield);
+			iYield += pOwningCity->GetEventTerrainYield(eTerrain, eYield);
 
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
@@ -10447,9 +10453,9 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
 				{
 					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(eTerrain, eYield) > 0)
 					{
-						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(eTerrain, eYield);
 					}
 				}
 			}
@@ -10465,7 +10471,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		// Player Trait
 		if (eImprovement == NO_IMPROVEMENT)
 		{
-			iYield += kPlayer.GetPlayerTraits()->GetUnimprovedFeatureYieldChange(eFeature, eYield);
+			iYield += pTraits->GetUnimprovedFeatureYieldChange(eFeature, eYield);
 			iYield += kPlayer.getUnimprovedFeatureYieldChange(eFeature, eYield);
 		}
 
@@ -10473,7 +10479,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		iYield += GC.getGame().GetGameLeagues()->GetFeatureYieldChange(ePlayer, eFeature, eYield);
 
 		iYield += kPlayer.getFeatureYieldChange(eFeature, eYield);
-		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
+		iYield += pTraits->GetFeatureYieldChange(eFeature, eYield);
 	}
 
 	if (eImprovement != NO_IMPROVEMENT && eYield == YIELD_CULTURE)

@@ -99,6 +99,8 @@ enum AIOperationAbortReason
 	AI_ABORT_TIMED_OUT,
 };
 
+const char* AbortReasonString(AIOperationAbortReason eReason);
+
 FDataStream& operator<<(FDataStream&, const AIOperationState&);
 FDataStream& operator>>(FDataStream&, AIOperationState&);
 

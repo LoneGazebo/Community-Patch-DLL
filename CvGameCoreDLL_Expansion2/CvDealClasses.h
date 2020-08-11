@@ -113,6 +113,9 @@ public:
 	int m_iFinalTurn;
 	int m_iDuration;
 
+	int m_iFromPlayerValue;
+	int m_iToPlayerValue;
+
 	PeaceTreatyTypes m_ePeaceTreatyType;
 	PlayerTypes m_eSurrenderingPlayer;
 	PlayerTypes m_eDemandingPlayer;
@@ -121,9 +124,9 @@ public:
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
 	bool m_bDealCancelled;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bIsGift;
-#endif
+	bool m_bDoNotModifyFrom;
+	bool m_bDoNotModifyTo;
 
 	TradedItemList m_TradedItems;
 
@@ -132,6 +135,17 @@ public:
 
 	void SetFromPlayer(PlayerTypes ePlayer);
 	void SetToPlayer(PlayerTypes ePlayer);
+
+	void SetFromPlayerValue(int iValue);
+	void ChangeFromPlayerValue(int iValue);
+
+	void SetToPlayerValue(int iValue);
+	void ChangeToPlayerValue(int iValue);
+
+	void SetDuration(int iValue);
+
+	void SetDoNotModifyFrom(bool bValue);
+	void SetDoNotModifyTo(bool bValue);
 
 	PlayerTypes GetOtherPlayer(PlayerTypes eFromPlayer) const;
 	PlayerTypes GetToPlayer()   const
@@ -153,6 +167,24 @@ public:
 	uint GetEndTurn()   const
 	{
 		return m_iFinalTurn;
+	};
+	uint GetFromPlayerValue() const
+	{
+		return m_iFromPlayerValue;
+	};
+	uint GetToPlayerValue() const
+	{
+		return m_iToPlayerValue;
+	};
+
+	bool DoNotModifyFrom() const
+	{
+		return m_bDoNotModifyFrom;
+	};
+
+	bool DoNotModifyTo() const
+	{
+		return m_bDoNotModifyTo;
 	};
 
 	// Peace Treaty stuff
@@ -225,6 +257,9 @@ public:
 
 	int GetGoldPerTurnTrade(PlayerTypes eFrom);
 	bool ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDuration);
+
+	bool IsStrategicsTrade();
+	int GetNumStrategicsOnTheirSide(PlayerTypes eFrom);
 
 	bool IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource);
 	int GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource);

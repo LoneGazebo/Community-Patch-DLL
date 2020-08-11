@@ -2594,9 +2594,9 @@ bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
 {
 	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
+		
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
 
-	return false;
 }
 
 /// Determine if our current vassalage agreement with this player is voluntary (functions in either direction)
@@ -6682,7 +6682,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		break;
 	case WAR_PROJECTION_GOOD:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		break;
 	case WAR_PROJECTION_VERY_GOOD:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
@@ -6709,7 +6709,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		break;
 	case TARGET_VALUE_FAVORABLE:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2) : viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		break;
 	case TARGET_VALUE_SOFT:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4) : (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
@@ -11926,6 +11926,7 @@ void CvDiplomacyAI::DoTestDemandReady()
 		iData2 = -1;
 
 		pDeal->ClearItems();
+		pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
 		pDeal->SetFromPlayer(GetPlayer()->GetID());
 		pDeal->SetToPlayer(eDemandTarget);
 
@@ -12021,6 +12022,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	pDeal->SetRequestingPlayer(NO_PLAYER);
 	pDeal->SetFromPlayer(GetPlayer()->GetID());
 	pDeal->SetToPlayer(ePlayer);
+	pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 	int iActualValue = GetPlayer()->GetDealAI()->GetPotentialDemandValue(ePlayer, pDeal);
 
@@ -25245,29 +25247,21 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	{
 		if(bHuman)
 		{
-			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
+			int iDealValueToMe;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
 			bool bCantMatchOffer;
 #if defined(MOD_BALANCE_CORE)
-			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, false);
+			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, &bCantMatchOffer, false);
 #else
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 #endif
-			if(!bDealAcceptable)
-			{
-				if(iValueTheyreOffering > iValueImOffering)
-				{
-					bDealAcceptable = true;
-				}
-			}
 
 			if(bDealAcceptable)
 			{
 				eMessageType = DIPLO_MESSAGE_RENEW_DEAL;
 			}
 			// We want more from this deal
-			else if(iDealValueToMe > -75 &&
-			        iValueImOffering < (iValueTheyreOffering * 5))	// The total value of the deal might not be that bad, but if he's asking for WAY more than he's offering (e.g. something for nothing) then it's not unacceptable, but insulting
+			else if(iDealValueToMe > -75)
 			{
 				eMessageType = DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL;
 			}
@@ -26594,6 +26588,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	pDeal->ClearItems();
 	pDeal->SetFromPlayer(GetPlayer()->GetID());
 	pDeal->SetToPlayer(ePlayer);
+	pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 	// JON: Add in some randomization here?
 	// How predictable do we want the AI to be with regards to what state they're in?
@@ -29191,7 +29186,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					{
 						bool bUselessReferenceVariable;
 						bool bCantMatchOffer;
-						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, false, false, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 					}
 					if(bDealAcceptable)
 					{
@@ -29789,7 +29784,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			{
 				bool bUselessReferenceVariable;
 				bool bCantMatchOffer;
-				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);
+				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
 			}
 
 			if(!bAbleToEqualize)
@@ -45208,6 +45203,10 @@ int CvDiplomacyAI::GetNumTurnsSinceStatementSent(PlayerTypes ePlayer, DiploState
 
 	int iMostRecentTurn = MAX_TURNS_SAFE_ESTIMATE;
 
+	//failsafe in case a minor slips in.
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+		return MAX_TURNS_SAFE_ESTIMATE;
+
 	int iLoopTurnNum;
 	DiploStatementTypes eLoopStatement;
 
@@ -52034,7 +52033,7 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 	}
 
 	// Physically see how much the deal will cost us. Only send request if it's in an acceptable range
-	int iMapValue = GetPlayer()->GetDealAI()->GetMapValue(false, ePlayer, false);
+	int iMapValue = GetPlayer()->GetDealAI()->GetMapValue(false, ePlayer);
 	if(iMapValue > 750)
 	{
 		return true;

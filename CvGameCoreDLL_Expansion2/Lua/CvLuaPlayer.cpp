@@ -14184,8 +14184,7 @@ int CvLuaPlayer::lGetDealValue (lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iValueImOffering, iValueTheirOffering;
-	lua_pushinteger(L, pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheirOffering, false));
+	lua_pushinteger(L, pkThisPlayer->GetDealAI()->GetDealValue(pkDeal));
 	return 1;
 }
 
@@ -14194,9 +14193,10 @@ int CvLuaPlayer::lGetDealMyValue(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iValueImOffering, iValueTheyreOffering;
-	pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
-	lua_pushinteger(L, iValueImOffering);
+	if (pkThisPlayer->GetID() == pkDeal->GetFromPlayer())
+		lua_pushinteger(L, pkDeal->GetFromPlayerValue());
+	else
+		lua_pushinteger(L, pkDeal->GetToPlayerValue());
 	return 1;
 }
 
@@ -14205,9 +14205,10 @@ int CvLuaPlayer::lGetDealTheyreValue(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iValueImOffering, iValueTheyreOffering;
-	pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
-	lua_pushinteger(L, iValueTheyreOffering);
+	if (pkThisPlayer->GetID() == pkDeal->GetFromPlayer())
+		lua_pushinteger(L, pkDeal->GetFromPlayerValue());
+	else
+		lua_pushinteger(L, pkDeal->GetToPlayerValue());
 	return 1;
 }
 
@@ -14224,7 +14225,6 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iValueImOffering, iValueTheyreOffering;
 	int iResult = 0;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
@@ -14233,27 +14233,16 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
-	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
+	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal);
 	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
 		iResult = -1;
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
-	int iDealSumValue = iValueImOffering + iValueTheyreOffering;
 
-	int iAmountOverWeWillRequest = iDealSumValue;
-	iAmountOverWeWillRequest *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
-	iAmountOverWeWillRequest /= 100;
-
-	int iAmountUnderWeWillOffer = (iDealSumValue * -1);
-	iAmountUnderWeWillOffer *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
-	iAmountUnderWeWillOffer /= 100;
-
-	if (iResult <= iAmountOverWeWillRequest && iResult >= iAmountUnderWeWillOffer)
-	{
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), iResult))
 		iResult = 0;
-	}
  
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -14263,9 +14252,8 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iValueImOffering, iValueTheyreOffering;
 	int iResult = 0;
-	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
+	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal);
 	if(iResult < 0)
 	{
 		iResult *= -1;
@@ -14276,21 +14264,10 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
-	
-	int iDealSumValue = iValueImOffering + iValueTheyreOffering;
 
-	int iAmountOverWeWillRequest = iDealSumValue;
-	iAmountOverWeWillRequest *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
-	iAmountOverWeWillRequest /= 100;
-
-	int iAmountUnderWeWillOffer = (iDealSumValue * -1);
-	iAmountUnderWeWillOffer *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
-	iAmountUnderWeWillOffer /= 100;
-
-	if (iResult <= iAmountOverWeWillRequest && iResult >= iAmountUnderWeWillOffer)
-	{
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), iResult))
 		iResult = 0;
-	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }

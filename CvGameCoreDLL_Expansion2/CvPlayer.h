@@ -3401,7 +3401,6 @@ protected:
 #endif
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
-	FAutoVariable<int, CvPlayer> m_iNextOperationID;
 	FAutoVariable<int, CvPlayer> m_iCostNextPolicy;
 	FAutoVariable<int, CvPlayer> m_iNumBuilders;
 	FAutoVariable<int, CvPlayer> m_iMaxNumBuilders;

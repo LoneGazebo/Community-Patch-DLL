@@ -1878,7 +1878,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	else if (bInterruptBuildings && !bCombat)
 		iBonus -= 100;
 
-	iTempWeight += iBonus;
+	if (iBonus <= 0)
+		return 0;
+
+	//iValue is the compunded value of the items.
+	iTempWeight *= 100 + (iBonus * iBonus);
+	iTempWeight /= 100;
 
 	if (m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		iTempWeight /= 5;

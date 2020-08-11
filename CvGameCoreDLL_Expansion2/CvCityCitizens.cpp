@@ -936,10 +936,13 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
 					//increase value by era
 					iFoodEmphasisModifier += GET_PLAYER(m_pCity->getOwner()).GetCurrentEra();
+
+					if (store.iExcessFoodTimes100 <= 0)
+						iFoodEmphasisModifier *= GC.getAI_CITIZEN_VALUE_FOOD();
 				}
 
 				if (store.iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
-					iFoodEmphasisModifier /= 100;
+					iFoodEmphasisModifier /= max(1, GC.getAI_CITIZEN_VALUE_FOOD());
 
 				iYieldMod += GC.getAI_CITIZEN_VALUE_FOOD();
 

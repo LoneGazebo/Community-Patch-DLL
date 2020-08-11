@@ -737,7 +737,7 @@
 			<Text>Vanguard</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR_HELP">
-			<Text>+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 50%.</Text>
+			<Text>+125% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 50%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE">
@@ -844,7 +844,7 @@
 			<Text>Jinete</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ALHAMBRA_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">
@@ -967,6 +967,14 @@
 		<Row Tag="TXT_KEY_PROMOTION_MECH_HELP">
 			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Begins combat with a free Ranged attack.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_IKLWA">
+			<Text>Iklwa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
+			<Text>+15% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR]. +2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
+		</Row>
+
 
 		<!-- New unit combats -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">

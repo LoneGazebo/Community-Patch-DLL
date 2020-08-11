@@ -1205,7 +1205,7 @@ const char* CvAIOperation::GetInfoString()
 		strTemp2 = "Not initialized";
 		break;
 	case AI_OPERATION_STATE_ABORTED:
-		strTemp2.Format("Aborted, %d", m_eAbortReason);
+		strTemp2.Format("Aborted, %s", AbortReasonString(m_eAbortReason));
 		break;
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 		strTemp2 = "Recruiting Units";
@@ -1271,7 +1271,7 @@ void CvAIOperation::LogOperationStart() const
 			strTemp2 = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp2.Format("Aborted, %d", m_eAbortReason);
+			strTemp2.Format("Aborted, %s", AbortReasonString(m_eAbortReason));
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp2 = "Recruiting Units";
@@ -1347,7 +1347,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			strTemp = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp.Format("Aborted: %d", m_eAbortReason);
+			strTemp.Format("Aborted: %s", AbortReasonString(m_eAbortReason));
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp = "";
@@ -1463,66 +1463,7 @@ void CvAIOperation::LogOperationEnd() const
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, %s, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetOperationName(), GetID() );
-
-		strTemp = "Ended: ";
-
-		switch(m_eAbortReason)
-		{
-		case AI_ABORT_SUCCESS:
-			strTemp += "Success";
-			break;
-		case AI_ABORT_NO_TARGET:
-			strTemp += "NoTarget";
-			break;
-		case AI_ABORT_CANCELLED:
-			strTemp += "Cancelled";
-			break;
-		case AI_ABORT_LOST_TARGET:
-			strTemp += "LostTarget";
-			break;
-		case AI_ABORT_TARGET_ALREADY_CAPTURED:
-			strTemp += "TargetAlreadyCaptured";
-			break;
-		case AI_ABORT_NO_ROOM_DEPLOY:
-			strTemp += "NoRoomToDeploy";
-			break;
-		case AI_ABORT_HALF_STRENGTH:
-			strTemp += "HalfStrength";
-			break;
-		case AI_ABORT_NO_MUSTER:
-			strTemp += "NoMusterPoint";
-			break;
-		case AI_ABORT_LOST_CIVILIAN:
-			strTemp += "LostCivilian";
-			break;
-		case AI_ABORT_ESCORT_DIED:
-			strTemp += "EscortDied";
-			break;
-		case AI_ABORT_TOO_DANGEROUS:
-			strTemp += "TooDangerous";
-			break;
-		case AI_ABORT_KILLED:
-			strTemp += "Killed";
-			break;
-		case AI_ABORT_WAR_STATE_CHANGE:
-			strTemp += "WarStateChange";
-			break;
-		case AI_ABORT_DIPLO_OPINION_CHANGE:
-			strTemp += "DiploOpinionChange";
-			break;
-		case AI_ABORT_LOST_PATH:
-			strTemp += "NoTarget";
-			break;
-		case AI_ABORT_TIMED_OUT:
-			strTemp += "TimedOut";
-			break;
-		case AI_ABORT_NO_UNITS:
-			strTemp += "NoUnits";
-			break;
-		default:
-			strTemp += "UnknownReason";
-		}
-
+		strTemp.Format("Ended: %s", AbortReasonString(m_eAbortReason));
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
@@ -4347,4 +4288,64 @@ CvCity* OperationalAIHelpers::GetNearestCoastalCityEnemy(PlayerTypes ePlayer, Pl
 	}
 
 	return pBestCoastalCity;
+}
+
+const char* AbortReasonString(AIOperationAbortReason eReason)
+{
+	switch(eReason)
+	{
+	case AI_ABORT_SUCCESS:
+		return "Success";
+		break;
+	case AI_ABORT_NO_TARGET:
+		return "NoTarget";
+		break;
+	case AI_ABORT_CANCELLED:
+		return "Cancelled";
+		break;
+	case AI_ABORT_LOST_TARGET:
+		return "LostTarget";
+		break;
+	case AI_ABORT_TARGET_ALREADY_CAPTURED:
+		return "TargetAlreadyCaptured";
+		break;
+	case AI_ABORT_NO_ROOM_DEPLOY:
+		return "NoRoomToDeploy";
+		break;
+	case AI_ABORT_HALF_STRENGTH:
+		return "HalfStrength";
+		break;
+	case AI_ABORT_NO_MUSTER:
+		return "NoMusterPoint";
+		break;
+	case AI_ABORT_LOST_CIVILIAN:
+		return "LostCivilian";
+		break;
+	case AI_ABORT_ESCORT_DIED:
+		return "EscortDied";
+		break;
+	case AI_ABORT_TOO_DANGEROUS:
+		return "TooDangerous";
+		break;
+	case AI_ABORT_KILLED:
+		return "Killed";
+		break;
+	case AI_ABORT_WAR_STATE_CHANGE:
+		return "WarStateChange";
+		break;
+	case AI_ABORT_DIPLO_OPINION_CHANGE:
+		return "DiploOpinionChange";
+		break;
+	case AI_ABORT_LOST_PATH:
+		return "NoTarget";
+		break;
+	case AI_ABORT_TIMED_OUT:
+		return "TimedOut";
+		break;
+	case AI_ABORT_NO_UNITS:
+		return "NoUnits";
+		break;
+	default:
+		return "UnknownReason";
+	}
 }

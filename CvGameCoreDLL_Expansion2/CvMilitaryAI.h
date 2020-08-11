@@ -280,11 +280,7 @@ public:
 	}
 	int GetBarbarianThreatTotal();
 	int GetThreatWeight(ThreatTypes eThreat);
-#if defined(MOD_BALANCE_CORE)
-	int GetNumberCivsAtWarWith(bool bMinor = true) const;
-#else
-	int GetNumberCivsAtWarWith() const;
-#endif
+	int GetNumberCivsAtWarWith(bool bIncludeMinor = true) const;
 	int GetRecommendedMilitarySize() const
 	{
 		return m_iRecommendedMilitarySize + m_iRecNavySize;

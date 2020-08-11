@@ -813,11 +813,11 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 {
 	initFreeState(kInitialItemOverrides);
 
-	if (CvPreGame::isWBMapScript())
+	if(CvPreGame::isWBMapScript())
 		assignStartingPlots();
 
 	// Adjust FLAVOR_GROWTH and FLAVOR_EXPANSION based on map size
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 
@@ -841,7 +841,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	{
 		TeamTypes eTeam = (TeamTypes) iTeamLoop;
 
-		if (bCanWorkWater)
+		if(bCanWorkWater)
 		{
 			GET_TEAM(eTeam).changeWaterWorkCount(1);
 		}
@@ -854,7 +854,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive())
+		if(GET_PLAYER(ePlayer).isAlive())
 		{
 			// Major Civ init
 			if (GET_PLAYER(ePlayer).isMajorCiv())
@@ -880,13 +880,13 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	}
 
 	// Which Tech unlocks the Religion Race? (based on a CvBuildingEntry)
-	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if (pkBuildingInfo)
+		if(pkBuildingInfo)
 		{
-			if (pkBuildingInfo->IsFoundsReligion())
+			if(pkBuildingInfo->IsFoundsReligion())
 			{
 				const TechTypes eReligionTech = (TechTypes) pkBuildingInfo->GetPrereqAndTech();
 				SetReligionTech(eReligionTech);

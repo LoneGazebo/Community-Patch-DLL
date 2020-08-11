@@ -5519,6 +5519,10 @@ bool CvUnit::jumpToNearestValidPlot()
 
 	if (getDomainType() == DOMAIN_AIR)
 	{
+		if (plot()->isCity())
+			if (canRebaseAt(getX() , getY()))
+				return true;
+
 		int iLoopCity;
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
 		{
@@ -5600,7 +5604,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvCity* pClosestCity = GET_PLAYER(getOwner()).GetClosestCityByPlots( plot() );
 		if (pClosestCity)
-			return jumpToNearestValidPlotWithinRange(5, pClosestCity->plot());
+			return jumpToNearestValidPlotWithinRange(6, pClosestCity->plot());
 	}
 
 	if(GC.getLogging() && GC.getAILogging())
@@ -10096,7 +10100,9 @@ bool CvUnit::rebase(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 {
-	VALIDATE_OBJECT
+	if (!pPlot)
+		return false;
+
 	if(isEmbarked())
 		return false;
 
@@ -14615,7 +14621,7 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 				}
 				else
 				{
-					if(!pPlotOwner.GetMinorCivAI()->IsFriends(getOwner()))
+					if(!pPlotOwner.GetMinorCivAI()->IsFriends(getOwner()) || pPlotOwner.IsAtWarWith(getOwner()))
 					{
 						return false;
 					}
@@ -27249,6 +27255,10 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							if (!pLoopUnit || pLoopUnit == this)
 								continue;
 
+							//can't swap with alternate domains (don't need to).
+							if (pLoopUnit->getDomainType() != getDomainType())
+								continue;
+
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
@@ -27257,7 +27267,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true) && pLoopUnit->ReadyToSwap())
 									{
 										// Can the unit I am swapping with get to me this turn?
-										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, 1);
+										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
@@ -27543,6 +27553,13 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 				if (pPlot->isFriendlyCityOrPassableImprovement(getOwner()))
 				{
 					if (getDomainType()==pLoopUnit->getDomainType())
+						iNumUnitsOfSameType++;
+				}
+				//special rule for land units at sea
+				else if (pPlot->isWater())
+				{
+					//we can embark under naval units, but not other land units!
+					if (getDomainType() == pLoopUnit->getDomainType())
 						iNumUnitsOfSameType++;
 				}
 				else

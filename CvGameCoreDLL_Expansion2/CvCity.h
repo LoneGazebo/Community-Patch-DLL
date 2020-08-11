@@ -225,7 +225,7 @@ public:
 	bool IsIndustrialRouteToCapitalConnected() const;
 	void SetIndustrialRouteToCapitalConnected(bool bValue);
 
-	void SetRouteToCapitalConnected(bool bValue);
+	void SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate = false);
 	bool IsRouteToCapitalConnected(void) const;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -627,6 +627,8 @@ public:
 	void setPopulation(int iNewValue, bool bReassignPop = true);
 #endif
 	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
+
+	void setLowestRazingPop(int iValue);
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getAutomatons() const;

@@ -2478,51 +2478,21 @@ int CvMilitaryAI::GetThreatWeight(ThreatTypes eThreat)
 }
 
 /// How many civs are we fighting?
-#if defined(MOD_BALANCE_CORE)
-int CvMilitaryAI::GetNumberCivsAtWarWith(bool bMinor) const
-#else
-int CvMilitaryAI::GetNumberCivsAtWarWith() const
-#endif
+int CvMilitaryAI::GetNumberCivsAtWarWith(bool bIncludeMinor) const
 {
-	PlayerTypes eLoopPlayer;
-#if !defined(MOD_BALANCE_CORE)
-	WarStateTypes eWarState;
-#endif
+	vector<PlayerTypes> vEnemies = m_pPlayer->GetPlayersAtWarWith();
+
 	int iRtnValue = 0;
-
-	// Let's figure out if we're at war
-#if defined(MOD_BALANCE_CORE)
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-#else
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-#endif
+	for(size_t i=0; i<vEnemies.size(); i++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		//ignore barbarians ...
+		if(GET_PLAYER(vEnemies[i]).isBarbarian())
+			continue;
 
-		// Is this a player we have relations with?
-#if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(eLoopPlayer).isBarbarian())
-		{
+		if(GET_PLAYER(vEnemies[i]).isMinorCiv() && !bIncludeMinor)
 			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).isMinorCiv() && !bMinor)
-		{
-			continue;
-		}
-		if(eLoopPlayer != m_pPlayer->GetID())
-		{
-			if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-#else
-		if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-		{
-			eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
-			if(eWarState != NO_WAR_STATE_TYPE)
-			{
-#endif
-				iRtnValue++;
-			}
-		}
+
+		iRtnValue++;
 	}
 
 	return iRtnValue;
@@ -4616,15 +4586,11 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
 CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iReturnedScore)
 {
-	CvUnit* pLoopUnit = NULL;
 	int iUnitLoop;
 	CvUnit* pBestUnit = NULL;
-	int iScore;
 	int iBestScore = MAX_INT;
 
-#if defined(MOD_BALANCE_CORE)
-
-	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
@@ -4659,7 +4625,24 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				continue;
 
 			// Is it in an army?
-			if(pLoopUnit->getArmyID() != -1 || TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
+			if(pLoopUnit->getArmyID() != -1)
+				continue;
+
+			// Do we need it to fight?
+			bool bCloseToEnemy = false;
+			for (int i = 1; i < RING3_PLOTS; i++)
+			{
+				CvPlot* pPlot = iterateRingPlots(pLoopUnit->plot(), i);
+				if (!pPlot)
+					continue;
+				
+				if (pPlot->isEnemyUnit(m_pPlayer->GetID(), false, true) || pPlot->isEnemyCity(*pLoopUnit))
+				{
+					bCloseToEnemy = true;
+					break;
+				}
+			}
+			if (bCloseToEnemy)
 				continue;
 
 			// Is this a ship on a water body without enemies?
@@ -4727,7 +4710,7 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		// Can I scrap this unit?
 		if( (!bStillNeeded || bIsUseless))
 		{
-			iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
+			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
 
 			//prefer units which are at home, meaning we get some money back
 			if (pLoopUnit->canScrap())
@@ -4741,113 +4724,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 			}
 		}
 	}
-
-#else
-
-	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-	{
-		bool bSkipThisOne = false;
-
-		if(!pLoopUnit->IsCombatUnit())
-		{
-			continue;
-		}
-
-		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
-		{
-			continue;
-		}
-
-		if(!bLand && pLoopUnit->getDomainType() != DOMAIN_SEA)
-		{
-			continue;
-		}
-
-		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
-		if(!bDeficitForcedDisband)
-		{
-			if(bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
-			{
-				continue;
-			}
-			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
-			{
-				continue;
-			}
-
-			// Is it in an army?
-			if(pLoopUnit->getArmyID() != -1)
-			{
-				continue;
-			}
-			// Can I still build this unit? If so too new to scrap
-			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
-			{
-				continue;
-			}
-
-			// Is this a unit who has an obsolete tech that I have researched?
-			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
-			if((TechTypes)pUnitInfo.GetObsoleteTech() == NO_TECH)
-			{
-				continue;
-			}
-
-			if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-			{
-				continue;
-			}
-			// Is this unit's INTRINSIC power less than half that of the best unit I can build for this domain?
-			if((pLoopUnit->getUnitInfo().GetPower() * 2) >= GetPowerOfStrongestBuildableUnit(pLoopUnit->getDomainType()))
-			{
-				continue;
-			}
-
-			// Does this unit's upgrade require a resource?
-			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
-			if(eUpgradeUnit != NO_UNIT)
-			{
-				CvUnitEntry* pUpgradeUnitInfo = GC.GetGameUnits()->GetEntry(eUpgradeUnit);
-				if(pUpgradeUnitInfo != NULL)
-				{
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos() && !bSkipThisOne; iResourceLoop++)
-					{
-						ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
-
-						if(iNumResourceNeeded > 0)
-						{
-							if(m_pPlayer->getNumResourceTotal(eResource) > 0)
-							{
-								if(bLand && m_eLandDefenseState > DEFENSE_STATE_NEUTRAL)
-								{
-									bSkipThisOne  = true;    // We'll wait and try to upgrade this one, our unit count isn't that bad
-								}
-								else if(!bLand && m_eNavalDefenseState > DEFENSE_STATE_NEUTRAL)
-								{
-									bSkipThisOne  = true;    // We'll wait and try to upgrade this one, our unit count isn't that bad
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Can I scrap this unit?
-		if(!bSkipThisOne && pLoopUnit->canScrap())
-		{
-			iScore = pLoopUnit->GetPower();
-
-			if(iScore < iBestScore)
-			{
-				iBestScore = iScore;
-				iReturnedScore = iBestScore;
-				pBestUnit = pLoopUnit;
-			}
-		}
-	}
-#endif
 
 	return pBestUnit;
 }

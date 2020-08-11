@@ -637,10 +637,10 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	return (iRelativeDistancePercent<100);
 }
 
-EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer, bool bIgnorePlayer)
+EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
 {
 	EraTypes eGPEra = (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
-	EraTypes eSpecialEra = bIgnorePlayer ? NO_ERA : (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra();
+	EraTypes eSpecialEra = pPlayer ? (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
 	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
 	{
 		return eSpecialEra;
@@ -7785,7 +7785,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 	// SECOND PRIORITY
 	// If in Industrial, see if we want to save for buying a great person
-	if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(m_pPlayer) && GetDesiredFaithGreatPerson() != NO_UNIT)
+	if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(NULL) && GetDesiredFaithGreatPerson() != NO_UNIT)
 	{
 		UnitTypes eGPType = GetDesiredFaithGreatPerson();
 

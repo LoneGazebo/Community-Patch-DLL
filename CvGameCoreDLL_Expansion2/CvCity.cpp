@@ -6805,9 +6805,9 @@ void CvCity::SetIndustrialRouteToCapitalConnected(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetRouteToCapitalConnected(bool bValue)
+void CvCity::SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate)
 {
-	bool bUpdateReligion = (bValue != m_bRouteToCapitalConnectedThisTurn);
+	bool bUpdateReligion = !bIgnoreUpdate && (bValue != m_bRouteToCapitalConnectedThisTurn);
 
 	//do this before the religion recalculation ...
 	m_bRouteToCapitalConnectedThisTurn = bValue;
@@ -11338,7 +11338,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 					if(pReligion)
 					{
-						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this) && kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(&kPlayer, true))
+						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this) && kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(NULL))
 						{
 							bAllUnlockedByBelief = true;
 						}
@@ -17855,6 +17855,10 @@ void CvCity::changePopulation(int iChange, bool bReassignPop, bool bIgnoreStatic
 	GetCityReligions()->DoPopulationChange(iChange);
 }
 
+void CvCity::setLowestRazingPop(int iValue)
+{
+	m_iLowestRazingPop = iValue;
+}
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 //	--------------------------------------------------------------------------------
 int CvCity::getAutomatons() const

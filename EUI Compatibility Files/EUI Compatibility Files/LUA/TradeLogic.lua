@@ -3528,11 +3528,7 @@ function ChangeResourceAmount( string, control )
 	end
 
 	-- Can't offer more than someone has
-	if gk_mode then
-		iNumResource = math.min(g_Deal:GetNumResource(iPlayer, iResourceID),iNumResource);
-	else
-		iNumResource = math.min(pPlayer:GetNumResourceAvailable(iResourceID, false),iNumResource);
-	end
+	iNumResource = math.min(pPlayer:GetNumResourceAvailable(iResourceID, false),iNumResource);
 
 	control:SetText(iNumResource);
 

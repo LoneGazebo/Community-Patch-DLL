@@ -168,6 +168,10 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 	m_bDealCancelled = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
+	m_bDoNotModifyFrom = false;
+	m_bDoNotModifyTo = false;
+	m_iFromPlayerValue = -1;
+	m_iToPlayerValue = -1;
 #endif
 }
 
@@ -188,6 +192,10 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_bDealCancelled = source.m_bDealCancelled;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
+	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
+	m_bDoNotModifyTo = source.m_bDoNotModifyTo;
+	m_iFromPlayerValue = source.m_iFromPlayerValue;
+	m_iToPlayerValue = source.m_iToPlayerValue;
 #endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
@@ -219,6 +227,10 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_bDealCancelled = source.m_bDealCancelled;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
+	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
+	m_bDoNotModifyTo = source.m_bDoNotModifyTo;
+	m_iFromPlayerValue = source.m_iFromPlayerValue;
+	m_iToPlayerValue = source.m_iToPlayerValue;
 #endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
@@ -243,6 +255,10 @@ void CvDeal::ClearItems()
 	m_bDealCancelled = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
+	m_bDoNotModifyFrom = false;
+	m_bDoNotModifyTo = false;
+	m_iFromPlayerValue = -1;
+	m_iToPlayerValue = -1;
 #endif
 
 	SetPeaceTreatyType(NO_PEACE_TREATY_TYPE);
@@ -274,6 +290,41 @@ void CvDeal::SetToPlayer(PlayerTypes ePlayer)
 
 	m_eToPlayer = ePlayer;
 }
+
+void CvDeal::SetFromPlayerValue(int iValue)
+{
+	m_iFromPlayerValue = iValue;
+}
+void CvDeal::ChangeFromPlayerValue(int iValue)
+{
+	m_iFromPlayerValue += iValue;
+}
+
+void CvDeal::SetToPlayerValue(int iValue)
+{
+	m_iToPlayerValue = iValue;
+}
+void CvDeal::ChangeToPlayerValue(int iValue)
+{
+	m_iToPlayerValue += iValue;
+}
+
+void CvDeal::SetDuration(int iValue)
+{
+	m_iDuration = iValue;
+}
+
+void CvDeal::SetDoNotModifyFrom(bool bValue)
+{
+	m_bDoNotModifyFrom = bValue;
+}
+
+void CvDeal::SetDoNotModifyTo(bool bValue)
+{
+	m_bDoNotModifyTo = bValue;
+}
+
+
 
 /// Helper function to figure out who the TO player is for a TradeableItem
 PlayerTypes CvDeal::GetOtherPlayer(PlayerTypes eFromPlayer) const
@@ -1562,7 +1613,7 @@ int CvDeal::GetNumCities(PlayerTypes ePlayer)
 	{
 		if(it->m_eItemType == TRADE_ITEM_CITIES && it->m_eFromPlayer == ePlayer)
 		{
-			iNumCities ++;
+			iNumCities++;
 		}
 	}
 	return iNumCities;
@@ -2196,6 +2247,37 @@ int CvDeal::GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource)
 		{
 			iNum += it->m_iData2;
 		}
+	}
+	return iNum;
+}
+
+bool CvDeal::IsStrategicsTrade()
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_RESOURCES)
+		{
+			if (GC.getResourceInfo((ResourceTypes)it->m_iData1) != NULL && GC.getResourceInfo((ResourceTypes)it->m_iData1)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				return true;
+		}
+
+	}
+	return false;
+}
+
+int CvDeal::GetNumStrategicsOnTheirSide(PlayerTypes eFrom)
+{
+	int iNum = 0;
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == eFrom)
+		{
+			if (GC.getResourceInfo((ResourceTypes)it->m_iData1) != NULL && GC.getResourceInfo((ResourceTypes)it->m_iData1)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				iNum += it->m_iData2;
+		}
+
 	}
 	return iNum;
 }
@@ -5201,10 +5283,8 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 		{
 			CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		}
-		int iEvenValueImOffering;
-		int iEvenValueTheyreOffering;
-		int iTotalValueFrom = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal, iEvenValueImOffering, iEvenValueTheyreOffering, /*bUseEvenValue*/ false, true);
-		int iTotalValueTo = GET_PLAYER(pDeal->GetToPlayer()).GetDealAI()->GetDealValue(pDeal, iEvenValueImOffering, iEvenValueTheyreOffering, /*bUseEvenValue*/ false, true);
+
+		int iTotalValue = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal, true);
 #endif
 		CvString otherPlayerName;
 
@@ -5406,7 +5486,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #endif
 		}
 
-		strTemp.Format("DEAL COMPLETE: Deal Value Sender: %d ; Deal Value Recipient: %d", iTotalValueFrom, iTotalValueTo);
+		strTemp.Format("DEAL COMPLETE: Deal Value: %d", iTotalValue);
 		strOutBuf = strTemp;
 
 		pLog->Msg(strOutBuf);

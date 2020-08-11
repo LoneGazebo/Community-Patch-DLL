@@ -584,7 +584,7 @@
       <Content>
         <Type>MapScript</Type>
         <Name>Communitas</Name>
-        <Description>Communitas</Description>
+        <Description>Communitas Mapscript, for use with just CP.</Description>
         <FileName>Mapscripts/Communitas.lua</FileName>
       </Content>
       <Content>
@@ -620,8 +620,8 @@
       <Content>
         <Type>MapScript</Type>
         <Name>Communitu_79</Name>
-        <Description>Communitas Rewrite By tu_79</Description>
-        <FileName>Mapscripts/Communitu_79a v1.18.0.lua</FileName>
+        <Description>Communitas Rewrite By tu_79. For use with full VP installation only.</Description>
+        <FileName>Mapscripts/Communitu_79a.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -1660,7 +1660,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Mapscripts\Communitu_79a v1.18.0.lua">
+    <Content Include="Mapscripts\Communitu_79a.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

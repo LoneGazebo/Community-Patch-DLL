@@ -552,7 +552,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	//update cache
 	m_routesPerPlayer[eOriginPlayer].push_back(iNewTradeRouteIndex);
-	m_routesPerPlayer[eDestPlayer].push_back(iNewTradeRouteIndex);
+
+	if (eOriginPlayer != eDestPlayer)
+		m_routesPerPlayer[eDestPlayer].push_back(iNewTradeRouteIndex);
+
 	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();

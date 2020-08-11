@@ -330,7 +330,6 @@ CvPlayer::CvPlayer() :
 #endif
 	, m_iPopRushHurryCount("CvPlayer::m_iPopRushHurryCount", m_syncArchive)
 	, m_iTotalImprovementsBuilt("CvPlayer::m_iTotalImprovementsBuilt", m_syncArchive)
-	, m_iNextOperationID("CvPlayer::m_iNextOperationID", m_syncArchive)
 	, m_iCostNextPolicy("CvPlayer::m_iCostNextPolicy", m_syncArchive)
 	, m_iNumBuilders("CvPlayer::m_iNumBuilders", m_syncArchive, true)
 	, m_iMaxNumBuilders("CvPlayer::m_iMaxNumBuilders", m_syncArchive)
@@ -806,8 +805,6 @@ CvPlayer::CvPlayer() :
 
 	m_pNotifications = NULL;
 	m_pDiplomacyRequests = NULL;
-
-	m_iNextOperationID = 0;
 
 	m_aiPlots.clear();
 	m_bfEverConqueredBy.ClearAll();
@@ -1649,7 +1646,6 @@ void CvPlayer::uninit()
 	m_uiStartTime = 0;
 	m_bHasUUPeriod = false;
 	m_iTotalImprovementsBuilt = 0;
-	m_iNextOperationID = 0;
 	m_iCostNextPolicy = 0;
 	m_iNumBuilders = 0;
 	m_iMaxNumBuilders = 0;
@@ -3060,7 +3056,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-	if (bConquest)
+	if(bConquest)
 	{
 #if defined(MOD_BALANCE_CORE)
 		if (pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
@@ -4042,6 +4038,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity->setPopulation(iPopulation);
 #endif
 	pNewCity->setHighestPopulation(iHighestPopulation);
+	pNewCity->setLowestRazingPop(iPopulation);
 	pNewCity->setName(strName);
 	pNewCity->setNeverLost(false);
 	pNewCity->setDamage(iBattleDamage,true);
@@ -13538,7 +13535,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			changeInstantYieldValue(YIELD_PRODUCTION, iProduction);
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
 			strBuffer += " ";
-			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION", iProduction);
+			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION");
 #endif
 		}
 	}
@@ -19805,7 +19802,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iHandicapC = pHandicapInfo->getAIDifficultyBonusLate();
 		iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
 
-		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iYieldHandicap /= 100;
 	}
 	if (iYieldHandicap > 0)
@@ -41329,8 +41326,10 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 	if (!pNewOperation)
 		return NULL;
 
+	int m_iNextOperationID = GC.getGame().GetNextGlobalID();
+
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
+	m_AIOperations.insert(std::make_pair(m_iNextOperationID, pNewOperation));
 
 	//check if initialization works out
 	pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
@@ -41340,9 +41339,6 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 		deleteAIOperation(pNewOperation->GetID());
 		return NULL;
 	}
-
-	//success
-	m_iNextOperationID++;
 
 	return pNewOperation;
 }
@@ -50618,7 +50614,7 @@ void CvPlayer::computeAveragePlotFoundValue()
 
 	//assuming a normal distribution, this should allow all but the worst plots
 	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
-	m_iReferenceFoundValue = iAvg/2;
+	m_iReferenceFoundValue = iAvg - iAvg / 3;
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));

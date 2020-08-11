@@ -1013,7 +1013,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	YieldTypes eFocusYield = m_pCity->GetCityCitizens()->GetFocusTypeYield(m_pCity->GetCityCitizens()->GetFocusType());
 
-	bool bSmall = m_pCity->getPopulation() <= 12 && !m_pCity->isCapital();
+	bool bSmall = m_pCity->getPopulation() <= 10;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
@@ -1094,8 +1094,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			case YIELD_PRODUCTION:
 				if (bSmall)
 				{
-					iYieldValue *= 2;
-					iYieldTrait *= 2;
+					iYieldValue *= 4;
+					iYieldTrait *= 4;
 				}
 				if (iCrime > 0)
 				{
@@ -1113,7 +1113,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldTrait = 0;
 				}
 				else if (bSmall)
-					iYieldValue *= 2;
+					iYieldValue *= 10;
 
 				if (iCrime > 0)
 				{
@@ -1175,69 +1175,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-	if (eReligion == NO_RELIGION)
-	{
-		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-	}
-	if(eReligion != NO_RELIGION)
-	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
-		if(pReligion)
-		{
-			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-			for(int iI = 0; iI < iNumBeliefs; iI++)
-			{
-				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-				{
-					if(pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()))
-					{
-						iBonus += (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()) * 5);
-					}
-					if(pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()))
-					{
-						iBonus += (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()) * 5);
-					}
-					if(pkBuildingInfo->GetGreatWorkSlotType() != NO_GREAT_WORK_SLOT)
-					{
-						if(pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()))
-						{
-							iBonus += (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) * 5);
-						}
-					}
-					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						const YieldTypes eYield = static_cast<YieldTypes>(iI);
-						if(eYield != NO_YIELD)
-						{
-							if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
-							{
-								if (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield))
-								{
-									iBonus += (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield) * 5);
-								}
-								if (m_pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
-								{
-									iBonus += (pEntry->GetYieldChangeAnySpecialist(eYield) * 2);
-								}
-							}
-							if(pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield))
-							{
-								iBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
-							}
-						}
-					}
-					if(pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
-					{
-						iBonus += pEntry->GetWonderProductionModifier();
-					}
-				}
-			}
-		}
-	}
+	int iReligionValue = CityStrategyAIHelpers::GetBuildingReligionValue(m_pCity, eBuilding, kPlayer.GetID());
+
+	iBonus += iReligionValue;
 
 	//////
 	//WAR
@@ -1374,7 +1314,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus -= 250;
 	}
 
-	iValue += iBonus;
+	if (iBonus <= 0)
+		return 1;
+
+	//iValue is the compunded value of the items.
+	iValue *= 100 + (iBonus * iBonus);
+	iValue /= 100;
 
 	return iValue;
 }

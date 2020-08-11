@@ -36,9 +36,9 @@ const int iChancetoIdentifyCounterSpy = 275;
 const int iChancetoDetectCounterSpy = 175;
 const int iChancetoIdentifyNoCounterSpy = 275;
 const int iChancetoDetectNoCounterSpy = 175;
-const int iChancetoKillAA = 250;
-const int iChancetoIdentifyAA = 150;
-const int iSpyRankPower = 125;
+const int iChancetoKillAA = 225;
+const int iChancetoIdentifyAA = 125;
+const int iSpyRankPower = 150;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
@@ -1908,7 +1908,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 
 				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) + 1) * iSpyRankPower;
 
-				int iHeat = 2 - GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner);
+				int iHeat = GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner);
 
 				if (iHeat < pSpy->GetAdvancedActions())
 				{
@@ -2720,7 +2720,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				{
 					int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 
-					int iHeat = 2 - GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner());
+					int iHeat = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner());
 
 					if (iHeat < pSpy->GetAdvancedActions())
 					{
@@ -4978,7 +4978,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 		iMaxChance += iTurnBonus;
 	}
 
-	return iMaxChance;
+	return max(5, iMaxChance);
 }
 
 /// AttemptCoup - Have a spy try to overthrow a city state. If success, the spy's owner becomes the ally. If failure, the spy dies.

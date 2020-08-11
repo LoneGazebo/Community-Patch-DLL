@@ -785,7 +785,7 @@
 			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S">
-			<Text>Musicians arrive from {1_PlayerAdj}!</Text>
+			<Text>{1_PlayerName} Musicians arrive!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">

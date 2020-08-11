@@ -270,7 +270,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		//we assume no city is connected to the capital
 		if (pStartCity->getOwner()==m_pPlayer->GetID())
 		{
-			pStartCity->SetRouteToCapitalConnected(false);
+			pStartCity->SetRouteToCapitalConnected(false, true);
 			pStartCity->SetIndustrialRouteToCapitalConnected(false);
 		}
 
@@ -418,6 +418,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	{
 		//need to check those later
 		std::vector<CvCity*> vConnectedCities;
+		std::vector<CvCity*> vDisconnectedCities;
 
 		//Let's check for road first (railroad also counts as road)
 		//Very important to set up m_connectionState for direct connections first!
@@ -468,6 +469,30 @@ void CvCityConnections::UpdateRouteInfo(void)
 					if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
 						m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
 				}
+			}
+		}
+
+		int iCityLoop;
+		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
+		{
+			bool bDisconnected = true;
+			for (size_t i = 0; i < vConnectedCities.size(); i++)
+			{
+				if (vConnectedCities[i] == pCity)
+				{
+					bDisconnected = false;
+					break;
+				}
+			}
+			if (bDisconnected)
+				vDisconnectedCities.push_back(pCity);
+		}
+		if (vDisconnectedCities.size() > 0)
+		{
+			for (size_t i = 0; i < vDisconnectedCities.size(); i++)
+			{
+				vDisconnectedCities[i]->SetRouteToCapitalConnected(false);
+				vDisconnectedCities[i]->SetIndustrialRouteToCapitalConnected(false);
 			}
 		}
 	}
