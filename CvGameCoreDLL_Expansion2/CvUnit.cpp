@@ -30532,9 +30532,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackBelowHealthMod();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorDefense + 2 * iFlavorOffense);
 		if (isRanged())
-			iExtra *= 0.5;		
+			iExtra *= 0.3;		
 		else
-			iExtra *= 0.3;
+			iExtra *= 0.4;
 		if (noDefensiveBonus())
 			iExtra *= 1.5;
 		iValue += iExtra;
