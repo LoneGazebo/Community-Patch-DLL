@@ -2679,16 +2679,22 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 
 	//to avoid overflow, we have to work a bit differently here
 	int iCost = pkTechInfo->GetResearchCost();
-	int iModifier = 0;
+	int iModifier = 100;
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
 	if(pkHandicapInfo)
-		iModifier += (pkHandicapInfo->getResearchPercent() - 100);
-
-	iModifier += (GC.getMap().getWorldInfo().getResearchPercent() - 100);
-	iModifier += (GC.getGame().getGameSpeedInfo().getResearchPercent() - 100);
-	iModifier += (GC.getGame().getStartEraInfo().getResearchPercent() - 100);
-	iModifier += std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1));
+	{
+		iModifier *= (pkHandicapInfo->getResearchPercent());
+		iModifier /= 100;
+	}
+	iModifier *= (GC.getMap().getWorldInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (GC.getGame().getGameSpeedInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (GC.getGame().getStartEraInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (100 + std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)));
+	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
 	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
@@ -2696,10 +2702,10 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 
 	if (iCost<10000)
 		//avoid rounding errors
-		return std::max(1, iCost + (iCost*iModifier)/100);
+		return std::max(1, (iCost*iModifier)/100);
 	else
 		//avoid overflow
-	return std::max(1, iCost + (iCost/100)*iModifier);
+	return std::max(1, (iCost/100)*iModifier);
 }
 
 #if defined(MOD_CIV6_EUREKA)

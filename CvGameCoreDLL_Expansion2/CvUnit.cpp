@@ -30382,7 +30382,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 		{
 			iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 1.5; 		// In order to buff dreadnought slightly
+			iExtra *= 1; 	
 		}
 		iValue += iExtra;
 		
@@ -30421,7 +30421,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraOpenAttackPercent();
 		iExtra = (iTemp + iExtra) * (iFlavorOffense + iFlavorDefense + iFlavorMobile);
-		iExtra *= 0.3;
+		iExtra *= 0.4;
 		if(noDefensiveBonus())
 		{
 			iExtra *= 2;
@@ -30532,9 +30532,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackBelowHealthMod();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorDefense + 2 * iFlavorOffense);
 		if (isRanged())
-			iExtra *= 0.5;		// Had to artificially increase this as barrage sucks
+			iExtra *= 0.5;		
 		else
-			iExtra *= 0.4;
+			iExtra *= 0.3;
 		if (noDefensiveBonus())
 			iExtra *= 1.5;
 		iValue += iExtra;
@@ -30636,7 +30636,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = iTemp  * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
-		iExtra *= 0.1;
+		iExtra *= 0.08;
 		iValue += iExtra;
 	}
 
@@ -30645,7 +30645,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 10;
+		iExtra *= 8;
 		iValue += iExtra;
 	}
 	
@@ -30718,7 +30718,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if (isRanged())
 			{
 			iExtra = iTemp * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
-			iExtra *= 70;
+			iExtra *= 80;
 			}
 		else
 			{
@@ -30737,7 +30737,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0 && isRanged())
 	{
 		iExtra = iTemp * ( 3 * iFlavorRanged );
-		iExtra *= 100;
+		iExtra *= 120;
 		iExtra /= max(1,GetRange());
 		iValue += iExtra;
 	
@@ -30747,7 +30747,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// R + S: Indirect Fire.
 	{
 		iExtra = (iFlavorRanged * 2 + iFlavorOffense);
-		iExtra *= 10;
+		iExtra *= 30;
 		iExtra *= GetRange();
 		iValue += iExtra;
 	}
@@ -30944,45 +30944,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsAmphib())     
 	// M: Amphibious.
 	{
-		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_ATTACK))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			iValue += iFlavorMobile * 2;
-#else
-			iValue += 40 + iFlavorOffense * 2;
-#endif
-		}
-		else
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += iFlavorMobile;
-#else
-			iValue += 10 + iFlavorOffense * 2;
-#endif
-		}
+		iExtra = (iFlavorNaval * 2 + iFlavorOffense);
+		iExtra *= 8;
+		iValue += iExtra;		
 	}
 
 	if(pkPromotionInfo->IsRiver())
 	// M: Amphibious.
 	{
-		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_ATTACK))
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += iFlavorMobile * 2;
-#else
-			iValue += 40 + iFlavorOffense * 2;
-#endif
-		}
-		else
-		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += iFlavorMobile;
-#else
-			iValue += 10 + iFlavorOffense * 2;
-#endif
-		}
+		iExtra = (iFlavorMobile * 2 + iFLavorOffense);
+		iExtra *= 4;
+		iExtra *= maxMoves()
+		iValue += iExtra;	
 	}
 
 
