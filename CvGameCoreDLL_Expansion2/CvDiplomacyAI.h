@@ -1217,6 +1217,7 @@ public:
 
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
 	bool IsEndVassalageRequestAcceptable(PlayerTypes eHuman);
+	void DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1644,8 +1645,8 @@ public:
 	void SetDeclarationLogTurnForIndex(int iIndex, int iNewValue);
 	void ChangeDeclarationLogTurnForIndex(int iIndex, int iChange);
 
-	CvDeal* GetDealToRenew(int* piDealType = NULL, PlayerTypes eOtherPlayer = NO_PLAYER);
-	void ClearDealToRenew();
+	CvDeal* GetDealToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
+	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false);
 
 	void KilledPlayerCleanup (PlayerTypes eKilledPlayer);
 

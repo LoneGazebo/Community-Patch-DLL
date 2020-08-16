@@ -1229,33 +1229,33 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * pPlayer->GetNumGoldenAges() * 5;
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * max(1, pPlayer->GetNumGoldenAges()) * 5;
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * pPlayer->GetNumGoldenAges() * 2;
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * max(1, pPlayer->GetNumGoldenAges()) * 2;
 		}
 	}
 	if (PolicyInfo->GetGoldenAgeMeterMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * 2 * pPlayer->GetNumGoldenAges();
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * 2 * max(1, pPlayer->GetNumGoldenAges());
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * pPlayer->GetNumGoldenAges();
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
 	if (PolicyInfo->GetGoldenAgeDurationMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 4 * pPlayer->GetNumGoldenAges();
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 4 * max(1, pPlayer->GetNumGoldenAges());
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 2 * pPlayer->GetNumGoldenAges();
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 2 * max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
 
@@ -1406,7 +1406,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGreatWriterRateModifier() * 3 + pPlayer->getGreatWritersCreated(true);
+			yield[YIELD_TOURISM] += PolicyInfo->GetGreatWriterRateModifier() * 5 + pPlayer->getGreatWritersCreated(true);
 		}
 		else
 		{
@@ -1417,7 +1417,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGreatArtistRateModifier() * 3 + pPlayer->getGreatArtistsCreated(true);
+			yield[YIELD_TOURISM] += PolicyInfo->GetGreatArtistRateModifier() * 5 + pPlayer->getGreatArtistsCreated(true);
 		}
 		else
 		{
@@ -1428,7 +1428,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGreatMusicianRateModifier() * 3 + pPlayer->getGreatMusiciansCreated(true);
+			yield[YIELD_TOURISM] += PolicyInfo->GetGreatMusicianRateModifier() * 5 + pPlayer->getGreatMusiciansCreated(true);
 		}
 		else
 		{
@@ -1731,7 +1731,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetArchaeologicalDigTourism() * 5 * pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+			yield[YIELD_TOURISM] += PolicyInfo->GetArchaeologicalDigTourism() * 10 * pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
 		}
 		else
 		{
@@ -1742,7 +1742,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTourism() * 25 * pPlayer->GetNumGoldenAges();
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTourism() * 33 * pPlayer->GetNumGoldenAges();
 		}
 		else
 		{
@@ -1821,7 +1821,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetHappinessPerXGreatWorks() * 20;
+			yield[YIELD_FOOD] += PolicyInfo->GetHappinessPerXGreatWorks() * 25;
 		}
 		else
 		{
@@ -2330,11 +2330,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetThemingBonusMultiplier() * (pPlayer->GetCulture()->GetTotalThemingBonuses() / 2);
+			yield[YIELD_TOURISM] += PolicyInfo->GetThemingBonusMultiplier() * (pPlayer->GetCulture()->GetTotalThemingBonuses());
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetThemingBonusMultiplier() * (pPlayer->GetCulture()->GetTotalThemingBonuses() / 5);
+			yield[YIELD_TOURISM] += PolicyInfo->GetThemingBonusMultiplier() * (pPlayer->GetCulture()->GetTotalThemingBonuses() / 2);
 		}
 	}
 	if (PolicyInfo->GetInternalTradeRouteYieldModifier() != 0)
@@ -2542,7 +2542,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetHappinessToCulture() * 4;
+			yield[YIELD_CULTURE] += PolicyInfo->GetHappinessToCulture() * 5;
 		}
 		else
 		{
@@ -3529,7 +3529,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[YIELD_TOURISM] += 4 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
+				yield[YIELD_TOURISM] += 5 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
 			}
 			else
 			{
@@ -4125,7 +4125,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += (iPopulation * 25) / PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield);
 			}
 		}
-		if (PolicyInfo->GetCapitalYieldModifier(eYield) != 0)
+		if (PolicyInfo->GetCapitalYieldModifier(eYield) != 0) 
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
@@ -4140,11 +4140,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 10 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 20 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 5 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 10 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 		}
 		if (PolicyInfo->GetSpecialistExtraYield(eYield) != 0)
@@ -4217,7 +4217,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * 2 * max(2, (iNumWonders / 2));
+				yield[eYield] += PolicyInfo->GetYieldFromWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
 			}
 			else
 			{
@@ -4294,7 +4294,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetGoldenAgeYieldMod(eYield) * 2 * iNumCities;
+				yield[eYield] += PolicyInfo->GetGoldenAgeYieldMod(eYield) * 5 * iNumCities;
 			}
 			else
 			{
@@ -4349,7 +4349,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * 3 * max(1, pPlayer->GetNumWonders());
+				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * 5 * max(1, pPlayer->GetNumWonders());
 			}
 			else
 			{
@@ -4382,7 +4382,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetArtifactYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetArtifactYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4393,7 +4393,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetArtYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetArtYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4404,7 +4404,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetMusicYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetMusicYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4415,7 +4415,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetLitYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetLitYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4426,7 +4426,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetFilmYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetFilmYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4437,7 +4437,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield) * 2;
+				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield) * 4;
 			}
 			else
 			{
@@ -4459,7 +4459,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 12 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 15 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 			else
 			{

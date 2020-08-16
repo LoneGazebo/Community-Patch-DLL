@@ -41,12 +41,13 @@ public:
 	int GetDealPercentLeeway(PlayerTypes eOtherPlayer) const;
 
 	bool WithinAcceptableRange(PlayerTypes ePlayer, int iValue);
+	bool BothSidesIncluded(CvDeal* pDeal);
 	bool TooMuchAdded(PlayerTypes ePlayer, int iTotalValue, int iItemValue, bool bFromUs = false);
 
 	// Offer deal to this AI player and see what his response is
 
 	DealOfferResponseTypes DoHumanOfferDealToThisAI(CvDeal* pDeal);
-	void DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
+	void DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
 
 	DemandResponseTypes DoHumanDemand(CvDeal* pDeal);
 	void DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal);
@@ -118,10 +119,10 @@ public:
 	void DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	void DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGPTAlreadyInTrade);
-	void DoRemoveGPTFromUs(CvDeal* pDeal, PlayerTypes eThem, int& iNumGPTAlreadyInTrade);
+	void DoRemoveGPTFromUs(CvDeal* pDeal, int& iNumGPTAlreadyInTrade);
 
 	void DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGoldAlreadyInTrade);
-	void DoRemoveGoldFromUs(CvDeal* pDeal, PlayerTypes eThem, int& iNumGoldAlreadyInTrade);
+	void DoRemoveGoldFromUs(CvDeal* pDeal, int& iNumGoldAlreadyInTrade);
 
 	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
@@ -170,6 +171,7 @@ public:
 	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 #if defined(MOD_BALANCE_CORE)
 	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 #endif
@@ -179,6 +181,11 @@ public:
 	void DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+
+	void DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+
+	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 #endif
 
 protected:

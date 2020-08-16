@@ -1067,19 +1067,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				break;
 			case YIELD_FAITH:
+
+				if (kPlayer.isMinorCiv())
+				{
+					iYieldTrait = 0;
+					iYieldValue /= 10;
+					break;
+				}
 				if (iReligion > 0)
 				{
 					iYieldValue += iHappinessReduction * 50;
-
-					//explicit check for stonehenge.
-					if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
-						iReligion /= 50;
 
 					iYieldValue += (iReligion * 10);
 					iYieldTrait += (iReligion * 10);
 
 					bGoodforHappiness = true;
 				}
+
+				//explicit check for stonehenge.
+				if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
+					iReligion /= 50;
+
 				break;
 			case YIELD_CULTURE:
 				if (iBoredom > 0)

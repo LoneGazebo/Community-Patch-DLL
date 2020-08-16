@@ -56,8 +56,6 @@ CvTradedItem::CvTradedItem()
 	m_iData3 = 0;
 	m_bFlag1 = false;
 	m_eFromPlayer = NO_PLAYER;
-	m_bFromRenewed = false;
-	m_bToRenewed = false;
 	m_iValue = INT_MAX;
 	m_bValueIsEven = false;
 }
@@ -83,8 +81,6 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvTradedItem& writeTo)
 	loadFrom >> writeTo.m_iData1;
 	loadFrom >> writeTo.m_iData2;
 	loadFrom >> writeTo.m_eFromPlayer;
-	writeTo.m_bFromRenewed = false;
-	writeTo.m_bToRenewed = false;
 	return loadFrom;
 }
 
@@ -110,8 +106,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTradedItem& writeTo)
 		writeTo.m_bFlag1 = false;
 	}
 	loadFrom >> writeTo.m_eFromPlayer;
-	loadFrom >> writeTo.m_bFromRenewed;
-	loadFrom >> writeTo.m_bToRenewed;
 	return loadFrom;
 }
 
@@ -129,8 +123,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTradedItem& readFrom)
 	saveTo << readFrom.m_iData3;
 	saveTo << readFrom.m_bFlag1;
 	saveTo << readFrom.m_eFromPlayer;
-	saveTo << readFrom.m_bFromRenewed;
-	saveTo << readFrom.m_bToRenewed;
 	return saveTo;
 }
 
@@ -151,7 +143,7 @@ CvDeal::CvDeal()
 	m_iStartTurn = 0;
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-	m_bDealCancelled = false;
+	m_bRealDeal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 #endif
@@ -165,7 +157,7 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 	m_TradedItems.clear();
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-	m_bDealCancelled = false;
+	m_bRealDeal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
@@ -189,7 +181,7 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-	m_bDealCancelled = source.m_bDealCancelled;
+	m_bRealDeal = source.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
@@ -224,7 +216,7 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-	m_bDealCancelled = source.m_bDealCancelled;
+	m_bRealDeal = source.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
@@ -252,7 +244,7 @@ void CvDeal::ClearItems()
 	m_iStartTurn = -1;
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-	m_bDealCancelled = false;
+	m_bRealDeal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
@@ -394,19 +386,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
-#if !defined(MOD_BALANCE_CORE) 
-	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
-	if (!pRenewDeal)
-	{
-		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool bHumanToHuman = false;
 	if(pFromPlayer->isHuman() && pToPlayer->isHuman())
 	{
 		bHumanToHuman = true;
 	}
+
+	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(eToPlayer);
 #endif
 
 	if (this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && eItem != TRADE_ITEM_PEACE_TREATY && !ContainsItemType(TRADE_ITEM_PEACE_TREATY))
@@ -473,8 +460,19 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		// Can't trade more GPT than you're making
 		int iGoldPerTurn = iData1;
-		if(iGoldPerTurn != -1 && pFromPlayer->calculateGoldRate() < iGoldPerTurn)
+		//if a renewal deal, subtract the gold already included in the renewal.
+		int iGoldRate = pFromPlayer->calculateGoldRate();
+		if (pRenewDeal && pRenewDeal->GetGoldPerTurnTrade(ePlayer) > 0)
+			iGoldRate += pRenewDeal->GetGoldPerTurnTrade(ePlayer);
+
+		if (iGoldPerTurn != -1 && iGoldRate < iGoldPerTurn)
+		{
+			if (pRenewDeal)
+			{
+				OutputDebugString("Renewal failed because of GPT \n");
+			}
 			return false;
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
@@ -549,53 +547,28 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 			}
 
-			//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
-
-			int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
-#if !defined(MOD_BALANCE_CORE) 
-			int iNumInExistingDeal = 0;
-			int iNumInRenewDeal = 0;
+			int iNumAvailable = 0;
+			//if a renewal deal, add the resources already included in the renewal.
 			if (pRenewDeal)
 			{
-				// count any that are in the renew deal
-				TradedItemList::iterator it;
-				for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
-				{
-					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-					{
-						// credit the amount
-						iNumInRenewDeal += it->m_iData2;
-					}
-				}
-
-				// remove any that are in this deal
-				for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-				{
-					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-					{
-						iNumInExistingDeal += it->m_iData2;
-					}
-				}
-				if(iNumInRenewDeal > 0)
-				{
-					// Offering up more of a Resource than we have available
-					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < 0)
-						return false;
-				}
-				else
-				{
-					// Offering up more of a Resource than we have available
-					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
-						return false;
-				}
+				iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+				int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
+				if (iResourcesAlreadyInDeal > 0)
+					iNumAvailable += iResourcesAlreadyInDeal;
 			}
 			else
-#endif
+				iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+			
+			// Offering up more of a Resource than we have available
+			if (iNumAvailable < iResourceQuantity)
 			{
-				// Offering up more of a Resource than we have available
-				if(iNumAvailable < iResourceQuantity)
-					return false;
+				if (pRenewDeal)
+				{
+					OutputDebugString("Renewal failed because of missing resources \n");
+				}
+				return false;
 			}
+			
 			
 			// Must be a Luxury or a Strategic Resource
 			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
@@ -604,23 +577,22 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if(eUsage == RESOURCEUSAGE_LUXURY)
 			{
-#if !defined(MOD_BALANCE_CORE) 
+				int iNumAvailableOther = 0;
+				//if a renewal deal, subtract the resources already included in the renewal.
 				if (pRenewDeal)
 				{
-					// Can't trade Luxury if the other player already has one
-					if((pToPlayer->getNumResourceAvailable(eResource) - iNumInRenewDeal) > 0)
-					{
-						return false;
-					}
+					iNumAvailableOther = pToPlayer->getNumResourceAvailable(eResource);
+					int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
+					if (iResourcesAlreadyInDeal > 0)
+						iNumAvailableOther -= iResourcesAlreadyInDeal;
 				}
 				else
-#endif
+					iNumAvailableOther = pToPlayer->getNumResourceAvailable(eResource);
+
+				// Can't trade Luxury if the other player already has one
+				if (iNumAvailableOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 				{
-					// Can't trade Luxury if the other player already has one
-					if(pToPlayer->getNumResourceAvailable(eResource) > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 
@@ -766,26 +738,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		
 		bool bIgnoreExistingOP = true;
-#if !defined(MOD_BALANCE_CORE)
-		if (pRenewDeal)
-		{
-			// count any that are in the renew deal
-			int iEndingTurn = -1;
-			TradedItemList::iterator it;
-			for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
-			{
-				if(it->m_eItemType == TRADE_ITEM_OPEN_BORDERS && (it->m_eFromPlayer == ePlayer || it->m_eFromPlayer == eToPlayer == ePlayer))
-				{
-					iEndingTurn = it->m_iFinalTurn;
-				}
-			}
-
-			if (iEndingTurn == GC.getGame().getGameTurn())
-			{
-				bIgnoreExistingOP = false;
-			}
-		}
-#endif
 
 		// Already has OB
 		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)
@@ -2497,7 +2449,7 @@ bool CvDeal::IsPotentiallyRenewable()
 		switch(GetItemTradeableState(it->m_eItemType))
 		{
 		case DEAL_NONRENEWABLE:
-			return false;
+			break;
 		case DEAL_RENEWABLE:
 			bHasValidTradeItem = true;
 			break;
@@ -2718,7 +2670,7 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_iDuration;
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_bConsideringForRenewal;
-	loadFrom >> writeTo.m_bDealCancelled;
+	loadFrom >> writeTo.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	loadFrom >> writeTo.m_bIsGift;
 #endif
@@ -2760,7 +2712,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 	{
 		writeTo.m_bCheckedForRenewal = false;
 	}
-	loadFrom >> writeTo.m_bDealCancelled;
+	loadFrom >> writeTo.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	loadFrom >> writeTo.m_bIsGift;
 #endif
@@ -2800,7 +2752,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_iStartTurn;
 	saveTo << readFrom.m_bConsideringForRenewal;
 	saveTo << readFrom.m_bCheckedForRenewal;
-	saveTo << readFrom.m_bDealCancelled;
+	saveTo << readFrom.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	saveTo << readFrom.m_bIsGift;
 #endif
@@ -3039,11 +2991,6 @@ bool CvDeal::AreAllTradeItemsValid()
 	TradedItemList::iterator iter;
 	for (iter = m_TradedItems.begin(); iter != m_TradedItems.end(); ++iter)
 	{
-		if (iter->m_bToRenewed)  // slewis - added exception in case of something that was renewed
-		{
-			continue;
-		}
-
 		if (!IsPossibleToTradeItem(iter->m_eFromPlayer, GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
 			return false;
 	}
@@ -3098,6 +3045,9 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 
 void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs)
 {
+	if (!bAccepted)
+		return;
+
 	// Determine total duration of the Deal
 	int iLatestItemLastTurn = 0;
 	int iLongestDuration = 0;
@@ -3147,12 +3097,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		{
 			for(it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 			{
-				// if the deal is renewed do not start it up
-				if(it->m_bToRenewed)
-				{
-					continue;
-				}
-
 				eAcceptedFromPlayer = it->m_eFromPlayer;
 				eAcceptedToPlayer = kDeal.GetOtherPlayer(eAcceptedFromPlayer);
 				eFromTeam = GET_PLAYER(eAcceptedFromPlayer).getTeam();
@@ -3240,13 +3184,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 
 	for(it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 	{
-		// if the deal is renewed do not start it up
-		if(it->m_bToRenewed)
-		{
-			LogDealFailed(&kDeal, true, !bAccepted, false);	
-			continue;
-		}
-
 		eAcceptedFromPlayer = it->m_eFromPlayer;
 		eAcceptedToPlayer = kDeal.GetOtherPlayer(eAcceptedFromPlayer);
 		eFromTeam = GET_PLAYER(eAcceptedFromPlayer).getTeam();
@@ -3771,20 +3708,18 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 
 	if(bFoundIt)
 	{
-
-		TradedItemList::iterator iter;
-		for(iter = kDeal.m_TradedItems.begin(); iter != kDeal.m_TradedItems.end(); ++iter)
+		//we've already done this.
+		if (!kDeal.m_bCheckedForRenewal)
 		{
-			if(iter->m_bToRenewed)  // slewis - added exception in case of something that was renewed
+			TradedItemList::iterator iter;
+			for (iter = kDeal.m_TradedItems.begin(); iter != kDeal.m_TradedItems.end(); ++iter)
 			{
-				continue;
-			}
-
-			if(!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
-			{
-				// mark that the deal is no longer valid. We will still delete the deal but not commit its actions
-				bValid = false;
-				break;
+				if (!kDeal.IsPossibleToTradeItem(iter->m_eFromPlayer, kDeal.GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
+				{
+					// mark that the deal is no longer valid. We will still delete the deal but not commit its actions
+					bValid = false;
+					break;
+				}
 			}
 		}
 
@@ -3857,12 +3792,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				{
 					for(it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 					{
-						// if the deal is renewed do not start it up
-						if(it->m_bToRenewed)
-						{
-							continue;
-						}
-
 						eAcceptedFromPlayer = it->m_eFromPlayer;
 						eAcceptedToPlayer = kDeal.GetOtherPlayer(eAcceptedFromPlayer);
 						eFromTeam = GET_PLAYER(eAcceptedFromPlayer).getTeam();
@@ -3949,12 +3878,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #endif
 			for(it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 			{
-				// if the deal is renewed do not start it up
-				if(it->m_bToRenewed)
-				{
-					continue;
-				}
-
 				eAcceptedFromPlayer = it->m_eFromPlayer;
 				eAcceptedToPlayer = kDeal.GetOtherPlayer(eAcceptedFromPlayer);
 				eFromTeam = GET_PLAYER(eAcceptedFromPlayer).getTeam();
@@ -4505,9 +4428,51 @@ void CvGameDeals::DoTurn()
 
 		int iGameTurn = GC.getGame().getGameTurn();
 
-		// Check to see if any of our TradeItems in any of our Deals expire this turn
+		// Check to see if any of our RENEWABLE TradeItems in any of our Deals expire this turn
+		for (it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
+		{
+			it->m_bConsideringForRenewal = false;
+
+			//humans deal with their own renewals - no diplo AI prompting.
+			bool bHumanToHuman = false;
+			if (GET_PLAYER(it->GetFromPlayer()).isHuman() && GET_PLAYER(it->GetToPlayer()).isHuman())
+				bHumanToHuman = true;
+
+			//if we can renew this deal, we're going to send it to the Diplo AI first.
+			if (!bHumanToHuman && !it->IsPotentiallyRenewable())
+				continue;
+
+			// if this deal is a gift or peace deal, move on.
+			if (it->m_bIsGift || it->IsPeaceTreatyTrade(it->GetFromPlayer()) || it->IsPeaceTreatyTrade(it->GetToPlayer()))
+			{
+				continue;
+			}
+
+			TradedItemList::iterator itemIter;
+			for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+			{
+				int iFinalTurn = itemIter->m_iFinalTurn;
+				CvAssertMsg(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+				CvAssertMsg(iFinalTurn < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a final turn way beyond the end of the game.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+				CvAssertMsg(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+				CvAssertMsg(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+				if (iFinalTurn > -1 && iFinalTurn == iGameTurn)
+				{
+					bSomethingChanged = true;
+					it->m_bConsideringForRenewal = true;
+					break;
+				}
+			}
+		}
+
+		// Check to see if any of our NONRENEWABLE TradeItems in any of our Deals expire this turn
 		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
+			//if we can renew this deal, we're going to send it to the Diplo AI first.
+			if (it->m_bConsideringForRenewal)
+				continue;
+
 			TradedItemList::iterator itemIter;
 			for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 			{
@@ -4519,9 +4484,6 @@ void CvGameDeals::DoTurn()
 
 				if(iFinalTurn > -1 && iFinalTurn == iGameTurn)
 				{
-					//eTempItem = itemIter->m_eItemType;
-					//iTemp = iFinalTurn;
-
 					bSomethingChanged = true;
 
 					eFromPlayer = itemIter->m_eFromPlayer;
@@ -4533,15 +4495,15 @@ void CvGameDeals::DoTurn()
 		}
 
 		// check to see if one of our deals in no longer valid
-		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
+		for (it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
 			TradedItemList::iterator itemIter;
 			bool bInvalidDeal = false;
 			bool bUnbreakable = false;
-			for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+			for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 			{
 				int iFinalTurn = itemIter->m_iFinalTurn;
-				if(iFinalTurn > -1 && iFinalTurn != iGameTurn)  // if this was the last turn the deal was ending anyways
+				if (iFinalTurn > -1 && iFinalTurn != iGameTurn)  // if this was the last turn the deal was ending anyways
 				{
 					eFromPlayer = itemIter->m_eFromPlayer;
 					// check to see if we are negative on resource or gold
@@ -4554,32 +4516,31 @@ void CvGameDeals::DoTurn()
 					//}
 					// Resource
 					/*else */
-					if(itemIter->m_eItemType == TRADE_ITEM_RESOURCES)
+					if (itemIter->m_eItemType == TRADE_ITEM_RESOURCES)
 					{
-						ResourceTypes eResource = (ResourceTypes) itemIter->m_iData1;
+						ResourceTypes eResource = (ResourceTypes)itemIter->m_iData1;
 						//int iResourceQuantity = itemIter->m_iData2;
 						bHaveEnoughResource = GET_PLAYER(eFromPlayer).getNumResourceTotal(eResource) >= 0;
 					}
-					else if(itemIter->m_eItemType == TRADE_ITEM_PEACE_TREATY)
+					else if (itemIter->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 					{
 						bUnbreakable = true;
 						break;
 					}
 
-					if(!bHaveEnoughGold || !bHaveEnoughResource)
+					if (!bHaveEnoughGold || !bHaveEnoughResource)
 					{
 						bInvalidDeal = true;
 					}
 				}
 			}
 
-			if(!bUnbreakable && bInvalidDeal)
+			if (!bUnbreakable && bInvalidDeal)
 			{
 				bSomethingChanged = true;
 				it->m_iFinalTurn = iGameTurn;
-				it->m_bDealCancelled = true;
 
-				for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+				for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 				{
 					// Cancel individual items
 					itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
@@ -4604,6 +4565,11 @@ void CvGameDeals::DoTurn()
 
 		DoUpdateCurrentDealsList();
 	}
+}
+
+/// Update deals for after DiploAI
+void CvGameDeals::DoTurnPost()
+{
 }
 
 PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
@@ -4701,11 +4667,11 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	m_CurrentDeals.clear();
 	for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(it->m_iFinalTurn < 0)
+		//empty deals should be cleared out.
+		if (it->GetNumItems() <= 0)
 			continue;
-#endif
-		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
+
+		if (it->m_iFinalTurn <= GC.getGame().getGameTurn() && (!it->m_bConsideringForRenewal || it->m_bCheckedForRenewal))
 		{
 			m_HistoricalDeals.push_back(*it);
 		}
@@ -4906,13 +4872,6 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	TeamTypes eToTeam = toPlayer.getTeam();
 
 	CvNotifications* pNotifications = NULL;
-
-	pItem->m_bToRenewed = false; // if this item is properly ended, then don't have it marked with "to renew"
-
-	if(pItem->m_bFromRenewed)
-	{
-		return;
-	}
 
 	// Gold Per Turn
 	if(pItem->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
@@ -5163,13 +5122,8 @@ int CvGameDeals::GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1
 }
 
 /// Mark elements in the deal as renewed depending on if they are in both deals
-void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal)
+void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 {
-	// Cancel individual items
-	// HACK HACK HACK
-	// bad slewis! bad! bad!!
-	CvDeal* pNonConstNewDeal = (CvDeal*)pNewDeal;
-	// end HACK HACK HACK
 
 	CvAssertMsg(pOldDeal->m_eFromPlayer == pNewDeal->m_eFromPlayer, "Deal is not to the same from players");
 	CvAssertMsg(pOldDeal->m_eToPlayer == pNewDeal->m_eToPlayer, "Deal is not to the same to players");
@@ -5187,7 +5141,7 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal)
 		}
 
 		TradedItemList::iterator newDealItemIter;
-		for(newDealItemIter = pNonConstNewDeal->m_TradedItems.begin(); newDealItemIter != pNonConstNewDeal->m_TradedItems.end(); ++newDealItemIter)
+		for (newDealItemIter = pNewDeal->m_TradedItems.begin(); newDealItemIter != pNewDeal->m_TradedItems.end(); ++newDealItemIter)
 		{
 			// if this is not a renewable item, ignore
 			if(CvDeal::GetItemTradeableState(newDealItemIter->m_eItemType) != CvDeal::DEAL_RENEWABLE)
@@ -5220,52 +5174,44 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal)
 				ResourceTypes eResource = (ResourceTypes)oldDealItemIter->m_iData1;
 
 				// quantity
-				if(oldDealItemIter->m_iData2 != newDealItemIter->m_iData2)
+				int iOldResourceAmount = oldDealItemIter->m_iData2;
+				if(oldDealItemIter->m_eFromPlayer == pOldDeal->m_eFromPlayer)
 				{
-					int iResourceDelta = newDealItemIter->m_iData2 - oldDealItemIter->m_iData2;
-					if(oldDealItemIter->m_eFromPlayer == pOldDeal->m_eFromPlayer)
-					{
-						fromPlayer.changeResourceExport(eResource, iResourceDelta);
-						toPlayer.changeResourceImportFromMajor(eResource, iResourceDelta);
-					}
-					else
-					{
-						toPlayer.changeResourceExport(eResource, iResourceDelta);
-						fromPlayer.changeResourceImportFromMajor(eResource, iResourceDelta);
-					}
+					fromPlayer.changeResourceExport(eResource, iOldResourceAmount*-1);
+					toPlayer.changeResourceImportFromMajor(eResource, iOldResourceAmount*-1);
+				}
+				else
+				{
+					toPlayer.changeResourceExport(eResource, iOldResourceAmount*-1);
+					fromPlayer.changeResourceImportFromMajor(eResource, iOldResourceAmount*-1);
 				}
 			}
 
 			if(oldDealItemIter->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
 			{
 				int iOldGPTAmount = oldDealItemIter->m_iData1;
-				int iNewGPTAmount = newDealItemIter->m_iData1;
 
-				// has the amount of gold amount changed?
-				if(iOldGPTAmount != iNewGPTAmount)
+				if(oldDealItemIter->m_eFromPlayer == pOldDeal->m_eFromPlayer)
 				{
-					int iGoldPerTurnDelta = iNewGPTAmount - iOldGPTAmount;
-					if(oldDealItemIter->m_eFromPlayer == pOldDeal->m_eFromPlayer)
-					{
-						fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurnDelta);
-						toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurnDelta);
-					}
-					else
-					{
-						toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurnDelta);
-						fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurnDelta);
-					}
+					fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iOldGPTAmount);
+					toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iOldGPTAmount * -1);
+				}
+				else
+				{
+					toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iOldGPTAmount);
+					fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iOldGPTAmount * -1);
 				}
 			}
-
-			// mark the deals as appropriately renewed
-			newDealItemIter->m_bToRenewed = true;
-			oldDealItemIter->m_bFromRenewed = true;
 
 			// break because we found the match and can continue on
 			break;
 		}
 	}
+
+	OutputDebugString("Renewal deal ready.");
+	pNewDeal->m_bCheckedForRenewal = true;
+	pOldDeal->m_bCheckedForRenewal = true;
+
 }
 
 
@@ -5486,7 +5432,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #endif
 		}
 
-		strTemp.Format("DEAL COMPLETE: Deal Value: %d", iTotalValue);
+		strTemp.Format("DEAL COMPLETE: Deal Net Value: %d, From Player Value: %d, To Player Value: %d", iTotalValue, pDeal->GetFromPlayerValue(), pDeal->GetToPlayerValue());
 		strOutBuf = strTemp;
 
 		pLog->Msg(strOutBuf);
@@ -6030,6 +5976,78 @@ uint CvGameDeals::GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes
 
 	return iCount;
 }
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+uint CvGameDeals::GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount)
+
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	uint iCount = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if (!iter->m_bConsideringForRenewal)
+			continue;
+
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			++iCount;
+			if (iCount == iMaxCount)
+				break;
+		}
+	}
+
+	return iCount;
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+CvDeal* CvGameDeals::GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index)
+{
+	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		//iterate backwards, usually the latest deals are most interesting
+		uint iCount = 0;
+		for (int i = m_CurrentDeals.size() - 1; i >= 0; --i)
+		{
+			CvDeal& kDeal = m_CurrentDeals[i];
+
+			if (!kDeal.m_bConsideringForRenewal)
+				continue;
+
+			if ((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) &&
+				(kDeal.m_eToPlayer == eOtherPlayer || kDeal.m_eFromPlayer == eOtherPlayer) &&
+				(iCount++ == index))
+			{
+				return &kDeal;
+			}
+		}
+	}
+	else
+	{
+		DealList::iterator iter;
+		DealList::iterator end = m_CurrentDeals.end();
+
+		uint iCount = 0;
+		for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+		{
+			if (!iter->m_bConsideringForRenewal)
+				continue;
+
+			if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+				(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer) &&
+				(iCount++ == index))
+			{
+				return &(*iter);
+			}
+		}
+	}
+	return NULL;
+}
+
 
 //------------------------------------------------------------------------------
 uint CvGameDeals::CreateDeal()

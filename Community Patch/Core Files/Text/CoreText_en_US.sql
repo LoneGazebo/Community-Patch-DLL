@@ -1490,3 +1490,9 @@ WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
 UPDATE Language_en_US
 SET Text = 'Very well.'
 WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
+
+
+UPDATE Language_en_US
+SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
+WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
+

@@ -25243,81 +25243,57 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 
 	// Offer to renew an existing trade deal
-	else if(eStatement == DIPLO_STATEMENT_RENEW_DEAL)
+	else if (eStatement == DIPLO_STATEMENT_RENEW_DEAL)
 	{
 		if(bHuman)
 		{
 			int iDealValueToMe;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
 			bool bCantMatchOffer;
-#if defined(MOD_BALANCE_CORE)
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, &bCantMatchOffer, false);
-#else
-			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
-#endif
 
 			if(bDealAcceptable)
 			{
 				eMessageType = DIPLO_MESSAGE_RENEW_DEAL;
 			}
 			// We want more from this deal
-			else if(iDealValueToMe > -75)
+			else if(iDealValueToMe < 0)
 			{
 				eMessageType = DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL;
-			}
-			else
-			{
-				CvDeal* pRenewDeal = GetDealToRenew(NULL, ePlayer);
-				if (pRenewDeal)
-				{
-					pRenewDeal->m_bCheckedForRenewal = true;
-				}
-				ClearDealToRenew();
 			}
 
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
 			{
-				CvDeal* pRenewDeal = GetDealToRenew(NULL, ePlayer);
-				if (pRenewDeal)
-				{
-					pRenewDeal->m_bCheckedForRenewal = true;
-				}
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+			}
+			else
+			{
+				CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 			}
 		}
 		// Offer to an AI player
 		else
 		{
 			CvDeal kDeal = *pDeal;
-			int iDealType = -1;
-			CvDeal* pRenewedDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(&iDealType, ePlayer);
+			CvDeal* pRenewedDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer);
 			if(pRenewedDeal)
 			{
-				if (iDealType != 0) // this is not a historic deal, so don't change the resource allocations
-				{
-					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer), &kDeal);
-				}
-				pRenewedDeal->m_bCheckedForRenewal = true;
-				m_pPlayer->GetDiplomacyAI()->ClearDealToRenew();
-			}
+				CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer), &kDeal);
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
-			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-			{
-				GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
+				if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+				{
+					GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
+				}
+				else
+				{
+					// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+					GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+					GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+				}
 			}
 			else
-			{
-				// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-				GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
-			}
-#else
-			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
-#endif
+				CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 		}
 	}
 
@@ -26150,6 +26126,38 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
+	// AI offers to become voluntary vassal of ePlayer
+	else if (MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_ACCEPT_VASSALAGE)
+	{
+		if (bHuman)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_BECOME_VASSAL);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+		}
+		else
+		{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+			{
+				GC.getGame().GetGameDeals().FinalizeMPDeal(*pDeal, true);
+			}
+			else
+			{
+				CvDeal kDeal = *pDeal;
+
+				// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+				GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			}
+#else
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+#endif
+		}
+	}
 	// AI is happy that they were liberated from vassalage
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_LIBERATE_VASSAL)
 	{
@@ -26688,6 +26696,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
 			DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
 			DoVoteTrade(ePlayer, eStatement, pDeal);
+			DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
 		}
 #endif
 		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
@@ -28930,32 +28939,8 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForLuxuryResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_LUXURY_TRADE;
-			int iTurnsBetweenStatements = 10;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
+			int iTurnsBetweenStatements = 20;
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -28994,32 +28979,8 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 			if(IsEmbassyExchangeAcceptable(ePlayer))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EMBASSY_EXCHANGE;
-				int iTurnsBetweenStatements = 15;
-#if defined(MOD_BALANCE_CORE)
-				if(GetNeediness() > 7)
-				{
-					iTurnsBetweenStatements /= 2;
-				}
-				int iMessage = 0;
-				int iMessageMax = MAX_INT;
-				PlayerTypes eLoopPlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-					{
-						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-						if(iMessage < iMessageMax)
-						{
-							iMessageMax = iMessage;
-						}
-					}
-				}
-				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_EMBASSY_OFFER) >= 15)
-#else
-				if ((GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_EMBASSY_OFFER) >= 10)
-#endif			
+				int iTurnsBetweenStatements = 20;
+				if ((GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_EMBASSY_OFFER) >= 20)		
 				{
 					bool bSendStatement = false;
 
@@ -29033,10 +28994,6 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 					else
 						bSendStatement = true;
 
-					// 1 in 2 chance we don't actually send the message (don't want full predictability)
-					if (5 < GC.getGame().getSmallFakeRandNum(10, ePlayer+m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
-						bSendStatement = false;
-
 					if(bSendStatement)
 					{
 						pDeal->AddAllowEmbassy(GetPlayer()->GetID());
@@ -29045,13 +29002,10 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 						eStatement = eTempStatement;
 					}
 					else
-						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
-#if defined(MOD_BALANCE_CORE)
-					if(!bSendStatement)
 					{
+						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
 						pDeal->ClearItems();
 					}
-#endif
 				}
 			}
 		}
@@ -29076,40 +29030,14 @@ void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eSt
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EMBASSY_OFFER;
 			int iTurnsBetweenStatements = 15;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_EMBASSY_EXCHANGE) >= 15)
-#else
 			if ((GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_EMBASSY_EXCHANGE) >= 10)
-#endif		
 			{
 				eStatement = eTempStatement;
 			}
-#if defined(MOD_BALANCE_CORE)
 			else
 			{
 				pDeal->ClearItems();
 			}
-#endif
 		}
 		else
 		{
@@ -29144,33 +29072,8 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_EXCHANGE;
 				int iTurnsBetweenStatements = 25;
-#if defined(MOD_BALANCE_CORE)
-				if(GetNeediness() > 7)
-				{
-					iTurnsBetweenStatements /= 2;
-				}
-				int iMessage = 0;
-				int iMessageMax = MAX_INT;
-				PlayerTypes eLoopPlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-					{
-						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-						if(iMessage < iMessageMax)
-						{
-							iMessageMax = iMessage;
-						}
-					}
-				}
-				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_OPEN_BORDERS_OFFER) >= 25))
-#else
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
-				{
-#if defined(MOD_BALANCE_CORE)				
+				{			
 					// OB on each side
 					pDeal->AddOpenBorders(GetPlayer()->GetID(), iDuration);
 					pDeal->AddOpenBorders(ePlayer, iDuration);
@@ -29196,39 +29099,8 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					else
 					{
 						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
-					}
-					if(!bDealAcceptable)
-					{
 						pDeal->ClearItems();
 					}
-#else
-					bool bSendStatement = false;
-					// AI
-					if(!GET_PLAYER(ePlayer).isHuman())
-					{
-						if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsOpenBordersExchangeAcceptable(GetPlayer()->GetID()))
-							bSendStatement = true;
-					}
-					// Human
-					else
-						bSendStatement = true;
-
-					// 1 in 2 chance we don't actually send the message (don't want full predictability)
-					if(50 < GC.getGame().getJonRandNum(100, "Diplomacy AI: rand roll to see if we ask to exchange open borders"))
-						bSendStatement = false;
-
-					if(bSendStatement)
-					{
-						// OB on each side
-						pDeal->AddOpenBorders(GetPlayer()->GetID(), iDuration);
-						pDeal->AddOpenBorders(ePlayer, iDuration);
-
-						eStatement = eTempStatement;
-					}
-					// Add this statement to the log so we don't evaluate it again until 20 turns has come back around
-					else
-						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
-#endif
 				}
 			}
 		}
@@ -29253,31 +29125,7 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_OFFER;
 			int iTurnsBetweenStatements = 25;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements) && (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_OPEN_BORDERS_EXCHANGE) >= 25))
-#else
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -29348,27 +29196,7 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STRATEGIC_TRADE;
 			int iTurnsBetweenStatements = 20;
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
 				eStatement = eTempStatement;
 			}
@@ -29404,17 +29232,7 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 			if(GetPlayer()->GetDealAI()->IsMakeOfferForDefensivePact(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST;
-				int iTurnsBetweenStatements = 30;
-
-				// Send DP offers more frequently in the later eras
-				
-				if (GET_PLAYER(ePlayer).GetCurrentEra() > 2)
-				{
-					iTurnsBetweenStatements -= (5 * (GET_PLAYER(ePlayer).GetCurrentEra() - 2));
-					
-					if (iTurnsBetweenStatements < 10)
-						iTurnsBetweenStatements = 10;
-					
+				int iTurnsBetweenStatements = 20;					
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
 					eStatement = eTempStatement;
@@ -29423,7 +29241,6 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 				{
 					pDeal->ClearItems();
 				}
-			}
 			}
 			else
 			{
@@ -29514,32 +29331,8 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyWar(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST;
-			int iTurnsBetweenStatements = 20;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
+			int iTurnsBetweenStatements = 40;
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -29572,32 +29365,8 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST;
-			int iTurnsBetweenStatements = 15;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
+			int iTurnsBetweenStatements = 30;
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -29627,32 +29396,8 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForVote(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_VOTE_REQUEST;
-			int iTurnsBetweenStatements = 15;
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
+			int iTurnsBetweenStatements = 10;
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -29690,49 +29435,30 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 		CvDeal* pTargetDeal = NULL;
 		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-		int iNumDeals = kGameDeals.GetNumHistoricDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 12);
+		int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 10);
+
+		//no valid deals? Shouldn't happen but if it does, make sure we cancel any deals.
+		if (iNumDeals <= 0)
+			return;
 
 		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
 		{
-			CvDeal* pCurrentDeal = kGameDeals.GetHistoricDealWithPlayer(ePlayer, GetPlayer()->GetID(), iDeal);
+			CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(ePlayer, GetPlayer()->GetID(), iDeal);
 
-			// if this deal has already been renewed or cancelled, then move along
-			if (pCurrentDeal->m_bConsideringForRenewal || pCurrentDeal->m_bDealCancelled || pCurrentDeal->m_bCheckedForRenewal || pCurrentDeal->m_bIsGift)
+			//this is not good.
+			if (!pCurrentDeal)
+				continue;
+
+			// if this deal is a gift or peace deal, move on.
+			if (pCurrentDeal->m_bIsGift || pCurrentDeal->IsPeaceTreatyTrade(ePlayer) || pCurrentDeal->IsPeaceTreatyTrade(GetPlayer()->GetID()))
 			{
+				//shouldn't happen but it might.
 				continue;
 			}
-
-			// if they don't involve the player, bail
-			if(!(pCurrentDeal->m_eFromPlayer == m_pPlayer->GetID() || pCurrentDeal->m_eToPlayer == m_pPlayer->GetID()))
-			{
-				continue;
-			}
-
-			// if the deal can be renewed (no peace treaties, etc)
-			if(!pCurrentDeal->IsPotentiallyRenewable())
-			{
-				continue;
-			}
-
-			// Check to see if the deal is still active
-			if(pCurrentDeal->m_iFinalTurn > GC.getGame().getElapsedGameTurns())
-			{
-				continue;
-			}
-
-			//If historic, only look at turns that expired less than 20 turns earlier.
-			if ((pCurrentDeal->m_iFinalTurn + 20) < GC.getGame().getElapsedGameTurns())
-			{
-				continue;
-			}
-
-			bool bCanTradeItems = true;
 
 			// if the deal can be fully renewed
 			TradedItemList::iterator it;
 			CvDeal kTempDeal;
-
-			pCurrentDeal->m_bConsideringForRenewal = true;
 
 			for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
 			{
@@ -29746,16 +29472,25 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					eOtherPlayer = pCurrentDeal->m_eFromPlayer;
 				}
 
-				if(!kTempDeal.IsPossibleToTradeItem(it->m_eFromPlayer, eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
-				{
-					bCanTradeItems = false;
-					break;
-				}
+				//exclude items that can't be renewed:
+				if (it->m_eItemType ==
+					TRADE_ITEM_GOLD ||
+					TRADE_ITEM_GOLD_PER_TURN ||
+					TRADE_ITEM_MAPS ||
+					TRADE_ITEM_RESOURCES ||
+					TRADE_ITEM_OPEN_BORDERS ||
+					TRADE_ITEM_ALLOW_EMBASSY ||
+					TRADE_ITEM_DEFENSIVE_PACT ||
+					TRADE_ITEM_RESEARCH_AGREEMENT)
+					continue;
+				
+				//otherwise remove it.
+				pCurrentDeal->RemoveByType(it->m_eItemType, it->m_eFromPlayer);
+				
 			}
 
-			pCurrentDeal->m_bConsideringForRenewal = false;
-
-			if(!bCanTradeItems)
+			//we emptied the deal? whoops.
+			if (pCurrentDeal->GetNumItems() <= 0)
 			{
 				continue;
 			}
@@ -29771,34 +29506,40 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			*pDeal = *pTargetDeal;
 
 			//Set as considered for renewal.
-			pTargetDeal->m_bConsideringForRenewal = true;
-			pDeal->m_bConsideringForRenewal = true;
 			pDeal->m_iFinalTurn = -1;
 			
-			bool bAbleToEqualize = false;
-			if(!GET_PLAYER(ePlayer).isHuman())
+			int iValue = m_pPlayer->GetDealAI()->GetDealValue(pTargetDeal);
+			if (iValue != INT_MAX)
 			{
-				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
+				bool bAbleToEqualize = false;
+				if (!GET_PLAYER(ePlayer).isHuman())
+				{
+					bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
+				}
+				else
+					bAbleToEqualize = true;
+
+				if (!bAbleToEqualize)
+				{
+					CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
+					pDeal->ClearItems();
+					pTargetDeal->ClearItems();
+					return;
+				}
+				else
+					eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 			}
 			else
 			{
-				bool bUselessReferenceVariable;
-				bool bCantMatchOffer;
-				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
-			}
-
-			if(!bAbleToEqualize)
-			{
+				CancelRenewDeal(ePlayer, REASON_NO_GPT);
 				pDeal->ClearItems();
 				pTargetDeal->ClearItems();
-				ClearDealToRenew();
 				return;
 			}
-			else
-				eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else
 		{
+			CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 			pDeal->ClearItems();
 		}
 	}
@@ -45939,7 +45680,7 @@ void CvDiplomacyAI::ChangeDeclarationLogTurnForIndex(int iIndex, int iChange)
 }
 
 /// Deal to renew
-CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType, PlayerTypes eOtherPlayer)
+CvDeal* CvDiplomacyAI::GetDealToRenew(PlayerTypes eOtherPlayer)
 {
 	if (GetPlayer()->isHuman())
 		return NULL;
@@ -45947,73 +45688,124 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType, PlayerTypes eOtherPlayer)
 	CvDeal* pTargetDeal = NULL;
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-	if (piDealType)
+	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
+
+	for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
 	{
-		*piDealType = -1;
-	}
+		 CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
 
-	for(int iDealTypes = 0; iDealTypes < 2; iDealTypes++)
-	{
-		int iNumDeals = 0;
-		if(iDealTypes == 0)
+		if (pCurrentDeal->m_bConsideringForRenewal)
 		{
-			iNumDeals = kGameDeals.GetNumHistoricDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer, 12);
-		}
-		else
-		{
-			iNumDeals = kGameDeals.GetNumCurrentDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
-		}
-
-		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
-		{
-			CvDeal* pCurrentDeal = NULL;
-			if(iDealTypes == 0)
-			{
-				pCurrentDeal = kGameDeals.GetHistoricDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
-			}
-			else
-			{
-				pCurrentDeal = kGameDeals.GetCurrentDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
-			}
-
-			if (pCurrentDeal->m_bConsideringForRenewal)
-			{
-				CvAssertMsg(pTargetDeal == NULL, "pTargetDeal should be null");
-				if (!pTargetDeal)
-				{
-					pTargetDeal = pCurrentDeal;
-					if (piDealType)
-					{
-						*piDealType = iDealTypes;
-					}
-				}
-			}
+			return pCurrentDeal;
 		}
 	}
 
 	return pTargetDeal;
 }
 
-/// Clear deal to renew
-void CvDiplomacyAI::ClearDealToRenew()
+/// Deal to renew
+void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging)
 {
-	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
-	int iNumMarkedToRenew = 0;
+	if (GetPlayer()->isHuman())
+		return;
 
-	int iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
+	CvDeal* pRenewalDeal = GetDealToRenew(eOtherPlayer);
 
-	for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
+	if (!pRenewalDeal)
+		return;
+
+	if (pRenewalDeal->m_bConsideringForRenewal)
 	{
-		CvDeal* pCurrentDeal = kGameDeals.GetHistoricDeal(m_pPlayer->GetID(), iDeal);
-
-		if (pCurrentDeal->m_bConsideringForRenewal)
+		//but wait!
+		if (pRenewalDeal->m_bConsideringForRenewal && !pRenewalDeal->m_bCheckedForRenewal)
 		{
-			iNumMarkedToRenew++;
-			CvAssertMsg(iNumMarkedToRenew <= 1, "iNumMarkedToRenew is greater than one. Too many deals are being renewed at the same time.");
-			pCurrentDeal->m_bConsideringForRenewal = false;
+			if (!bJustLogging)
+			{
+				TradedItemList::iterator itemIter;
+				for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+				{
+					int iFinalTurn = itemIter->m_iFinalTurn;
+					//+1 because we want to process the beginning of of the turn AFTER the AI gets to approach the civ for the deal.
+					if (iFinalTurn > -1 && (iFinalTurn + 1) == GC.getGame().getGameTurn())
+					{
+						OutputDebugString("Cleared item from expired renewal deal \n");
+						GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false);
+					}
+				}
+			}
+			pRenewalDeal->m_bConsideringForRenewal = false;
+
+			//log it for me bby
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherPlayerName;
+				CvString strDesc;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = GetPlayer()->getCivilizationShortDescription();
+
+				// Open the log file
+				if (GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+
+				otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
+				strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
+
+				TradedItemList::iterator itemIter;
+				for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+				{
+					CvString strItems;
+					strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
+					strOutBuf += strItems;
+				}
+
+				CvString strReason;
+				switch (eReason)
+				{
+				case NO_REASON:
+					strReason.Format(",REASON: No Reason Given");
+					strOutBuf += strReason;
+					break;
+				case REASON_NO_GPT:
+					strReason.Format(",REASON: Invalid Items");
+					strOutBuf += strReason;
+					break;
+				case REASON_NO_DEAL:
+					strReason.Format(",REASON: No Deal Found");
+					strOutBuf += strReason;
+					break;
+				case REASON_CANNOT_COMPROMISE:
+					strReason.Format(",REASON: Cannot Re-negotiate with AI");
+					strOutBuf += strReason;
+					break;
+				case REASON_HUMAN_REJECTION:
+					strReason.Format(",REASON: Human Rejection");
+					strOutBuf += strReason;
+					break;
+				}
+				pLog->Msg(strOutBuf);
+			}
 		}
 	}
 }
+
 
 // When someone dies, clear out data
 void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
@@ -49545,6 +49337,9 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 		case DIPLO_STATEMENT_BECOME_MY_VASSAL:
 			strTemp.Format("***** BECOME MY VASSAL *****");
 			break;
+		case DIPLO_STATEMENT_ACCEPT_VASSALAGE:
+			strTemp.Format("***** BECOME YOUR VASSAL *****");
+			break;
 		case DIPLO_STATEMENT_REVOKE_VASSALAGE:
 			strTemp.Format("***** REVOKING VASSALAGE *****");
 			break;
@@ -50568,6 +50363,37 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 		}
 	}
 }
+
+/// Possible Contact Statement - AI only
+void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// note: we check to see if it's possible in IsMakeOfferForVassalage()
+
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
+	{
+		// Can we make an offer for vassalage?
+		if (GetPlayer()->GetDealAI()->IsMakeOfferToBecomeVassal(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		{
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_ACCEPT_VASSALAGE;
+			int iTurnsBetweenStatement = 50;
+
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
+			{
+				// Send the statement
+				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
+					eStatement = eTempStatement;
+			}
+		}
+		else
+		{
+			pDeal->ClearItems();
+		}
+	}
+}
+
 /// Possible Contact Statement - Vassal taxes have been raised
 void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
@@ -51258,19 +51084,20 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 		iOurCapitals += GET_PLAYER(*it).GetNumCapitalCities();
 		iAverageOpinionScore += (int) GET_PLAYER(*it).GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
+		if (GET_PLAYER(*it).IsHasLostCapital())
+			iOurCapitals--;
 	}
 	for(std::vector<PlayerTypes>::iterator it = aTheirTeam.begin(); it != aTheirTeam.end(); it++)
 	{
 		iTheirCapitals += GET_PLAYER(*it).GetNumCapitalCities();
+		if (GET_PLAYER(*it).IsHasLostCapital())
+			iTheirCapitals--;
 	}
 	iAverageOpinionScore /= std::max(1, (int)aOurTeam.size());
 	MajorCivOpinionTypes eOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
-	if (eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
-		return false;
-
-	// We possess more capitals than them
-	if(iOurCapitals >= iTheirCapitals)
+	// We possess more capitals than them AND we have more than one city
+	if(iOurCapitals >= iTheirCapitals && GetPlayer()->getNumCities() > 1)
 		return false;
 
 	// We're going for world conquest?
@@ -51296,11 +51123,11 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// Player is not a threat
-	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
+	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
 		return false;
 
 	// Player is not a threat
-	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
+	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
 		return false;
 
 	// Are we dominating them in some way?
@@ -51316,10 +51143,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if(IsPlayerBrokenMilitaryPromise(ePlayer))
 		return false;
 
-	// Do we think this player is a warmonger?
-	if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
-		return false;
-
 	// Differing ideologies?
 	if(GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE &&
 		GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE &&
@@ -51330,57 +51153,61 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	int iWantVassalageScore = 0;
 
 	// Small bonus for voluntary vassalage depending on opinion
-	if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
-		iWantVassalageScore += -20;
+	if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+		iWantVassalageScore += -50;
+	else if(eOpinion == MAJOR_CIV_OPINION_NEUTRAL)
+		iWantVassalageScore += -10;
 	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
-		iWantVassalageScore += 5;
-	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
 		iWantVassalageScore += 10;
-	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
+	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
 		iWantVassalageScore += 15;
+	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
+		iWantVassalageScore += 25;
 	else
 		iWantVassalageScore += -25;
 
 	// If they are economically strong, consider vassalage
 	StrengthTypes eEconomyStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	if(eEconomyStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 60;
+		iWantVassalageScore += 50;
 	else if(eEconomyStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 40;
+		iWantVassalageScore += 25;
 	else if(eEconomyStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 20;
+		iWantVassalageScore += 10;
 	else if(eEconomyStrength == STRENGTH_AVERAGE)
-		iWantVassalageScore += -20;
+		iWantVassalageScore += 0;
 	else if(eEconomyStrength == STRENGTH_POOR)
-		iWantVassalageScore += -40;
+		iWantVassalageScore += -15;
 	else if(eEconomyStrength == STRENGTH_WEAK)
-		iWantVassalageScore += -75;
+		iWantVassalageScore += -30;
 	else
 		iWantVassalageScore += -100;
 
 	// If they are militarily strong, consider vassalage
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if(eMilitaryStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 60;
+		iWantVassalageScore += 50;
 	else if(eMilitaryStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 45;
+		iWantVassalageScore += 30;
 	else if(eMilitaryStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 25;
+		iWantVassalageScore += 10;
+	else if (eMilitaryStrength == STRENGTH_AVERAGE)
+		iWantVassalageScore += 5;
 	else
 		iWantVassalageScore += -100;
 
 	// Small bonus for being a threat to us
 	ThreatTypes eMilitaryThreat = GetMilitaryThreat(ePlayer);
 	if(eMilitaryThreat == THREAT_CRITICAL)
-		iWantVassalageScore += 20;
+		iWantVassalageScore += 40;
 	else if(eMilitaryThreat == THREAT_SEVERE)
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 30;
 	else if(eMilitaryThreat == THREAT_MAJOR)
-		iWantVassalageScore += 5;
+		iWantVassalageScore += 20;
 	else if(eMilitaryThreat <= THREAT_MINOR)
-		iWantVassalageScore += -20;
+		iWantVassalageScore += 10;
 	else
-		iWantVassalageScore += 0;
+		iWantVassalageScore += -10;
 
 	int iOurTechs = kOurTeam.GetTeamTechs()->GetNumTechsKnown();
 	int iTheirTechs = kTheirTeam.GetTeamTechs()->GetNumTechsKnown();
@@ -51391,8 +51218,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		iTechPercent = iOurTechs * 100 / iTheirTechs;
 
 	// We are at a similar tech level!
-	if(iTechPercent > 95)
-		return false;
+	if (iTechPercent > 95)
+		iWantVassalageScore -= 10;
 
 	// Lagging behind
 	if(iTechPercent >= 85)
@@ -51408,7 +51235,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	int iVal = MOD_BALANCE_CORE_HAPPINESS ? 50 : 0;
 	// Small mod based on happiness
 	if (GetPlayer()->GetExcessHappiness() < iVal)
-		iWantVassalageScore += 5;
+		iWantVassalageScore += 10;
 
 	// Account for this player's flavors
 	
@@ -51432,9 +51259,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Adjust score based on civ flavors
-	iWantVassalageScore += (iExpansionFlavor - iDefaultFlavorValue) * -2;	// expansionist civs don't like vassalage too much
-	iWantVassalageScore += (iOffenseFlavor - iDefaultFlavorValue) * -2;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iMilitaryTrainingFlavor - iDefaultFlavorValue)	* -2;	// offensive civs don't like vassalage too much
+	iWantVassalageScore += (iExpansionFlavor - iDefaultFlavorValue) * -3;	// expansionist civs don't like vassalage too much
+	iWantVassalageScore += (iOffenseFlavor - iDefaultFlavorValue) * -3;	// offensive civs don't like vassalage too much
+	iWantVassalageScore += (iMilitaryTrainingFlavor - iDefaultFlavorValue)	* -3;	// offensive civs don't like vassalage too much
 	iWantVassalageScore += (iDefenseFlavor - iDefaultFlavorValue);	// defensive civs like vassalage a lot
 	iWantVassalageScore += (iCultureFlavor - iDefaultFlavorValue);	// cultural civs prefer vassalage
 	iWantVassalageScore += (iWonderFlavor - iDefaultFlavorValue);	// wonder civs don't mind vassalage
@@ -51443,11 +51270,11 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
 	{
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			iWantVassalageScore *= 133;
+			iWantVassalageScore *= 125;
 			iWantVassalageScore /= 100;
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iWantVassalageScore *= 110;
+			iWantVassalageScore *= 105;
 			iWantVassalageScore /= 100;
 			break;
 		default:
@@ -51458,17 +51285,17 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	AggressivePostureTypes eAggressivePosture = GetMilitaryAggressivePosture(ePlayer);
 	if(eAggressivePosture == AGGRESSIVE_POSTURE_INCREDIBLE)
 	{
-		iWantVassalageScore *= 150;
+		iWantVassalageScore *= 125;
 		iWantVassalageScore /= 100;
 	}
 	else if(eAggressivePosture == AGGRESSIVE_POSTURE_HIGH)
 	{
-		iWantVassalageScore *= 125;
+		iWantVassalageScore *= 110;
 		iWantVassalageScore /= 100;
 	}
 	else if(eAggressivePosture == AGGRESSIVE_POSTURE_MEDIUM)
 	{
-		iWantVassalageScore *= 110;
+		iWantVassalageScore *= 100;
 		iWantVassalageScore /= 100;
 	}
 
@@ -51486,14 +51313,14 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	iWantVassalageScore /= 100;
 
 	// Reduce score based on at war count
-	iWantVassalageScore -= 20 * kTheirTeam.getAtWarCount(true);
+	iWantVassalageScore -= 10 * kTheirTeam.getAtWarCount(true);
 
 	// Reduce score based on number of his vassals
-	iWantVassalageScore -= 20 * kTheirTeam.GetNumVassals();
+	iWantVassalageScore -= 15 * kTheirTeam.GetNumVassals();
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD() + 25;
+	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 
-	return (iWantVassalageScore > iThreshold);
+	return (iWantVassalageScore >= iThreshold);
 }
 
 /// Are we done being ePlayer's vassal, and now want to end it?
@@ -51791,31 +51618,7 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_MAPS_OFFER;
 			int iTurnsBetweenStatements = 30;
 
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}
@@ -51847,32 +51650,7 @@ void CvDiplomacyAI::DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TECH_OFFER;
 			int iTurnsBetweenStatements = 30;
-
-#if defined(MOD_BALANCE_CORE)
-			if(GetNeediness() > 7)
-			{
-				iTurnsBetweenStatements /= 2;
-			}
-			int iMessage = 0;
-			int iMessageMax = MAX_INT;
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
-				{
-					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-					if(iMessage < iMessageMax)
-					{
-						iMessageMax = iMessage;
-					}
-				}
-			}
-			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}

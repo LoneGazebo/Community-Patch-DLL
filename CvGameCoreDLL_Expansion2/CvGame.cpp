@@ -8752,7 +8752,9 @@ void CvGame::doTurn()
 	{
 		doVictoryRandomization();
 	}
+	m_kGameDeals.DoTurnPost();
 #endif
+
 	// Victory stuff
 	testVictory();
 

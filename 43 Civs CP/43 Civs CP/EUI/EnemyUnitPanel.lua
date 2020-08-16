@@ -991,6 +991,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- Normal Melee Combat
 			else
 				
+				-- checks for embarkation ...
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
@@ -999,7 +1000,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false, NULL);
-				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
+
+				if (pTheirUnit:IsEmbarked()) then
+				    iTheirDamageInflicted = 0
+				else
+    				iTheirDamageInflicted = pTheirUnit:GetCombatDamage(iTheirStrength, iMyStrength, pTheirUnit:GetDamage(), false, false, false, NULL);
+    		    end
 				iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 				
 			end
@@ -3431,7 +3437,8 @@ function OnMouseOverHex( hexX, hexY )
 		local pHeadUnit = UI.GetHeadSelectedUnit();
 		local pHeadCity = UI.GetHeadSelectedCity();
 		-- air units are not combat units ... therefore the complicated check
-		if (pHeadUnit ~= nil and (pHeadUnit:GetBaseCombatStrength() > 0 or pHeadUnit:GetBaseRangedCombatStrength() > 0)) then
+		-- also suppress the popup if the unit can be promoted to avoid overlap
+		if (pHeadUnit ~= nil and (pHeadUnit:GetBaseCombatStrength() > 0 or pHeadUnit:GetBaseRangedCombatStrength() > 0) and not pHeadUnit:IsPromotionReady()) then
 			
 			-- melee attack (and air units!)
 			if (pHeadUnit:IsRanged() == false) then
@@ -3479,7 +3486,7 @@ function OnMouseOverHex( hexX, hexY )
 									-- ranged attacks handled elsewhere!
 									if (validLandAttack or validSeaAttack or validAirAttack) then
 								
-										if (pUnit:GetBaseCombatStrength() > 0) then
+										if (pUnit:IsCanDefend()) then
 											UpdateUnitPortrait(pUnit);
 											UpdateUnitPromotions(pUnit);
 											UpdateUnitStats(pUnit);
@@ -3537,7 +3544,7 @@ function OnMouseOverHex( hexX, hexY )
 							for i = 0, iNumUnits do
 								pUnit = pPlot:GetUnit(i);
 								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
-									 if (pUnit:GetBaseCombatStrength() > 0 or pHeadUnit:IsRanged()) then
+									 if (pUnit:IsCanDefend()) then
 										UpdateUnitPortrait(pUnit);
 										UpdateUnitPromotions(pUnit);
 										UpdateUnitStats(pUnit);

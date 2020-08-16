@@ -157,6 +157,10 @@ WHERE PolicyType = 'POLICY_VOLUNTEER_ARMY';
 -- NEW
 
 UPDATE Policy_GreatWorkYieldChanges
+SET Yield = '2'
+WHERE PolicyType = 'POLICY_CREATIVE_EXPRESSION';
+
+UPDATE Policy_GreatWorkYieldChanges
 SET YieldType = 'YIELD_TOURISM'
 WHERE PolicyType = 'POLICY_CREATIVE_EXPRESSION';
 

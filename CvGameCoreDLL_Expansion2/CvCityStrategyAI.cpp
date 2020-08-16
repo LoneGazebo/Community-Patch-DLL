@@ -5437,7 +5437,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 
 	int iReligionBonus = 0;
 
-	int iModifier = max(2, (10 - kPlayer.GetCurrentEra()));
+	int iModifier = max(2, (15 - kPlayer.GetCurrentEra()));
 	if (kPlayer.GetPlayerTraits()->IsReligious())
 		iModifier *= 2;
 

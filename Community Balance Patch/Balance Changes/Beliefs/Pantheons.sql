@@ -280,7 +280,7 @@ VALUES
 INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_ANCESTOR_WORSHIP', 'YIELD_FAITH', 3);
+	('BELIEF_ANCESTOR_WORSHIP', 'YIELD_FAITH', 4);
 
 INSERT INTO Belief_YieldPerLux
 	(BeliefType, YieldType, Yield)

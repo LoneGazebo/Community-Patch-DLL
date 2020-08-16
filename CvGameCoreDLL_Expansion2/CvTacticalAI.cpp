@@ -306,7 +306,15 @@ void CvTacticalAI::RecruitUnits()
 		// we want all combat ready air units, except nukes (those go through operational AI)
 		if (pLoopUnit->getDomainType() == DOMAIN_AIR)
 		{
-			if (pLoopUnit->getDamage() > 50 || ShouldRebase(pLoopUnit) || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
+			//we want all missiles.
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+			{
+				if (!ShouldRebase(pLoopUnit))
+					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
+
+				continue;
+			}
+			else if (pLoopUnit->getDamage() > 50 || ShouldRebase(pLoopUnit) || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
 				continue;
 
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
@@ -1072,6 +1080,7 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	//make some space near the frontline
 	PlotHealMoves(true);
 	//move armies first
+	ExecuteMissileAttacks();
 	PlotOperationalArmyMoves();
 }
 
@@ -2298,7 +2307,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit->isEmbarked() && pLoopUnit->plot()->GetNumFriendlyUnitsAdjacent(pLoopUnit->getTeam(),DOMAIN_SEA)<2)
+		if (pLoopUnit->isEmbarked())
 			vEmbarkedUnits.push_back(pLoopUnit);
 	}
 
@@ -3764,6 +3773,68 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	}
 }
 
+void CvTacticalAI::ExecuteMissileAttacks()
+{
+	// Do air attacks, ignore all other units
+	bool bDone = false;
+	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+
+		if (pUnit && pUnit->getDomainType() == DOMAIN_AIR && pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR) //just missiles.
+		{
+			if (pUnit->canMove())
+			{
+				// Loop through all appropriate targets to see if any is of concern
+				for (unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
+				{
+					// Is the target of an appropriate type?
+					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
+						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+					{
+
+						CvPlot* pTestPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
+						if (pTestPlot == NULL)
+							continue;
+
+						CvPlot* pBestTarget = FindAirTargetNearTarget(pUnit, pTestPlot);
+						if (pBestTarget == NULL)
+							continue;
+
+						//this won't change
+						CvCity *pCity = pBestTarget->getPlotCity();
+
+						//this is a bit ugly ... oh well
+						CvUnit* pDefender = pBestTarget->getVisibleEnemyDefender(m_pPlayer->GetID());
+						bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
+						bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
+
+						if (!bHaveUnitTarget && !bHaveCityTarget)
+						{
+							bDone = true;
+							break;
+						}
+
+						//it's a ranged attack but it uses the move mission ... air units are strange
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+						UnitProcessed(pUnit->GetID());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("MISSILE ATTACK: %s %d attacks Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY());
+							LogTacticalMessage(strMsg);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot)
 {
@@ -4019,7 +4090,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 	//second round: move in as long as there is no danger
 	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
 		CvUnit* pUnit = *it;
 		if (pUnit->TurnProcessed())
 			continue;
@@ -4914,11 +4985,11 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets)
 			for (size_t i=0; i<vTargets.size(); ++i)
 			{
 				CvUnit* pTarget = vTargets[i];
-				int iMoveFlag = pUnit->CanStackUnitAtPlot(pTarget->plot()) ? 0 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+				int iMoveFlag = pUnit->CanStackUnitAtPlot(pTarget->plot()) ? CvUnit::MOVEFLAG_IGNORE_DANGER : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 				
 				// Can this unit get to the embarked unit in two moves?
 				int iTurns = pUnit->TurnsToReachTarget(pTarget->plot(),iMoveFlag);
-				if (iTurns < 1)
+				if (iTurns <= 1)
 				{
 					//note: civilian in danger have INT_MAX
 					int iDanger = pTarget->GetDanger();
@@ -6551,16 +6622,16 @@ int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, T
 			continue;
 
 		if (pPlot->isWater())
-					{
+		{
 			if (!bForNavalOp)
-						continue;
+				continue;
 			else if(!bAllowDeepWater && pPlot->isDeepWater())
-						continue;
-					}
+				continue;
+		}
 		else if (bForNavalOp)
-						continue;
+			continue;
 
-					iNumDeployPlotsFound++;
+		iNumDeployPlotsFound++;
 	}
 
 	return iNumDeployPlotsFound;
@@ -6664,7 +6735,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)
-			iScore += 500;
+			iScore += 250;
 
 		if(bIsInCity)
 		{
@@ -8174,7 +8245,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		//owned units not included in sim
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
-			if (pPlotUnit->IsCanDefend())
+			if (pPlotUnit->IsCanDefend() && !pPlotUnit->isEmbarked())
 				bBlockedByNonSimCombatUnit = true;
 		}
 	}

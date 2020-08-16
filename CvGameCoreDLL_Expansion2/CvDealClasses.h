@@ -69,8 +69,6 @@ struct CvTradedItem
 	int m_iData3;
 	bool m_bFlag1;
 	PlayerTypes m_eFromPlayer;      // Which player is giving up this item?
-	bool m_bFromRenewed;		    // Was this trade item used in a renewal?
-	bool m_bToRenewed;				// Was this trade item
 	int m_iValue;					// not serialized, only temporary
 	bool m_bValueIsEven;			// not serialized, only temporary
 };
@@ -123,7 +121,7 @@ public:
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
-	bool m_bDealCancelled;
+	bool m_bRealDeal;
 	bool m_bIsGift;
 	bool m_bDoNotModifyFrom;
 	bool m_bDoNotModifyTo;
@@ -327,6 +325,7 @@ public:
 #endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void DoTurn();
+	void DoTurnPost();
 
 	void DoUpdateCurrentDealsList();
 
@@ -345,6 +344,8 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	uint GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	CvDeal* GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
@@ -360,7 +361,7 @@ public:
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
-	static void PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal);
+	static void PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal);
 
 	// Variables below should really be lists to support easy deletion
 	DealList m_ProposedDeals;

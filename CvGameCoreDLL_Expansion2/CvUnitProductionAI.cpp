@@ -672,7 +672,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iExplore = kPlayer.GetEconomicAI()->GetExplorersNeeded();
 			if(iExplore > 0)
 			{
-				iBonus += iExplore * 2;
+				iBonus += iExplore;
 			}
 		}
 		//Need Sea Explorers?
@@ -681,7 +681,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iExplore = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded();
 			if(iExplore > 0)
 			{
-				iBonus += iExplore * 2;
+				iBonus += iExplore;
 			}
 		}
 		//Naval Units Critically Needed?
@@ -1723,7 +1723,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//slight bump in value for ranged units, to counteract some other elements.
 			if (pkUnitEntry->GetRangedCombat() > 0)
 			{
-				iBonus += pkUnitEntry->GetRangedCombat();
+				iBonus += (pkUnitEntry->GetRangedCombat() / 2);
 			}
 
 			if (kPlayer.GetDiversity(eDomain) == (int)pkUnitEntry->GetDefaultUnitAIType())

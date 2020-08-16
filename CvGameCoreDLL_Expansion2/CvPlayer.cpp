@@ -19805,6 +19805,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iYieldHandicap /= 100;
 	}
+	int iYieldForCities = max(1, iYieldHandicap / max(1, getNumCities()));
 	if (iYieldHandicap > 0)
 	{
 		switch (eHistoricEvent)
@@ -19817,8 +19818,8 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->changeFood(iYieldHandicap);
-						pLoopCity->changeProduction(iYieldHandicap);
+						pLoopCity->changeFood(iYieldForCities);
+						pLoopCity->changeProduction(iYieldForCities);
 					}
 				}
 				GetTreasury()->ChangeGold(iYieldHandicap);
@@ -19858,8 +19859,8 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->changeFood(iYieldHandicap);
-						pLoopCity->changeProduction(iYieldHandicap);
+						pLoopCity->changeFood(iYieldForCities);
+						pLoopCity->changeProduction(iYieldForCities);
 					}
 				}
 				GetTreasury()->ChangeGold(iYieldHandicap);
@@ -19885,8 +19886,8 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->changeFood(iYieldHandicap);
-						pLoopCity->changeProduction(iYieldHandicap);
+						pLoopCity->changeFood(iYieldForCities);
+						pLoopCity->changeProduction(iYieldForCities);
 					}
 				}
 				GetTreasury()->ChangeGold(iYieldHandicap);
@@ -19930,15 +19931,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			}
 			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
 			{
-				int iLoop;
-				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if (pLoopCity != NULL)
-					{
-						pLoopCity->changeFood(iYieldHandicap);
-						//pLoopCity->changeProduction(iYieldHandicap);
-					}
-				}
 				GetTreasury()->ChangeGold(iYieldHandicap);
 				ChangeGoldenAgeProgressMeter(iYieldHandicap);
 				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CAPITAL - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP", iYieldHandicap);
@@ -19951,8 +19943,8 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->changeFood(iYieldHandicap);
-						pLoopCity->changeProduction(iYieldHandicap);
+						pLoopCity->changeFood(iYieldForCities);
+						pLoopCity->changeProduction(iYieldForCities);
 					}
 				}
 				GetTreasury()->ChangeGold(iYieldHandicap);

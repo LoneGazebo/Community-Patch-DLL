@@ -598,6 +598,9 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //static
 void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
 {
+	if (pkDeal->GetNumItems() <= 0)
+		return;
+
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
@@ -622,7 +625,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	else
 	{
 		// Deals must currently happen on the active player's turn...
-		if(GC.getGame().getActivePlayer() == eToPlayer && pkDeal->GetNumItems() > 0)
+		if(GC.getGame().getActivePlayer() == eToPlayer)
 		{
 			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());

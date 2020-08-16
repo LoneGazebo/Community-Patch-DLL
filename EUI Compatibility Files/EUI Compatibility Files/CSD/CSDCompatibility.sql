@@ -92,7 +92,7 @@ VALUES
 INSERT INTO Belief_GoldenAgeGreatPersonRateModifier
 	(BeliefType, GreatPersonType, Modifier)
 VALUES
-	('BELIEF_MISSIONARY_ZEAL', 'GREATPERSON_DIPLOMAT', 15);
+	('BELIEF_MISSIONARY_ZEAL', 'GREATPERSON_DIPLOMAT', 33);
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)

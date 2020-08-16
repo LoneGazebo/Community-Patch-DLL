@@ -844,7 +844,7 @@
 			<Text>Jinete</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ALHAMBRA_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">
@@ -972,7 +972,7 @@
 			<Text>Iklwa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR]. +2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR]. +2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
 
 
