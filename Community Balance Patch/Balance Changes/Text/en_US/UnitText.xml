@@ -693,12 +693,6 @@
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
 			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III">
-			<Text>Boarded (III)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III_HELP">
-			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
 			<Text>Minelayer</Text>
