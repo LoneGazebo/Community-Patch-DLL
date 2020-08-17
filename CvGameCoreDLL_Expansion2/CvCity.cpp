@@ -8874,11 +8874,11 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 		//unimproved is just here for the cache.
 		if (bUnimproved)
 		{
-			m_paiNumUnimprovedResourcesLocal.setAt(eResource, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
+			m_paiNumUnimprovedResourcesLocal.setAt(eResource, max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange));
 			return;
 		}
 		else
-			m_paiNumResourcesLocal.setAt(eResource, m_paiNumResourcesLocal[eResource] + iChange);
+			m_paiNumResourcesLocal.setAt(eResource, max(0, m_paiNumResourcesLocal[eResource] + iChange));
 
 		if(bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{

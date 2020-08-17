@@ -881,6 +881,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 	///////
 	// Bonuses
 	//////////
+	bool bAvoidGrowth = IsAvoidGrowth();
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
@@ -912,12 +913,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYieldMod += 2;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
+			//Food is unique, so let's separate it out for now.
 			if (eYield == YIELD_FOOD)
 			{
 				int iFoodEmphasisModifier = 0;
-				//Food is unique, so let's separate it out for now.
-				bool bAvoidGrowth = IsAvoidGrowth();
-
 				// Food can be worth less if we don't want to grow
 				if (store.iExcessFoodTimes100 > 0 && bAvoidGrowth)
 				{
@@ -927,7 +926,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 75) - store.iExcessFoodTimes100;
+					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 125) - store.iExcessFoodTimes100;
 					int iMultiplier = max(iNoStarveModifier, GC.getAI_CITIZEN_VALUE_FOOD());
 					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
@@ -1052,6 +1051,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
 				iYieldMod /= 2;
+
+			//no yield mods until we're fed!
+			if (eYield != YIELD_FOOD && store.iExcessFoodTimes100 <= (m_bDiscourageGrowth ? 0 : 2) && !bAvoidGrowth)
+				iYieldMod = 1;
 
 			iYield *= max(1, iYieldMod);
 			iValue += iYield;

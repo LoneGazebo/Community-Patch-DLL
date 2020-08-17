@@ -338,7 +338,7 @@ WHERE Type = 'BUILDING_IKANDA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 INSERT INTO Trait_MaintenanceModifierUnitCombats
 	(TraitType, UnitCombatType, MaintenanceModifier)
 VALUES
-	('TRAIT_BUFFALO_HORNS', 'UNITCOMBAT_GUN', -25);
+	('TRAIT_BUFFALO_HORNS', 'UNITCOMBAT_GUN', -50);
 
 UPDATE Traits
 SET CSBullyMilitaryStrengthModifier = '50'
