@@ -532,7 +532,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Garden in the City in
 WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Tile improvement construction speed increased by 25%. +20 [ICON_CULTURE] Culture when you destroy an enemy Unit in battle, scaling with Era. Increases the Military Unit Supply Cap by 5.'
+SET Text = 'Tile improvement construction speed increased by 25%. +15 [ICON_CULTURE] Culture when you destroy an enemy Unit in battle, scaling with Era. Increases the Military Unit Supply Cap by 5.'
 WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
