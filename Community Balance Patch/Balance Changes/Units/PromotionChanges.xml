@@ -2297,7 +2297,7 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>
-			<FlankAttackModifier>75</FlankAttackModifier>
+			<FlankAttackModifier>33</FlankAttackModifier>
 			<CombatPercent>10</CombatPercent>
 		</Replace>
 		<Replace>
@@ -4074,21 +4074,6 @@
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDED_II</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_BOARDED_III</Type>
-			<Description>TXT_KEY_PROMOTION_BOARDED_III</Description>
-			<Help>TXT_KEY_PROMOTION_BOARDED_III_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>1</PortraitIndex>
-			<MovesChange>-4</MovesChange>
-			<PromotionDuration>1</PromotionDuration>
-			<PlagueID>1</PlagueID>
-			<PlaguePriority>2</PlaguePriority>
-			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BOARDED_III</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SLINGER</Type>
