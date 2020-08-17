@@ -30576,10 +30576,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 		iExtra  = GetFlankAttackModifier();
 		iExtra  = (iTemp + iExtra) * ( iFlavorDefense + iFlavorOffense + iFlavorMobile);
-		iExtra *= 1;
-
-		// iExtra *= maxMoves() / GC.getMOVE_DENOMINATOR();   
-		// ^What does this mean?	
+		iExtra *= 0.5;
+		iExtra *= baseMoves(false);    		// gives max moves, false = not embarked	
 		iValue += iExtra;
 	}
 
@@ -30783,7 +30781,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra =  iTemp * (2 * iFlavorMobile + iFlavorOffense);
-		iExtra *= 15;
+		iExtra *= 10;
 		iExtra *= max(1,getNumAttacks());
 		iValue += iExtra;
 
@@ -30954,7 +30952,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = (iFlavorMobile * 2 + iFlavorOffense);
 		iExtra *= 4;
-		iExtra *= maxMoves();
+		iExtra *= baseMoves(false);
 		iValue += iExtra;	
 	}
 
@@ -31120,9 +31118,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				// Scout: Snow/Desert Woodland Trailblazer 2.
 			{
 				iExtra = (iFlavorMobile * 3);
-				iExtra *= 8;
+				iExtra *= 5;
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 
@@ -31193,9 +31191,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= 5;
-				iExtra *= max(1,getNumAttacks());
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 
@@ -31395,7 +31392,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsGainsXPFromSpotting())
 	{
-		iExtra = visibilityRange() + maxMoves();
+		iExtra = visibilityRange() + baseMoves(false);
 		iExtra = iExtra * (3 * iFlavorRecon);
 		iExtra *= 5;
 		iValue += iExtra;
@@ -31407,7 +31404,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= 5;
-		iExtra *= maxMoves();
+		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
 			iExtra *= 2;
 		iValue += iExtra;
@@ -31417,7 +31414,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0 && !GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
 	{
 		iExtra = iTemp * (3 * iFlavorRecon);
-		iExtra *= maxMoves();
+		iExtra *= baseMoves(false);
 		iExtra *= 0.5;
 		iValue += iTemp + iFlavorRecon;
 	}
