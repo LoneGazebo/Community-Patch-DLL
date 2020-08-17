@@ -31120,7 +31120,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iExtra = (iFlavorMobile * 3);
 				iExtra *= 5;
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 
@@ -31192,7 +31192,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= 5;
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 
