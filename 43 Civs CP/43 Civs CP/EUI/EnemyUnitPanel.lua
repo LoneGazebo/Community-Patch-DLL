@@ -1176,7 +1176,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 
 			-- Damaged unit
-			iModifier = pMyUnit:GetDamageCombatModifier(bRanged);
+			iModifier = pMyUnit:GetDamageCombatModifier();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
