@@ -30781,7 +30781,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra =  iTemp * (2 * iFlavorMobile + iFlavorOffense);
-		iExtra *= 15;
+		iExtra *= 10;
 		iExtra *= max(1,getNumAttacks());
 		iValue += iExtra;
 
