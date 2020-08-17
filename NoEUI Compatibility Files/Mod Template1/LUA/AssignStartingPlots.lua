@@ -1597,6 +1597,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	local iW, iH = Map.GetGridSize();
 	self.method = args.method or self.method; -- Continental method is default.
 	self.resource_setting = args.resources or 2; -- UNUSED, use the below resource settings instead
+	args.resources = args.resources or 2;
 	
 	-- Custom map resource settings (Communitu_79a support)
 	if args.resources == 6 then
