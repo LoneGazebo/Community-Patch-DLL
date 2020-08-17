@@ -13920,7 +13920,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		iValue = pDiploAI->GetPolicyScore(eWithPlayer);
 		kOpinion.m_iValue = iValue;
 
-		if (iValue > 0)
+		if (iValue < 0)
 		{
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 		}
