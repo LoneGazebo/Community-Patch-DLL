@@ -5519,16 +5519,37 @@ bool CvUnit::jumpToNearestValidPlot()
 
 	if (getDomainType() == DOMAIN_AIR)
 	{
-		if (plot()->isCity())
-			if (canRebaseAt(getX() , getY()))
-				return true;
+		if (canRebaseAt(getX(), getY()))
+			return true;
 
 		int iLoopCity;
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
 		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner()) > 0)
+			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
 			{
 				rebase(pLoopCity->getX(), pLoopCity->getY());
+				return true;
+			}
+		}
+
+		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
+		{
+			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
+			{
+				rebase(pLoopCity->getX(), pLoopCity->getY());
+				return true;
+			}
+		}
+
+		int iLoop;
+		for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
+		{
+			if (!pLoopUnit->isAircraftCarrier())
+				continue;
+
+			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
+			{
+				rebase(pLoopUnit->getX(), pLoopUnit->getY());
 				return true;
 			}
 		}
@@ -15173,7 +15194,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	if(bPretendEmbarked)
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
-		return GC.getEMBARKED_UNIT_MOVEMENT() + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES);
+		return max(1, GC.getEMBARKED_UNIT_MOVEMENT() + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
 	}
 
 	int m_iExtraNavalMoves = 0;
@@ -15998,10 +16019,10 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 
 	// Open Ground
 	if (pFromPlot->isOpenGround())
-		iModifier += openRangedAttackModifier();
+		iModifier += getExtraOpenFromPercent();
 	// Rough Ground
 	else if (pFromPlot->isRoughGround())
-		iModifier += roughRangedAttackModifier();
+		iModifier += getExtraRoughFromPercent();
 
 #endif
 	////////////////////////

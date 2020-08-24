@@ -1646,6 +1646,7 @@ public:
 	void ChangeDeclarationLogTurnForIndex(int iIndex, int iChange);
 
 	CvDeal* GetDealToRenew(PlayerTypes eOtherPlayer = NO_PLAYER);
+	void CleanupRenewDeals(PlayerTypes eOtherPlayer);
 	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false);
 
 	void KilledPlayerCleanup (PlayerTypes eKilledPlayer);

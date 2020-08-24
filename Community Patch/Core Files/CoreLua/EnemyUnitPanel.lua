@@ -708,7 +708,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			
 				-- Crossing a River
 				if (not pMyUnit:IsRiverCrossingNoPenalty()) then
-					if (pMyUnit:GetPlot():IsRiverCrossingToPlot(pToPlot)) then
+					if (pFromPlot:IsRiverCrossingToPlot(pToPlot)) then
 						iModifier = GameDefines["RIVER_ATTACK_MODIFIER"];
 
 						if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -726,7 +726,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 
 				-- Amphibious landing
 				if (not pMyUnit:IsAmphib()) then
-					if (not pToPlot:IsWater() and pMyUnit:GetPlot():IsWater() and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
+					if (not pToPlot:IsWater() and pFromPlot:IsWater() and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
 						iModifier = GameDefines["AMPHIB_ATTACK_MODIFIER"];
 
 						if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1282,7 +1282,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Crossing a River
 				if (not pMyUnit:IsRiverCrossingNoPenalty()) then
-					if (pMyUnit:GetPlot():IsRiverCrossingToPlot(pToPlot)) then
+					if (pFromPlot:IsRiverCrossingToPlot(pToPlot)) then
 						iModifier = GameDefines["RIVER_ATTACK_MODIFIER"];
 
 						if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1299,7 +1299,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Amphibious landing
 				if (not pMyUnit:IsAmphib()) then
-					if (not pToPlot:IsWater() and pMyUnit:GetPlot():IsWater() and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
+					if (not pToPlot:IsWater() and pFromPlot:IsWater() and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
 						iModifier = GameDefines["AMPHIB_ATTACK_MODIFIER"];
 
 						if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1831,19 +1831,37 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
-			-- RoughAttackModifier
-			iModifier = pMyUnit:OpenFromModifier() + pMyUnit:RoughFromModifier();
+			if(pFromPlot ~= nil and not bRanged) then
+				if(pFromPlot:IsRoughGround()) then
+				
+					-- RoughAttackModifier
+					iModifier = pMyUnit:RoughFromModifier();
 
-			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iModifier ~= 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;				
+					end
+				else
+					-- RoughAttackModifier
+					iModifier = pMyUnit:OpenFromModifier();
+
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;				
+					end
+				end
 			end
-			
+
 			if (pToPlot:GetFeatureType() ~= -1) then
 			
 				-- FeatureAttackModifier
@@ -1866,7 +1884,11 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable = g_MyCombatDataIM:GetInstance();
 					local terrainTypeBonus = Locale.ConvertTextKey( GameInfo.Terrains[pToPlot:GetTerrainType()].Description );
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", terrainTypeBonus  );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					if(iModifier < 0)then
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					else
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					end
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
@@ -1879,7 +1901,11 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable = g_MyCombatDataIM:GetInstance();
 						local terrainTypeBonus = Locale.ConvertTextKey( GameInfo.Terrains["TERRAIN_HILL"].Description );
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", terrainTypeBonus  );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						if(iModifier < 0)then
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						else
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						end
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;

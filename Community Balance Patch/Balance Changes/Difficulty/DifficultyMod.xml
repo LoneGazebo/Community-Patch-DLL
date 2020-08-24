@@ -140,7 +140,7 @@
 			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AIPerEraModifier>-2</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>1</DifficultyBonusBase>
+			<DifficultyBonusBase>2</DifficultyBonusBase>
 			<DifficultyBonusA>310</DifficultyBonusA>
 			<DifficultyBonusB>180</DifficultyBonusB>
 			<DifficultyBonusC>85</DifficultyBonusC>
@@ -215,7 +215,7 @@
 			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AIPerEraModifier>-4</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>2</DifficultyBonusBase>
+			<DifficultyBonusBase>4</DifficultyBonusBase>
 			<DifficultyBonusA>320</DifficultyBonusA>
 			<DifficultyBonusB>190</DifficultyBonusB>
 			<DifficultyBonusC>100</DifficultyBonusC>
@@ -290,7 +290,7 @@
 			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIPerEraModifier>-6</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>3</DifficultyBonusBase>
+			<DifficultyBonusBase>6</DifficultyBonusBase>
 			<DifficultyBonusA>330</DifficultyBonusA>
 			<DifficultyBonusB>200</DifficultyBonusB>
 			<DifficultyBonusC>115</DifficultyBonusC>
@@ -365,7 +365,7 @@
 			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIPerEraModifier>-7</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>4</DifficultyBonusBase>
+			<DifficultyBonusBase>8</DifficultyBonusBase>
 			<DifficultyBonusA>340</DifficultyBonusA>
 			<DifficultyBonusB>220</DifficultyBonusB>
 			<DifficultyBonusC>130</DifficultyBonusC>
@@ -440,7 +440,7 @@
 			<AIUnitSupplyPercent>25</AIUnitSupplyPercent>
 			<AIPerEraModifier>-8</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>5</DifficultyBonusBase>
+			<DifficultyBonusBase>10</DifficultyBonusBase>
 			<DifficultyBonusA>350</DifficultyBonusA>
 			<DifficultyBonusB>230</DifficultyBonusB>
 			<DifficultyBonusC>145</DifficultyBonusC>
@@ -515,7 +515,7 @@
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>7</DifficultyBonusBase>
+			<DifficultyBonusBase>12</DifficultyBonusBase>
 			<DifficultyBonusA>360</DifficultyBonusA>
 			<DifficultyBonusB>240</DifficultyBonusB>
 			<DifficultyBonusC>160</DifficultyBonusC>
@@ -590,7 +590,7 @@
 			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>9</DifficultyBonusBase>
+			<DifficultyBonusBase>14</DifficultyBonusBase>
 			<DifficultyBonusA>375</DifficultyBonusA>
 			<DifficultyBonusB>260</DifficultyBonusB>
 			<DifficultyBonusC>180</DifficultyBonusC>

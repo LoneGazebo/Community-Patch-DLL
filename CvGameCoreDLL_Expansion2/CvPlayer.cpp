@@ -49912,7 +49912,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / (20 + getNumCities()));
+	return (GetMilitaryMight() / (10 + getNumCities()));
 }
 #endif
 

@@ -13941,7 +13941,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 				int iMoveCost = pkTerrainInfo->getMovementCost();
 				if (isHills() || isMountain())
 					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
+				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 		else
@@ -13978,7 +13978,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 				int iMoveCost = pkFeatureInfo->getMovementCost();
 				if (isHills() || isMountain())
 					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
+				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 	}

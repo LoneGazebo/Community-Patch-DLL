@@ -23945,16 +23945,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD", iTempMod);
 
 #if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
-	CvPlot* pCityPlot = plot();
-	for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	if (MOD_YIELD_MODIFIER_FROM_UNITS)
 	{
-		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(eIndex);
-		if (iTempMod != 0)
+		CvPlot* pCityPlot = plot();
+		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iModifier += iTempMod;
-			if(toolTipSink && iTempMod)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(eIndex);
+			if (iTempMod != 0)
 			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
+				iModifier += iTempMod;
+				if (toolTipSink && iTempMod)
+				{
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
+				}
 			}
 		}
 	}
@@ -24520,7 +24523,7 @@ void CvCity::UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, in
 int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = 0;
@@ -24531,8 +24534,8 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
-		FeatureTypes eFeature = (FeatureTypes) iI;
-		if(eFeature != NO_FEATURE)
+		FeatureTypes eFeature = (FeatureTypes)iI;
+		if (eFeature != NO_FEATURE)
 		{
 			iValue += GetYieldPerTurnFromUnimprovedFeatures(eFeature, eIndex);
 		}
@@ -24565,20 +24568,23 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
+	if (GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
 	{
 		iValue += GetBaseScienceFromArt();
 	}
 #endif
 
 #if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
-	CvPlot* pCityPlot = plot();
-	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	if(MOD_YIELD_MODIFIER_FROM_UNITS)
 	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eIndex);
-		if (iTempVal != 0)
+		CvPlot* pCityPlot = plot();
+		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iValue += iTempVal;
+			int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eIndex);
+			if (iTempVal != 0)
+			{
+				iValue += iTempVal;
+			}
 		}
 	}
 #endif

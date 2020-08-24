@@ -592,6 +592,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				// Can't trade Luxury if the other player already has one
 				if (iNumAvailableOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 				{
+					if (pRenewDeal)
+					{
+						OutputDebugString("Renewal failed because player got another copy \n");
+					}
 					return false;
 				}
 			}
@@ -2443,21 +2447,12 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 bool CvDeal::IsPotentiallyRenewable()
 {
 	TradedItemList::iterator it;
-	bool bHasValidTradeItem = false;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		switch(GetItemTradeableState(it->m_eItemType))
-		{
-		case DEAL_NONRENEWABLE:
-			break;
-		case DEAL_RENEWABLE:
-			bHasValidTradeItem = true;
-			break;
-		case DEAL_SUPPLEMENTAL:
-			break;
-		}
+		if (GetItemTradeableState(it->m_eItemType) == DEAL_RENEWABLE)
+			return true;
 	}
-	return bHasValidTradeItem;
+	return false;
 }
 
 /// Delete a trade item that can be identified by type alone
@@ -4466,6 +4461,9 @@ void CvGameDeals::DoTurn()
 			}
 		}
 
+		//we only want one renewable deal per player. We clean that up here.
+		DoTurnPost();
+
 		// Check to see if any of our NONRENEWABLE TradeItems in any of our Deals expire this turn
 		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
@@ -4562,7 +4560,6 @@ void CvGameDeals::DoTurn()
 				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
-
 		DoUpdateCurrentDealsList();
 	}
 }
@@ -4570,7 +4567,31 @@ void CvGameDeals::DoTurn()
 /// Update deals for after DiploAI
 void CvGameDeals::DoTurnPost()
 {
+	
+	int iPlayerLoop;
+	// Loop through first set of players
+	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		if (!GET_PLAYER(ePlayer).isAlive())
+			continue;
+
+		// Loop through first set of players
+		int iPlayerLoop2;
+		for (iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			PlayerTypes ePlayer2 = (PlayerTypes)iPlayerLoop2;
+			if (!GET_PLAYER(ePlayer2).isAlive())
+				continue;
+
+			if (ePlayer2 == ePlayer)
+				continue;
+
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->CleanupRenewDeals(ePlayer2);
+		}
+	}
 }
+
 
 PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 {

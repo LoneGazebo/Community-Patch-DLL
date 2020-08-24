@@ -1098,7 +1098,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		if (GC.getGame().getGameTurn() <= 125)
 		{
 			//Estimation, because early game we assume we'll expand.
-			iNumCities = (4 + iNumCities);
+			iNumCities = (3 + iNumCities);
 			iNumCities *= 100;
 			iNumCities /= max(50, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 
@@ -2597,22 +2597,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_FOOD] += 250;
+			yield[YIELD_FOOD] += 500;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += 50;
+			yield[YIELD_FOOD] += 150;
 		}
 	}
 	if (PolicyInfo->IsHalfSpecialistFoodCapital() != 0)
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_FOOD] += 250;
+			yield[YIELD_FOOD] += 500;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += 50;
+			yield[YIELD_FOOD] += 150;
 		}
 	}
 
@@ -2882,9 +2882,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				if (iValue > 0)
 				{
 					if (pPlayerTraits->IsWarmonger())
-						iValue *= 2;
+						iValue *= 3;
 
-					yield[YIELD_PRODUCTION] += min(250, iValue);
+					yield[YIELD_PRODUCTION] += min(300, iValue);
 				}
 			}
 		}
@@ -3709,7 +3709,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						{
 							iValue *= 2;
 						}
-						yield[YIELD_FAITH] += min(250, iValue);
+						yield[YIELD_FAITH] += min(225, iValue);
 					}
 				}
 			}
@@ -3720,15 +3720,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 5, 10, 10, 10, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 1, 10, 10, 10, true, true);
 					if (pPlayerTraits->IsWarmonger())
 					{
 						iValue *= 2;
 					}
 					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-						yield[YIELD_GREAT_GENERAL_POINTS] += min(250, iValue);
+						yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
 					else
-						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(250, iValue);
+						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 				}
 			}
 		}
@@ -4908,7 +4908,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 									else
 									{
 										if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
-											iValue /= 3;
+											iValue /= 2;
 										else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 											iValue /= 2;
 

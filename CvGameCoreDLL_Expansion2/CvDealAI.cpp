@@ -303,11 +303,6 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 /// Deal has been accepted
 void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering)
 {
-	if(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eFromPlayer))
-	{
-		// make the deal not remove resources when processed
-		CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eFromPlayer), &kDeal);
-	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
@@ -876,6 +871,18 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	{
 		return true;
 	}
+	//special case for peacetime single return cities...
+	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer) && pDeal->ContainsItemType(TRADE_ITEM_CITIES, eOtherPlayer) && pDeal->GetNumItems() == 1)
+	{
+		int iCityLoop;
+		CvCity* pLoopCity;
+		for (pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
+		{
+			if (pDeal->IsCityInDeal(eOtherPlayer, pLoopCity->GetID()))
+				if (pLoopCity->getOriginalOwner() == pDeal->GetToPlayer() && !pLoopCity->IsRazing() && !pLoopCity->IsResistance())
+					return true;
+		}
+	}
 #endif
 
 	// We're surrendering
@@ -1372,6 +1379,8 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bRoundUp, bool bLogging)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (iGPTorValue <= 0)
+		return -1;
 
 	int iValueTimes100 = 0;
 
@@ -1488,14 +1497,14 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (bFromMe)
 	{
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/3.));
+		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/3.));
 		if (iGPT > 0)
 			iItemValue += min(iGPT,iItemValue);
 	}
 	else
 	{
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
+		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
 		if (iGPT > 0)
 			iItemValue += min(iGPT,iItemValue);
 	}
@@ -1741,7 +1750,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 10 + GC.getGame().getCurrentEra();
+	int iItemValue = 5 + GC.getGame().getCurrentEra();
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -2093,7 +2102,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			return INT_MAX;
 		}
 		//I traded for this city once before? Don't trade again.
-		if(bFromMe && pCity->IsTraded(GetPlayer()->GetID()))
+		if (bFromMe && pCity->IsTraded(GetPlayer()->GetID()))
 		{
 			return INT_MAX;
 		}
@@ -2403,7 +2412,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 100;
+	int iItemValue = 50;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
@@ -2503,7 +2512,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 	MajorCivApproachTypes eApproach = pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 
-	int iItemValue = 100;
+	int iItemValue = 50;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
@@ -2521,7 +2530,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		case MAJOR_CIV_APPROACH_HOSTILE:
 		case MAJOR_CIV_APPROACH_GUARDED:
 		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue += 1000;
+			iItemValue += 600;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
 			iItemValue += 400;
@@ -2647,7 +2656,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		case MAJOR_CIV_APPROACH_GUARDED:
 			if (!bVassal)
 			{
-				iItemValue += 1000;
+				iItemValue += 600;
 			}
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
@@ -3666,7 +3675,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			return INT_MAX;
 
 		//don't bite if we can't easily attack.
-		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) < TARGET_VALUE_AVERAGE)
+		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) <= TARGET_VALUE_AVERAGE)
 			return INT_MAX;
 
 		else if(eApproachTowardsAskingPlayer != MAJOR_CIV_APPROACH_FRIENDLY)
@@ -3727,12 +3736,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
-				iItemValue *= 150;
+				iItemValue *= 125;
 				iItemValue /= 100;
 			}
 			else
 			{
-				iItemValue *= 1000;
+				iItemValue *= 500;
 				iItemValue /= 100;
 			}
 		}
@@ -3810,11 +3819,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 			{
+				//let's only do this with neighbors
 				case PLAYER_PROXIMITY_DISTANT:
-					iItemValue *= 10;
-					break;
 				case PLAYER_PROXIMITY_FAR:
-					iItemValue *= 25;
+					return INT_MAX;
 					break;
 				case PLAYER_PROXIMITY_CLOSE:
 					iItemValue *= 200;
@@ -5673,6 +5681,9 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 				iNumGPT += iNumGPTAlreadyInTrade;
 				iNumGPT = min(iNumGPT, GET_PLAYER(eThem).calculateGoldRate()-2);
 
+				if (iNumGPT <= 0)
+					return;
+
 				if(iNumGPT != iNumGPTAlreadyInTrade && !pDeal->ChangeGoldPerTurnTrade(eThem, iNumGPT, iDealDuration))
 				{
 					pDeal->AddGoldPerTurnTrade(eThem, iNumGPT, iDealDuration);
@@ -5721,7 +5732,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 				iNumGPT = min(iNumGPT, GET_PLAYER(eMyPlayer).calculateGoldRate()-2);
 
 				int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ true, eThem, false, /*bRoundUp*/ !GET_PLAYER(eThem).isHuman());
-				if (iItemValue == MAX_INT)
+				if (iItemValue <= 0)
 					return;
 
 				if (!TooMuchAdded(eThem, iTotalValue, iItemValue, true))
