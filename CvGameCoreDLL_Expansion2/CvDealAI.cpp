@@ -88,7 +88,6 @@ TeamTypes CvDealAI::GetTeam()
 }
 
 /// How much are we willing to back off on what our perceived value of a deal is with an AI player to make something work?
-#if defined(MOD_BALANCE_CORE_DEALS)
 int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer) const
 {
 	int iPercent = 0;
@@ -166,7 +165,6 @@ bool CvDealAI::TooMuchAdded(PlayerTypes ePlayer, int iTotalValue, int iItemValue
 	//still not good enough, but trending in the right direction? Carry on.
 	return bFromUs ? (iTotalValue <= 0) : (iTotalValue >= 0);
 }
-#endif
 
 /// Offer up a deal to this AI, and see if he accepts
 DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
@@ -768,9 +766,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				case TRADE_ITEM_CITIES:
 				case TRADE_ITEM_DEFENSIVE_PACT:
 				case TRADE_ITEM_RESEARCH_AGREEMENT:
-				case TRADE_ITEM_PERMANENT_ALLIANCE:
 				case TRADE_ITEM_THIRD_PARTY_WAR:
-				case TRADE_ITEM_THIRD_PARTY_EMBARGO:
 				default:
 					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
 					break;
@@ -1300,8 +1296,6 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		iItemValue = GetDefensivePactValue(bFromMe, eOtherPlayer);
 	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 		iItemValue = GetResearchAgreementValue(bFromMe, eOtherPlayer);
-	else if(eItem == TRADE_ITEM_TRADE_AGREEMENT)
-		iItemValue = GetTradeAgreementValue(bFromMe, eOtherPlayer);
 	else if(eItem == TRADE_ITEM_PEACE_TREATY)
 		iItemValue = GetPeaceTreatyValue(eOtherPlayer);
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
@@ -2068,7 +2062,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 /// How much is a City worth - that is: how much would the buyer pay?
 int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bSurrender)
 {
@@ -2405,7 +2398,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 
 	return iItemValue;
 }
-#endif
 
 // How much is an embassy worth?
 int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
@@ -2555,7 +2547,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 
 		if (iNumEnemiesAtWarWith > 0)
 		{
-			iItemValue *= (100 - (iNumEnemiesAtWarWith * 5));
+			iItemValue *= max(1, (100 - (iNumEnemiesAtWarWith * 5)));
 			iItemValue /= 100;
 		}
 
@@ -2579,38 +2571,28 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				}
 			}
 		}
-#endif
-#if !defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		// Do we think he's going for culture victory?
-		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eOtherPlayer) == eCultureStrategy)
+#else
+		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
+		if (pDiploAI->IsCompetingForVictory() && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY && pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY)
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-
-			// If he has tourism and he's not influential on us yet, resist!
-			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL)
+			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 			{
-				iItemValue *= 500;
-				iItemValue /= 100;
-			}
-		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS)
-		{
-			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
-			{
-				if(pDiploAI->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				// Fiercely competitive over victory
+				if (pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 				{
-					if(pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
-					{
-						iItemValue = 100000;
-					}
+					return INT_MAX;
+				}
+
+				// If he has influence over half the civs, want to block OB with the other half
+				if (kOtherPlayer.GetCulture()->GetNumCivsToBeInfluentialOn() < kOtherPlayer.GetCulture()->GetNumCivsInfluentialOn())
+				{
+					return INT_MAX;
 				}
 			}
 		}
 #endif
-#endif
+
 		// Add 200 Gold for each of our artifacts they've stolen
 		if (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) > 0)
 		{
@@ -2628,36 +2610,19 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	// Other guy giving me Open Borders
 	else
 	{
-		bool bVassal = false;
-		
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// This guy is our master, so don't refuse to take his borders (unless he previously DoW'ed us when we were his vassal).
-		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			if (!pDiploAI->IsPlayerBrokenVassalAgreement(eOtherPlayer))
-			{
-				bVassal = true;
-			}
-		}
-#endif
-
 		if (!pDiploAI->IsWantsOpenBordersWithPlayer(eOtherPlayer))
 		{
 			return INT_MAX;
 		}
 
 		// Approach is important
-		switch(eApproach)
+		switch (eApproach)
 		{
-		//If we don't like him, don't take his borders. It's a trap!
 		case MAJOR_CIV_APPROACH_WAR:
 		case MAJOR_CIV_APPROACH_HOSTILE:
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
 		case MAJOR_CIV_APPROACH_GUARDED:
-			if (!bVassal)
-			{
-				iItemValue += 600;
-			}
+			iItemValue += 0;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue += 200;
@@ -2673,8 +2638,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue += 100;
 			break;
 		}
+
 		// Proximity is very important
-		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
+		switch (GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
 		case PLAYER_PROXIMITY_DISTANT:
 			iItemValue *= 70;
@@ -2698,23 +2664,22 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			break;
 		}
 		// Reduce value by half if the other guy only has a single City
-		if(GET_PLAYER(eOtherPlayer).getNumCities() == 1)
+		if (GET_PLAYER(eOtherPlayer).getNumCities() == 1)
 		{
 			iItemValue *= 50;
 			iItemValue /= 100;
 		}
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
+		if (GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
 		{
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		if(pDiploAI->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
+		if (pDiploAI->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
 		{
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		if(pDiploAI->MusteringForNeighborAttack(eOtherPlayer))
+		if (pDiploAI->MusteringForNeighborAttack(eOtherPlayer))
 		{
 			iItemValue *= 150;
 			iItemValue /= 100;
@@ -2722,17 +2687,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		//We need to explore?
 		EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		if(eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
+		if (eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 		{
 			iItemValue *= 115;
 			iItemValue /= 100;
 		}
-		if(eNavalRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+		if (eNavalRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 		{
 			iItemValue *= 115;
 			iItemValue /= 100;
 		}
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 		// Does open borders make our production siphon trait stronger?
 		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GetPlayer()->GetPlayerTraits()->IsTradeRouteProductionSiphon())
@@ -2741,60 +2705,44 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
 		}
 #endif
-		// Boost value greatly if we are going for a culture win
-		// If going for culture win always want open borders against civs we need influence on
-#if !defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && GetPlayer()->GetCulture()->GetTourism() / 100 > 0 )
+
+#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
+		if (pDiploAI->IsCompetingForVictory() && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY && pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			{
+				// Fiercely competitive over victory
+				if (pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+				{
+					return INT_MAX;
+				}
+
+				// If he has influence over half the civs, want to block OB with the other half
+				if (kOtherPlayer.GetCulture()->GetNumCivsToBeInfluentialOn() < kOtherPlayer.GetCulture()->GetNumCivsInfluentialOn())
+				{
+					return INT_MAX;
+				}
+			}
+		}
+#else
+		if (GetPlayer()->GetCulture()->GetTourism() / 100 > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == eOtherPlayer)
 			{
-				iItemValue *= 1000;
+				iItemValue *= 200;
 				iItemValue /= 100;
 			}
 
 			// If have influence over half the civs, want OB with the other half
-			else if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
+			if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
 			{
 				if (GetPlayer()->GetCulture()->GetInfluenceLevel(eOtherPlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iItemValue *= 500;
+					iItemValue *= 200;
 					iItemValue /= 100;
-				}
-			}
-
-			else if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-			{
-				// If we're cramped then we want OB more with our neighbors
-				if(GetPlayer()->IsCramped())
-				{
-					iItemValue *= 300;
-					iItemValue /= 100;
-				}
-			}
-		}
-#endif
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (pDiploAI->IsCompetingForVictory() && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY)
-		{
-			// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
-			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-			// Opinion also matters
-			if(pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) < MAJOR_CIV_APPROACH_FRIENDLY)
-			{
-				if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
-				{
-					if(pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
-					{
-						return INT_MAX;
-					}
-
-					// If he has influence over half the civs, want to block OB with the other half
-					if (kOtherPlayer.GetCulture()->GetNumCivsToBeInfluentialOn() < kOtherPlayer.GetCulture()->GetNumCivsInfluentialOn())
-					{
-						return INT_MAX;
-					}
 				}
 			}
 		}
@@ -2802,7 +2750,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
-	if(bUseEvenValue)
+	if (bUseEvenValue)
 	{
 		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetOpenBordersValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 
@@ -2823,22 +2771,19 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 
 	int iItemValue = 500;
 	bool bCancel = false;
-	
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		return INT_MAX;
-	}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eOtherPlayer))
-	{
-		return INT_MAX;
-	}
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 	{
 		return INT_MAX;
 	}
-#endif
+	if (GetPlayer()->IsAITeammateOfHuman())
+	{
+		bCancel = true;
+	}
+	if (GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eOtherPlayer))
+	{
+		bCancel = true;
+	}
 
 	//No DPs if last two!
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
@@ -2852,41 +2797,27 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 
 	int iBonus = 0;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (MOD_BALANCE_CORE_DEALS)
+
+	if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ false) == eOtherPlayer)
 	{
-		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ false) == eOtherPlayer)
-		{
-			iBonus = 10;
-		}
-		else if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ true) == eOtherPlayer)
-		{
-			iBonus = 3;
-		}
+		iBonus = 10;
 	}
-#endif
+	else if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ true) == eOtherPlayer)
+	{
+		iBonus = 3;
+	}
 
 	// What is a Defensive Pact with eOtherPlayer worth to US?
 	if (!bFromMe)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS)
-		{
-			iItemValue *= 35;
-			iItemValue /= max(1, (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus));
-		}
-#endif
+		iItemValue *= 35;
+		iItemValue /= max(1, (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus));
 	}
 	// How much do we value giving away a Defensive Pact?
 	else
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS)
-		{
-			iItemValue *= (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus);
-			iItemValue /= 40;
-		}
-#endif
+		iItemValue *= (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus);
+		iItemValue /= 40;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
@@ -2914,7 +2845,7 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
 
-	if(bFromMe)
+	if (bFromMe)
 	{
 		// if they are ahead of me in tech by one or more eras ratchet up the value since they are more likely to get a good tech than I am
 		EraTypes eMyEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
@@ -2924,7 +2855,7 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 		iItemValue += iAdditionalValue;
 
 		// Approach is important
-		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
+		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 		case MAJOR_CIV_APPROACH_WAR:
 			iItemValue *= 100;
@@ -2953,78 +2884,17 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 			break;
 		}
 		iItemValue /= 100;
+	}
 
+	if (GetPlayer()->GetRAToVotes() > 0)
+	{
+		iItemValue *= 5;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
-	if(bUseEvenValue)
+	if (bUseEvenValue)
 	{
 		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetResearchAgreementValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
-
-		if (iReverseValue == INT_MAX)
-			//no deal, can't agree on a value
-			iItemValue = INT_MAX;
-		else
-			iItemValue = (iItemValue + iReverseValue)/2;
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES)
-	{
-		if(GetPlayer()->GetRAToVotes() > 0)
-		{
-			iItemValue *= 5;
-		}
-	}
-#endif
-
-	return iItemValue;
-}
-
-/// How much is a Trade Agreement worth?
-int CvDealAI::GetTradeAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
-{
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Trade Agreement with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	int iItemValue = 100;
-
-	if(bFromMe)
-	{
-		// Approach is important
-		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
-		{
-		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue *= 100;
-			break;
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue *= 250;
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			iItemValue *= 130;
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue *= 100;
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue *= 80;
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue *= 100;
-			break;
-		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue *= 110;
-			break;
-		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Trade Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-			iItemValue *= 100;
-			break;
-		}
-		iItemValue /= 100;
-	}
-
-	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
-	if(bUseEvenValue)
-	{
-		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeAgreementValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 
 		if (iReverseValue == INT_MAX)
 			//no deal, can't agree on a value
@@ -3040,7 +2910,6 @@ int CvDealAI::GetTradeAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, boo
 int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 {
 	DEBUG_VARIABLE(eOtherPlayer);
-
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Peace Treaty with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	return 20;
@@ -3538,7 +3407,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	//Already moving on asker?
 	if(bFromMe && pDiploAI->IsArmyInPlaceForAttack(eOtherPlayer))
 	{
@@ -3574,7 +3442,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		iItemValue += 500;
 	}
-#endif
+
 	WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWithPlayer);
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
@@ -4077,7 +3945,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
 		//Alright, so vote logic. We're giving them votes, so let's only vote on things we like.
 		//Also, make sure that whatever we vote on can't be screwed over. Ask for more if they have lots of votes.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -4223,12 +4090,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				iValue *= 2;
 			}
 		}
-#endif
 	}
 	// Giving their votes to something we want - Higher value for voting on things we like
 	else
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
 		//They're offering us a vote...but on what? If we like it, it's worth more. If we don't, it's worth less.
 		//Also, if they have tons of extra votes, it's worth less (cuz they'll screw us, probably).
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -4391,7 +4256,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				iValue /= 2;
 			}
 		}
-#endif
 	}
 
 	iValue = MAX(iValue, 0);
@@ -6840,7 +6704,6 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	return bDealAcceptable && pDeal->GetNumItems() > 0;
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 /// A good time to make an offer for a Defensive Pact?
 bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
@@ -7344,7 +7207,6 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	return bDealAcceptable && pDeal->GetNumItems() > 0;
 }
-#endif
 
 /// This function called when human player enters diplomacy
 void CvDealAI::DoTradeScreenOpened()
@@ -7652,10 +7514,8 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 					case TRADE_ITEM_CITIES:
 					case TRADE_ITEM_DEFENSIVE_PACT:
 					case TRADE_ITEM_RESEARCH_AGREEMENT:
-					case TRADE_ITEM_PERMANENT_ALLIANCE:
 					case TRADE_ITEM_THIRD_PARTY_PEACE:
 					case TRADE_ITEM_THIRD_PARTY_WAR:
-					case TRADE_ITEM_THIRD_PARTY_EMBARGO:
 					case TRADE_ITEM_VOTE_COMMITMENT:
 					case TRADE_ITEM_VASSALAGE:
 					case TRADE_ITEM_VASSALAGE_REVOKE:
@@ -8659,7 +8519,7 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 	//No current research? We may have just finished something.
 	if(GetPlayer()->GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
@@ -8670,7 +8530,7 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	{
 		return false;
 	}
-#endif
+
 	int iTechLoop;
 	TechTypes eTech;
 	TechTypes eTechWeWant = NO_TECH;
@@ -8688,7 +8548,6 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			continue;
 		}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 		if(!GetPlayer()->GetPlayerTechs()->IsResearch())
 		{
 			continue;
@@ -8704,7 +8563,6 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		// don't do the expensive turn calculation for techs that can't be traded anyway
 		if(!GetPlayer()->GetPlayerTechs()->CanResearch(eTech))
 			continue;
-#endif
 
 		// Can they sell that tech?
 		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_TECHS, eTech))
@@ -8899,7 +8757,6 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 
 	return bDealAcceptable && pDeal->GetNumItems() > 0;
 }
-
 
 /// See if adding Maps to their side of the deal helps even out pDeal
 void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
@@ -9106,6 +8963,7 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 		}
 	}
 }
+
 void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 {
 	CvAssert(eThem >= 0);
@@ -9132,6 +8990,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 		}
 	}
 }
+
 void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 {
 	CvAssert(eThem >= 0);

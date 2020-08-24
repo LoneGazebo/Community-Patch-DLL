@@ -1486,11 +1486,7 @@ void CvGame::initDiplomacy()
 				const TeamTypes eTeamB = static_cast<TeamTypes>(iJ);
 				if(iI != iJ)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					kTeamA.declareWar(eTeamB, false, kTeamA.getLeaderID());
-#else
-					kTeamA.declareWar(eTeamB);
-#endif
 				}
 			}
 		}
@@ -9530,11 +9526,7 @@ void CvGame::updateWar()
 									{
 										if(!atWar(((TeamTypes)iI), ((TeamTypes)iJ)))
 										{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 											teamI.declareWar(((TeamTypes)iJ), false, teamI.getLeaderID());
-#else
-											teamI.declareWar(((TeamTypes)iJ));
-#endif
 										}
 									}
 								}
