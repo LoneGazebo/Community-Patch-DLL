@@ -24692,6 +24692,27 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 	}
 }
 
+/// Base yield rate from Terrain
+void CvCity::SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iValue != m_aiBaseYieldRateFromTerrain[eIndex])
+	{
+		m_aiBaseYieldRateFromTerrain.setAt(eIndex, iValue);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			if (isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+			}
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Buildings
 int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const

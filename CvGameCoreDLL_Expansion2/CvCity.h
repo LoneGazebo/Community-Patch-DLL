@@ -1111,6 +1111,7 @@ public:
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue);
 
 	int GetBaseYieldRateFromBuildings(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange);

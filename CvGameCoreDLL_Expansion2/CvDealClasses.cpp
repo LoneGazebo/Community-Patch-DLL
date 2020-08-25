@@ -655,7 +655,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			//do not trade away our closest city in the same deal!
 			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCity->plot());
-			if (pClosestCity != NULL && IsCityInDeal(pClosestCity->getOwner(), pClosestCity->GetID()))
+			if (pClosestCity != NULL && pClosestCity != pCity && IsCityInDeal(pClosestCity->getOwner(), pClosestCity->GetID()))
 				return false;
 
 			// Can't trade a city to a human in an OCC game
@@ -707,8 +707,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pToTeam->isAllowEmbassyTradingAllowed())
 			return false;
 		// Already has embassy
-		if(pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
+		if (!pRenewDeal)
+		{
+			if (pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+		}
 		// Same team
 		if(eFromTeam == eToTeam)
 			return false;
@@ -741,11 +744,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
 		
-		bool bIgnoreExistingOP = true;
+		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsOpenBordersTrade(ePlayer);
 
 		// Already has OB
-		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)
-			return false;
+		if (!bIgnoreExistingOP)
+		{
+			if (pFromTeam->IsAllowsOpenBordersToTeam(eToTeam))
+				return false;
+		}
 
 		// Same Team
 		if(eFromTeam == eToTeam)
@@ -772,6 +778,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Defensive Pact
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
 	{
+		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsDefensivePactTrade(ePlayer);
+
 		// Neither of us yet has the Tech for DP
 		if(!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			return false;
@@ -779,8 +787,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
 		// Already has DP
-		if(pFromTeam->IsHasDefensivePact(eToTeam))
-			return false;
+		if (!bIgnoreExistingOP)
+		{
+			if (pFromTeam->IsHasDefensivePact(eToTeam))
+				return false;
+		}
 		// Same Team
 		if(eFromTeam == eToTeam)
 			return false;

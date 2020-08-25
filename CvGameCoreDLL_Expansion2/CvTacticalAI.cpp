@@ -4090,7 +4090,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTa
 	//second round: move in as long as there is no danger
 	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		CvUnit* pUnit = *it;
 		if (pUnit->TurnProcessed())
 			continue;

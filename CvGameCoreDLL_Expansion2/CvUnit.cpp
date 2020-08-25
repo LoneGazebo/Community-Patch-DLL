@@ -5519,24 +5519,24 @@ bool CvUnit::jumpToNearestValidPlot()
 
 	if (getDomainType() == DOMAIN_AIR)
 	{
-		if (canRebaseAt(getX(), getY()))
+		if (canRebaseAt(getX(), getY(), true))
 			return true;
 
 		int iLoopCity;
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
 		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
+			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), false, GetRange()) > 0)
 			{
-				rebase(pLoopCity->getX(), pLoopCity->getY());
+				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
 				return true;
 			}
 		}
 
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoopCity))
 		{
-			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
+			if (canRebaseAt(pLoopCity->getX(), pLoopCity->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopCity->plot(), getOwner(), true, GetRange()) > 0)
 			{
-				rebase(pLoopCity->getX(), pLoopCity->getY());
+				rebase(pLoopCity->getX(), pLoopCity->getY(), true);
 				return true;
 			}
 		}
@@ -5547,9 +5547,9 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (!pLoopUnit->isAircraftCarrier())
 				continue;
 
-			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY()) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
+			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
 			{
-				rebase(pLoopUnit->getX(), pLoopUnit->getY());
+				rebase(pLoopUnit->getX(), pLoopUnit->getY(), true);
 				return true;
 			}
 		}
@@ -9836,7 +9836,7 @@ bool CvUnit::sellExoticGoods()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebase() const
+bool CvUnit::canRebase(bool bForced) const
 {
 	// Must be an air unit
 	if(getDomainType() != DOMAIN_AIR)
@@ -9851,7 +9851,7 @@ bool CvUnit::canRebase() const
 	}
 
 	// Must have movement points left this turn
-	if(getMoves() <= 0)
+	if (!bForced && getMoves() <= 0)
 	{
 		return false;
 	}
@@ -9868,10 +9868,10 @@ int CvUnit::getRebaseRange() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebaseAt(int iXDest, int iYDest) const
+bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
-	if(!canRebase())
+	if (!canRebase(bForced))
 	{
 		return false;
 	}
@@ -10023,9 +10023,9 @@ bool CvUnit::canRebaseAt(int iXDest, int iYDest) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::rebase(int iX, int iY)
+bool CvUnit::rebase(int iX, int iY, bool bForced)
 {
-	if(!canRebaseAt(iX, iY))
+	if (!canRebaseAt(iX, iY, bForced))
 	{
 		return false;
 	}

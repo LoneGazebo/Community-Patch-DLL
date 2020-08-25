@@ -882,6 +882,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 	// Bonuses
 	//////////
 	bool bAvoidGrowth = IsAvoidGrowth();
+	bool bIsFoodPlot = false;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
@@ -904,6 +905,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 		if (iYield > 0)
 		{
+
+			//if this is a net-positive tile, that's good!
+			if (eYield == YIELD_FOOD && iYield >= 2)
+				bIsFoodPlot = true;
+
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
 				iYieldMod += 2;
@@ -1053,10 +1059,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYieldMod /= 2;
 
 			//no yield mods until we're fed!
-			if (eYield != YIELD_FOOD && store.iExcessFoodTimes100 <= (m_bDiscourageGrowth ? 0 : 2) && !bAvoidGrowth)
+			if (!bIsFoodPlot && eYield != YIELD_FOOD && store.iExcessFoodTimes100 <= (m_bDiscourageGrowth ? 0 : 2) && !bAvoidGrowth)
 				iYieldMod = 1;
 
 			iYield *= max(1, iYieldMod);
+
 			iValue += iYield;
 		}
 	}
