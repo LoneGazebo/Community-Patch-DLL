@@ -1271,7 +1271,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		iFlavorExpansion -= kPlayer.getNumCities();
+		iFlavorExpansion -= kPlayer.getNumCities() * 5;
 
 		if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
 		{
@@ -1281,7 +1281,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
-					iFlavorExpansion += 10;
+					iFlavorExpansion += 25;
 				}
 
 				EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
@@ -1289,7 +1289,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
 					{
-						iFlavorExpansion += 5;
+						iFlavorExpansion += 15;
 					}
 				}
 			}
@@ -1302,7 +1302,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 			{
-				iFlavorExpansion += 5;
+				iFlavorExpansion += 50;
 				bRunningEarlyExpand = true;
 			}
 		}
@@ -1313,7 +1313,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 			{
-				iFlavorExpansion += 10;
+				iFlavorExpansion += 50;
 			}
 		}
 
@@ -1322,55 +1322,55 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeeder))
 			{
-				iFlavorExpansion += 10;
+				iFlavorExpansion += 50;
 			}
 		}	
 
 		if(kPlayer.getSettlerProductionModifier() > 0)
 		{
-			iFlavorExpansion += 5;
+			iFlavorExpansion += kPlayer.getSettlerProductionModifier();
 		}
 		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 		{
-			iFlavorExpansion += 5;
+			iFlavorExpansion += 50;
 		}
 		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 		{
-			iFlavorExpansion += 5;
+			iFlavorExpansion += kPlayer.getCapitalSettlerProductionModifier();
 		}
 		int iEraDifference = ((GC.getGame().getCurrentEra()+1) * 2) - kPlayer.getNumCities();
 		if (iEraDifference > 0 && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
 		{
-			iFlavorExpansion += 10 * iEraDifference;
+			iFlavorExpansion += 100 * iEraDifference;
 		}
 		if (kPlayer.IsAtWar())
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 100;
 		}
 
 		if (kPlayer.IsEmpireUnhappy())
 		{
-			iFlavorExpansion -= 15;
+			iFlavorExpansion -= 25;
 
 			if (kPlayer.IsEmpireVeryUnhappy())
 			{
-				iFlavorExpansion -= 15;
+				iFlavorExpansion -= 50;
 				
 				if (kPlayer.IsEmpireSuperUnhappy())
-					iFlavorExpansion -= 15;
+					iFlavorExpansion -= 50;
 			}
 		}
 
 		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iFlavorExpansion -= 5;
+			iFlavorExpansion -= 25;
 		}
 
 		// scale based on flavor and world size
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 25;
 		}
 
 		//check victory conditions
@@ -1380,42 +1380,41 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 			if (bSeekingCultureVictory)
 			{
-				iFlavorExpansion -= 10;
+				iFlavorExpansion -= 25;
 			}
 			bool bSeekingSSVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 			if (bSeekingSSVictory)
 			{
-				iFlavorExpansion -= 10;
+				iFlavorExpansion -= 25;
 			}
 		}
 
 		//bonuses for late founding units
 		if (pkUnitEntry->IsFoundMid())
-			iFlavorExpansion += 5;
+			iFlavorExpansion += 25;
 		else if (pkUnitEntry->GetNumColonyFound() > 0)
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 50;
 		else if (pkUnitEntry->IsFoundLate())
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 50;
 		else if (pkUnitEntry->IsFoundAbroad())
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 50;
 
 		if (iFlavorExpansion <= 0)
 			return 0;
 
 		//once we've expanded a single time, let's try to get non-capital cities to be our settler-makers.
 		if (!m_pCity->isCapital())
-			iFlavorExpansion += 5;
+			iFlavorExpansion += 25;
 		else if (kPlayer.getNumCities() > 1)
-			iFlavorExpansion -= 5;
+			iFlavorExpansion -= 25;
 
-		//todo: is 10 the right number here?
-		if (m_pCity->isCapital() && iFlavorExpansion >= 10)
+		if (m_pCity->isCapital() && iFlavorExpansion >= 100)
 		{
 			kPlayer.GetMilitaryAI()->BumpNumberOfTimesSettlerBuildSkippedOver();
 		}
 
 		//if we got this far we want to expand, so let's bump the number of times we've skipped this.
-		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver();
+		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 10;
 		
 		//Higher-level AI should expand more quickly.
 		if (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
@@ -1423,9 +1422,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
 		}
 
-		//250
-		int iExpansionVal = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER();
-		iBonus += (iFlavorExpansion * iExpansionVal);
+		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 5 : 1);
 	}
 	if(!kPlayer.isMinorCiv())
 	{
@@ -1881,9 +1878,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (iBonus <= 0)
 		return 0;
 
-	//iValue is the compunded value of the items.
-	iTempWeight *= 100 + (iBonus * iBonus);
-	iTempWeight /= 100;
+	//iValue modified by iBonus
+	iTempWeight += iBonus;
 
 	if (m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		iTempWeight /= 5;

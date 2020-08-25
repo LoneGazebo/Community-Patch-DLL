@@ -28562,7 +28562,7 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 			if (!IsPlayerMadeNoConvertPromise(ePlayer) && !IsPlayerBrokenNoConvertPromise(ePlayer) && !IsPlayerIgnoredNoConvertPromise(ePlayer))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STOP_CONVERSIONS;
-				int iTurnsBetweenStatements = 1;
+				int iTurnsBetweenStatements = 50;
 
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
@@ -49180,7 +49180,9 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 		case DIPLO_STATEMENT_STOP_DIGGING:
 			strTemp.Format("***** STOP DIGGING WARNING *****");
 			break;
-
+		case DIPLO_STATEMENT_STOP_CONVERSIONS:
+			strTemp.Format("***** STOP CONVERSIONS! *****");
+			break;
 			
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

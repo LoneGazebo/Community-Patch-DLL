@@ -1329,8 +1329,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		return 1;
 
 	//iValue is the compunded value of the items.
-	iValue *= 100 + (iBonus * iBonus);
-	iValue /= 100;
+	iValue += iBonus;
 
 	return iValue;
 }

@@ -10650,7 +10650,8 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 
 			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
-				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, getYield(eYield) - iOldYield);
+				int iDelta = iNewYield - iOldYield;
+				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
 
 #if defined(MOD_BALANCE_CORE)
 				pOwningCity->UpdateCityYields(eYield);
