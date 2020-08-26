@@ -2315,6 +2315,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 #endif
 
+	/*
+	//callstack logging to investigate mysterious vanishing units
+	if (getDomainType() == DOMAIN_AIR && !isSuicide())
+	{
+		FILogFile* pLog=LOGFILEMGR.GetLog( "AirUnitKills.log", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			pLog->Msg(CvString::format("\n%s %d killed by %d\n",getName().c_str(),GetID(),ePlayer).c_str());
+			gStackWalker.SetLog(pLog);
+			gStackWalker.ShowCallstack(GetCurrentThread());
+		}
+		pLog->Close();
+	}
+	*/
+
+
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	//important - zoc has probably changed
 	if (ePlayer != NO_PLAYER && IsCombatUnit())
@@ -15039,20 +15055,34 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	if (isCargo() && getDomainType() != DOMAIN_AIR)
 		return false;
 
-	ImprovementTypes eImprovement = pPlot->getImprovementType();
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
+		if (!pPlot->isWater())
 			return true;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-		if (IsEmbarkDeepWater())
-			return !pPlot->isDeepWater();
 		else
+		{
+			ImprovementTypes eImprovement = pPlot->getImprovementType();
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
+				return true;
+			else
+			{
+				//let's treat ice like (usually impassable) land
+				//same logic as in needsEmbarkation, which should be folded into this function anyway
+				if (pPlot->isIce())
+					return true;
+
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+				//deep water embarkation means we treat shallow water like land
+				if (IsEmbarkDeepWater() && pPlot->isShallowWater())
+					return true;
 #endif
-			return !pPlot->isWater();
+
+				//must be water
+				return false;
+			}
+		}
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -15061,15 +15091,21 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		{
-			return (pPlot->isWater() || pPlot->isCity() || (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable()));
+			if (pPlot->isWater() || pPlot->isCity())
+				return true;
+			else
+			{
+				ImprovementTypes eImprovement = pPlot->getImprovementType();
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable())
+					return true;
+
+				//must be land
+				return false;
+			}
 		}
-		else
-		{
-			return (pPlot->isWater());
-		}
-#else
-		return (pPlot->isWater());
 #endif
+		return (pPlot->isWater());
 		break;
 	case DOMAIN_HOVER:
 		return true;
