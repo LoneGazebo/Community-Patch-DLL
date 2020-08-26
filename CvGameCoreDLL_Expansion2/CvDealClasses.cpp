@@ -692,11 +692,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 #endif
 	}
-	// Unit
-	else if(eItem == TRADE_ITEM_UNITS)
-	{
-		return false;
-	}
 	// Embassy
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
@@ -864,35 +859,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 #endif
 	}
-	// Trade Agreement
-	else if(eItem == TRADE_ITEM_TRADE_AGREEMENT)
-	{
-		// Neither of us yet has the Tech for TA
-		if(!pFromTeam->IsTradeAgreementTradingAllowed() && !pToTeam->IsTradeAgreementTradingAllowed())
-			return false;
-		// Already has TA
-		if(pFromTeam->IsHasTradeAgreement(eToTeam))
-			return false;
-		// Same Team
-		if(eFromTeam == eToTeam)
-			return false;
-
-		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
-		if(bCheckOtherPlayerValidity)
-		{
-			if(!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
-				return false;
-		}
-	}
-	// Permanent Alliance
-	else if(eItem == TRADE_ITEM_PERMANENT_ALLIANCE)
-		return false;
-	// Surrender
-	else if(eItem == TRADE_ITEM_SURRENDER)
-		return false;
-	// Truce
-	else if(eItem == TRADE_ITEM_TRUCE)
-		return false;
 	// Peace Treaty
 	else if(eItem == TRADE_ITEM_PEACE_TREATY)
 	{
@@ -909,15 +875,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 			
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if (MOD_EVENTS_WAR_AND_PEACE) {
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) {
+		if (MOD_EVENTS_WAR_AND_PEACE) 
+		{
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
+			{
 				return false;
 			}
 
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) 
+			{
 				return false;
 			}
-		} else {
+		}
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)
@@ -939,15 +908,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-		}
-#endif
 	}
 	// Third Party Peace
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
-#if defined(MOD_BALANCE_CORE)
+
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
@@ -966,7 +932,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 		}
 
-#endif
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
 			return false;
@@ -1003,12 +968,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!GET_TEAM(eThirdTeam).canChangeWarPeace(eFromTeam))
 			return false;
 
-#if defined(MOD_BALANCE_CORE)
-		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
 			{
 				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
 
@@ -1083,46 +1046,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
-#else
-		CvPlayer* pOtherPlayer = &GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID());
-
-		// Minor civ
-		if(pOtherPlayer->isMinorCiv())
-		{
-			// Minor at permanent war with this player
-			if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
-				return false;
-
-			// Minor's ally at war with this player?
-			else if(pOtherPlayer->GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
-			{
-				// If the ally is us, don't block peace here
-				if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
-					return false;
-			}
-		}
-		// Major civ
-		else
-		{
-			// Can't ask them to make peace with a human, because we have no way of knowing if the human wants peace
-			if(pOtherPlayer->isHuman())
-				return false;
-
-			// Player does not want peace with eOtherPlayer
-			if(pFromPlayer->isHuman() || pFromPlayer->GetDiplomacyAI()->GetWarGoal(pOtherPlayer->GetID()) < WAR_GOAL_DAMAGE)
-				return false;
-
-			// Other player does not want peace with eToPlayer
-			if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
-				return false;
-		}
-#endif
 	}
 	// Third Party War
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_WAR)
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
-#if defined(MOD_BALANCE_CORE)
+
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
@@ -1195,18 +1124,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 
 		// Can this player actually declare war?
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if(!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
-#else
-		if(!pFromTeam->canDeclareWar(eThirdTeam))
-#endif
+		if (!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
 			return false;
 
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
 			{
 				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
 				
@@ -1237,51 +1161,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 				}
 			}
-		}	
-#else
-		// Can't be the same team
-		if(eFromTeam == eThirdTeam)
-			return false;
-
-		// Can't ask teammates
-		if(eToTeam == eFromTeam)
-			return false;
-
-		// Must be alive
-		if(!GET_TEAM(eThirdTeam).isAlive())
-			return false;
-
-		// Player that would go to war hasn't yet met the 3rd Team
-		if(!pToTeam->isHasMet(eThirdTeam))
-			return false;
-		// Player that wants war not met this team
-		if(!pFromTeam->isHasMet(eThirdTeam))
-			return false;
-
-		// Player that would go to war is already at war with the 3rd Team
-		if(pFromTeam->isAtWar(eThirdTeam))
-			return false;
-
-		// Can this player actually declare war?
-		if(!pFromTeam->canDeclareWar(eThirdTeam))
-			return false;
-
-		// Can't already have this in the deal
-		//if (IsThirdPartyWarTrade( ePlayer, GET_TEAM(eThirdTeam).getLeaderID() ))
-		//	return false;
-
-		// Can't ask a player to declare war on their ally
-		if(GET_TEAM(eThirdTeam).isMinorCiv())
-		{
-			if(GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->GetAlly() == ePlayer)
-				return false;
 		}
-#endif
-	}
-	// Third Party Embargo
-	else if(eItem == TRADE_ITEM_THIRD_PARTY_EMBARGO)
-	{
-		return false;
 	}
 	// Declaration of friendship
 	else if(eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
@@ -1334,7 +1214,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// This player must be allowed to
 		if(!bFinalizing && !pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
-#if defined(MOD_BALANCE_CORE)
+
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -1345,7 +1225,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
-#endif
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Maps
@@ -1364,7 +1243,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//Can't already be offering this
 		if (!bFinalizing && IsMapTrade( ePlayer))
 			return false;
-#if defined(MOD_BALANCE_CORE)
+
 		if(!bHumanToHuman)
 		{
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -1375,7 +1254,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
-#endif
 	}
 	// Techs
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
@@ -1794,27 +1672,6 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 	}
 }
 
-/// Insert a unit trade
-void CvDeal::AddUnitTrade(PlayerTypes eFrom, int iUnitID)
-{
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_UNITS, iUnitID))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_UNITS;
-		item.m_iDuration = 0;
-		item.m_iFinalTurn = -1;
-		item.m_iData1 = iUnitID;
-		item.m_eFromPlayer = eFrom;
-		m_TradedItems.push_back(item);
-	}
-	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Unit to a deal");
-	}
-}
-
 /// Insert adding an embassy to the deal
 void CvDeal::AddAllowEmbassy(PlayerTypes eFrom)
 {
@@ -1902,83 +1759,6 @@ void CvDeal::AddResearchAgreement(PlayerTypes eFrom, int iDuration)
 	}
 }
 
-/// Insert a Trade Agreement
-void CvDeal::AddTradeAgreement(PlayerTypes eFrom, int iDuration)
-{
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_TRADE_AGREEMENT, iDuration))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_TRADE_AGREEMENT;
-		item.m_iDuration = iDuration;
-		//item.m_iFinalTurn = iDuration + GC.getGame().getGameTurn();
-		item.m_iFinalTurn = -1;
-		item.m_eFromPlayer = eFrom;
-		m_TradedItems.push_back(item);
-	}
-	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Trade Agreement item to a deal");
-	}
-}
-
-/// Insert a permanent alliance
-void CvDeal::AddPermamentAlliance()
-{
-//	if (IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_PERMANENT_ALLIANCE, iDuration))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_PERMANENT_ALLIANCE;
-		item.m_iDuration = 0;
-		item.m_iFinalTurn = -1;
-		m_TradedItems.push_back(item);
-	}
-//	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Permanent Alliance item to a deal");
-	}
-}
-
-/// Insert one side surrendering in a war
-void CvDeal::AddSurrender(PlayerTypes eFrom)
-{
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_SURRENDER))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_SURRENDER;
-		item.m_iDuration = 0;
-		item.m_iFinalTurn = -1;
-		item.m_eFromPlayer = eFrom;
-		m_TradedItems.push_back(item);
-	}
-	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Surrender item to a deal");
-	}
-}
-
-/// Insert a short-term truce
-void CvDeal::AddTruce()
-{
-//	if (IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_TRUCE))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_TRUCE;
-		item.m_iDuration = 0;
-		item.m_iFinalTurn = -1;
-		m_TradedItems.push_back(item);
-	}
-//	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Truce item to a deal");
-	}
-}
-
 /// Insert ending a war
 void CvDeal::AddPeaceTreaty(PlayerTypes eFrom, int iDuration)
 {
@@ -2038,30 +1818,6 @@ void CvDeal::AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	else
 	{
 		CvAssertMsg(false, "DEAL: Trying to add an invalid Third Party War item to a deal");
-	}
-}
-
-/// Insert starting an embargo on a third party
-void CvDeal::AddThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty, int iDuration)
-{
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_THIRD_PARTY_EMBARGO, eThirdParty, iDuration))
-	{
-		CvTradedItem item;
-		item.m_eItemType = TRADE_ITEM_THIRD_PARTY_EMBARGO;
-		item.m_iDuration = iDuration;
-		//item.m_iFinalTurn = iDuration + GC.getGame().getGameTurn();
-		item.m_iFinalTurn = -1;
-		item.m_iData1 = eThirdParty;
-		item.m_eFromPlayer = eFrom;
-		m_TradedItems.push_back(item);
-	}
-	else
-	{
-		CvAssertMsg(false, "DEAL: Trying to add an invalid Third Party Embargo item to a deal");
 	}
 }
 
@@ -2342,19 +2098,6 @@ bool CvDeal::IsResearchAgreementTrade(PlayerTypes eFrom)
 	return 0;
 }
 
-bool CvDeal::IsTradeAgreementTrade(PlayerTypes eFrom)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_TRADE_AGREEMENT && it->m_eFromPlayer == eFrom)
-		{
-			return true;
-		}
-	}
-	return 0;
-}
-
 bool CvDeal::IsPeaceTreatyTrade(PlayerTypes eFrom)
 {
 	TradedItemList::iterator it;
@@ -2414,11 +2157,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 		// not renewable
 	case TRADE_ITEM_ALLOW_EMBASSY:
 	case TRADE_ITEM_CITIES:
-	case TRADE_ITEM_UNITS:
-	case TRADE_ITEM_SURRENDER:
-	case TRADE_ITEM_TRUCE:
 	case TRADE_ITEM_PEACE_TREATY:
-	case TRADE_ITEM_PERMANENT_ALLIANCE:
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_VOTE_COMMITMENT:
@@ -2434,12 +2173,10 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_RESOURCES:
 	case TRADE_ITEM_OPEN_BORDERS:
 	case TRADE_ITEM_DEFENSIVE_PACT:
-	case TRADE_ITEM_THIRD_PARTY_EMBARGO: // dead!
 		return DEAL_RENEWABLE;
 		break;
 
 		// doesn't matter
-	case TRADE_ITEM_TRADE_AGREEMENT:
 	case TRADE_ITEM_GOLD:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	case TRADE_ITEM_TECHS:
@@ -2516,21 +2253,6 @@ void CvDeal::RemoveCityTrade(PlayerTypes eFrom, int iCityID)
 	}
 }
 
-/// Delete a unit trade
-void CvDeal::RemoveUnitTrade(int iUnitID)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_UNITS &&
-		        it->m_iData1 == iUnitID)
-		{
-			m_TradedItems.erase(it);
-			break;
-		}
-	}
-}
-
 /// Delete a peace deal with a third party
 void CvDeal::RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 {
@@ -2555,22 +2277,6 @@ void CvDeal::RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
 		        (PlayerTypes)it->m_iData1 == eThirdPartyTeam &&
-		        (PlayerTypes)it->m_eFromPlayer == eFrom)
-		{
-			m_TradedItems.erase(it);
-			break;
-		}
-	}
-}
-
-/// Delete an embargo deal with a third party
-void CvDeal::RemoveThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty)
-{
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_EMBARGO &&
-		        (PlayerTypes)it->m_iData1 == eThirdParty &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			m_TradedItems.erase(it);
@@ -2624,24 +2330,6 @@ void CvDeal::ChangeThirdPartyPeaceDuration(PlayerTypes eFrom, TeamTypes eThirdPa
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE &&
 		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
-		        (PlayerTypes)it->m_eFromPlayer == eFrom)
-		{
-			it->m_iDuration = iNewDuration;
-			break;
-		}
-	}
-}
-
-void CvDeal::ChangeThirdPartyEmbargoDuration(PlayerTypes eFrom, PlayerTypes eThirdParty, int iNewDuration)
-{
-	CvAssertMsg(iNewDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iNewDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	TradedItemList::iterator it;
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_EMBARGO &&
-		        (PlayerTypes)it->m_iData1 == eThirdParty &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			it->m_iDuration = iNewDuration;
@@ -3316,29 +3004,19 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				GC.getGame().DoResearchAgreementNotification(eFromTeam, eToTeam);
 			}
 		}
-		// Trade Agreement
-		else if(it->m_eItemType == TRADE_ITEM_TRADE_AGREEMENT)
-		{
-			GET_TEAM(eFromTeam).SetHasTradeAgreement(eToTeam, true);
-		}
 		// Third Party Peace
 		else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE)
 		{
 			TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 			bool bTargetTeamIsMinor = GET_TEAM(eTargetTeam).isMinorCiv();
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
-#else
-			GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor);
-#endif
 			GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 			GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
 			
 			// Update diplo stuff.
-			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				
 				if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
 				{
@@ -3356,10 +3034,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				veNowAtPeacePairs.push_back(eTargetTeam, eFromTeam); //eFromTeam is second so we can take advantage of CvWeightedVector's sort by weights
 			}
 #if defined(MOD_BALANCE_CORE)
-			PlayerTypes eThirdParty;
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 				{
 					//If human was target, let human know.
@@ -3384,7 +3061,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					// Other players' reactions
 					for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
-						eThirdParty = (PlayerTypes) iThirdPartyLoop;
+						PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 						
 						if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman() && GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
 						{
@@ -3402,10 +3079,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		else if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 		{
 			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
-			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam)
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DeclareWar(eTargetTeam))
@@ -3595,7 +3271,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE)
+			if (MOD_BALANCE_CORE)
 			{
 				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 				{
@@ -3608,14 +3284,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					bDone = true;
 				}
 			}
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+#endif
 			GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-			GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
 			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
-#endif
 		}
 		//////////////////////////////////////////////////////////////////////
 		// **** DO NOT PUT ANYTHING AFTER THIS LINE ****
@@ -4009,29 +3680,19 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						GC.getGame().DoResearchAgreementNotification(eFromTeam, eToTeam);
 					}
 				}
-				// Trade Agreement
-				else if(it->m_eItemType == TRADE_ITEM_TRADE_AGREEMENT)
-				{
-					GET_TEAM(eFromTeam).SetHasTradeAgreement(eToTeam, true);
-				}
 				// Third Party Peace
 				else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE)
 				{
 					TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 					bool bTargetTeamIsMinor = GET_TEAM(eTargetTeam).isMinorCiv();
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor);
-#endif
 					GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 					GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
 					
 					// Update diplo stuff.
-					PlayerTypes eLoopPlayer;
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						
 						if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
 						{
@@ -4049,11 +3710,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						veNowAtPeacePairs.push_back(eTargetTeam, eFromTeam); //eFromTeam is second so we can take advantage of CvWeightedVector's sort by weights
 					}
 #if defined(MOD_BALANCE_CORE)
-					PlayerTypes eThirdParty;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 						{
 							//If human was target, let human know.
 							if(GET_PLAYER(eLoopPlayer).isHuman())
@@ -4077,7 +3737,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							// Other players' reactions
 							for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 							{
-								eThirdParty = (PlayerTypes) iThirdPartyLoop;
+								PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 								
 								if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman() && GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
 								{
@@ -4095,11 +3755,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 				{
 					TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
-#endif
+
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
 #if defined(MOD_BALANCE_CORE)
@@ -4293,7 +3951,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE)
+					if (MOD_BALANCE_CORE)
 					{
 						if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 						{
@@ -4307,18 +3965,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						}
 					}
 #endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
 					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
-					
+
 					// Update diplo stuff.
-					PlayerTypes eLoopPlayer;
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						
 						if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
 						{
@@ -5051,27 +4704,6 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			}
 		}
 	}
-	// Trade Agreement
-	else if(pItem->m_eItemType == TRADE_ITEM_TRADE_AGREEMENT)
-	{
-		GET_TEAM(eFromTeam).SetHasTradeAgreement(eToTeam, false);
-
-		pNotifications = fromPlayer.GetNotifications();
-		if(pNotifications)
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT_FROM_US", toPlayer.getNameKey());
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_TRADE_AGREEMENT_FROM_US", toPlayer.getNameKey());
-			pNotifications->Add(NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT, strBuffer, strSummary, -1, -1, -1);
-		}
-
-		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT_TO_US", fromPlayer.getNameKey());
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_TRADE_AGREEMENT_TO_US", fromPlayer.getNameKey());
-			pNotifications->Add(NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT, strBuffer, strSummary, -1, -1, -1);
-		}
-	}
 	// Peace Treaty
 	else if(pItem->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 	{
@@ -5138,16 +4770,9 @@ int CvGameDeals::GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1
 {
 	int iGoldCost = 0;
 
-	switch(eItem)
-	{
-	case TRADE_ITEM_RESEARCH_AGREEMENT:
+	if (eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 	{
 		iGoldCost = GC.getGame().GetResearchAgreementCost(ePlayer1, ePlayer2);
-		break;
-	}
-	case TRADE_ITEM_TRADE_AGREEMENT:
-		iGoldCost = 250;
-		break;
 	}
 
 	return iGoldCost;
@@ -5156,7 +4781,6 @@ int CvGameDeals::GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1
 /// Mark elements in the deal as renewed depending on if they are in both deals
 void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 {
-
 	CvAssertMsg(pOldDeal->m_eFromPlayer == pNewDeal->m_eFromPlayer, "Deal is not to the same from players");
 	CvAssertMsg(pOldDeal->m_eToPlayer == pNewDeal->m_eToPlayer, "Deal is not to the same to players");
 

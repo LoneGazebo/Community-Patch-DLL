@@ -9368,11 +9368,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bCanCrossOcean = m_pPlayer->CanCrossOcean();
 	bool bCanAttackUs = false;
 	bool bWantsConquest = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+
 	if (GET_TEAM(eTeam).canDeclareWar(eMyTeam, ePlayer) || IsAtWar(ePlayer))
-#else
-	if (GET_TEAM(eTeam).canDeclareWar(eMyTeam) || IsAtWar(ePlayer))
-#endif
 	{
 		bCanAttackUs = true;
 	}
@@ -9672,11 +9669,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Disfavor war if we can't even attack them!
 	////////////////////////////////////
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (!GET_TEAM(eMyTeam).canDeclareWar(eTeam, eMyPlayer) && !IsAtWar(ePlayer))
-#else
-	if (!GET_TEAM(eMyTeam).canDeclareWar(eTeam) && !IsAtWar(ePlayer))
-#endif
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
@@ -11265,6 +11258,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	// CAN WE PLEDGE TO PROTECT?
 	// Disfavor protective if we can't actually pledge protection!
 	////////////////////////////////////
+
 	if (!GET_PLAYER(ePlayer).GetMinorCivAI()->CanMajorProtect(GetPlayer()->GetID()) && !GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] = 0;
@@ -11274,11 +11268,8 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	// CAN WE DECLARE WAR?
 	// Disfavor conquest if we can't even do war with them!
 	////////////////////////////////////
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()) && !IsAtWar(ePlayer))
-#else
-	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()) && !IsAtWar(ePlayer))
-#endif
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
@@ -11611,11 +11602,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 		if (IsPlayerValid(eLoopPlayer))
 		{
 			// Have to be able to declare war against this player
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), GetPlayer()->GetID()))
-#else
-			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
-#endif
 			{
 				continue;
 			}
@@ -11800,19 +11787,14 @@ void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	SetDemandTargetPlayer(ePlayer);
-
 	CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation((ePlayer));
 
 	// Not yet readying an attack
-	if(pOperation == NULL && !IsArmyInPlaceForAttack(ePlayer))
+	if (pOperation == NULL && !IsArmyInPlaceForAttack(ePlayer))
 	{
-		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()))
-#endif
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
 			{
 				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(ePlayer);
 				SetWarGoal(ePlayer, WAR_GOAL_DEMAND);
@@ -11826,33 +11808,27 @@ void CvDiplomacyAI::DoCancelHaltDemandProcess()
 {
 	PlayerTypes eDemandTarget = GetDemandTargetPlayer();
 
-	// Are we actually targeting anyone for a demand?
-	if(eDemandTarget != NO_PLAYER)
+	// Are we targeting anyone for a demand?
+	if (eDemandTarget != NO_PLAYER)
 	{
-		//CvAssertMsg(GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND, "DIPLOMACY_AI: AI was preparing to make a demand, but somehow doesn't have an appropriate WarGoal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-		if(GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
+		if (GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(GetMajorCivApproach(eDemandTarget, false) == MAJOR_CIV_APPROACH_WAR)
+			if (GetMajorCivApproach(eDemandTarget, false) == MAJOR_CIV_APPROACH_WAR)
 			{
 				SetWarGoal(eDemandTarget, WAR_GOAL_PREPARE);
 			}
 			else
 			{
-#endif
-			SetWarGoal(eDemandTarget, NO_WAR_GOAL_TYPE);
+				SetWarGoal(eDemandTarget, NO_WAR_GOAL_TYPE);
 
-			// Get rid of the operation to put Units near them
-			CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
-			if(pOperation != NULL)
-			{
-				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
-				SetArmyInPlaceForAttack(eDemandTarget, false);
+				// Get rid of the operation to put Units near them
+				CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
+				if (pOperation != NULL)
+				{
+					pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
+					SetArmyInPlaceForAttack(eDemandTarget, false);
+				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 
 		SetDemandTargetPlayer(NO_PLAYER);
@@ -11866,18 +11842,18 @@ void CvDiplomacyAI::DoTestDemandReady()
 	PlayerTypes eDemandTarget = GetDemandTargetPlayer();
 
 	// Are we actually targeting anyone for a demand?
-	if(eDemandTarget != NO_PLAYER)
+	if (eDemandTarget != NO_PLAYER)
 	{
-		if(GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
+		if (GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
 		{
 			CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
 
-			if(pOperation)
+			if (pOperation)
 			{
-				if(!IsAtWar(eDemandTarget))
+				if (!IsAtWar(eDemandTarget))
 				{
 					// If we're at least 50% of the way to our objective, let loose the dogs of war!
-					if(IsArmyInPlaceForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))
+					if (IsArmyInPlaceForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))
 					{
 						SetArmyInPlaceForAttack(eDemandTarget, false);
 
@@ -11885,12 +11861,10 @@ void CvDiplomacyAI::DoTestDemandReady()
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
 			else
 			{
 				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eDemandTarget);
 			}
-#endif
 		}
 	}
 	if (IsDemandReady() && eDemandTarget != NO_PLAYER)
@@ -11912,16 +11886,11 @@ void CvDiplomacyAI::DoTestDemandReady()
 			GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eDemandTarget, false);
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
+		// Clear this data out before any deals are offered.
 		pDeal->SetRequestingPlayer(NO_PLAYER);
-#endif
-#if defined(MOD_BALANCE_CORE)
-		//Clear this data out before any deals are offered.
 		SetCantMatchDeal(eDemandTarget, false);
-#endif
-
 		eStatement = NO_DIPLO_STATEMENT_TYPE;
-
 		iData1 = -1;
 		iData2 = -1;
 
@@ -11952,62 +11921,45 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Being hostile towards this guy? (ignore war face, as if we're planning a war already, making a demand doesn't mesh well with that)
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		return false;
-	}
-	if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID || GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
-#else
-	if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
-#endif
-	{
-		return false;
-	}
-#if defined(MOD_BALANCE_CORE)
-	//If not deceptive or worse, don't make a demand
-	if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) >= MAJOR_CIV_APPROACH_GUARDED)
-	{
-		return false;
-	}
-	// Player can't be distant
-	if(GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
-	{
-		return false;
-	}
-#else
-	// Player can't be distant
-	if(GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_FAR)
-	{
-		return false;
-	}
-#endif
-	// If they're a bad or impossible target then that's not good at all for us
-	if(GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_AVERAGE)
+	if (IsAtWar(ePlayer))
 	{
 		return false;
 	}
 
+	// Being hostile towards this guy? (ignore war face, as if we're planning a war already, making a demand doesn't mesh well with that)
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		return false;
+	}
+	if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID || GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+	{
+		return false;
+	}
+	//If not deceptive or worse, don't make a demand
+	if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) >= MAJOR_CIV_APPROACH_GUARDED)
+	{
+		return false;
+	}
+	// Player can't be distant
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
+	{
+		return false;
+	}
+	// If they're a bad or impossible target then that's not good at all for us
+	if (GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_AVERAGE)
+	{
+		return false;
+	}
 	// Don't make demands of them too often
-	if(GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < 40)
+	if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < 40)
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(IsAtWar(ePlayer))
+
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
 	{
 		return false;
 	}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if(!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-	if(!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()))
-#endif
-	{
-		return false;
-	}
-#endif
 
 	int iIdealValue = 10 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
@@ -12033,40 +11985,37 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 
 	bool bAlreadyPlanning = false;
 	// If we're planning a demand or at war with anyone, making another demand is unwise
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-#if defined(MOD_BALANCE_CORE)
-		if(ePlayer == eLoopPlayer)
+		if (ePlayer == eLoopPlayer)
 		{
 			continue;
 		}
-#endif
+
 		if (eLoopPlayer == GetDemandTargetPlayer())
 		{
 			bAlreadyPlanning = true;
 		}
 
-		if(IsAtWar(eLoopPlayer))
+		if (IsAtWar(eLoopPlayer))
 		{
 			return false;
 		}
 	}
 	if (bAlreadyPlanning)
 		return false;
+
 	// Player has to be on the same area as us
-	if(GetPlayer()->getCapitalCity() != NULL)
+	if (GetPlayer()->getCapitalCity() != NULL && GET_PLAYER(ePlayer).getCapitalCity() != NULL)
 	{
-		if(GET_PLAYER(ePlayer).getCapitalCity() != NULL)
+		if (GetPlayer()->getCapitalCity()->getArea() == GET_PLAYER(ePlayer).getCapitalCity()->getArea())
 		{
-			if(GetPlayer()->getCapitalCity()->getArea() == GET_PLAYER(ePlayer).getCapitalCity()->getArea())
-			{
-				return true;
-			}
+			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -12533,24 +12482,18 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 /// Make peace with vassals if we're not at war with the master
 void CvDiplomacyAI::DoMakePeaceWithVassals()
 {
-	PlayerTypes eLoopPlayer;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer))
+		if (eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer))
 		{
-			if(IsAtWar(eLoopPlayer) && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassalOfSomeone())
+			if (IsAtWar(eLoopPlayer) && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassalOfSomeone())
 			{
 				TeamTypes eMaster = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster();
-				if(eMaster != NO_TEAM && !GET_TEAM(GetTeam()).isAtWar(eMaster))
+				if (eMaster != NO_TEAM && !GET_TEAM(GetTeam()).isAtWar(eMaster))
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
-#else
-					GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam());
-#endif
 				}
 			}
 		}
@@ -12561,62 +12504,19 @@ void CvDiplomacyAI::DoMakePeaceWithVassals()
 /// Do we want to make peace with any Minors we're at war with?
 void CvDiplomacyAI::DoMakePeaceWithMinors()
 {
-	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
 		return;
 
-	PlayerTypes eLoopPlayer;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(eLoopPlayer != NO_PLAYER)
+		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
 		{
-			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+			if (IsWantsPeaceWithPlayer(eLoopPlayer)) // IsWantsPeaceWithPlayer already checks if making peace is possible
 			{
-				if(IsAtWar(eLoopPlayer))
-				{
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					if(MOD_DIPLOMACY_CIV4_FEATURES && !GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()))	// Vassals can't make peace if their master is at war
-					{
-						if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) <= 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
-						{
-							if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()))
-							{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-								GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
-#else
-								GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam());
-#endif
-
-								LogPeaceMade(eLoopPlayer);
-							}
-						}
-					}
-					else
-#else
-					if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
-#endif
-					{
-						if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()))
-						{
-#if defined(MOD_BALANCE_CORE)
-							if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) <= 0)
-							{
-#endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-							GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
-#else
-							GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam());
-#endif
-
-							LogPeaceMade(eLoopPlayer);
-#if defined(MOD_BALANCE_CORE)
-							}
-#endif
-						}
-					}
-				}
+				GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
+				LogPeaceMade(eLoopPlayer);
 			}
 		}
 	}
@@ -12786,31 +12686,41 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		return false;
 
 	int iPeaceBlockReason = 0;
-	
-	// Enemy declared war and wants peace right away. Uh huh, right.
-	if (GetPlayerNumTurnsAtWar(ePlayer) <= 1)
+
+	// Blocked by game options
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		iPeaceBlockReason = 1;
+	}
+	// Enemy declared war and wants peace right away. Uh huh, right.
+	else if (GetPlayerNumTurnsAtWar(ePlayer) <= 1)
+	{
+		iPeaceBlockReason = 2;
 	}
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
 	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 	{
-		iPeaceBlockReason = 2;
+		iPeaceBlockReason = 3;
 	}
 	// AI teammate of human? Let the human decide.
 	else if (GetPlayer()->IsAITeammateOfHuman())
 	{
-		iPeaceBlockReason = 3;
+		iPeaceBlockReason = 4;
 	}
 	// Can't make peace with a City-State if we're at war with their ally!
 	else if (GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER && GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly()).getTeam()))
 	{
-		iPeaceBlockReason = 4;
+		iPeaceBlockReason = 5;
+	}
+	// Minor civ at permanent war
+	else if (GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam()))
+	{
+		iPeaceBlockReason = 6;
 	}
 	// We're locked into a coop/third party war with this player
 	else if (GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
 	{
-		iPeaceBlockReason = 5;
+		iPeaceBlockReason = 7;
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	else if (MOD_DIPLOMACY_CIV4_FEATURES)
@@ -12818,7 +12728,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		// Can't make peace with vassals!
 		if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		{
-			iPeaceBlockReason = 6;
+			iPeaceBlockReason = 8;
 		}
 		// Can't make peace if our master is at war!
 		else if (GetPlayer()->IsVassalOfSomeone())
@@ -12826,7 +12736,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			TeamTypes eMasterTeam = GET_TEAM(GetTeam()).GetMaster();
 			if (GET_TEAM(eMasterTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 			{
-				iPeaceBlockReason = 7;
+				iPeaceBlockReason = 9;
 			}
 		}
 	}
@@ -12834,7 +12744,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	// Cannot make peace for some other reason?
 	if (iPeaceBlockReason == 0 && !GET_TEAM(GetPlayer()->getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
-		iPeaceBlockReason = 8;
+		iPeaceBlockReason = 10;
 	}
 
 	if (iPeaceBlockReason > 0)
@@ -12852,27 +12762,33 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			switch (iPeaceBlockReason)
 			{
 			case 1:
-				strPeaceBlockReason.Format("War was just declared!");
+				strPeaceBlockReason.Format("We are always at war with this player!");
 				break;
 			case 2:
-				strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
+				strPeaceBlockReason.Format("War was just declared!");
 				break;
 			case 3:
-				strPeaceBlockReason.Format("AI teammates of humans can't make peace on their own!");
+				strPeaceBlockReason.Format("Our city was just captured, and we have units near the enemy's cities!");
 				break;
 			case 4:
-				strPeaceBlockReason.Format("At war with City-State's ally!");
+				strPeaceBlockReason.Format("AI teammates of humans can't make peace on their own!");
 				break;
 			case 5:
-				strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()));
+				strPeaceBlockReason.Format("At war with City-State's ally!");
 				break;
 			case 6:
-				strPeaceBlockReason.Format("Other player is a vassal!");
+				strPeaceBlockReason.Format("Minor civ is at permanent war with us!");
 				break;
 			case 7:
-				strPeaceBlockReason.Format("We're a vassal!");
+				strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()));
 				break;
 			case 8:
+				strPeaceBlockReason.Format("Other player is a vassal!");
+				break;
+			case 9:
+				strPeaceBlockReason.Format("We're a vassal!");
+				break;
+			case 10:
 				strPeaceBlockReason.Format("Cannot change war/peace status!");
 				break;
 			default:
@@ -12908,6 +12824,12 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			pLog->Msg(strBaseString);
 		}
 		return false;
+	}
+
+	// If we're a vassal, we must make peace with any minors we're at war with that aren't peace blocked
+	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->IsVassalOfSomeone())
+	{
+		return true;
 	}
 
 	// Evaluate our danger and their danger from this war
@@ -13537,11 +13459,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	{
 		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
-#else
-			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
-#endif
 			{
 				// Want to declare war on someone
 				if (bWantToAttack)
@@ -13581,11 +13499,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			if (!IsAtWar(eTargetPlayer))
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
-#else
-				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
-#endif
 				{
 					if (IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
 					{
@@ -13796,40 +13710,39 @@ bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 	// Only do it if we are not already at war.
 	if(!kMyTeam.isAtWar(eTheirTeam))
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		kMyTeam.declareWar(eTheirTeam, false, GetPlayer()->GetID());
-#else
-		kMyTeam.declareWar(eTheirTeam);
-#endif
 
 		m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
 		// Show scene to human
+		if (!GC.getGame().IsAllDiploStatementsDisabled())
+		{
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-		{
-			// JdH: deciding whether to send a notification or pop up directy is done in SendRequest
-			if (CvPreGame::isHuman(ePlayer))
+			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
-				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+				// JdH: deciding whether to send a notification or pop up directy is done in SendRequest
+				if (CvPreGame::isHuman(ePlayer))
+				{
+					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
+					CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+				}
 			}
-		}
-		else
-		{
-			if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
+			else
+			{
+				if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
+				{
+					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
+					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+				}
+			}
+#else
+			if (!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
 			{
 				const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
 				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
 			}
-		}
-#else
-		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
-		{
-			const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
-		}
 #endif
+		}
 
 		LogWarDeclaration(ePlayer);
 		return true;
@@ -13864,11 +13777,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 		// Only do it if we are not already at war.
 		if (!kMyTeam.isAtWar(eTheirTeam))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			kMyTeam.declareWar(eTheirTeam, false, GetPlayer()->GetID());
-#else
-			kMyTeam.declareWar(eTheirTeam);
-#endif
 
 			m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
@@ -24016,11 +23925,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					SetOtherPlayerTurnsSinceSidedWithProtectedMinor(ePlayer, 0);
 					// For now the AI will always give in
 					bool bValid = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 					{
 						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
 						{
@@ -24041,11 +23946,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					SetOtherPlayerTurnsSinceSidedWithProtectedMinor(ePlayer, 0);
 					// For now the AI will always give in
 					bool bValid = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 					{
 						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
 						{
@@ -24100,11 +24001,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					SetOtherPlayerTurnsSinceSidedWithProtectedMinor(ePlayer, 0);
 					// For now the AI will always give in
 					bool bValid = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 					{
 						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
 						{
@@ -24125,11 +24022,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					SetOtherPlayerTurnsSinceSidedWithProtectedMinor(ePlayer, 0);
 					// For now the AI will always give in
 					bool bValid = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 					{
 						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
 						{
@@ -24933,21 +24826,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			// For now the AI will always give in
-#if defined(MOD_BALANCE_CORE)
 			bool bValid = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
 			{
 				if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 				{
 					bValid = true;
 				}
 			}
-#endif
-#if defined(MOD_BALANCE_CORE)
 			if (bValid && ((GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >  7) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness() > 7))
 			{
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
@@ -24958,7 +24844,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else
 			{
-#endif
 #if defined(MOD_ACTIVE_DIPLOMACY)
 				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 				{
@@ -24977,13 +24862,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 				GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 #endif
-#if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >= 8)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >= 8)
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->DoDenouncePlayer(GetPlayer()->GetID());
 				}
 			}
-#endif
 		}
 	}
 
@@ -28097,11 +27980,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		bool bSendStatement = false;
 
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 
 		// If we're a vassal and the other player is an AI, don't send the statement
@@ -28126,11 +28005,9 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if(IsDoFAccepted(ePlayer))
 			return;
 
-#if defined(MOD_BALANCE_CORE)
 		//We're allowing them Open Borders? We shouldn't care.
 		if(GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 			return;
-#endif
 
 		// Check other player status
 		PlayerTypes eThirdParty;
@@ -28167,11 +28044,7 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 
 		if(IsPlayerMadeAttackCityStatePromise(ePlayer))
@@ -28205,12 +28078,9 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
+
 		if(GetTurnsSincePlayerAttackedProtectedMinor(ePlayer) == 0)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_ATTACKED_PROTECTED_CITY_STATE;
@@ -28244,11 +28114,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 
 		// Bullied a City State we're protective towards
@@ -28424,11 +28290,7 @@ void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploSta
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
@@ -28470,11 +28332,7 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 		PlayerTypes eMinor;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
@@ -29908,11 +29766,7 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
-#else
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
-#endif
 			return;
 
 		if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
@@ -33077,9 +32931,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 	switch (eEvent)
 	{
-		// *********************************************
-		// Player declares war on the AI
-		// *********************************************
+	// *********************************************
+	// Player declares war on the AI
+	// *********************************************
 	case FROM_UI_DIPLO_EVENT_HUMAN_DECLARES_WAR:
 	{
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -33087,31 +32941,21 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if (!(MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer)))
 		{
 #endif
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam());
-#else
-			GET_TEAM(eFromTeam).declareWar(GetTeam());
-#endif
 
-		if (bActivePlayer)
-		{
-			strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_ROOT);
-			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN, strText, LEADERHEAD_ANIM_ATTACKED, iArg1);
-		}
+			if (bActivePlayer)
+			{
+				strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_ROOT);
+				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN, strText, LEADERHEAD_ANIM_ATTACKED, iArg1);
+			}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		}
 		if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(eFromPlayer))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam());
-#else
-			GET_TEAM(eFromTeam).declareWar(GetTeam());
-#endif
 		}
 #endif
-
 		break;
 	}
 
@@ -34199,15 +34043,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_MEAN_RESPONSE:
 	{		
-		if(!IsAtWar(eFromPlayer))
+		if (!IsAtWar(eFromPlayer))
 		{
 			// Does the AI declare war?
 			bool bDeclareWar = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
-#else
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
-#endif
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 			{
 				int iChance = 20;
 				if (GetMajorCivOpinion(eFromPlayer) >= MAJOR_CIV_OPINION_FAVORABLE)
@@ -36641,41 +36481,32 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 
 	// Both players must be able to declare war
 	TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(eTargetTeam, GetPlayer()->GetID()))
-#else
-	if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(eTargetTeam))
-#endif
+
+	if (!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(eTargetTeam, GetPlayer()->GetID()))
 		return 0;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(eTargetTeam, ePlayer))
-#else
-	if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(eTargetTeam))
-#endif
+
+	if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(eTargetTeam, ePlayer))
 		return 0;
 
 	// If player is inquiring, he has to be planning a war already
-	if(!bAskedByPlayer)
+	if (!bAskedByPlayer)
 	{
 		if ((GetBiggestCompetitor() != eTargetPlayer) && (eApproachTowardsTarget > MAJOR_CIV_APPROACH_DECEPTIVE))
-		return 0;
+			return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	//Are we not friends? Then we aren't going to ask (or accept).
 	if (!IsDoFAccepted(ePlayer))
-	{
 		return 0;
-	}
+
 	// No vassals!
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return 0;
-
 	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 		return 0;
-
 	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
 		return 0;
-#endif
+
 	// Only players we've met, are alive, etc.
 	if (!IsPlayerValid(eTargetPlayer))
 		return 0;
@@ -36688,7 +36519,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	if (IsDoFAccepted(eTargetPlayer))
 		return 0;
 	
-	if (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayer).getTeam()))
+	if (IsHasDefensivePact(eTargetPlayer))
 		return 0;
 	
 	// Let's not go to war if we're very unhappy or losing all our wars

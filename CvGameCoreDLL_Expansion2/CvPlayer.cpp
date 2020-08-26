@@ -9697,11 +9697,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		{
 			if (eLiberatedTeam != iOtherTeamLoop)
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes)iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true, GetID());
-#else
-				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes) iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true);
-#endif
 			}
 		}
 
@@ -19790,6 +19786,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	int iHandicapB = 0;
 	int iHandicapC = 0;
 	int iYieldHandicap = 0;
+	int iLoop;
 
 	CvString strLogString;
 
@@ -19813,7 +19810,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_ERA:
 			{
 				iYieldHandicap *= 3;
-				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
@@ -19849,12 +19845,11 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
 				ChangeGoldenAgeProgressMeter(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus (%d in Yields): GOLD, GAP.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_WAR:
 			{
-				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
@@ -19881,7 +19876,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			}
 			case HISTORIC_EVENT_GA:
 			{
-				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
@@ -19933,12 +19927,11 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
 				ChangeGoldenAgeProgressMeter(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CAPITAL - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CAPITAL - Received Handicap Bonus (%d in Yields): GOLD, GAP.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_CITY_FOUND:
 			{
-				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)

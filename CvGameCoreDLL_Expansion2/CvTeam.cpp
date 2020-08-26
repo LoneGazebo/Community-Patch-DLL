@@ -188,8 +188,6 @@ void CvTeam::uninit()
 	m_iOpenBordersTradingAllowedCount = 0;
 	m_iDefensivePactTradingAllowedCount = 0;
 	m_iResearchAgreementTradingAllowedCount = 0;
-	m_iTradeAgreementTradingAllowedCount = 0;
-	m_iPermanentAllianceTradingCount = 0;
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
 #endif
@@ -239,15 +237,12 @@ void CvTeam::uninit()
 		m_aiIgnoreWarningCount[i] = 0;
 		m_abHasMet[i] = false;
 		m_abAtWar[i] = false;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		m_abAggressorPacifier[i] = false;
-#endif
 		m_abPermanentWarPeace[i] = false;
 		m_abEmbassy[i] = false;
 		m_abOpenBorders[i] = false;
 		m_abDefensivePact[i] = false;
 		m_abResearchAgreement[i] = false;
-		m_abTradeAgreement[i] = false;
 		m_abForcePeace[i] = false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -513,19 +508,11 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			{
 				if(GET_TEAM(eTeam).isAtWar((TeamTypes)iI))
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					declareWar(((TeamTypes)iI), false, getLeaderID());
-#else
-					declareWar(((TeamTypes)iI));
-#endif
 				}
 				else if(isAtWar((TeamTypes)iI))
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					GET_TEAM(eTeam).declareWar(((TeamTypes)iI), false, GET_TEAM(eTeam).getLeaderID());
-#else
-					GET_TEAM(eTeam).declareWar(((TeamTypes)iI));
-#endif
 				}
 			}
 		}
@@ -1226,15 +1213,8 @@ void CvTeam::changeCorporationsEnabledCount(int iChange)
 #endif
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 {
-#else
-bool CvTeam::canDeclareWar(TeamTypes eTeam) const
-{
-	PlayerTypes eOriginatingPlayer = NO_PLAYER;
-#endif
-
 	if (eTeam == GetID())
 	{
 		return false;
@@ -1315,11 +1295,13 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) 
+		{
 			return false;
 		}
 
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) 
+		{
 			return false;
 		}
 	}
@@ -1351,35 +1333,15 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 }
 
 //	-----------------------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact, PlayerTypes eOriginatingPlayer)
-#else
-void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
-#endif
 {
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	DoDeclareWar(eOriginatingPlayer, true, eTeam, bDefensivePact);
-#else
-	DoDeclareWar(eTeam, bDefensivePact);
-#endif
 
 	CvPlayerManager::Refresh(true);
 }
 
 //	-----------------------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
-#else
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
-#endif
-#else
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
-#else
-void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
-#endif
-#endif
 {
 	Localization::String locString;
 	int iI;
@@ -1523,13 +1485,8 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	GC.getMap().verifyUnitValidPlot();
 #endif
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
-#else
-	setAtWar(eTeam, true);
-	GET_TEAM(eTeam).setAtWar(GetID(), true);
-#endif
 
 	for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
 	{
@@ -1678,11 +1635,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			//Defensive pacts and vassals trigger here.
 			if (GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) || GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, true, (TeamTypes)iI, /*bDefensivePact*/ true);
-#else
-				GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
-#endif
 			}
 		}
 	}
@@ -1697,11 +1650,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				
 		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
-#else
-			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
-#endif
 		}
 	}
 
@@ -1716,20 +1665,12 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 
 		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ true);
-#else
-			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
-#endif
 		}
 
 		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
-#else
-			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
-#endif
 		}
 	}
 
@@ -1911,28 +1852,24 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			// ******************************
 
 			FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veMinorAllies;
-			for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
 				eMinor = (PlayerTypes) iMinorCivLoop;
 
 				// Must be alive
-				if(!GET_PLAYER(eMinor).isAlive())
+				if (!GET_PLAYER(eMinor).isAlive())
 					continue;
 
-				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 				{
 					// Don't declare war on self! (just in case)
-					if(GET_PLAYER(eMinor).getTeam() != eTeam)
+					if (GET_PLAYER(eMinor).getTeam() != eTeam)
 					{
 						// Match war state
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+						if (GET_TEAM(eTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 						{
 							GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, false, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 						}
-#else
-						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
-#endif
 
 						// Add to vector for notification sent out
 						veMinorAllies.push_back(eMinor);
@@ -1941,9 +1878,9 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			}
 
 			// Notifications about minor allies that join the war against a major civ
-			if(!veMinorAllies.empty())
+			if (!veMinorAllies.empty())
 			{
-				if(!GET_TEAM(eTeam).isMinorCiv())
+				if (!GET_TEAM(eTeam).isMinorCiv())
 				{
 					Localization::String strTemp;
 
@@ -1991,26 +1928,14 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 }
 
 //	------------------------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification, PlayerTypes eOriginatingPlayer)
-#else
-void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
-#endif
 {
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	DoMakePeace(eOriginatingPlayer, true, eTeam, bBumpUnits, bSuppressNotification);
-#else
-	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
-#endif
 }
 
 //	------------------------------------------------------------------------------------------------
 //	The make peace handler, can be called recursively
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
-#else
-void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
-#endif
 {
 	CvString strBuffer;
 
@@ -2019,13 +1944,8 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 
 	if(isAtWar(eTeam))
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		setAtWar(eTeam, false, bPacifier);
 		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
-#else
-		setAtWar(eTeam, false);
-		GET_TEAM(eTeam).setAtWar(GetID(), false);
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 		//Secondary major declarations
@@ -2038,20 +1958,12 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 					//Are we a vassal of the from player?
 					if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, eTeam, true, false);
-#else
-						GET_TEAM((TeamTypes)iI).DoMakePeace(eTeam, true, false);
-#endif
 					}
 					//Are we a vassal of the to player?
 					else if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM((TeamTypes)iI).DoMakePeace(eOriginatingPlayer, true, GetID(), true, false);
-#else
-						GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
-#endif
 					}
 				}
 				if(GET_TEAM((TeamTypes)iI).isMinorCiv())
@@ -2068,22 +1980,14 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 								{
 									if(kPlayer.GetMinorCivAI()->IsAllies((PlayerTypes)iPlayerLoop2))
 									{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 										GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, eTeam, true, false);
-#else
-										GET_TEAM((TeamTypes)iI).DoMakePeace(eTeam, true, false);
-#endif
 									}
 								}
 								else if(kPlayer2.getTeam() == eTeam && kPlayer.isAlive())
 								{
 									if(kPlayer.GetMinorCivAI()->IsAllies((PlayerTypes)iPlayerLoop2))
 									{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 										GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, GetID(), true, false);
-#else
-										GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
-#endif
 									}
 								}
 							}
@@ -2093,14 +1997,15 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 			}
 		}
 #endif
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) 
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
-		} 
+		}
+#else
 		else 
 		{
-#endif
 			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 			if (pkScriptSystem)
 			{
@@ -2111,7 +2016,6 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
 			}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
 
@@ -2215,11 +2119,7 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 							{
 								if(!GET_PLAYER(eOurMinor).GetMinorCivAI()->IsPermanentWar(eTeamWeMadePeaceWith))
 								{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, bPacifier, eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
-#else
-									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
-#endif
 									veMinorAllies.push_back(eOurMinor);
 								}
 							}
@@ -3610,50 +3510,6 @@ void CvTeam::ChangeResearchAgreementTradingAllowedCount(int iChange)
 	CvAssert(GetResearchAgreementTradingAllowedCount() >= 0);
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvTeam::GetTradeAgreementTradingAllowedCount() const
-{
-	return m_iTradeAgreementTradingAllowedCount;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsTradeAgreementTradingAllowed() const
-{
-	return (GetTradeAgreementTradingAllowedCount() > 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvTeam::ChangeTradeAgreementTradingAllowedCount(int iChange)
-{
-	m_iTradeAgreementTradingAllowedCount = (m_iTradeAgreementTradingAllowedCount + iChange);
-	CvAssert(GetTradeAgreementTradingAllowedCount() >= 0);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvTeam::getPermanentAllianceTradingCount() const
-{
-	return m_iPermanentAllianceTradingCount;
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isPermanentAllianceTrading() const
-{
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvTeam::changePermanentAllianceTradingCount(int iChange)
-{
-	m_iPermanentAllianceTradingCount = (m_iPermanentAllianceTradingCount + iChange);
-	CvAssert(getPermanentAllianceTradingCount() >= 0);
-}
-
 #if defined(MOD_TECHS_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetCityWorkingChange() const
@@ -4190,11 +4046,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			{
 				if(GetID() != eIndex)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					declareWar(eIndex, false, getLeaderID());
-#else
-					declareWar(eIndex);
-#endif
 				}
 			}
 		}
@@ -4391,7 +4243,6 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	return false;
 }
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAggressor(TeamTypes eIndex) const
 {
@@ -4407,7 +4258,6 @@ bool CvTeam::isPacifier(TeamTypes eIndex) const
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return (!isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAtWar(TeamTypes eIndex) const
@@ -4419,23 +4269,17 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
-#else
-void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
-#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
-	if(eIndex != GetID() || bNewValue == false)
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (eIndex != GetID() || bNewValue == false)
 	{
 		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
-#endif
 		m_abAtWar[eIndex] = bNewValue;
 #if defined(MOD_BALANCE_CORE)
-		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+		for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
 		{
 			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
 			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
@@ -4454,9 +4298,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 			}
 		}
 #endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	//Check for bad units, and capture them!
@@ -5016,44 +4858,12 @@ void CvTeam::SetHasResearchAgreement(TeamTypes eIndex, bool bNewValue)
 	}
 }
 
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::IsHasTradeAgreement(TeamTypes eIndex) const
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_abTradeAgreement[eIndex];
-}
-
 //	--------------------------------------------------------------------------------
 void CvTeam::CancelResearchAgreement(TeamTypes eIndex)
 {
 	if (IsHasResearchAgreement(eIndex))
 	{
 		m_abResearchAgreement[eIndex] = false;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-void CvTeam::SetHasTradeAgreement(TeamTypes eIndex, bool bNewValue)
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	if(IsHasTradeAgreement(eIndex) != bNewValue)
-	{
-		m_abTradeAgreement[eIndex] = bNewValue;
-
-		if((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
-		{
-			DLLUI->setDirty(Score_DIRTY_BIT, true);
-		}
-
-		if(bNewValue && !GET_TEAM(eIndex).IsHasTradeAgreement(GetID()))
-		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_PLAYERS_SIGN_TRADE_AGREEMENT", getName().GetCString(), GET_TEAM(eIndex).getName().GetCString());
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);
-		}
 	}
 }
 
@@ -7669,16 +7479,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 #endif
 	}
 
-	if(pTech->IsTradeAgreementTradingAllowed())
-	{
-		ChangeTradeAgreementTradingAllowedCount(iChange);
-	}
-
-	if(pTech->IsPermanentAllianceTrading())
-	{
-		changePermanentAllianceTradingCount(iChange);
-	}
-
 #if defined(MOD_TECHS_CITY_WORKING)
 	if(pTech->GetCityWorkingChange() != 0)
 	{
@@ -8929,8 +8729,6 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iOpenBordersTradingAllowedCount;
 	kStream >> m_iDefensivePactTradingAllowedCount;
 	kStream >> m_iResearchAgreementTradingAllowedCount;
-	kStream >> m_iTradeAgreementTradingAllowedCount;
-	kStream >> m_iPermanentAllianceTradingCount;
 #if defined(MOD_TECHS_CITY_WORKING)
 	MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
 #endif
@@ -8994,10 +8792,8 @@ void CvTeam::Read(FDataStream& kStream)
 	ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAtWar[0]);
 	kStream >> kAtWarWrapper;
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
 	kStream >> kAggressorPacifierWrapper;
-#endif
 
 	ArrayWrapper<bool> kPermanentWarWrapper(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream >> kPermanentWarWrapper;
@@ -9013,9 +8809,6 @@ void CvTeam::Read(FDataStream& kStream)
 
 	ArrayWrapper<bool> kResearchAgreementWrapper(MAX_TEAMS, &m_abResearchAgreement[0]);
 	kStream >> kResearchAgreementWrapper;
-
-	ArrayWrapper<bool> kTradeAgreementWrapper(MAX_TEAMS, &m_abTradeAgreement[0]);
-	kStream >> kTradeAgreementWrapper;
 
 	ArrayWrapper<bool> kForcePeaceWrapper(MAX_TEAMS, &m_abForcePeace[0]);
 	kStream >> kForcePeaceWrapper;
@@ -9110,15 +8903,12 @@ void CvTeam::Read(FDataStream& kStream)
 	{
 		m_abAtWar[m_eID] = false;
 		m_aiNumTurnsAtWar[m_eID] = 0;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		m_abAggressorPacifier[m_eID] = false;
-#endif
 	}
 
 #if defined(MOD_BALANCE_CORE)
 	DoUpdateBestRoute();
 #endif
-
 }
 
 
@@ -9151,8 +8941,6 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_iOpenBordersTradingAllowedCount;
 	kStream << m_iDefensivePactTradingAllowedCount;
 	kStream << m_iResearchAgreementTradingAllowedCount;
-	kStream << m_iTradeAgreementTradingAllowedCount;
-	kStream << m_iPermanentAllianceTradingCount;
 #if defined(MOD_TECHS_CITY_WORKING)
 	MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
 #endif
@@ -9200,15 +8988,12 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abHasMet[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_PLAYERS, &m_abHasFoundPlayersTerritory[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAtWar[0]);
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAggressorPacifier[0]);
-#endif
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abEmbassy[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abOpenBorders[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abDefensivePact[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abResearchAgreement[0]);
-	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abTradeAgreement[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abForcePeace[0]);
 
 	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, bool>(kStream, m_abCanLaunch, GC.getNumVictoryInfos());
@@ -9727,11 +9512,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 	// Never at war with Master
 	if(isAtWar(eMaster))
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		makePeace(eMaster, true, false, getLeaderID());
-#else
-		makePeace(eMaster, true, false);
-#endif
 	}
 
 	TeamTypes eTeam;
@@ -9761,26 +9542,18 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		// Master at war with eTeam?
 		if(GET_TEAM(eMaster).isAtWar(eTeam))
 		{
-			if(!isAtWar(eTeam))
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			if (!isAtWar(eTeam))
 			{
 				DoDeclareWar(getLeaderID(), false, eTeam, false);
 			}
-#else
-				DoDeclareWar(eTeam, false, false, true);
-#endif
 		}
 		// Not at war
 		else
 		{
-			if(isAtWar(eTeam))
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			if (isAtWar(eTeam))
 			{
 				DoMakePeace(getLeaderID(), GET_TEAM(eMaster).isPacifier(eTeam), eTeam, true);
 			}
-#else
-				DoMakePeace(eTeam, true);
-#endif
 		}
 	}
 }

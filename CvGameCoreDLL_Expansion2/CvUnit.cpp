@@ -4996,11 +4996,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			if(!canEnterTerritory(eRevealedTeam))
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
-#else
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
-#endif
+				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
 				{
 					return eRevealedTeam;
 				}
@@ -5129,11 +5125,7 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 			{
 				if(plot.isCity())
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
-#else
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
-#endif
 					{
 						return plot.getTeam();
 					}
@@ -8548,11 +8540,7 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 				if(isNukeVictim(pTargetPlot, eTheirTeam))
 				{
 					CvTeam& myTeam = GET_TEAM(getTeam());
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if(!myTeam.isAtWar(eTheirTeam) && !myTeam.canDeclareWar(eTheirTeam, getOwner()))
-#else
-					if(!myTeam.isAtWar(eTheirTeam) && !myTeam.canDeclareWar(eTheirTeam))
-#endif
 					{
 						return false;
 					}
@@ -27770,11 +27758,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 				TeamTypes loopTeam = pLoopUnit->getTeam();
 
 				// Make sure it's a valid Team
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				if(myTeam.isAtWar(loopTeam) || myTeam.canDeclareWar(loopTeam, getOwner()))
-#else
-				if(myTeam.isAtWar(loopTeam) || myTeam.canDeclareWar(loopTeam))
-#endif
 				{
 					bFoundUnit = true;
 					break;
@@ -27809,11 +27793,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 			// Don't need to be at war with this City's owner (yet)
 			else
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				if(!GET_TEAM(getTeam()).canDeclareWar(pTargetPlot->getPlotCity()->getTeam(), getOwner()))
-#else
-				if(!GET_TEAM(getTeam()).canDeclareWar(pTargetPlot->getPlotCity()->getTeam()))
-#endif
 				{
 					return false;
 				}
