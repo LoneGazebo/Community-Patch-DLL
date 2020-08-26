@@ -2085,6 +2085,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& sellingPlayer = GET_PLAYER(bFromMe ? GetPlayer()->GetID() : eOtherPlayer);
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
+	//don't sell if less than 4 cities!
+	if (sellingPlayer.getNumCities() <= 4)
+		return INT_MAX;
+
 	//initial value - if we founded the city, we like it more
 	bool bOurs = pCity->getOriginalOwner() == buyingPlayer.GetID();
 	int iItemValue = (bOurs) ? 25000 : 20000;
@@ -2350,7 +2354,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		{
 			return INT_MAX;
 		}
-		if (iBuyerDist > (iRefDist + (iRefDist/2)))
+		else if (iBuyerDist > (iRefDist + (iRefDist / 2)))
 		{
 			return iItemValue / 10;
 		}

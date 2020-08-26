@@ -1126,6 +1126,8 @@
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
+	 
+	<Row Class="6" Name="YIELD_MODIFIER_FROM_UNITS" Value="0"/>
 
 	<Row Class="6" Name="ISKA_HERITAGE" Value="0"/>
 	<!-- If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Also game to calculate the military might for each domain. -->

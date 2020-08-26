@@ -545,7 +545,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	}
 	else
 	{
-		iTempWeight += iModifier;
+		iTempWeight *= (100 + iModifier);
+		iTempWeight /= 100;
 	}
 
 	return iTempWeight;
