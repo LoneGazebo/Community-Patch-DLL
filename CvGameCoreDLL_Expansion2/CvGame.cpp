@@ -6554,10 +6554,6 @@ bool CvGame::IsAIPassiveTowardsHumans() const
 /// Can also pass in optional parameter eMakePeacePlayer to determine if making peace with a player would lock a player out of attempting a Domination Victory
 bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer /* = NO_PLAYER */) const
 {
-	// Game has already been won
-	if (IsGameWon())
-		return false;
-
 	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs

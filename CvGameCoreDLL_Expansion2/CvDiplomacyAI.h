@@ -680,6 +680,7 @@ public:
 	// Diplomacy AI Options
 	bool IsCompetingForVictory() const;
 	bool IsEndgameAggressive() const;
+	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies

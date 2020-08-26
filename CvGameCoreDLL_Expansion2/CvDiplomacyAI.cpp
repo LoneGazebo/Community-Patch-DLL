@@ -5214,7 +5214,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Victory stuff
 	bool bVictoryCompetition = IsCompetingForVictory();
-	bool bEndgameAggressive = IsEndgameAggressive();
+	bool bEndgameAggressive = IsEndgameAggressiveTo(ePlayer);
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
 	bool bGoingForDiploVictory = IsGoingForDiploVictory();
 	bool bGoingForScienceVictory = IsGoingForSpaceshipVictory();
@@ -5224,7 +5224,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 	bool bCloseToScienceVictory = IsCloseToSSVictory();
 	bool bCloseToCultureVictory = IsCloseToCultureVictory();
-	bool bTheyAreCloseToAnyVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition();
 	bool bTheyAreCloseToWorldConquest = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory();
 	bool bTheyAreCloseToDiploVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory();
 	bool bTheyAreCloseToScienceVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory();
@@ -5640,7 +5639,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if ((iTurn - GetLiberatedCitiesTurn(ePlayer)) < 20)
 		{
 			// Don't apply the recent liberation approach change (prevents WAR/HOSTILE for a while) if player is close to winning the game, unless they liberated our capital or resurrected us
-			if (!bTheyAreCloseToAnyVictory || !bEndgameAggressive || bLiberatedCapital || bResurrectedUs)
+			if (!bEndgameAggressive || bLiberatedCapital || bResurrectedUs)
 			{
 				bRecentLiberation = true;
 			}
@@ -6109,7 +6108,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Don't be aggressive towards our friends or distant players without a good reason.
 		if (bModerateAggressiveDesire)
 		{
-			bWantsOpportunityAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || (bTheyAreCloseToAnyVictory && bEndgameAggressive));
+			bWantsOpportunityAttack = (bCloseToWorldConquest || (GetBiggestCompetitor() == ePlayer) || bEndgameAggressive);
 		}
 		else
 		{
@@ -7903,7 +7902,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 			}
 			// Are we both close to a victory condition?
-			if (bCloseToAnyVictory && bTheyAreCloseToAnyVictory)
+			if (bCloseToAnyVictory)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
@@ -7913,7 +7912,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 				}
 			}
-			else if (bTheyAreCloseToAnyVictory && bEasyTarget)
+			else if (bEasyTarget)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 			}
@@ -8155,7 +8154,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (bDiplomat || bGoingForDiploVictory || bCloseToDiploVictory)
 		{
 			// Increase friendship willingness with all civs (that aren't close to winning)
-			if (!bTheyAreCloseToAnyVictory || !bEndgameAggressive)
+			if (!bEndgameAggressive)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + ((GetDoFWillingness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"))) / 2));
 
@@ -8701,7 +8700,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 	
-			if (bTheyAreCloseToAnyVictory && bEndgameAggressive && bEasyTarget)
+			if (bEndgameAggressive && bEasyTarget)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1000;
 			}
@@ -9388,7 +9387,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			bWantsConquest = true;
 		}
-		else if (bTheyAreCloseToAnyVictory && bEndgameAggressive)
+		else if (bEndgameAggressive)
 		{
 			bWantsConquest = true;
 		}
@@ -9722,7 +9721,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// COOP WAR SOON - Don't declare war on a player we agreed to go to war with!
 	////////////////////////////////////
 
-	if (bCoopWarSoon && (!bTheyAreCloseToAnyVictory || !bEndgameAggressive))
+	if (bCoopWarSoon && !bEndgameAggressive)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
@@ -13272,7 +13271,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// If they're about to win the game, let's hold out for a lot longer.
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 	{
 		iWantPeace -= 20;
 	}
@@ -13431,7 +13430,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// We want to attack more if they're about to win the game (or we're about to win a conquest victory)
 		if (!bWantToAttack && eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 		{
-			if (IsCloseToDominationVictory() || (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive()))
+			if (IsCloseToDominationVictory() || IsEndgameAggressiveTo(eTargetPlayer))
 			{
 				bWantToAttack = true;
 			}
@@ -13934,7 +13933,7 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 	{
 		if (GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || !IsEndgameAggressive())
+			if (!IsEndgameAggressiveTo(ePlayer))
 			{
 				return false;
 			}
@@ -14032,7 +14031,7 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 		return true;
 	}
 
-	if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || !IsEndgameAggressive())
+	if (!IsEndgameAggressiveTo(ePlayer))
 	{
 		// If we would go bankrupt by declaring war on them, they can't be an easy target
 		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
@@ -14168,7 +14167,7 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 	{
 		bWantsConquest = true;
 	}
-	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	else if (IsEndgameAggressiveTo(ePlayer))
 	{
 		bWantsConquest = true;
 	}
@@ -15034,7 +15033,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 							eWarGoal = WAR_GOAL_CONQUEST;
 						
 						// If they're about to win the game, we're out for conquest
-						else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+						else if (IsEndgameAggressiveTo(eLoopPlayer))
 							eWarGoal = WAR_GOAL_CONQUEST;
 
 						// If they captured our capital and/or Holy City, we're out for conquest
@@ -17162,7 +17161,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return true;
 	
 	// If they're about to win, we have nothing to lose!
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return true;
 	
 	// If we're doing too badly, retreat!
@@ -19841,7 +19840,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				if (IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
 				{
 					// Increase friendship willingness with all civs (that aren't close to winning)
-					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || !IsEndgameAggressive())
+					if (!IsEndgameAggressiveTo(ePlayer))
 					{
 						iDoFWeight += 5;
 						iDPWeight += 5;
@@ -20360,7 +20359,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 			// If they're close to victory, that should influence our decision
 			// Modify enemy weight for humans based on human difficulty level
-			if (IsEndgameAggressive())
+			if (IsEndgameAggressiveTo(ePlayer))
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
@@ -21048,7 +21047,7 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 	if (GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
 		return false;
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return false;
 
 	bool bGoingForConquest = IsGoingForWorldConquest();
@@ -21126,7 +21125,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 	if (IsNukedBy(ePlayer) || GET_PLAYER(ePlayer).getNumNukeUnits() > 0)
 		return true;
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return true;
 
 	if (GET_PLAYER(ePlayer).GetFractionOriginalCapitalsUnderControl() >= 33)
@@ -22030,7 +22029,7 @@ DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
 	// Spaceship competitor?
 	VictoryTypes eSpaceshipVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	
-	if (GC.getGame().isVictoryValid(eSpaceshipVictory) && IsEndgameAggressive() && eSpaceshipVictory != NO_VICTORY)
+	if (GC.getGame().isVictoryValid(eSpaceshipVictory) && IsEndgameAggressiveTo(ePlayer) && eSpaceshipVictory != NO_VICTORY)
 	{
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1)
 		{
@@ -22461,6 +22460,18 @@ bool CvDiplomacyAI::IsEndgameAggressive() const
 		return false;
 
 	return GC.getGame().IsEndgameAggressionEnabled();
+}
+
+/// Are we extra aggressive towards this player because they're close to victory?
+bool CvDiplomacyAI::IsEndgameAggressiveTo(PlayerTypes ePlayer) const
+{
+	if (!IsEndgameAggressive())
+		return false;
+
+	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans() && !IsAtWar(ePlayer))
+		return false;
+
+	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition();
 }
 
 
@@ -36608,9 +36619,9 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		}
 		
 		// Are they about to win the game?
-		if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+		if (IsEndgameAggressiveTo(eTargetPlayer))
 		{
-			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			if (!IsEndgameAggressiveTo(ePlayer))
 			{
 				iWeight += 25;
 			}
@@ -36687,7 +36698,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		
 		if (iLostGoldPerTurn > 0 && iAdjustedGoldPerTurn < 0)
 		{
-			if (!GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || !IsEndgameAggressive())
+			if (!IsEndgameAggressiveTo(eTargetPlayer))
 			{
 #if defined(MOD_BALANCE_CORE)
 				// Factor in instant yields into our income as well (average of recent turns)
@@ -37539,7 +37550,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're close to victory?
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return false;
 	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
@@ -37787,7 +37798,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're close to victory?
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return false;
 	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
@@ -39426,7 +39437,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight += 5;
 	}
 	// Close to victory: Bonus based on difficulty level
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 	{
 		iWeight += (GC.getGame().getHandicapInfo().getAIDeclareWarProb() / 20);
 	}
@@ -39493,7 +39504,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 				continue;
 
 			// Third party is close to victory? Don't be a pawn.
-			if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+			if (IsEndgameAggressiveTo(ePlayer))
 				continue;
 
 			int iMod = 0;
@@ -40993,7 +41004,7 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		return false;
 	
 	// They're close to victory?
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return false;
 	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
@@ -41166,7 +41177,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're close to victory?
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 		return false;
 	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
@@ -42022,10 +42033,10 @@ int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
 	// Look at Victory Dispute
 	switch (GetVictoryDisputeLevel(ePlayer))
 	{
@@ -42046,7 +42057,7 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 		break;
 	}
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 	{
 		iOpinionWeight *= /*2*/ GC.getOPINION_WEIGHT_VICTORY_ENDGAME_MULTIPLIER();
 	}
@@ -42059,7 +42070,7 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	
 	// Look at Victory Block
-	switch(GetVictoryBlockLevel(ePlayer))
+	switch (GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
 		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_FIERCE();
@@ -42078,14 +42089,13 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 		break;
 	}
 
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && IsEndgameAggressive())
+	if (IsEndgameAggressiveTo(ePlayer))
 	{
 		iOpinionWeight *= /*2*/ GC.getOPINION_WEIGHT_VICTORY_ENDGAME_MULTIPLIER();
 	}
 
 	return iOpinionWeight;
 }
-#endif
 
 int CvDiplomacyAI::GetWarmongerThreatScore(PlayerTypes ePlayer)
 {
@@ -44420,26 +44430,19 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 /// How many players that we're Competitive or more with is ePlayer at war with?
 int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iAtWarCount = 0;
-
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
-	TeamTypes eLoopTeam;
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if(IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer))
 		{
-			if(IsAtWar(eLoopPlayer))
+			if (IsAtWar(eLoopPlayer))
 			{
-				eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-
-				if(GET_TEAM(eTeam).isAtWar(eLoopTeam))
+				if (GET_TEAM(eTeam).isAtWar(eLoopTeam))
 				{
 					iAtWarCount++;
 				}
@@ -44455,12 +44458,9 @@ bool CvDiplomacyAI::IsGoingForWorldConquest() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
 	{
-		if(GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -44471,12 +44471,9 @@ bool CvDiplomacyAI::IsGoingForDiploVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
 	{
-		if(GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -44487,12 +44484,9 @@ bool CvDiplomacyAI::IsGoingForCultureVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
 	{
-		if(GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -44503,17 +44497,14 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
 	{
-		if(GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Is this player close to ANY victory condition?
 bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
 {
@@ -44521,10 +44512,8 @@ bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
 	{
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
 /// Is this player close to a science victory?
@@ -44556,14 +44545,13 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 		
 		if (iTechPercent > 85)
 		{
-			PlayerTypes eLoopPlayer;
 			int iNumCivsAheadScience = 0;
 			int iNumCivsBehindScience = 0;
 			int iNumCivsAlive = 0;
 
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
 				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != GetPlayer()->GetID())
@@ -44616,6 +44604,12 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 	{
 		return false;
 	}
+
+	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+	if (eUtopia != NO_PROJECT && GET_TEAM(GetPlayer()->getTeam()).getProjectMaking(eUtopia) > 0)
+	{
+		return true;
+	}
 	
 	// % of influenced civs isn't important if we're not at least in the Modern Era
 	if (GetPlayer()->GetCurrentEra() < 5)
@@ -44624,7 +44618,7 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 	}
 	
 	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
-	if(iNumCivsInfluential > 0)
+	if (iNumCivsInfluential > 0)
 	{
 		int iNumCivsAlive = GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn();
 
@@ -44643,19 +44637,13 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 		if (iPercentToGo >= iPercentToCheck)
 		{
 			PlayerTypes eFinalPlayer = GetPlayer()->GetCulture()->GetCivLowestInfluence(false);
-			if(eFinalPlayer != NO_PLAYER)
+			if (eFinalPlayer != NO_PLAYER && GetPlayer()->GetCulture()->GetTurnsToInfluential(eFinalPlayer) <= 75)
 			{
-				if(GetPlayer()->GetCulture()->GetTurnsToInfluential(eFinalPlayer) <= 75)
-					return true;
+				return true;
 			}
 		}
 	}
-	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
-	if (eUtopia != NO_PROJECT)
-	{
-		if (GET_TEAM(GetPlayer()->getTeam()).getProjectMaking(eUtopia) > 0)
-			return true;
-	}
+
 	return false;
 }
 
@@ -44681,14 +44669,14 @@ bool CvDiplomacyAI::IsCloseToDiploVictory() const
 		int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
 		iVotesNeededToWin *= 75;
 		iVotesNeededToWin /= 100;
-		if(iVotes >= iVotesNeededToWin)
+		if (iVotes >= iVotesNeededToWin)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
-#endif
 
 /// Have we approached another civ about attacking their protected minor?
 bool CvDiplomacyAI::HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor)

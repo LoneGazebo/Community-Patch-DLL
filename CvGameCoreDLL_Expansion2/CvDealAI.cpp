@@ -3092,8 +3092,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		else
 		{
 			// Captured our capital or Holy City? Close to winning the game? Don't accept peace bribes.
-			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() ||
-				(GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && pDiploAI->IsEndgameAggressive()))
+			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() || pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
 			{
 				return INT_MAX;
 			}
@@ -3719,7 +3718,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			
 			// Target is close to winning the game? Halve the value.
-			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && pDiploAI->IsEndgameAggressive())
+			if (GET_PLAYER(eWithPlayer).isMajorCiv() && pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
 			{
 				iItemValue /= 2;
 			}
@@ -3932,7 +3931,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 
 		// Target is close to winning the game? Double the value.
-		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && GetPlayer()->GetDiplomacyAI()->IsEndgameAggressive())
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->IsEndgameAggressiveTo(eWithPlayer))
 		{
 			iItemValue *= 2;
 		}
