@@ -1529,7 +1529,9 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		//in this case we did not call PathCost() before, so we have to set the initial values here
 		node->m_iMoves = GetData().iStartMoves;
 		node->m_iTurns = 0;
-		node->m_iStartMovesForTurn = pCacheData->baseMoves(pUnit->plot()->getDomain());
+
+		CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+		node->m_iStartMovesForTurn = pCacheData->baseMoves( pPlot->needsEmbarkation(pUnit) );
 
 		AddToOpen(node);
 		UpdateNodeCacheData(node,pUnit,this);
@@ -1545,7 +1547,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		{
 			//if necessary manually update the start turn moves field
 			CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-			node->m_iStartMovesForTurn = pCacheData->baseMoves(pPlot->getDomain());
+			node->m_iStartMovesForTurn = pCacheData->baseMoves( pPlot->needsEmbarkation(pUnit) );
 		}
 		else if (parent) //should always be true
 		{
