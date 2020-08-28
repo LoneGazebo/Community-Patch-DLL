@@ -28911,6 +28911,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 	if(!m_kLastPath.empty())
 	{
+		//because of the fog it's totally valid to stumble into eg neutral units
 		bool bCanEndTurnInNextPlot = canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION);
 
 		if (!bCanEndTurnInNextPlot)
@@ -28932,16 +28933,26 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 				else
 					bRejectMove = true;
 			}
-
-			//failsafe for stacking with neutral
-			CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
-			if (pTurnDest && !pTurnDest->isVisible(getTeam()))
+			else
 			{
-				//if the turn destination is visible we know we can stay there ...
-				//in case it's invisible, we have to move carefully to not end up in an impossible situation
-				bool bCanEndTurnInCurrentPlot = canMoveInto(*plot(), iFlags | MOVEFLAG_DESTINATION);
-				if (!bCanEndTurnInCurrentPlot)
-					bRejectMove = true;
+				//make sure we have at least one plot where we can end this turn, meaning it's visible and we can stack
+				CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
+				//assume no good plot
+				bRejectMove = true;
+				//start iterating at zero although we know it's blocked but it might be the turn destination already!
+				for (size_t iIndex=0; iIndex<m_kLastPath.size(); iIndex++)
+				{
+					CvPlot* pTestPlot = m_kLastPath.GetPlotByIndex(iIndex);
+					if (pTestPlot->isVisible(getTeam()) && canMoveInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
+					{
+						bRejectMove = false;
+						break;
+					}
+
+					//look only at this turn's plots!
+					if (pTestPlot == pTurnDest)
+						break;
+				} 
 			}
 		}
 
