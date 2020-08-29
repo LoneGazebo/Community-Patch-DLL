@@ -4528,7 +4528,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	// Defensive Pact with ally?
 	if (IsHasDefensivePact(eAllyPlayer))
 	{
-		iScore += 2;
+		iScore += 5;
 	}
 
 	// Resurrected by ally?
