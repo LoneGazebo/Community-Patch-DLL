@@ -4280,7 +4280,15 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 
 			if (eCoopWarState == COOP_WAR_STATE_READY)
 			{
-				DoStartCoopWar(eLoopPlayer, eThirdParty);
+				if (CanStartCoopWar(eLoopPlayer, eThirdParty))
+				{
+					DoStartCoopWar(eLoopPlayer, eThirdParty);
+				}
+				else
+				{
+					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, NO_COOP_WAR_STATE);
+				}					
 			}
 		}
 	}
@@ -14697,7 +14705,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	if (GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
 		return;
 
-	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+	bool bAtWarWithAtLeastOneMajor = false;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer) && !IsPhonyWar(eLoopPlayer))
+		{
+			bAtWarWithAtLeastOneMajor = true;
+			break;
+		}
+	}
 
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
@@ -14720,7 +14738,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 		else
 		{
-			if (GetPlayer()->IsEmpireInBadShapeForWar() && !IsEndgameAggressiveTo(eTargetPlayer))
+			if (GetPlayer()->IsEmpireInBadShapeForWar() && !IsEndgameAggressiveTo(eTargetPlayer) && !IsPlayerCapturedCapital(eTargetPlayer))
 			{
 				bWantToAttack = false;
 			}
@@ -36680,39 +36698,42 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		iMessage = 0;
 
 		// Guy is a different ideology
-		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
+		if (GetDiploBalance() > 5 && IsPlayerOpposingIdeology(ePlayer))
 		{
-			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 			{
-				return 1;
+				if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+				{
+					return 1;
+				}
+				else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+				{
+					return 2;
+				}
+				else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+				{
+					return 3;
+				}
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if (GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 			{
-				return 2;
+				if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+				{
+					return 4;
+				}
+				else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+				{
+					return 5;
+				}
+				else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+				{
+					return 6;
+				}
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else
 			{
-				return 3;
+				return 7;
 			}
-		}
-		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
-		{
-			if(GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == GC.getPOLICY_BRANCH_AUTOCRACY())
-			{
-				return 4;
-			}
-			else if(GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == GC.getPOLICY_BRANCH_ORDER())
-			{
-				return 5;
-			}
-			else if(GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == GC.getPOLICY_BRANCH_FREEDOM())
-			{
-				return 6;
-			}
-		}
-		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
-		{
-			return 7;
 		}
 		// Guy is a warmonger
 		else if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR && GetDiploBalance() > 5)
@@ -46063,6 +46084,7 @@ void CvDiplomacyAI::LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, 
 		{
 		case NO_COOP_WAR_STATE:
 			strOutBuf = strBaseString + ",***** COOP WAR STATE CHANGE: Coop war state with player " + withPlayerName + " against " + againstPlayerName + " has been reset (NO COOP WAR STATE).";
+			break;
 		case COOP_WAR_STATE_WARNED_TARGET:
 			strOutBuf = strBaseString + ",***** COOP WAR STATE CHANGE: We warned " + againstPlayerName + " about " + withPlayerName + "'s coop war plans (WARNED TARGET).";
 			break;

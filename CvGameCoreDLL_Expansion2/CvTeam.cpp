@@ -1572,7 +1572,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
 
-		if (GET_PLAYER(eLoopPlayer).isAlive())
+		if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
 		{
 			if (GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 			{
@@ -1595,12 +1595,24 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (!pDiplo->IsPlayerValid(eThirdParty, true))
 								continue;
 
+							// Make sure no vassals are involved
+							if (GET_PLAYER(eLoopDefender).IsVassalOfSomeone() || GET_PLAYER(eThirdParty).IsVassalOfSomeone())
+								continue;
+
 							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopDefender);
-							if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+							if (eCoopWarState == COOP_WAR_STATE_PREPARING)
 							{
-								pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, COOP_WAR_STATE_READY);
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, COOP_WAR_STATE_READY);
-								pDiplo->DoStartCoopWar(eThirdParty, eLoopDefender);
+								if (pDiplo->CanStartCoopWar(eThirdParty, eLoopDefender) || (pDiplo->IsAtWar(eLoopDefender) && GET_PLAYER(eThirdParty).IsAtWarWith(eLoopDefender)))
+								{
+									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, COOP_WAR_STATE_READY);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, COOP_WAR_STATE_READY);
+									pDiplo->DoStartCoopWar(eThirdParty, eLoopDefender);
+								}
+								else
+								{
+									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, NO_COOP_WAR_STATE);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, NO_COOP_WAR_STATE);
+								}
 							}
 						}
 					}
@@ -1627,12 +1639,24 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (!pDiplo->IsPlayerValid(eThirdParty, true))
 								continue;
 
+							// Make sure no vassals are involved
+							if (GET_PLAYER(eLoopAttacker).IsVassalOfSomeone() || GET_PLAYER(eThirdParty).IsVassalOfSomeone())
+								continue;
+
 							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopAttacker);
-							if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+							if (eCoopWarState == COOP_WAR_STATE_PREPARING)
 							{
-								pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, COOP_WAR_STATE_READY);
-								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, COOP_WAR_STATE_READY);
-								pDiplo->DoStartCoopWar(eThirdParty, eLoopAttacker);
+								if (pDiplo->CanStartCoopWar(eThirdParty, eLoopAttacker) || (pDiplo->IsAtWar(eLoopAttacker) && GET_PLAYER(eThirdParty).IsAtWarWith(eLoopAttacker)))
+								{
+									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, COOP_WAR_STATE_READY);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, COOP_WAR_STATE_READY);
+									pDiplo->DoStartCoopWar(eThirdParty, eLoopAttacker);
+								}
+								else
+								{
+									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, NO_COOP_WAR_STATE);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, NO_COOP_WAR_STATE);									
+								}
 							}
 						}
 					}
