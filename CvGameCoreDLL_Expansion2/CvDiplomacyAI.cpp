@@ -12961,6 +12961,10 @@ void CvDiplomacyAI::DoUpdateDemands()
 			// If we can't go to war without us/our team backstabbing a friend or ally, then don't demand
 			if (IsWarWouldBackstabFriendTeamCheck(eLoopPlayer))
 				continue;
+
+			// No demands if we have a coop war with this guy!
+			if (GetGlobalCoopWarWithState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+				continue;
 			
 			// Is eLoopPlayer a good target for making a demand?
 			if(IsPlayerDemandAttractive(eLoopPlayer))
@@ -35187,6 +35191,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					bDeclareWar = false;
 				}
+
+				if (GetGlobalCoopWarWithState(eFromPlayer) >= COOP_WAR_STATE_READY)
+				{
+					bDeclareWar = false;
+				}
 				
 				// Sanity check - avoid going bankrupt
 				int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(eFromPlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
@@ -35222,6 +35231,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #endif
 							if (bCheckPlayer)
 							{
+								if (GetGlobalCoopWarWithState(eFromPlayer) >= COOP_WAR_STATE_PREPARING)
+								{
+									bDeclareWar = false;
+								}
+
 								// Would we be declaring war on a powerful neighbor?
 								if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 								{
@@ -43639,10 +43653,17 @@ int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
 			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTimesRazed(ePlayer) >= 50)
 			{
-				iOpinionWeight = /*20*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD();
-				break;
+				MajorCivApproachTypes eApproach = GetMajorCivApproach(eLoopPlayer);
+				bool bDontCare = (WasOurTeamEverBackstabbedBy(eLoopPlayer) || IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer) || IsDenouncedByPlayer(eLoopPlayer) || IsTeamUntrustworthy(GET_PLAYER(eLoopPlayer).getTeam()) || eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach <= MAJOR_CIV_APPROACH_DECEPTIVE || GetMajorCivOpinion(eLoopPlayer) <= MAJOR_CIV_OPINION_ENEMY);
+
+				if (!bDontCare)
+				{
+					iOpinionWeight = /*20*/ GC.getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD();
+					break;
+				}
 			}
 		}
 	}

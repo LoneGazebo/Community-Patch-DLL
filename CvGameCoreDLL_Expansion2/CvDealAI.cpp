@@ -3519,6 +3519,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 		}
+		// Don't accept a war bribe against someone we agreed to go on a coop war with.
+		if (pDiploAI->GetGlobalCoopWarWithState(eWithPlayer) >= COOP_WAR_STATE_PREPARING)
+		{
+			return INT_MAX;
+		}
 
 		// Sanity check - who else would we go to war with?
 		bool bCheckPlayer = false;
@@ -3546,6 +3551,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 #endif
 				if (bCheckPlayer)
 				{
+					// Would we be declaring war on someone who's helping us in a coop war? Don't do it!
+					if (pDiploAI->IsDoFAccepted(eLoopPlayer) || pDiploAI->GetGlobalCoopWarWithState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+					{
+						return INT_MAX;
+					}
+
 					// Would we be declaring war on a powerful neighbor?
 					if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
