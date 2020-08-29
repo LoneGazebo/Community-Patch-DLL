@@ -4430,7 +4430,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	bool bBadness = false;
 
 	// If we're in bad shape for war, we're not interested.
-	if (GetPlayer()->IsEmpireInBadShapeForWar())
+	if (GetPlayer()->IsEmpireInBadShapeForWar() && !IsEndgameAggressiveTo(eTargetPlayer) && !IsPlayerCapturedCapital(eTargetPlayer))
 		return 0;
 
 	// If we don't trust them, we're not interested.
@@ -4620,6 +4620,10 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		iScore += 1000;
 	}
+
+	// Coop war already planned with this guy? Limit how many wars we partake in.
+	if (GetGlobalCoopWarWithState(eAllyPlayer) >= COOP_WAR_STATE_PREPARING)
+		bBadness = true;
 
 	// Proximity to target?
 	if (GetPlayer()->CanCrossOcean())
@@ -4973,7 +4977,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		return 0;
 	}
 
-	if (bBadness && GetMajorCivApproach(eTargetPlayer) != MAJOR_CIV_APPROACH_WAR)
+	if (bBadness && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING && GetMajorCivApproach(eTargetPlayer) != MAJOR_CIV_APPROACH_WAR)
 		return 0;
 
 	return iScore;
