@@ -4695,6 +4695,23 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		break;
 	}
 
+	// Weight for land dispute
+	switch (GetLandDisputeLevel(eTargetPlayer))
+	{
+	case DISPUTE_LEVEL_NONE:
+		iScore -= 5;
+		break;
+	case DISPUTE_LEVEL_WEAK:
+		iScore += 5;
+		break;
+	case DISPUTE_LEVEL_STRONG:
+		iScore += 10;
+		break;
+	case DISPUTE_LEVEL_FIERCE:
+		iScore += 15;
+		break;
+	}
+
 	// Weight for victory issues
 	switch (GetVictoryDisputeLevel(eTargetPlayer))
 	{
