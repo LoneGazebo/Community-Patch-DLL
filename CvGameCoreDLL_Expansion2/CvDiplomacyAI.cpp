@@ -4417,6 +4417,22 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	if (IsEndgameAggressiveTo(eAllyPlayer))
 		return 0;
 
+	// No coop wars if we recently made peace.
+	if (GetNumWarsFought(eTargetPlayer) > 0)
+	{
+		int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eTargetPlayer).getTeam());
+		if (iPeaceTreatyTurn > -1)
+		{
+			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+
+			if (iTurnsSincePeace < iPeaceDampenerTurns)
+			{
+				return 0;
+			}
+		}
+	}
+
 	// Sanity checks!
 	/*
 	if (!IsDeclaringWarSane(eTargetPlayer))

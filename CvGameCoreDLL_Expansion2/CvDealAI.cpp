@@ -3504,6 +3504,21 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		// Don't accept war bribes if we recently made peace.
+		if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
+		{
+			int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eWithPlayer).getTeam());
+			if (iPeaceTreatyTurn > -1)
+			{
+				int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+				int iPeaceDampenerTurns = 30;
+
+				if (iTurnsSincePeace < iPeaceDampenerTurns)
+				{
+					return INT_MAX;
+				}
+			}
+		}
 
 		// Sanity check - who else would we go to war with?
 		bool bCheckPlayer = false;
