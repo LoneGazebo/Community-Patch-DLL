@@ -1404,6 +1404,84 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	}
 #endif
 
+	// anyone who WANTED to declare war becomes aggressive now
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == m_eID && GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			for (int iTargetLoop = 0; iTargetLoop < MAX_MAJOR_CIVS; iTargetLoop++)
+			{
+				PlayerTypes eLoopTarget = (PlayerTypes) iTargetLoop;
+				if (GET_PLAYER(eLoopTarget).getTeam() == eTeam && GET_PLAYER(eLoopTarget).isAlive())
+				{
+					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+					{
+						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+
+						if (bAggressor && !bDefensivePact)
+						{
+							pDiplo->SetAggressor(eLoopTarget, true);
+						}
+						else
+						{
+							if (GET_PLAYER(eLoopTarget).isMajorCiv())
+							{
+								CvAIOperation* pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetSneakAttackOperation(eLoopTarget);
+								if (!pOurOperation)
+								{
+									pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetShowOfForceOperation(eLoopTarget);
+								}
+
+								if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetMajorCivApproach(eLoopTarget) == MAJOR_CIV_APPROACH_WAR || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
+								{
+									pDiplo->SetAggressor(eLoopTarget, true);
+								}
+							}
+							else if (GET_PLAYER(eLoopTarget).isMinorCiv())
+							{
+								CvAIOperation* pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetCityStateAttackOperation(eLoopTarget);
+
+								if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetMinorCivApproach(eLoopTarget) == MINOR_CIV_APPROACH_CONQUEST)
+								{
+									pDiplo->SetAggressor(eLoopTarget, true);
+								}
+							}
+						}
+					}
+
+					if (GET_PLAYER(eLoopTarget).isMajorCiv())
+					{
+						CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopTarget).GetDiplomacyAI();
+
+						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+						{
+							CvAIOperation* pTheirOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer);
+							if (!pTheirOperation)
+							{
+								pTheirOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetShowOfForceOperation(eLoopPlayer);
+							}
+
+							if (pTheirOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+							{
+								pDiplo->SetAggressor(eLoopPlayer, true);
+							}
+						}
+						else if (GET_PLAYER(eLoopPlayer).isMinorCiv() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST)
+						{
+							CvAIOperation* pOurOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetCityStateAttackOperation(eLoopPlayer);
+
+							if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST)
+							{
+								pDiplo->SetAggressor(eLoopPlayer, true);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	//first cancel open borders and other diplomatic agreements
 	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
 	SetAllowsOpenBordersToTeam(eTeam, false);
@@ -1488,7 +1566,82 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
 
-	for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	// If any coop wars were preparing against either side, initiate them now.
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+
+		if (GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			if (GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+			{
+				for (int iDefenderLoop = 0; iDefenderLoop < MAX_MAJOR_CIVS; iDefenderLoop++)
+				{
+					PlayerTypes eLoopDefender = (PlayerTypes) iDefenderLoop;
+
+					if (pDiplo->IsPlayerValid(eLoopDefender) && GET_PLAYER(eLoopDefender).getTeam() == eTeam)
+					{
+						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+						{
+							PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+							if (eThirdParty == eLoopDefender || eThirdParty == eLoopPlayer || GET_PLAYER(eThirdParty).getTeam() == eTeam)
+								continue;
+
+							if (GET_PLAYER(eThirdParty).IsAtWarWith(eLoopPlayer))
+								continue;
+
+							if (!pDiplo->IsPlayerValid(eThirdParty, true))
+								continue;
+
+							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopDefender);
+							if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+							{
+								pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, COOP_WAR_STATE_READY);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, COOP_WAR_STATE_READY);
+								pDiplo->DoStartCoopWar(eThirdParty, eLoopDefender);
+							}
+						}
+					}
+				}
+			}
+			else if (GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+			{
+				for (int iAttackerLoop = 0; iAttackerLoop < MAX_MAJOR_CIVS; iAttackerLoop++)
+				{
+					PlayerTypes eLoopAttacker = (PlayerTypes) iAttackerLoop;
+
+					if (pDiplo->IsPlayerValid(eLoopAttacker) && GET_PLAYER(eLoopAttacker).getTeam() == GetID())
+					{
+						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+						{
+							PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+							if (eThirdParty == eLoopAttacker || eThirdParty == eLoopPlayer || GET_PLAYER(eThirdParty).getTeam() == GetID())
+								continue;
+
+							if (GET_PLAYER(eThirdParty).IsAtWarWith(eLoopPlayer))
+								continue;
+
+							if (!pDiplo->IsPlayerValid(eThirdParty, true))
+								continue;
+
+							CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eLoopAttacker);
+							if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+							{
+								pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, COOP_WAR_STATE_READY);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, COOP_WAR_STATE_READY);
+								pDiplo->DoStartCoopWar(eThirdParty, eLoopAttacker);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
 	{
 		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
 		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
@@ -4433,12 +4586,17 @@ int CvTeam::GetNumTurnsLockedIntoWar(TeamTypes eTeam) const
 /// How long are we locked into a war with eTeam?
 void CvTeam::SetNumTurnsLockedIntoWar(TeamTypes eTeam, int iValue)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(iValue >= 0, "Num turns locked into war should always be 0 or greater. Please show Jon this and send your last 5 autosaves and what changelist # you were playing.");
-	CvAssertMsg(eTeam != GetID() || iValue == 0, "Team is setting locked war turns with itself!");
-	if(eTeam != GetID() || iValue == 0)
+	if (eTeam == GetID())
+		return;
+
+	if (iValue <= 0)
+	{
+		m_aiNumTurnsLockedIntoWar[eTeam] = 0;
+	}
+	else if (m_aiNumTurnsLockedIntoWar[eTeam] <= 0) // Don't allow adding more locked turns if already locked at war! Prevents happiness exploit.
+	{
 		m_aiNumTurnsLockedIntoWar[eTeam] = iValue;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -4784,16 +4942,56 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(IsHasDefensivePact(eIndex) != bNewValue)
-	{
-		m_abDefensivePact[eIndex] = bNewValue;
+	m_abDefensivePact[eIndex] = bNewValue;
 
-		if((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
+	if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
+	{
+		DLLUI->setDirty(Score_DIRTY_BIT, true);
+	}
+
+	if (bNewValue)
+	{
+		// Cancel coop war plans
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			DLLUI->setDirty(Score_DIRTY_BIT, true);
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+			{
+				for (int iDPLoop = 0; iDPLoop < MAX_MAJOR_CIVS; iDPLoop++)
+				{
+					PlayerTypes eDPLoopPlayer = (PlayerTypes) iDPLoop;
+
+					if (GET_PLAYER(eDPLoopPlayer).isAlive() && GET_PLAYER(eDPLoopPlayer).getTeam() == eIndex)
+					{
+						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+						{
+							PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+							if (eThirdParty == eLoopPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eDPLoopPlayer).getTeam())
+								continue;
+
+							if (pDiplo->IsPlayerValid(eThirdParty, true))
+							{
+								CoopWarStates eCoopWarState = pDiplo->GetCoopWarState(eThirdParty, eDPLoopPlayer);
+								if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
+								{
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eLoopPlayer, true);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetPlayerBackstabCounter(eLoopPlayer, 0);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeCoopWarScore(eLoopPlayer, -2);
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
+								}
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(eThirdParty, eDPLoopPlayer, NO_COOP_WAR_STATE);
+								GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eDPLoopPlayer, NO_COOP_WAR_STATE);
+							}
+						}
+					}
+				}
+			}
 		}
 
-		if(bNewValue && !GET_TEAM(eIndex).IsHasDefensivePact(GetID()))
+		if (!GET_TEAM(eIndex).IsHasDefensivePact(GetID()))
 		{
 			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT", getName().GetCString(), GET_TEAM(eIndex).getName().GetCString());
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);

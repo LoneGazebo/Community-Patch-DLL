@@ -706,9 +706,11 @@ int CvLuaEnums::pRegister(lua_State* L)
 	// CoopWarStates
 	EnumStart(L, "CoopWarStates");
 	RegisterEnum(NO_COOP_WAR_STATE);
+	RegisterEnum(COOP_WAR_STATE_WARNED_TARGET);
 	RegisterEnum(COOP_WAR_STATE_REJECTED);
-	RegisterEnum(COOP_WAR_STATE_SOON);
-	RegisterEnum(COOP_WAR_STATE_ACCEPTED);
+	RegisterEnum(COOP_WAR_STATE_PREPARING);
+	RegisterEnum(COOP_WAR_STATE_READY);
+	RegisterEnum(COOP_WAR_STATE_ONGOING);
 	RegisterEnum(NUM_COOP_WAR_STATES);
 	EnumEnd(L);
 

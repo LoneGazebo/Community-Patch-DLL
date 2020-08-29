@@ -2991,6 +2991,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		else if(it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
 		{
 			GET_TEAM(eFromTeam).SetHasDefensivePact(eToTeam, true);
+			GET_TEAM(eToTeam).SetHasDefensivePact(eFromTeam, true);
 		}
 		// Research Agreement
 		else if(it->m_eItemType == TRADE_ITEM_RESEARCH_AGREEMENT)
@@ -3667,6 +3668,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if(it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
 				{
 					GET_TEAM(eFromTeam).SetHasDefensivePact(eToTeam, true);
+					GET_TEAM(eToTeam).SetHasDefensivePact(eFromTeam, true);
 				}
 				// Research Agreement
 				else if(it->m_eItemType == TRADE_ITEM_RESEARCH_AGREEMENT)
@@ -4635,6 +4637,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	else if(pItem->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT)
 	{
 		GET_TEAM(eFromTeam).SetHasDefensivePact(eToTeam, false);
+		GET_TEAM(eToTeam).SetHasDefensivePact(eFromTeam, false);
 
 		pNotifications = fromPlayer.GetNotifications();
 		if(pNotifications)

@@ -10491,13 +10491,25 @@ int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lCanRequestCoopWar(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eAllyPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	PlayerTypes eTargetPlayer = (PlayerTypes) lua_tointeger(L, 3);
+
+	const bool bValue = pkPlayer->GetDiplomacyAI()->CanRequestCoopWar(eAllyPlayer, eTargetPlayer);
+
+	lua_pushinteger(L, bValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCoopWarAcceptedState(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	PlayerTypes eAgainstPlayer = (PlayerTypes) lua_tointeger(L, 3);
+	PlayerTypes eAllyPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	PlayerTypes eTargetPlayer = (PlayerTypes) lua_tointeger(L, 3);
 
-	const int iState = pkPlayer->GetDiplomacyAI()->GetCoopWarAcceptedState(eWithPlayer, eAgainstPlayer);
+	const int iState = pkPlayer->GetDiplomacyAI()->GetCoopWarState(eAllyPlayer, eTargetPlayer);
 
 	lua_pushinteger(L, iState);
 	return 1;

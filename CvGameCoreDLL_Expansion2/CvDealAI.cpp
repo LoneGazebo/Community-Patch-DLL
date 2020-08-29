@@ -3368,39 +3368,37 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 	//Can't see any of their cities?
-	if(bFromMe)
+	if (bFromMe)
 	{
-		CvCity* pLoopCity;
 		int iCityLoop;
 		bool bSeen = false;
-		for(pLoopCity = GET_PLAYER(eWithPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWithPlayer).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(eWithPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWithPlayer).nextCity(&iCityLoop))
 		{
-			if(pLoopCity != NULL && pLoopCity->isRevealed(m_pPlayer->getTeam(), false))
+			if (pLoopCity != NULL && pLoopCity->isRevealed(m_pPlayer->getTeam(), false))
 			{
 				bSeen = true;
 				break;
 			}
 		}
-		if(!bSeen)
+		if (!bSeen)
 		{
 			return INT_MAX;
 		}
 	}
 	//Can't see any of their cities?
-	if(!bFromMe)
+	if (!bFromMe)
 	{
-		CvCity* pLoopCity;
 		int iCityLoop;
 		bool bSeen = false;
-		for(pLoopCity = GET_PLAYER(eWithPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWithPlayer).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(eWithPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eWithPlayer).nextCity(&iCityLoop))
 		{
-			if(pLoopCity != NULL && pLoopCity->isRevealed(GET_PLAYER(eOtherPlayer).getTeam(), false))
+			if (pLoopCity != NULL && pLoopCity->isRevealed(GET_PLAYER(eOtherPlayer).getTeam(), false))
 			{
 				bSeen = true;
 				break;
 			}
 		}
-		if(!bSeen)
+		if (!bSeen)
 		{
 			return INT_MAX;
 		}
@@ -3498,6 +3496,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
 		if (pDiploAI->IsWarWouldBackstabFriendTeamCheck(eWithPlayer))
+		{
+			return INT_MAX;
+		}
+		// If we're in bad shape to start a war, no wars
+		if (GetPlayer()->IsEmpireInBadShapeForWar())
 		{
 			return INT_MAX;
 		}

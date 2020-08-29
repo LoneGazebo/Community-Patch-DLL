@@ -5945,18 +5945,13 @@
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
-		
-		<!-- Coop war button disabled (must be friends) -->
-		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_BLOCKED_NOT_FRIENDS">
-			<Text>You must be friends to start a cooperative war with this civilization.</Text>
-		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
 			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
-			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions!</Text>
+			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions![NEWLINE][NEWLINE]Depending on the AI's response, a cooperative war could begin immediately, after 10 turns have passed, or as soon as one of you goes to war with the target.[NEWLINE][NEWLINE]Cooperative wars are cancelled if you prematurely end your friendship with this leader (including through denouncements or war).[NEWLINE][NEWLINE]If you befriend the target, form a Defensive Pact with them, or become unable to declare war on them, your agreement with this leader will also be cancelled.</Text>
 		</Row>
 
 		<!-- Tourism and League Stuff -->
