@@ -4284,6 +4284,22 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				{
 					DoStartCoopWar(eLoopPlayer, eThirdParty);
 				}
+				// If both already at war, just process that
+				else if (IsAtWar(eThirdParty) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
+				{
+					int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
+					int iTheirTurnsAtWar = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
+					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
+
+					if (iLockedTurns > 0)
+					{
+						GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
+						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
+					}
+
+					SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_ONGOING);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, COOP_WAR_STATE_ONGOING);
+				}
 				else
 				{
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
