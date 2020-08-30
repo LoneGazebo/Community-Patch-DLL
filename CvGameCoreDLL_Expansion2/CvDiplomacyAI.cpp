@@ -6680,27 +6680,30 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// LAST TURN APPROACH BIASES
 	////////////////////////////////////
 
+	// Add 2x approach bias for our current approach, to make it less likely to flip from turn to turn
 	if (!bReevaluatePlayer)
 	{
-		// Add 1x approach bias for our current approach, to make it less likely to flip from turn to turn
-		viApproachWeights[eOldApproach] += viApproachWeightsPersonality[eOldApproach];
+		viApproachWeights[eOldApproach] += (viApproachWeightsPersonality[eOldApproach] * 2);
+	}
 
-		if (eOldApproach == MAJOR_CIV_APPROACH_WAR)
+	// If we're planning a war (or want to wipe them off the planet) then add WAR bias so that we don't get away from it too easily
+	if (eOldApproach == MAJOR_CIV_APPROACH_WAR || IsWantsSneakAttack(ePlayer) || IsArmyInPlaceForAttack(ePlayer))
+	{
+		if (eWarGoal == WAR_GOAL_PREPARE || eWarGoal == WAR_GOAL_CONQUEST || IsWantsSneakAttack(ePlayer))
 		{
-			// If we're planning a war (or want to wipe them off the planet) then add WAR bias so that we don't get away from it too easily
-			if (eWarGoal == WAR_GOAL_PREPARE || eWarGoal == WAR_GOAL_CONQUEST)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			}
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 		}
-		else if (eOldApproach == MAJOR_CIV_APPROACH_HOSTILE)
+
+		// Ready to attack?
+		if (IsArmyInPlaceForAttack(ePlayer))
 		{
-			// Same for demand
-			if (eWarGoal == WAR_GOAL_DEMAND)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-			}
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 100;
 		}
+	}
+	// Same for demand
+	else if (eOldApproach == MAJOR_CIV_APPROACH_HOSTILE && eWarGoal == WAR_GOAL_DEMAND)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5);
 	}
 
 	////////////////////////////////////
@@ -14829,7 +14832,28 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					{
 						GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
 						SetWantsSneakAttack(eTargetPlayer, true);
+
+						MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
 						SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR); // update approach to WAR
+
+						// Set War Face if old approach wasn't WAR
+						switch (eOldApproach)
+						{
+						case MAJOR_CIV_APPROACH_HOSTILE:
+						case MAJOR_CIV_APPROACH_AFRAID:
+							SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
+							break;
+						case MAJOR_CIV_APPROACH_GUARDED:
+							SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
+							break;
+						case MAJOR_CIV_APPROACH_FRIENDLY:
+						case MAJOR_CIV_APPROACH_DECEPTIVE:
+							SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
+							break;
+						default:
+							SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
+							break;
+						}
 					}
 				}
 				else
@@ -14842,7 +14866,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 					}
 
-					if (!IsAtWar(eTargetPlayer) && GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
+					if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
 					{
 						switch (GetWarFace(eTargetPlayer))
 						{
@@ -14895,7 +14919,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetArmyInPlaceForAttack(eTargetPlayer, false);
 			}
-			if (!IsAtWar(eTargetPlayer) && GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
+			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
 			{
 				switch (GetWarFace(eTargetPlayer))
 				{
