@@ -4401,7 +4401,7 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eC
 			continue;
 
 		// Only ask if we're sufficiently upset with the target
-		if (GetBiggestCompetitor() != eTarget && GetMajorCivApproach(eTarget) > MAJOR_CIV_APPROACH_DECEPTIVE)
+		if (GetBiggestCompetitor() != eTarget && GetMajorCivApproach(eTarget) > MAJOR_CIV_APPROACH_DECEPTIVE && GetGlobalCoopWarAgainstState(eTarget) < COOP_WAR_STATE_PREPARING)
 			continue;
 
 		int iScore = GetCoopWarDesireScore(eAllyPlayer, eTarget);
