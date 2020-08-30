@@ -4609,7 +4609,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	}
 
 	// Resurrected by target?
-	if (WasResurrectedBy(eTargetPlayer))
+	if (WasResurrectedBy(eTargetPlayer) || IsPlayerLiberatedCapital(eTargetPlayer))
 		bBadness = true;
 
 	// Coop war score with target?
@@ -35217,6 +35217,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 
 				if (GetGlobalCoopWarWithState(eFromPlayer) >= COOP_WAR_STATE_READY)
+				{
+					bDeclareWar = false;
+				}
+
+				if (WasResurrectedBy(eFromPlayer) || IsPlayerLiberatedCapital(eFromPlayer))
 				{
 					bDeclareWar = false;
 				}

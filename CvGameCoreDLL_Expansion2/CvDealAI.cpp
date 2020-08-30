@@ -3524,6 +3524,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		if (pDiploAI->WasResurrectedBy(eWithPlayer) || pDiploAI->IsPlayerLiberatedCapital(eWithPlayer))
+		{
+			return INT_MAX;
+		}
 
 		// Sanity check - who else would we go to war with?
 		bool bCheckPlayer = false;
