@@ -14840,9 +14840,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						switch (eOldApproach)
 						{
 						case MAJOR_CIV_APPROACH_HOSTILE:
-						case MAJOR_CIV_APPROACH_AFRAID:
 							SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
 							break;
+						case MAJOR_CIV_APPROACH_AFRAID:
 						case MAJOR_CIV_APPROACH_GUARDED:
 							SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
 							break;
