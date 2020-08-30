@@ -4661,6 +4661,42 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		}
 	}
 
+	// Ally's proximity to target?
+	if (GET_PLAYER(eAllyPlayer).CanCrossOcean())
+	{
+		switch (GET_PLAYER(eAllyPlayer).GetProximityToPlayer(eTargetPlayer))
+		{
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iScore += 10;
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+			iScore += 5;
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iScore -= 25;
+			break;
+		case PLAYER_PROXIMITY_DISTANT:
+			iScore -= 50;
+			break;
+		}
+	}
+	else
+	{
+		switch (GET_PLAYER(eAllyPlayer).GetProximityToPlayer(eTargetPlayer))
+		{
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iScore += 10;
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+			iScore += 5;
+			break;
+		case PLAYER_PROXIMITY_FAR:
+		case PLAYER_PROXIMITY_DISTANT:
+			iScore -= 500;
+			break;
+		}
+	}
+
 	// Competitor?
 	if (GetBiggestCompetitor() == eTargetPlayer)
 	{
@@ -4977,7 +5013,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		return 0;
 	}
 
-	if (bBadness && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING && GetMajorCivApproach(eTargetPlayer) != MAJOR_CIV_APPROACH_WAR)
+	if (bBadness && !IsWantsSneakAttack(eTargetPlayer) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING && GetMajorCivApproach(eTargetPlayer) != MAJOR_CIV_APPROACH_WAR)
 		return 0;
 
 	return iScore;
