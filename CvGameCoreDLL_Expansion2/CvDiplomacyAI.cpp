@@ -4429,6 +4429,10 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	int iScore = 0;
 	bool bBadness = false;
 
+	// No target? Pass!
+	if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eTargetPlayer))
+		return 0;
+
 	// If we're in bad shape for war, we're not interested.
 	if (GetPlayer()->IsEmpireInBadShapeForWar() && !IsEndgameAggressiveTo(eTargetPlayer) && !IsPlayerCapturedCapital(eTargetPlayer))
 		return 0;
