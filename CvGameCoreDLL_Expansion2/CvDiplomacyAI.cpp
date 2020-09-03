@@ -25268,12 +25268,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				{
 					// make the deal not remove resources when processed
 					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer), pDeal);
+					szText = GetDiploStringForMessage(eMessageType);
+					CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 				}
 				else
 					CancelRenewDeal(ePlayer, REASON_NO_DEAL);
-
-				szText = GetDiploStringForMessage(eMessageType);
-				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}
 			else
 			{
@@ -29437,7 +29436,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 	{
 		if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_SOON)
 		{
-			CancelRenewDeal(ePlayer, REASON_NO_DEAL);
+			CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 			return;
 		}
 
@@ -29446,10 +29445,9 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 
 		int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 10);
 
-		//no valid deals? Shouldn't happen but if it does, make sure we cancel any deals.
+		//no valid deals?
 		if (iNumDeals <= 0)
 		{
-			CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 			return;
 		}
 
@@ -29488,12 +29486,10 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				if (it->m_eItemType ==
 					TRADE_ITEM_GOLD ||
 					TRADE_ITEM_GOLD_PER_TURN ||
-					TRADE_ITEM_MAPS ||
 					TRADE_ITEM_RESOURCES ||
 					TRADE_ITEM_OPEN_BORDERS ||
 					TRADE_ITEM_ALLOW_EMBASSY ||
-					TRADE_ITEM_DEFENSIVE_PACT ||
-					TRADE_ITEM_RESEARCH_AGREEMENT)
+					TRADE_ITEM_DEFENSIVE_PACT)
 					continue;
 				
 				//otherwise remove it.
@@ -29535,7 +29531,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				{
 					CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 					pDeal->ClearItems();
-					pTargetDeal->ClearItems();
 					return;
 				}
 				else
@@ -29545,7 +29540,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			{
 				CancelRenewDeal(ePlayer, REASON_NO_GPT);
 				pDeal->ClearItems();
-				pTargetDeal->ClearItems();
 				return;
 			}
 		}
@@ -35790,32 +35784,32 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		// Guy is a different ideology
 		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
-				return 1;
+				return 4;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
-				return 2;
+				return 5;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
-				return 3;
+				return 6;
 			}
 		}
 		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
-				return 4;
+				return 1;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
-				return 5;
+				return 2;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
-				return 6;
+				return 3;
 			}
 		}
 		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
@@ -39233,7 +39227,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
 #if defined(MOD_BALANCE_CORE)
 	int iMessage = GetDenounceMessage(ePlayer);
-	if(iMessage > 0 && iMessage <= 7)
+	if (iMessage > 0 && iMessage <= 7)
 	{
 		someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_IDEOLOGY");
 	}
@@ -45761,12 +45755,9 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 		TradedItemList::iterator itemIter;
 		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
 		{
-			int iFinalTurn = itemIter->m_iFinalTurn;
-			if (iFinalTurn > -1)
-			{
-				OutputDebugString("Cleared item from expired renewal deal \n");
-				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false);
-			}
+			OutputDebugString("Cleared item from expired renewal deal \n");
+			//If we checked for renewal, we don't need to remove items, as we already did it.
+			GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
 		}
 	}
 	pRenewalDeal->m_bConsideringForRenewal = false;

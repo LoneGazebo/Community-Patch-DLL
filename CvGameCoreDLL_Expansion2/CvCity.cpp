@@ -11472,9 +11472,12 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 	*/
 
-	int iTraitValue = kPlayer.GetPlayerTraits()->GetFaithCostModifier();
-	iCost *= (100 + iTraitValue);
-	iCost /= 100;
+	if (!pkUnitInfo->IsFoundReligion())
+	{
+		int iTraitValue = kPlayer.GetPlayerTraits()->GetFaithCostModifier();
+		iCost *= (100 + iTraitValue);
+		iCost /= 100;
+	}
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)

@@ -1735,8 +1735,6 @@ bool CvMinorCivQuest::IsRevoked()
 {
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 	{
-		if (m_eType == MINOR_CIV_QUEST_KILL_CAMP)
-			return true;
 		if(m_eType == MINOR_CIV_QUEST_ROUTE)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_CONNECT_RESOURCE)
@@ -1744,8 +1742,6 @@ bool CvMinorCivQuest::IsRevoked()
 		if(m_eType == MINOR_CIV_QUEST_CONSTRUCT_WONDER)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
-			return true;
-		if (m_eType == MINOR_CIV_QUEST_KILL_CITY_STATE)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_FIND_PLAYER)
 			return true;
@@ -1756,8 +1752,6 @@ bool CvMinorCivQuest::IsRevoked()
 		if(m_eType == MINOR_CIV_QUEST_PLEDGE_TO_PROTECT)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_INVEST)
-			return true;
-		if(m_eType == MINOR_CIV_QUEST_BULLY_CITY_STATE)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_DENOUNCE_MAJOR)
 			return true;

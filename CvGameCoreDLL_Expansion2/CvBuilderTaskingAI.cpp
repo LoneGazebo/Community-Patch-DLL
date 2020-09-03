@@ -1250,8 +1250,40 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild));
 		iWeight += iBuildTimeWeight;
 
-		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
-			iWeight /= 100;
+		if (bWillRemoveForestOrJungle)
+		{
+			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
+				iWeight /= 100;
+		}
+
+		if (eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature))
+		{
+			CvCity* pCity = getOwningCity(pPlot);
+			if (pCity)
+			{
+				int iWeightPenalty = 0;
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes)iI;
+					if (pCity->GetYieldPerXFeature(eFeature, eYield) > 0)
+						iWeightPenalty++;
+
+					if (pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) > 0)
+						iWeightPenalty++;
+
+					if (pCity->GetYieldPerXFeatureFromReligion(eFeature, eYield) > 0)
+						iWeightPenalty++;
+
+					if (pCity->GetYieldPerTurnFromUnimprovedFeatures(eFeature, eYield) > 0)
+						iWeightPenalty++;
+
+					if (pCity->GetFeatureExtraYield(eFeature, eYield) > 0)
+						iWeightPenalty++;
+				}
+
+				iWeight /= max(1, iWeightPenalty);
+			}
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		iWeight = min(iWeight,0x7FFF);

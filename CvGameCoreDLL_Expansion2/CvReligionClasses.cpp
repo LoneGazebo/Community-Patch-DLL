@@ -3290,7 +3290,8 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		return 0;
 	}
 
-	int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+	int iPressureMod = 0;
 
 	// Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
@@ -3301,12 +3302,10 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if (iNumFollowers > 0)
 		{
 			int iCitySize = pFromCity->getPopulation();
-
 			//scale the amount of pressure we get.
 			int iRatio = (iNumFollowers * 100) / max(1, iCitySize);
 
-			iPressure *= iRatio;
-			iPressure /= 100;
+			iPressureMod += (iRatio-100);
 		}
 		else
 		{
@@ -3337,22 +3336,14 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 			iTradeReligionModifer += iReligionTradeMod;
 		}
 #endif
-		if (iTradeReligionModifer != 0)
-		{
-			iPressure *= 100 + iTradeReligionModifer;
-			iPressure /= 100;
-		}
+
+		iPressureMod += iTradeReligionModifer;
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
 	if(IsCityStateFriendOfReligionFounder(eReligion, pToCity->getOwner()))
 	{
-		int iFriendshipMod = pReligion->m_Beliefs.GetFriendlyCityStateSpreadModifier(pFromCity->getOwner());
-		if(iFriendshipMod > 0)
-		{
-			iPressure *= (100 + iFriendshipMod);
-			iPressure /= 100;
-		}
+		iPressureMod += pReligion->m_Beliefs.GetFriendlyCityStateSpreadModifier(pFromCity->getOwner());
 	}
 
 	// Have a belief that always strengthens spread?
@@ -3368,73 +3359,47 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 				iStrengthMod *= 2;
 			}
 		}
-		iPressure *= (100 + iStrengthMod);
-		iPressure /= 100;
+
+		iPressureMod += iStrengthMod;
 	}
 #if defined(MOD_BALANCE_CORE)
 	int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
 	if(iPolicyMod != 0)
 	{
 		//If the faith being spread is our founded faith, or our adopted faith...
-		if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities()))))
+		if(eReligion > RELIGION_PANTHEON && 
+			((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || 
+			(eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities()))))
 		{
 			//...and the target city doesn't have our majority religion, we get the bonus.
 			if (pToCity->GetCityReligions()->GetReligiousMajority() != eReligion)
-			{
-				iPressure *= (100 + iPolicyMod);
-				iPressure /= 100;
-			}
+				iPressureMod += iPolicyMod;
 		}
 	}
 #endif
 
 	// Strengthened spread from World Congress? (World Religion)
-	int iLeaguesMod = GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);
-#if defined(MOD_API_EXTENSIONS)
-	// Trust the modder if they set a negative mod
-	if (iLeaguesMod != 0)
-#else
-	if (iLeaguesMod > 0)
-#endif
-	{
-		iPressure *= (100 + iLeaguesMod);
-		iPressure /= 100;
-	}
+	iPressureMod += GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);
 
 	// Building that boosts pressure from originating city?
-	int iModifier = pFromCity->GetCityReligions()->GetReligiousPressureModifier(eReligion);
-#if defined(MOD_API_EXTENSIONS)
-	// Trust the modder if they set a negative mod
-	if (iModifier != 0)
-#else
-	if (iModifier > 0)
-#endif
-	{
-		iPressure *= (100 + iModifier);
-		iPressure /= 100;
-	}
+	iPressureMod += pFromCity->GetCityReligions()->GetReligiousPressureModifier(eReligion);
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 	{
-		iPressure *= 120;
-		iPressure /= 100;
+		iPressureMod += 20;
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 	{
-		if(eReligion >= RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
+		if(eReligion >= RELIGION_PANTHEON && 
+			((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || 
+			(GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
 		{
-			int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
-			if(iPopReligionModifer > 350)
-			{
-				iPopReligionModifer = 350;
-			}
-			if (iPopReligionModifer != 0)
-			{
-				iPressure *= 100 + iPopReligionModifer;
-				iPressure /= 100;
-			}
+			int iPopReligionModifer = pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10;
+			iPressureMod += min(350,iPopReligionModifer);
 		}
 	}
 #endif
@@ -3454,8 +3419,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 				iCityModifier *= -1;
 			}
 
-			iPressure *= (100 + (iCityModifier + pToPlayer.GetConversionModifier() + pToPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CONVERSION_MODIFIER)));
-			iPressure /= 100;
+			iPressureMod += iCityModifier + pToPlayer.GetConversionModifier() + pToPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CONVERSION_MODIFIER);
 		}
 	}
 #endif
@@ -3463,19 +3427,8 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	//if there is an explicit trade route, there is no distance taper
 	if (!bConnectedWithTrade && !bPretendTradeConnection)
 	{
-		//scale by relative faith output (the weaker city cannot influence the stronger city much)
-		float fFaithPowerMod = sqrt(float(pFromCity->getYieldRateTimes100(YIELD_FAITH, true)) / max(pToCity->getYieldRateTimes100(YIELD_FAITH, true), 100));
-		int iFaithPowerMod = int(100 * fFaithPowerMod + 0.5f);
-		if (iFaithPowerMod<100)
-		{
-			//25% minimum penalty
-			iPressure *= max(25, iFaithPowerMod);
-			iPressure /= 100;
-		}
-
 		//now the most important thing - linear scaling
-		iPressure *= (100 - iRelativeDistancePercent);
-		iPressure /= 100;
+		iPressureMod -= iRelativeDistancePercent;
 
 		/*
 		//alternative version with quadratic scaling - higher pressure
@@ -3485,8 +3438,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		*/
 	}
 
+	int iPressure = iBasePressure * (100 + iPressureMod);
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
-	return iPressure;
+	return iPressure / 100;
 }
 
 /// How much does this prophet cost (recursive)

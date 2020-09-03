@@ -182,7 +182,11 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 							
 								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
 								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-								bAppend = true;
+								UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+								if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
+								{
+									bAppend = true;
+								}
 							}
 						}
 				}

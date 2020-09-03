@@ -653,11 +653,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
 				return false;
 
-			//do not trade away our closest city in the same deal!
-			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCity->plot());
-			if (pClosestCity != NULL && pClosestCity != pCity && IsCityInDeal(pClosestCity->getOwner(), pClosestCity->GetID()))
-				return false;
-
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
@@ -4890,7 +4885,7 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 }
 
 /// End a TradedItem (if it's an ongoing item)
-void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled)
+void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip)
 {
 	CvString strBuffer;
 	CvString strSummary;
@@ -4909,8 +4904,11 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	if(pItem->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
 	{
 		int iGoldPerTurn = pItem->m_iData1;
-		fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurn);
-		toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurn);
+		if (!bSkip)
+		{
+			fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurn);
+			toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurn);
+		}
 
 		pNotifications = GET_PLAYER(eFromPlayer).GetNotifications();
 		if(pNotifications)
@@ -4934,8 +4932,11 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		ResourceTypes eResource = (ResourceTypes) pItem->m_iData1;
 		int iResourceQuantity = pItem->m_iData2;
 
-		fromPlayer.changeResourceExport(eResource, -iResourceQuantity);
-		toPlayer.changeResourceImportFromMajor(eResource, -iResourceQuantity);
+		if (!bSkip)
+		{
+			fromPlayer.changeResourceExport(eResource, -iResourceQuantity);
+			toPlayer.changeResourceImportFromMajor(eResource, -iResourceQuantity);
+		}
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		const char* szResourceDescription = (pkResourceInfo)? pkResourceInfo->GetDescriptionKey() : "";
@@ -5156,7 +5157,6 @@ int CvGameDeals::GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1
 /// Mark elements in the deal as renewed depending on if they are in both deals
 void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 {
-
 	CvAssertMsg(pOldDeal->m_eFromPlayer == pNewDeal->m_eFromPlayer, "Deal is not to the same from players");
 	CvAssertMsg(pOldDeal->m_eToPlayer == pNewDeal->m_eToPlayer, "Deal is not to the same to players");
 

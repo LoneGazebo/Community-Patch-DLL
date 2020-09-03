@@ -2315,6 +2315,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 #endif
 
+	/*
+	//callstack logging to investigate mysterious vanishing units
+	if (getDomainType() == DOMAIN_AIR && !isSuicide())
+	{
+		FILogFile* pLog=LOGFILEMGR.GetLog( "AirUnitKills.log", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			pLog->Msg(CvString::format("\n%s %d killed by %d\n",getName().c_str(),GetID(),ePlayer).c_str());
+			gStackWalker.SetLog(pLog);
+			gStackWalker.ShowCallstack(GetCurrentThread());
+		}
+		pLog->Close();
+	}
+	*/
+
+
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	//important - zoc has probably changed
 	if (ePlayer != NO_PLAYER && IsCombatUnit())
@@ -15039,20 +15055,34 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	if (isCargo() && getDomainType() != DOMAIN_AIR)
 		return false;
 
-	ImprovementTypes eImprovement = pPlot->getImprovementType();
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
+		if (!pPlot->isWater())
 			return true;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-		if (IsEmbarkDeepWater())
-			return !pPlot->isDeepWater();
 		else
+		{
+			ImprovementTypes eImprovement = pPlot->getImprovementType();
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater())
+				return true;
+			else
+			{
+				//let's treat ice like (usually impassable) land
+				//same logic as in needsEmbarkation, which should be folded into this function anyway
+				if (pPlot->isIce())
+					return true;
+
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+				//deep water embarkation means we treat shallow water like land
+				if (IsEmbarkDeepWater() && pPlot->isShallowWater())
+					return true;
 #endif
-			return !pPlot->isWater();
+
+				//must be water
+				return false;
+			}
+		}
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -15061,15 +15091,21 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		{
-			return (pPlot->isWater() || pPlot->isCity() || (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable()));
+			if (pPlot->isWater() || pPlot->isCity())
+				return true;
+			else
+			{
+				ImprovementTypes eImprovement = pPlot->getImprovementType();
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable())
+					return true;
+
+				//must be land
+				return false;
+			}
 		}
-		else
-		{
-			return (pPlot->isWater());
-		}
-#else
-		return (pPlot->isWater());
 #endif
+		return (pPlot->isWater());
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -16940,6 +16976,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
 		}
 	}
+
+	// Open Ground
+	if (plot()->isOpenGround())
+		iModifier += getExtraOpenFromPercent();
+	// Rough Ground
+	else if (plot()->isRoughGround())
+		iModifier += getExtraRoughFromPercent();
 
 	////////////////////////
 	// ATTACKING A CITY
@@ -28875,6 +28918,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 	if(!m_kLastPath.empty())
 	{
+		//because of the fog it's totally valid to stumble into eg neutral units
 		bool bCanEndTurnInNextPlot = canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION);
 
 		if (!bCanEndTurnInNextPlot)
@@ -28896,16 +28940,26 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 				else
 					bRejectMove = true;
 			}
-
-			//failsafe for stacking with neutral
-			CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
-			if (pTurnDest && !pTurnDest->isVisible(getTeam()))
+			else
 			{
-				//if the turn destination is visible we know we can stay there ...
-				//in case it's invisible, we have to move carefully to not end up in an impossible situation
-				bool bCanEndTurnInCurrentPlot = canMoveInto(*plot(), iFlags | MOVEFLAG_DESTINATION);
-				if (!bCanEndTurnInCurrentPlot)
-					bRejectMove = true;
+				//make sure we have at least one plot where we can end this turn, meaning it's visible and we can stack
+				CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
+				//assume no good plot
+				bRejectMove = true;
+				//start iterating at zero although we know it's blocked but it might be the turn destination already!
+				for (size_t iIndex=0; iIndex<m_kLastPath.size(); iIndex++)
+				{
+					CvPlot* pTestPlot = m_kLastPath.GetPlotByIndex(iIndex);
+					if (pTestPlot->isVisible(getTeam()) && canMoveInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
+					{
+						bRejectMove = false;
+						break;
+					}
+
+					//look only at this turn's plots!
+					if (pTestPlot == pTurnDest)
+						break;
+				} 
 			}
 		}
 
