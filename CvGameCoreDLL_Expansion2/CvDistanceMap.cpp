@@ -189,6 +189,9 @@ void CvDistanceMapByTurns::Update()
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
+				//if (it->iPlotIndex == pLoopCity->plot()->GetPlotIndex())
+				//	continue;
+
 				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
 				if (thisPlayer.isMajorCiv())
 				{

@@ -213,7 +213,10 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight *= 15;
 			if(pkProjectInfo->IsSpaceship())
 			{
-				iTempWeight *= 10;
+				if (m_pCity->isCapital())
+					return (iTempWeight *= 100);
+				else
+					return (iTempWeight *= 50);
 			}
 
 			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
@@ -253,7 +256,10 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			iTempWeight *= 100;
+			if (m_pCity->isCapital())
+				return (iTempWeight *= 1000);
+			else
+				return (iTempWeight *= 500);
 		}
 	}
 
@@ -300,6 +306,10 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		bGoodforHappiness = true;
 	}
+
+	//emphasis on keeping the task on hand.
+	if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProject)
+		iTempWeight *= 2;
 
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;

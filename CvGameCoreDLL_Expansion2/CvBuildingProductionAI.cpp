@@ -1296,7 +1296,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
-		iBonus += m_pCity->getPopulation() * 25;
+		if (pkBuildingInfo->IsNoOccupiedUnhappiness())
+			iBonus += max(15, m_pCity->getPopulation()) * 25;
+		else
+			iBonus += m_pCity->getPopulation() * 25;
 	}
 
 	//Danger? Prioritize units!
@@ -1326,8 +1329,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		return 1;
 
 	//iValue is the compunded value of the items.
-	iValue *= 100 + (iBonus * iBonus);
-	iValue /= 100;
+	iValue += iBonus;
 
 	return iValue;
 }

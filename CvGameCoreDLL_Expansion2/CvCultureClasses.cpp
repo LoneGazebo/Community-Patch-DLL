@@ -5614,6 +5614,9 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 {
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if (iMultiplier <= 0)
+		return 0;
+
 	int iStrength = 0;
 	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	{

@@ -693,12 +693,6 @@
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
 			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III">
-			<Text>Boarded (III)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III_HELP">
-			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
 			<Text>Minelayer</Text>
@@ -903,7 +897,7 @@
 			<Text>Spotters</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING_HELP">
-			<Text>+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
+			<Text>+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">

@@ -357,7 +357,7 @@ public:
 	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
-	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled);
+	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip = false);
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 

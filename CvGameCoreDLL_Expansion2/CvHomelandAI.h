@@ -368,7 +368,7 @@ namespace HomelandAIHelpers
 bool CvHomelandUnitAuxIntSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 
-int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer);
+int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, bool bDesperate = false, int iRange = -1);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
 vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }

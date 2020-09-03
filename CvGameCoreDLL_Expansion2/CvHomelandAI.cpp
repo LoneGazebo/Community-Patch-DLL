@@ -4809,7 +4809,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID() );
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID());
 			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
 			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
@@ -4820,7 +4820,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget,m_pPlayer->GetID() );
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget, m_pPlayer->GetID());
 		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
 		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
@@ -6276,7 +6276,7 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 	return true;
 }
 
-int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
+int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool bDesperate, int iRange)
 {
 	if (!pBasePlot || ePlayer==NO_PLAYER)
 		return false;
@@ -6289,12 +6289,14 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 	//see if we're not at war yet but war may be coming
 	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
 
-	int iBaseScore = 0;
+	int iBaseScore = 1;
 
 	if (bIsCarrier)
 	{
 		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
-		if(!pDefender || pDefender->IsHurt())  
+		if(!pDefender)  
+			return -1;
+		if (pDefender->IsHurt() && !bDesperate)
 			return -1;
 
 		iBaseScore += 10;
@@ -6306,7 +6308,9 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 	{
 		CvCity* pCity = pBasePlot->getPlotCity();
 		//careful in cities we might lose
-		if(pCity->isInDangerOfFalling() || (GC.getGame().getGameTurn() - pCity->getGameTurnAcquired())<3)
+		if(pCity->isInDangerOfFalling())
+			return -1;
+		if (GC.getGame().getGameTurn() - pCity->getGameTurnAcquired() < 3 && !bDesperate)
 			return -1;
 		if (pCity->IsRazing() && pCity->getPopulation() < 3)
 			return -1;
@@ -6318,7 +6322,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 
 		if (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() != 0)
 		{
-			iBaseScore += GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() * pCity->getUnhappinessAggregated() / 5;
+			iBaseScore += max(1, (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() * pCity->getUnhappinessAggregated() / 5));
 		}
 	}
 
@@ -6326,6 +6330,13 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
+		if (iRange > 0)
+		{
+			int iDistance = plotDistance(allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY(), pBasePlot->getX(), pBasePlot->getY());
+			if (iDistance > iRange)
+				continue;
+		}
+
 		// Is the target of an appropriate type?
 		switch (allTargets[iI].GetTargetType())
 		{
@@ -6363,7 +6374,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer)
 	{
 		CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
 		if (pOtherZone && std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
-			iBaseScore += 1;
+			iBaseScore ++;
 	}
 
 	return iBaseScore;

@@ -7216,6 +7216,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 			{
 				GC.getMap().changeNumResourcesOnLand((ResourceTypes)m_eResourceType, 1);
 			}
+			DoFindCityToLinkResourceTo();
 		}
 
 		updateYield();
@@ -7971,9 +7972,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
+					if (pOwningCity != NULL)
+						SetResourceLinkedCity(pOwningCity);
 					setResourceType(eResourceFromImprovement, iQuantity);
-					if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
-						SetResourceLinkedCityActive(true);
 				}
 #endif
 
@@ -7987,7 +7988,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
 							// Activate Resource city link?
-							if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+							if(GetResourceLinkedCity() != NULL)
 								SetResourceLinkedCityActive(true);
 						}
 					}
@@ -8112,7 +8113,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
 					{
 						setResourceType(NO_RESOURCE, 0);
-						if (GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+						if (GetResourceLinkedCity() != NULL)
 							SetResourceLinkedCityActive(false);
 					}
 					else
@@ -8939,25 +8940,60 @@ CvCity* CvPlot::GetResourceLinkedCity() const
 /// Link the resource on this plot to pCity. Note that this does NOT set the link to be active - this must be done manually
 void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 {
-	if(GetResourceLinkedCity() != pCity)
+	if (GetResourceLinkedCity() != pCity)
 	{
-		if(pCity != NULL)
+		int iResourceChange = getNumResource();
+		if (pCity == NULL)
+		{
+			if (GetResourceLinkedCity() != NULL)
+				GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), -iResourceChange, true);
+
+			//connected?
+			ImprovementTypes eImprovement = getImprovementType();
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				//connected?
+				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				{
+					SetResourceLinkedCityActive(false);
+				}
+
+			}
+			m_ResourceLinkedCity.reset();
+		}
+		else if (GetResourceLinkedCity() != NULL)
+		{
+			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), -iResourceChange, true);
+			ImprovementTypes eImprovement = getImprovementType();
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				//connected?
+				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				{
+					SetResourceLinkedCityActive(false);
+				}
+
+			}
+		}
+		
+		if (pCity != NULL)
 		{
 			CvAssertMsg(pCity->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_ResourceLinkedCity = pCity->GetIDInfo();
-
-			int iResourceChange = getNumResource();
 			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange, true);
-		}
-		else
-		{
-			int iResourceChange = getNumResource();
-			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), -iResourceChange, true);
+			ImprovementTypes eImprovement = getImprovementType();
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				//connected?
+				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				{
+					SetResourceLinkedCityActive(true);
+				}
 
-			// Set to inactive BEFORE unassigning linked City
-			SetResourceLinkedCityActive(false);
-
-			m_ResourceLinkedCity.reset();
+			}
 		}
 	}
 }
@@ -9037,12 +9073,6 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 	if(pBestCity != NULL)
 	{
 		SetResourceLinkedCity(pBestCity);
-
-		// Already have a valid improvement here?
-		if (isCity() || (getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType())))
-		{
-			SetResourceLinkedCityActive(true);
-		}
 	}
 }
 
@@ -9188,46 +9218,26 @@ void CvPlot::updateOwningCity()
 
 	if(pOldOwningCity != pBestCity)
 	{
+		// Remove Citizen from this plot if another City's using it
+		if (pOldOwningCity != NULL)
+		{
+			// Remove citizen
+			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
+			SetResourceLinkedCity(NULL);
+			// Re-add citizen somewhere else
+			std::map<SpecialistTypes, int> specialistValueCache;
+			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+		}
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)
 		{
-			// Remove Citizen from this plot if another City's using it
-			if(pOldOwningCity != NULL)
-			{
-				// Remove citizen
-				pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
 #if defined(MOD_BALANCE_CORE)
-				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pOldOwningCity->getTeam()) != NO_RESOURCE)
-				{
-					if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
-					{
-						// Activate Resource city link?
-						if (GetResourceLinkedCity() == pOldOwningCity)
-							SetResourceLinkedCityActive(false);
-							SetResourceLinkedCity(NULL);
-					}
-				}
-#endif
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pBestCity->getTeam()) != NO_RESOURCE)
-			{
-				SetResourceLinkedCity(pBestCity);
-				SetResourceLinkedCityActive(true);
-			}
+			SetResourceLinkedCity(pBestCity);
 #endif
 
 			CvAssertMsg(isOwned(), "isOwned is expected to be true");
 			CvAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
 			m_owningCity = pBestCity->GetIDInfo();
-
-			// If we told a City to stop working this plot, tell it to do something else instead
-			if(pOldOwningCity != NULL)
-			{
-				// Re-add citizen somewhere else
-				std::map<SpecialistTypes, int> specialistValueCache;
-				pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
-			}
 		}
 		else
 		{
@@ -10640,7 +10650,8 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 
 			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
-				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, getYield(eYield) - iOldYield);
+				int iDelta = iNewYield - iOldYield;
+				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, iDelta);
 
 #if defined(MOD_BALANCE_CORE)
 				pOwningCity->UpdateCityYields(eYield);
@@ -13931,7 +13942,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 				int iMoveCost = pkTerrainInfo->getMovementCost();
 				if (isHills() || isMountain())
 					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
+				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 		else
@@ -13968,7 +13979,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 				int iMoveCost = pkFeatureInfo->getMovementCost();
 				if (isHills() || isMountain())
 					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > GC.getMOVE_DENOMINATOR());
+				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 	}

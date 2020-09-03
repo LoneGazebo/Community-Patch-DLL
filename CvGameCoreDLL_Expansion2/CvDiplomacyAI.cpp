@@ -25264,8 +25264,15 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
 			{
-				szText = GetDiploStringForMessage(eMessageType);
-				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+				if (m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer) != NULL)
+				{
+					// make the deal not remove resources when processed
+					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(ePlayer), pDeal);
+					szText = GetDiploStringForMessage(eMessageType);
+					CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+				}
+				else
+					CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 			}
 			else
 			{
@@ -26608,6 +26615,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	{
 		DoCoopWarTimeStatement(ePlayer, eStatement, iData1);
 		DoCoopWarStatement(ePlayer, eStatement, iData1);
+		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
 
 		// Some things we don't say to teammates
 		if (GetPlayer()->getTeam() != GET_PLAYER(ePlayer).getTeam())
@@ -26699,7 +26707,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
 		}
 #endif
-		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
 		DoShareIntrigueStatement(ePlayer, eStatement);
 		//DoResearchAgreementPlan(ePlayer, eStatement);
 
@@ -28696,7 +28703,7 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 			if (!IsPlayerMadeNoConvertPromise(ePlayer) && !IsPlayerBrokenNoConvertPromise(ePlayer) && !IsPlayerIgnoredNoConvertPromise(ePlayer))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STOP_CONVERSIONS;
-				int iTurnsBetweenStatements = 1;
+				int iTurnsBetweenStatements = 50;
 
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
@@ -29429,6 +29436,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 	{
 		if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_SOON)
 		{
+			CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 			return;
 		}
 
@@ -29437,9 +29445,11 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 
 		int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 10);
 
-		//no valid deals? Shouldn't happen but if it does, make sure we cancel any deals.
+		//no valid deals?
 		if (iNumDeals <= 0)
+		{
 			return;
+		}
 
 		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
 		{
@@ -29476,12 +29486,10 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				if (it->m_eItemType ==
 					TRADE_ITEM_GOLD ||
 					TRADE_ITEM_GOLD_PER_TURN ||
-					TRADE_ITEM_MAPS ||
 					TRADE_ITEM_RESOURCES ||
 					TRADE_ITEM_OPEN_BORDERS ||
 					TRADE_ITEM_ALLOW_EMBASSY ||
-					TRADE_ITEM_DEFENSIVE_PACT ||
-					TRADE_ITEM_RESEARCH_AGREEMENT)
+					TRADE_ITEM_DEFENSIVE_PACT)
 					continue;
 				
 				//otherwise remove it.
@@ -29523,7 +29531,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				{
 					CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 					pDeal->ClearItems();
-					pTargetDeal->ClearItems();
 					return;
 				}
 				else
@@ -29533,7 +29540,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			{
 				CancelRenewDeal(ePlayer, REASON_NO_GPT);
 				pDeal->ClearItems();
-				pTargetDeal->ClearItems();
 				return;
 			}
 		}
@@ -29543,6 +29549,8 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			pDeal->ClearItems();
 		}
 	}
+	else
+		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 }
 
 /// Possible Contact Statement - Plan Research Agreement
@@ -33025,6 +33033,10 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_VASSALAGE_LIBERATE_VASSAL:
 		strText = GetDiploTextFromTag("RESPONSE_LIBERATE_VASSAL");
 		break;
+		// Human liberates AI vassal without being asked
+	case DIPLO_MESSAGE_VASSALAGE_BECOME_VASSAL:
+		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_BECOME_VASSAL");
+		break;
 #endif
 
 		//////////////////////////////////////////////////////////////
@@ -35772,32 +35784,32 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		// Guy is a different ideology
 		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
-				return 1;
+				return 4;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
-				return 2;
+				return 5;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
-				return 3;
+				return 6;
 			}
 		}
 		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
-				return 4;
+				return 1;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
-				return 5;
+				return 2;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if (m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
-				return 6;
+				return 3;
 			}
 		}
 		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
@@ -39215,7 +39227,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
 #if defined(MOD_BALANCE_CORE)
 	int iMessage = GetDenounceMessage(ePlayer);
-	if(iMessage > 0 && iMessage <= 7)
+	if (iMessage > 0 && iMessage <= 7)
 	{
 		someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_IDEOLOGY");
 	}
@@ -45703,6 +45715,30 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(PlayerTypes eOtherPlayer)
 	return pTargetDeal;
 }
 
+void CvDiplomacyAI::CleanupRenewDeals(PlayerTypes eOtherPlayer)
+{
+	if (GetPlayer()->isHuman())
+		return;
+
+	CvDeal* pTargetDeal = NULL;
+	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
+
+	int iNumDeals = kGameDeals.GetRenewableDealsWithPlayer(m_pPlayer->GetID(), eOtherPlayer);
+
+	for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
+	{
+		CvDeal* pCurrentDeal = kGameDeals.GetRenewableDealWithPlayer(m_pPlayer->GetID(), eOtherPlayer, iDeal);
+		if (pCurrentDeal->m_bConsideringForRenewal)
+		{
+			pTargetDeal = pCurrentDeal;
+			continue;
+		}
+		//we only want one deal per player.
+		if (pTargetDeal != NULL)
+			pCurrentDeal->m_bConsideringForRenewal = false;
+	}
+}
+
 /// Deal to renew
 void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging)
 {
@@ -45714,95 +45750,84 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 	if (!pRenewalDeal)
 		return;
 
-	if (pRenewalDeal->m_bConsideringForRenewal)
+	if (!bJustLogging)
 	{
-		//but wait!
-		if (pRenewalDeal->m_bConsideringForRenewal && !pRenewalDeal->m_bCheckedForRenewal)
+		TradedItemList::iterator itemIter;
+		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
 		{
-			if (!bJustLogging)
-			{
-				TradedItemList::iterator itemIter;
-				for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
-				{
-					int iFinalTurn = itemIter->m_iFinalTurn;
-					//+1 because we want to process the beginning of of the turn AFTER the AI gets to approach the civ for the deal.
-					if (iFinalTurn > -1 && (iFinalTurn + 1) == GC.getGame().getGameTurn())
-					{
-						OutputDebugString("Cleared item from expired renewal deal \n");
-						GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false);
-					}
-				}
-			}
-			pRenewalDeal->m_bConsideringForRenewal = false;
-
-			//log it for me bby
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strOutBuf;
-				CvString strBaseString;
-				CvString playerName;
-				CvString otherPlayerName;
-				CvString strDesc;
-				CvString strLogName;
-
-				// Find the name of this civ and city
-				playerName = GetPlayer()->getCivilizationShortDescription();
-
-				// Open the log file
-				if (GC.getPlayerAndCityAILogSplit())
-				{
-					strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
-				}
-				else
-				{
-					strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
-				}
-
-				FILogFile* pLog;
-				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-				// Get the leading info for this line
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-
-				otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
-				strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
-
-				TradedItemList::iterator itemIter;
-				for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
-				{
-					CvString strItems;
-					strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
-					strOutBuf += strItems;
-				}
-
-				CvString strReason;
-				switch (eReason)
-				{
-				case NO_REASON:
-					strReason.Format(",REASON: No Reason Given");
-					strOutBuf += strReason;
-					break;
-				case REASON_NO_GPT:
-					strReason.Format(",REASON: Invalid Items");
-					strOutBuf += strReason;
-					break;
-				case REASON_NO_DEAL:
-					strReason.Format(",REASON: No Deal Found");
-					strOutBuf += strReason;
-					break;
-				case REASON_CANNOT_COMPROMISE:
-					strReason.Format(",REASON: Cannot Re-negotiate with AI");
-					strOutBuf += strReason;
-					break;
-				case REASON_HUMAN_REJECTION:
-					strReason.Format(",REASON: Human Rejection");
-					strOutBuf += strReason;
-					break;
-				}
-				pLog->Msg(strOutBuf);
-			}
+			OutputDebugString("Cleared item from expired renewal deal \n");
+			//If we checked for renewal, we don't need to remove items, as we already did it.
+			GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
 		}
+	}
+	pRenewalDeal->m_bConsideringForRenewal = false;
+
+	//log it for me bby
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString playerName;
+		CvString otherPlayerName;
+		CvString strDesc;
+		CvString strLogName;
+
+		// Find the name of this civ and city
+		playerName = GetPlayer()->getCivilizationShortDescription();
+
+		// Open the log file
+		if (GC.getPlayerAndCityAILogSplit())
+		{
+			strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
+		}
+		else
+		{
+			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
+		}
+
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+
+		otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
+		strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
+
+		TradedItemList::iterator itemIter;
+		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
+		{
+			CvString strItems;
+			strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
+			strOutBuf += strItems;
+		}
+
+		CvString strReason;
+		switch (eReason)
+		{
+		case NO_REASON:
+			strReason.Format(",REASON: No Reason Given");
+			strOutBuf += strReason;
+			break;
+		case REASON_NO_GPT:
+			strReason.Format(",REASON: Invalid Items");
+			strOutBuf += strReason;
+			break;
+		case REASON_NO_DEAL:
+			strReason.Format(",REASON: No Deal Found");
+			strOutBuf += strReason;
+			break;
+		case REASON_CANNOT_COMPROMISE:
+			strReason.Format(",REASON: Cannot Re-negotiate with AI");
+			strOutBuf += strReason;
+			break;
+		case REASON_HUMAN_REJECTION:
+			strReason.Format(",REASON: Human Rejection");
+			strOutBuf += strReason;
+			break;
+		}
+		pLog->Msg(strOutBuf);
 	}
 }
 
@@ -49315,7 +49340,9 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 		case DIPLO_STATEMENT_STOP_DIGGING:
 			strTemp.Format("***** STOP DIGGING WARNING *****");
 			break;
-
+		case DIPLO_STATEMENT_STOP_CONVERSIONS:
+			strTemp.Format("***** STOP CONVERSIONS! *****");
+			break;
 			
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -51150,7 +51177,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// If we got down here, then vassalage is possible - let's evaluate
-	int iWantVassalageScore = 0;
+	int iWantVassalageScore = -10;
 
 	// Small bonus for voluntary vassalage depending on opinion
 	if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL)

@@ -9563,7 +9563,7 @@ int CvLuaPlayer::lGetResourceImport(lua_State* L)
 
 	int iSum = 
 		pkPlayer->getResourceImportFromMajor(eResource) + 
-		pkPlayer->getResourceFromCSAlliances(eResource) + 
+		pkPlayer->getResourceFromMinors(eResource) +
 		pkPlayer->getResourceSiphoned(eResource);
 	
 	lua_pushinteger(L, iSum);

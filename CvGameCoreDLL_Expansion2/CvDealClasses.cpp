@@ -592,6 +592,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				// Can't trade Luxury if the other player already has one
 				if (iNumAvailableOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 				{
+					if (pRenewDeal)
+					{
+						OutputDebugString("Renewal failed because player got another copy \n");
+					}
 					return false;
 				}
 			}
@@ -649,11 +653,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
 				return false;
 
-			//do not trade away our closest city in the same deal!
-			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCity->plot());
-			if (pClosestCity != NULL && IsCityInDeal(pClosestCity->getOwner(), pClosestCity->GetID()))
-				return false;
-
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
@@ -703,8 +702,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pToTeam->isAllowEmbassyTradingAllowed())
 			return false;
 		// Already has embassy
-		if(pToTeam->HasEmbassyAtTeam(eFromTeam))
-			return false;
+		if (!pRenewDeal)
+		{
+			if (pToTeam->HasEmbassyAtTeam(eFromTeam))
+				return false;
+		}
 		// Same team
 		if(eFromTeam == eToTeam)
 			return false;
@@ -737,11 +739,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
 		
-		bool bIgnoreExistingOP = true;
+		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsOpenBordersTrade(ePlayer);
 
 		// Already has OB
-		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)
-			return false;
+		if (!bIgnoreExistingOP)
+		{
+			if (pFromTeam->IsAllowsOpenBordersToTeam(eToTeam))
+				return false;
+		}
 
 		// Same Team
 		if(eFromTeam == eToTeam)
@@ -768,6 +773,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Defensive Pact
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
 	{
+		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsDefensivePactTrade(ePlayer);
+
 		// Neither of us yet has the Tech for DP
 		if(!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			return false;
@@ -775,8 +782,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
 		// Already has DP
-		if(pFromTeam->IsHasDefensivePact(eToTeam))
-			return false;
+		if (!bIgnoreExistingOP)
+		{
+			if (pFromTeam->IsHasDefensivePact(eToTeam))
+				return false;
+		}
 		// Same Team
 		if(eFromTeam == eToTeam)
 			return false;
@@ -2443,21 +2453,12 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 bool CvDeal::IsPotentiallyRenewable()
 {
 	TradedItemList::iterator it;
-	bool bHasValidTradeItem = false;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		switch(GetItemTradeableState(it->m_eItemType))
-		{
-		case DEAL_NONRENEWABLE:
-			break;
-		case DEAL_RENEWABLE:
-			bHasValidTradeItem = true;
-			break;
-		case DEAL_SUPPLEMENTAL:
-			break;
-		}
+		if (GetItemTradeableState(it->m_eItemType) == DEAL_RENEWABLE)
+			return true;
 	}
-	return bHasValidTradeItem;
+	return false;
 }
 
 /// Delete a trade item that can be identified by type alone
@@ -4466,6 +4467,9 @@ void CvGameDeals::DoTurn()
 			}
 		}
 
+		//we only want one renewable deal per player. We clean that up here.
+		DoTurnPost();
+
 		// Check to see if any of our NONRENEWABLE TradeItems in any of our Deals expire this turn
 		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
@@ -4562,7 +4566,6 @@ void CvGameDeals::DoTurn()
 				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
-
 		DoUpdateCurrentDealsList();
 	}
 }
@@ -4570,7 +4573,31 @@ void CvGameDeals::DoTurn()
 /// Update deals for after DiploAI
 void CvGameDeals::DoTurnPost()
 {
+	
+	int iPlayerLoop;
+	// Loop through first set of players
+	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		if (!GET_PLAYER(ePlayer).isAlive())
+			continue;
+
+		// Loop through first set of players
+		int iPlayerLoop2;
+		for (iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			PlayerTypes ePlayer2 = (PlayerTypes)iPlayerLoop2;
+			if (!GET_PLAYER(ePlayer2).isAlive())
+				continue;
+
+			if (ePlayer2 == ePlayer)
+				continue;
+
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->CleanupRenewDeals(ePlayer2);
+		}
+	}
 }
+
 
 PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 {
@@ -4858,7 +4885,7 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 }
 
 /// End a TradedItem (if it's an ongoing item)
-void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled)
+void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip)
 {
 	CvString strBuffer;
 	CvString strSummary;
@@ -4877,8 +4904,11 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	if(pItem->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
 	{
 		int iGoldPerTurn = pItem->m_iData1;
-		fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurn);
-		toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurn);
+		if (!bSkip)
+		{
+			fromPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(iGoldPerTurn);
+			toPlayer.GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-iGoldPerTurn);
+		}
 
 		pNotifications = GET_PLAYER(eFromPlayer).GetNotifications();
 		if(pNotifications)
@@ -4902,8 +4932,11 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		ResourceTypes eResource = (ResourceTypes) pItem->m_iData1;
 		int iResourceQuantity = pItem->m_iData2;
 
-		fromPlayer.changeResourceExport(eResource, -iResourceQuantity);
-		toPlayer.changeResourceImportFromMajor(eResource, -iResourceQuantity);
+		if (!bSkip)
+		{
+			fromPlayer.changeResourceExport(eResource, -iResourceQuantity);
+			toPlayer.changeResourceImportFromMajor(eResource, -iResourceQuantity);
+		}
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		const char* szResourceDescription = (pkResourceInfo)? pkResourceInfo->GetDescriptionKey() : "";
@@ -5124,7 +5157,6 @@ int CvGameDeals::GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1
 /// Mark elements in the deal as renewed depending on if they are in both deals
 void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 {
-
 	CvAssertMsg(pOldDeal->m_eFromPlayer == pNewDeal->m_eFromPlayer, "Deal is not to the same from players");
 	CvAssertMsg(pOldDeal->m_eToPlayer == pNewDeal->m_eToPlayer, "Deal is not to the same to players");
 

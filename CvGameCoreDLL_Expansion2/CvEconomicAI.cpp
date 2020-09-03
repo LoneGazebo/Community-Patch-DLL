@@ -2290,11 +2290,7 @@ void CvEconomicAI::DoReconState()
 		vector< pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
 		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
-				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_COUNTER) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
+			if(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE) 
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
