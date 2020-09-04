@@ -27657,13 +27657,16 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 		PlayerTypes eTargetPlayer;
 		if (DoTestCoopWarDesire(ePlayer, /*passed by address*/ eTargetPlayer))
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_COOP_WAR_REQUEST;
-			int iTurnsBetweenStatements = 10;
-
-			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (eTargetPlayer != NO_PLAYER)
 			{
-				eStatement = eTempStatement;
-				iData1 = eTargetPlayer;
+				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_COOP_WAR_REQUEST;
+				int iTurnsBetweenStatements = 10;
+
+				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				{
+					eStatement = eTempStatement;
+					iData1 = eTargetPlayer;
+				}
 			}
 		}
 	}
