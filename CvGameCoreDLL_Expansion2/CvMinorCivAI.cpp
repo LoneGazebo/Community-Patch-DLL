@@ -3393,13 +3393,9 @@ bool CvMinorCivQuest::DoFinishQuest()
 		//Peace!
 		if(eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive() && pMinor->isAlive() && GET_PLAYER(pMinor->GetID()).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer)
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
 			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
-#else
-			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
-			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
-#endif
+
 			pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -3413,13 +3409,9 @@ bool CvMinorCivQuest::DoFinishQuest()
 		//Destruction...
 		else
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
 			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
-#else
-			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
-			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
-#endif
+
 			pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -3791,13 +3783,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 			//Peace!
 			if(eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive() && pMinor->isAlive() && GET_PLAYER(pMinor->GetID()).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer)
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
 				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
-#else
-				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
-				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
-#endif
+
 				pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -3812,13 +3800,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 			}
 			else
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
 				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
-#else
-				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
-				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
-#endif
+
 				pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -4892,11 +4876,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 	// This guy's a warmonger or at war with our ally, so we DoW him
 	if(IsPeaceBlocked(eTeam))
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam, true, GetPlayer()->GetID());
-#else
-		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam);
-#endif
 	}
 	// Normal diplo
 	else
@@ -5349,11 +5329,7 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 		if(IsPermanentWar(eLoopTeam))
 			continue;
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
-#else
-		GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam);
-#endif
 	}
 }
 
@@ -5405,11 +5381,7 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 					{
 						// We are at war with our new ally's ally!
 						CUSTOMLOG("CS %i is at war with CS %i but they share the same ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
-#else
-						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam);
-#endif
 					}
 				}
 			}
@@ -5457,11 +5429,7 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 					{
 						// We are at war with our new ally's ally!
 						CUSTOMLOG("CS %i is at war with CS %i but neither has an ally or a warring ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
-#else
-						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam);
-#endif
 					}
 				}
 			}
@@ -11458,19 +11426,16 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 				continue;
 
 			if(kNewAllyTeam.isAtWar(eLoopTeam))
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
 				kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
 			}
-#else
-				kOurTeam.declareWar(eLoopTeam);
-#endif
 		}
 	}
 
 	DoTestEndWarsVSMinors(eOldAlly, eNewAlly);
 #if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
-	if (MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES) {
+	if (MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES) 
+	{
 		DoTestEndSkirmishes(eNewAlly);
 	}
 #endif

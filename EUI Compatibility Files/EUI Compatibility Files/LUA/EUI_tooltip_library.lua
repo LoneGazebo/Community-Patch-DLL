@@ -2946,16 +2946,6 @@ local function GetMoodInfo( playerID )
 				)
 			end
 
-			-- Trade Agreement
-			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_dealDuration )
-			isActiveDeal = activeTeam:IsHasTradeAgreement(teamID)
-			if isTradeable or isActiveDeal then
-				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_RESEARCH]"
-						.. L("TXT_KEY_DIPLO_TRADE_AGREEMENT"):lower()
-						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT )
-				)
-			end
-
 			-- Defensive Pact
 			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_dealDuration )
 			isActiveDeal = activeTeam:IsDefensivePact(teamID)

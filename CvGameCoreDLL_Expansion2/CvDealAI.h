@@ -52,9 +52,8 @@ public:
 	DemandResponseTypes DoHumanDemand(CvDeal* pDeal);
 	void DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal);
 
-#if defined(MOD_BALANCE_CORE)
 	bool IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValueToMe, bool* bCantMatchOffer, bool bFirstPass = false);
-#endif
+
 	// The following functions are used to valuate items and construct a deal this AI thinks is fair
 
 	bool DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer);
@@ -78,7 +77,6 @@ public:
 	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
 	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
 	int GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
-	int GetTradeAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
 	int GetPeaceTreatyValue(PlayerTypes eOtherPlayer);
 	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
 	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
@@ -89,13 +87,11 @@ public:
 	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-#if defined(MOD_BALANCE_CORE)
 	void DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	void DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-#endif
 
 	void DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
@@ -108,10 +104,10 @@ public:
 
 	void DoAddOpenBordersToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddOpenBordersToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-#if defined(MOD_BALANCE_CORE)
+
 	void DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-#endif
+
 	void DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
@@ -128,7 +124,6 @@ public:
 	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	// Possible deals the AI can offer
-
 	bool IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqualizingDeals);
 	void DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* pDeal, PeaceTreatyTypes eTreaty, bool bMeSurrendering);
 	int GetCachedValueOfPeaceWithHuman();
@@ -143,7 +138,6 @@ public:
 	bool MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-#if defined(MOD_BALANCE_CORE_DEALS)	
 	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal);
@@ -151,7 +145,6 @@ public:
 	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-#endif
 
 	// Called when the human opens or closes the Trade Screen
 
@@ -172,9 +165,7 @@ public:
 	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-#if defined(MOD_BALANCE_CORE)
 	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-#endif
 
 	// Will adding item to deal even it out?
 	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);

@@ -353,6 +353,10 @@ SELECT 'BALANCE_MARRIAGE_GP_RATE', '15';
 
 -- Diplomacy
 
+-- Coop War Desire Threshold
+INSERT INTO Defines (Name, Value)
+SELECT 'COOP_WAR_DESIRE_THRESHOLD', '40';
+
 --Affects DOF, DP, and enemy calculations
 UPDATE Defines
 SET Value = '32'

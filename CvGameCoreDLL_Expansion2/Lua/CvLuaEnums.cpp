@@ -706,9 +706,11 @@ int CvLuaEnums::pRegister(lua_State* L)
 	// CoopWarStates
 	EnumStart(L, "CoopWarStates");
 	RegisterEnum(NO_COOP_WAR_STATE);
+	RegisterEnum(COOP_WAR_STATE_WARNED_TARGET);
 	RegisterEnum(COOP_WAR_STATE_REJECTED);
-	RegisterEnum(COOP_WAR_STATE_SOON);
-	RegisterEnum(COOP_WAR_STATE_ACCEPTED);
+	RegisterEnum(COOP_WAR_STATE_PREPARING);
+	RegisterEnum(COOP_WAR_STATE_READY);
+	RegisterEnum(COOP_WAR_STATE_ONGOING);
 	RegisterEnum(NUM_COOP_WAR_STATES);
 	EnumEnd(L);
 
@@ -761,18 +763,12 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(TRADE_ITEM_MAPS);
 	RegisterEnum(TRADE_ITEM_RESOURCES);
 	RegisterEnum(TRADE_ITEM_CITIES);
-	RegisterEnum(TRADE_ITEM_UNITS);
 	RegisterEnum(TRADE_ITEM_OPEN_BORDERS);
 	RegisterEnum(TRADE_ITEM_DEFENSIVE_PACT);
 	RegisterEnum(TRADE_ITEM_RESEARCH_AGREEMENT);
-	RegisterEnum(TRADE_ITEM_TRADE_AGREEMENT);
-	RegisterEnum(TRADE_ITEM_PERMANENT_ALLIANCE);
-	RegisterEnum(TRADE_ITEM_SURRENDER);
-	RegisterEnum(TRADE_ITEM_TRUCE);
 	RegisterEnum(TRADE_ITEM_PEACE_TREATY);
 	RegisterEnum(TRADE_ITEM_THIRD_PARTY_PEACE);
 	RegisterEnum(TRADE_ITEM_THIRD_PARTY_WAR);
-	RegisterEnum(TRADE_ITEM_THIRD_PARTY_EMBARGO);
 	RegisterEnum(TRADE_ITEM_ALLOW_EMBASSY);
 	RegisterEnum(TRADE_ITEM_DECLARATION_OF_FRIENDSHIP);
 	RegisterEnum(TRADE_ITEM_VOTE_COMMITMENT);
