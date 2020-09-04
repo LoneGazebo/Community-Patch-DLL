@@ -24538,8 +24538,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					ChangeRecentAssistValue(ePlayer, iAssistPenalty);
 					ChangeCoopWarScore(ePlayer, -1);
 				}
-
-				LogCoopWar(ePlayer, eAgainstPlayer, eResponse);
 			}
 		}
 	}
