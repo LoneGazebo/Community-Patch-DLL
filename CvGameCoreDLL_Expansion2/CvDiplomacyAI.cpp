@@ -18810,211 +18810,187 @@ void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eB
 	m_paePlayerVictoryBlockLevel[ePlayer] = eBlockLevel;
 }
 
-/// Updates what our level of Desire is to block all players over Victory
+/// Updates what our level of Dispute is with all players over Victory
 void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 {
+	//Don't do this at the start of the game.
+	if (GC.getGame().getGameTurn() <= 150)
+		return;
+
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
+	bool bDontCare = (!IsCompetingForVictory() || (eMyGrandStrategy == NO_AIGRANDSTRATEGY) || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500);
+
+	if (bDontCare)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+		}
+		return;
+	}
+
 	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 	AIGrandStrategyTypes eUNGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 	AIGrandStrategyTypes eSpaceshipGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 
-	PlayerTypes ePlayer;
-
-	BlockLevelTypes eBlockLevel;
-
-	int iVictoryBlockWeight;
-	
-	// We're not competing for victory, so we don't care.
-	if (!IsCompetingForVictory())
+	// Loop through all (valid) Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		// Loop through all (known) Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
-			ePlayer = (PlayerTypes)iPlayerLoop;
-			SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
-		}
-		return;
-	}
-	
-	// If we're somebody's vassal, chances are we can't compete with them anyway, so hatred is pointless.
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-		{
-			// Loop through all (known) Players
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer);
+			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
 			{
-				ePlayer = (PlayerTypes)iPlayerLoop;
-				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
-			}
-			return;
-		}
-	}
-#endif
-
-	//Don't do this at the start of the game.
-	if (GC.getGame().getGameTurn() <= 150)
-		return;
-
-	// Loop through all (known) Players
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if(IsPlayerValid(ePlayer))
-		{
-			eBlockLevel = BLOCK_LEVEL_NONE;
-			if(eMyGrandStrategy == NO_AIGRANDSTRATEGY)
-			{
-				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 				continue;
 			}
-			if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500)
+			if (!IsAtWar(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FRIEND)
 			{
-				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 				continue;
 			}
-			// Minors can't really be an issue with Victory!
-			if (!GET_PLAYER(ePlayer).isMinorCiv())
+
+			BlockLevelTypes eBlockLevel = BLOCK_LEVEL_NONE;
+			int iVictoryBlockWeight = 0;
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			bool bLeagueCompetitor = false;
+			bool bSpaceRace = false;
+			bool bCulture = false;
+			bool bWar = false;
+
+			if (pLeague != NULL)
 			{
-				MajorCivOpinionTypes eOpinion;
-				eOpinion = GetMajorCivOpinion(ePlayer);
-				if (!IsAtWar(ePlayer) && eOpinion >= MAJOR_CIV_OPINION_FRIEND)
+				int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+
+				if (iNeededVotes > 0)
 				{
-					continue;
-				}
-				AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer);
-				if(eTheirGrandStrategy == NO_AIGRANDSTRATEGY && !GET_PLAYER(ePlayer).isHuman())
-				{
-					continue;
-				}
-				iVictoryBlockWeight = 0;
-				bool bLeagueCompetitor = false;
-				bool bSpaceRace = false;
-				bool bCulture = false;
-				bool bWar = false;
-				int iVotes = 0;
-				int iNeededVotes = 0;
-				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-				if(pLeague != NULL)
-				{
-					iVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
-					iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-					if(iNeededVotes > 0)
+					// 33% there? Close!
+					if (iVotes >= (iNeededVotes / 3))
 					{
-						// 33% there? Close!
-						if(iVotes >= (iNeededVotes / 3))
-						{
-							bLeagueCompetitor = true;
-						}
+						bLeagueCompetitor = true;
 					}
 				}
-				int iProjectCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount();
-				if(iProjectCount > 1)
+			}
+
+			int iProjectCount = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetSSProjectCount();
+			if (iProjectCount > 0)
+			{
+				bSpaceRace = true;
+			}
+			else
+			{
+				int iTheirTechNum = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+				int iNumOtherPlayers = 0;
+				int iNumPlayersAheadInTech = 0;
+
+				for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
+				{
+					PlayerTypes eOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+
+					if (GET_PLAYER(eOtherPlayer).getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+						continue;
+
+					if (!IsPlayerValid(eOtherPlayer))
+						continue;
+
+					iNumOtherPlayers++;
+					int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+					if (iTheirTechNum > iNumTechs)
+					{
+						iNumPlayersAheadInTech++;
+					}
+				}
+				if (iNumPlayersAheadInTech >= iNumOtherPlayers)
 				{
 					bSpaceRace = true;
 				}
-				else
-				{
-					int iTheirTechNum = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-
-					int iNumOtherPlayers = 0;
-					int iNumPlayersAheadInTech = 0;
-					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-					{
-						PlayerTypes eOtherPlayer = (PlayerTypes)ui;
-						if(!GET_PLAYER(eOtherPlayer).isAlive())
-						{
-							continue;
-						}
-
-						if (eOtherPlayer == ePlayer)
-						{
-							continue;
-						}
-
-						iNumOtherPlayers++;
-						int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-						if (iTheirTechNum > iNumTechs )
-						{
-							iNumPlayersAheadInTech++;
-						}
-					}
-					if(iNumPlayersAheadInTech >= iNumOtherPlayers)
-					{
-						bSpaceRace = true;
-					}
-				}
-				if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
-				{
-					bWar = true;
-				}
-				if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
-				{
-					bCulture = true;
-				}
-				if((eConquestGrandStrategy == eTheirGrandStrategy) && !bWar)
-				{
-					continue;
-				}
-				if((eCultureGrandStrategy == eTheirGrandStrategy) && !bCulture)
-				{
-					continue;
-				}
-				if((eUNGrandStrategy == eTheirGrandStrategy) && !bLeagueCompetitor)
-				{
-					continue;
-				}
-				if((eSpaceshipGrandStrategy == eTheirGrandStrategy) && !bSpaceRace)
-				{
-					continue;
-				}
-
-				if (bSpaceRace)
-					iVictoryBlockWeight += iProjectCount * 10;
-				
-				// Does the other player's (estimated) Grand Strategy differ from ours? If so, how positive are we about this?
-				if((eTheirGrandStrategy != eMyGrandStrategy))
-				{
-					switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(ePlayer))
-					{
-					case GUESS_CONFIDENCE_POSITIVE:
-						iVictoryBlockWeight += 20;
-						break;
-					case GUESS_CONFIDENCE_LIKELY:
-						iVictoryBlockWeight += 15;
-						break;
-					case GUESS_CONFIDENCE_UNSURE:
-						iVictoryBlockWeight += 5;
-						break;
-					}
-				}
-				if(iVictoryBlockWeight > 0)
-				{
-					// Add weight for Player's meanness and diplobalance desires (0 - 10)
-					// Average of each is 5, and era goes up by one throughout game.
-					iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GetPlayer()->GetCurrentEra());
-
-					// Now see what our new Block Level should be
-					if(iVictoryBlockWeight >= 40)
-					{					
-						eBlockLevel = BLOCK_LEVEL_FIERCE;
-					}
-					else if(iVictoryBlockWeight >= 30)
-					{					
-						eBlockLevel = BLOCK_LEVEL_STRONG;
-					}
-					else if(iVictoryBlockWeight >= 20)
-					{					
-						eBlockLevel = BLOCK_LEVEL_WEAK;
-					}
-				}	
+			}
+			if (bSpaceRace)
+			{
+				iVictoryBlockWeight += iProjectCount * 10;
 			}
 
-			// Actually set the Level
-			SetVictoryBlockLevel(ePlayer, eBlockLevel);
+			if (GetWarmongerThreat(eLoopPlayer) >= THREAT_SEVERE || (GET_PLAYER(eLoopPlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
+			{
+				bWar = true;
+			}
+
+			if (GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
+			{
+				bCulture = true;
+			}
+
+			if ((eConquestGrandStrategy == eTheirGrandStrategy) && !bWar)
+			{
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+				continue;
+			}
+			if ((eCultureGrandStrategy == eTheirGrandStrategy) && !bCulture)
+			{
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+				continue;
+			}
+			if ((eUNGrandStrategy == eTheirGrandStrategy) && !bLeagueCompetitor)
+			{
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+				continue;
+			}
+			if ((eSpaceshipGrandStrategy == eTheirGrandStrategy) && !bSpaceRace)
+			{
+				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+				continue;
+			}
+
+			// Does the other player's (estimated) Grand Strategy differ from ours? If so, how positive are we about this?
+			if (eTheirGrandStrategy != eMyGrandStrategy)
+			{
+				switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
+				{
+				case GUESS_CONFIDENCE_POSITIVE:
+					iVictoryBlockWeight += /*20*/ GC.getVICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_POSITIVE();
+					break;
+				case GUESS_CONFIDENCE_LIKELY:
+					iVictoryBlockWeight += /*15*/ GC.getVICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_LIKELY();
+					break;
+				case GUESS_CONFIDENCE_UNSURE:
+					iVictoryBlockWeight += /*5*/ GC.getVICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_UNSURE();
+					break;
+				}
+			}
+
+			if (iVictoryBlockWeight > 0)
+			{
+				// Add weight for Player's victory competitiveness, meanness and diplobalance desires (1 - 10)
+				// Average of each is 5, and era goes up by one throughout game.
+				iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GET_PLAYER(eLoopPlayer).GetCurrentEra());
+
+				// Now see what our new Block Level should be
+				if (iVictoryBlockWeight >= /*40*/ GC.getVICTORY_BLOCK_FIERCE_THRESHOLD())
+				{
+					eBlockLevel = BLOCK_LEVEL_FIERCE;
+				}
+				else if (iVictoryBlockWeight >= /*30*/ GC.getVICTORY_BLOCK_STRONG_THRESHOLD())
+				{			
+					eBlockLevel = BLOCK_LEVEL_STRONG;
+				}
+				else if (iVictoryBlockWeight >= /*20*/ GC.getVICTORY_BLOCK_WEAK_THRESHOLD())
+				{		
+					eBlockLevel = BLOCK_LEVEL_WEAK;
+				}
+			}
+
+			// Actually set the new level
+			SetVictoryBlockLevel(eLoopPlayer, eBlockLevel);
+		}
+		else
+		{
+			SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 		}
 	}
 }
@@ -21353,136 +21329,89 @@ void CvDiplomacyAI::SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelType
 /// Updates what our level of Dispute is with all players over Victory
 void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 {
-	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-
-	PlayerTypes ePlayer;
-
-	DisputeLevelTypes eDisputeLevel;
-
-	int iVictoryDisputeWeight;
-	
-	// We're not competing for victory, so we don't care.
-	if (!IsCompetingForVictory())
-	{
-		// Loop through all (known) Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			ePlayer = (PlayerTypes)iPlayerLoop;
-			SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-		}
-		return;
-	}
-	
-	// If we're somebody's vassal, chances are we can't compete with them anyway, so hatred is pointless.
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-		{
-			// Loop through all (known) Players
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				ePlayer = (PlayerTypes)iPlayerLoop;
-				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-			}
-			return;
-		}
-	}
-#endif
-
 	//Don't do this at the start of the game.
 	if (GC.getGame().getGameTurn() <= 150)
 		return;
 
-	// Loop through all (known) Players
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
+	bool bDontCare = (!IsCompetingForVictory() || (eMyGrandStrategy == NO_AIGRANDSTRATEGY) || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500);
+
+	if (bDontCare)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if(IsPlayerValid(ePlayer))
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eDisputeLevel = DISPUTE_LEVEL_NONE;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-			if(eMyGrandStrategy == NO_AIGRANDSTRATEGY)
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
+		}
+		return;
+	}
+
+	// Loop through all (valid) Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
+		{
+			AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer);
+			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
 			{
-				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
-			else if(GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500)
+			if (!IsAtWar(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) == MAJOR_CIV_OPINION_ALLY)
 			{
-				SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+				SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
-#endif
-			// Minors can't really be an issue with Victory!
-			if (!GET_PLAYER(ePlayer).isMinorCiv())
+
+			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
+			int iVictoryDisputeWeight = 0;
+
+			// Does the other player's (estimated) Grand Strategy match our own?
+			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer) == eMyGrandStrategy)
 			{
-				iVictoryDisputeWeight = 0;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				if(MOD_BALANCE_CORE_DIPLOMACY)
+				switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
 				{
-					AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer);
-					if(eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
-					{
-						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-						continue;
-					}
-					MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
-					if (!IsAtWar(ePlayer) && eOpinion == MAJOR_CIV_OPINION_ALLY)
-					{
-						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-						continue;
-					}
+				case GUESS_CONFIDENCE_POSITIVE:
+					iVictoryDisputeWeight += /*25*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE();
+					break;
+				case GUESS_CONFIDENCE_LIKELY:
+					iVictoryDisputeWeight += /*15*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY();
+					break;
+				case GUESS_CONFIDENCE_UNSURE:
+					iVictoryDisputeWeight += /*5*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE();
+					break;
 				}
-#endif
+			}
 
-				// Does the other player's (estimated) Grand Strategy match our own?
-				if(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == eMyGrandStrategy)
-				{
-					switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(ePlayer))
-					{
-					case GUESS_CONFIDENCE_POSITIVE:
-						iVictoryDisputeWeight += /*14*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE();
-						break;
-					case GUESS_CONFIDENCE_LIKELY:
-						iVictoryDisputeWeight += /*10*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY();
-						break;
-					case GUESS_CONFIDENCE_UNSURE:
-						iVictoryDisputeWeight += /*6*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE();
-						break;
-					}
-				}
+			// Reduce competitiveness in earlier eras
+			int iEraReduction = (6 - GET_PLAYER(eLoopPlayer).GetCurrentEra());
+			iVictoryDisputeWeight -= iEraReduction;
 
-				// Add weight for Player's competitiveness (0 - 10)
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				int iEraReduction = (6 - GetPlayer()->GetCurrentEra());
-				if(MOD_BALANCE_CORE_DIPLOMACY && iEraReduction > 0)
-				{
-					iVictoryDisputeWeight -= iEraReduction;
-				}
-#endif
+			if (iVictoryDisputeWeight > 0)
+			{
+				// Add weight for Player's competitiveness (1 - 10)
 				iVictoryDisputeWeight *= GetVictoryCompetitiveness();
 
-				// Grand Strategy Matches: 10
-				// VictoryCompetitiveness 10	: 100
-				// VictoryCompetitiveness 5		: 50
-				// VictoryCompetitiveness 1		: 10
-
 				// Now see what our new Dispute Level should be
-				if(iVictoryDisputeWeight >= /*80*/ GC.getVICTORY_DISPUTE_FIERCE_THRESHOLD())
+				if (iVictoryDisputeWeight >= /*80*/ GC.getVICTORY_DISPUTE_FIERCE_THRESHOLD())
 					eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-				else if(iVictoryDisputeWeight >= /*50*/ GC.getVICTORY_DISPUTE_STRONG_THRESHOLD())
+				else if (iVictoryDisputeWeight >= /*50*/ GC.getVICTORY_DISPUTE_STRONG_THRESHOLD())
 					eDisputeLevel = DISPUTE_LEVEL_STRONG;
-				else if(iVictoryDisputeWeight >= /*30*/ GC.getVICTORY_DISPUTE_WEAK_THRESHOLD())
+				else if (iVictoryDisputeWeight >= /*30*/ GC.getVICTORY_DISPUTE_WEAK_THRESHOLD())
 					eDisputeLevel = DISPUTE_LEVEL_WEAK;
 			}
 
 			// Actually set the Level
-			SetVictoryDisputeLevel(ePlayer, eDisputeLevel);
+			SetVictoryDisputeLevel(eLoopPlayer, eDisputeLevel);
+		}
+		else
+		{
+			SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 		}
 	}
 }
-
 
 /// What is our guess as to the level of Dispute between two players over Victory?
 DisputeLevelTypes CvDiplomacyAI::GetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const
@@ -22522,7 +22451,10 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eMyPlayer);
 
 				// End all coop war agreements with this player
-				CancelCoopWarsWithPlayer(ePlayer, true);
+				if (!bDefensivePact)
+				{
+					CancelCoopWarsWithPlayer(ePlayer, true);
+				}
 
 				// Reset expansion, border and spy promises for both of us...all is fair in war!
 				SetPlayerNoSettleRequestAccepted(ePlayer, false);
