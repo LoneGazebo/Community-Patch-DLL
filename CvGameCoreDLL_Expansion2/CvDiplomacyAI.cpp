@@ -3464,6 +3464,9 @@ int CvDiplomacyAI::GetDifferenceFromAverageFlavorValue(int iValue) const
 void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 {
 	m_eTargetPlayer = eTargetPlayer;
+
+	DoUpdateCoopWarStates();
+
 	// Military Stuff
 	DoWarDamageDecay();
 	DoUpdateWarDamageLevels();
@@ -3532,7 +3535,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	DoUpdateOpinions();
 	DoUpdateMajorCivApproaches(v, false);
 	DoUpdateMinorCivApproaches();
-	DoUpdateCoopWarStates();
 
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
@@ -18879,7 +18881,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 			{
 				MajorCivOpinionTypes eOpinion;
 				eOpinion = GetMajorCivOpinion(ePlayer);
-				if (eOpinion >= MAJOR_CIV_OPINION_FRIEND)
+				if (!IsAtWar(ePlayer) && eOpinion >= MAJOR_CIV_OPINION_FRIEND)
 				{
 					continue;
 				}
@@ -21426,7 +21428,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 						continue;
 					}
 					MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
-					if (eOpinion == MAJOR_CIV_OPINION_ALLY)
+					if (!IsAtWar(ePlayer) && eOpinion == MAJOR_CIV_OPINION_ALLY)
 					{
 						SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 						continue;
