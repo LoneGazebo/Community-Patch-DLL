@@ -11934,20 +11934,18 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 		return false;
 	}
 
-	// Being hostile towards this guy? (ignore war face, as if we're planning a war already, making a demand doesn't mesh well with that)
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		return false;
 	}
-	if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID || GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+
+	// If not hostile, deceptive or guarded, don't make a demand
+	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+	if (eApproach != MAJOR_CIV_APPROACH_HOSTILE && eApproach != MAJOR_CIV_APPROACH_DECEPTIVE && eApproach != MAJOR_CIV_APPROACH_GUARDED)
 	{
 		return false;
 	}
-	//If not deceptive or worse, don't make a demand
-	if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) >= MAJOR_CIV_APPROACH_GUARDED)
-	{
-		return false;
-	}
+
 	// Player can't be distant
 	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
 	{
@@ -22451,10 +22449,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eMyPlayer);
 
 				// End all coop war agreements with this player
-				if (!bDefensivePact)
-				{
-					CancelCoopWarsWithPlayer(ePlayer, true);
-				}
+				CancelCoopWarsWithPlayer(ePlayer, !bDefensivePact);
 
 				// Reset expansion, border and spy promises for both of us...all is fair in war!
 				SetPlayerNoSettleRequestAccepted(ePlayer, false);
