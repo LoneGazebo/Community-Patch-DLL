@@ -6162,7 +6162,10 @@ int CvMinorCivAI::GetFirstPossibleTurnForPersonalQuests() const
 /// What is the first possible turn of the game we can give out global Quests, that are for multiple players?
 int CvMinorCivAI::GetFirstPossibleTurnForGlobalQuests() const
 {
-	return /*30*/ GC.getMINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN();
+	int firstTurn = /*30*/ GC.getMINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN();
+	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getTrainPercent());   		// used sqrti because turn 90 seemed too long to wait on marathon
+	firstTurn /= 10;
+	return firstTurn;
 }
 
 /// What is the maximum number of player-specific quests a player can have at one time?
