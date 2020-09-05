@@ -36115,7 +36115,8 @@ bool CvDiplomacyAI::CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarg
 bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer)
 {
 	// Do we even have a coop war plan to begin with?
-	if (GetCoopWarState(eAllyPlayer, eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+	CoopWarStates eCoopWarState = GetCoopWarState(eAllyPlayer, eTargetPlayer);
+	if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
 		return false;
 
 	// Make sure the target is still valid
