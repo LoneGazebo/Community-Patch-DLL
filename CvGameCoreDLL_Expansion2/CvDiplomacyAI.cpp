@@ -17119,7 +17119,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return true;
 
 	// If we're in bad shape for war, retreat!
-	if (GetPlayer()->IsEmpireInBadShapeForWar())
+	if (GetPlayer()->IsEmpireInBadShapeForWar(NO_PLAYER, true))
 		return false;
 
 	// They're an easy target, so play offensively!
