@@ -433,15 +433,17 @@ inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& wr
 
 enum CoopWarStates
 {
-    NO_COOP_WAR_STATE = -1,
+	NO_COOP_WAR_STATE = -1,
 
-    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
-    COOP_WAR_STATE_REJECTED,
-    COOP_WAR_STATE_SOON,
-    COOP_WAR_STATE_ACCEPTED,
-    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
+	// WARNING: the order of these values is very important, do not change unless you know what you're doing!
+	COOP_WAR_STATE_WARNED_TARGET,
+	COOP_WAR_STATE_REJECTED,
+	COOP_WAR_STATE_PREPARING,
+	COOP_WAR_STATE_READY,
+	COOP_WAR_STATE_ONGOING,
+	// WARNING: the order of these values is very important, do not change unless you know what you're doing!
 
-    NUM_COOP_WAR_STATES,
+	NUM_COOP_WAR_STATES,
 };
 
 inline FDataStream& operator<<(FDataStream& saveTo, const CoopWarStates& readFrom)

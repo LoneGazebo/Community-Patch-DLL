@@ -123,19 +123,11 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 
 	if(bWar)
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		kTeam.declareWar(eRivalTeam, false, ePlayer);
-#else
-		kTeam.declareWar(eRivalTeam);
-#endif
 	}
 	else
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		kTeam.makePeace(eRivalTeam, true, false, ePlayer);
-#else
-		kTeam.makePeace(eRivalTeam);
-#endif
 	}
 }
 //------------------------------------------------------------------------------

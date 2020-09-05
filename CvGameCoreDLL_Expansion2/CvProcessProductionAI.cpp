@@ -362,12 +362,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 		}
 	}
+
+	bool bIsProject = false;
 	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
 	{
 		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
 		if (pInfo && pInfo->GetProcess() == eProcess)
 		{
+			bIsProject = true;
 			if (m_pCity->getProductionProcess() == eProcess)
 			{
 				iModifier += 10000;
@@ -543,9 +546,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		iTempWeight *= (75 + iModifier);
 		iTempWeight /= 100;
 	}
+	else if (bIsProject)
+	{
+		iTempWeight +=iModifier;
+	}
 	else
 	{
-		iTempWeight += iModifier;
+		iTempWeight *= (100 + iModifier);
+		iTempWeight /= 100;
 	}
 
 	return iTempWeight;

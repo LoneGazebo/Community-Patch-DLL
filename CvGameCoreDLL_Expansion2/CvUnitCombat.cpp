@@ -2768,7 +2768,6 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		{
 			if (!kAttacker.isEnemy((TeamTypes)iI))
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				if(GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
 				{
 					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
@@ -2777,9 +2776,6 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 				{
 					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
 				}
-#else
-				GET_TEAM(kAttacker.getTeam()).declareWar(((TeamTypes)iI));
-#endif
 
 				if (iPlotTeam == iI) 
 				{

@@ -99,7 +99,6 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsPocketOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsPocketDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="UsPocketResearchAgreement"/>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsPocketTradeAgreement" Hidden="1"/>
 					<!-- Putmalk: Add Vassalage to the Human's Trade window -->
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"  ID="UsPocketVassalage" />
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"  ID="UsPocketRevokeVassalage" />
@@ -154,7 +153,6 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemPocketOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemPocketDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="ThemPocketResearchAgreement"/>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemPocketTradeAgreement" Hidden="1"/>
 					<!-- Putmalk: Add Vassalage to the AI's Trade window -->
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE" ID="ThemPocketVassalage" />
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE" ID="ThemPocketRevokeVassalage" />
@@ -230,7 +228,6 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsTableOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsTableDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="Research agreement" ID="UsTableResearchAgreement"/>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="UsTableVassalage" />
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage" />
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
@@ -293,7 +290,6 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemTableOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemTableDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="Research agreement" ID="ThemTableResearchAgreement"/>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemTableTradeAgreement"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="ThemTableVassalage"   />
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="ThemTableRevokeVassalage"   />
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCitiesStack"/>

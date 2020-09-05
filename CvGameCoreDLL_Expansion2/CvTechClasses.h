@@ -72,8 +72,6 @@ public:
 	bool IsOpenBordersTradingAllowed() const;
 	bool IsDefensivePactTradingAllowed() const;
 	bool IsResearchAgreementTradingAllowed() const;
-	bool IsTradeAgreementTradingAllowed() const;
-	bool IsPermanentAllianceTrading() const;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 #endif
@@ -161,8 +159,6 @@ private:
 	bool m_bOpenBordersTradingAllowed;
 	bool m_bDefensivePactTradingAllowed;
 	bool m_bResearchAgreementTradingAllowed;
-	bool m_bTradeAgreementTradingAllowed;
-	bool m_bPermanentAllianceTrading;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif

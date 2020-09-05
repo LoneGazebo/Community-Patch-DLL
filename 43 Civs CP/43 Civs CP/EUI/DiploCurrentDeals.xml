@@ -113,8 +113,6 @@
 							<GridButton ID="ThemPocketAllowEmbassy" Hidden="1"/>
 							<GridButton ID="UsPocketOpenBorders" Hidden="1"/>
 							<GridButton ID="ThemPocketOpenBorders" Hidden="1"/>
-							<GridButton ID="UsPocketTradeAgreement" Hidden="1"/>
-							<GridButton ID="ThemPocketTradeAgreement" Hidden="1"/>
 							<GridButton ID="UsPocketDefensivePact" Hidden="1"/>
 							<GridButton ID="ThemPocketDefensivePact" Hidden="1"/>
 							<GridButton ID="UsPocketResearchAgreement" Hidden="1"/>
@@ -177,7 +175,6 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsTableOpenBorders"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsTableDefensivePact"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="UsTableResearchAgreement"/>
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
 									<!-- Putmalk -->
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="UsTableVassalage"   />
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="UsTableRevokeVassalage"   />
@@ -241,7 +238,6 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemTableOpenBorders"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemTableDefensivePact"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="ThemTableResearchAgreement"/>
-									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemTableTradeAgreement"/>
 									<!-- Putmalk -->
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE"   ID="ThemTableVassalage"   />
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_VASSALAGE_REVOKE"   ID="ThemTableRevokeVassalage"   />

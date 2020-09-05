@@ -1831,7 +1831,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
-			if(pFromPlot ~= nil and not bRanged) then
+			if(pFromPlot ~= nil) then
 				if(pFromPlot:IsRoughGround()) then
 				
 					-- RoughAttackModifier

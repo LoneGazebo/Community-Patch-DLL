@@ -1569,25 +1569,6 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
---function IsWorkingAgainstThirdPartyPlayerValid(iThirdPartyPlayer)
-	--
-	--if (not IsThirdPartyPlayerValid(iThirdPartyPlayer)) then
-		--return false;
-	--end
-	--
-	--local pActivePlayer = Players[Game.GetActivePlayer()];
-	--
-    ---- Have we already agreed?
-	--if (Players[g_iAIPlayer]:IsWorkingAgainstPlayerAccepted(pActivePlayer:GetID(), iThirdPartyPlayer)) then
-		--return false;
-	--end
-	--
-	--return true;
-	--
---end
-
-----------------------------------------------------------------
-----------------------------------------------------------------
 function IsWarAgainstThirdPartyPlayerValid(iThirdPartyPlayer)
 	
 	if (not IsThirdPartyPlayerValid(iThirdPartyPlayer)) then
@@ -1595,22 +1576,12 @@ function IsWarAgainstThirdPartyPlayerValid(iThirdPartyPlayer)
 	end
 	
 	local pActivePlayer = Players[Game.GetActivePlayer()];
-	
-    -- Have we already agreed?
-    local iCoopState = Players[g_iAIPlayer]:GetCoopWarAcceptedState(pActivePlayer:GetID(), iThirdPartyPlayer);
-	if (iCoopState == CoopWarStates.COOP_WAR_STATE_ACCEPTED or iCoopState == CoopWarStates.COOP_WAR_STATE_SOON) then
-		return false;
-	end
-	
-	-- Is a DOW valid against this target?
-	local pAIPlayerTeam = Teams[Players[g_iAIPlayer]:GetTeam()];
-	local iThirdPartyTeamID = Players[iThirdPartyPlayer]:GetTeam();
-	if (not pAIPlayerTeam:CanDeclareWar(iThirdPartyTeamID)) then
+
+	if (not Players[g_iAIPlayer]:CanRequestCoopWar(pActivePlayer:GetID(), iThirdPartyPlayer)) then
 		return false;
 	end
 	
 	return true;
-	
 end
 
 ----------------------------------------------------------------
