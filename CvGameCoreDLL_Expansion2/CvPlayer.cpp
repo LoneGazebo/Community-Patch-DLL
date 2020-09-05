@@ -20691,7 +20691,7 @@ bool CvPlayer::CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const
 
 //	--------------------------------------------------------------------------------
 /// Are we in bad shape to start a war?
-bool CvPlayer::IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer) const
+bool CvPlayer::IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer, bool bDontCheckPhonyWars) const
 {
 	// Losing all our wars?
 	if (GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -20731,18 +20731,27 @@ bool CvPlayer::IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer) const
 			{
 				return true;
 			}
-			else if (eWarState == WAR_STATE_STALEMATE)
+			else
 			{
-				if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE && !GetDiplomacyAI()->IsPhonyWar(eLoopPlayer))
+				if (!bDontCheckPhonyWars)
 				{
-					return true;
+					if (GetDiplomacyAI()->IsPhonyWar(eLoopPlayer))
+						continue;
 				}
-			}
-			else if (eWarState == WAR_STATE_CALM)
-			{
-				if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE && !GetDiplomacyAI()->IsPhonyWar(eLoopPlayer) && GetDiplomacyAI()->GetWarProjection(eLoopPlayer) < WAR_PROJECTION_GOOD)
+
+				if (eWarState == WAR_STATE_STALEMATE)
 				{
-					return true;
+					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+					{
+						return true;
+					}
+				}
+				else if (eWarState == WAR_STATE_CALM)
+				{
+					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE && GetDiplomacyAI()->GetWarProjection(eLoopPlayer) < WAR_PROJECTION_GOOD)
+					{
+						return true;
+					}
 				}
 			}
 		}

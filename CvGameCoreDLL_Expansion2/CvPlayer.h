@@ -658,7 +658,7 @@ public:
 #endif
 
 	bool CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const;
-	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER) const;
+	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER, bool bDontCheckPhonyWars = false) const;
 
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
