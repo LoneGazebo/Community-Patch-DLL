@@ -5172,7 +5172,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				if (!GetPlayer()->IsEmpireInBadShapeForWar() && GetWarState(eLoopPlayer) != WAR_STATE_DEFENSIVE && GetWarState(eLoopPlayer) != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
-					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer))
+					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer, true))
 						continue;
 
 					// Disregard phony wars
@@ -7662,7 +7662,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				if (!GetPlayer()->IsEmpireInBadShapeForWar() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState != WAR_STATE_DEFENSIVE && eLoopWarState != WAR_STATE_NEARLY_DEFEATED)
 				{
 					// Ignore players who aren't a serious threat.
-					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer))
+					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer, true))
 					{
 						continue;
 					}
@@ -7726,7 +7726,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// If we're winning against them or they're losing all their wars, don't count this player as a deterrent.
 			if (!GetPlayer()->IsEmpireInBadShapeForWar())
 			{
-				if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer))
+				if (IsEasyTarget(eLoopPlayer) || GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE || GET_PLAYER(eLoopPlayer).IsEmpireInBadShapeForWar(eMyPlayer, true))
 					continue;
 			}
 
@@ -13987,7 +13987,7 @@ bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
 	}
 
 	// They're losing all their wars! Let's strike!
-	if (GET_PLAYER(ePlayer).IsEmpireInBadShapeForWar(GetPlayer()->GetID()))
+	if (GET_PLAYER(ePlayer).IsEmpireInBadShapeForWar(GetPlayer()->GetID(), true))
 		return true;
 
 	bool bWantsConquest = false;
