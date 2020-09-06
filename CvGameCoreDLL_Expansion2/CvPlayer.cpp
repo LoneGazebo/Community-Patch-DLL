@@ -14848,8 +14848,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		return false;
 	}
 
-	int iI;
-	for(iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
+	for(int iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
 	{
 		if(pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
 		{

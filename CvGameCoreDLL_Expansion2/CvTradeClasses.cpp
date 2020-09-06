@@ -409,7 +409,8 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 				if (m_aTradeConnections[i].m_eOriginOwner != pOriginCity->getOwner())
 					continue;
 
-				// Cannot send more than one gold internal trade routes to a city (similar rule to international). Still can send production or food trade routes from another origin city (remember the rule, there can only be one route of any type for an origin-destination pair).
+				// Cannot send more than one gold internal trade routes to a city (similar rule to international). 
+				// Still can send production or food trade routes from another origin city (remember the rule, there can only be one route of any type for an origin-destination pair).
 				if (m_aTradeConnections[i].m_eConnectionType == eConnectionType && m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
 				{
 					return false;
@@ -4558,8 +4559,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain)
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
 	int iCityLoop;
-	CvCity* pLoopCity;
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Get a sorted list of nearby cities 
 		const CvCityManager::CityList& kNearbyCities = CvCityManager::GetNearbyCities(pLoopCity);
