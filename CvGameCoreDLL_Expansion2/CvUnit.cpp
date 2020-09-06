@@ -28893,55 +28893,31 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			return MOVE_RESULT_CANCEL;
 	}
 
-	bool bDone = (pPathPlot == pDestPlot);
-	bool bRejectMove = false;
-
 	if(!m_kLastPath.empty())
 	{
 		//because of the fog it's totally valid to stumble into eg neutral units
-		bool bCanEndTurnInNextPlot = canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION);
+		//make sure we have at least one plot where we can end this turn, meaning it's visible and we can stack
+		CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
 
-		if (!bCanEndTurnInNextPlot)
+		//assume no good plot
+		bool bRejectMove = true;
+
+		//start iterating at zero although we know it's blocked but it might be the turn destination already!
+		for (size_t iIndex=0; iIndex<m_kLastPath.size(); iIndex++)
 		{
-			// if we should end our turn there this turn, but can't move into that tile
-			if (m_kLastPath.front().m_iMoves == 0)
+			CvPlot* pTestPlot = m_kLastPath.GetPlotByIndex(iIndex);
+			//it's possible that there is an enemy civilian we want to capture so we need to allow attacking
+			//(real attacks are handled in UnitAttackWithMove)
+			if (pTestPlot->isVisible(getTeam()) && canMoveOrAttackInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
 			{
-				// this is a bit tricky
-				// we want to see if this move would be a capture move
-				// Since we can't move into the tile, there may be an enemy unit there
-				// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
-				// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
-				const CvUnit* pDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-				if (!pDefender && !pPathPlot->isEnemyCity(*this) && canMoveInto(*pPathPlot, MOVEFLAG_ATTACK))
-				{
-					// Turn on ability to move into enemy units in this case so we can capture civilians
-					iFlags |= MOVEFLAG_IGNORE_STACKING;
-				}
-				else
-					bRejectMove = true;
+				bRejectMove = false;
+				break;
 			}
-			else
-			{
-				//make sure we have at least one plot where we can end this turn, meaning it's visible and we can stack
-				CvPlot* pTurnDest = m_kLastPath.GetTurnDestinationPlot(0);
-				//assume no good plot
-				bRejectMove = true;
-				//start iterating at zero although we know it's blocked but it might be the turn destination already!
-				for (size_t iIndex=0; iIndex<m_kLastPath.size(); iIndex++)
-				{
-					CvPlot* pTestPlot = m_kLastPath.GetPlotByIndex(iIndex);
-					if (pTestPlot->isVisible(getTeam()) && canMoveInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
-					{
-						bRejectMove = false;
-						break;
-					}
 
-					//look only at this turn's plots!
-					if (pTestPlot == pTurnDest)
-						break;
-				} 
-			}
-		}
+			//look only at this turn's plots!
+			if (pTestPlot == pTurnDest)
+				break;
+		} 
 
 		if(bRejectMove)
 		{
@@ -28951,6 +28927,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		}
 	}
 
+	bool bDone = (pPathPlot == pDestPlot);
 	if ((iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) && (pPathPlot == m_kLastPath.GetTurnDestinationPlot(0) && !bDone))
 	{
 		int iOldDanger = GetDanger();
