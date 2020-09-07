@@ -341,7 +341,7 @@ function OnShowHide( bHide )
 	
 		Controls.RootOptions:SetHide( not UI.GetLeaderHeadRootUp() );
 
-		local pActivePlayer = Teams[Game.GetActivePlayer()];
+		local pActivePlayer = Players[Game.GetActivePlayer()];
 		local pActiveTeam = Teams[Game.GetActiveTeam()];
 		
 		-- Hide or show war/peace and demand buttons
