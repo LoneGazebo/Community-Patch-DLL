@@ -369,110 +369,93 @@ Events.LeavingLeaderViewMode.Add( OnLeavingLeader );
 -- ===========================================================================
 function UpdateDisplay()
 
+	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local pActiveTeam = Teams[Game.GetActiveTeam()];
 
-	-- Hide or show war/peace button
-	if (not pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
-		Controls.WarButton:SetHide(true);
-	else
-		Controls.WarButton:SetHide(false);
-	end
-
-	-- Hide or show the demand button
+	-- Hide or show war/peace and demand buttons
 	if (Game.GetActiveTeam() == g_iAITeam) then
+		Controls.WarButton:SetHide(true);
 		Controls.DemandButton:SetHide(true);
 	else
+		Controls.WarButton:SetHide(false);
 		Controls.DemandButton:SetHide(false);
 	end
 
 	g_oldCursor = UIManager:SetUICursor(0); -- make sure we start with the default cursor
 
-	if (g_iAITeam ~= -1) then
-		local bAtWar = pActiveTeam:IsAtWar(g_iAITeam);
-
-		if (bAtWar) then
+	if (g_iAITeam ~= -1 and g_iAIPlayer ~= -1) then
+		if (pActiveTeam:IsAtWar(g_iAITeam)) then
 			Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE" ));
+			Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_TT" ));
 			Controls.TradeButton:SetDisabled(true);
 			Controls.DemandButton:SetDisabled(true);
+			Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+			Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON_TT" ));
 			Controls.DiscussButton:SetDisabled(true);
 
-			local iLockedWarTurns = pActiveTeam:GetNumTurnsLockedIntoWar(g_iAITeam);
-
-			-- C4DF: Redid logic to accomodate vassals/Locked into war by vassals
-			if (pActiveTeam:IsVassalLockedIntoWar(g_iAITeam)) then
+			if (pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
 				Controls.WarButton:SetDisabled(false);
-				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT" ));
-			-- Locked into war
-			elseif (iLockedWarTurns ~= 0) then
-				Controls.WarButton:SetDisabled(true);
-				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", iLockedWarTurns ));
-			-- Not locked into war
 			else
-				Controls.WarButton:SetDisabled(false);
-				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_TT" ));
+				Controls.WarButton:SetDisabled(true);
+
+				if (pActiveTeam:IsVassalLockedIntoWar(g_iAITeam)) then
+					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT" ));
+				elseif (Teams[g_AITeam]:IsVassalLockedIntoWar(Game.GetActiveTeam())) then
+					local iMaster = Teams[g_iAITeam]:GetMaster();
+					if (iMaster ~= -1) then
+						local pMaster = Teams[iMaster];
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_MAKE_PEACE_VASSAL", pMaster:GetName() ));
+					end
+				else
+					local iLockedTurnsUs = pActiveTeam:GetNumTurnsLockedIntoWar(g_iAITeam);
+					local iLockedTurnsThem = Teams[g_iAITeam]:GetNumTurnsLockedIntoWar(Game.GetActiveTeam());
+
+					if (iLockedTurnsUs ~= 0) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT", iLockedTurnsUs ));
+					elseif (iLockedTurnsThem ~= 0) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT", iLockedTurnsThem ));
+					else
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT" ));
+					end
+				end
 			end
 		else
 			Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR" ));
+			Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARES_WAR_TT" ));
 			Controls.TradeButton:SetDisabled(false);
 			Controls.DemandButton:SetDisabled(false);
 			Controls.DiscussButton:SetDisabled(false);
 
-			-- C4DF
-			local pActivePlayer = Teams[Game.GetActivePlayer()];
-			local pDiscussingPlayer = Players[g_iAIPlayer];
-			-- C4DF: What text to display on "Demand Button"?
-			local strString = "";
-			
-			if(pDiscussingPlayer ~= nil) then
-				local bFriends = pDiscussingPlayer:IsDoF(pActivePlayer);
-				if(bFriends) then
-					strString = "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON";
-				else
-					strString = "TXT_KEY_DIPLO_DEMAND_BUTTON";
-				end
+			if (pActivePlayer:IsDoF(g_iAIPlayer)) then
+				Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON" ));
+				Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT" ));
 			else
-				print("Could not find discussing player!");
+				Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+				Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON_TT" ));
 			end
 
-			-- Hide or show war/peace button
-			if (not pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
-				Controls.WarButton:SetHide(true);
+			if (pActiveTeam:CanDeclareWar(g_iAITeam)) then
+				Controls.WarButton:SetDisabled(false);
 			else
-				Controls.WarButton:SetHide(false);
-			end
-
-			-- Hide or show the demand button
-			if (Game.GetActiveTeam() == g_iAITeam) then
-				Controls.DemandButton:SetHide(true);
-			else
-				Controls.DemandButton:SetHide(false);
-			end
-
-
-			if(strString == nil) then
-				print("strString == nil!");
-				str = "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON";
-			end
-
-			Controls.DemandButton:SetText( Locale.ConvertTextKey( strString ));
-			-- END
-
-			if (pActiveTeam:IsForcePeace(g_iAITeam)) then
 				Controls.WarButton:SetDisabled(true);
-				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
-			elseif (not pActiveTeam:CanDeclareWar(g_iAITeam)) then
-				Controls.WarButton:SetDisabled(true);
-				-- change tooltip to accomodate vassals
-				local iMaster = Teams[g_iAITeam]:GetMaster();
-				if (iMaster ~= -1) then
-					local pMaster = Teams[iMaster];
-					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
+
+				if (pActiveTeam:IsVassalOfSomeone()) then
+					if (pActiveTeam:IsVassal(g_iAIPlayer)) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT" ));
+					else
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT" ));
+					end
+				elseif (Teams[g_iAITeam]:IsVassalOfSomeone() and not Teams[g_iAITeam]:IsVassal(Game.GetActiveTeam())) then
+					local iMaster = Teams[g_iAITeam]:GetMaster();
+					if (iMaster ~= -1) then
+						local pMaster = Teams[iMaster];
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
+					end
+				elseif (pActiveTeam:IsForcePeace(g_iAITeam)) then
+					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
 				else
 					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));
 				end
-			else
-				Controls.WarButton:SetDisabled(false);
-				Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARES_WAR_TT" ));
 			end
 
 		end

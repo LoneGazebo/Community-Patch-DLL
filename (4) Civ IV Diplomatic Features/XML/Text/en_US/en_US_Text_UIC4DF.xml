@@ -74,15 +74,6 @@
 		<Row Tag="TXT_KEY_DIPLO_TECH_TRADING_NOT_ACTIVE">
 			<Text>[NEWLINE][NEWLINE]Technology Trading is not active!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
-			<Text>Request Help</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
-			<Text>Request help from a player whom you've made a Declaration of Friendship with. This option does not carry a diplomatic penalty.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
-			<Text>Demand tribute from this civilization. This option carries a diplomatic penalty.</Text>
-		</Row>
 		<!-- Vassalage -->
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS">
 			<Text>Not allowed due to the absence of Vassals.</Text>
@@ -247,12 +238,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE">
 			<Text>Understood. We grant you your independence.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
-			<Text>May not declare war on a vassal of another civilization (you must declare war on their master, {1_CivName}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
-			<Text>May not make peace as a vassal (peace is automatically made when your Master makes peace with this civilization).</Text>
 		</Row>
 		<!-- Added in Version 10 -->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT">

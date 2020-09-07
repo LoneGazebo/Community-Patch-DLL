@@ -1127,42 +1127,33 @@ void CvTeam::updateYield()
 //	--------------------------------------------------------------------------------
 bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 {
-	if(eTeam == NO_TEAM) return false;
-
-	if(GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (eTeam == NO_TEAM || eTeam == GetID()) 
 	{
 		return false;
 	}
 
-	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
-	{
-		return false;
-	}
-
-	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-	{
-		return false;
-	}
-
-	if(eTeam == GetID())
+	if (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
 	{
 		return false;
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Vassals have no control over war/peace
-	if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone())
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		return false;
-	}
-
-	if(GetNumTurnsLockedIntoWar(eTeam) > 0 || GET_TEAM(eTeam).GetNumTurnsLockedIntoWar(GetID()) > 0)
-	{
-		return false;
+		if (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone())
+		{
+			return false;
+		}
 	}
 #endif
 
-	if(isPermanentWarPeace(eTeam) || GET_TEAM(eTeam).isPermanentWarPeace(GetID()))
+	if (GetNumTurnsLockedIntoWar(eTeam) > 0 || GET_TEAM(eTeam).GetNumTurnsLockedIntoWar(GetID()) > 0)
+	{
+		return false;
+	}
+
+	if (isPermanentWarPeace(eTeam) || GET_TEAM(eTeam).isPermanentWarPeace(GetID()))
 	{
 		return false;
 	}
@@ -10120,29 +10111,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 //	Are we locked into a war with eOtherTeam because our Master is at war with him?
 bool CvTeam::IsVassalLockedIntoWar(TeamTypes eOtherTeam) const
 {
-	CvAssertMsg(eOtherTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eOtherTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	
-	TeamTypes eLoopTeam;
-	// Go through every major.
-	for(int iTeamLoop=0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-	{
-		eLoopTeam = (TeamTypes) iTeamLoop;
-
-		// Ignore minors.
-		if(!GET_TEAM(eLoopTeam).isMinorCiv())
-		{
-			// Are we the vassal of eLoopTeam?
-			if(IsVassal(eLoopTeam))
-			{
-				// eLoopTeam at war with eTeam?
-				if(GET_TEAM(eLoopTeam).isAtWar(eOtherTeam))
-				{
-					return true;
-				}
-			}
-		}
-	}
+	if (IsVassalOfSomeone() && GET_TEAM(GetMaster()).isAtWar(eOtherTeam))
+		return true;
 
 	return false;
 }

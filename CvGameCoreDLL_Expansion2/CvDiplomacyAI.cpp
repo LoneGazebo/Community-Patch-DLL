@@ -36119,24 +36119,22 @@ bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 	if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
 		return false;
 
+	// If we somehow got here and we're at war with our ally or our friendship was broken, no dice. (failsafe)
+	if (IsAtWar(eAllyPlayer) || IsDoFBroken(eAllyPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsDoFBroken(GetPlayer()->GetID()))
+		return false;
+
 	// Make sure the target is still valid
 	if (!IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
 	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
 
-	// Must be able to declare war on the target (or one of us is already at war)
+	// Must be able to declare war on the target (or be already at war)
 	if (!IsAtWar(eTargetPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 	{
 		return false;
 	}
-
-	if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer))
-	{
-		if (IsAtWar(eTargetPlayer)) // If we're both already at war, we can't start the coop war
-			return false;
-	}
-	else if (!GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
+	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer) && !GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
 	{
 		return false;
 	}
@@ -36177,22 +36175,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 						eCoopWarState = COOP_WAR_STATE_READY;
 					}
 				}
-				// If both already at war, just process that
-				else if (IsAtWar(eThirdParty) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
-				{
-					int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iTheirTurnsAtWar = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
-
-					if (iLockedTurns > 0)
-					{
-						GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-					}
-
-					SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_ONGOING);
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, COOP_WAR_STATE_ONGOING);
-				}
 				else
 				{
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
@@ -36205,22 +36187,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				if (CanStartCoopWar(eLoopPlayer, eThirdParty))
 				{
 					DoStartCoopWar(eLoopPlayer, eThirdParty);
-				}
-				// If both already at war, just process that
-				else if (IsAtWar(eThirdParty) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
-				{
-					int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iTheirTurnsAtWar = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
-
-					if (iLockedTurns > 0)
-					{
-						GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-					}
-
-					SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_ONGOING);
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, COOP_WAR_STATE_ONGOING);
 				}
 				else
 				{
@@ -36238,7 +36204,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	// Our declaration
 	if (IsAtWar(eTargetPlayer) || DeclareWar(eTargetPlayer))
 	{
-		if (!GetPlayer()->isHuman() && !IsAtWar(eTargetPlayer))
+		if (!GetPlayer()->isHuman())
 		{
 			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
 			GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
@@ -36247,7 +36213,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		// Their war declaration
 		if (GET_PLAYER(eAllyPlayer).IsAtWarWith(eTargetPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->DeclareWar(eTargetPlayer))
 		{
-			if (!GET_PLAYER(eAllyPlayer).isHuman() && !GET_PLAYER(eAllyPlayer).IsAtWarWith(eTargetPlayer))
+			if (!GET_PLAYER(eAllyPlayer).isHuman())
 			{
 				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
 				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
@@ -45580,6 +45546,13 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	// clear out coop war agreements
 	CancelCoopWarsAgainstPlayer(eKilledPlayer);
 
+	// reset locked war turns
+	if (GET_PLAYER(eKilledPlayer).getTeam() != GetTeam())
+	{
+		GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(GET_PLAYER(eKilledPlayer).getTeam(), 0);
+		GET_TEAM(GET_PLAYER(eKilledPlayer).getTeam()).SetNumTurnsLockedIntoWar(GetTeam(), 0);
+	}
+
 	// clear out planning exchanges, attack operations
 	SetWantsDoFWithPlayer(eKilledPlayer, false);
 	SetWantsDefensivePactWithPlayer(eKilledPlayer, false);
@@ -52801,14 +52774,24 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					// Cancel all coop war agreements
 					CancelAllCoopWars();
 
+					// Reset locked war turns
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						TeamTypes eLoopTeam = GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam();
+						if (eLoopTeam != GetTeam())
+						{
+							GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(eLoopTeam, 0);
+							GET_TEAM(eLoopTeam).SetNumTurnsLockedIntoWar(GetTeam(), 0);
+						}
+					}
+
 					// Vassal thought they were a liberator, but Master had other plans...
 					SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
 					SetTurnsSinceVassalagePeacefullyRevoked(eOtherTeamPlayer, -1);
 
-					PlayerTypes eThirdPartyPlayer;	// player we were planning with
 					for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
-						eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
+						PlayerTypes eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
 						
 						SetArmyInPlaceForAttack(eThirdPartyPlayer, false);
 						SetWantsSneakAttack(eThirdPartyPlayer, false);
