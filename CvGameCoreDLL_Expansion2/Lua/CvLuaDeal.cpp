@@ -57,29 +57,21 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(AddMapTrade);
 	Method(AddResourceTrade);
 	Method(AddCityTrade);
-	Method(AddUnitTrade);
 	Method(AddAllowEmbassy);
 	Method(AddOpenBorders);
 	Method(AddDefensivePact);
 	Method(AddResearchAgreement);
-	Method(AddTradeAgreement);
-	Method(AddPermamentAlliance);
-	Method(AddSurrender);
-	Method(AddTruce);
 	Method(AddPeaceTreaty);
 	Method(AddThirdPartyPeace);
 	Method(AddThirdPartyWar);
-	Method(AddThirdPartyEmbargo);
 	Method(AddDeclarationOfFriendship);
 	Method(AddVoteCommitment);
 
 	Method(RemoveByType);
 	Method(RemoveResourceTrade);
 	Method(RemoveCityTrade);
-	Method(RemoveUnitTrade);
 	Method(RemoveThirdPartyPeace);
 	Method(RemoveThirdPartyWar);
-	Method(RemoveThirdPartyEmbargo);
 	Method(RemoveVoteCommitment);
 
 	Method(ChangeGoldTrade);
@@ -87,7 +79,6 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(ChangeResourceTrade);
 	Method(ChangeThirdPartyWarDuration);
 	Method(ChangeThirdPartyPeaceDuration);
-	Method(ChangeThirdPartyEmbargoDuration);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(AddTechTrade);

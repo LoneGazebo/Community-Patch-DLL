@@ -127,10 +127,6 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(ChangeDefensivePactTradingAllowedCount);
 	Method(IsResearchAgreementTradingAllowed);
 	Method(IsResearchAgreementTradingAllowedWithTeam);
-	Method(IsTradeAgreementTradingAllowed);
-	Method(GetPermanentAllianceTradingCount);
-	Method(IsPermanentAllianceTrading);
-	Method(ChangePermanentAllianceTradingCount);
 #if defined(MOD_BALANCE_CORE)
 	Method(SetOpenBorders);
 	Method(SetForcePeace);
@@ -207,7 +203,6 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsObsoleteBuilding);
 
 	Method(IsHasResearchAgreement);
-	Method(IsHasTradeAgreement);
 
 	Method(IsHasTech);
 	Method(SetHasTech);
@@ -842,33 +837,6 @@ int CvLuaTeam::lIsResearchAgreementTradingAllowedWithTeam(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::IsResearchAgreementTradingAllowedWithTeam);
 }
 
-//------------------------------------------------------------------------------
-//bool IsTradeAgreementTradingAllowed();
-int CvLuaTeam::lIsTradeAgreementTradingAllowed(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvTeam::IsTradeAgreementTradingAllowed);
-}
-
-//------------------------------------------------------------------------------
-//int getPermanentAllianceTradingCount();
-int CvLuaTeam::lGetPermanentAllianceTradingCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvTeam::getPermanentAllianceTradingCount);
-}
-
-//------------------------------------------------------------------------------
-//bool isPermanentAllianceTrading();
-int CvLuaTeam::lIsPermanentAllianceTrading(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvTeam::isPermanentAllianceTrading);
-}
-
-//------------------------------------------------------------------------------
-//void changePermanentAllianceTradingCount(int iChange);
-int CvLuaTeam::lChangePermanentAllianceTradingCount(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvTeam::changePermanentAllianceTradingCount);
-}
 #if defined(MOD_BALANCE_CORE)
 //void SetAllowsOpenBordersToTeam(eOtherTeam, bool bValue)
 int CvLuaTeam::lSetOpenBorders(lua_State* L)
@@ -1290,13 +1258,6 @@ int CvLuaTeam::lIsObsoleteBuilding(lua_State* L)
 int CvLuaTeam::lIsHasResearchAgreement(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsHasResearchAgreement);
-}
-
-//------------------------------------------------------------------------------
-//bool IsHasTradeAgreement(TeamTypes eTeam);
-int CvLuaTeam::lIsHasTradeAgreement(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvTeam::IsHasTradeAgreement);
 }
 
 //------------------------------------------------------------------------------

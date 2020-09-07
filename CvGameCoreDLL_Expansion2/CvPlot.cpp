@@ -1111,11 +1111,12 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
+				if (iMinWaterSize < 2)
+					return true;
+
 				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
 				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-				{
 					return true;
-				}
 			}
 		}
 
@@ -13515,7 +13516,8 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	{
 		if(thisUnitDomain == DOMAIN_SEA)
 		{
-			if(!isWater() && !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
+			//fast check for ocean (-1) or any lake (1) allows building ships
+			if(!isWater() && !isCoastalLand(-1) && !isCoastalLand(1))
 			{
 				return false;
 			}

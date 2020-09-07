@@ -499,10 +499,13 @@ public:
 	void DoCancelWantsResearchAgreementWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsAggressor(PlayerTypes ePlayer) const;
+	void SetAggressor(PlayerTypes ePlayer, bool bValue);
+
 	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
+	bool IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
 	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
 	
@@ -521,7 +524,7 @@ public:
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
 
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
-#endif
+
 	/////////////////////////////////////////////////////////
 	// Issues of Dispute
 	/////////////////////////////////////////////////////////
@@ -680,6 +683,7 @@ public:
 	// Diplomacy AI Options
 	bool IsCompetingForVictory() const;
 	bool IsEndgameAggressive() const;
+	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -918,34 +922,42 @@ public:
 	// Things a player has told this AI
 	/////////////////////////////////////////////////////////
 
+	// Coop Wars
+	CoopWarStates GetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer) const;
+	void SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, CoopWarStates eNewState);
+
+	int GetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer) const;
+	void SetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, int iTurn);
+
+	int GetCoopWarScore(PlayerTypes ePlayer) const;
+	void SetCoopWarScore(PlayerTypes ePlayer, int iValue);
+	void ChangeCoopWarScore(PlayerTypes ePlayer, int iChange);
+
+	bool IsCoopWarMessageTooSoon(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const;
+	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer) const;
+	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer) const;
+	bool IsLockedIntoCoopWar(PlayerTypes ePlayer) const;
+
 	// Coop War
+	bool IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnoreCanDeclareWar);
+	bool CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
+	bool CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
+
+	void DoUpdateCoopWarStates();
+	void DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
+
 	bool DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChosenTargetPlayer);
+	int GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
 
-	CoopWarStates GetWillingToAgreeToCoopWarState(PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
-	int GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlayer, bool bAskedByPlayer);
-#if defined(MOD_BALANCE_CORE)
+	CoopWarStates RespondToCoopWarRequest(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
 	bool IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
-#endif
+	void DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
 
-	bool IsCoopWarMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
+	int GetNumCoopWarTargets();
 
-	bool IsCoopWarEverAsked(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-
-	CoopWarStates GetCoopWarAcceptedState(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-	void SetCoopWarAcceptedState(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eValue);
-
-	short GetCoopWarCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-	void SetCoopWarCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iValue);
-	void ChangeCoopWarCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iChange);
-
-	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
-	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
-
-	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer);
-	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer);
-	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
-	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
-	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
+	void CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer);
+	void CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty);
+	void CancelAllCoopWars();
 
 	// Human Demand
 	void DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDemand);
@@ -1012,10 +1024,6 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel);
 	DoFLevelTypes GetDoFType(PlayerTypes ePlayer) const;
-
-	void SetNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
-	void ChangeNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
-	int GetNumTimesCoopWarDenied(PlayerTypes ePlayer) const;
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
@@ -1671,7 +1679,7 @@ private:
 #endif
 	void LogDenounce(PlayerTypes ePlayer, bool bBackstab = false, bool bRefusal = false);
 	void LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAgreed);
-	void LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eAcceptedState);
+	void LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eState);
 	void LogWantRA(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE_DEALS)
 	void LogWantDP(PlayerTypes ePlayer);
@@ -1760,6 +1768,7 @@ private:
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
+		bool m_abAggressor[MAX_MAJOR_CIVS];
 		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 #endif
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
@@ -1812,6 +1821,7 @@ private:
 		short m_aiDefensivePactValue[MAX_MAJOR_CIVS];
 		short m_aiDoFValue[MAX_MAJOR_CIVS];
 		short m_aiCompetitorValue[MAX_MAJOR_CIVS];
+		char m_aiCoopWarScore[MAX_MAJOR_CIVS];
 #endif
 
 		short m_aiDemandCounter[MAX_MAJOR_CIVS];
@@ -1827,7 +1837,6 @@ private:
 		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
 		short m_aiFriendDenouncedUsTurn[MAX_MAJOR_CIVS];
 		short m_aiFriendDeclaredWarOnUsTurn[MAX_MAJOR_CIVS];
-		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 		pair<int,int> m_paNoExpansionPromise[MAX_MAJOR_CIVS];
 		pair<int,int> m_paLastTurnEmpireDistance[MAX_MAJOR_CIVS];
 #endif
@@ -1848,9 +1857,9 @@ private:
 		short m_aiResurrectedOnTurn[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCultureBombed[MAX_MAJOR_CIVS];
 
-		short m_paiNegativeReligiousConversionPoints[MAX_MAJOR_CIVS];
+		short m_aiNegativeReligiousConversionPoints[MAX_MAJOR_CIVS];
 
-		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
+		short m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiNumCitiesCaptured[REALLY_MAX_PLAYERS];
 		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
@@ -1980,8 +1989,8 @@ private:
 		char* m_apaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS];
 		DiploLogData* m_apaDiploStatementsLog[MAX_MAJOR_CIVS];
 
-		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
-		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
+		char* m_apaeCoopWarState[MAX_MAJOR_CIVS];
+		short* m_apaiCoopWarStateChangeTurn[MAX_MAJOR_CIVS];
 
 		int m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
 		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -1996,8 +2005,8 @@ private:
 		char m_aaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS* MAX_DIPLO_LOG_STATEMENTS];
 
-		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		char m_aaeCoopWarState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		short m_aaiCoopWarStateChangeTurn[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		float m_aTradePriority[MAX_MAJOR_CIVS]; // current ai to human trade priority
 #endif
@@ -2098,11 +2107,13 @@ private:
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool* m_pabWantsDoFWithPlayer;
 	bool* m_pabWantsDefensivePactWithPlayer;
+	bool* m_pabAggressor;
 	bool* m_pabWantsSneakAttack;
 
 	short* m_paiDefensivePactValue;
 	short* m_paiDoFValue;
 	short* m_paiCompetitorValue;
+	char* m_paiCoopWarScore;
 #endif
 	bool* m_pabWantToRouteToMinor;
 
@@ -2178,7 +2189,6 @@ private:
 	bool* m_pabEverBackstabbedBy;
 	short* m_paiFriendDenouncedUsTurn;
 	short* m_paiFriendDeclaredWarOnUsTurn;
-	short* m_paiNumTimesCoopWarDenied;
 	pair<int,int>* m_paNoExpansionPromise;
 	pair<int,int>* m_paLastTurnEmpireDistance;
 #endif
@@ -2234,8 +2244,8 @@ private:
 	bool* m_pabPlayerCapturedHolyCity;
 	short* m_paiNumCitiesLiberated;
 
-	char** m_ppaacCoopWarAcceptedState;
-	short** m_ppaaiCoopWarCounter;
+	char** m_ppaaeCoopWarState;
+	short** m_ppaaiCoopWarStateChangeTurn;
 
 	// Player's response to AI statements
 	bool* m_pabPlayerMadeMilitaryPromise;

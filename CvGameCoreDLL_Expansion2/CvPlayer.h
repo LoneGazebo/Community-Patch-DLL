@@ -656,6 +656,10 @@ public:
 	void ChangeGreatWorksTourismModifierGlobal(int iChange);
 	int GetGreatWorksTourismModifierGlobal() const;
 #endif
+
+	bool CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const;
+	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER, bool bDontCheckPhonyWars = false) const;
+
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -2457,6 +2461,8 @@ public:
 
 	int GetNumOffensiveOperations(DomainTypes eDomain);
 
+	bool HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps);
+
 	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
 
@@ -2915,6 +2921,7 @@ public:
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
+	CvCity* GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const;
 
 protected:
 	class ConqueredByBoolField

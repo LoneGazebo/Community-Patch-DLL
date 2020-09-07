@@ -55,8 +55,6 @@ CvTechEntry::CvTechEntry(void):
 	m_bOpenBordersTradingAllowed(false),
 	m_bDefensivePactTradingAllowed(false),
 	m_bResearchAgreementTradingAllowed(false),
-	m_bTradeAgreementTradingAllowed(false),
-	m_bPermanentAllianceTrading(false),
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
@@ -146,8 +144,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bOpenBordersTradingAllowed = kResults.GetBool("OpenBordersTradingAllowed");
 	m_bDefensivePactTradingAllowed = kResults.GetBool("DefensivePactTradingAllowed");
 	m_bResearchAgreementTradingAllowed = kResults.GetBool("ResearchAgreementTradingAllowed");
-	m_bTradeAgreementTradingAllowed = kResults.GetBool("TradeAgreementTradingAllowed");
-	m_bPermanentAllianceTrading = kResults.GetBool("PermanentAllianceTradingAllowed");
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
 #endif
@@ -500,18 +496,6 @@ bool CvTechEntry::IsDefensivePactTradingAllowed() const
 bool CvTechEntry::IsResearchAgreementTradingAllowed() const
 {
 	return m_bResearchAgreementTradingAllowed;
-}
-
-/// Can you form Trade Agreements?
-bool CvTechEntry::IsTradeAgreementTradingAllowed() const
-{
-	return m_bTradeAgreementTradingAllowed;
-}
-
-/// Can you form a permanent alliance?
-bool CvTechEntry::IsPermanentAllianceTrading() const
-{
-	return m_bPermanentAllianceTrading;
 }
 
 #if defined(MOD_TECHS_CITY_WORKING)

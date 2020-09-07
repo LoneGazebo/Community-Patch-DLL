@@ -1067,6 +1067,7 @@ protected:
 	static int lGetWeDenouncedFriendCount(lua_State* L);
 	static int lIsFriendDeclaredWarOnUs(lua_State* L);
 	static int lGetWeDeclaredWarOnFriendCount(lua_State* L);
+	static int lCanRequestCoopWar(lua_State* L);
 	static int lGetCoopWarAcceptedState(lua_State* L);
 	static int lGetNumWarsFought(lua_State* L);
 	static int lGetLandDisputeLevel(lua_State* L);
