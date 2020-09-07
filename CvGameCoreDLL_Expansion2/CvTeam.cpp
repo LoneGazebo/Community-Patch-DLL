@@ -1141,7 +1141,7 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 	// Vassals have no control over war/peace
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		if (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone())
+		if (IsVassalOfSomeone())
 		{
 			return false;
 		}
