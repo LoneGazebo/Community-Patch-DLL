@@ -17184,10 +17184,6 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
 		return true;
 
-	// Coop war planned against them
-	if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING)
-		return true;
-
 	// If they've lost their capital to someone else, we can ignore them unless they're stronger...
 	if (GET_PLAYER(ePlayer).IsHasLostCapital() && GET_PLAYER(GET_PLAYER(ePlayer).GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
