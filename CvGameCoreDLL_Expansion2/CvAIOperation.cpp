@@ -442,9 +442,8 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		}
 	}
 
-	ReachablePlots turnsFromMuster;
 	SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
-	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,thisFormation))
 	{
@@ -501,9 +500,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		if (GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 		{
 			//this is just a rough indication so we don't need to do pathfinding for all our units
-			ReachablePlots turnsFromMuster;
 			SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns());
-			turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+			ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
@@ -575,9 +573,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	}
 	else //non-naval operation
 	{
-		ReachablePlots turnsFromMuster;
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
-		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+		ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 		WeightedUnitIdVector UnitChoices;
 		int iLoop = 0;

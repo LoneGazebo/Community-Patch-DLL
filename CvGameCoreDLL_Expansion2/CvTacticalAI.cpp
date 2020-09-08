@@ -2493,11 +2493,18 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (pTargetZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
-	int iAlreadyInZone = 0;
+	// we want units which are somewhat close (so we don't deplete other combat zones) 
+	// do not set a player - that way we can traverse unrevealed plots and foreign territory
+	int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
 	CvPlot* pTargetPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
+
+	int iAlreadyInZone = 0;
+	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
 	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
+		CvUnit* pUnit = pPlot->getBestDefender(m_pPlayer->GetID());
 		if(pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Proper domain of unit?
@@ -2505,13 +2512,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				(!pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND) ||
 				(pTargetZone->IsNavalInvasion()) )
 			{	
-				// we want units which are somewhat close (so we don't deplete other combat zones) 
-				int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
-
-				// rough distance check first
-				if (plotDistance(*pUnit->plot(), *pTargetPlot) > iMaxTurns * 2)
-					continue;
-
 				// don't use near-dead units to attack ... misuse the flag here to be more careful when attacking
 				if (pUnit->shouldHeal(pTargetZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY))
 					continue;
@@ -2521,21 +2521,12 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				if (pAlternativeTarget && plotDistance(*pAlternativeTarget,*pTargetPlot)>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 					continue;
 
-				//finally detailed pathfinding
-				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
-				{
-					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
-					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
-					{
-						CvTacticalUnit unit(pUnit->GetID());
-						unit.SetMovesToTarget(iTurns);
-						m_CurrentMoveUnits.push_back(unit);
+				CvTacticalUnit unit(pUnit->GetID());
+				unit.SetMovesToTarget(it->iTurns);
+				m_CurrentMoveUnits.push_back(unit);
 
-						if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot()) == pTargetZone)
-							iAlreadyInZone++;
-					}
-				}
+				if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot()) == pTargetZone)
+					iAlreadyInZone++;
 			}
 		}
 	}
@@ -4989,7 +4980,7 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets)
 				int iMoveFlag = pUnit->CanStackUnitAtPlot(pTarget->plot()) ? CvUnit::MOVEFLAG_IGNORE_DANGER : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 				
 				// Can this unit get to the embarked unit in two moves?
-				int iTurns = pUnit->TurnsToReachTarget(pTarget->plot(),iMoveFlag);
+				int iTurns = pUnit->TurnsToReachTarget(pTarget->plot(),iMoveFlag,1);
 				if (iTurns <= 1)
 				{
 					//note: civilian in danger have INT_MAX
@@ -5448,18 +5439,17 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 {
 	m_CurrentMoveUnits.clear();
 
-	// Loop through all units available to tactical AI this turn
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iNumTurnsAway);
+	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
+
+	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
 	{
-		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		CvUnit* pLoopUnit = pPlot->getBestDefender(m_pPlayer->GetID());
+		if (pLoopUnit)
 		{
 			//these units are too fragile for the moves we have in mind
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-				continue;
-
-			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
-			if (pLoopUnit->IsGarrisoned() && m_pPlayer->GetPlotDanger(pLoopUnit->GetGarrisonedCity())==0)
 				continue;
 				
 			if (pLoopUnit->getArmyID()!=-1)
@@ -5471,17 +5461,20 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 				continue;
 
-			if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
-				continue;
-
 			if(iMinHitpoints>0 && pLoopUnit->GetCurrHitPoints()<iMinHitpoints)
 				continue;
 
 			if(iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
 				continue;
 
-			//performance optimization
-			if (plotDistance(*pTarget, *pLoopUnit->plot())>(iNumTurnsAway + 1) * 3)
+			if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
+				continue;
+
+			if (!pLoopUnit->canUseForTacticalAI())
+				continue;
+
+			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
+			if (pLoopUnit->IsGarrisoned() && m_pPlayer->GetPlotDanger(pLoopUnit->GetGarrisonedCity())==0)
 				continue;
 
 			int iFlags = bAllowEmbarkation ? 0 : CvUnit::MOVEFLAG_NO_EMBARK;

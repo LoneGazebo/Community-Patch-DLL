@@ -4874,7 +4874,7 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 		}
 	}
 
-	OutputDebugString("Renewal deal ready.");
+	OutputDebugString("Renewal deal ready.\n");
 	pNewDeal->m_bCheckedForRenewal = true;
 	pOldDeal->m_bCheckedForRenewal = true;
 
