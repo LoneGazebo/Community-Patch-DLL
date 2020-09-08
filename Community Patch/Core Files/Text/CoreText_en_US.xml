@@ -2735,6 +2735,41 @@
 		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN">
 			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to trading within your Empire)</Text>
 		</Row>
+
+		<!-- Diplomacy Screen Buttons -->
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT">
+			<Text>They cannot negotiate peace with you for another {1_Num} turn(s) because of a deal they made with another player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
+			<Text>You are always at war with this player!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
+			<Text>May not declare war on a vassal of another civilization (you must declare war on their master, {1_CivName}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT">
+			<Text>May not declare war as a vassal (war is automatically declared when your Master declares war with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT">
+			<Text>You cannot declare war on your Master until you request independence or are liberated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_MAKE_PEACE_VASSAL">
+			<Text>May not make peace with a vassal of another civilization (you must make peace with their master, {1_CivName}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
+			<Text>May not make peace as a vassal (peace is automatically made when your Master makes peace with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
+			<Text>Demand tribute from this civilization. This option carries a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
+			<Text>Request Help</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
+			<Text>Request help from a player whom you've made a Declaration of Friendship with. This option does not carry a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON">
+			<Text>REQUEST</Text>
+		</Row>
 	
 		<!-- LUA for CBP -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
@@ -2742,6 +2777,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
 			<Text>A Defensive Pact prevents this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_PTP">
+			<Text>A Pledge of Protection prevents this.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">

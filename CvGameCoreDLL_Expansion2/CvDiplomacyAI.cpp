@@ -17184,10 +17184,6 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
 		return true;
 
-	// Coop war planned against them
-	if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING)
-		return true;
-
 	// If they've lost their capital to someone else, we can ignore them unless they're stronger...
 	if (GET_PLAYER(ePlayer).IsHasLostCapital() && GET_PLAYER(GET_PLAYER(ePlayer).GetCapitalConqueror()).getTeam() != GetPlayer()->getTeam() && GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
@@ -21235,7 +21231,7 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 }
 
 /// Should we ignore Social Policy differences with ePlayer?
-bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -21253,7 +21249,7 @@ bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer)
 }
 
 /// Should we ignore religious differences with ePlayer?
-bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -21271,7 +21267,7 @@ bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer)
 }
 
 /// Should we ignore ideological differences with ePlayer?
-bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -22339,6 +22335,102 @@ bool CvDiplomacyAI::IsEndgameAggressiveTo(PlayerTypes ePlayer) const
 		return false;
 
 	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition();
+}
+
+/// Should we specifically hide dispute-related modifiers towards ePlayer?
+bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
+{
+	// Always hide all mods for teammates
+	if (IsTeammate(ePlayer))
+		return true;
+
+	// Game options forbid hiding.
+	if (GC.getGame().IsShowAllOpinionModifiers())
+		return false;
+
+	// If we're at war, don't bother.
+	if (IsAtWar(ePlayer))
+		return false;
+
+	// If we're their vassal, don't bother.
+	if (IsVassal(ePlayer))
+		return false;
+
+	// If we've denounced them, don't bother.
+	if (IsDenouncedPlayer(ePlayer))
+		return false;
+
+	// If they've resurrected us, let's be honest.
+	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+
+	// If they're untrustworthy, don't bother hiding anything.
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		return false;
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+
+	// Only hide if our surface approach is FRIENDLY or AFRAID
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	return false;
+}
+
+/// Should we hide certain negative opinion modifiers towards ePlayer? (stuff like competition, warmongering etc)
+/// NOTE: If both hiding dispute mods and hiding negative mods, dispute mods will show up as if the DisputeLevel was NONE. Otherwise, dispute mods are treated separately.
+bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
+{
+	// Always hide all mods for teammates
+	if (IsTeammate(ePlayer))
+		return true;
+
+	// Game options forbid hiding.
+	if (GC.getGame().IsShowAllOpinionModifiers())
+		return false;
+
+	// If we're their vassal, don't bother.
+	if (IsVassal(ePlayer))
+		return false;
+
+	// If we've denounced them, don't bother.
+	if (IsDenouncedPlayer(ePlayer))
+		return false;
+
+	// If they've resurrected us, let's be honest.
+	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+
+	// If they're untrustworthy, don't bother hiding anything.
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		return false;
+
+	// If we're in a war that we wanted to declare, let's show our true colors.
+	if (IsAtWar(ePlayer) && IsAggressor(ePlayer))
+		return false;
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+
+	// Always hide if our surface approach is FRIENDLY (and not at war) or AFRAID
+	if ((eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY && !IsAtWar(ePlayer)) || eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	// Never hide if our surface approach is HOSTILE
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_HOSTILE)
+		return false;
+
+	// If we're acting hostile, don't hide anything.
+	if (IsActHostileTowardsHuman(ePlayer, true))
+		return false;
+
+	// If they're a favorable target, let's not bother hiding things.
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_POWERFUL)
+	{
+		if (IsEasyTarget(ePlayer) || GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+			return false;
+	}
+
+	return true; // Let's conceal our negative thoughts!
 }
 
 
@@ -34830,25 +34922,119 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 }
 
 /// Is the AI acting mean to the active human player?
-bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman)
+bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar) const
 {
-	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eHuman);
-	MajorCivApproachTypes eVisibleApproach = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ true);
+	if (IsTeammate(eHuman))
+		return false;
 
 	bool bAtWar = IsAtWar(eHuman);
 	bool bAtWarButWantsPeace = bAtWar && GetTreatyWillingToOffer(eHuman) >= PEACE_TREATY_WHITE_PEACE && GetTreatyWillingToAccept(eHuman) >= PEACE_TREATY_WHITE_PEACE; // Have to be at war, high level AI has to want peace
 
-	if (eVisibleApproach == MAJOR_CIV_APPROACH_HOSTILE)	// Hostile Approach
-		return true;
-	else if (bAtWar && !bAtWarButWantsPeace)		// At war and don't want peace
-		return true;
-	else if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+	if (bAtWar && !bIgnoreCurrentWar)
 	{
-		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)	// Enemy or worse, and not pretending to be friendly
-			return true;
-		else if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam())) // Backstabber, and not pretending to be friendly
+		if (bAtWarButWantsPeace)
+			return false;
+
+		return true;
+	}
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ true);
+	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eHuman);
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_HOSTILE) // Hostile approach
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID) // Afraid approach
+		return false;
+
+	// Denounced them?
+	if (IsDenouncedPlayer(eHuman))
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY) // Friendly approach
+		return false;
+
+	// NOTE: If we got here, the surface approach must be either NEUTRAL or GUARDED
+
+	// Backstabber!
+	if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam()))
+		return true;
+
+	// Captured our core cities
+	if (IsPlayerCapturedCapital(eHuman) || IsPlayerCapturedHolyCity(eHuman))
+	{
+		if (!IsVassal(eHuman) || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
 			return true;
 	}
+
+	// Liberator
+	if (WasResurrectedBy(eHuman) || IsPlayerLiberatedCapital(eHuman) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(eHuman).getTeam())
+		return false;
+
+	// Are we in bad shape for war? Don't act hostile.
+	if (GetPlayer()->IsEmpireInBadShapeForWar())
+		return false;
+
+	// If we can't reach them, there's no point in being hostile.
+	if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eHuman))
+		return false;
+
+	// Different ideology
+	if (IsPlayerOpposingIdeology(eHuman) && !IsIgnoreIdeologyDifferences(eHuman))
+		return true;
+
+	// High threat
+	ThreatTypes eWarmongerThreat = GetWarmongerThreat(eHuman);
+
+	if (eWarmongerThreat == THREAT_CRITICAL)
+		return true;
+
+	if (GetPlayer()->GetProximityToPlayer(eHuman) >= PLAYER_PROXIMITY_CLOSE && eWarmongerThreat == THREAT_SEVERE)
+		return true;
+
+	if (IsEndgameAggressiveTo(eHuman))
+		return true;
+
+	// Same ideology and not denounced/unforgivable
+	if (IsPlayerSameIdeology(eHuman) && !IsDenouncedByPlayer(eHuman) && eOpinion != MAJOR_CIV_OPINION_UNFORGIVABLE)
+		return false;
+
+	// Poor target value
+	TargetValueTypes eTargetValue = GetPlayerTargetValue(eHuman);
+
+	if (eTargetValue == TARGET_VALUE_IMPOSSIBLE)
+		return false;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL && eTargetValue == TARGET_VALUE_BAD)
+		return false;
+
+	// Planning war? Let's not tip them off about our plans.
+	bool bPlanningWar = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR;
+	bPlanningWar |= IsWantsSneakAttack(eHuman);
+	bPlanningWar |= IsArmyInPlaceForAttack(eHuman);
+	bPlanningWar |= GetGlobalCoopWarAgainstState(eHuman) >= COOP_WAR_STATE_PREPARING;
+
+	if (bPlanningWar)
+	{
+		if (!IsEasyTarget(eHuman) && eTargetValue != TARGET_VALUE_SOFT)
+			return false;
+
+		if (IsEasyTarget(eHuman) && eTargetValue == TARGET_VALUE_AVERAGE)
+			return false;
+
+		return true;
+	}
+
+	// They denounced us?
+	if (IsDenouncedByPlayer(eHuman))
+		return true;
+
+	// Poor opinion?
+	if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED && eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+		return true;
 
 	return false;
 }
@@ -36119,24 +36305,22 @@ bool CvDiplomacyAI::CanStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 	if (eCoopWarState != COOP_WAR_STATE_PREPARING && eCoopWarState != COOP_WAR_STATE_READY)
 		return false;
 
+	// If we somehow got here and we're at war with our ally or our friendship was broken, no dice. (failsafe)
+	if (IsAtWar(eAllyPlayer) || IsDoFBroken(eAllyPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsDoFBroken(GetPlayer()->GetID()))
+		return false;
+
 	// Make sure the target is still valid
 	if (!IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
 	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, true))
 		return false;
 
-	// Must be able to declare war on the target (or one of us is already at war)
+	// Must be able to declare war on the target (or be already at war)
 	if (!IsAtWar(eTargetPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 	{
 		return false;
 	}
-
-	if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer))
-	{
-		if (IsAtWar(eTargetPlayer)) // If we're both already at war, we can't start the coop war
-			return false;
-	}
-	else if (!GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
+	if (!GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsAtWar(eTargetPlayer) && !GET_TEAM(GET_PLAYER(eAllyPlayer).getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), eAllyPlayer))
 	{
 		return false;
 	}
@@ -36177,22 +36361,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 						eCoopWarState = COOP_WAR_STATE_READY;
 					}
 				}
-				// If both already at war, just process that
-				else if (IsAtWar(eThirdParty) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
-				{
-					int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iTheirTurnsAtWar = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
-
-					if (iLockedTurns > 0)
-					{
-						GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-					}
-
-					SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_ONGOING);
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, COOP_WAR_STATE_ONGOING);
-				}
 				else
 				{
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
@@ -36205,22 +36373,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				if (CanStartCoopWar(eLoopPlayer, eThirdParty))
 				{
 					DoStartCoopWar(eLoopPlayer, eThirdParty);
-				}
-				// If both already at war, just process that
-				else if (IsAtWar(eThirdParty) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eThirdParty))
-				{
-					int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iTheirTurnsAtWar = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eThirdParty).getTeam());
-					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
-
-					if (iLockedTurns > 0)
-					{
-						GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-						GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdParty).getTeam(), iLockedTurns);
-					}
-
-					SetCoopWarState(eLoopPlayer, eThirdParty, COOP_WAR_STATE_ONGOING);
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eThirdParty, COOP_WAR_STATE_ONGOING);
 				}
 				else
 				{
@@ -36238,7 +36390,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	// Our declaration
 	if (IsAtWar(eTargetPlayer) || DeclareWar(eTargetPlayer))
 	{
-		if (!GetPlayer()->isHuman() && !IsAtWar(eTargetPlayer))
+		if (!GetPlayer()->isHuman())
 		{
 			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
 			GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
@@ -36247,7 +36399,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		// Their war declaration
 		if (GET_PLAYER(eAllyPlayer).IsAtWarWith(eTargetPlayer) || GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->DeclareWar(eTargetPlayer))
 		{
-			if (!GET_PLAYER(eAllyPlayer).isHuman() && !GET_PLAYER(eAllyPlayer).IsAtWarWith(eTargetPlayer))
+			if (!GET_PLAYER(eAllyPlayer).isHuman())
 			{
 				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
 				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
@@ -42212,7 +42364,7 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if (IsPlayerStopSpyingRequestEverAsked(ePlayer))
-		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
+		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
 	
 	if (GetPlayerStopSpyingRequestCounter(ePlayer) >= 50)
 		iOpinionWeight /= 2;
@@ -45579,6 +45731,13 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 {
 	// clear out coop war agreements
 	CancelCoopWarsAgainstPlayer(eKilledPlayer);
+
+	// reset locked war turns
+	if (GET_PLAYER(eKilledPlayer).getTeam() != GetTeam())
+	{
+		GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(GET_PLAYER(eKilledPlayer).getTeam(), 0);
+		GET_TEAM(GET_PLAYER(eKilledPlayer).getTeam()).SetNumTurnsLockedIntoWar(GetTeam(), 0);
+	}
 
 	// clear out planning exchanges, attack operations
 	SetWantsDoFWithPlayer(eKilledPlayer, false);
@@ -52801,14 +52960,24 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					// Cancel all coop war agreements
 					CancelAllCoopWars();
 
+					// Reset locked war turns
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						TeamTypes eLoopTeam = GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam();
+						if (eLoopTeam != GetTeam())
+						{
+							GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(eLoopTeam, 0);
+							GET_TEAM(eLoopTeam).SetNumTurnsLockedIntoWar(GetTeam(), 0);
+						}
+					}
+
 					// Vassal thought they were a liberator, but Master had other plans...
 					SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
 					SetTurnsSinceVassalagePeacefullyRevoked(eOtherTeamPlayer, -1);
 
-					PlayerTypes eThirdPartyPlayer;	// player we were planning with
 					for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
-						eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
+						PlayerTypes eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
 						
 						SetArmyInPlaceForAttack(eThirdPartyPlayer, false);
 						SetWantsSneakAttack(eThirdPartyPlayer, false);

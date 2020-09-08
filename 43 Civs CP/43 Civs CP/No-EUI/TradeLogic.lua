@@ -4190,11 +4190,19 @@ function ShowOtherPlayerChooser( isUs, type )
 							end		
 							-- City-State ally
 							if (pLoopPlayer:IsMinorCiv()) then
+								-- Alliance
 								if (pLoopPlayer:GetAlly() == iToPlayer or pLoopPlayer:GetAlly() == iFromPlayer) then
 									if(strToolTip ~= "") then
 										strToolTip = strToolTip .. "[NEWLINE]";
 									end
 									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+								end
+								-- PTP
+								if (pLoopPlayer:IsProtectedByMajor(iToPlayer) or pLoopPlayer:IsProtectedByMajor(iFromPlayer)) then
+									if(strToolTip ~= "") then
+										strToolTip = strToolTip .. "[NEWLINE]";
+									end
+									strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_PTP");
 								end
 							else
 								-- DOF
