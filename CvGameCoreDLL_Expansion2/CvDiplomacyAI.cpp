@@ -21235,7 +21235,7 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 }
 
 /// Should we ignore Social Policy differences with ePlayer?
-bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -21253,7 +21253,7 @@ bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer)
 }
 
 /// Should we ignore religious differences with ePlayer?
-bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -21271,7 +21271,7 @@ bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer)
 }
 
 /// Should we ignore ideological differences with ePlayer?
-bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const
 {
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
@@ -22339,6 +22339,102 @@ bool CvDiplomacyAI::IsEndgameAggressiveTo(PlayerTypes ePlayer) const
 		return false;
 
 	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition();
+}
+
+/// Should we specifically hide dispute-related modifiers towards ePlayer?
+bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
+{
+	// Always hide all mods for teammates
+	if (IsTeammate(ePlayer))
+		return true;
+
+	// Game options forbid hiding.
+	if (GC.getGame().IsShowAllOpinionModifiers())
+		return false;
+
+	// If we're at war, don't bother.
+	if (IsAtWar(ePlayer))
+		return false;
+
+	// If we're their vassal, don't bother.
+	if (IsVassal(ePlayer))
+		return false;
+
+	// If we've denounced them, don't bother.
+	if (IsDenouncedPlayer(ePlayer))
+		return false;
+
+	// If they've resurrected us, let's be honest.
+	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+
+	// If they're untrustworthy, don't bother hiding anything.
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		return false;
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+
+	// Only hide if our surface approach is FRIENDLY or AFRAID
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	return false;
+}
+
+/// Should we hide certain negative opinion modifiers towards ePlayer? (stuff like competition, warmongering etc)
+/// NOTE: If both hiding dispute mods and hiding negative mods, dispute mods will show up as if the DisputeLevel was NONE. Otherwise, dispute mods are treated separately.
+bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
+{
+	// Always hide all mods for teammates
+	if (IsTeammate(ePlayer))
+		return true;
+
+	// Game options forbid hiding.
+	if (GC.getGame().IsShowAllOpinionModifiers())
+		return false;
+
+	// If we're their vassal, don't bother.
+	if (IsVassal(ePlayer))
+		return false;
+
+	// If we've denounced them, don't bother.
+	if (IsDenouncedPlayer(ePlayer))
+		return false;
+
+	// If they've resurrected us, let's be honest.
+	if (WasResurrectedBy(ePlayer) || IsPlayerLiberatedCapital(ePlayer) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+
+	// If they're untrustworthy, don't bother hiding anything.
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		return false;
+
+	// If we're in a war that we wanted to declare, let's show our true colors.
+	if (IsAtWar(ePlayer) && IsAggressor(ePlayer))
+		return false;
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+
+	// Always hide if our surface approach is FRIENDLY (and not at war) or AFRAID
+	if ((eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY && !IsAtWar(ePlayer)) || eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	// Never hide if our surface approach is HOSTILE
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_HOSTILE)
+		return false;
+
+	// If we're acting hostile, don't hide anything.
+	if (IsActHostileTowardsHuman(ePlayer, true))
+		return false;
+
+	// If they're a favorable target, let's not bother hiding things.
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_POWERFUL)
+	{
+		if (IsEasyTarget(ePlayer) || GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+			return false;
+	}
+
+	return true; // Let's conceal our negative thoughts!
 }
 
 
@@ -34830,25 +34926,119 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 }
 
 /// Is the AI acting mean to the active human player?
-bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman)
+bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar) const
 {
-	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eHuman);
-	MajorCivApproachTypes eVisibleApproach = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ true);
+	if (IsTeammate(eHuman))
+		return false;
 
 	bool bAtWar = IsAtWar(eHuman);
 	bool bAtWarButWantsPeace = bAtWar && GetTreatyWillingToOffer(eHuman) >= PEACE_TREATY_WHITE_PEACE && GetTreatyWillingToAccept(eHuman) >= PEACE_TREATY_WHITE_PEACE; // Have to be at war, high level AI has to want peace
 
-	if (eVisibleApproach == MAJOR_CIV_APPROACH_HOSTILE)	// Hostile Approach
-		return true;
-	else if (bAtWar && !bAtWarButWantsPeace)		// At war and don't want peace
-		return true;
-	else if (eVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+	if (bAtWar && !bIgnoreCurrentWar)
 	{
-		if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)	// Enemy or worse, and not pretending to be friendly
-			return true;
-		else if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam())) // Backstabber, and not pretending to be friendly
+		if (bAtWarButWantsPeace)
+			return false;
+
+		return true;
+	}
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ true);
+	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eHuman);
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_HOSTILE) // Hostile approach
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID) // Afraid approach
+		return false;
+
+	// Denounced them?
+	if (IsDenouncedPlayer(eHuman))
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY) // Friendly approach
+		return false;
+
+	// NOTE: If we got here, the surface approach must be either NEUTRAL or GUARDED
+
+	// Backstabber!
+	if (IsTeamUntrustworthy(GET_PLAYER(eHuman).getTeam()))
+		return true;
+
+	// Captured our core cities
+	if (IsPlayerCapturedCapital(eHuman) || IsPlayerCapturedHolyCity(eHuman))
+	{
+		if (!IsVassal(eHuman) || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
 			return true;
 	}
+
+	// Liberator
+	if (WasResurrectedBy(eHuman) || IsPlayerLiberatedCapital(eHuman) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(eHuman).getTeam())
+		return false;
+
+	// Are we in bad shape for war? Don't act hostile.
+	if (GetPlayer()->IsEmpireInBadShapeForWar())
+		return false;
+
+	// If we can't reach them, there's no point in being hostile.
+	if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eHuman))
+		return false;
+
+	// Different ideology
+	if (IsPlayerOpposingIdeology(eHuman) && !IsIgnoreIdeologyDifferences(eHuman))
+		return true;
+
+	// High threat
+	ThreatTypes eWarmongerThreat = GetWarmongerThreat(eHuman);
+
+	if (eWarmongerThreat == THREAT_CRITICAL)
+		return true;
+
+	if (GetPlayer()->GetProximityToPlayer(eHuman) >= PLAYER_PROXIMITY_CLOSE && eWarmongerThreat == THREAT_SEVERE)
+		return true;
+
+	if (IsEndgameAggressiveTo(eHuman))
+		return true;
+
+	// Same ideology and not denounced/unforgivable
+	if (IsPlayerSameIdeology(eHuman) && !IsDenouncedByPlayer(eHuman) && eOpinion != MAJOR_CIV_OPINION_UNFORGIVABLE)
+		return false;
+
+	// Poor target value
+	TargetValueTypes eTargetValue = GetPlayerTargetValue(eHuman);
+
+	if (eTargetValue == TARGET_VALUE_IMPOSSIBLE)
+		return false;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL && eTargetValue == TARGET_VALUE_BAD)
+		return false;
+
+	// Planning war? Let's not tip them off about our plans.
+	bool bPlanningWar = GetMajorCivApproach(eHuman, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR;
+	bPlanningWar |= IsWantsSneakAttack(eHuman);
+	bPlanningWar |= IsArmyInPlaceForAttack(eHuman);
+	bPlanningWar |= GetGlobalCoopWarAgainstState(eHuman) >= COOP_WAR_STATE_PREPARING;
+
+	if (bPlanningWar)
+	{
+		if (!IsEasyTarget(eHuman) && eTargetValue != TARGET_VALUE_SOFT)
+			return false;
+
+		if (IsEasyTarget(eHuman) && eTargetValue == TARGET_VALUE_AVERAGE)
+			return false;
+
+		return true;
+	}
+
+	// They denounced us?
+	if (IsDenouncedByPlayer(eHuman))
+		return true;
+
+	// Poor opinion?
+	if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+		return true;
+
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED && eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+		return true;
 
 	return false;
 }
@@ -42178,7 +42368,7 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if (IsPlayerStopSpyingRequestEverAsked(ePlayer))
-		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
+		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
 	
 	if (GetPlayerStopSpyingRequestCounter(ePlayer) >= 50)
 		iOpinionWeight /= 2;

@@ -246,9 +246,9 @@ UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_ASKED_NO_SETTLE';
 
--- 10 (unchanged)
+-- 10
 UPDATE Defines
-SET Value = '10'
+SET Value = '0'
 WHERE Name = 'OPINION_WEIGHT_ASKED_STOP_SPYING';
 
 -- 20

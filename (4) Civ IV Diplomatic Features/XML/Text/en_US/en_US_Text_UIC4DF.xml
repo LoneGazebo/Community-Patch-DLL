@@ -757,7 +757,7 @@
 			<Text>Transparent Diplomacy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
-			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers when they are Friendly.</Text>
+			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
 		</Row>
 		
 		<!-- End Vassalage Resolution -->
