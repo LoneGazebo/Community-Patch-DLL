@@ -642,9 +642,9 @@ public:
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
 	bool IsEarlyGameCompetitor(PlayerTypes ePlayer);
 
-	bool IsIgnorePolicyDifferences(PlayerTypes ePlayer);
-	bool IsIgnoreReligionDifferences(PlayerTypes ePlayer);
-	bool IsIgnoreIdeologyDifferences(PlayerTypes ePlayer);
+	bool IsIgnorePolicyDifferences(PlayerTypes ePlayer) const;
+	bool IsIgnoreReligionDifferences(PlayerTypes ePlayer) const;
+	bool IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const;
 #endif
 
 	// Victory Dispute
@@ -684,6 +684,8 @@ public:
 	bool IsCompetingForVictory() const;
 	bool IsEndgameAggressive() const;
 	bool IsEndgameAggressiveTo(PlayerTypes ePlayer) const;
+	bool ShouldHideDisputeMods(PlayerTypes ePlayer) const;
+	bool ShouldHideNegativeMods(PlayerTypes ePlayer) const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -898,7 +900,7 @@ public:
 	
 	void DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2);
 
-	bool IsActHostileTowardsHuman(PlayerTypes eHuman);
+	bool IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar = false) const;
 
 	const char* GetGreetHumanMessage(LeaderheadAnimationTypes& eAnimation);
 	const char* GetInsultHumanMessage();
