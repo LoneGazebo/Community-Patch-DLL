@@ -2938,13 +2938,14 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 
 //	---------------------------------------------------------------------------
 /// Find one unit to move to target, starting with high priority list
-void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn)
+bool CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn)
 {
 	if (!pUnit || !pTarget)
-		return;
+		return false;
 
 	AI_PERF_FORMAT("Homeland-ExecuteMove-perf.csv", ("ExecuteMoveToTarget, %d, %d, Turn %03d, %s", pTarget->getX(), pTarget->getY(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
+	bool bResult = false;
 	if(pUnit->plot() == pTarget && pUnit->canEndTurnAtPlot(pTarget))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
@@ -2957,16 +2958,20 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 			LogHomelandMessage(strLogString);
 		}
 #endif
+
+		bResult = true;
 	}
 	else
 	{
 		// Best units have already had a full path check to the target, so just add the move
-		MoveToTargetButDontEndTurn(pUnit, pTarget, iFlags);
+		bResult = MoveToTargetButDontEndTurn(pUnit, pTarget, iFlags);
 	}
 
 	//don't actually call finish moves, it will prevent healing
 	if(bEndTurn)
 		UnitProcessed(pUnit->GetID());
+
+	return bResult;
 }
 
 /// Great writer moves
@@ -3813,62 +3818,21 @@ void CvHomelandAI::ExecuteProphetMoves()
 				UnitProcessed(pUnit->GetID());
 				continue;
 			}
-
-			// Move to closest city without a civilian in it
+			// Move to closest city
 			else
 			{
-				CvCity* pLoopCity;
-				int iLoopCity = 0;
-				int iBestTurns = MAX_INT;
-				CvPlot* pBestCityPlot = NULL;
-				for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+				CvCity* pTargetCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					bool bSkipCity = false;
-
-					CvPlot* pTarget = pLoopCity->plot();
-					for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-					{
-						// Don't go here if a civilian is already present
-						if(!pTarget->getUnitByIndex(iUnitLoop)->IsCombatUnit())
-						{
-							bSkipCity = true;
-							break;
-						}
-					}
-
-					if(!bSkipCity)
-					{
-						int iTurns = pUnit->TurnsToReachTarget(pTarget);
-						if(iTurns < iBestTurns)
-						{
-							iBestTurns = iTurns;
-							pBestCityPlot = pTarget;
-						}
-					}
+					CvString strLogString;
+					strLogString.Format("Great Prophet moving to nearest city (%s)", pTargetCity ? pTargetCity->getName().c_str() : "NONE");
+					LogHomelandMessage(strLogString);
 				}
 
-				if(pBestCityPlot)
+				if (!pTargetCity || !ExecuteMoveToTarget(pUnit, pTargetCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true))
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
-					UnitProcessed(pUnit->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving Great Prophet to nearest city without civilian, X: %d, Y: %d", pBestCityPlot->getX(), pBestCityPlot->getY());
-						LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					UnitProcessed(pUnit->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("No place to move Great Prophet at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
+					CvPlot*	pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+					ExecuteMoveToTarget(pUnit, pSafePlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 				}
 			}
 
@@ -4577,7 +4541,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Move %d to spread religion, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY());
+					strLogString.Format("Missionary %d spreading religion at (%d:%d)", pUnit->GetID(), pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -4591,7 +4555,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving %d to plot adjacent to conversion city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("Missionary %d moving to convert heathens at (%d:%d), currently at (%d:%d)", pUnit->GetID(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
@@ -4646,7 +4610,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Removing heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+							strLogString.Format("Inquisitor removing heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -4660,7 +4624,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Moving to remove heresy at %s (%d:%d), currently (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Inquisitor moving against heretics at %s (%d:%d), currently (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 				}
@@ -4672,7 +4636,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Move to garrison against heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
+					strLogString.Format("Inquisitor moving to guard against heresy at %s (%d:%d)", pTarget->getNameNoSpace().c_str(), pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
 

@@ -7992,6 +7992,13 @@ bool CvReligionAI::BuyMissionary(ReligionTypes eReligion)
 			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eMissionary, eReligion);
 			if (pBestCity)
 			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Buying a missionary in %s", pBestCity->getName().c_str());
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+
 				pBestCity->Purchase(eMissionary, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 				return true;
 			}
@@ -8017,6 +8024,13 @@ bool CvReligionAI::BuyInquisitor(ReligionTypes eReligion)
 			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eInquisitor, eReligion);
 			if (pBestCity)
 			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Buying an inquisitor in %s", pBestCity->getName().c_str());
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+
 				pBestCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 				return true;
 			}

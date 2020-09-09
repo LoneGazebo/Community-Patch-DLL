@@ -32593,7 +32593,8 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires coast
 	if(pkBuildingInfo->IsWater())
 	{
-		if(!isCoastal(pkBuildingInfo->GetMinAreaSize()))
+		//-1 is ocean (fast check), 1 is any lake (not cached, slower)
+		if(!isCoastal(-1) && !isCoastal(1))
 			return false;
 	}
 
