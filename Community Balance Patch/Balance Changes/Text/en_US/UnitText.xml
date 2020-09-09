@@ -965,10 +965,10 @@
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA">
 			<Text>Iklwa</Text>
 		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR]. +2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
-
 
 		<!-- New unit combats -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">

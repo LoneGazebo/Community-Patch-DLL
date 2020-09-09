@@ -347,6 +347,9 @@
 		<Row Tag="TXT_KEY_DIPLO_YOU_ARE_VASSAL">
 			<Text>[COLOR_GREY]You are their Vassal[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MASTER_OF">
+			<Text>They are your Vassal</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_VASSALS">
 			<Text>{1_Num} from Vassals</Text>
 		</Row>
