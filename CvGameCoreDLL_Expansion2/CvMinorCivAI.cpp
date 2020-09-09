@@ -694,9 +694,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
-			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
-
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
@@ -6124,13 +6121,19 @@ void CvMinorCivAI::DoTurnQuests()
 /// What is the first possible turn of the game we can fire off a Quest for a player?
 int CvMinorCivAI::GetFirstPossibleTurnForPersonalQuests() const
 {
-	return /*30*/ GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN();
+	int firstTurn = /*30*/ GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN();
+	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getTrainPercent());   		// used sqrti because turn 90 seemed too long to wait on marathon
+	firstTurn /= 10;
+	return firstTurn;
 }
 
 /// What is the first possible turn of the game we can give out global Quests, that are for multiple players?
 int CvMinorCivAI::GetFirstPossibleTurnForGlobalQuests() const
 {
-	return /*30*/ GC.getMINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN();
+	int firstTurn = /*30*/ GC.getMINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN();
+	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getTrainPercent());   		// used sqrti because turn 90 seemed too long to wait on marathon
+	firstTurn /= 10;
+	return firstTurn;
 }
 
 /// What is the maximum number of player-specific quests a player can have at one time?
@@ -10999,8 +11002,8 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 
 	// Mod everything by game speed
-	iChangeThisTurn *= GC.getGame().getGameSpeedInfo().getGoldGiftMod();
-	iChangeThisTurn /= 100;
+	iChangeThisTurn *= 100;							// this could produce int over 32000
+	iChangeThisTurn /= GC.getGame().getGameSpeedInfo().getTrainPercent();
 
 	return iChangeThisTurn;
 }
@@ -15108,7 +15111,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	// UA, SP Mods
 
 	// Game Speed Mod
-	iGold *= GC.getGame().getGameSpeedInfo().getGoldGiftMod(); //antonjs: consider: separate XML
+	iGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); //antonjs: consider: separate XML
 	iGold /= 100;
 
 	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
@@ -15845,6 +15848,7 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 
 	iValue *= iEra;
 
+	/*	This should be modified or removed - has very different effects on each gamespeed, not sure which is intended
 
 	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(500, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
@@ -15852,6 +15856,7 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 		iValue *= (iNumTurns + 100);
 		iValue /= max(400, GC.getGame().getMaxTurns());
 	}
+	*/
 
 	if (!bIgnoreScaling)
 	{
