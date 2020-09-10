@@ -464,6 +464,9 @@
     <!-- disable passive religious pressure from cities without majority religion -->
     <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY" Value="0" DbUpdates="1"/>
 
+    <!-- disable ranged strikes from cities -->
+    <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>
+
     <!-- Enables production to be stockpiled (v28) -->
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
     <Row Class="6" Name="PROCESS_STOCKPILE" Value="0"/>

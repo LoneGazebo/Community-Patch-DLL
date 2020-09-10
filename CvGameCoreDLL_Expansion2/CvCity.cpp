@@ -32904,17 +32904,9 @@ bool CvCity::canRangeStrike() const
 {
 	VALIDATE_OBJECT
 
-#if !defined(MOD_BALANCE_CORE_MILITARY)
-	// Can't shoot more than once per turn
-	if(isMadeAttack())
+#if defined(MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
+	if (MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
 		return false;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	// Can't shoot if it's not our turn
-	if(!GET_PLAYER(getOwner()).isTurnActive())
-	{
-		return false;
-	}
 #endif
 
 	// Can't shoot when in resistance
@@ -32925,11 +32917,9 @@ bool CvCity::canRangeStrike() const
 	if(getDamage() == GetMaxHitPoints())
 		return false;
 
-#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Apparently it's possible for someone to fire during another player's turn
 	if(!GET_PLAYER(getOwner()).isTurnActive())
 		return false;
-#endif
 
 	return true;
 }
@@ -32938,14 +32928,10 @@ bool CvCity::canRangeStrike() const
 bool CvCity::CanRangeStrikeNow() const
 {
 	if(!canRangeStrike())
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	if (isMadeAttack())
 		return false;
-#endif
 
 	bool bIndirectFireAllowed; // By reference, yuck!!!	
 #if defined(MOD_EVENTS_CITY_BOMBARD)

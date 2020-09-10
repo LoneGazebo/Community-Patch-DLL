@@ -5256,7 +5256,6 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				iNumTradeRoutesInvolved += iNumTradeRoutes;
 			}
 
-#if defined(MOD_BUGFIX_RELIGIOUS_SPY_PRESSURE)
 			// Include any pressure from "Underground Sects"
 			if (eReligion > RELIGION_PANTHEON && (kPlayer.GetReligions()->GetReligionInMostCities() == eReligion || GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID()) == eReligion))
 			{
@@ -5269,7 +5268,6 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 					}
 				}
 			}
-#endif
 		}
 	}
 
