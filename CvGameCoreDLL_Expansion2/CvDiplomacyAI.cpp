@@ -34067,7 +34067,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
 
-		PlayerTypes eAgainstPlayer = (PlayerTypes) iArg2;
+		PlayerTypes eTargetPlayer = (PlayerTypes) iArg2;
 
 		// Human says sorry, no
 		if (iArg1 == 1 || iArg1 == 2)
@@ -34089,7 +34089,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Big penalty for warning the target
 			else
 			{
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DoWarnCoopWarTarget(GetPlayer()->GetID(), eAgainstPlayer);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DoWarnCoopWarTarget(GetPlayer()->GetID(), eTargetPlayer);
 			}
 		}
 		// Human agrees
@@ -34098,37 +34098,39 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Human says he needs to prepare
 			if (iArg1 == 3)
 			{
-				SetCoopWarState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_PREPARING);
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eAgainstPlayer, COOP_WAR_STATE_PREPARING);
+				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_PREPARING);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eTargetPlayer, COOP_WAR_STATE_PREPARING);
+				SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
 			}
 			// Human agrees to war immediately
 			else
 			{
-				SetCoopWarState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_READY);
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eAgainstPlayer, COOP_WAR_STATE_READY);
-				DoStartCoopWar(eFromPlayer, eAgainstPlayer);
+				SetCoopWarState(eFromPlayer, eTargetPlayer, COOP_WAR_STATE_READY);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eTargetPlayer, COOP_WAR_STATE_READY);
+				DoStartCoopWar(eFromPlayer, eTargetPlayer);
+				SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
 			}
 
 			// Update approach to WAR
-			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eAgainstPlayer);
-			SetMajorCivApproach(eAgainstPlayer, MAJOR_CIV_APPROACH_WAR);
+			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
+			SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR);
 
 			// Set War Face if old approach wasn't WAR
 			switch (eOldApproach)
 			{
 			case MAJOR_CIV_APPROACH_HOSTILE:
-				SetWarFace(eAgainstPlayer, WAR_FACE_HOSTILE);
+				SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 			case MAJOR_CIV_APPROACH_GUARDED:
-				SetWarFace(eAgainstPlayer, WAR_FACE_GUARDED);
+				SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
 			case MAJOR_CIV_APPROACH_DECEPTIVE:
-				SetWarFace(eAgainstPlayer, WAR_FACE_FRIENDLY);
+				SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
 				break;
 			default:
-				SetWarFace(eAgainstPlayer, WAR_FACE_NEUTRAL);
+				SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
 				break;
 			}
 
@@ -37205,6 +37207,15 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 			break;
 		}
 
+		if (eResponse == COOP_WAR_STATE_ONGOING)
+		{
+			SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
+		}
+		else
+		{
+			SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
+		}
+
 		if (!GET_PLAYER(eAskingPlayer).isHuman())
 		{
 			// Update their approach to WAR
@@ -37228,6 +37239,15 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 			default:
 				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
 				break;
+			}
+
+			if (eResponse == COOP_WAR_STATE_ONGOING)
+			{
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarGoal(eTargetPlayer, WAR_GOAL_CONQUEST);
+			}
+			else
+			{
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
 			}
 		}
 	}
