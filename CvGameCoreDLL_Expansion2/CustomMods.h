@@ -522,6 +522,11 @@
 #define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
+// if true, you need a trade route to get passive religious pressure to a city
+#define MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY()
+// if true, only cities with a majority religion generate religious pressure
+#define MOD_RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY()
+
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
@@ -1609,6 +1614,8 @@ public:
 	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
+	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
+	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY);
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 

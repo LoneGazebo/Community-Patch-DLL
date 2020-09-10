@@ -3279,6 +3279,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 {
 	iNumTradeRoutesInfluencing = 0;
 
+	//no pressure from pantheons
 	if (eReligion <= RELIGION_PANTHEON)
 	{
 		return 0;
@@ -3293,51 +3294,74 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	// Does this city have a majority religion?
+	//Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
+
+#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY)
+	if (MOD_RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY)
+	{
+		if (eMajorityReligion != eReligion)
+		{
+			return 0;
+		}
+	}
+#endif
+
 	//We don't get the full value here if not the majority.
 	if (eMajorityReligion == NO_RELIGION)
 	{
 		int iNumFollowers = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
 		if (iNumFollowers > 0)
 		{
-			int iCitySize = pFromCity->getPopulation();
 			//scale the amount of pressure we get.
+			int iCitySize = pFromCity->getPopulation();
 			int iRatio = (iNumFollowers * 100) / max(1, iCitySize);
 
-			iPressureMod += (iRatio-100);
+			iPressureMod += iRatio;
 		}
 		else
 		{
 			return 0;
 		}
 	}
-	//No pressure at all if the majority is something else
+	//no pressure at all if the majority is something else
 	else if (eMajorityReligion != eReligion)
+	{
 		return 0;
+	}
 
+	//do we have a trade route or pretend to have one
 	if (bConnectedWithTrade || bPretendTradeConnection)
 	{
 		if (bActualValue)
 			iNumTradeRoutesInfluencing++;
 
 		int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
-#if defined(MOD_BALANCE_CORE_POLICIES)
 		iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(pFromCity->GetReligiousTradeModifier() != 0)
-		{
-			iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
-		}
-		int iReligionTradeMod = pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
-		if(iReligionTradeMod != 0)
-		{
-			iTradeReligionModifer += iReligionTradeMod;
-		}
-#endif
+		iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
+		iTradeReligionModifer += pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
 
 		iPressureMod += iTradeReligionModifer;
+	}
+	else
+	{
+#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
+		if (MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
+		{
+			//no trade route, no pressure!
+			return 0;
+		}
+#endif	
+
+		//if there is no traderoute, pressure falls off with distance
+		iPressureMod -= iRelativeDistancePercent;
+
+		/*
+		//alternative version with quadratic scaling - higher pressure
+		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
+		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
+		iPressure = int(iPressure * fScaleFactor);
+		*/
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
@@ -3424,23 +3448,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	}
 #endif
 
-	//if there is an explicit trade route, there is no distance taper
-	if (!bConnectedWithTrade && !bPretendTradeConnection)
-	{
-		//now the most important thing - linear scaling
-		iPressureMod -= iRelativeDistancePercent;
-
-		/*
-		//alternative version with quadratic scaling - higher pressure
-		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
-		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
-		iPressure = int(iPressure * fScaleFactor);
-		*/
-	}
-
 	int iPressure = iBasePressure * (100 + iPressureMod);
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
-	return iPressure / 100;
+	return max(0, iPressure / 100);
 }
 
 /// How much does this prophet cost (recursive)

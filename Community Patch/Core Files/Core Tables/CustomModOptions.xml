@@ -459,6 +459,10 @@
     <!-- Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
+    <!-- disable passive religious pressure without trade routes -->
+    <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY" Value="0" DbUpdates="1"/>
+    <!-- disable passive religious pressure from cities without majority religion -->
+    <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY" Value="0" DbUpdates="1"/>
 
     <!-- Enables production to be stockpiled (v28) -->
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
