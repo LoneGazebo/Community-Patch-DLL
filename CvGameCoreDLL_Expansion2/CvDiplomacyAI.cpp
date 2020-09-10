@@ -13485,8 +13485,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
 						SetWantsSneakAttack(eTargetPlayer, true);
 
+						// Update approach to WAR
 						MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
-						SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR); // update approach to WAR
+						SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR);
 
 						// Set War Face if old approach wasn't WAR
 						switch (eOldApproach)
@@ -22340,10 +22341,6 @@ bool CvDiplomacyAI::IsEndgameAggressiveTo(PlayerTypes ePlayer) const
 /// Should we specifically hide dispute-related modifiers towards ePlayer?
 bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 {
-	// Always hide all mods for teammates
-	if (IsTeammate(ePlayer))
-		return true;
-
 	// Game options forbid hiding.
 	if (GC.getGame().IsShowAllOpinionModifiers())
 		return false;
@@ -22381,10 +22378,6 @@ bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 /// NOTE: If both hiding dispute mods and hiding negative mods, dispute mods will show up as if the DisputeLevel was NONE. Otherwise, dispute mods are treated separately.
 bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 {
-	// Always hide all mods for teammates
-	if (IsTeammate(ePlayer))
-		return true;
-
 	// Game options forbid hiding.
 	if (GC.getGame().IsShowAllOpinionModifiers())
 		return false;
@@ -22424,7 +22417,7 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 		return false;
 
 	// If they're a favorable target, let's not bother hiding things.
-	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_POWERFUL)
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POWERFUL)
 	{
 		if (IsEasyTarget(ePlayer) || GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
 			return false;
@@ -34099,28 +34092,51 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DoWarnCoopWarTarget(GetPlayer()->GetID(), eAgainstPlayer);
 			}
 		}
-		// Human says "soon"
-		else if (iArg1 == 3)
-		{
-			if (bActivePlayer)
-			{
-				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
-				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
-			}
-
-			SetCoopWarState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_PREPARING);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eAgainstPlayer, COOP_WAR_STATE_PREPARING);
-		}
 		// Human agrees
-		else if (iArg1 == 4)
+		else if (iArg1 == 3 || iArg1 == 4)
 		{
+			// Human says he needs to prepare
+			if (iArg1 == 3)
+			{
+				SetCoopWarState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_PREPARING);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eAgainstPlayer, COOP_WAR_STATE_PREPARING);
+			}
+			// Human agrees to war immediately
+			else
+			{
+				SetCoopWarState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_READY);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarState(GetPlayer()->GetID(), eAgainstPlayer, COOP_WAR_STATE_READY);
+				DoStartCoopWar(eFromPlayer, eAgainstPlayer);
+			}
+
+			// Update approach to WAR
+			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eAgainstPlayer);
+			SetMajorCivApproach(eAgainstPlayer, MAJOR_CIV_APPROACH_WAR);
+
+			// Set War Face if old approach wasn't WAR
+			switch (eOldApproach)
+			{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				SetWarFace(eAgainstPlayer, WAR_FACE_HOSTILE);
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+			case MAJOR_CIV_APPROACH_GUARDED:
+				SetWarFace(eAgainstPlayer, WAR_FACE_GUARDED);
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				SetWarFace(eAgainstPlayer, WAR_FACE_FRIENDLY);
+				break;
+			default:
+				SetWarFace(eAgainstPlayer, WAR_FACE_NEUTRAL);
+				break;
+			}
+
 			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
 			}
-
-			DoStartCoopWar(eFromPlayer, eAgainstPlayer);
 		}
 
 		break;
@@ -34924,7 +34940,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 /// Is the AI acting mean to the active human player?
 bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCurrentWar) const
 {
-	if (IsTeammate(eHuman))
+	if (IsTeammate(eHuman) || IsDoFAccepted(eHuman))
 		return false;
 
 	bool bAtWar = IsAtWar(eHuman);
@@ -34969,6 +34985,14 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCur
 
 	// Liberator
 	if (WasResurrectedBy(eHuman) || IsPlayerLiberatedCapital(eHuman) || GET_TEAM(GetTeam()).GetLiberatedByTeam() == GET_PLAYER(eHuman).getTeam())
+		return false;
+
+	// Defensive Pact
+	if (IsHasDefensivePact(eHuman))
+		return false;
+
+	// Coop war planned or ongoing?
+	if (GetGlobalCoopWarWithState(eHuman) >= COOP_WAR_STATE_PREPARING)
 		return false;
 
 	// Are we in bad shape for war? Don't act hostile.
@@ -37154,6 +37178,58 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 			SetCoopWarState(eAskingPlayer, eTargetPlayer, COOP_WAR_STATE_REJECTED);
 		}
 		break;
+	}
+
+	if (eResponse == COOP_WAR_STATE_ONGOING || eResponse == COOP_WAR_STATE_PREPARING)
+	{
+		// Update approach to WAR
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
+		SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR);
+
+		// Set War Face if old approach wasn't WAR
+		switch (eOldApproach)
+		{
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+		case MAJOR_CIV_APPROACH_GUARDED:
+			SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
+			break;
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
+			break;
+		default:
+			SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
+			break;
+		}
+
+		if (!GET_PLAYER(eAskingPlayer).isHuman())
+		{
+			// Update their approach to WAR
+			MajorCivApproachTypes eTheirOldApproach = GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer);
+			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetMajorCivApproach(eAskingPlayer, MAJOR_CIV_APPROACH_WAR);
+
+			// Set War Face if old approach wasn't WAR
+			switch (eTheirOldApproach)
+			{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+			case MAJOR_CIV_APPROACH_GUARDED:
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
+				break;
+			default:
+				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
+				break;
+			}
+		}
 	}
 
 	return eResponse;
