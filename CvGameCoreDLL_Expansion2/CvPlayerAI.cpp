@@ -1958,7 +1958,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+				if (pUnit->GeneratePath(pCity->plot(), iFlags))
 					return pCity;
 			}
 		}
@@ -2008,7 +2009,8 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+				if (pUnit->GeneratePath(pCity->plot(), iFlags))
 					return pCity;
 			}
 		}
