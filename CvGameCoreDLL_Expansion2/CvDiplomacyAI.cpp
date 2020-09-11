@@ -34017,9 +34017,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_COOP_WAR_OFFER:
 	{
 		// **** NOTE **** - iArg1 is Player ID from DiscussionDialog.lua
+		PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
 
-		PlayerTypes eAgainstPlayer = (PlayerTypes) iArg1;
-		CoopWarStates eResponse = RespondToCoopWarRequest(eFromPlayer, eAgainstPlayer);
+		CoopWarStates eResponse = RespondToCoopWarRequest(eFromPlayer, eTargetPlayer);
 
 		switch (eResponse)
 		{
@@ -34039,7 +34039,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			break;
 		case COOP_WAR_STATE_REJECTED:
 		case COOP_WAR_STATE_WARNED_TARGET:
-			if (IsCoopWarMessageTooSoon(eFromPlayer, eAgainstPlayer))
+			if (IsCoopWarMessageTooSoon(eFromPlayer, eTargetPlayer))
 			{
 				if (bActivePlayer)
 				{
