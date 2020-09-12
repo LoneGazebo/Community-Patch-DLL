@@ -1424,7 +1424,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 									pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetShowOfForceOperation(eLoopTarget);
 								}
 
-								if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetMajorCivApproach(eLoopTarget) == MAJOR_CIV_APPROACH_WAR || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMajorCivApproach(eLoopTarget) == MAJOR_CIV_APPROACH_WAR;
+
+								if (pOurOperation != NULL || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopTarget) || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
 								{
 									pDiplo->SetAggressor(eLoopTarget, true);
 								}
@@ -1433,7 +1435,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							{
 								CvAIOperation* pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetCityStateAttackOperation(eLoopTarget);
 
-								if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetMinorCivApproach(eLoopTarget) == MINOR_CIV_APPROACH_CONQUEST)
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMinorCivApproach(eLoopTarget) == MINOR_CIV_APPROACH_CONQUEST;
+
+								if (pOurOperation != NULL || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget))
 								{
 									pDiplo->SetAggressor(eLoopTarget, true);
 								}
@@ -1453,7 +1457,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								pTheirOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetShowOfForceOperation(eLoopPlayer);
 							}
 
-							if (pTheirOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR;
+
+							if (pTheirOperation != NULL || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopPlayer) || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
@@ -1462,7 +1468,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						{
 							CvAIOperation* pOurOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetCityStateAttackOperation(eLoopPlayer);
 
-							if (pOurOperation != NULL || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST)
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST;
+
+							if (pOurOperation != NULL || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer))
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
