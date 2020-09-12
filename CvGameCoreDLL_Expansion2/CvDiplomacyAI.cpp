@@ -17014,24 +17014,28 @@ bool CvDiplomacyAI::IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer)
 /// Did this AI want to start the war it's currently in with ePlayer?
 bool CvDiplomacyAI::IsAggressor(PlayerTypes ePlayer) const
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 	return m_pabAggressor[ePlayer];
 }
 
 /// Sets if this AI wanted to start the war it's currently in with ePlayer
 void CvDiplomacyAI::SetAggressor(PlayerTypes ePlayer, bool bValue)
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_pabAggressor[ePlayer] = bValue;
 }
 
 /// Does this AI want to sneak attack ePlayer?
 bool CvDiplomacyAI::IsWantsSneakAttack(PlayerTypes ePlayer) const
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 	return m_pabWantsSneakAttack[ePlayer];
 }
 
 /// Sets if this AI wants to sneak attack ePlayer
 void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_pabWantsSneakAttack[ePlayer] = bValue;
 }
 
