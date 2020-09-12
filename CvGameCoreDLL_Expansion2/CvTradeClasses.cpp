@@ -5272,11 +5272,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 		}
 	}
-	// Temporary diplo penalty (including if at war) for killing a civilian unit
-	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && (pPlunderPlot->isVisible(eOwningTeam) || GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam())))))
-	{
-		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRazed(m_pPlayer->GetID(), (10 - GET_PLAYER(eOwningPlayer).GetCurrentEra()));
-	}
 	// Diplo penalty for trade route owner if not at war
 	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
