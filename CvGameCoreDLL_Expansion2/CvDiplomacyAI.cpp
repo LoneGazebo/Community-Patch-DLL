@@ -1946,7 +1946,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabWantsDefensivePactWithPlayer(MAX_MAJOR_CIVS, m_pabWantsDefensivePactWithPlayer);
 	kStream >> wrapm_pabWantsDefensivePactWithPlayer;
 
-	ArrayWrapper<bool> wrapm_pabAggressor(MAX_MAJOR_CIVS, m_pabAggressor);
+	ArrayWrapper<bool> wrapm_pabAggressor(MAX_CIV_PLAYERS, m_pabAggressor);
 	kStream >> wrapm_pabAggressor;
 	
 	ArrayWrapper<bool> wrapm_pabWantsSneakAttack(MAX_MAJOR_CIVS, m_pabWantsSneakAttack);
@@ -2338,7 +2338,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_DEALS)
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsDoFWithPlayer);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsDefensivePactWithPlayer);
-	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabAggressor);
+	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabAggressor);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsSneakAttack);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtPeace);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsSinceCityCapture );
@@ -17014,14 +17014,14 @@ bool CvDiplomacyAI::IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer)
 /// Did this AI want to start the war it's currently in with ePlayer?
 bool CvDiplomacyAI::IsAggressor(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return false;
 	return m_pabAggressor[ePlayer];
 }
 
 /// Sets if this AI wanted to start the war it's currently in with ePlayer
 void CvDiplomacyAI::SetAggressor(PlayerTypes ePlayer, bool bValue)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_pabAggressor[ePlayer] = bValue;
 }
 
@@ -23202,7 +23202,9 @@ int CvDiplomacyAI::GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiTheyPlottedAgainstUs[(int)ePlayer] = max(0, min(iValue, 127));
+	int iSetValue = min(iValue, 127);
+	iSetValue = max(0, iSetValue);
+	m_paiTheyPlottedAgainstUs[(int)ePlayer] = iSetValue;
 }
 
 /// Changes how many times ePlayer was caught plotting against us
@@ -23212,6 +23214,11 @@ void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int 
 	
 	if (iChange > 0)
 	{
+		if (GetPlottedAgainstUsTurn(ePlayer) == GC.getGame().getGameTurn())
+		{
+			return;
+		}
+
 		SetPlottedAgainstUsTurn(ePlayer, GC.getGame().getGameTurn());
 		
 		if (GetRecentAssistValue(ePlayer) < 0)
@@ -23232,7 +23239,9 @@ int CvDiplomacyAI::GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiTheyLoweredOurInfluence[(int)ePlayer] = max(0, min(iValue, 127));
+	int iSetValue = min(iValue, 127);
+	iSetValue = max(0, iSetValue);
+	m_paiTheyLoweredOurInfluence[(int)ePlayer] = iSetValue;
 }
 
 /// Changes how many times ePlayer has lowered our influence with a Minor Civ
@@ -23253,7 +23262,7 @@ void CvDiplomacyAI::SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int i
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	int iSetValue = min(iValue, 127);
-	iSetValue = max(0, iValue);
+	iSetValue = max(0, iSetValue);
 	m_paiPerformedCoupAgainstUs[ePlayer] = iSetValue;
 }
 
@@ -23264,6 +23273,11 @@ void CvDiplomacyAI::ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, in
 
 	if (iChange > 0)
 	{
+		if (GetPerformedCoupTurn(ePlayer) == GC.getGame().getGameTurn())
+		{
+			return;
+		}
+
 		SetPerformedCoupTurn(ePlayer, GC.getGame().getGameTurn());
 	}
 }

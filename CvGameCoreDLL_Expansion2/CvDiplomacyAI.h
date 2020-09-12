@@ -1770,7 +1770,7 @@ private:
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
-		bool m_abAggressor[MAX_MAJOR_CIVS];
+		bool m_abAggressor[REALLY_MAX_PLAYERS];
 		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 #endif
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
