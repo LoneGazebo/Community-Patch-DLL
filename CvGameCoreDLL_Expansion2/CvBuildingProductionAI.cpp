@@ -260,7 +260,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo == NULL)
 		return 0;
 
-
 	//Bonus additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
 
@@ -296,6 +295,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
+
 		if (iValue > 300)
 		{
 			iValue = 300;
@@ -443,9 +443,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//No Sea Trade Connections?
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->AllowsWaterRoutes())
 	{
-		CvCity* pCapital = kPlayer.getCapitalCity();
-		if (pkBuildingInfo->AllowsWaterRoutes())
+		//we know the city must be coastal. but if this is a lake and there are no other cities reachable via water, then it makes no sense to build this
+		if (!m_pCity->plot()->isCoastalLand(-1) && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity,true).empty())
+			return 0;
+
+		if (pkBuildingInfo->AllowsWaterRoutes()) //this is not about trade routes but city connections
 		{
+			CvCity* pCapital = kPlayer.getCapitalCity();
 			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 			{
 				iBonus -= 50;

@@ -125,14 +125,18 @@ bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const S
 
 const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
 {
-	//make sure we're up to date
-	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-	UpdateTradePathCache(eOriginPlayer);
-
 	if (!pOriginCity)
 		return m_dummyTradePaths; //always empty
 
-	return bWater ? m_aPotentialTradePathsWater[pOriginCity->GetID()] : m_aPotentialTradePathsLand[pOriginCity->GetID()];
+	//make sure we're up to date
+	UpdateTradePathCache(pOriginCity->getOwner());
+
+	const TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	TradePathLookup::const_iterator it = cache.find(pOriginCity->GetID());
+	if (it != cache.end())
+		return it->second;
+	else
+		return m_dummyTradePaths; //always empty
 }
 
 bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
