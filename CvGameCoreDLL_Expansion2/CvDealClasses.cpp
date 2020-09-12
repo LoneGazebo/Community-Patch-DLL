@@ -5560,6 +5560,58 @@ uint CvGameDeals::GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes 
 	return iCount;
 }
 
+bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	bool bWeGetSomething = false;
+	bool bTheyGetSomething = false;
+
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			int iEndTurn = iter->GetEndTurn();
+			if (iEndTurn <= GC.getGame().getGameTurn())
+				continue;
+
+			if (iter->GetGoldPerTurnTrade(eOtherPlayer) > 0)
+				bWeGetSomething = true;
+
+			if (iter->GetGoldPerTurnTrade(ePlayer) > 0)
+				bTheyGetSomething = true;
+
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
+					continue;
+
+				if (iter->GetNumResourcesInDeal(eOtherPlayer, eResource) > 0)
+					bWeGetSomething = true;
+
+				if (iter->GetNumResourcesInDeal(ePlayer, eResource) > 0)
+					bTheyGetSomething = true;
+			}
+
+			if (bMutual && bWeGetSomething && bTheyGetSomething)
+			{
+				return true;
+			}
+			else if (!bMutual && bWeGetSomething)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
 {
 	DealList::iterator iter;
@@ -5571,28 +5623,27 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
 			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
 		{
+			int iEndTurn = iter->GetEndTurn();
+			if (iEndTurn <= GC.getGame().getGameTurn())
+				continue;
+
 			//GPT - base it on number of turns remaining
 			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
 
 			//Resources
-			int iResourceLoop;
-			ResourceTypes eResource;
-
-			for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				eResource = (ResourceTypes)iResourceLoop;
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
 				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
-
 			}
 
 			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 : 0;
 			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 : 0;
-
 			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 10 : 0;
 		}
 	}

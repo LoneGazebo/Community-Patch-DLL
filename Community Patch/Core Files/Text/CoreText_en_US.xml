@@ -3044,6 +3044,9 @@
 		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES">
 			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL">
+			<Text>We have different religious beliefs.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
