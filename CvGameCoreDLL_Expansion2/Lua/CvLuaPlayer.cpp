@@ -12646,10 +12646,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		// Display approach hint and special indicators for AI players
+		// Special indicators
 		if (!bHuman && !bTeammate)
 		{
-			// Debug mode - display true approach
+			// Debug mode approach reveal
 			if (GC.getGame().IsDiploDebugModeEnabled())
 			{
 				Opinion kOpinion;
@@ -12685,42 +12685,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					break;
 				default:
 					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL").toUTF8();
-					break;
-				}
-
-				kOpinion.m_str = str;
-				aOpinions.push_back(kOpinion);
-			}
-			// If not at war, a hint is displayed
-			else if (!pDiplo->IsAtWar(ePlayer))
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = 0;
-				CvString str;
-
-				switch (eSurfaceApproach)
-				{
-				case MAJOR_CIV_APPROACH_HOSTILE:
-					str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE").toUTF8();
-					break;
-				case MAJOR_CIV_APPROACH_GUARDED:
-					str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED").toUTF8();
-					break;
-				case MAJOR_CIV_APPROACH_AFRAID:
-					str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID").toUTF8();
-					break;
-				case MAJOR_CIV_APPROACH_FRIENDLY:
-					str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
-					break;
-				default:
-					if (pDiplo->IsActHostileTowardsHuman(ePlayer))
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
-					}
-					else
-					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY").toUTF8();
-					}
 					break;
 				}
 
@@ -14665,7 +14629,49 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 	//--------------------------------//
-	// [PART 3: SORTING]			  //
+	// [PART 3: APPROACH HINT]		  //
+	//--------------------------------//
+
+	// If not at war, a hint explaining the AI's current approach is displayed
+	// Do not display if the opinion table thus far is empty, to allow the text key to be displayed with color.
+	if (!bObserver && !pDiplo->IsAtWar(ePlayer) && !aOpinions.empty())
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		CvString str;
+
+		switch (eSurfaceApproach)
+		{
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE").toUTF8();
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED").toUTF8();
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID").toUTF8();
+			break;
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
+			break;
+		default:
+			if (pDiplo->IsActHostileTowardsHuman(ePlayer))
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
+			}
+			else
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY").toUTF8();
+			}
+			break;
+		}
+
+		kOpinion.m_str = str;
+		aOpinions.push_back(kOpinion);
+	}
+
+	//--------------------------------//
+	// [PART 4: SORTING]			  //
 	//--------------------------------//
 
 	std::stable_sort(aOpinions.begin(), aOpinions.end(), OpinionEval());
