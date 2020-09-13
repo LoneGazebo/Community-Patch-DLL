@@ -14632,9 +14632,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 3: APPROACH HINT]		  //
 	//--------------------------------//
 
-	// If not at war, a hint explaining the AI's current approach is displayed
+	// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
 	// Do not display if the opinion table thus far is empty, to allow the text key to be displayed with color.
-	if (!bObserver && !pDiplo->IsAtWar(ePlayer) && !aOpinions.empty())
+	if (!bObserver && !pDiplo->IsAtWar(ePlayer) && !GC.getGame().IsDiploDebugModeEnabled() && !aOpinions.empty())
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = 0;
