@@ -12591,6 +12591,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
 	bool bObserver = GET_PLAYER(ePlayer).isObserver();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
+	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
 	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
@@ -12676,7 +12677,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Untrustworthy friend?
-			if (pDiplo->IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+			if (!bJustMet && pDiplo->IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -13373,166 +13374,165 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// DISPUTE MODIFIERS
 		////////////////////////////////////
 
-		// Land Dispute
-		if (bPretendNoDisputes)
+		if (!bJustMet)
 		{
-			iValue = /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE();
-			if (pDiplo->IsConqueror())
+			// Land Dispute
+			if (bPretendNoDisputes)
 			{
-				iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+				iValue = /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE();
+				if (pDiplo->IsConqueror())
+				{
+					iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+				}
+				if (pkPlayer->GetCurrentEra() <= 1)
+				{
+					iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
+				}
 			}
-			if (pkPlayer->GetCurrentEra() <= 1)
+			else if (bHideDisputes)
 			{
-				iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
+				iValue = 0;
 			}
-		}
-		else if (bHideDisputes)
-		{
-			iValue = 0;
-		}
-		else
-		{
-			iValue = pDiplo->GetLandDisputeLevelScore(ePlayer);
-		}
-
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_LAND_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_LAND_DISPUTE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		// Wonder Dispute
-		if (bPretendNoDisputes && pDiplo->IsCultural() && !pDiplo->IsPlayerWonderSpammer(ePlayer))
-		{
-			iValue = /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
-		}
-		else if (bHideDisputes)
-		{
-			iValue = 0;
-		}
-		else
-		{
-			iValue = pDiplo->GetWonderDisputeLevelScore(ePlayer);
-		}
-
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_WONDER_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_WONDER_DISPUTE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		// Minor Civ Dispute
-		if (bPretendNoDisputes && pDiplo->IsDiplomat() && pDiplo->GetNumTimesTheyLoweredOurInfluence(ePlayer) < 8 && !pDiplo->IsMinorCivTroublemaker(ePlayer, true))
-		{
-			iValue = /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
-		}
-		else if (bHideDisputes)
-		{
-			iValue = 0;
-		}
-		else
-		{
-			iValue = pDiplo->GetWonderDisputeLevelScore(ePlayer);
-		}
-
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_MINOR_CIV_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		// Tech Dispute
-		iValue = bHideDisputes ? 0 : pDiplo->GetTechDisputeLevelScore(ePlayer);
-
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		// Victory Dispute
-		iValue = (bHideDisputes || bHideNegatives) ? 0 : pDiplo->GetVictoryDisputeLevelScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			CvString str;
-			
-			if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE").toUTF8();
-			}
-			else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_STRONG)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG").toUTF8();
-			}
-			else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_WEAK)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK").toUTF8();
+				iValue = pDiplo->GetLandDisputeLevelScore(ePlayer);
 			}
 
-			kOpinion.m_str = str;
-			aOpinions.push_back(kOpinion);	
-		}
-
-		// Victory Block
-		iValue = (bHideDisputes || bHideNegatives) ? 0 : pDiplo->GetVictoryBlockLevelScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			CvString str;
-			
-			if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+			if (iValue != 0)
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE").toUTF8();
-			}
-			else if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_STRONG)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG").toUTF8();
-			}
-			else if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_WEAK)
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK").toUTF8();
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_LAND_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_LAND_DISPUTE");
+				aOpinions.push_back(kOpinion);
 			}
 
-			kOpinion.m_str = str;
-			aOpinions.push_back(kOpinion);
-		}
+			// Wonder Dispute
+			if (bPretendNoDisputes && pDiplo->IsCultural() && !pDiplo->IsPlayerWonderSpammer(ePlayer))
+			{
+				iValue = /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
+			}
+			else if (bHideDisputes)
+			{
+				iValue = 0;
+			}
+			else
+			{
+				iValue = pDiplo->GetWonderDisputeLevelScore(ePlayer);
+			}
 
-		////////////////////////////////////
-		// MILITARY MODIFIERS
-		////////////////////////////////////
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_WONDER_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_WONDER_DISPUTE");
+				aOpinions.push_back(kOpinion);
+			}
 
-		// Aggressive Posture
-		if (!pDiplo->IsAtWar(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID()))
-		{
-			iValue = pDiplo->GetMilitaryAggressivePosture(ePlayer) * 5;
+			// Minor Civ Dispute
+			if (bPretendNoDisputes && pDiplo->IsDiplomat() && pDiplo->GetNumTimesTheyLoweredOurInfluence(ePlayer) < 8 && !pDiplo->IsMinorCivTroublemaker(ePlayer, true))
+			{
+				iValue = /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
+			}
+			else if (bHideDisputes)
+			{
+				iValue = 0;
+			}
+			else
+			{
+				iValue = pDiplo->GetWonderDisputeLevelScore(ePlayer);
+			}
+
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_MINOR_CIV_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE");
+				aOpinions.push_back(kOpinion);
+			}
+
+			// Tech Dispute
+			iValue = bHideDisputes ? 0 : pDiplo->GetTechDisputeLevelScore(ePlayer);
+
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
+				aOpinions.push_back(kOpinion);
+			}
+
+			// Victory Dispute
+			iValue = (bHideDisputes || bHideNegatives) ? 0 : pDiplo->GetVictoryDisputeLevelScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-
-				if (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
+				
+				if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE").toUTF8();
 				}
-				else
+				else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_STRONG)
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG").toUTF8();
+				}
+				else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_WEAK)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK").toUTF8();
+				}
+
+				kOpinion.m_str = str;
+				aOpinions.push_back(kOpinion);	
+			}
+
+			// Victory Block
+			iValue = (bHideDisputes || bHideNegatives) ? 0 : pDiplo->GetVictoryBlockLevelScore(ePlayer);
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				CvString str;
+				
+				if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE").toUTF8();
+				}
+				else if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_STRONG)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG").toUTF8();
+				}
+				else if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_WEAK)
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK").toUTF8();
 				}
 
 				kOpinion.m_str = str;
 				aOpinions.push_back(kOpinion);
+			}
+
+			// Aggressive Posture
+			if (!pDiplo->IsAtWar(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID()))
+			{
+				iValue = pDiplo->GetMilitaryAggressivePosture(ePlayer) * 5;
+				if (iValue != 0)
+				{
+					Opinion kOpinion;
+					kOpinion.m_iValue = iValue;
+					CvString str;
+
+					if (pDiplo->GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
+					{
+						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
+					}
+					else
+					{
+						str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+					}
+
+					kOpinion.m_str = str;
+					aOpinions.push_back(kOpinion);
+				}
 			}
 		}
 
@@ -13600,7 +13600,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 			aOpinions.push_back(kOpinion);
 		}
-		else if (iTempValue != 0 && !bHideNegatives)
+		else if (iTempValue != 0 && !bHideNegatives && !bJustMet)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iTempValue;
@@ -14459,7 +14459,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// SUBTLE NEGATIVES
 		////////////////////////////////////
 
-		if (!bHideNegatives)
+		if (!bHideNegatives && !bJustMet)
 		{
 			iValue = pDiplo->GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
 			if (iValue != 0)
