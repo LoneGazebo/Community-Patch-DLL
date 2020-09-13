@@ -13741,6 +13741,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		else if (pDiplo->IsPlayerOpposingReligion(ePlayer))
 		{
+			if (bHideNegatives)
+				iValue = 0;
+
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES") : Localization::Lookup("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL");
@@ -13762,7 +13765,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			PolicyBranchTypes eOurBranch = pkPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 			PolicyBranchTypes eTheirBranch = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = bHideNegatives ? 0 : iValue;
 			kOpinion.m_str = (!GET_PLAYER(ePlayer).IsVassalOfSomeone()) ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
 			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
 			kOpinion.m_str << GC.getPolicyBranchInfo(eOurBranch)->GetDescription();
