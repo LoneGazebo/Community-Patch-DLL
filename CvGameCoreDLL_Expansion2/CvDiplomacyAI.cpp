@@ -37105,7 +37105,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	CoopWarStates eCurrentState = GetCoopWarState(eAskingPlayer, eTargetPlayer);
 
 	// Teammates will always agree when a human asks
-	if (IsTeammate(eAskingPlayer))
+	if (IsTeammate(eAskingPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 	{
 		if (IsEasyTarget(eTargetPlayer) || (GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && GetBoldness() > 6))
 		{
