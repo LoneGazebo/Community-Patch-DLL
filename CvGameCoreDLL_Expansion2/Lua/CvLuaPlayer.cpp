@@ -12596,30 +12596,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 
 	//--------------------------------//
-	// [PART 1: DIPLOMATIC STATUS]	  //
+	// [PART 1: SPECIAL INDICATORS]	  //
 	//--------------------------------//
 
 	if (!bObserver)
 	{
-		// Same team?
-		if (bTeammate)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = -99999;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
-			aOpinions.push_back(kOpinion);
-		}
-		// At war?
-		else if (pDiplo->IsAtWar(ePlayer))
-		{
-			eSurfaceApproach = MAJOR_CIV_APPROACH_WAR;
-			Opinion kOpinion;
-			kOpinion.m_iValue = 99999;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AT_WAR");
-			aOpinions.push_back(kOpinion);
-		}
 		// Gone to war in the past?
-		else if (pDiplo->GetNumWarsFought(ePlayer) > 0)
+		if (!pDiplo->IsAtWar(ePlayer) && pDiplo->GetNumWarsFought(ePlayer) > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -13150,16 +13133,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	else if (bTeammate && !bObserver)
 	{
-		// Teammates always have Open Borders with each other
-		iValue = pDiplo->GetOpenBordersScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
-			aOpinions.push_back(kOpinion);
-		}
-
 		iValue = pDiplo->GetCiviliansReturnedToMeScore(ePlayer);
 		if (iValue != 0)
 		{
@@ -14632,42 +14605,61 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 3: APPROACH HINT]		  //
 	//--------------------------------//
 
-	// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
-	// Do not display if the opinion table thus far is empty, to allow the text key to be displayed with color.
-	if (!bObserver && !pDiplo->IsAtWar(ePlayer) && !GC.getGame().IsDiploDebugModeEnabled() && !aOpinions.empty())
+	// Do not display this if the opinion table thus far is empty (this case is handled at the LUA level instead).
+	if (!bObserver && !aOpinions.empty())
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = 0;
-		CvString str;
-
-		switch (eSurfaceApproach)
+		// Same team?
+		if (bTeammate)
 		{
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE").toUTF8();
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED").toUTF8();
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID").toUTF8();
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
-			break;
-		default:
-			if (pDiplo->IsActHostileTowardsHuman(ePlayer))
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
-			}
-			else
-			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY").toUTF8();
-			}
-			break;
+			Opinion kOpinion;
+			kOpinion.m_iValue = -99999;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
+			aOpinions.push_back(kOpinion);
 		}
+		// At war?
+		else if (pDiplo->IsAtWar(ePlayer))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 99999;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AT_WAR");
+			aOpinions.push_back(kOpinion);
+		}
+		// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
+		else if (!GC.getGame().IsDiploDebugModeEnabled())
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			CvString str;
 
-		kOpinion.m_str = str;
-		aOpinions.push_back(kOpinion);
+			switch (eSurfaceApproach)
+			{
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE").toUTF8();
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+				str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED").toUTF8();
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID").toUTF8();
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+				str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
+				break;
+			default:
+				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
+				}
+				else
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_FRIENDLY").toUTF8();
+				}
+				break;
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 	//--------------------------------//

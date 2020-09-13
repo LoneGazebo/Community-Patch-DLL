@@ -2953,54 +2953,56 @@ local function GetMoodInfo( playerID )
 			end
 		end
 
-		if (activeTeam:IsAtWar( teamID ) and (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR) or Game.IsOption(GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE))) then
-			opinions = { L"TXT_KEY_ALWAYS_WAR_TT" }
+		if player.GetOpinionTable then
+			opinions = player:GetOpinionTable( activePlayerID )
 		else
-			if player.GetOpinionTable then
-				opinions = player:GetOpinionTable( activePlayerID )
+			-- Teammates
+			if teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
+			-- At war
+			elseif activeTeam:IsAtWar( teamID ) then
+				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
+			-- Appears Friendly
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
+			-- Appears Guarded
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				opinions = { L"TXT_KEY_DIPLO_GUARDED" }
+			-- Appears Hostile
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
+				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
+			-- Appears Afraid
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
+			-- Neutral - default string
 			else
-				-- At war
-				if activeTeam:IsAtWar( teamID ) then
-					opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
-				-- Appears Friendly
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
-					opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
-				-- Appears Guarded
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
-					opinions = { L"TXT_KEY_DIPLO_GUARDED" }
-				-- Appears Hostile
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
-					opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
-				-- Appears Afraid
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
-					opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-				-- Neutral - default string
-				else
-					opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
-				end
+				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end
+		end
 
-			--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
-			if #opinions == 0 then
-				-- At war
-				if activeTeam:IsAtWar( teamID ) then
-					opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
-				-- Appears Friendly
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
-					opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
-				-- Appears Guarded
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
-					opinions = { L"TXT_KEY_DIPLO_GUARDED" }
-				-- Appears Hostile
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
-					opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
-				-- Appears Afraid
-				elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
-					opinions = { L"TXT_KEY_DIPLO_AFRAID" }
-				-- Neutral - default string
-				else
-					opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
-				end
+		--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
+		if #opinions == 0 then
+			-- Teammates
+			if teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
+			-- At war
+			elseif activeTeam:IsAtWar( teamID ) then
+				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
+			-- Appears Friendly
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
+			-- Appears Guarded
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				opinions = { L"TXT_KEY_DIPLO_GUARDED" }
+			-- Appears Hostile
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
+				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
+			-- Appears Afraid
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
+			-- Neutral - default string
+			else
+				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end
 		end
 

@@ -1680,8 +1680,11 @@ function GetMoodInfo(iOtherPlayer)
 
 	--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
 	if (strInfo == "") then
+		-- Teammates
+		if (Game.GetActiveTeam() == iOtherTeam) then
+			strInfo = "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
 		-- At war with us
-		if (pActiveTeam:IsAtWar(iOtherTeam)) then
+		elseif (pActiveTeam:IsAtWar(iOtherTeam)) then
 			strInfo = "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_AT_WAR");
 		-- Appears Friendly
 		elseif (iVisibleApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY) then
