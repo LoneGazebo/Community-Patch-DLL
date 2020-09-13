@@ -9969,14 +9969,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				eWarFace = WAR_FACE_HOSTILE;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
+			case MAJOR_CIV_APPROACH_AFRAID:
 				eWarFace = WAR_FACE_GUARDED;
 				break;
 			case MAJOR_CIV_APPROACH_DECEPTIVE:
-				eWarFace = WAR_FACE_NEUTRAL;
-				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
-				eWarFace = WAR_FACE_HOSTILE;
-				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
 				eWarFace = WAR_FACE_FRIENDLY;
 				break;
