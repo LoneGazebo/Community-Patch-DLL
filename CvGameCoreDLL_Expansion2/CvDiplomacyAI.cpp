@@ -29659,8 +29659,8 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 				if(eLoopPlayer == GetPlayer()->GetID() || eLoopPlayer == ePlayer)
 					continue;
 
-				// We haven't denounced this guy
-				if(!IsDenouncedPlayer(eLoopPlayer))
+				// We haven't denounced this guy and we're not at war with them
+				if(!IsDenouncedPlayer(eLoopPlayer) && !IsAtWar(eLoopPlayer))
 					continue;
 
 				// They haven't befriended this guy
