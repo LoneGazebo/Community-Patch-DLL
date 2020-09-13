@@ -24946,22 +24946,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer plans to make Research Agreement
-	else if(eStatement == DIPLO_STATEMENT_PLAN_RESEARCH_AGREEMENT)
-	{
-		if(bHuman)
-		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_PLAN_RESEARCH_AGREEMENT);
-			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_PLAN_RESEARCH_AGREEMENT, szText, LEADERHEAD_ANIM_REQUEST);
-		}
-		// Offer to an AI player
-		else
-		{
-			if(!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoAddWantsResearchAgreementWithPlayer(GetPlayer()->GetID());	// just auto-reciprocate right now
-		}
-	}
-
 	// Offer a Research Agreement
 	else if(eStatement == DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER)
 	{
@@ -26459,7 +26443,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		}
 #endif
 		DoShareIntrigueStatement(ePlayer, eStatement);
-		//DoResearchAgreementPlan(ePlayer, eStatement);
 
 		DoRequest(ePlayer, eStatement, pDeal);
 
@@ -29271,36 +29254,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 }
 
-/// Possible Contact Statement - Plan Research Agreement
-//void CvDiplomacyAI::DoResearchAgreementPlan(PlayerTypes ePlayer, DiploStatementTypes &eStatement)
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//
-//	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
-//	{
-//		// AI must want RA
-//		if (IsWantsResearchAgreementWithPlayer(ePlayer))
-//		{
-//			// We can't make a RA RIGHT NOW (otherwise we'd use the offer in the function above this one)
-//			if (!IsCanMakeResearchAgreementRightNow(ePlayer))
-//			{
-//				// Can't ALREADY have a RA
-//				if (!GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(ePlayer).getTeam()))
-//				{
-//					DiploStatementTypes eTempStatement = DIPLO_STATEMENT_PLAN_RESEARCH_AGREEMENT;
-//					int iTurnsBetweenStatements = 20;
-//
-//					if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-//					{
-//						eStatement = eTempStatement;
-//					}
-//				}
-//			}
-//		}
-//	}
-//}
-
 /// Possible Contact Statement - Request Help
 void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
@@ -31372,11 +31325,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI asks for Open Borders
 	case DIPLO_MESSAGE_OPEN_BORDERS_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_OPEN_BORDERS_OFFER");
-		break;
-
-		// AI wants to make RA agreement with this player at some point soon
-	case DIPLO_MESSAGE_PLAN_RESEARCH_AGREEMENT:
-		strText = GetDiploTextFromTag("RESPONSE_PLAN_RESEARCH_AGREEMENT");
 		break;
 
 		// AI wants RA with player
@@ -49155,9 +49103,6 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			break;
 		case DIPLO_STATEMENT_OPEN_BORDERS_OFFER:
 			strTemp.Format("Open Borders Offer");
-			break;
-		case DIPLO_STATEMENT_PLAN_RESEARCH_AGREEMENT:
-			strTemp.Format("Research Plan");
 			break;
 		case DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER:
 			strTemp.Format("Research Agreement Offer");
