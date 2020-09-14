@@ -4783,7 +4783,7 @@ void CvDealAI::DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 }
 
 /// See if adding a Resource to their side of the deal helps even out pDeal
-void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
+void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 {
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
@@ -4913,7 +4913,7 @@ void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotal
 }
 
 /// See if adding a Resource to our side of the deal helps even out pDeal
-void CvDealAI::DoAddResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
+void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 {
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
@@ -5014,110 +5014,61 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Them, but them is us.  Please show Jon");
 
-	CvWeightedVector<int> viTradeValues;
-	CvWeightedVector<int> viTradeQuantities;
+	typedef pair<ResourceTypes, int> TradeItem;
+	vector<OptionWithScore<TradeItem>> vOptions;
 
-	int iDealDuration = pDeal->GetDuration();
-	if (iTotalValue < 0 || pDeal->GetDemandingPlayer() != NO_PLAYER)
+	if (iTotalValue < 1)
+		return;
+
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	// Now look at Strategic Resources
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		PlayerTypes eMyPlayer = GetPlayer()->GetID();
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 
-		int iItemValue;
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+			continue;
 
-		int iResourceLoop;
-		ResourceTypes eResource;
-		int iResourceQuantity = 0;
-				
-		// Now look at Strategic Resources
-		for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		//ignore if already in deal on the other side
+		if (pDeal->IsResourceTrade(eMyPlayer, eResource))
+			continue;
+
+		// Don't bother looking at this resource if they don't even have any of it
+		int iMaxResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
+		if (iMaxResourceQuantity < 1)
+			continue;
+
+		// Don't try to buy all of it
+		int iResourceQuantity = max(iMaxResourceQuantity - 3, 1);
+
+		// See if they can actually trade it to us
+		if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
 		{
-			eResource = (ResourceTypes)iResourceLoop;
+			int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ false, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, pDeal->GetDuration());
 
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+			// If adding this to the deal doesn't take it over the limit, do it (pick best option below)
+			if (iItemValue == INT_MAX)
 				continue;
 
-			int iMaxResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
-
-			// Don't bother looking at this Resource if we don't even have any of it
-			if (iMaxResourceQuantity <= 0)
-			{
-				continue;
-			}
-
-			iResourceQuantity = iMaxResourceQuantity;
-
-			if (GET_PLAYER(eThem).isHuman())
-			{
-				iResourceQuantity -= 3;
-				if (iResourceQuantity <= 0)
-					iResourceQuantity = 1;
-			}
-
-			//how do we judge this? A good rule of thumb: never give away more than we're getting.
-			iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eMyPlayer), iResourceQuantity);
-			if (iResourceQuantity <= 0)
-				iResourceQuantity = 1;
-
-			//already in deal? add one more to the mix and reset quantity
-			if (pDeal->IsResourceTrade(eThem, eResource))
-			{
-				iResourceQuantity = pDeal->GetNumResourcesInDeal(eThem, eResource);
-				pDeal->RemoveResourceTrade(eResource);
-				//and bump the quantity.
-				iResourceQuantity++;
-				iTotalValue = GetDealValue(pDeal);
-			}
-
-			//don't exceed total.
-			iResourceQuantity = min(iResourceQuantity, iMaxResourceQuantity);
-
-			// See if they can actually trade it to us
-			if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
-			{
-				iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ false, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration);
-
-				// If adding this to the deal doesn't take it over the limit, do it (pick best option below)
-				if(iItemValue == INT_MAX)
-				{
-					continue;
-				}
-				else
-				{
-					viTradeValues.push_back(eResource, iItemValue);
-					viTradeQuantities.push_back(eResource, iResourceQuantity);
-				}
-			}
+			vOptions.push_back(OptionWithScore<TradeItem>(TradeItem(eResource, iResourceQuantity), iItemValue));
 		}
-		// Sort the vector based on value to get the best possible item to trade.
-		viTradeValues.SortItems();
-		if (viTradeValues.size() > 0)
+	}
+
+	sort(vOptions.begin(), vOptions.end());
+	for (size_t i=0; i<vOptions.size(); i++)
+	{
+		ResourceTypes eResource = vOptions[i].option.first;
+		int iQuantity = vOptions[i].option.second;
+		int iScore = vOptions[i].score;
+
+		if (!TooMuchAdded(eThem, iTotalValue, iScore))
 		{
-			for (int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
+			// Try to change the current item if it already exists, otherwise add it
+			if (!pDeal->ChangeResourceTrade(eThem, eResource, iQuantity, pDeal->GetDuration()))
 			{
-				int iWeight = viTradeValues.GetWeight(iRanking);
-				if (iWeight != 0)
-				{
-					eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
-					if (eResource == NO_RESOURCE)
-						continue;
-
-					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-					if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-						continue;
-
-					iResourceQuantity = viTradeQuantities.GetWeight(eResource);
-
-					if (pDeal->GetDemandingPlayer() != NO_PLAYER || !TooMuchAdded(eThem, iTotalValue, iWeight))
-					{
-						// Try to change the current item if it already exists, otherwise add it
-						if (!pDeal->ChangeResourceTrade(eThem, eResource, iResourceQuantity, iDealDuration))
-						{
-							pDeal->AddResourceTrade(eThem, eResource, iResourceQuantity, iDealDuration);
-							iTotalValue = GetDealValue(pDeal);
-						}
-					}
-				}
+				pDeal->AddResourceTrade(eThem, eResource, iQuantity, pDeal->GetDuration());
+				iTotalValue = GetDealValue(pDeal);
 			}
 		}
 	}
@@ -5130,103 +5081,59 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Us, but them is us.  Please show Jon");
 
-	CvWeightedVector<int> viTradeValues;
-	CvWeightedVector<int> viTradeQuantities;
+	typedef pair<ResourceTypes, int> TradeItem;
+	vector<OptionWithScore<TradeItem>> vOptions;
 
-	int iDealDuration = pDeal->GetDuration();
-	if (iTotalValue > 0)
+	if (iTotalValue < 1)
+		return;
+
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		PlayerTypes eMyPlayer = GetPlayer()->GetID();
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 
-		int iItemValue;
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+			continue;
 
-		ResourceTypes eResource;
-		int iResourceQuantity = 0;
+		//ignore if already in the deal on the other side
+		if (pDeal->IsResourceTrade(eThem, eResource))
+			continue;
 
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		//always keep some for ourselves?
+		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) - 4;
+
+		//how do we judge this? A good rule of thumb: never give away more than we're getting.
+		int iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eThem), iMaxResourceQuantity);
+		if (iResourceQuantity < 1)
+			continue;
+
+		// See if we can actually trade it to them
+		if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
 		{
-			eResource = (ResourceTypes)iResourceLoop;
-
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+			int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ true, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, pDeal->GetDuration());
+			if (iItemValue == INT_MAX)
 				continue;
 
-			//already in deal?
-			if (pDeal->IsResourceTrade(eThem, eResource))
-				continue;
-
-			int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) - 4;
-
-			// Don't bother looking at this Resource if we don't even have any of it
-			if (iResourceQuantity <= 0)
-			{
-				continue;
-			}
-
-			//how do we judge this? A good rule of thumb: never give away more than we're getting.
-			iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eThem), iMaxResourceQuantity);
-			if (iResourceQuantity <= 0)
-				iResourceQuantity = 1;
-
-			//already in deal? add one more to the mix and reset quantity
-			if (pDeal->IsResourceTrade(eThem, eResource))
-			{
-				iResourceQuantity = pDeal->GetNumResourcesInDeal(eMyPlayer, eResource);
-				pDeal->RemoveResourceTrade(eResource);
-				//and bump the quantity.
-				iResourceQuantity++;
-				iTotalValue = GetDealValue(pDeal);
-			}
-
-			//don't exceed total.
-			iResourceQuantity = min(iResourceQuantity, iMaxResourceQuantity);
-
-			// See if we can actually trade it to them
-			if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
-			{
-				iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ true, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration);
-
-				// If adding this to the deal doesn't take it under the min limit, do it
-				if (iItemValue == INT_MAX)
-				{
-					continue;
-				}
-
-				viTradeValues.push_back(eResource, iItemValue);
-				viTradeQuantities.push_back(eResource, iResourceQuantity);
-			}
+			vOptions.push_back(OptionWithScore<TradeItem>(TradeItem(eResource, iResourceQuantity), iItemValue));
 		}
+	}
 
-		viTradeValues.SortItems();
-		if (viTradeValues.size() > 0)
+	sort(vOptions.begin(), vOptions.end());
+	for (size_t i=0; i<vOptions.size(); i++)
+	{
+		ResourceTypes eResource = vOptions[i].option.first;
+		int iQuantity = vOptions[i].option.second;
+		int iScore = vOptions[i].score;
+
+		// If adding this to the deal doesn't take it under the min limit, do it
+		if (!TooMuchAdded(eThem, iTotalValue, iScore, true))
 		{
-			//reverse!
-			for (int iRanking = viTradeValues.size() - 1; iRanking >= 0; iRanking--)
+			// Try to change the current item if it already exists, otherwise add it
+			if (!pDeal->ChangeResourceTrade(eMyPlayer, eResource, iQuantity, pDeal->GetDuration()))
 			{
-				int iWeight = viTradeValues.GetWeight(iRanking);
-				if (iWeight != 0)
-				{
-					eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
-					if (eResource == NO_RESOURCE)
-						continue;
-
-					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-					if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-						continue;
-
-					iResourceQuantity = viTradeQuantities.GetWeight(eResource);
-
-					if (!TooMuchAdded(eThem, iTotalValue, iWeight, true))
-					{
-						// Try to change the current item if it already exists, otherwise add it
-						if (!pDeal->ChangeResourceTrade(eMyPlayer, eResource, iResourceQuantity, iDealDuration))
-						{
-							pDeal->AddResourceTrade(eMyPlayer, eResource, iResourceQuantity, iDealDuration);
-							iTotalValue = GetDealValue(pDeal);
-							return;
-						}
-					}
-				}
+				pDeal->AddResourceTrade(eMyPlayer, eResource, iQuantity, pDeal->GetDuration());
+				iTotalValue = GetDealValue(pDeal);
 			}
 		}
 	}
@@ -5742,11 +5649,11 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 	if (pDeal->IsStrategicsTrade())
 	{
 		DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue);
-		DoAddResourceToThem(pDeal, eOtherPlayer, iTotalValue);
+		DoAddLuxuryResourceToThem(pDeal, eOtherPlayer, iTotalValue);
 	}
 	else
 	{
-		DoAddResourceToThem(pDeal, eOtherPlayer, iTotalValue);
+		DoAddLuxuryResourceToThem(pDeal, eOtherPlayer, iTotalValue);
 		DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue);
 	}
 	DoAddOpenBordersToThem(pDeal, eOtherPlayer, iTotalValue);
@@ -5774,11 +5681,11 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 	if (pDeal->IsStrategicsTrade())
 	{
 		DoAddStrategicResourceToUs(pDeal, eOtherPlayer, iTotalValue);
-		DoAddResourceToUs(pDeal, eOtherPlayer, iTotalValue);
+		DoAddLuxuryResourceToUs(pDeal, eOtherPlayer, iTotalValue);
 	}
 	else
 	{
-		DoAddResourceToUs(pDeal, eOtherPlayer, iTotalValue);
+		DoAddLuxuryResourceToUs(pDeal, eOtherPlayer, iTotalValue);
 		DoAddStrategicResourceToUs(pDeal, eOtherPlayer, iTotalValue);
 	}
 	DoAddOpenBordersToUs(pDeal, eOtherPlayer, iTotalValue);
