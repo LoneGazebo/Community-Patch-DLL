@@ -2834,11 +2834,7 @@ local function GetMoodInfo( playerID )
 
 		local visibleApproachID = activePlayer:GetApproachTowardsUsGuess(playerID)
 
-		if activeTeam:IsAtWar( teamID ) then	-- At war right now
-
-			opinions:insert( L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" )
-
-		else	-- Not at war right now
+		if (not activeTeam:IsAtWar( teamID )) then	-- Not at war right now
 
 			-- Resources available from them
 			local luxuries = table()
@@ -2955,91 +2951,42 @@ local function GetMoodInfo( playerID )
 						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_DEFENSIVE_PACT )
 				)
 			end
-
-			-- We've fought before
-			if not gk_mode and activePlayer:GetNumWarsFought(playerID) > 0 then
-				-- They don't appear to be mad
-				if visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY or
-					visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL then
-					opinions:insert( L"TXT_KEY_DIPLO_PAST_WAR_NEUTRAL" )
-				-- They aren't happy with us
-				else
-					opinions:insert( L"TXT_KEY_DIPLO_PAST_WAR_BAD" )
-				end
-			end
 		end
 
 		if player.GetOpinionTable then
 			opinions = player:GetOpinionTable( activePlayerID )
 		else
-
-			-- Good things
-			opinions:insertLocalizedIf( activePlayer:IsDoF(playerID) and "TXT_KEY_DIPLO_DOF" )
-			opinions:insertLocalizedIf( activePlayer:IsPlayerDoFWithAnyFriend(playerID) and "TXT_KEY_DIPLO_MUTUAL_DOF" ) -- Human has a mutual friend with the AI
-			opinions:insertLocalizedIf( activePlayer:IsPlayerDenouncedEnemy(playerID) and "TXT_KEY_DIPLO_MUTUAL_ENEMY" ) -- Human has denounced an enemy of the AI
-			opinions:insertLocalizedIf( player:GetNumCiviliansReturnedToMe(activePlayerID) > 0 and "TXT_KEY_DIPLO_CIVILIANS_RETURNED" )
-
-			-- Neutral things
-			opinions:insertLocalizedIf( visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID and "TXT_KEY_DIPLO_AFRAID" )
-
-			-- Bad things
-			opinions:insertLocalizedIf( player:IsFriendDeclaredWarOnUs(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR" ) -- Human was a friend and declared war on us
-			opinions:insertLocalizedIf( player:IsFriendDenouncedUs(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED" ) -- Human was a friend and denounced us
-			opinions:insertLocalizedIf( activePlayer:GetWeDeclaredWarOnFriendCount() > 0 and "TXT_KEY_DIPLO_HUMAN_DECLARED_WAR_ON_FRIENDS" ) -- Human declared war on friends
-			opinions:insertLocalizedIf( activePlayer:GetWeDenouncedFriendCount() > 0 and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIENDS" ) -- Human has denounced his friends
-			opinions:insertLocalizedIf( activePlayer:GetNumFriendsDenouncedBy() > 0 and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS" ) -- Human has been denounced by friends
-			opinions:insertLocalizedIf( activePlayer:IsDenouncedPlayer(playerID) and "TXT_KEY_DIPLO_DENOUNCED_BY_US" )
-			opinions:insertLocalizedIf( player:IsDenouncedPlayer(activePlayerID) and "TXT_KEY_DIPLO_DENOUNCED_BY_THEM" )
-			opinions:insertLocalizedIf( player:IsPlayerDoFWithAnyEnemy(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_DOF_WITH_ENEMY" )
-			opinions:insertLocalizedIf( player:IsPlayerDenouncedFriend(activePlayerID) and "TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIEND" )
-			opinions:insertLocalizedIf( player:IsPlayerNoSettleRequestEverAsked(activePlayerID) and "TXT_KEY_DIPLO_NO_SETTLE_ASKED" )
-			opinions:insertLocalizedIf( player:IsDemandEverMade(activePlayerID) and "TXT_KEY_DIPLO_TRADE_DEMAND" )
-			opinions:insertLocalizedIf( player:GetNumTimesCultureBombed(activePlayerID) > 0 and "TXT_KEY_DIPLO_CULTURE_BOMB" )
-			opinions:insertLocalizedIf( player:IsPlayerBrokenMilitaryPromise(activePlayerID) and "TXT_KEY_DIPLO_MILITARY_PROMISE" )
-			opinions:insertLocalizedIf( player:IsPlayerIgnoredMilitaryPromise(activePlayerID) and "TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED" )
-			opinions:insertLocalizedIf( player:IsPlayerBrokenExpansionPromise(activePlayerID) and "TXT_KEY_DIPLO_EXPANSION_PROMISE" )
-			opinions:insertLocalizedIf( player:IsPlayerIgnoredExpansionPromise(activePlayerID) and "TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED" )
-			opinions:insertLocalizedIf( player:IsPlayerBrokenBorderPromise(activePlayerID) and "TXT_KEY_DIPLO_BORDER_PROMISE" )
-			opinions:insertLocalizedIf( player:IsPlayerIgnoredBorderPromise(activePlayerID) and "TXT_KEY_DIPLO_BORDER_PROMISE_IGNORED" )
-			opinions:insertLocalizedIf( player:IsPlayerBrokenCityStatePromise(activePlayerID) and "TXT_KEY_DIPLO_CITY_STATE_PROMISE" )
-			opinions:insertLocalizedIf( player:IsPlayerIgnoredCityStatePromise(activePlayerID) and "TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED" )
-			opinions:insertLocalizedIf( player:IsPlayerBrokenCoopWarPromise(activePlayerID) and "TXT_KEY_DIPLO_COOP_WAR_PROMISE" )
-			opinions:insertLocalizedIf( player:IsPlayerRecklessExpander(activePlayerID) and "TXT_KEY_DIPLO_RECKLESS_EXPANDER" )
-			opinions:insertLocalizedIf( player:GetNumRequestsRefused(activePlayerID) > 0 and "TXT_KEY_DIPLO_REFUSED_REQUESTS" )
-			opinions:insertLocalizedIf( player:GetRecentTradeValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_TRADE_PARTNER" )
-			opinions:insertLocalizedIf( player:GetCommonFoeValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_COMMON_FOE" )
-			opinions:insertLocalizedIf( player:GetRecentAssistValue(activePlayerID) > 0 and "TXT_KEY_DIPLO_ASSISTANCE_TO_THEM" )
-			opinions:insertLocalizedIf( player:IsLiberatedCapital(activePlayerID) and "TXT_KEY_DIPLO_LIBERATED_CAPITAL" )
-			opinions:insertLocalizedIf( player:IsLiberatedCity(activePlayerID) and "TXT_KEY_DIPLO_LIBERATED_CITY" )
-			opinions:insertLocalizedIf( player:IsGaveAssistanceTo(activePlayerID) and "TXT_KEY_DIPLO_ASSISTANCE_FROM_THEM" )
-			opinions:insertLocalizedIf( player:IsHasPaidTributeTo(activePlayerID) and "TXT_KEY_DIPLO_PAID_TRIBUTE" )
-			opinions:insertLocalizedIf( player:IsNukedBy(activePlayerID) and "TXT_KEY_DIPLO_NUKED" )
-			opinions:insertLocalizedIf( player:IsCapitalCapturedBy(activePlayerID) and "TXT_KEY_DIPLO_CAPTURED_CAPITAL" )
-			-- Protected Minors
-			if player:GetOtherPlayerNumProtectedMinorsKilled(activePlayerID) > 0 then
-				opinions:insert( L"TXT_KEY_DIPLO_PROTECTED_MINORS_KILLED" )
-			-- Only worry about protected minors ATTACKED if they haven't KILLED any
-			elseif player:GetOtherPlayerNumProtectedMinorsAttacked(activePlayerID) > 0 then
-				opinions:insert( L"TXT_KEY_DIPLO_PROTECTED_MINORS_ATTACKED" )
-			end
-
-			--local actualApproachID = player:GetMajorCivApproach(activePlayerID)
-
-			-- Bad things we don't want visible if someone is friendly (acting or truthfully)
-			if visibleApproachID ~= MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
-				-- and actualApproachID ~= MajorCivApproachTypes.MAJOR_CIV_APPROACH_DECEPTIVE then
-				opinions:insertLocalizedIf( player:GetLandDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_LAND_DISPUTE" )
-				--opinions:insertLocalizedIf( player:GetVictoryDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_VICTORY_DISPUTE" )
-				opinions:insertLocalizedIf( player:GetWonderDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_WONDER_DISPUTE" )
-				opinions:insertLocalizedIf( player:GetMinorCivDisputeLevel(activePlayerID) > DisputeLevelTypes.DISPUTE_LEVEL_NONE and "TXT_KEY_DIPLO_MINOR_CIV_DISPUTE" )
-				opinions:insertLocalizedIf( player:GetWarmongerThreat(activePlayerID) > ThreatTypes.THREAT_NONE and "TXT_KEY_DIPLO_WARMONGER_THREAT" )
+			-- Teammates
+			if teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
+			-- At war
+			elseif activeTeam:IsAtWar( teamID ) then
+				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
+			-- Appears Friendly
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
+			-- Appears Guarded
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				opinions = { L"TXT_KEY_DIPLO_GUARDED" }
+			-- Appears Hostile
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
+				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
+			-- Appears Afraid
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID  then
+				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
+			-- Neutral - default string
+			else
+				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
 			end
 		end
 
-		--  No specific events - let's see what string we should use
+		--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
 		if #opinions == 0 then
+			-- Teammates
+			if teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
 			-- At war
-			if visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR then
+			elseif activeTeam:IsAtWar( teamID ) then
 				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
 			-- Appears Friendly
 			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then

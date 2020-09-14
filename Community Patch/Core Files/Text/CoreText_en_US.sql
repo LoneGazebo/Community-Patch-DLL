@@ -586,95 +586,95 @@ WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 -- Liberation
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]You liberated their original capital.[ENDCOLOR]'
+SET Text = 'You liberated their original capital.'
 WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
 
 -- Recent Trade
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
+SET Text = 'We are trade partners.'
 WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER';
 
 -- Shared Intrigue
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]You have shared intrigue with them.[ENDCOLOR]'
+SET Text = 'You have shared intrigue with them.'
 WHERE Tag = 'TXT_KEY_DIPLO_SHARED_INTRIGUE';
 
 -- Diplo Assistance
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Your recent diplomatic actions please them.[ENDCOLOR]'
+SET Text = 'Your recent diplomatic actions please them.'
 WHERE Tag = 'TXT_KEY_DIPLO_ASSISTANCE_TO_THEM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.[ENDCOLOR]'
+SET Text = 'Your recent diplomatic actions disappoint them.'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
 
 -- Issues of Dispute
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Territorial disputes strain your relationship.[ENDCOLOR]'
+SET Text = 'Territorial disputes strain your relationship.'
 WHERE Tag = 'TXT_KEY_DIPLO_LAND_DISPUTE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You are competing for World Wonders.[ENDCOLOR]'
+SET Text = 'You are competing for World Wonders.'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
 -- Reckless Expansion
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]They believe we are expanding our empire too aggressively![ENDCOLOR]'
+SET Text = 'They believe we are expanding our empire too aggressively!'
 WHERE Tag = 'TXT_KEY_DIPLO_RECKLESS_EXPANDER';
 
 -- Spying
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
+SET Text = 'You asked them not to spy on you.'
 WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDCOLOR]'
+SET Text = 'Your spies were caught stealing from them.'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer a City-State protected by them, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise not to conquer a City-State protected by them, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer another civilization''s protected City-State, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise not to conquer another civilization''s protected City-State, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_BROKEN_WITH_OTHERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop attacking a City-State protected by them, and you ignored them![ENDCOLOR]'
+SET Text = 'They asked you to stop attacking a City-State protected by them, and you ignored them!'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to start a cooperative war against another empire, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise to start a cooperative war against another empire, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop expanding near them, and you ignored them![ENDCOLOR]'
+SET Text = 'They asked you to stop expanding near them, and you ignored them!'
 WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop spying on them, and you ignored them![ENDCOLOR]'
+SET Text = 'They asked you to stop spying on them, and you ignored them!'
 WHERE Tag = 'TXT_KEY_DIPLO_SPY_PROMISE_IGNORED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on them, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise not to declare war on them, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on another civilization, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise not to declare war on another civilization, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their artifacts, and then broke it![ENDCOLOR]'
+SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
 -- Friend Betrayal
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
+SET Text = 'We made a Declaration of Friendship and then denounced them!'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then declared war on them![ENDCOLOR]'
+SET Text = 'We made a Declaration of Friendship and then declared war on them!'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
 
 

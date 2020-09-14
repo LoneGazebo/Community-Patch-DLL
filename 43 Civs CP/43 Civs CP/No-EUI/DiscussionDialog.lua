@@ -1579,7 +1579,7 @@ function IsWarAgainstThirdPartyPlayerValid(iThirdPartyPlayer)
 	
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 
-	if (not Players[g_iAIPlayer]:CanRequestCoopWar(pActivePlayer:GetID(), iThirdPartyPlayer)) then
+	if (not pActivePlayer:CanRequestCoopWar(g_iAIPlayer, iThirdPartyPlayer)) then
 		return false;
 	end
 	

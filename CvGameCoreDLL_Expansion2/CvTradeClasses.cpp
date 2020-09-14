@@ -125,14 +125,18 @@ bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const S
 
 const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
 {
-	//make sure we're up to date
-	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-	UpdateTradePathCache(eOriginPlayer);
-
 	if (!pOriginCity)
 		return m_dummyTradePaths; //always empty
 
-	return bWater ? m_aPotentialTradePathsWater[pOriginCity->GetID()] : m_aPotentialTradePathsLand[pOriginCity->GetID()];
+	//make sure we're up to date
+	UpdateTradePathCache(pOriginCity->getOwner());
+
+	const TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	TradePathLookup::const_iterator it = cache.find(pOriginCity->GetID());
+	if (it != cache.end())
+		return it->second;
+	else
+		return m_dummyTradePaths; //always empty
 }
 
 bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
@@ -5259,38 +5263,39 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((eOwningPlayer != NO_PLAYER && !m_pPlayer->isBarbarian() && !GET_PLAYER(eOwningPlayer).isBarbarian()) && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
+	if (eOwningPlayer != NO_PLAYER && m_pPlayer->isMajorCiv() && GET_PLAYER(eOwningPlayer).isMajorCiv())
 	{
 		// Notify Diplo AI that damage has been done
-		int iValue = (iPlunderGoldValue/2);
-		if (iValue > 0)
+		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(eOwningTeam))
 		{
-			// Do we have a bonus to war score accumulation?
-			iValue *= (100 + m_pPlayer->GetWarScoreModifier());
-			iValue /= 100;
+			int iValue = (iPlunderGoldValue/2);
+			if (iValue > 0)
+			{
+				// Do we have a bonus to war score accumulation?
+				iValue *= (100 + m_pPlayer->GetWarScoreModifier());
+				iValue /= 100;
 
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
+				GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
+			}
+
+			// Diplo penalty with destination civ if not at war
+			if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
+			{
+				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
+			}
 		}
-	}
-	// Temporary diplo penalty (including if at war) for killing a civilian unit
-	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && (pPlunderPlot->isVisible(eOwningTeam) || GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam())))))
-	{
-		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRazed(m_pPlayer->GetID(), (10 - GET_PLAYER(eOwningPlayer).GetCurrentEra()));
-	}
-	// Diplo penalty for trade route owner if not at war
-	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
-	{
-		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && pPlunderPlot->isVisible(eOwningTeam) && !GET_PLAYER(eOwningPlayer).isMinorCiv() && !GET_PLAYER(eOwningPlayer).isBarbarian())
+		else if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
 		{
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
-		}
-	}
-	// Diplo penalty for destination civilization if not at war (don't apply for internal trade routes)
-	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && !m_pPlayer->isBarbarian() && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
-	{
-		if (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eDestTeam)))
-		{
-			GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
+			// Diplo penalty with owner
+			if (pPlunderPlot->isVisible(eOwningTeam))
+			{
+				GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 3);
+			}
+			// Diplo penalty with destination civ if not at war
+			if (eOwningPlayer != eDestPlayer && pPlunderPlot->isVisible(eDestTeam) && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(eDestTeam))
+			{
+				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
+			}
 		}
 	}
 #endif

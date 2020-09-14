@@ -12973,10 +12973,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 		{
 			pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
 			TeamTypes eOtherTeam = pPlayer->getTeam();
-
-			// Humans can handle their own diplo
-			if (pPlayer->isHuman())
-				continue;
 			
 			if (pPlayer->isBarbarian())
 				continue;
@@ -12999,7 +12995,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 
 				// Message for human
-				if (getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+				if (!pPlayer->isHuman() && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 				{
 					bAlreadyShownLeader = true;
 
@@ -28627,7 +28623,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		// This helps in preventing us from trying to re-path to the same unreachable location.
 		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
-		m_uiLastPathFlags = iFlags & (~MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED); //ignore this one flag as it's added only when executing the path!
+		m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
 		m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
 		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
@@ -29376,12 +29372,9 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		return;
 	}
 
-	//comfort feature for civilians and humans
-	if (eMission == CvTypes::getMISSION_MOVE_TO())
-	{
-		if (!IsCanAttack() || isHuman())
-			iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-	}
+	//comfort feature for humans
+	if (eMission == CvTypes::getMISSION_MOVE_TO() && isHuman())
+		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//any mission resets the cache
  	ClearReachablePlots();
@@ -29749,7 +29742,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 	return (
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
-		m_uiLastPathFlags == (iFlags & (~MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)) &&
+		m_uiLastPathFlags == (iFlags & PATHFINDER_FLAG_MASK) &&
 		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice() && 
 		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
 		);

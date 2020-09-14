@@ -5044,31 +5044,33 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		// reduce the influence of all the other players
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			if(ui == m_pPlayer->GetID())
+			PlayerTypes eLoopPlayer = (PlayerTypes) ui;
+
+			if (eLoopPlayer == m_pPlayer->GetID())
 			{
 				continue;
 			}
 
 			// only drop the influence if they have positive influence
-			if(aiNewInfluenceValueTimes100[ui] > 0)
+			if (aiNewInfluenceValueTimes100[ui] > 0)
 			{
 				int iNewInfluence = aiNewInfluenceValueTimes100[ui] - (GC.getESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP() * 100);
 				iNewInfluence = max(iNewInfluence, 0);
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
 
 				// Update diplomacy
-				if (ui == ePreviousAlly)
+				if (eLoopPlayer == ePreviousAlly)
 				{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 2);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 2);
 				}
 				else
 				{
 					// Don't apply the diplo penalty if this player hates the previous ally (or they're at war).
-					if (!GET_PLAYER((PlayerTypes)ui).IsAtWarWith(ePreviousAlly) && GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE
-						&& !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(ePreviousAlly) && !GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->IsUntrustworthyFriend(ePreviousAlly))
+					if (!GET_PLAYER(eLoopPlayer).IsAtWarWith(ePreviousAlly) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE
+						&& !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasOurTeamEverBackstabbedBy(ePreviousAlly) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend(ePreviousAlly))
 					{
-						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
 					}
 				}
 			}

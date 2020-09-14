@@ -2777,8 +2777,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 
 						//we know they can stack
-						ExecuteMoveToPlot(pCivilian, pCommonPlot);
 						ExecuteMoveToPlot(pEscort, pCommonPlot);
+						ExecuteMoveToPlot(pCivilian, pCommonPlot);
 
 						if (GC.getLogging() && GC.getAILogging())
 						{

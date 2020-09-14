@@ -117,7 +117,7 @@ SELECT 'DIPLOAI_AGGRESSIVE_MODE_HUMANS', '0';
 -- [AGGRESSIVE MODE (GLOBAL)]
 -- If set to 1, AI civilizations will be much more aggressive towards all other civilizations and City-States.
 -- They will still prioritize their aggression, however, so they will not declare war on the entire planet at once.
--- NOTE: If Passive Mode (Towards Humans) or Passive Mode (Global) are enabled, this does nothing.
+-- NOTE: If Passive Mode (Global) is enabled, this does nothing. If Passive Mode (Towards Humans) is enabled, Aggressive Mode does not affect attitudes towards human players.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_AGGRESSIVE_MODE_GLOBAL', '0';
 
