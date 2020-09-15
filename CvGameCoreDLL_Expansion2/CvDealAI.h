@@ -93,8 +93,8 @@ public:
 	void DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-	void DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	void DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 	void DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
