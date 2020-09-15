@@ -65,15 +65,6 @@
 		<Row Tag="TXT_KEY_DIPLO_TECH_TRADING_NOT_ACTIVE">
 			<Text>[NEWLINE][NEWLINE]科技交易未激活！</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
-			<Text>請求幫助</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
-			<Text>向一名發表友好宣言的玩家請求幫助。此項不會帶來外交懲罰。</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
-			<Text>向此文明索要貢品。此項會帶來外交懲罰。</Text>
-		</Row>
 		<!-- Vassalage -->
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS">
 			<Text>由於缺少附庸，此項不允許。</Text>
@@ -238,12 +229,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE">
 			<Text>明白了。我們准予你獨立。</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
-			<Text>不准向另一個文明的附庸開戰（你須向他們的宗主宣戰，{1_CivName}）。</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
-			<Text>作為一名附庸不准和談（當你的宗主與該文明和談時自動和談）。</Text>
 		</Row>
 		<!-- Added in Version 10 -->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT">
