@@ -357,7 +357,7 @@ function OnShowHide( bHide )
 
 					if (pActiveTeam:IsVassalLockedIntoWar(g_iAITeam)) then
 						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT" ));
-					elseif (Teams[g_AITeam]:IsVassalLockedIntoWar(Game.GetActiveTeam())) then
+					elseif (Teams[g_iAITeam]:IsVassalLockedIntoWar(Game.GetActiveTeam())) then
 						local iMaster = Teams[g_iAITeam]:GetMaster();
 						if (iMaster ~= -1) then
 							local pMaster = Teams[iMaster];
