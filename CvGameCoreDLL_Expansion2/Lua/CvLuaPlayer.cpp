@@ -1002,6 +1002,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWeDenouncedFriendCount);
 	Method(IsFriendDeclaredWarOnUs);
 	Method(GetWeDeclaredWarOnFriendCount);
+	Method(CanRequestCoopWar);
 	Method(GetCoopWarAcceptedState);
 	Method(GetNumWarsFought);
 
