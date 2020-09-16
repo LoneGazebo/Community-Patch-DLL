@@ -4503,31 +4503,39 @@ void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinion
 /// What is the number value of our opinion towards ePlayer?
 int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 {
-	int iOpinionWeight = 0;
-
-	iOpinionWeight += GetBaseOpinionScore(ePlayer);
+	int iOpinionWeight = GetBaseOpinionScore(ePlayer);
 
 	//////////////////////////////////////
-	// How nasty am I?
+	// DISPUTE MODIFIERS
 	//////////////////////////////////////
 
 	iOpinionWeight += GetLandDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetWonderDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetMinorCivDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetTechDisputeLevelScore(ePlayer);
+	iOpinionWeight += GetVictoryDisputeLevelScore(ePlayer);
+	iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
+	iOpinionWeight += GetAngryAboutSidedWithProtectedMinorScore(ePlayer);
+
+	//////////////////////////////////////
+	// WAR STUFF
+	//////////////////////////////////////
+
 	iOpinionWeight += GetWarmongerThreatScore(ePlayer);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	if (MOD_BALANCE_CORE_DIPLOMACY)
-	{
-		iOpinionWeight += GetVictoryDisputeLevelScore(ePlayer);
-		iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
-		iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 5);
-	}
-#endif
+	iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 5);
+	iOpinionWeight += GetTradeRoutesPlunderedScore(ePlayer);
+	iOpinionWeight += max(GetCitiesRazedScore(ePlayer), GetCitiesRazedGlobalScore(ePlayer));
+	iOpinionWeight += GetNukedByScore(ePlayer);
+	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
+	iOpinionWeight += GetCapitalCapturedByScore(ePlayer);
 
 	//////////////////////////////////////
 	// Player has done nice stuff
 	//////////////////////////////////////
+
+	iOpinionWeight += GetRecentTradeScore(ePlayer);
+	iOpinionWeight += GetRecentAssistScore(ePlayer);
+	iOpinionWeight += GetCommonFoeScore(ePlayer);
 	iOpinionWeight += GetCiviliansReturnedToMeScore(ePlayer);
 	iOpinionWeight += GetLandmarksBuiltForMeScore(ePlayer);
 	iOpinionWeight += GetResurrectedScore(ePlayer);
@@ -4538,38 +4546,37 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetTimesIntrigueSharedScore(ePlayer);
 
 	//////////////////////////////////////
-	// Player has asked us to do stuff we don't like
+	// Player has done mean stuff
 	//////////////////////////////////////
-	iOpinionWeight += GetNoSettleRequestScore(ePlayer);
-	iOpinionWeight += GetStopSpyingRequestScore(ePlayer);
-	iOpinionWeight += GetDemandEverMadeScore(ePlayer);
-	
-	//////////////////////////////////////
-	// Player stole from us
-	//////////////////////////////////////
+
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
-#if defined(MOD_BALANCE_CORE)
-	iOpinionWeight += GetTradeRoutesPlunderedScore(ePlayer);
 	iOpinionWeight += GetTimesPlottedAgainstUsScore(ePlayer);
 	iOpinionWeight += GetTimesPerformedCoupScore(ePlayer);
-#endif
 	iOpinionWeight += GetDugUpMyYardScore(ePlayer);
 
 	//////////////////////////////////////
-	// RELIGION/IDEOLOGY
+	// Player has asked us to do things we don't like
 	//////////////////////////////////////
-#if defined(MOD_BALANCE_CORE)
-	iOpinionWeight += GetPolicyScore(ePlayer);
-#endif
-	iOpinionWeight += GetReligionScore(ePlayer);
-	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
-	iOpinionWeight += GetIdeologyScore(ePlayer);
-	
+
+	iOpinionWeight += GetNoSettleRequestScore(ePlayer);
+	iOpinionWeight += GetStopSpyingRequestScore(ePlayer);
+	iOpinionWeight += GetDemandEverMadeScore(ePlayer);
 
 	//////////////////////////////////////
-	// BROKEN/IGNORED PROMISES ;_;
+	// DENOUNCING
 	//////////////////////////////////////
+
+	iOpinionWeight += GetMutualDenouncementScore(ePlayer);
+	iOpinionWeight += GetDenouncedUsScore(ePlayer);
+	iOpinionWeight += GetDenouncedThemScore(ePlayer);
+	iOpinionWeight += GetDenouncedFriendScore(ePlayer);
+	iOpinionWeight += GetDenouncedEnemyScore(ePlayer);
+
+	//////////////////////////////////////
+	// PROMISES
+	//////////////////////////////////////
+
 	iOpinionWeight += GetBrokenMilitaryPromiseScore(ePlayer);
 	iOpinionWeight += GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
 	iOpinionWeight += GetIgnoredMilitaryPromiseScore(ePlayer);
@@ -4599,64 +4606,51 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetBrokenCoopWarPromiseScore(ePlayer);
 
 	//////////////////////////////////////
+	// RELIGION/IDEOLOGY
+	//////////////////////////////////////
+
+	iOpinionWeight += GetPolicyScore(ePlayer);
+	iOpinionWeight += GetReligionScore(ePlayer);
+	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
+	iOpinionWeight += GetIdeologyScore(ePlayer);
+
+	//////////////////////////////////////
 	// PROTECTED MINORS
 	//////////////////////////////////////
-#if defined(MOD_BALANCE_CORE)
+
 	iOpinionWeight += GetPtPSameCSScore(ePlayer);
-#endif
 	iOpinionWeight += GetAngryAboutProtectedMinorKilledScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorAttackedScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorBulliedScore(ePlayer);
 
 	//////////////////////////////////////
-	// BULLIED MINORS
-	//////////////////////////////////////
-	iOpinionWeight += GetAngryAboutSidedWithProtectedMinorScore(ePlayer);
-
-	//////////////////////////////////////
 	// DECLARATION OF FRIENDSHIP
 	//////////////////////////////////////
+
 	iOpinionWeight += GetDOFAcceptedScore(ePlayer);
 	iOpinionWeight += GetDOFWithAnyFriendScore(ePlayer);
 	iOpinionWeight += GetDOFWithAnyEnemyScore(ePlayer);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 	//////////////////////////////////////
-	// RESEARCH AGREEMENT
+	// TRADE AGREEMENTS
 	//////////////////////////////////////
-	iOpinionWeight += GetResearchAgreementScore(ePlayer);
 
-	//////////////////////////////////////
-	// DEFENSIVE PACTS
-	//////////////////////////////////////
 	iOpinionWeight += GetDPAcceptedScore(ePlayer);
 	iOpinionWeight += GetDPWithAnyFriendScore(ePlayer);
 	iOpinionWeight += GetDPWithAnyEnemyScore(ePlayer);
 	iOpinionWeight += GetOpenBordersScore(ePlayer);
-#endif
+	iOpinionWeight += GetResearchAgreementScore(ePlayer);
 
 	//////////////////////////////////////
-	// FRIENDS NOT GETTING ALONG
+	// TRAITOR OPINION
 	//////////////////////////////////////
 
-	// Begin TraitorOpinion bit
 	int iTraitorOpinion = GetFriendDenouncementScore(ePlayer);
 	iTraitorOpinion = max(iTraitorOpinion, GetWeDenouncedFriendScore(ePlayer));
 	iTraitorOpinion = max(iTraitorOpinion, GetFriendDenouncedUsScore(ePlayer));
 	iTraitorOpinion = max(iTraitorOpinion, GetWeDeclaredWarOnFriendScore(ePlayer));
 	iTraitorOpinion = max(iTraitorOpinion, GetFriendDeclaredWarOnUsScore(ePlayer));
 	iOpinionWeight += iTraitorOpinion;
-	// End TraitorOpinion bit
-
-	//////////////////////////////////////
-	// DENOUNCING
-	//////////////////////////////////////
-
-	iOpinionWeight += GetMutualDenouncementScore(ePlayer);
-	iOpinionWeight += GetDenouncedUsScore(ePlayer);
-	iOpinionWeight += GetDenouncedThemScore(ePlayer);
-	iOpinionWeight += GetDenouncedFriendScore(ePlayer);
-	iOpinionWeight += GetDenouncedEnemyScore(ePlayer);
 
 	//////////////////////////////////////
 	// RECKLESS EXPANDER / WONDER SPAMMER
@@ -4666,21 +4660,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetWonderSpammerScore(ePlayer);
 
 	//////////////////////////////////////
-	// JUNE 2011 ADDITIONS
-	//////////////////////////////////////
-	iOpinionWeight += GetRecentTradeScore(ePlayer);
-	iOpinionWeight += GetCommonFoeScore(ePlayer);
-	iOpinionWeight += GetRecentAssistScore(ePlayer);
-
-	iOpinionWeight += GetNukedByScore(ePlayer);
-	iOpinionWeight += GetCapitalCapturedByScore(ePlayer);
-#if defined(MOD_BALANCE_CORE)
-	iOpinionWeight += max(GetCitiesRazedScore(ePlayer), GetCitiesRazedGlobalScore(ePlayer));
-	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
-#endif
-
-	//////////////////////////////////////
-	// XP2 - WORLD CONGRESS
+	// WORLD CONGRESS
 	//////////////////////////////////////
 
 	iOpinionWeight += GetLikedTheirProposalScore(ePlayer);
@@ -42003,25 +41983,25 @@ void CvDiplomacyAI::ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iCha
 int CvDiplomacyAI::GetBaseOpinionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	
+
 	// Modder bonus/penalty to opinion
 	// Human?
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
 		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BASE_HUMAN();
+
+		// Bonus or penalty from difficulty level?
+		if (MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			iOpinionWeight += GET_PLAYER(ePlayer).getHandicapInfo().getAttitudeChange();
+		}
 	}
 	// AI?
 	else
 	{
 		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BASE_AI();
 	}
-	
-	// Bonus/penalty to humans from difficulty level
-	if (MOD_BALANCE_CORE_DIFFICULTY && GET_PLAYER(ePlayer).isHuman())
-	{
-		iOpinionWeight += GC.getGame().getHandicapInfo().getAttitudeChange();
-	}
-	
+
 	return iOpinionWeight;
 }
 

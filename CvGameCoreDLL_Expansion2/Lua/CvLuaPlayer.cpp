@@ -14141,6 +14141,45 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// OBVIOUS NEGATIVES
 		////////////////////////////////////
 
+		iValue = pDiplo->GetNoSettleRequestScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_SETTLE_ASKED");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetStopSpyingRequestScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOP_SPYING_ASKED");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetDemandEverMadeScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+
+			// Have we accepted a demand from our master? Then we've paid tribute.
+			if (pDiplo->IsHasPaidTributeTo(ePlayer))
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE").toUTF8();
+			}
+			else
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetDPWithAnyEnemyScore(ePlayer);
 		if (iValue != 0)
 		{
@@ -14493,7 +14532,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			// TRAITOR OPINION START
 			iValue = 0;
-			Localization::String str;
+			CvString str;
 
 			iTempValue = pDiplo->GetFriendDenouncementScore(ePlayer);
 			if (iTempValue > iValue)
