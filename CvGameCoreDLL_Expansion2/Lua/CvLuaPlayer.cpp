@@ -13439,7 +13439,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 			else
 			{
-				iValue = pDiplo->GetWonderDisputeLevelScore(ePlayer);
+				iValue = pDiplo->GetMinorCivDisputeLevelScore(ePlayer);
 			}
 
 			if (iValue != 0)
