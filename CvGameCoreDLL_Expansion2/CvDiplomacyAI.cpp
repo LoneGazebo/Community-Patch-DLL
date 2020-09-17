@@ -32923,7 +32923,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US:
 	{
 		// AI hasn't known the human for long enough yet
-		if(IsTooEarlyForDoF(eFromPlayer))
+		if(IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 		{
 			SetDoFCounter(eFromPlayer, 0);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
@@ -32948,7 +32948,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetDoFCounter(eFromPlayer, 0);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
-			bool bAcceptable = IsDoFAcceptable(eFromPlayer);
+			bool bAcceptable = IsDoFAcceptable(eFromPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests();
 			if(bAcceptable)
 			{
 				SetDoFAccepted(eFromPlayer, true);
@@ -36190,6 +36190,10 @@ bool CvDiplomacyAI::CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTarg
 	if (eCoopWarState >= COOP_WAR_STATE_PREPARING)
 		return false;
 
+	// Do we already have a coop war planned against the guy we're asking?
+	if (GetGlobalCoopWarAgainstState(eAllyPlayer) >= COOP_WAR_STATE_PREPARING)
+		return false;
+
 	return IsValidCoopWarTarget(eTargetPlayer, false) && GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsValidCoopWarTarget(eTargetPlayer, false);
 }
 
@@ -36994,6 +36998,12 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 {
 	CoopWarStates eResponse = COOP_WAR_STATE_REJECTED;
 	CoopWarStates eCurrentState = GetCoopWarState(eAskingPlayer, eTargetPlayer);
+
+	// Failsafe
+	if (!GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->CanRequestCoopWar(GetPlayer()->GetID(), eTargetPlayer))
+	{
+		return COOP_WAR_STATE_REJECTED;
+	}
 
 	// Teammates will always agree when a human asks
 	if (IsTeammate(eAskingPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests())
