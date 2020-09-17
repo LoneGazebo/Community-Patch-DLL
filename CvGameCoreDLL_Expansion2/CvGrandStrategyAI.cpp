@@ -567,11 +567,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 
 		if (iTotalLandMe > 0)
 		{
-#ifdef AUI_GS_CONQUEST_FIX_CRAMPED
 			if (iTotalLandPlayersMet / iTotalLandMe > 1)
-#else
-			if (iTotalLandPlayersMet / iTotalLandMe > 0)
-#endif // AUI_GS_CONQUEST_FIX_CRAMPED
 			{
 				iPriority += GetPlayer()->IsCramped() ? (/*20*/ GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT() * 5) : GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT();
 			}
@@ -789,16 +785,13 @@ int CvGrandStrategyAI::GetCulturePriority()
 
 	// Before tourism kicks in, add weight based on flavor
 	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-#if defined(MOD_AI_SMART_GRAND_STRATEGY)
+
 	int iEra = m_pPlayer->GetCurrentEra();
 	if(iEra <= 0)
 	{
 		iEra = 1;
 	}
 	iPriority += ((iEra * iFlavorCulture * 150) / 100);
-#else
-	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
-#endif
 
 	// Loop through Players to see how we are doing on Tourism and Culture
 	PlayerTypes eLoopPlayer;

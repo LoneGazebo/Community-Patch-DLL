@@ -92,8 +92,6 @@
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
-/// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
-#define AUI_GS_CONQUEST_FIX_CRAMPED
 /// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
 #define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
 
