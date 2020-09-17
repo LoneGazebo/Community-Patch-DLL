@@ -26405,7 +26405,13 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
 		DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
 		DoVoteTrade(ePlayer, eStatement, pDeal);
-		DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
+		}
+#endif
 
 		DoShareIntrigueStatement(ePlayer, eStatement);
 
