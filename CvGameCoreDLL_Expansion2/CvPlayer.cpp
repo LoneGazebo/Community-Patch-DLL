@@ -13423,7 +13423,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iDX, iDY;
 	int iI;
 
-	int iEra = MOD_BALANCE_CORE_DIPLOMACY_ADVANCED ? GetCurrentEra() : 1;
+	int iEra = MOD_BALANCE_CORE ? GetCurrentEra() : 1;
 	if (iEra <= 0)
 		iEra = 1;
 
@@ -47904,15 +47904,13 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 	int iNumPuppetCities = GetNumPuppetCities();
 	iNumCities -= iNumPuppetCities;
 
-	bool bVPChange = MOD_BALANCE_CORE_DIPLOMACY_ADVANCED;
-
 	// Don't count cities where the player hasn't decided yet what to do with them or ones that are currently being razed
 	int iNumLimboCities = 0;
 	const CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsIgnoreCityForHappiness() || (!bVPChange && pLoopCity->IsRazing()))
+		if (pLoopCity->IsIgnoreCityForHappiness() || (!MOD_BALANCE_CORE && pLoopCity->IsRazing()))
 		{
 			iNumLimboCities++;
 		}
@@ -47923,7 +47921,7 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 		iNumCities = 1;
 
 	// Update member variable
-	if (!bVPChange)
+	if (!MOD_BALANCE_CORE)
 		m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
 	else
 		m_iMaxEffectiveCities = iNumCities;
@@ -47935,6 +47933,7 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 
 	return m_iMaxEffectiveCities;
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// How many Natural Wonders has this player found in its area?

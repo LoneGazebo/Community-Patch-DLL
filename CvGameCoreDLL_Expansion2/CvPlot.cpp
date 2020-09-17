@@ -7307,7 +7307,7 @@ void CvPlot::removeMinorResources(bool bVenice)
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
 		bRemoveUniqueLuxury = true;
 
-	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if (MOD_BALANCE_CORE)
 		bRemoveUniqueLuxury = false;
 		
 	if (bVenice)

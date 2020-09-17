@@ -10981,7 +10981,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
 			{
 				iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
-				if (iShift != 0 && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				if (iShift != 0 && MOD_BALANCE_CORE)
 				{
 					int iNumRoutes = (kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes() - 1) * 100;
 					iShift += min(iShift*5, iNumRoutes);

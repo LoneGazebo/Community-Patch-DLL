@@ -24399,14 +24399,13 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// End any Defensive Pact
 		GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(ePlayer).getTeam(), false);
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
-		
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)	
+	
 		SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, 300);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true);
 		LogBrokenDoF(ePlayer);
-#endif
+
 		vector<PlayerTypes> v;
 
 		// Update opinions and approaches
@@ -25521,7 +25520,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	// Player has a Strategic Resource we'd like
 	else if(eStatement == DIPLO_STATEMENT_STRATEGIC_TRADE)
 	{
@@ -25631,7 +25629,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We'd like to purchase this player's World Map
@@ -26368,9 +26365,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoDoFStatement(ePlayer, eStatement);
 			DoDenounceFriendStatement(ePlayer, eStatement);
 			DoDenounceStatement(ePlayer, eStatement);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			DoEndDoFStatement(ePlayer, eStatement);
-#endif
 #if !defined(MOD_BALANCE_CORE)
 			DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
 #endif
@@ -26452,9 +26447,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 				DoFYIBefriendedHumanFriend(ePlayer, eStatement, iData1);
 				DoHappySamePolicyTree(ePlayer, eStatement);
 				DoIdeologicalStatement(ePlayer, eStatement);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 				DoVictoryCompetitionStatement(ePlayer, eStatement);
-#endif
 			}
 		}
 	}
@@ -28518,16 +28511,12 @@ void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatemen
 			// Done working with this guy?
 			if(IsDenounceFriendAcceptable(ePlayer))
 			{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 				//We have to be really treacherous to do this, otherwise we'll just break up our friendship.
-				if(((GetMeanness() > 8) || (GetDenounceWillingness() > 8) || (GetLoyalty() < 3)))
+				if ((GetMeanness() > 8) || (GetDenounceWillingness() > 8) || (GetLoyalty() < 3))
 				{
-#endif
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-					eStatement = eTempStatement;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+						eStatement = eTempStatement;
 				}
-#endif
 			}
 
 			// Add this statement to the log so we don't evaluate it again until 20 turns has come back around
@@ -33667,7 +33656,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		break;
 	}
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 	// *********************************************
 	// Human ends AI cooperation
 	// *********************************************
@@ -33946,7 +33935,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		}
 		break;
 	}
-#endif
 
 	// *********************************************
 	// Human denounced us!

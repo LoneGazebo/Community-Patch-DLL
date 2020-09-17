@@ -2981,7 +2981,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			bValid = false;
 		}
 
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (MOD_BALANCE_CORE)
 		{
 			for (EnactProposalList::iterator it = m_vLastTurnEnactProposals.begin(); it != m_vLastTurnEnactProposals.end(); it++)
 			{
@@ -4910,8 +4910,8 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 		iCost *= GC.getGame().getStartEraInfo().getConstructPercent();
 		iCost /= 100;
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE)
 		{
 			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
 			if (pkProcessInfo)
