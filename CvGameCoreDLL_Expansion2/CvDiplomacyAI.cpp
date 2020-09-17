@@ -32389,50 +32389,56 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		
 	// Human is influential over the AI - defeat message based on era
 	case DIPLO_MESSAGE_YOUR_CULTURE_INFLUENTIAL:
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE && eCurrentEra <= 1)
+		if (MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE)
 		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL");
-		}
-		else if(MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE  && eCurrentEra >= 2 && eCurrentEra < 4)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE");
-		}
-		else if(MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE  && eCurrentEra >= 4 && eCurrentEra < 6)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_MODERN");
+			if (eCurrentEra <= 1)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL");
+			}
+			else if (eCurrentEra >= 2 && eCurrentEra < 4)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE");
+			}
+			else if (eCurrentEra >= 4 && eCurrentEra < 6)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_MODERN");
+			}
+			else
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI");
+			}
 		}
 		else
 		{
-#endif
-		strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI");
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI");
 		}
-#endif
 		break;
 	
 	// AI is influential over human - victory message based on era
 	case DIPLO_MESSAGE_OUR_CULTURE_INFLUENTIAL:
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(eCurrentEra <= 1)
+		if (MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE)
 		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL");
-		}
-		else if(eCurrentEra >= 2 && eCurrentEra < 4)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE");
-		}
-		else if(eCurrentEra >= 4 && eCurrentEra < 6)
-		{
-			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN");
+			if (eCurrentEra <= 1)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL");
+			}
+			else if (eCurrentEra >= 2 && eCurrentEra < 4)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE");
+			}
+			else if (eCurrentEra >= 4 && eCurrentEra < 6)
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN");
+			}
+			else
+			{
+				strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN");
+			}
 		}
 		else
 		{
-#endif
-		strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN");
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN");
 		}
-#endif
 		break;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	// AI announces that they're competing with human over Domination Victory

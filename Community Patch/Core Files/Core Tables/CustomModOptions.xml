@@ -1073,7 +1073,7 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESOURCES" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
 	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
-	<!-- Removes era-specific messages for civ influence. Useful for mods like Unique Cultural Influence that add special notifications. -->
+	<!-- Enables era-specific messages for civ influence. Disabling may be useful for mods like Unique Cultural Influence that add special notifications. -->
 	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
 	<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>
