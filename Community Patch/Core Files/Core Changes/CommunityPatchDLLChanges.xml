@@ -37,11 +37,6 @@
 			<Where Name="BALANCE_CORE_SETTLER"/>
 			<Set Value="1"/>
 		</Update>
-		<!-- These affect the Deal AI -->
-		<Update>
-			<Where Name="BALANCE_CORE_DEALS"/>
-			<Set Value="1"/>
-		</Update>
 		<!-- This affects the AI's grand strategy guessing improvements.-->
 		<Update>
 			<Where Name="BALANCE_CORE_GRANDSTRATEGY_AI"/>

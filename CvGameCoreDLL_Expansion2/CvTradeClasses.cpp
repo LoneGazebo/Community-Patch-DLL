@@ -21,10 +21,10 @@
 #include "CvInternalGameCoreUtils.h"
 #include "CvWonderProductionAI.h"
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 #include "CvDiplomacyAI.h"
 #include "CvMilitaryAI.h"
-#endif
+
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
 #include "CvGrandStrategyAI.h"
 #endif
@@ -593,7 +593,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 #endif
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
 		if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
@@ -606,9 +605,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		}
 
 	}
-	if(MOD_BALANCE_CORE_DEALS && (eConnectionType == TRADE_CONNECTION_INTERNATIONAL))
+	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
-		if(!GET_PLAYER(eDestPlayer).isHuman() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eOriginPlayer).isMinorCiv())
+		if (!GET_PLAYER(eDestPlayer).isHuman() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
 			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -623,7 +622,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
 			}
 		}
-		if(!GET_PLAYER(eOriginPlayer).isHuman() && !GET_PLAYER(eOriginPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isMinorCiv())
+		if (!GET_PLAYER(eOriginPlayer).isHuman() && GET_PLAYER(eOriginPlayer).isMajorCiv())
 		{
 			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -650,7 +649,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	GET_PLAYER(eOriginPlayer).UpdateReligion();
 	if (eOriginPlayer != eDestPlayer)
 		GET_PLAYER(eDestPlayer).UpdateReligion();
-#endif
 
 	if(GC.getLogging())
 	{

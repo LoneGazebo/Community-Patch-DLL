@@ -8113,13 +8113,11 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
 	// Resource Monopoly requirements met?
-	if(MOD_BALANCE_CORE_DEALS && !IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
+	if(!IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
 	{
 		return false;
 	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!IsBuildingFeatureValid(eBuilding, toolTipSink))
 	{
@@ -9165,7 +9163,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 //	--------------------------------------------------------------------------------
 /// Does eBuilding pass the resource monopoly requirement test?
 bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink) const
@@ -9291,7 +9289,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 bool CvCity::IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
@@ -33357,7 +33355,6 @@ void CvCity::DoNearbyEnemy()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 {
 	int iRange = 4;
@@ -33424,7 +33421,6 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 
 	return (iEnemyPower>iFriendlyPower);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)

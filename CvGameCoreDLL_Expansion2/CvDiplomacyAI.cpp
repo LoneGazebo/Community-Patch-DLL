@@ -198,7 +198,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiVassalGoldPerTurnTaxedSinceVassalStarted()
 	, m_aiVassalGoldPerTurnCollectedSinceVassalStarted()
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	, m_aiTheyPlottedAgainstUs()
 	, m_aiTheyLoweredOurInfluence()
 	, m_aiPerformedCoupAgainstUs()
@@ -218,7 +217,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiNumCitiesCaptured()
 	, m_aiNumTimesRazed()
 	, m_aiNumTradeRoutesPlundered()
-#endif
 {
 }
 
@@ -441,7 +439,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabOfferedGift(NULL),
 	m_pabMasterLiberatedMeFromVassalage(NULL),
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDoFWithPlayer(NULL),
 	m_pabWantsDefensivePactWithPlayer(NULL),
 	m_pabAggressor(NULL),
@@ -476,7 +473,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiNumLandmarksBuiltForMeTurn(NULL),
 	m_paiCiviliansReturnedToMeTurn(NULL),
 	m_paiWarDamageValue(NULL),
-#endif
+
 	m_eTargetPlayer(DIPLO_ALL_PLAYERS),
 	m_eTestToPlayer(NO_PLAYER),
 	m_eTestStatement(NO_DIPLO_STATEMENT_TYPE),
@@ -691,7 +688,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiVassalGoldPerTurnTaxedSinceVassalStarted = &m_pDiploData->m_aiVassalGoldPerTurnTaxedSinceVassalStarted[0];
 	m_paiVassalGoldPerTurnCollectedSinceVassalStarted = &m_pDiploData->m_aiVassalGoldPerTurnCollectedSinceVassalStarted[0];
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDoFWithPlayer = &m_pDiploData->m_abWantsDoFWithPlayer[0];
 	m_pabWantsDefensivePactWithPlayer = &m_pDiploData->m_abWantsDefensivePactWithPlayer[0];
 	m_pabAggressor = &m_pDiploData->m_abAggressor[0];
@@ -734,7 +730,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiTimesRobbedTurn = &m_pDiploData->m_aiTimesRobbedTurn[0];
 	m_paiPlottedAgainstUsTurn = &m_pDiploData->m_aiPlottedAgainstUsTurn[0];
 	m_paiPerformedCoupTurn = &m_pDiploData->m_aiPerformedCoupTurn[0];
-#endif
+
 	//Init 2D array pointers
 	int iI;
 
@@ -1033,7 +1029,6 @@ void CvDiplomacyAI::Uninit()
 	m_paiVassalGoldPerTurnTaxedSinceVassalStarted = NULL;
 	m_paiVassalGoldPerTurnCollectedSinceVassalStarted = NULL;
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	m_pabWantsDoFWithPlayer = NULL;
 	m_pabWantsDefensivePactWithPlayer = NULL;
 	m_pabAggressor = NULL;
@@ -1077,7 +1072,6 @@ void CvDiplomacyAI::Uninit()
 	m_paiTimesRobbedTurn = NULL;
 	m_paiPlottedAgainstUsTurn = NULL;
 	m_paiPerformedCoupTurn = NULL;
-#endif
 
 	delete m_pDiploData;
 	m_pDiploData = NULL;
@@ -2335,7 +2329,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabOfferingGift);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabOfferedGift);
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsDoFWithPlayer);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsDefensivePactWithPlayer);
 	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabAggressor);
@@ -2378,7 +2371,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiTimesRobbedTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPlottedAgainstUsTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPerformedCoupTurn);
-#endif
+
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		kStream << ArrayWrapper<DiploLogData>(MAX_DIPLO_LOG_STATEMENTS, m_ppaDiploStatementsLog[iI]);
@@ -24017,7 +24010,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 #endif
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 	// We'd like a defense pact
 	else if(eStatement == DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST)
 	{
@@ -24217,7 +24210,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
-#endif
+
 	// We'd like to work with a player
 	else if(eStatement == DIPLO_STATEMENT_WORK_WITH_US)
 	{
@@ -26405,19 +26398,15 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		DoOpenBordersExchange(ePlayer, eStatement, pDeal);
 		DoOpenBordersOffer(ePlayer, eStatement, pDeal);
 		DoResearchAgreementOffer(ePlayer, eStatement, pDeal);
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS)
-		{
-			DoStrategicTrade(ePlayer, eStatement, pDeal);
-			DoDefensivePactOffer(ePlayer, eStatement, pDeal);
-			DoCityTrade(ePlayer, eStatement, pDeal);
-			DoCityExchange(ePlayer, eStatement, pDeal);
-			DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
-			DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
-			DoVoteTrade(ePlayer, eStatement, pDeal);
-			DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
-		}
-#endif
+		DoStrategicTrade(ePlayer, eStatement, pDeal);
+		DoDefensivePactOffer(ePlayer, eStatement, pDeal);
+		DoCityTrade(ePlayer, eStatement, pDeal);
+		DoCityExchange(ePlayer, eStatement, pDeal);
+		DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
+		DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
+		DoVoteTrade(ePlayer, eStatement, pDeal);
+		DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
+
 		DoShareIntrigueStatement(ePlayer, eStatement);
 
 		DoRequest(ePlayer, eStatement, pDeal);
@@ -28864,7 +28853,7 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 /// Possible Contact Statement - Strategic Resource Offer
 void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
@@ -29097,8 +29086,6 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 		}
 	}
 }
-
-#endif
 
 /// Possible Contact Statement - Renew Recently Expired Deal
 void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
@@ -31973,7 +31960,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_IDEOLOGY_SAME");
 		break;	
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 		// AI DP request
 	case DIPLO_MESSAGE_DEFENSE_PACT_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_DEFENSIVE_PACT_REQUEST");
@@ -32003,8 +31989,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_VOTE_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_VOTE_COMMITMENT_REQUEST");
 		break;
-		
-#endif
 
 		//////////////////////////////////////////////////////////////
 		// AI is declaring war on human, what does he say?
@@ -43348,7 +43332,6 @@ int CvDiplomacyAI::GetDPWithAnyEnemyScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 int CvDiplomacyAI::GetOpenBordersScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -43479,7 +43462,6 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 	}
 	return false;
 }
-#endif
 
 int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
 {
@@ -46412,7 +46394,7 @@ void CvDiplomacyAI::LogWantRA(PlayerTypes ePlayer)
 		pLog->Msg(strOutBuf);
 	}
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 /// Log player wanting a DP
 void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 {
@@ -46451,7 +46433,6 @@ void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 		pLog->Msg(strOutBuf);
 	}
 }
-#endif
 
 /// Log Major Civ Opinion Update
 void CvDiplomacyAI::LogOpinionUpdate(PlayerTypes ePlayer, std::vector<int>& viOpinionValues)

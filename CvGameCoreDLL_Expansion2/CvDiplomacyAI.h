@@ -837,7 +837,6 @@ public:
 	void DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-#if defined(MOD_BALANCE_CORE_DEALS)
 	void DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -845,7 +844,6 @@ public:
 	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-#endif
 	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	void DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
@@ -1544,11 +1542,9 @@ public:
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE_DEALS)
 	int GetOpenBordersScore(PlayerTypes ePlayer);
 	MajorCivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
 	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
-#endif
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
 	int GetWeDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
@@ -1680,9 +1676,7 @@ private:
 	void LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAgreed);
 	void LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eState);
 	void LogWantRA(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE_DEALS)
 	void LogWantDP(PlayerTypes ePlayer);
-#endif
 
 	void LogOpinionUpdate(PlayerTypes ePlayer, std::vector<int>& viOpinionValues);
 #if defined(MOD_BALANCE_CORE)
@@ -1764,12 +1758,10 @@ private:
 		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
 		bool m_abEasyTarget[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
-#if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abAggressor[REALLY_MAX_PLAYERS];
 		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
-#endif
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeWarFace[REALLY_MAX_PLAYERS];
 		char m_aeWarState[REALLY_MAX_PLAYERS];
@@ -2103,7 +2095,7 @@ private:
 	bool* m_pabEasyTarget;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 	bool* m_pabWantsDoFWithPlayer;
 	bool* m_pabWantsDefensivePactWithPlayer;
 	bool* m_pabAggressor;
@@ -2113,7 +2105,7 @@ private:
 	short* m_paiDoFValue;
 	short* m_paiCompetitorValue;
 	char* m_paiCoopWarScore;
-#endif
+
 	bool* m_pabWantToRouteToMinor;
 
 	char* m_paeWarFace;
