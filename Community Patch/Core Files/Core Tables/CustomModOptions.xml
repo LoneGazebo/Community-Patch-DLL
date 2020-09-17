@@ -1029,8 +1029,6 @@
 	<Row Class="6" Name="BALANCE_CORE_WONDER_COST_INCREASE" Value="0"/>
 	<!-- Specify units that can only be granted by CSs as gifted units - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_CIV_GIFT" Value="0"/>
-	<!-- Changes to Civ Diplo AI - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY" Value="0"/>
 	<!-- Allows for advanced settlers - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->

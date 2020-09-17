@@ -9947,8 +9947,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Clear backstabbing mark
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
-			
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+
 			// Clear certain penalties with third parties
 			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 			{
@@ -9961,7 +9960,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
 				}
 			}
-#endif
+
 			// Update diplo stuff.
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
@@ -37197,7 +37196,6 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		// Returned to major power
 		else if(!GET_PLAYER(eToPlayer).isHuman())
 		{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 			// Additional diplo bonus for returning civilians in the early game, especially Settlers
 			int iTheirEra = GET_PLAYER(eToPlayer).GetCurrentEra();
 			if (iTheirEra <= 1)
@@ -37227,11 +37225,8 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 			}
 			else
 			{
-#endif
 				GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 			}
-#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		else if(GET_PLAYER(eToPlayer).isHuman() && pNewUnit)
