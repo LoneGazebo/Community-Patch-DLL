@@ -1003,8 +1003,6 @@
 	<Row Class="6" Name="BALANCE_CORE_AFRAID_ANNEX" Value="0"/>
 	<!-- The instant yield from buildings part of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
-    <!-- The AI Grand Strategy Guess Improvements part of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_GRANDSTRATEGY_AI" Value="0"/>
     <!-- The Beliefs and Religion Overhauls of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BELIEFS" Value="0"/>
 	<!-- The National Wonders require x population part of COMMUNITY_PATCH -->
