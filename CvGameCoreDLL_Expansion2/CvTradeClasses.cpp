@@ -6497,7 +6497,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	if (bIsToMinor)
 		iOtherGoldAmount = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+
 	//If we are friends with the player, let's not care about how much gold they make.
 	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_AFRAID)
 	{
@@ -6507,7 +6507,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iOtherGoldAmount /= 10;
 	}
-#endif
+
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
 	// getting out of a logjam at the beginning of the game on an archepeligo map
@@ -6600,7 +6600,6 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		iAdjustedTechDifferenceP2fromP1 += iPolicyBump;
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
@@ -6610,7 +6609,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
-#endif
+
 	int iTechDelta = iAdjustedTechDifferenceP1fromP2 - iAdjustedTechDifferenceP2fromP1;
 
 	// culture
@@ -6695,7 +6694,6 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		iAdjustedCultureDifferenceP2fromP1 += iPolicyBump;
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
 	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
@@ -6705,7 +6703,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
-#endif
+
 	int iCultureDelta = iAdjustedCultureDifferenceP1fromP2 - iAdjustedCultureDifferenceP2fromP1;
 
 	// religion

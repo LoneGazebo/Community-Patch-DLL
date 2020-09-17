@@ -1041,8 +1041,6 @@
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_SPIES_ADVANCED" Value="0"/>
-	<!-- Advanced Deal AI CBP - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DEALS_ADVANCED" Value="0"/>
 	<!-- Military and City logging for CP - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
