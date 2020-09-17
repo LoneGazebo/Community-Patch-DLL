@@ -977,8 +977,6 @@
 	<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 	<!-- The military sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="0"/>
-	<!-- The settler sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_SETTLER" Value="0"/>
 	<!-- The minors sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINORS" Value="0"/>
 	<!-- The difficulty sub-feature of COMMUNITY_PATCH -->

@@ -756,9 +756,7 @@ CvPlayer::CvPlayer() :
 	, m_bVassalLevy("CvPlayer::m_bVassalLevy", m_syncArchive)
 	, m_iVassalGoldMaintenanceMod("CvPlayer::m_iVassalGoldMaintenanceMod", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	, m_iFoundValueOfCapital("CvPlayer::m_iFoundValueOfCapital", m_syncArchive)
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl("CvPlayer::m_iFractionOriginalCapitalsUnderControl", m_syncArchive)
 	, m_iAvgUnitExp100("CvPlayer::m_iAvgUnitExp100", m_syncArchive)
@@ -14668,7 +14666,6 @@ void CvPlayer::found(int iX, int iY)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent)
 {
 	//Advanced Settler Buildings
@@ -14718,7 +14715,6 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const

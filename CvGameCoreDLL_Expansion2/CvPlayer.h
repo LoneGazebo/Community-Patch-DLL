@@ -46,12 +46,10 @@ class CvMinorCivAI;
 class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	class CvDistanceMap;
-#endif
+class CvDistanceMap;
 #if defined(MOD_BALANCE_CORE)
-	class CvPlayerCorporations;
-	class CvPlayerContracts;
+class CvPlayerCorporations;
+class CvPlayerContracts;
 #endif
 class CvCityConnections;
 class CvNotifications;
@@ -3664,11 +3662,9 @@ protected:
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
-#endif
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

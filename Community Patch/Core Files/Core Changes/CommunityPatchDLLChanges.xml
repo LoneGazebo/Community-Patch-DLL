@@ -27,11 +27,6 @@
 			<Where Name="BALANCE_CORE_MILITARY"/>
 			<Set Value="1"/>
 		</Update>
-		<!-- This affects AI settler site location selection and advanced settler functions -->
-		<Update>
-			<Where Name="BALANCE_CORE_SETTLER"/>
-			<Set Value="1"/>
-		</Update>
 		<!-- This affects the ability to purchase in puppet cities (certain units and buildings)-->
 		<Update>
 			<Where Name="BALANCE_CORE_PUPPET_PURCHASE"/>
