@@ -2592,9 +2592,8 @@ bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 bool CvDiplomacyAI::IsMaster(PlayerTypes eOtherPlayer) const
 {
 	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
-		
-	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
 
+	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam());
 }
 
 /// Determine if our current vassalage agreement with this player is voluntary (functions in either direction)
@@ -2602,13 +2601,11 @@ bool CvDiplomacyAI::IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const
 {
 	if ((int)eOtherPlayer < 0 || (int)eOtherPlayer >= MAX_MAJOR_CIVS) return false;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (IsVassal(eOtherPlayer) && GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(eOtherPlayer).getTeam())) 
 		return true;
 
 	if (IsMaster(eOtherPlayer) && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVoluntaryVassal(GetPlayer()->getTeam())) 
 		return true;
-#endif
 	
 	return false;
 }
