@@ -18,7 +18,6 @@ local g_iDiploData = -1;
 
 -- Discussion modes
 local g_iModeDiscussionRoot = 0;
---local g_iModeDiscussionWorkAgainst = 1;
 local g_iModeDiscussionWar = 1;
 local g_iInvokedDiscussionMode = g_iModeDiscussionRoot;
 
@@ -287,17 +286,13 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		 		Controls.Button8:SetDisabled(true);
 				
 				-- Discussion buttons valid?
-				for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-					
-					-- Working Against button
-					--if (IsWorkingAgainstThirdPartyPlayerValid(iPlayerLoop)) then
-				 		--Controls.Button3:SetDisabled(false);
-				 	--end
-					
-					-- War button
-					if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
-				 		Controls.Button8:SetDisabled(false);
-				 	end
+				if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
+					for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+						-- War button
+						if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
+							Controls.Button8:SetDisabled(false);
+						end
+					end
 				end
 			end
 			
@@ -1155,11 +1150,6 @@ function OnButton6()
 				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_END_WORK_WITH_US_RESPONSE, g_iAIPlayer, 0, 0 );
 -- END
 			end
-			--if (not pAIPlayer:IsWorkingAgainstPlayerMessageTooSoon(iActivePlayer, 0)) then
-				--Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US, g_iAIPlayer, 0, 0 );
-			--end
-			--g_iInvokedDiscussionMode = g_iModeDiscussionWorkAgainst;
-			--OpenLeadersPanel();
 		end
     -- Default mode
     elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
@@ -1228,12 +1218,6 @@ function OpenLeadersPanel()
 	
 	-- Loop through all the Majors the active player knows
 	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-		
-		-- Working Against mode
-		--if (g_iInvokedDiscussionMode == g_iModeDiscussionWorkAgainst and IsWorkingAgainstThirdPartyPlayerValid(iPlayerLoop)) then
-			--iNumPlayers = iNumPlayers + 1;
-			--AddLeaderButton( iPlayerLoop, Players[iPlayerLoop]:GetName() );
-		--end
 		
 		-- War mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionWar and IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
@@ -1353,11 +1337,6 @@ function OnLeaderSelect( iLeaderId )
     g_CurrentTopic = iLeaderId;
     
     Controls.LeaderPanel:SetHide( true );
-    
-    -- Working Against discussion mode
-	--if (g_iInvokedDiscussionMode == g_iModeDiscussionWorkAgainst) then
-	    --Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_DENOUNCE, g_iAIPlayer, iLeaderId, -1 );
-	--end
     
     -- War discussion mode
 	if (g_iInvokedDiscussionMode == g_iModeDiscussionWar) then
