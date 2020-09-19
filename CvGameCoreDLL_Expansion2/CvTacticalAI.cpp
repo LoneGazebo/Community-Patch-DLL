@@ -757,11 +757,15 @@ void CvTacticalAI::FindTacticalTargets()
 				CvUnit* pUnit = pLoopPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 				if (pUnit != NULL)
 				{
-					//note that the HIGH/MEDIUM/LOW classification is changed later in IdentifyPriorityTargets
-					newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-					newTarget.SetUnitPtr(pUnit);
-					newTarget.SetAuxIntData(50);
-					m_AllTargets.push_back(newTarget);
+					//minors ignore barbarians until they are close to their borders
+					if (!m_pPlayer->isMinorCiv() || !pUnit->isBarbarian() || pUnit->plot()->isAdjacentTeam(m_pPlayer->getTeam()))
+					{
+						//note that the HIGH/MEDIUM/LOW classification is changed later in IdentifyPriorityTargets
+						newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
+						newTarget.SetUnitPtr(pUnit);
+						newTarget.SetAuxIntData(50);
+						m_AllTargets.push_back(newTarget);
+					}
 				}
 				// ... unprotected enemy civilian?
 				else if (pLoopPlot->isEnemyUnit(m_pPlayer->GetID(),false,true) && !pLoopPlot->isNeutralUnit(m_pPlayer->GetID(),true,true))
@@ -2772,7 +2776,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					{
 						bPathFound = true;
 
-						if (iTurns > 1)
+						if (iTurns > 0)
 							//escort seems to be faster than the civilian, slow down
 							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 
@@ -2808,7 +2812,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						{
 							bPathFound = true;
 
-							if (iTurns>1)
+							if (iTurns > 0)
 								//civilian seems to be faster than the escort, slow down
 								pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
 
@@ -5789,38 +5793,39 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 		if (pUnit->atPlot(*pConsiderPlot))
 			continue;
 
-		if (!pConsiderPlot->isRevealed(pUnit->getTeam()))
+		//ignore cities
+		if (!pConsiderPlot->isRevealed(pUnit->getTeam()) || pConsiderPlot->isCity())
 			continue;
 
-		// Value them based on their explore value
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-		int iValue = EconomicAIHelpers::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, pUnit->getDomainType(), false);
-#else
-		int iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
-#endif
+		//even barbarians consider danger sometimes
+		if (pUnit->GetDanger(pConsiderPlot) > pUnit->GetCurrHitPoints())
+			continue;
+
+		int iValue = 0;
+		for (int i = 0; i < RING1_PLOTS; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(pConsiderPlot, i);
+			if (!pNeighbor)
+				continue;
+
+			if (!pNeighbor->isRevealed(pUnit->getTeam()))
+				iValue += 3;
+			else if (!pNeighbor->isVisible(pUnit->getTeam()))
+				iValue += 1;
+
+			if (pNeighbor->isOwned())
+				iValue += 2;
+		}
 
 		// disembark if possible
 		if (pUnit->isNativeDomain(pConsiderPlot))
-		{
-			iValue += 200;
-		}
-
-		// Add special value enemy lands
-		if (pConsiderPlot->isAdjacentOwned() || pConsiderPlot->isOwned())
-		{
 			iValue += 100;
-		}
-
-		//magic knowledge - gravitate towards cities
-		int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pConsiderPlot);
-		if (iCityDistance<10)
-			iValue += (10 - iCityDistance);
 
 		// If still have no value, score equal to distance from my current plot
 		if (iValue == 0)
 			iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
 
-		if (iValue > iBestValue || (!GC.getGame().isGameMultiPlayer() && iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pConsiderPlot) == 0))
+		if (iValue > iBestValue)
 		{
 			pBestMovePlot = pConsiderPlot;
 			iBestValue = iValue;

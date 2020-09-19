@@ -509,6 +509,10 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	if(WantRouteAtPlot(pPlot) || NeedRouteAtPlot(pPlot))
 		return;
 
+	//prefer extending existing routes
+	if (pPlot->IsAdjacentToRoute())
+		iValue *= 2;
+
 	//if it is the right route, add to needed plots
 	if (pPlot->getRouteType() == eRoute)
 		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
@@ -559,7 +563,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 			continue;
 
 		//remember it
-		AddRoutePlot(pPlot, eRoute, pPlot->IsAdjacentToRoute() ? 150 : 100);
+		AddRoutePlot(pPlot, eRoute, 100);
 	}
 }
 
