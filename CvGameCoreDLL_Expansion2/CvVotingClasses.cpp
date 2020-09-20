@@ -2981,7 +2981,7 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			bValid = false;
 		}
 
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (MOD_BALANCE_CORE)
 		{
 			for (EnactProposalList::iterator it = m_vLastTurnEnactProposals.begin(); it != m_vLastTurnEnactProposals.end(); it++)
 			{
@@ -4130,7 +4130,7 @@ int CvLeague::GetSpentVotesForMember(PlayerTypes ePlayer)
 
 	return iVotes;
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer)
 {
 	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
@@ -4198,7 +4198,7 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 	}
 	return 0;
 }
-#endif
+
 int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 {
 	int iVotes = 0;
@@ -4910,8 +4910,8 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 		iCost *= GC.getGame().getStartEraInfo().getConstructPercent();
 		iCost /= 100;
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE)
 		{
 			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
 			if (pkProcessInfo)
@@ -9587,7 +9587,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
-#if defined(MOD_BALANCE_CORE_DEALS)
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9598,9 +9597,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}	
 						temp.iNumVotes = iVotes;
-#else
-						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
-#endif
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = true;
 						vDesired.push_back(temp);
@@ -9633,7 +9629,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
-#if defined(MOD_BALANCE_CORE_DEALS)
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9644,9 +9639,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}
 						temp.iNumVotes = iVotes;
-#else
-						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
-#endif
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = false;
 						vDesired.push_back(temp);
@@ -9665,7 +9657,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					for (uint i = 0; i < vChoices.size(); i++)
 					{
 						int iChoice = vChoices[i];
-#if defined(MOD_BALANCE_CORE_DEALS)
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9676,9 +9667,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/false);
-#else
-						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, pLeague->GetCoreVotesForMember(eFromPlayer), /*bRepeal*/false);
-#endif
+
 						if (eDesire > eHighestDesire)
 						{
 							iDesiredChoice = iChoice;
@@ -9690,7 +9679,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
-#if defined(MOD_BALANCE_CORE_DEALS)
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9701,9 +9689,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}
 						temp.iNumVotes = iVotes;
-#else
-						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
-#endif
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = true;
 						vDesired.push_back(temp);
@@ -9719,7 +9704,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					for (uint i = 0; i < vChoices.size(); i++)
 					{
 						int iChoice = vChoices[i];
-#if defined(MOD_BALANCE_CORE_DEALS)
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9730,9 +9714,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/true);
-#else
-						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, pLeague->GetCoreVotesForMember(eFromPlayer), /*bRepeal*/true);
-#endif
+
 						if (eDesire > eHighestDesire)
 						{
 							iDesiredChoice = iChoice;
@@ -9744,7 +9726,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 						int iVotes = 0;
 						if (bFlippedLogic)
 						{
@@ -9755,9 +9737,6 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
 						}
 						temp.iNumVotes = iVotes;
-#else
-						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
-#endif
 						temp.iVoteChoice = iDesiredChoice;
 						temp.bEnact = false;
 						vDesired.push_back(temp);
@@ -9867,7 +9846,6 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_ALREADY_COMMITTED").toUTF8();
 		}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 		// The league is in session, and we already used our votes
 		if (pLeague->IsInSession() && pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) < pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eToPlayer))
 		{
@@ -9875,15 +9853,6 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 			if (sTooltipSink != NULL)
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_ALREADY_USED_VOTES").toUTF8();
 		}
-#else
-		// The league is in session, and we already used our votes
-		if (pLeague->IsInSession() && pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) < pLeague->GetCoreVotesForMember(GetPlayer()->GetID()))
-		{
-			bCanCommit = false;
-			if (sTooltipSink != NULL)
-				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_ALREADY_USED_VOTES").toUTF8();
-		}
-#endif
 	}
 
 	return bCanCommit;
@@ -9917,7 +9886,7 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 		CvAssertMsg(pLeague->CanVote(GetPlayer()->GetID()), "Trying to honor vote commitments but not able to vote. Please send Anton your save file and version.");
 		CvAssertMsg(pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) >= it->iNumVotes, "Trying to honor vote commitments but not enough votes. Please send Anton your save file and version.");
 		bool bProcessed = false;
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 		int iSetVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 		if(it->iNumVotes > iSetVotes)
 		{
@@ -9948,10 +9917,7 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 				}
 			}
 		}
-		else
-		{
-#endif
-		if (pLeague->CanVote(GetPlayer()->GetID()))
+		else if (pLeague->CanVote(GetPlayer()->GetID()))
 		{
 			// Proposal is up, time to honor the commitment
 			if (pLeague->IsProposed(it->iResolutionID, !it->bEnact, /*bCheckOnHold*/ false))
@@ -9977,9 +9943,6 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 				bProcessed = true;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-		}
-#endif
 
 		// Cleanup
 		if (bProcessed)
@@ -10940,7 +10903,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 	{
 		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 		if(HasVoteCommitment())
 		{
 			int iNumVotes = 0;
@@ -10960,7 +10923,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 				iScore = 0;
 			}
 		} 
-#endif
+
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
 	}
@@ -11007,7 +10970,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 	{
 		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 		if(HasVoteCommitment())
 		{
 			int iNumVotes = 0;
@@ -11027,7 +10990,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 				iScore = 0;
 			}
 		} 
-#endif
+
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
 	}

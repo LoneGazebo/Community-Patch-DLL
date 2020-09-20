@@ -684,11 +684,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 		{
 			if(m_pPlayer->getNumCities() == 0)
 			{
-#if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
 				if(pUnit->canFound(NULL))
-#else
-				if(pUnit->canFound(pUnit->plot()))
-#endif
 				{
 					CvHomelandUnit unit;
 					unit.SetID(pUnit->GetID());

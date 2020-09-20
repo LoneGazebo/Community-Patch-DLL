@@ -218,12 +218,10 @@ public:
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bool bCountUnowned) const;
 	int GetNumAdjacentMountains() const;
 	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsBorderLand(PlayerTypes eDefendingPlayer) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
-#endif
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
@@ -686,9 +684,7 @@ public:
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	int GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit);
-#endif
 
 	int getFoundValue(PlayerTypes eIndex);
 	bool isBestAdjacentFoundValue(PlayerTypes eIndex);

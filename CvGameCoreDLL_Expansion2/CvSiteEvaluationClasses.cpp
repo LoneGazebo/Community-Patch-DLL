@@ -65,11 +65,8 @@ void CvCitySiteEvaluator::Init()
 	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
 	m_iIncaMultiplier = 500; //fertility boost for hill tiles surrounded my mountains
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
 		m_iFlavorMultiplier[i]=1;
-#endif
-
 }
 
 /// Is it valid for this player to found a city here?
@@ -920,11 +917,8 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->GetID(), NULL);
 	}
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements
-	if (MOD_BALANCE_CORE_SETTLER && 
-		( ( (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS ) && pPlot->getFeatureType() == NO_FEATURE ) || 
-		   pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS ) )
+	if (((pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE) || pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
 		rtnValue += 1;
 
 	//Help with island settling - assume a lighthouse
@@ -932,7 +926,6 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	{
 		rtnValue += 1;
 	}
-#endif
 
 	// From resource
 	TeamTypes eTeam = NO_TEAM;
@@ -1003,11 +996,9 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->GetID(), NULL);
 	}
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	// assume a mine or similar in friendly climate. don't run off into the snow
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE)
+	if (pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE)
 		rtnValue += 1;
-#endif
 
 	// From resource
 	TeamTypes eTeam = NO_TEAM;
@@ -1226,27 +1217,22 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity
 	CvAssert(pPlot);
 	if(!pPlot) return rtnValue;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if (MOD_BALANCE_CORE_SETTLER) 
+	//Some features and terrain types are useful strategically. (Or really bad)
+	if(pPlot->getOwner() == NO_PLAYER)
 	{
-		//Some features and terrain types are useful strategically. (Or really bad)
-		if(pPlot->getOwner() == NO_PLAYER)
+		if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE))
 		{
-			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE))
-			{
-				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
-			}
-			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
-			{
-				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
-			}
-			if(iPlotsFromCity <= 3 && pPlot->isCoastalLand())
-			{
-				rtnValue += /*2*/ GC.getBALANCE_COAST_STRATEGIC_VALUE();
-			}
+			rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
+		}
+		if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
+		{
+			rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
+		}
+		if(iPlotsFromCity <= 3 && pPlot->isCoastalLand())
+		{
+			rtnValue += /*2*/ GC.getBALANCE_COAST_STRATEGIC_VALUE();
 		}
 	}
-#endif
 
 	if (pPlot->isHills())
 	{
