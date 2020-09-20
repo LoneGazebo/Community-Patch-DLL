@@ -6687,7 +6687,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		//taking cover only works if the defender will not move away!
 		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
-		bool bIsInCover = pDefender && pDefender->TurnProcessed() && !pUnit->IsCanDefend(); // only move to cover if I'm defenseless here
+		bool bIsInCover = pDefender && pDefender!=pUnit && pDefender->TurnProcessed() && !pUnit->IsCanDefend(); 
 
 		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
@@ -6751,7 +6751,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		{
 			aCoverList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
-		else if( (iDanger<pUnit->GetCurrHitPoints()) && (!bWouldEmbark || bAllowEmbark) )
+		else if(!bWouldEmbark || bAllowEmbark)
 		{
 			aDangerList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
@@ -8698,7 +8698,7 @@ void CvTacticalPosition::addInitialAssignments()
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
-		//we pretend the unit has zero moves, this means we do no score and possible attacks
+		//we pretend the unit has zero moves, this means we do not score any possible attacks
 		//this is important for symmetry with canStayInPlot()
 		int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot( itUnit->iPlotIndex ), *this, true).iScore;
 		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
@@ -8748,12 +8748,12 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		if (iNewBranches == iMaxBranches)
 			break;
 
-		//don't start with a blocked unit, if that's the best we can do we have a problem
-		//really we should check if there is anything else but blocks
-		if (itMove->eAssignmentType==A_BLOCKED && overAllChoices.size()>1)
-			continue;
-
-		if (isMoveBlockedByOtherUnit(*itMove))
+		if (!isMoveBlockedByOtherUnit(*itMove))
+		{
+			//just do the original move
+			movesToAdd.push_back(*itMove);
+		}
+		else
 		{
 			 //usually there is at most one, but sometimes two
 			vector<STacticalAssignment> blocks = findBlockingUnitsAtPlot(itMove->iToPlotIndex, *itMove);
@@ -8803,14 +8803,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			}
 
 			//did we move all blocks out of the way?
-			if (movesToAdd.size()-1 != blocks.size())
-				continue;
-		}
-		//a plain finish move will have score 0
-		else if (itMove->iScore >= 0)
-		{
-			//just do the original move
-			movesToAdd.push_back(*itMove);
+			if (movesToAdd.size() != blocks.size() + 1)
+			{
+				movesToAdd.clear();
+				movesToAdd.push_back(STacticalAssignment(itMove->iFromPlotIndex, itMove->iFromPlotIndex, itMove->iUnitID, 0, itMove->eMoveType, 0, A_BLOCKED));
+			}
 		}
 
 		if (!movesToAdd.empty())
@@ -10022,6 +10019,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
+	vector<CvTacticalPosition*> blockedPositions;
 
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
@@ -10068,7 +10066,15 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			}
 		}
 		else
-			iDiscardedPositions++;
+		{
+			if (current->addFinishMovesIfAcceptable())
+			{
+				blockedPositions.push_back(current);
+				iTopScore = max(iTopScore, current->getScore());
+			}
+			else
+				iDiscardedPositions++;
+		}
 
 		//at some point we have seen enough good positions to pick one
 		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
@@ -10096,14 +10102,23 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		if (gTacticalCombatDebugOutput>10)
 			completedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
-	else if (!openPositionsHeap.empty())
+	else
 	{
-		//sort again with different predicate
-		sort(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetter());
-		result = openPositionsHeap.front()->getAssignments();
+		//last chance - take the best open / blocked position
+		for (size_t i = 0; i < openPositionsHeap.size(); i++)
+		{
+			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable())
+				blockedPositions.push_back(openPositionsHeap[i]);
+		}
 
-		if (gTacticalCombatDebugOutput>10)
-			openPositionsHeap.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+		if (!blockedPositions.empty())
+		{
+			sort(blockedPositions.begin(), blockedPositions.end(), PrPositionIsBetter());
+			result = blockedPositions.front()->getAssignments();
+
+			if (gTacticalCombatDebugOutput > 10)
+				blockedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+		}
 	}
 
 	timer.EndPerfTest();
