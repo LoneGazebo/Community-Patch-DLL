@@ -33354,62 +33354,47 @@ void CvCity::DoNearbyEnemy()
 
 bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 {
-	int iRange = 4;
-	int iFriendlyPower = GetPower()*2;
+	//cannot use the tactical zone here, because it's not specific to a certain enemy
+	//but we can use the danger plots to exclude some cities
+	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
+		return false;
+
+	int iFriendlyPower = GetPower();
 	int iEnemyPower = 0;
-
-	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
-
-	int iX = this->plot()->getX();
-	int iY = this->plot()->getY();
 	bool bFriendlyGeneralInTheVicinity = false;
 	bool bEnemyGeneralInTheVicinity = false;
-
-	int iUnitLoop;
-	for (const CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 	{
-		if (pLoopUnit->IsCombatUnit())
+		CvPlot* pPlot = iterateRingPlots(plot(), i);
+		if (!pPlot)
+			continue;
+
+		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
+			CvUnit* pUnit = pPlot->getUnitByIndex(j);
+			if (pUnit->IsCombatUnit())
 			{
-				iFriendlyPower += pLoopUnit->GetPower();
+				if (pUnit->getTeam() == getTeam())
+					iFriendlyPower += pUnit->GetPower();
+				if (pUnit->getOwner() == eEnemy)
+					iEnemyPower += pUnit->GetPower();
 			}
-		}
-		if (!bFriendlyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
+			else if (pUnit->IsGreatGeneral())
 			{
-				bFriendlyGeneralInTheVicinity = true;
+				if (pUnit->getTeam() == getTeam())
+					bFriendlyGeneralInTheVicinity = true;
+				if (pUnit->getOwner() == eEnemy)
+					bEnemyGeneralInTheVicinity = true;
 			}
 		}
 	}
+
 	if (bFriendlyGeneralInTheVicinity)
 	{
 		iFriendlyPower *= 11;
 		iFriendlyPower /= 10;
 	}
 
-	for (const CvUnit* pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
-	{
-		if (pLoopUnit->IsCombatUnit())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
-			{
-				iEnemyPower += pLoopUnit->GetPower();
-			}
-		}
-		if (!bEnemyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
-			{
-				bEnemyGeneralInTheVicinity = true;
-			}
-		}
-	}
 	if (bEnemyGeneralInTheVicinity)
 	{
 		iEnemyPower *= 11;
