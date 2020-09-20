@@ -8113,13 +8113,11 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
 	// Resource Monopoly requirements met?
-	if(MOD_BALANCE_CORE_DEALS && !IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
+	if(!IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
 	{
 		return false;
 	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!IsBuildingFeatureValid(eBuilding, toolTipSink))
 	{
@@ -9165,7 +9163,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 //	--------------------------------------------------------------------------------
 /// Does eBuilding pass the resource monopoly requirement test?
 bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink) const
@@ -9291,7 +9289,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 bool CvCity::IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
@@ -10710,7 +10708,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 		iNumProductionNeeded /= 100;
 #endif
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
 		{
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 			if (IsUnitInvestment(eUnitClass))
@@ -16213,7 +16211,7 @@ void CvCity::CheckForOperationUnits()
 							//take the money...
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 							if (bInvest)
 							{
 								const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -16336,7 +16334,7 @@ void CvCity::CheckForOperationUnits()
 				//take the money...
 				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -16647,8 +16645,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (MOD_BALANCE_CORE)
 		{
 			int iGrowthTourism = GetGrowthFromTourism();
 			iTotalMod += iGrowthTourism;
@@ -16657,7 +16654,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
 			}
 		}
-#endif
+
 		if (IsPuppet())
 		{
 			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
@@ -16847,13 +16844,13 @@ int CvCity::getGrowthMods() const
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
+	if (MOD_BALANCE_CORE)
 	{
 		int iGrowthTourism = GetGrowthFromTourism();
 		iTotalMod += iGrowthTourism;
 	}
-#endif
+
 	if (IsPuppet())
 	{
 		int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
@@ -20747,7 +20744,7 @@ bool CvCity::DoRazingTurn()
 				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
 			}
 
-			if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
+			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
 				{
@@ -27660,8 +27657,7 @@ void CvCity::updateStrengthValue()
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
+	if (MOD_BALANCE_CORE && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
 	{
 		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
 		if(eAlly != NO_PLAYER)
@@ -27696,7 +27692,6 @@ void CvCity::updateStrengthValue()
 			}
 		}
 	}
-#endif
 
 	// Terrain mod
 	if(plot()->isHills())
@@ -30630,7 +30625,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			}
 			//Have we already invested here?
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
 			{
 				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 				if (IsUnitInvestment(eUnitClass))
@@ -31163,7 +31158,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
 			if (pGameUnit)
 			{
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT));
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{	
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
@@ -33357,7 +33352,6 @@ void CvCity::DoNearbyEnemy()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 {
 	int iRange = 4;
@@ -33424,7 +33418,6 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 
 	return (iEnemyPower>iFriendlyPower);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)

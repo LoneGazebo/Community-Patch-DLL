@@ -563,7 +563,7 @@ public:
 	void changeRivalTerritoryCount(int iChange);
 	bool isFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 	bool CanFoundColony() const;

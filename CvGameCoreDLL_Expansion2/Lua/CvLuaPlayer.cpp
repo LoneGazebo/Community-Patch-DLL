@@ -1062,10 +1062,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoForceDoF);
 	Method(DoForceDenounce);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 	Method(IsHasDefensivePact);
 	Method(IsHasDefensivePactWithPlayer);
-#endif
+
 #if defined(MOD_API_LUA_EXTENSIONS) 
 	Method(GetNumTurnsMilitaryPromise);
 	Method(GetNumTurnsExpansionPromise);
@@ -11112,7 +11111,6 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFCounter(pkPlayer->GetID(), 0);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
 	{
 		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_BATTLE_BROTHERS);
@@ -11132,8 +11130,7 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	{
 		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_NEW);
 		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
-	}		
-#endif
+	}
 
 	return 1;
 }
@@ -11154,7 +11151,6 @@ int CvLuaPlayer::lDoForceDenounce(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsHasDefensivePact(lua_State* L)
 {
@@ -11185,7 +11181,6 @@ int CvLuaPlayer::lIsHasDefensivePactWithPlayer(lua_State* L)
 	lua_pushboolean(L, GET_TEAM(pkPlayer->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
 	return 1;
 }
-#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 int CvLuaPlayer::lGetNumTurnsMilitaryPromise(lua_State* L)
 {

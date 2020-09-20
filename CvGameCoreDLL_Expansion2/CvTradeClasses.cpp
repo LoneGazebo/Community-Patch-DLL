@@ -21,10 +21,10 @@
 #include "CvInternalGameCoreUtils.h"
 #include "CvWonderProductionAI.h"
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 #include "CvDiplomacyAI.h"
 #include "CvMilitaryAI.h"
-#endif
+
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
 #include "CvGrandStrategyAI.h"
 #endif
@@ -593,7 +593,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 #endif
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
 		if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
@@ -606,9 +605,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		}
 
 	}
-	if(MOD_BALANCE_CORE_DEALS && (eConnectionType == TRADE_CONNECTION_INTERNATIONAL))
+	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
-		if(!GET_PLAYER(eDestPlayer).isHuman() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eOriginPlayer).isMinorCiv())
+		if (!GET_PLAYER(eDestPlayer).isHuman() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
 			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -623,7 +622,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
 			}
 		}
-		if(!GET_PLAYER(eOriginPlayer).isHuman() && !GET_PLAYER(eOriginPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isMinorCiv())
+		if (!GET_PLAYER(eOriginPlayer).isHuman() && GET_PLAYER(eOriginPlayer).isMajorCiv())
 		{
 			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -650,7 +649,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	GET_PLAYER(eOriginPlayer).UpdateReligion();
 	if (eOriginPlayer != eDestPlayer)
 		GET_PLAYER(eDestPlayer).UpdateReligion();
-#endif
 
 	if(GC.getLogging())
 	{
@@ -1519,7 +1517,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// Recall trade units
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
+				if (MOD_BALANCE_CORE || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing())
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -1738,7 +1736,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE)
 		{
 			if(GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
 			{
@@ -1747,7 +1745,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 				{
 					return 0;
 				}
-				return 	iAllyScience;
+				return iAllyScience;
 			}
 			else if(GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
 			{
@@ -1756,7 +1754,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 				{
 					return 0;
 				}
-				return 	iFriendScience;
+				return iFriendScience;
 			}
 		}
 #endif
@@ -1831,13 +1829,13 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 		return 0;
 	}
 
-	if (!MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if (!MOD_BALANCE_CORE)
 		return 0;
 
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
 #if defined(MOD_BALANCE_CORE)
-		if (GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE)
 		{
 			if (GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
 			{
@@ -2800,12 +2798,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
 						iAdjustedTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}
-#endif
 
 					// Policy bump
 					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
@@ -2853,12 +2850,12 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
 						iAdjustedCultureDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}
-#endif				
+			
 					// Policy bump
 					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 #if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
@@ -3163,7 +3160,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 	int iResult = 0;
 	if(bAsOriginPlayer && eYield == YIELD_GOLD)
 	{
-		if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && MOD_BALANCE_CORE)
 		{
 			if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
 			{
@@ -3186,7 +3183,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 		}
 #if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 		// gold internal trade routes get bonus gold as if trading with an allied city state
-		else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
+		else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && MOD_BALANCE_CORE && kTradeConnection.m_eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
 		{
 			int iAllyGold = (GD_INT_GET(TRADE_ROUTE_CS_ALLY_GOLD) * 100);
 			if (iAllyGold > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -6499,7 +6496,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	if (bIsToMinor)
 		iOtherGoldAmount = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+
 	//If we are friends with the player, let's not care about how much gold they make.
 	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_AFRAID)
 	{
@@ -6509,7 +6506,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iOtherGoldAmount /= 10;
 	}
-#endif
+
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
 	// getting out of a logjam at the beginning of the game on an archepeligo map
@@ -6545,12 +6542,11 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iAdjustedTechDifferenceP1fromP2 += iTraitScience / 2;
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 		if (iAdjustedTechDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedTechDifferenceP1fromP2 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 		}
-#endif
 
 		// Policy bump
 		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
@@ -6589,12 +6585,11 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iAdjustedTechDifferenceP2fromP1 += iTraitScience / 2;
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 		if (iTechDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedTechDifferenceP2fromP1 *= GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra();
 		}
-#endif
 
 		// Policy bump
 		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eDestOwner).GetExtraCultureandScienceTradeRoutes();
@@ -6602,7 +6597,6 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		iAdjustedTechDifferenceP2fromP1 += iPolicyBump;
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
 	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
@@ -6612,7 +6606,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
-#endif
+
 	int iTechDelta = iAdjustedTechDifferenceP1fromP2 - iAdjustedTechDifferenceP2fromP1;
 
 	// culture
@@ -6641,12 +6635,12 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iAdjustedCultureDifferenceP1fromP2 += iTraitCulture / 2;
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 		if (iAdjustedCultureDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedCultureDifferenceP1fromP2 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 		}
-#endif				
+			
 		// Policy bump
 		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
@@ -6685,19 +6679,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			iAdjustedCultureDifferenceP2fromP1 += iTraitCulture / 2;
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
 		if (iAdjustedCultureDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedCultureDifferenceP2fromP1 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 		}
-#endif				
+				
 		// Policy bump
 		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 		iAdjustedCultureDifferenceP2fromP1 += iPolicyBump;
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
 	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
@@ -6707,7 +6700,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	{
 		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
-#endif
+
 	int iCultureDelta = iAdjustedCultureDifferenceP1fromP2 - iAdjustedCultureDifferenceP2fromP1;
 
 	// religion

@@ -975,10 +975,6 @@
 	<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 	<!-- The military sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="0"/>
-	<!-- The settler sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_SETTLER" Value="0"/>
-	<!-- The deals sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DEALS" Value="0"/>
 	<!-- The minors sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINORS" Value="0"/>
 	<!-- The difficulty sub-feature of COMMUNITY_PATCH -->
@@ -1003,8 +999,6 @@
 	<Row Class="6" Name="BALANCE_CORE_AFRAID_ANNEX" Value="0"/>
 	<!-- The instant yield from buildings part of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
-    <!-- The AI Grand Strategy Guess Improvements part of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_GRANDSTRATEGY_AI" Value="0"/>
     <!-- The Beliefs and Religion Overhauls of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BELIEFS" Value="0"/>
 	<!-- The National Wonders require x population part of COMMUNITY_PATCH -->
@@ -1029,20 +1023,14 @@
 	<Row Class="6" Name="BALANCE_CORE_WONDER_COST_INCREASE" Value="0"/>
 	<!-- Specify units that can only be granted by CSs as gifted units - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_CIV_GIFT" Value="0"/>
-	<!-- Changes to Civ Diplo AI - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY" Value="0"/>
 	<!-- Allows for advanced settlers - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
-	<!-- Advanced changes to CBP AI - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_SPIES_ADVANCED" Value="0"/>
-	<!-- Advanced Deal AI CBP - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DEALS_ADVANCED" Value="0"/>
 	<!-- Military and City logging for CP - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
@@ -1075,7 +1063,7 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESOURCES" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
 	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
-	<!-- Removes era-specific messages for civ influence. Useful for mods like Unique Cultural Influence that add special notifications. -->
+	<!-- Enables era-specific messages for civ influence. Disabling may be useful for mods like Unique Cultural Influence that add special notifications. -->
 	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
 	<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>

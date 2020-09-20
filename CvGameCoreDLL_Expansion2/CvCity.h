@@ -353,9 +353,7 @@ public:
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool bUnimproved = false);
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
-#if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 #endif
@@ -1524,9 +1522,7 @@ public:
 
 	void DoNearbyEnemy();
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsInDanger(PlayerTypes eEnemy) const;
-#endif
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
