@@ -28565,12 +28565,27 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					}
 				}
 			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pPlot->IsChokePoint())
 			{
 				iValueMultiplier += 50;
 				bStoleHighValueTile = true;
+
+				if (pkImprovement)
+				{
+					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					{
+						iValueMultiplier += 100;
+					}
+					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
+					{
+						iValueMultiplier += 50;
+					}
+				}
 			}
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pkImprovement)
 			{
 				if (pkImprovement->IsCreatedByGreatPerson())

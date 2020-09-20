@@ -10369,7 +10369,17 @@ bool CvUnit::pillage()
 					}
 					if (pPlot->IsChokePoint())
 					{
-						iValueMultiplier += 50;
+						static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+						static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+						if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+						{
+							iValueMultiplier += 100;
+						}
+						else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
+						{
+							iValueMultiplier += 50;
+						}
 					}
 					if (pkImprovement->IsCreatedByGreatPerson())
 					{
@@ -12831,12 +12841,27 @@ void CvUnit::PerformCultureBomb(int iRadius)
 							}
 						}
 					}
+					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if (pLoopPlot->IsChokePoint())
 					{
 						iValueMultiplier += 50;
 						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+
+						if (pkImprovement)
+						{
+							static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+							static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+							if (eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel)
+							{
+								iValueMultiplier += 100;
+							}
+							else if (eFort != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eFort)
+							{
+								iValueMultiplier += 50;
+							}
+						}
 					}
-					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if (pkImprovement)
 					{
 						if (pkImprovement->IsCreatedByGreatPerson())
