@@ -3296,36 +3296,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 
 	//Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
-
-#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY)
-	if (MOD_RELIGION_PASSIVE_SPREAD_WITH_MAJORITY_ONLY)
-	{
-		if (eMajorityReligion != eReligion)
-		{
-			return 0;
-		}
-	}
-#endif
-
-	//We don't get the full value here if not the majority.
-	if (eMajorityReligion == NO_RELIGION)
-	{
-		int iNumFollowers = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-		if (iNumFollowers > 0)
-		{
-			//scale the amount of pressure we get.
-			int iCitySize = pFromCity->getPopulation();
-			int iRatio = (iNumFollowers * 100) / max(1, iCitySize);
-
-			iPressureMod += iRatio;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	//no pressure at all if the majority is something else
-	else if (eMajorityReligion != eReligion)
+	if (eMajorityReligion != eReligion)
 	{
 		return 0;
 	}
@@ -5310,8 +5281,13 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 		return false;
 	}
 
+	if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pTargetCity, m_pCity))
+	{
+		iAmount = 0;
+		return false;
+	}
+	
 	int iNumTradeRoutes = 0;
-
 	bool bConnectedWithTrade;
 	int iRelativeDistancePercent;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
@@ -5319,8 +5295,7 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
 	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-	iAmount = (iWithTR-iNoTR);
-	return (iAmount>0);
+	return (iWithTR>iNoTR);
 }
 
 
