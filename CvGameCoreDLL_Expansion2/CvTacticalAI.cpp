@@ -7544,6 +7544,36 @@ bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer,
 	return false;
 }
 
+STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
+{
+	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-1000,A_MOVE);
+
+	//the plot we're checking right now
+	const CvPlot* pTestPlot = testPlot.getPlot();
+	const CvUnit* pUnit = unit.pUnit;
+
+	if (pUnit->shouldPillage(pTestPlot, true, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
+	{
+		result.eAssignmentType = A_PILLAGE;
+
+		if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(), true))
+			result.iScore = 500;
+		else if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			result.iScore = 200;
+		else
+			result.iScore = 100;
+
+		if (pUnit->IsGainsXPFromPillaging())
+			result.iScore += 50;
+
+		if (!pUnit->hasFreePillageMove())
+			result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+	}
+	
+	return result;
+}
+
 STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bScoreTurnEnd) 
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
@@ -7689,53 +7719,14 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
 			return result;
 
-		//may instead of a plain finish we can pillage?
-		if (movePlot.iMovesLeft>0)
+		//minor bonus for staying put and healing
+		//don't add too much else it overrides the firstline/secondline order
+		if (movePlot.iMovesLeft == pUnit->maxMoves())
 		{
-			//would it make sense to pillage here?
-			if (pUnit->shouldPillage(pTestPlot, true, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
-			{
-				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-				bool bStrategicPillage = TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(), true);
-				if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-					bStrategicPillage = true;
-
-				if (bStrategicPillage)
-				{
-					iMiscScore += 50;
-					if (movePlot.iMovesLeft > 0) //if we can do it right away ...
-					{
-						iMiscScore += 50;
-						if (!pUnit->hasFreePillageMove())
-							result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-						result.eAssignmentType = A_PILLAGE;
-					}
-				}
-				//if it's an improvement we pillage to heal when we have moves to spare (pillaging roads doesn't give health)
-				else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && (movePlot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
-				{
-					iMiscScore += 20;
-					if (pUnit->IsGainsXPFromPillaging())
-						iMiscScore += 10;
-					if (!pUnit->hasFreePillageMove())
-						result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-					result.eAssignmentType = A_PILLAGE;
-				}
-			}
-		}
-
-		//if we don't plan on pillaging, then this is a plain finish assigment
-		if (result.eAssignmentType != A_PILLAGE)
-		{
-			//minor bonus for staying put and healing
-			//don't add too much else it overrides the firstline/secondline order
-			if (movePlot.iMovesLeft == pUnit->maxMoves())
-			{
-				if (pUnit->IsHurt())
-					iMiscScore ++; //cannot fortify, only heal
-				if (testPlot.getEnemyDistance(eRelevantDomain) < 4 && !pUnit->noDefensiveBonus())
-					iMiscScore ++; //fortification bonus!
-			}
+			if (pUnit->IsHurt())
+				iMiscScore ++; //cannot fortify, only heal
+			if (testPlot.getEnemyDistance(eRelevantDomain) < 4 && !pUnit->noDefensiveBonus())
+				iMiscScore ++; //fortification bonus!
 		}
 
 		//try to close the lines (todo: make sure the friendlies intend to stay there ...)
@@ -7747,6 +7738,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		//when in doubt, hide from the enemy
 		if (!testPlot.isVisibleToEnemy() && unit.iAttacksLeft==0)
 			iMiscScore++;
+
+		//try to occupy enemy citadels!
+		if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(), true))
+			iMiscScore+=5;
 
 		//the danger value reflects any defensive terrain bonuses
 		//but unfortunately danger is not very useful here
@@ -8546,23 +8541,11 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit);
 	for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
-		//the result of all this
-		STacticalAssignment newAssignment;
-
 		//the plot we're checking right now
 		const CvTacticalPlot& testPlot = getTactPlot(it->iPlotIndex);
 
 		//sanity check
 		if (!testPlot.isValid())
-			continue;
-
-		//we're supposed to move - check staying in place only at the end
-		if (unit.iPlotIndex == it->iPlotIndex)
-			continue;
-
-		//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
-		//note: if a move increases tile visibility we change it to MOVE_FORCED so we can move again!
-		if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
 			continue;
 
 		if (IsCombatUnit(unit) && testPlot.isEnemy())
@@ -8575,29 +8558,38 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			if (plotDistance(*assumedUnitPlot.getPlot(), *testPlot.getPlot()) > 1)
 				continue;
 
-			newAssignment = ScorePlotForMeleeAttack(unit,assumedUnitPlot,testPlot,*it,*this);
+			STacticalAssignment newAssignment = ScorePlotForMeleeAttack(unit,assumedUnitPlot,testPlot,*it,*this);
+
+			//attacks must have a positive score
+			if (newAssignment.iScore > 0)
+				possibleMoves.push_back(newAssignment);
+		}
+		else if (unit.iPlotIndex == it->iPlotIndex)
+		{
+			STacticalAssignment newAssignment = ScorePlotForPillageMove(unit, testPlot, *it, *this);
+			//pillaging must have a positive score
+			if (newAssignment.iScore > 0)
+				possibleMoves.push_back(newAssignment);
 		}
 		else
 		{
-			newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, false);
+			//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
+			//note: if a move increases tile visibility we change it to MOVE_FORCED so we can move again!
+			if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
+				continue;
+
+			STacticalAssignment newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, false);
 			//may be invalid
 			if (newAssignment.iScore < 0)
 				continue;
 
 			//important normalization step
 			newAssignment.iScore -= refAssignment.iScore;
-		}
 
-		//score functions are biased so that only scores > 0 are interesting moves
-		//still allow mildy negative moves here, maybe we want to do combo moves later!
-		if (newAssignment.iScore > -200)
-			possibleMoves.push_back(newAssignment);
-
-		if (gTacticalCombatDebugOutput > 0)
-		{
-			stringstream ss;
-			ss << "pos " << getID() << " unit " << unit.iUnitID << " moveto " << it->iPlotIndex << " score " << newAssignment.iScore << "\n";
-			OutputDebugString(ss.str().c_str());
+			//score functions are biased so that only scores > 0 are interesting moves
+			//still allow mildy negative moves here, maybe we want to do combo moves later!
+			if (newAssignment.iScore > -200)
+				possibleMoves.push_back(newAssignment);
 		}
 	}
 
