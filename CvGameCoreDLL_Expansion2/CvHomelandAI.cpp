@@ -2558,7 +2558,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				continue;
 
 			//get contributions from yet-to-be revealed plots (and goodies)
-			int iScoreBase = EconomicAIHelpers::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
+			int iScoreBase = EconomicAIHelpers::ScoreExplorePlot(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
 				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pUnit);

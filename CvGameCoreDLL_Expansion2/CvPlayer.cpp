@@ -48835,7 +48835,6 @@ bool CvPlayer::GetEverPoppedGoody()
 //	--------------------------------------------------------------------------------
 CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 {
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	CvPlot* pResultPlot = NULL;
 	int iShortestPath = INT_MAX;
 
@@ -48843,17 +48842,6 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-#else
-	FFastVector<int> aiGoodyPlots = GetEconomicAI()->GetGoodyHutPlots();
-
-	CvPlot* pResultPlot = NULL;
-	int iShortestPath = INT_MAX;
-
-	// cycle through goodies
-	for(uint uiGoodyIndex = 0; uiGoodyIndex < aiGoodyPlots.size(); uiGoodyIndex++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiGoodyPlots[uiGoodyIndex]);
-#endif
 		if(!pPlot || !pPlot->isGoody(getTeam()))
 		{
 			continue;
@@ -48922,20 +48910,10 @@ bool CvPlayer::GetPlotHasOrder(CvPlot* pPlot)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::GetAnyUnitHasOrderToGoody()
 {
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	// cycle through goodies
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-#else
-
-	FFastVector<int> aiGoodyPlots = GetEconomicAI()->GetGoodyHutPlots();
-
-	// cycle through goodies
-	for(uint uiGoodyIndex = 0; uiGoodyIndex < aiGoodyPlots.size(); uiGoodyIndex++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiGoodyPlots[uiGoodyIndex]);
-#endif
 		if(!pPlot)
 		{
 			continue;

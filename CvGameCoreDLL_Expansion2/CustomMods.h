@@ -55,8 +55,6 @@
 //If you enable this, the CS AI can settle more cities.
 //#define MOD_MINOR_CAN_SETTLE
 
-/// simpler algorithm for scoring exploration plots
-#define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
 #define MOD_BALANCE_CORE_GLOBAL_IDS
 /// ships on land tiles (city, fort) cannot attack

@@ -165,7 +165,6 @@ public:
 
 	CvCity* GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGreatWork) const;
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	void SetExplorersNeeded(int iValue);
 	int GetExplorersNeeded() const;
 
@@ -173,15 +172,6 @@ public:
 	int GetNavalExplorersNeeded() const;
 
 	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
-#else
-	FFastVector<int>& GetExplorationPlots();
-	FFastVector<int>& GetExplorationPlotRatings();
-	FFastVector<int>& GetGoodyHutPlots();
-	CvPlot* GetUnitTargetGoodyPlot(CvUnit* pUnit, CvPlot** ppkStepPlot = NULL);
-	void ClearUnitTargetGoodyStepPlot(CvUnit* pUnit);
-
-	static int ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType);
-#endif
 
 	void StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority);
 	bool IsSavingForThisPurchase(PurchaseType ePurchase);
@@ -265,8 +255,6 @@ private:
 #endif
 
 	// Low-level utility functions
-	void AssignExplorersToHuts();
-	void AssignHutsToExplorers();
 	CvUnit* FindWorkerToScrap();
 	CvUnit* FindArchaeologistToScrap();
 
@@ -293,32 +281,10 @@ private:
 	int m_iVisibleAntiquitySitesNeutral;
 #endif
 
-	// used for the log monitor
-	FFastVector<uint> m_auiYields;
-
-	// for the exploration plots
-	struct GoodyHutUnitAssignment
-	{
-		int m_iUnitID;				// The unit that is assigned.
-		int m_iStepPlotID;			// The plot ID of the next step toward the destination.  -1 = no defined.
-
-		GoodyHutUnitAssignment(int unitID, int plotID) : m_iUnitID(unitID), m_iStepPlotID(plotID) {}
-		void Clear() { m_iUnitID = -1; m_iStepPlotID = -1; }
-	};
-
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	std::vector<SPlotWithScore> m_vPlotsToExploreLand;
 	std::vector<SPlotWithScore> m_vPlotsToExploreSea;
-#else
-	FFastVector<int> m_aiExplorationPlots;
-	FFastVector<int> m_aiExplorationPlotRatings;
-	FFastVector<int> m_aiGoodyHutPlots;
-	FFastVector<GoodyHutUnitAssignment> m_aiGoodyHutUnitAssignments;
-#endif
 
-	FStaticVector<CvPurchaseRequest, NUM_PURCHASE_TYPES, true, c_eCiv5GameplayDLL, 0> m_RequestedSavings;
-	FStaticVector<CvPurchaseRequest, NUM_PURCHASE_TYPES, true, c_eCiv5GameplayDLL, 0> m_TempRequestedSavings;
-	FFastVector<CvUnit*> m_apExplorers;
+	vector<CvPurchaseRequest> m_RequestedSavings;
 };
 
 FDataStream& operator<<(FDataStream&, const CvPurchaseRequest&);
@@ -326,7 +292,7 @@ FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 
 namespace EconomicAIHelpers
 {
-int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
+int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued

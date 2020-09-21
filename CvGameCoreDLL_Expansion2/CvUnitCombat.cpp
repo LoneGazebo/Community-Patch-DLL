@@ -790,8 +790,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iMaxXP = pkDefender->maxXPValue();
 
 		//CvAssert(pkDefender->IsCanDefend());
-
-		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -1017,8 +1017,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 
 		//CvAssert(pkDefender->IsCanDefend());
-
-		iDamage = kAttacker.rangeCombatDamage(pkDefender);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iDamage = kAttacker.rangeCombatDamage(pkDefender,NULL,bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -1686,7 +1686,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			// Is the interception successful?
 			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()+kAttacker.getDamage()) <= pInterceptor->interceptionProbability())
 			{
-				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, true, &plot);
+				bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
 			}
 		}
 
@@ -1760,7 +1761,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iMaxXP = pkDefender->maxXPValue();
 
 		// Calculate attacker damage
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -2369,7 +2371,8 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	// Ground AA interceptor
 	if(pkDefender->getDomainType() != DOMAIN_AIR)
 	{
-		int iInterceptionDamage = pkDefender->GetInterceptionDamage(&kAttacker, true, &plot);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		int iInterceptionDamage = pkDefender->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
 
 		// Reduce damage for performing a sweep
 		iInterceptionDamage *= 100 + GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD();
