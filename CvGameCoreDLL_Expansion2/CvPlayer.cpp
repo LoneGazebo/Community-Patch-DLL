@@ -2877,45 +2877,14 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		{
 			ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 			if(eReligion == NO_RELIGION)
-			{
 				eReligion = GetReligions()->GetReligionInMostCities();
-			}
-			int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
-			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-			iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
-			iReligiousStrength /= 100;
-#endif
-			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-			{
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-				if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-				{
-					if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-					{
-						int iExtraSpreads = pNewUnit->getUnitInfo().IsFoundReligion() ? 0 : GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + GetNumMissionarySpreads();
-						pNewUnit->GetReligionData()->SetSpreadsLeft(iExtraSpreads);
-					}
-					else if (getCapitalCity())
-					{
-						int iExtraSpreads = pNewUnit->getUnitInfo().IsFoundReligion() ? 0 : getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + GetNumMissionarySpreads();
-						pNewUnit->GetReligionData()->SetSpreadsLeft(iExtraSpreads);
-					}
-					else
-					{
-						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-					}
-				}
-				else
-				{
-					pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-				}
-#else
-				pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-#endif
-				pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-				pNewUnit->GetReligionData()->SetReligion(eReligion);
-			}
+
+			if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+			else if (getCapitalCity())
+				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+			else
+				pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 		}
 #endif
 		// Don't stack any units
@@ -30534,25 +30503,8 @@ void CvPlayer::ChangeGoldenAgeCultureBonusDisabledCount(int iChange)
 void CvPlayer::ChangeNumMissionarySpreads(int iChange)
 {
 	m_iNumMissionarySpreads += iChange;
-
-	if (iChange > 0)
-	{
-		int iUnitLoop;
-		for (CvUnit* pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
-		{
-			if (pLoopUnit->GetReligionData() == NULL)
-				continue;
-
-			if (pLoopUnit->IsGreatPerson())
-				continue;
-
-			if (pLoopUnit->GetReligionData()->GetSpreadsLeft() <= 0)
-				continue;
-
-			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->GetReligionData()->GetSpreadsLeft() + iChange);
-		}
-	}
 }
+
 int CvPlayer::GetNumMissionarySpreads() const
 {
 	return m_iNumMissionarySpreads;
@@ -44934,43 +44886,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									{
 										ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 										if (eReligion == NO_RELIGION)
-										{
 											eReligion = GetReligions()->GetReligionInMostCities();
-										}
-										int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
-										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-										iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
-										iReligiousStrength /= 100;
-#endif
-										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-										{
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-											if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-											{
-												if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-												{
-													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + GetNumMissionarySpreads());
-												}
-												else if (getCapitalCity())
-												{
-													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + GetNumMissionarySpreads());
-												}
-												else
-												{
-													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-												}
-											}
-											else
-											{
-												pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-											}
-#else
-											pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-#endif
-											pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-											pNewUnit->GetReligionData()->SetReligion(eReligion);
-										}
+
+										if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
+										else if (getCapitalCity())
+											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
+										else
+											pNewUnit->GetReligionData()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 									{
@@ -46432,16 +46355,8 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	if(pGreatPeopleUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
-		int iReligionSpreads = pGreatPeopleUnit->getUnitInfo().GetReligionSpreads();
-		int iReligiousStrength = pGreatPeopleUnit->getUnitInfo().GetReligiousStrength();
-		iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
-		iReligiousStrength /= 100;
-		if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-		{
-			pGreatPeopleUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-			pGreatPeopleUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-			pGreatPeopleUnit->GetReligionData()->SetReligion(eReligion);
-		}
+		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
+		pGreatPeopleUnit->GetReligionData()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{

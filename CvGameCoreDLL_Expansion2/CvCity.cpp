@@ -31464,24 +31464,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
-			pUnit->GetReligionData()->SetReligion(eReligion);
 
-			int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
-			int iReligiousStrength = pUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
-#else
-			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
-#endif
-			iReligiousStrength /= 100;
-
-			// Missionary strength
-			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-			{
-				int iExtraReligionSpreads = pUnit->getUnitInfo().IsFoundReligion() ? 0 : GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads();
-				pUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + iExtraReligionSpreads);
-				pUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-			}
+			pUnit->GetReligionData()->SetFullStrength(pUnit->getOwner(),pUnit->getUnitInfo(),eReligion,this);
 
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{

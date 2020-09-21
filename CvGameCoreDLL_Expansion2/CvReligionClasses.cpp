@@ -1397,46 +1397,12 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
-	// In case we have another prophet sitting around, make sure he's set to this religion
+	// Just in case we have another prophet sitting around, make sure he's set to this religion
 	int iLoopUnit;
-	CvUnit* pLoopUnit;
-	for(pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
+	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
-		{
 			pLoopUnit->GetReligionData()->SetReligion(eReligion);
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			{
-				if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else if (kPlayer.getCapitalCity())
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-				}
-			}
-			else
-			{
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-			}
-#else
-			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-#endif
-#if defined(MOD_BALANCE_CORE)
-			int iReligiousStrength = pLoopUnit->getUnitInfo().GetReligiousStrength();
-			iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
-			iReligiousStrength /= 100;
-			pLoopUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-#else
-			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
-#endif
-		}
 	}
 
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -6628,6 +6594,37 @@ void CvUnitReligion::Init()
 	m_iSpreadsLeft = 0;
 }
 
+void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity * pOriginCity)
+{
+	if (eOwner == NO_PLAYER || eReligion <= RELIGION_PANTHEON)
+		return;
+
+	unsigned short iReligionSpreads = kUnitInfo.GetReligionSpreads();
+	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength();
+
+	//strength can be buffed
+	iReligiousStrength *= (100 + GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
+	iReligiousStrength /= 100;
+
+	//missionary spreads can be buffed but not prophets
+	if (!kUnitInfo.IsFoundReligion())
+	{
+		iReligionSpreads += pOriginCity ? pOriginCity->GetCityBuildings()->GetMissionaryExtraSpreads() : 0;
+		iReligionSpreads += GET_PLAYER(eOwner).GetNumMissionarySpreads();
+	}
+
+	m_eReligion = eReligion;
+	m_iSpreadsLeft = iReligionSpreads;
+	m_iStrength = iReligiousStrength;
+	m_iMaxSpreads = iReligionSpreads;
+	m_iMaxStrength = iReligiousStrength;
+}
+
+bool CvUnitReligion::IsFullStrength() const
+{
+	return m_iSpreadsLeft == m_iMaxSpreads && m_iStrength == m_iMaxStrength;
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 {
@@ -6639,18 +6636,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 	int temp;
 	loadFrom >> temp;
 	writeTo.SetReligion((ReligionTypes)temp);
-	loadFrom >> temp;
-	writeTo.SetReligiousStrength(temp);
+	loadFrom >> writeTo.m_iStrength;
+	loadFrom >> writeTo.m_iMaxStrength;
 
-	if(uiVersion >= 2)
-	{
-		loadFrom >> temp;
-		writeTo.SetSpreadsLeft(temp);
-	}
-	else
-	{
-		writeTo.SetSpreadsLeft(0);
-	}
+	loadFrom >> writeTo.m_iSpreadsLeft;
+	loadFrom >> writeTo.m_iMaxSpreads;
 
 	return loadFrom;
 }
@@ -6663,9 +6653,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-	saveTo << readFrom.GetReligion();
-	saveTo << readFrom.GetReligiousStrength();
-	saveTo << readFrom.GetSpreadsLeft();
+	saveTo << readFrom.m_eReligion;
+	saveTo << readFrom.m_iStrength;
+	saveTo << readFrom.m_iMaxStrength;
+
+	saveTo << readFrom.m_iSpreadsLeft;
+	saveTo << readFrom.m_iMaxSpreads;
 
 	return saveTo;
 }
@@ -7205,9 +7198,12 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 {
 	if (piTurns)
 		*piTurns = INT_MAX;
+
+	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
 	int iDistanceBias = 7; //score drops linearly with distance from holy city
 	int iMinScore = 500;  //equivalent to converting 10 heretics at a distance of 13 plots to our holy city
-	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
+	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
+		iMinScore = 200;
 
 	// Make sure we're spreading a religion and find holy city
 	ReligionTypes eReligion = GetReligionToSpread();

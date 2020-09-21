@@ -1638,6 +1638,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
+	// sometimes we have no choice
+	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
+		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
+
 	// CASE 1: I have an enhanced religion. 
 	if (pMyReligion && pMyReligion->m_bEnhanced)
 	{
@@ -1647,7 +1651,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(/*no unit no pathfinding*/)==NULL)
+		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit)==NULL)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
