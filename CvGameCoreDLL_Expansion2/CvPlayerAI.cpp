@@ -1647,7 +1647,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement <= iFlavor)
+		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(/*no unit no pathfinding*/)==NULL)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1678,11 +1678,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
-	}
-
-	if ((GC.getGame().getGameTurn() - pUnit->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 	}
 
 	return eDirective;

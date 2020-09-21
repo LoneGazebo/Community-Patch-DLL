@@ -7104,6 +7104,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
+	int iMaxCityDistance = 13;
 	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through all the players
@@ -7123,6 +7124,10 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				//we often have multiple missionaries active at the same time, don't all go to the same target
 				vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
+					continue;
+
+				//ignore far-flung cities
+				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistance)
 					continue;
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
@@ -7198,7 +7203,11 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 /// If we were going to use a prophet to convert a city, which one would it be?
 CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) const
 {
-	int iMinScore = 1000;  // Not zero because we don't want prophets to ALWAYS pick something up
+	if (piTurns)
+		*piTurns = INT_MAX;
+	int iDistanceBias = 7; //score drops linearly with distance from holy city
+	int iMinScore = 500;  //equivalent to converting 10 heretics at a distance of 13 plots to our holy city
+	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
 
 	// Make sure we're spreading a religion and find holy city
 	ReligionTypes eReligion = GetReligionToSpread();
@@ -7286,6 +7295,11 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					}
 				}
 #endif
+
+				//ignore far-flung cities
+				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistanceTurns)
+					continue;
+
 				CvCityReligions* pCR = pLoopCity->GetCityReligions();
 				if (!pCR->IsDefendedAgainstSpread(eReligion))
 				{
@@ -7293,22 +7307,17 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					if (iHeretics == 0)
 						continue;
 
-					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 					ReligionTypes eMajorityReligion = pCR->GetReligiousMajority();
+					if (eMajorityReligion == eReligion)
+						continue;
 
 					int iDummy = 0;
 					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
-
 					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
+					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
 					// Score this city
-					int iScore = (iHeretics * 1000) / (iDistanceToHolyCity + 1);
-
-					//    - Low score if this city already has our religion as its majority
-					if (eMajorityReligion == eReligion)
-					{
-						iScore /= 5;
-					}
+					int iScore = (iHeretics * 1000) / (iDistanceToHolyCity + iDistanceBias);
 
 					//    - Low score if we would soon convert this city anyway
 					//	(but not the other way around: do not go for the most difficult targets first!)
@@ -7369,14 +7378,34 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	std::sort(vCandidates.begin(),vCandidates.end());
 	std::reverse(vCandidates.begin(),vCandidates.end());
 
-	for (size_t i=0; i<vCandidates.size(); i++)
+	//look at the top two and take the one that is closest
+	if (pUnit && vCandidates.size()>1)
 	{
-		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,iFlags,INT_MAX,piTurns))
+		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+
+		int iTurnsToTargetA = INT_MAX;
+		int iTurnsToTargetB = INT_MAX;
+		int iScoreA = 0;
+		int iScoreB = 0;
+
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA))
+			iScoreA = vCandidates[0].score / (iTurnsToTargetA + 3); //add some bias for close targets
+		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB))
+			iScoreB = vCandidates[1].score / (iTurnsToTargetB + 3); //add some bias for close targets
+
+		if (iScoreA > 0 && iScoreA > iScoreB)
 		{
-			return vCandidates[i].pPlot->getPlotCity();
+			*piTurns = iTurnsToTargetA;
+			return vCandidates[0].pPlot->getPlotCity();
+		}
+		if (iScoreB > 0 && iScoreB > iScoreA)
+		{
+			*piTurns = iTurnsToTargetB;
+			return vCandidates[1].pPlot->getPlotCity();
 		}
 	}
+	else if (!vCandidates.empty())
+		return vCandidates.front().pPlot->getPlotCity();
 
 	return NULL;
 }
