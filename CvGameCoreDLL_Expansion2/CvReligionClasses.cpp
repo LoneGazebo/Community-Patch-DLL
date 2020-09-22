@@ -6603,8 +6603,8 @@ void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUni
 	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength();
 
 	//strength can be buffed
-	iReligiousStrength *= (100 + GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
-	iReligiousStrength /= 100;
+	int iExtraStrength = iReligiousStrength * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
+	iReligiousStrength += iExtraStrength / 100;
 
 	//missionary spreads can be buffed but not prophets
 	if (!kUnitInfo.IsFoundReligion())
