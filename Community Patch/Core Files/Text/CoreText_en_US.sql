@@ -1491,8 +1491,14 @@ UPDATE Language_en_US
 SET Text = 'Very well.'
 WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
 
-
 UPDATE Language_en_US
 SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
 WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
 
+UPDATE Language_en_US
+SET Text = 'MOVE UNIT'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
+
+UPDATE Language_en_US
+SET Text = 'Move a unit to a plot where it can end the turn'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
