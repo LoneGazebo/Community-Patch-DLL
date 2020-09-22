@@ -1095,27 +1095,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Religious unit? If so takes religion from city
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
 	{
-		CvCity *pPlotCity = plot()->getPlotCity();
-		if (pPlotCity)
+		CvCity *pCity = plot()->getOwningCity();
+		if (pCity)
 		{
-			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			if (eReligion > RELIGION_PANTHEON)
-			{
-				GetReligionData()->SetReligion(eReligion);
-				int iExtraSpreads = getUnitInfo().IsFoundReligion() ? 0 : pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads();
-				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + iExtraSpreads);
-				int iStrength = getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
-#else
-				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
-#endif
-				iStrength /= 100;
-				GetReligionData()->SetReligiousStrength(iStrength);
-			}
+			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
+			GetReligionData()->SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
 		}
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	}
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
@@ -1144,9 +1131,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 
 		GetReligionData()->SetReligion(eReligion);
+	}
 #endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	}
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad()))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;

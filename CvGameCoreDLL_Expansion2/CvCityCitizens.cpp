@@ -4643,18 +4643,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-		int iReligionSpreads = newUnit->getUnitInfo().GetReligionSpreads();
-		int iReligiousStrength = newUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-		iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
-		iReligiousStrength /= 100;
-#endif
-		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-		{
-			newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-			newUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-			newUnit->GetReligionData()->SetReligion(eReligion);
-		}
+		newUnit->GetReligionData()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 
 	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
