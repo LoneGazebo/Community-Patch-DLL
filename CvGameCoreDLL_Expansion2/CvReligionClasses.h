@@ -575,10 +575,6 @@ public:
 	{
 		return m_iStrength;
 	};
-	void SetReligiousStrength(int iValue)
-	{
-		m_iStrength = iValue;
-	};
 	int GetSpreadsLeft() const
 	{
 		return m_iSpreadsLeft;
@@ -587,11 +583,22 @@ public:
 	{
 		m_iSpreadsLeft = iValue;
 	};
+	void SetReligiousStrength(int iValue)
+	{
+		m_iStrength = iValue;
+	};
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	bool IsFullStrength() const;
 
 private:
 	ReligionTypes m_eReligion;
-	int m_iStrength;
-	int m_iSpreadsLeft;
+	unsigned short m_iStrength;
+	unsigned short m_iSpreadsLeft;
+	unsigned short m_iMaxStrength;
+	unsigned short m_iMaxSpreads;
+
+	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
+	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitReligion&);

@@ -6064,31 +6064,7 @@ int CvCityBuildings::GetMissionaryExtraSpreads() const
 /// Accessor: Change extra times to spread religion for missionaries from this city
 void CvCityBuildings::ChangeMissionaryExtraSpreads(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iMissionaryExtraSpreads = (m_iMissionaryExtraSpreads + iChange);
-		CvAssert(m_iMissionaryExtraSpreads >= 0);
-		if (iChange > 0)
-		{
-			int iUnitLoop;
-			for (CvUnit* pLoopUnit = GET_PLAYER(m_pCity->getOwner()).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_pCity->getOwner()).nextUnit(&iUnitLoop))
-			{
-				if (pLoopUnit->getOriginCity() != m_pCity)
-					continue;
-
-				if (pLoopUnit->IsGreatPerson())
-					continue;
-
-				if (pLoopUnit->GetReligionData() == NULL)
-					continue;
-
-				if (pLoopUnit->GetReligionData()->GetSpreadsLeft() <= 0)
-					continue;
-
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->GetReligionData()->GetSpreadsLeft() + iChange);
-			}
-		}
-	}
+	m_iMissionaryExtraSpreads += iChange;
 }
 
 void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
