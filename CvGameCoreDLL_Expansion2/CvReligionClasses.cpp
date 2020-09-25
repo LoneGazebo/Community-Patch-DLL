@@ -7391,12 +7391,14 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 
 		if (iScoreA > 0 && iScoreA > iScoreB)
 		{
-			*piTurns = iTurnsToTargetA;
+			if (piTurns)
+				*piTurns = iTurnsToTargetA;
 			return vCandidates[0].pPlot->getPlotCity();
 		}
 		if (iScoreB > 0 && iScoreB > iScoreA)
 		{
-			*piTurns = iTurnsToTargetB;
+			if (piTurns)
+				*piTurns = iTurnsToTargetB;
 			return vCandidates[1].pPlot->getPlotCity();
 		}
 	}

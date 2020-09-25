@@ -5101,7 +5101,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 			continue;
 
 		//always keep some for ourselves?
-		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) - 4;
+		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) - 2 - GET_PLAYER(eMyPlayer).getNumCities()/2;
 
 		//how do we judge this? A good rule of thumb: never give away more than we're getting.
 		int iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eThem), iMaxResourceQuantity);

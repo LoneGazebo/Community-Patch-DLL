@@ -1094,10 +1094,8 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 {
 	ExtractTargetsForZone(NULL);
 
-	//air attacks are already done during zone attacks, this is just for the remaining units
-	PlotAirInterceptMoves();
-	//do extra sweeps _after_ setting up the necessary interceptors for defense
-	PlotAirSweepMoves();
+	//air sweeps / attacks are already done during zone attacks, this is just for the remaining units
+	PlotAirPatrolMoves();
 
 	//score some goodies
 	PlotCaptureBarbCamp();
@@ -2110,7 +2108,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 }
 
 /// Set fighters to intercept
-void CvTacticalAI::PlotAirInterceptMoves()
+void CvTacticalAI::PlotAirPatrolMoves()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_AIRPATROL);
 
@@ -2139,15 +2137,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 				if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
 				{
 					checkedPlotList.push_back(pUnitPlot);
-
 					m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-	
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
-						LogTacticalMessage(strLogString);
-					}
 				}
 			}
 		}
@@ -2155,55 +2145,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		ExecuteAirInterceptMoves();
-	}
-}
-
-/// Set fighters to air sweep
-void CvTacticalAI::PlotAirSweepMoves()
-{
-	ClearCurrentMoveUnits(AI_TACTICAL_AIRSWEEP);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-#if defined(MOD_UNITS_MAX_HP)
-		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints() && pUnit->getDomainType() == DOMAIN_AIR && pUnit->canUseForTacticalAI())
-#else
-		if(pUnit && (pUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
-#endif
-		{
-			// Am I eligible to air sweep and have a target?
-			// we have only units here which won't be rebased
-			if(pUnit->canAirSweep() && m_pPlayer->GetMilitaryAI()->GetBestAirSweepTarget(pUnit) != NULL)
-			{
-				CvPlot* pUnitPlot = pUnit->plot();
-				CvCity* pCity = pUnitPlot->getPlotCity();
-				CvTacticalDominanceZone* pZone = NULL;
-
-				// On a carrier or in a city where we are dominant?
-				if (pCity)
-					pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-
-				if (!pCity || !pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-				{
-					m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Ready to air sweep enemy air units at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
-						LogTacticalMessage(strLogString);
-					}
-				}
-			}
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteAirSweepMoves();
+		ExecuteAirPatrolMoves();
 	}
 }
 
@@ -3948,7 +3890,7 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Sending %s %d to air sweep prior to attack to Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
+						strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogTacticalMessage(strMsg);
 					}
 				}
@@ -4783,7 +4725,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 }
 
 /// Set up fighters to intercept enemy air units
-void CvTacticalAI::ExecuteAirInterceptMoves()
+void CvTacticalAI::ExecuteAirPatrolMoves()
 {
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
@@ -4792,6 +4734,13 @@ void CvTacticalAI::ExecuteAirInterceptMoves()
 		{
 			if(pUnit->canAirPatrol(NULL))
 			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Starting air patrol at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
+					LogTacticalMessage(strLogString);
+				}
+
 				pUnit->PushMission(CvTypes::getMISSION_AIRPATROL());
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 			}
@@ -6535,64 +6484,62 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 	bool bIsAirUnit = pUnit->getDomainType()==DOMAIN_AIR;
 	if (bIsAirUnit || pUnit->IsGarrisoned())
 		bAllowMovement = false;
-	
-	int iMaxDamage = 0;
-	CvPlot* pBestTarget = NULL;
-
-	int iRange = max(1,min(5,pUnit->GetRange()));
-	if (bAllowMovement)
-		iRange = 4; //this just says how far we look for possible targets in this case
-
-	for (int i=RING0_PLOTS; i<RING_PLOTS[iRange]; i++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(pBasePlot, i);
-		if (!pLoopPlot || pLoopPlot->isCity())
-			continue;
-
-		CvUnit* pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true /*testWar*/);
-
-		//don't blindly attack the first one we find, check how much damage we can do
-		if (pOtherUnit && !pOtherUnit->isDelayedDeath() && pUnit->canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
-		{
-			int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit, NULL, false) : 
-										pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot());
-
-			//kill bonus
-			if (iDamage >= pOtherUnit->GetCurrHitPoints())
-				iDamage += 30;
-
-			if (iDamage > iMaxDamage)
-			{
-				pBestTarget = pLoopPlot;
-				iMaxDamage = iDamage;
-			}
-		}
-	}
-
-	if (!pBestTarget)
-		return false;
 
 	if (bAllowMovement)
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Performing ranged opportunity attack with disengagement on (%d:%d) with %s at (%d:%d)",
-				pBestTarget->getX(), pBestTarget->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			strMsg.Format("Performing ranged opportunity attack with %s at (%d:%d)", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 		}
 
 		//no loop needed, there is only one unit anyway
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
 	{
+		int iMaxDamage = 0;
+		CvPlot* pBestTarget = NULL;
+
+		int iRange = max(1,min(5,pUnit->GetRange()));
+		for (int i=RING0_PLOTS; i<RING_PLOTS[iRange]; i++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pBasePlot, i);
+			if (!pLoopPlot || pLoopPlot->isCity())
+				continue;
+
+			if (!pUnit->canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+				continue;
+
+			//don't blindly attack the first one we find, check how much damage we can do
+			CvUnit* pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true /*testWar*/);
+			if (pOtherUnit && !pOtherUnit->isDelayedDeath())
+			{
+				int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit, NULL, false) : 
+											pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot());
+
+				//kill bonus
+				if (iDamage >= pOtherUnit->GetCurrHitPoints())
+					iDamage += 30;
+
+				if (iDamage > iMaxDamage)
+				{
+					pBestTarget = pLoopPlot;
+					iMaxDamage = iDamage;
+				}
+			}
+		}
+
+		if (!pBestTarget)
+			return false;
+
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Performing ranged opportunity attack without moving on (%d:%d) with %s at (%d:%d)",
-				pBestTarget->getX(), pBestTarget->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			strMsg.Format("Performing ranged opportunity attack with %s at (%d:%d) on (%d:%d)",
+				pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), pBestTarget->getX(), pBestTarget->getY());
 			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 		}
 
