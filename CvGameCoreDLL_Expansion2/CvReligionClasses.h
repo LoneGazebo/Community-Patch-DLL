@@ -244,6 +244,7 @@ public:
 	bool IsEligibleForFounderBenefits(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer) const;
+	ReligionTypes GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE)

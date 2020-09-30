@@ -85,12 +85,12 @@ function MapGlobals:New()
 
 
 	--Adjusting these will generate larger or smaller landmasses and features.
-	mglobal.landMinScatter			= 0.05 	--Recommended range:[0.02 to 0.1]
-	mglobal.landMaxScatter			= 0.08	--Recommended range:[0.03 to 0.3]
+	mglobal.landMinScatter			= 0.02 	--Recommended range:[0.02 to 0.1]
+	mglobal.landMaxScatter			= 0.04	--Recommended range:[0.03 to 0.3]
 											--Higher values makes continental divisions and stringy features more likely,
 											--and very high values result in a lot of stringy continents and islands.
 
-	mglobal.coastScatter			= 0.08 	--Recommended range:[0.01 to 0.3]
+	mglobal.coastScatter			= 0.02 	--Recommended range:[0.01 to 0.3]
 											--Higher values result in more islands and variance on landmasses and coastlines.
 
 	mglobal.mountainScatter			= 200 * mapW --Recommended range:[130 to 1000]
@@ -186,25 +186,25 @@ function MapGlobals:New()
 	2 - temperature
 	3 - rainfall
 	4 - sea_level
-	5 - Strategic Resource Density
-	6 - Strategic Deposit Size
-	7 - Strategic Balance
-	8 - Bonus Resource Density
-	9 - Legendary Start
-	10 - Luxury Resource Density
-	11 - Players Start
-	12 - Ocean Rifts
-	13 - Ocean Rift Width
-	14 - Circumnavigation Path
-	15 - Land Scatter
+	5 - Players Starting Locations
+	6 - Ocean Shapes
+	7 - Ocean Rift Width
+	8 - Circumnavigation Path
+	9 - Force Coastal Starts
+	10 - Land Shapes
+	11 - Resources in Starting Locations
+	12 - Strategic Deposit Size
+	13 - Bonus Resource Density
+	14 - Strategic Resource Density
+	15 - Luxury Resource Density
 	16 - Override AssignStartingPlots
-	17 - Force Coastal Starts
+
 
 	--]]
 
 	do
 
-	overrideAssignStartingPlots = (Map.GetCustomOption(16) == 1)
+	overrideAssignStartingPlots = (Map.GetCustomOption(16) == 2)
 
 	local oWorldAge = Map.GetCustomOption(1)
 	if oWorldAge == 1 then
@@ -323,8 +323,8 @@ function MapGlobals:New()
 	print("Land Percent: ", mglobal.landPercent)
 
 
-	local oStarts = Map.GetCustomOption(11)
-	if oStarts == 1 then
+	local oStarts = Map.GetCustomOption(5)
+	if oStarts == 2 then
 		print("Map Starts: Everywhere")
 		mglobal.offsetAtlanticPercent	= 0.48	-- Percent of land to divide at the Atlantic Ocean (50% is usually halfway on the map)
 		mglobal.offshoreCS				= 0.25	-- Percent of city states on uninhabited islands
@@ -338,7 +338,7 @@ function MapGlobals:New()
 	end
 
 
-	local oRiftWidth = Map.GetCustomOption(13)
+	local oRiftWidth = Map.GetCustomOption(7)
 	if oRiftWidth == 4 then oRiftWidth = 1 + Map.Rand(3, "Random Rift Width") end
 	if oRiftWidth == 1 then
 		print("Map Ocean Width: Narrow")
@@ -350,24 +350,24 @@ function MapGlobals:New()
 		mglobal.landPercent = mglobal.landPercent + 0.05
 	end
 
-	local oLandScatter = Map.GetCustomOption(15)
+	local oLandScatter = Map.GetCustomOption(10)
 	local scatterOdds = 1
 	if oLandScatter == 1 then
 		print("Map Land Scatter: Blocky")
-		scatterOdds = 2/3
+		scatterOdds = 1/3
 	elseif oLandScatter == 3 then
 		print("Map Land Scatter: Stringy")
-		scatterOdds = 1.5
+		scatterOdds = 5
 	elseif oLandScatter == 4 then
 		print("Map Land Scatter: Extremely Stringy")
-		scatterOdds = 2
+		scatterOdds = 15
 	elseif oLandScatter == 5 then
 		print("Map Land Scatter: Random")
 		local scatterRand = PWRand()
 		local higher = (1 == Map.Rand(2, "modifyOddsRandom for scatter"))
-		mglobal.landMinScatter = modifyOddsRandom(mglobal.landMinScatter, 0.5, scatterRand, higher)
-		mglobal.landMaxScatter = modifyOddsRandom(mglobal.landMaxScatter, 0.5, scatterRand, higher)
-		mglobal.coastScatter = modifyOddsRandom(mglobal.coastScatter, 0.5, scatterRand, higher)
+		mglobal.landMinScatter = modifyOddsRandom(mglobal.landMinScatter, 10, scatterRand, higher)
+		mglobal.landMaxScatter = modifyOddsRandom(mglobal.landMaxScatter, 10, scatterRand, higher)
+		mglobal.coastScatter = modifyOddsRandom(mglobal.coastScatter, 10, scatterRand, higher)
 	else
 		print("Map Land Scatter: Normal")
 	end
@@ -1181,19 +1181,20 @@ function MapGlobals:New()
 									local quantity = res_quantity[use_this_res_index]
 									-- added by azum4roll: give some variance to strategic amounts
 									local rand = PWRand()
-									if (rand >= 0.8) then
-										quantity = math.floor(quantity * 1.2 + 0.5)
-									elseif (rand < 0.2) then
-										quantity = math.floor(quantity * 0.8 + 0.5)
+									if (rand >= 0.75) then
+										quantity = quantity * 1.2
+									elseif (rand < 0.25) then
+										quantity = quantity * 0.8
 									end
-
+									quantity = math.floor(quantity + 0.5)
+	
 									res_plot:SetResourceType(res_ID[use_this_res_index], quantity);
 									if (Game.GetResourceUsageType(res_ID[use_this_res_index]) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
 										self.totalLuxPlacedSoFar = self.totalLuxPlacedSoFar + 1;
 									end
 									self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
 									placed_this_res = true;
-									self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + res_quantity[use_this_res_index];
+									self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] = self.amounts_of_resources_placed[res_ID[use_this_res_index] + 1] + quantity;
 								end
 							end
 						elseif impact_table_number == 2 then
@@ -1301,7 +1302,7 @@ function MapGlobals:New()
 			-- type will avoid if possible. See ProcessResourceList for impact numbers.
 			--
 			-- Order of placement matters, so changing the order may affect a later dependency.
-
+			
 			-- Adjust amounts, if applicable, based on strategic deposit size setting.
 			local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues()
 			local resources_to_place = {}
@@ -1316,98 +1317,96 @@ function MapGlobals:New()
 				resMultiplier = getRandomMultiplier(0.5);
 			end
 
-			print("self.resDensity = " .. self.resDensity);
-
 			-- Place Strategic resources.
 			print("Map Generation - Placing Strategics");
-
+			
 			-- Revamped by azum4roll: now place most resources one by one for easier balancing
 			resources_to_place = {
 				{self.horse_ID, horse_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(24 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(34 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
-
+			self:ProcessResourceList(20 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(32 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+			
 			resources_to_place = {
-				{self.horse_ID, horse_amt, 100, 0, 2}
+				{self.horse_ID, horse_amt * 0.7, 100, 2, 3}
 			};
-			self:ProcessResourceList(20 * resMultiplier, 1, self.desert_wheat_list, resources_to_place);
-			self:ProcessResourceList(70 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
-
+			self:ProcessResourceList(35 * resMultiplier, 1, self.desert_wheat_list, resources_to_place);
+			self:ProcessResourceList(60 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
+			
 			resources_to_place = {
-				{self.iron_ID, iron_amt, 100, 0, 2}
+				{self.iron_ID, iron_amt, 100, 1, 3}
 			};
-			self:ProcessResourceList(75 * resMultiplier, 1, self.hills_open_list, resources_to_place);
+			self:ProcessResourceList(80 * resMultiplier, 1, self.hills_open_list, resources_to_place);
 			self:ProcessResourceList(180 * resMultiplier, 1, self.flat_open_no_tundra_no_desert, resources_to_place);
-			self:ProcessResourceList(40 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
-
+			self:ProcessResourceList(55 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
+			
 			resources_to_place = {
-				{self.iron_ID, iron_amt, 100, 0, 1}
+				{self.iron_ID, iron_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(120 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
-
+			self:ProcessResourceList(90 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
+			
 			resources_to_place = {
 				{self.coal_ID, coal_amt, 100, 1, 2}
 			};
 			self:ProcessResourceList(65 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
 			self:ProcessResourceList(170 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
 			self:ProcessResourceList(120 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
-
+			
 			resources_to_place = {
 				{self.oil_ID, oil_amt, 100, 1, 3}
 			};
 			self:ProcessResourceList(40 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
 			self:ProcessResourceList(75 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
-
+			
 			resources_to_place = {
 				{self.aluminum_ID, alum_amt, 100, 1, 3}
 			};
 			self:ProcessResourceList(42 * resMultiplier, 1, self.hills_open_no_grass, resources_to_place);
 			self:ProcessResourceList(27 * resMultiplier, 1, self.flat_open_no_grass_no_plains, resources_to_place);
 			self:ProcessResourceList(100 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
-
+			
 			resources_to_place = {
-				{self.uranium_ID, uran_amt, 100, 1, 2}
+				{self.uranium_ID, uran_amt, 100, 2, 4}
 			};
 			self:ProcessResourceList(50 * resMultiplier, 1, self.hills_jungle_list, resources_to_place);
 			self:ProcessResourceList(200 * resMultiplier, 1, self.hills_open_list, resources_to_place);
 			self:ProcessResourceList(90 * resMultiplier, 1, self.tundra_flat_no_feature, resources_to_place);
 			self:ProcessResourceList(150 * resMultiplier, 1, self.desert_flat_no_feature, resources_to_place);
 			self:ProcessResourceList(300 * resMultiplier, 1, self.flat_open_no_tundra_no_desert, resources_to_place);
-
+			
 			resources_to_place = {
-				{self.iron_ID, iron_amt, 90, 0, 2},
+				{self.iron_ID, iron_amt, 90, 1, 3},
 				{self.uranium_ID, uran_amt, 10, 1, 2}
 			};
-			self:ProcessResourceList(45 * resMultiplier, 1, self.hills_forest_list, resources_to_place);
-			self:ProcessResourceList(50 * resMultiplier, 1, self.forest_flat_that_are_not_tundra, resources_to_place);
-			self:ProcessResourceList(60 * resMultiplier, 1, self.tundra_flat_forest, resources_to_place);
-
+			self:ProcessResourceList(65 * resMultiplier, 1, self.hills_forest_list, resources_to_place);
+			self:ProcessResourceList(70 * resMultiplier, 1, self.forest_flat_that_are_not_tundra, resources_to_place);
+			self:ProcessResourceList(75 * resMultiplier, 1, self.tundra_flat_forest, resources_to_place);
+			
 			resources_to_place = {
-				{self.oil_ID, oil_amt, 60, 1, 1},
-				{self.uranium_ID, uran_amt, 40, 1, 1}
+				{self.oil_ID, oil_amt, 60, 1, 3},
+				{self.uranium_ID, uran_amt, 40, 1, 2}
 			};
 			self:ProcessResourceList(15 * resMultiplier, 1, self.marsh_list, resources_to_place);
 			self:ProcessResourceList(60 * resMultiplier, 1, self.jungle_flat_list, resources_to_place);
-
+			
 			resources_to_place = {
 				{self.oil_ID, oil_amt, 40, 1, 2},
 				{self.uranium_ID, uran_amt, 20, 1, 2},
 				{self.iron_ID, iron_amt, 40, 1, 2}
 			};
 			self:ProcessResourceList(7 * resMultiplier, 1, self.snow_flat_list, resources_to_place);
-
+			
 			self:AddModernMinorStrategicsToCityStates();
-
-			self:PlaceSmallQuantitiesOfStrategics(160 * resMultiplier / self.iNumCivs, self.land_list);
-
+			
+			self:PlaceSmallQuantitiesOfStrategics(26 * resMultiplier, self.land_list);
+			
 			self:PlaceOilInTheSea();
 
 			-- Check for low or missing Strategic resources
 			uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetSmallStrategicResourceQuantityValues();
 			while self.amounts_of_resources_placed[self.iron_ID + 1] < 4 * self.iNumCivs do
-				--print("Map has very low iron, adding another.");
-				local resources_to_place = { {self.iron_ID, iron_amt, 20, 0, 2} };
+				print("Map has very low iron, adding another.");
+				local resources_to_place = { {self.iron_ID, iron_amt, 20, 1, 2} };
 				self:ProcessResourceList(99999, 1, self.desert_flat_no_feature, resources_to_place); -- 99999 means one per that many tiles: a single instance.
 				self:ProcessResourceList(99999, 1, self.hills_forest_list, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.hills_open_list, resources_to_place);
@@ -1415,7 +1414,7 @@ function MapGlobals:New()
 				self:ProcessResourceList(99999, 1, self.tundra_flat_forest, resources_to_place);
 			end
 			while self.amounts_of_resources_placed[self.horse_ID + 1] < 4 * self.iNumCivs do
-				--print("Map has very low horse, adding another.");
+				print("Map has very low horse, adding another.");
 				local resources_to_place = { {self.horse_ID, horse_amt, 25, 1, 2} };
 				self:ProcessResourceList(99999, 1, self.grass_flat_no_feature, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.plains_flat_no_feature, resources_to_place);
@@ -1423,39 +1422,41 @@ function MapGlobals:New()
 				self:ProcessResourceList(99999, 1, self.tundra_flat_no_feature, resources_to_place);
 			end
 			while self.amounts_of_resources_placed[self.coal_ID + 1] < 4 * self.iNumCivs do
-				--print("Map has very low coal, adding another.");
-				local resources_to_place = { {self.coal_ID, coal_amt, 33, 0, 0} };
+				print("Map has very low coal, adding another.");
+				local resources_to_place = { {self.coal_ID, coal_amt, 33, 1, 2} };
 				self:ProcessResourceList(99999, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.grass_flat_no_feature, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.plains_flat_no_feature, resources_to_place);
 			end
 			while self.amounts_of_resources_placed[self.oil_ID + 1] < 4 * self.iNumCivs do
-				--print("Map has very low oil, adding another.");
-				local resources_to_place = { {self.oil_ID, oil_amt, 33, 0, 0} };
+				print("Map has very low oil, adding another.");
+				local resources_to_place = { {self.oil_ID, oil_amt, 33, 1, 2} };
 				self:ProcessResourceList(99999, 1, self.desert_flat_no_feature, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.tundra_flat_no_feature, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.jungle_flat_list, resources_to_place);
 			end
 			while self.amounts_of_resources_placed[self.aluminum_ID + 1] < 5 * self.iNumCivs do
-				--print("Map has very low aluminum, adding another.");
-				local resources_to_place = { {self.aluminum_ID, alum_amt, 33, 0, 0} };
+				print("Map has very low aluminum, adding another.");
+				local resources_to_place = { {self.aluminum_ID, alum_amt, 33, 1, 2} };
 				self:ProcessResourceList(99999, 1, self.hills_open_no_grass, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.flat_open_no_grass_no_plains, resources_to_place);
 				self:ProcessResourceList(99999, 1, self.plains_flat_no_feature, resources_to_place);
 			end
 			while self.amounts_of_resources_placed[self.uranium_ID + 1] < 2 * self.iNumCivs do
-				--print("Map has very low uranium, adding another.");
-				local resources_to_place = { {self.uranium_ID, uran_amt, 100, 0, 0} };
+				print("Map has very low uranium, adding another.");
+				local resources_to_place = { {self.uranium_ID, uran_amt, 100, 2, 4} };
 				self:ProcessResourceList(99999, 1, self.land_list, resources_to_place);
 			end
-
+			
 			self:PlaceBonusResources();
 		end
 		------------------------------------------------------------------------------
 		function AssignStartingPlots:PlaceFish()
 			print("AssignStartingPlots:PlaceFish()")
 			for plotID, plot in Plots(Shuffle) do
-				PlacePossibleFish(plot)
+				if PlacePossibleFish(plot) then
+					self.amounts_of_resources_placed[self.fish_ID + 1] = self.amounts_of_resources_placed[self.fish_ID + 1] + 1;
+				end
 			end
 		end
 		function PlacePossibleFish(plot)
@@ -1491,9 +1492,11 @@ function MapGlobals:New()
 			-- odds = odds / landDistance
 			oddsMultiplier = oddsMultiplier / landDistance
 			odds = modifyOdds(odds, oddsMultiplier)
+			--print("oddsMultiplier:", oddsMultiplier, "odds:", odds)
 
 			if odds >= PWRand() then
 				plot:SetResourceType(fishID, 1)
+				return true
 				--print(string.format( "PlacePossibleFish fertility=%-3s odds=%-3s fishMod=%-3s", Round(sumFertility), Round(odds), Round(fishMod) ))
 			end
 		end
@@ -1507,15 +1510,16 @@ function MapGlobals:New()
 			elseif self.bonusDensity == 4 then -- Random
 				resMultiplier = getRandomMultiplier(0.5);
 			end
-
+			
 			-- Place Bonus Resources
 			print("Map Generation - Placing Bonuses");
-
+			
 			-- modified by azum4roll: PlaceFish only depends on fishTargetFertility now
 			-- self:PlaceFish(8 * resMultiplier, self.coast_list);
 			self:PlaceFish()
 			self:PlaceSexyBonusAtCivStarts()
 			self:AddExtraBonusesToHillsRegions()
+			
 			local resources_to_place = {}
 
 			if IsEvenMoreResourcesActive() == true then
@@ -1527,7 +1531,7 @@ function MapGlobals:New()
 				{self.deer_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(16 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
-
+				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
 				self:ProcessResourceList(20 * resMultiplier, 3, self.desert_wheat_list, resources_to_place)
@@ -1536,22 +1540,22 @@ function MapGlobals:New()
 				{self.wheat_ID, 1, 100, 2, 3} };
 				self:ProcessResourceList(44 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
 				-- 27
-
+				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
 				self:ProcessResourceList(30 * resMultiplier, 3, self.banana_list, resources_to_place)
 				-- 14
-
+				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
 				self:ProcessResourceList(40 * resMultiplier, 3, self.marsh_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.cow_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(30 * resMultiplier, 3, self.grass_flat_no_feature, resources_to_place)
 				-- 18
-
+				
 			-- CBP
 				resources_to_place = {
 				{self.bison_ID, 1, 100, 0, 2} };
@@ -1567,32 +1571,32 @@ function MapGlobals:New()
 				{self.stone_ID, 1, 100, 1, 1} };
 				self:ProcessResourceList(40 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
 				-- 20
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
 				self:ProcessResourceList(40 * resMultiplier, 3, self.dry_plains_flat_no_feature, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
 				self:ProcessResourceList(30 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
 				-- 15
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(16 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
 				-- 19
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
 				self:ProcessResourceList(36 * resMultiplier, 3, self.hills_open_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(10 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 3, 4} };
 				self:ProcessResourceList(50 * resMultiplier, 3, self.forest_flat_that_are_not_tundra, resources_to_place)
@@ -1697,7 +1701,7 @@ function MapGlobals:New()
 				{self.deer_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(8 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
-
+				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
 				self:ProcessResourceList(10 * resMultiplier, 3, self.desert_wheat_list, resources_to_place)
@@ -1706,63 +1710,63 @@ function MapGlobals:New()
 				{self.wheat_ID, 1, 100, 2, 3} };
 				self:ProcessResourceList(22 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
 				-- 27
-
+				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(15 * resMultiplier, 3, self.banana_list, resources_to_place)
+				self:ProcessResourceList(12 * resMultiplier, 3, self.banana_list, resources_to_place)
 				-- 14
-
+				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
-				self:ProcessResourceList(20 * resMultiplier, 3, self.marsh_list, resources_to_place)
+				self:ProcessResourceList(16 * resMultiplier, 3, self.marsh_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.cow_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(15 * resMultiplier, 3, self.grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(14 * resMultiplier, 3, self.grass_flat_no_feature, resources_to_place)
 				-- 18
-
+				
 			-- CBP
 				resources_to_place = {
 				{self.bison_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(12 * resMultiplier, 3, self.flat_open_no_tundra_no_desert, resources_to_place)
+				self:ProcessResourceList(18 * resMultiplier, 3, self.flat_open_no_tundra_no_desert, resources_to_place)
 			-- END
 
 				resources_to_place = {
 				{self.sheep_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(22 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(18 * resMultiplier, 3, self.hills_open_list, resources_to_place)
 				-- 13
 
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(20 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(30 * resMultiplier, 3, self.dry_grass_flat_no_feature, resources_to_place)
 				-- 20
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 1} };
-				self:ProcessResourceList(20 * resMultiplier, 3, self.dry_plains_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, 3, self.dry_plains_flat_no_feature, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(15 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, 3, self.tundra_flat_no_feature, resources_to_place)
 				-- 15
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(8 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
+				self:ProcessResourceList(14 * resMultiplier, 3, self.desert_flat_no_feature, resources_to_place)
 				-- 19
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(18 * resMultiplier, 3, self.hills_open_list, resources_to_place)
+				self:ProcessResourceList(60 * resMultiplier, 3, self.hills_open_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.stone_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(5 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
+				self:ProcessResourceList(8 * resMultiplier, 3, self.snow_flat_list, resources_to_place)
 				-- none
-
+				
 				resources_to_place = {
 				{self.deer_ID, 1, 100, 3, 4} };
 				self:ProcessResourceList(25 * resMultiplier, 3, self.forest_flat_that_are_not_tundra, resources_to_place)
@@ -1816,7 +1820,7 @@ function MapGlobals:New()
 			self:AdjustTiles()
 
 			local largestLand = Map.FindBiggestArea(false)
-			if Map.GetCustomOption(11) == 2 then
+			if Map.GetCustomOption(5) == 1 then
 				-- Biggest continent placement
 				if largestLand:GetNumTiles() < 0.25 * Map.GetLandPlots() then
 					print("AI Map Strategy - Offshore expansion with navy bias")
@@ -1854,7 +1858,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.0.0",
+		Name = "Communitu_79a v2.1.0",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -1866,16 +1870,86 @@ function GetMapScriptInfo()
 			rainfall,
 			sea_level,
 			{
-                Name = "Strategic Resource Density",
-				Description = "Controls the amount of strategic resource deposits appearing on the map",
+                Name = "Players Start In",
                 Values = {
-                    "Sparse",
-                    "Normal",
-					"Abundant",
-					"Random",
+                    "Terra - Largest Continent",
+                    "Continents - Everywhere",
                 },
                 DefaultValue = 2,
                 SortPriority = 1,
+            },
+			{
+                Name = "Ocean Shapes",
+				Description = "Vertical ocean rifts separating continents",
+                Values = {
+                    "2 Atlantic",
+                    "Pacific and Atlantic",
+                    "2 Pacific",
+                    "2 Random",
+                    "1 Random",
+                    "None",
+					"Random",
+                },
+                DefaultValue = 2,
+                SortPriority = 2,
+            },
+			{
+                Name = "Rift Width",
+				Description = "Impassable ocean width",
+                Values = {
+                    "Narrow",
+                    "Normal",
+                    "Wide",
+					"Random",
+                },
+                DefaultValue = 2,
+                SortPriority = 3,
+            },
+			{
+                Name = "Circumnavigation",
+				Description = "Guarantees horizontal water path around the world",
+                Values = {
+                    "On",
+                    "Off",
+                },
+                DefaultValue = 2,
+                SortPriority = 4,
+            },
+			{
+				Name = "Force Coastal Start",
+				Description = "Every major civ starts on the coast",
+				Values = {
+					"Yes",
+					"No",
+					"Random",
+				},
+				DefaultValue = 2,
+                SortPriority = 5,
+            },
+			{
+				Name = "Land Shapes",
+				Description = "Controls continent and island shapes",
+				Values = {
+					"Blocky",
+					"Normal",
+					"Stringy",
+					"Extremely Stringy",
+					"Random",
+				},
+				DefaultValue = 2,
+                SortPriority = 6,
+            },
+			{
+                Name = "Starting Resources",
+				Description = "Adds strategics and/or extra resources to starting position",
+                Values = {
+					"Add both",
+					"Normal",
+					"Add some strategics",
+					"Add some extra bonus",
+                },
+				DefaultValue = 2,
+                SortPriority = 7,
             },
 			{
                 Name = "Strategic Deposit Size",
@@ -1887,17 +1961,7 @@ function GetMapScriptInfo()
 					"Random",
                 },
                 DefaultValue = 2,
-                SortPriority = 2,
-            },
-			{
-                Name = "Strategic Balance",
-				Description = "Provides a minor deposit of Iron and Horses 4-6 tiles from starting position",
-                Values = {
-					"On",
-					"Off",
-                },
-                DefaultValue = 2,
-                SortPriority = 3,
+                SortPriority = 8,
             },
 			{
                 Name = "Bonus Resource Density",
@@ -1909,17 +1973,19 @@ function GetMapScriptInfo()
 					"Random",
                 },
                 DefaultValue = 2,
-                SortPriority = 4,
+                SortPriority = 9,
             },
 			{
-                Name = "Legendary Start",
-				Description = "Provides extra bonus resources around starting position",
+                Name = "Strategic Resource Density",
+				Description = "Controls the amount of strategic resource deposits appearing on the map",
                 Values = {
-					"On",
-					"Off",
+                    "Sparse",
+                    "Normal",
+					"Abundant",
+					"Random",
                 },
                 DefaultValue = 2,
-                SortPriority = 5,
+                SortPriority = 10,
             },
 			{
                 Name = "Luxury Resource Density",
@@ -1931,86 +1997,17 @@ function GetMapScriptInfo()
 					"Random",
                 },
                 DefaultValue = 2,
-                SortPriority = 6,
-            },
-			{
-                Name = "Players Start",
-                Values = {
-                    "Continents - Everywhere",
-                    "Terra - Largest Continent",
-                },
-                DefaultValue = 1,
-                SortPriority = 7,
-            },
-			{
-                Name = "Ocean Rifts",
-				Description = "Vertical ocean rifts separating continents",
-                Values = {
-                    "Pacific and Atlantic",
-                    "2 Atlantic",
-                    "2 Pacific",
-                    "2 Random",
-                    "1 Random",
-                    "None",
-					"Random",
-                },
-                DefaultValue = 1,
-                SortPriority = 8,
-            },
-			{
-                Name = "Rift Width",
-                Values = {
-                    "Narrow",
-                    "Normal",
-                    "Wide",
-					"Random",
-                },
-                DefaultValue = 2,
-                SortPriority = 9,
-            },
-			{
-                Name = "Circumnavigation Path",
-				Description = "Guarantees horizontal water path around the world",
-                Values = {
-                    "On",
-                    "Off",
-                },
-                DefaultValue = 1,
-                SortPriority = 10,
-            },
-			{
-				Name = "Land Scatter",
-				Description = "Controls continent and island shape",
-				Values = {
-					"Blocky",
-					"Normal",
-					"Stringy",
-					"Extremely Stringy",
-					"Random",
-				},
-				DefaultValue = 2,
 				SortPriority = 11,
 			},
 			{
 				Name = "Override AssignStartingPlots",
 				Description = "Extra map-specific optimizations when turned on. Turn off for standard VP performance.",
 				Values = {
-					"Yes",
 					"No",
-				},
-				DefaultValue = 1,
-				SortPriority = 12,
-			},
-			{
-				Name = "Force Coastal Starts",
-				Description = "Every major civ starts on the coast",
-				Values = {
 					"Yes",
-					"No",
-					"Random",
 				},
 				DefaultValue = 2,
-				SortPriority = 13,
+				SortPriority = 12,
 			},
 		},
 	}
@@ -2027,7 +2024,7 @@ function GetMapInitData(worldSize)
 		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {97, 66}
 		}
 
-	if Map.GetCustomOption(11) == 2 then
+	if Map.GetCustomOption(5) == 1 then
 		-- Enlarge terra-style maps 30% to create expansion room on the new world
 		worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {44, 31},
@@ -2402,16 +2399,16 @@ log:SetLevel("INFO")
 
 function StartPlotSystem()
 	-- Get Resources setting input by user.
-	local resDensity = Map.GetCustomOption(5) or 2;
-	local resSize = Map.GetCustomOption(6) or 2;
-	local resBalance = (Map.GetCustomOption(7) == 1);
-	local bonusDensity = Map.GetCustomOption(8) or 2;
-	local legStart = (Map.GetCustomOption(9) == 1);
-	local luxuryDensity = Map.GetCustomOption(10) or 2;
+	local resDensity = Map.GetCustomOption(14) or 2;
+	local resSize = Map.GetCustomOption(12) or 2;
+	local resBalance = (Map.GetCustomOption(11) == 1 or Map.GetCustomOption(11) == 3);
+	local bonusDensity = Map.GetCustomOption(13) or 2;
+	local legStart = (Map.GetCustomOption(11) == 1 or Map.GetCustomOption(11) == 4);
+	local luxuryDensity = Map.GetCustomOption(15) or 2;
 
 	if resSize == 4 then resSize = 1 + Map.Rand(3, "Random Strategic Deposit Size") end
 
-	if Map.GetCustomOption(16) ~= 1 then
+	if Map.GetCustomOption(16) ~= 2 then
 		-- Legendary Balance, Strategic Balance and Resource Density are one option only
 		if resBalance then
 			resDensity = 5;
@@ -2422,9 +2419,9 @@ function StartPlotSystem()
 		end
 	end
 
-	local oStarts = Map.GetCustomOption(11);
+	local oStarts = Map.GetCustomOption(5);
 	local divMethod = nil;
-	if oStarts == 1 then
+	if oStarts == 2 then
 		-- Continents
 		divMethod = 2;
 	else
@@ -2445,11 +2442,12 @@ function StartPlotSystem()
 		bonus = bonusDensity,
 		legendary = legStart,
 		lux = luxuryDensity,
+		comm = true,
 	};
 	start_plot_database:GenerateRegions(args);
 
 	-- Do we need to force starts along the ocean?
-	local coastalStarts = Map.GetCustomOption(17);
+	local coastalStarts = Map.GetCustomOption(9);
 	if coastalStarts == 3 then
 		coastalStarts = 1 + Map.Rand(2, "Random Coastal Starts");
 	end
@@ -2640,7 +2638,7 @@ function ConnectPolarSeasToOceans()
 end
 
 function ConnectTerraContinents()
-	if Map.GetCustomOption(11) == 1 then
+	if Map.GetCustomOption(5) == 2 then
 		-- Continents-style formation
 		return
 	end
@@ -3873,7 +3871,7 @@ function CreateArcticOceans()
 end
 
 function CreateVerticalOceans()
-	local oOceanRifts = Map.GetCustomOption(12)
+	local oOceanRifts = Map.GetCustomOption(6)
 	if oOceanRifts == 7 then oOceanRifts = 1 + Map.Rand(6, "Random Ocean Rifts") end
 	local mapW, mapH = Map.GetGridSize()
 	if oOceanRifts == 6 then
@@ -3932,11 +3930,11 @@ function CreateVerticalOceans()
 		log:Debug("CreateVerticalOceans: Creating Atlantic at x=%s", startX)
 		CreateAtlantic(startX)
 		return
-	elseif oOceanRifts == 1 or oOceanRifts == 3 then
+	elseif oOceanRifts == 2 or oOceanRifts == 3 then
 		-- PA or PP
 		log:Debug("CreateVerticalOceans: Creating Pacific  at x=%s", startX)
 		CreatePacific(startX)
-	elseif oOceanRifts == 2 then
+	elseif oOceanRifts == 1 then
 		-- AA
 		log:Debug("CreateVerticalOceans: Creating Atlantic at x=%s", startX)
 		CreateAtlantic(startX)
@@ -4232,7 +4230,7 @@ end
 -- Creates an horizontal passage (by tu_79)
 function CreateMagallanes()
 	-- Don't do this for Terra maps or if the option is turned off
-	if Map.GetCustomOption(11) == 2 or Map.GetCustomOption(14) == 2 then
+	if Map.GetCustomOption(5) == 1 or Map.GetCustomOption(8) == 2 then
 		return
 	end
 

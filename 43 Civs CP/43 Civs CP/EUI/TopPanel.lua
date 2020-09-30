@@ -1901,7 +1901,7 @@ if civ5_mode and gk_mode then
 			local tip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
+				local quantity = g_activePlayer:GetResourceImport( resourceID )
 				if quantity > 0 then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
@@ -2091,7 +2091,7 @@ local function ResourcesToolTip( control )
 --			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
-			local numResourceImport = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
+			local numResourceImport = g_activePlayer:GetResourceImport( resourceID )
 			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
 			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc
 

@@ -1711,7 +1711,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource, int iNumInTrade)
 {
 	bool bImSelling = ePlayer == GetPlayer()->GetID();
-	int iBase = bImSelling ? 5 : 1;
+	int iBase = bImSelling ? 2 : 1;
 	//Ratio between 0 and 100.
 	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, true);
 	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, true);
@@ -1739,13 +1739,13 @@ int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, Re
 		iPlayer2 -= iNumInTrade;
 
 	int iValue = (iPlayer1 * 100) / max(1, iPlayer2);
+	iValue = range(iValue, 0, 200);
 
-	//I'm selling? Lower ratio means I have fewer (and mine are worth way more!)
 	if (bImSelling)
-		iBase *= (100 - iValue);
-	//I'm buying? Lower ratio means I have more (and theirs are worth way less!)
+		iBase *= (200 - iValue);
 	else
 		iBase *= iValue;
+		
 	return max(0, iBase);
 }
 
@@ -1872,7 +1872,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			int iResourceRatio = GetResourceRatio(GetPlayer()->GetID(), eOtherPlayer, eResource, iResourceQuantity);
 
 			//More we have compared to them, the less what we have is worth,and vice-versa!
-			iItemValue *= (100 + iResourceRatio);
+			iItemValue *= max(50, iResourceRatio);
 			iItemValue /= 100;
 
 			// Approach is important
@@ -2008,19 +2008,9 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			{
 				//How much do they have compared to us?
 				int iResourceRatio = GetResourceRatio(eOtherPlayer, GetPlayer()->GetID(), eResource, iResourceQuantity);
-				//More we have compared to them, the less what they have is worth, and vice-versa!
-				if (iResourceRatio <= 100)
-				{
-					iItemValue *= max(33, iResourceRatio);
-					iItemValue /= 100;
-				}
-				else
-				{
-					iResourceRatio /= 10;
-
-					iItemValue *= (100 + min(400, iResourceRatio));
-					iItemValue /= 100;
-				}
+				//More we have compared to them, the less what they're offering is worth!
+				iItemValue *= 100;
+				iItemValue /= max(50, iResourceRatio);
 			}
 
 			// Approach is important
@@ -4946,12 +4936,14 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 
 			iResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false);
 
-			// Don't bother looking at this Resource if we don't even have any of it
-			if(iResourceQuantity == 0)
+			// Don't bother looking at this Resource if we'd give away our last copy! Unless we're special.
+			int iMin = GET_PLAYER(eMyPlayer).GetPlayerTraits()->GetLuxuryHappinessRetention() ? 1 : 2;
+			if (iResourceQuantity < iMin)
 			{
 				continue;
 			}
 
+			//reset to 1 because we only want to sell one!
 			iResourceQuantity = 1;
 
 			// Don't bother if they wouldn't get Happiness from it due to World Congress
@@ -5040,7 +5032,17 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 			continue;
 
 		// Don't try to buy all of it
-		int iResourceQuantity = max(iMaxResourceQuantity - 3, 1);
+		int iResourceQuantity = 0;
+		
+		int iAlreadyInDeal = pDeal->GetNumResourcesInDeal(eThem, eResource);
+		if (iAlreadyInDeal > 0)
+		{
+			iResourceQuantity = max((iAlreadyInDeal + 1), iResourceQuantity);
+		}
+		else
+		{
+			iResourceQuantity = max((iMaxResourceQuantity / 3), 1);
+		}
 
 		// See if they can actually trade it to us
 		if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
@@ -5101,12 +5103,25 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 			continue;
 
 		//always keep some for ourselves?
-		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) - 2 - GET_PLAYER(eMyPlayer).getNumCities()/2;
+		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false) / 2;
 
 		//how do we judge this? A good rule of thumb: never give away more than we're getting.
 		int iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eThem), iMaxResourceQuantity);
-		if (iResourceQuantity < 1)
-			continue;
+		if (iResourceQuantity <= 0)
+			iResourceQuantity = 1;
+
+		//already in deal? add one more to the mix and reset quantity
+		if (pDeal->IsResourceTrade(eThem, eResource))
+		{
+			iResourceQuantity = pDeal->GetNumResourcesInDeal(eMyPlayer, eResource);
+			pDeal->RemoveResourceTrade(eResource);
+			//and bump the quantity.
+			iResourceQuantity++;
+			iTotalValue = GetDealValue(pDeal);
+		}
+
+		//don't exceed total.
+		iResourceQuantity = min(iResourceQuantity, iMaxResourceQuantity);
 
 		// See if we can actually trade it to them
 		if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))

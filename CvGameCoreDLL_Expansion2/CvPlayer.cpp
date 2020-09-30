@@ -26887,7 +26887,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
 						iTempValue /= 100;
 
-						iBaseValue += iTempValue;
+						iBaseValue = iTempValue;
 					}
 
 					iValue += iBaseValue;
@@ -46064,19 +46064,15 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piDomainFreeExperience;
 #endif
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream >> m_pabHasGlobalMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
 
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && m_pabHasGlobalMonopoly[iResourceLoop])
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			SetHasGlobalMonopoly((ResourceTypes)iResourceLoop, true);
-		}
-		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && m_pabHasStrategicMonopoly[iResourceLoop])
-		{
-			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop, true);
+			CheckForMonopoly((ResourceTypes)iResourceLoop);
 		}
 	}
 #endif

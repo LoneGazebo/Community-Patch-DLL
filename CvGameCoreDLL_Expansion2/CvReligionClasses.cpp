@@ -1397,7 +1397,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
-	// Just in case we have another prophet sitting around, make sure he's set to this religion
+	// In case we have another prophet sitting around, make sure he's set to this religion
 	int iLoopUnit;
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
@@ -2572,6 +2572,26 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 #endif
 }
 
+/// Get the pantheon this player created
+ReligionTypes CvGameReligions::GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const
+{
+	ReligionTypes eRtnValue = NO_RELIGION;
+
+	ReligionList::const_iterator it;
+	for (it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		if (it->m_eFounder == ePlayer)
+		{
+			if (it->m_bPantheon)
+			{
+				eRtnValue = it->m_eReligion;
+			}
+		}
+	}
+	return eRtnValue;
+}
+
+
 ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionTypes eRtnValue = NO_RELIGION;
@@ -3260,7 +3280,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	//Does this city have a majority religion?
+	// Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
 	if (eMajorityReligion != eReligion)
 	{
@@ -3288,7 +3308,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 			//no trade route, no pressure!
 			return 0;
 		}
-#endif	
+#endif
 
 		//if there is no traderoute, pressure falls off with distance
 		iPressureMod -= iRelativeDistancePercent;
@@ -5254,6 +5274,7 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	}
 	
 	int iNumTradeRoutes = 0;
+
 	bool bConnectedWithTrade;
 	int iRelativeDistancePercent;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
@@ -7309,6 +7330,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 
 					int iDummy = 0;
 					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
+
 					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
 					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 

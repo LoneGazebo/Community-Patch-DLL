@@ -1886,6 +1886,17 @@ int CvReligionBeliefs::GetNumBeliefs() const
 	return m_ReligionBeliefs.size();
 }
 #if defined(MOD_BALANCE_CORE)
+bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const
+{
+	ReligionTypes ePantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(ePlayer);
+	if (ePantheon == NO_RELIGION || eReligion == NO_RELIGION)
+		return false;
+
+	CvReligionBeliefs ePanthBeliefs = GC.getGame().GetGameReligions()->GetReligion(ePantheon, ePlayer)->m_Beliefs;
+	CvReligionBeliefs eFounderBeliefs = GC.getGame().GetGameReligions()->GetReligion(ePantheon, ePlayer)->m_Beliefs;
+
+	return (ePanthBeliefs.HasBelief(eBelief) && eFounderBeliefs.HasBelief(eBelief));
+}
 bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	if(ePlayer != NO_PLAYER)
@@ -1983,7 +1994,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 			//If calling on a city for city-based beliefs, must be capital or the majority.
 			if (pCity != NULL)
 			{
-				if (pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+				if (pCity->GetCityReligions()->GetReligiousMajority() != eReligion && !IsPantheonBeliefInReligion(eBelief, eReligion, ePlayer))
 				{
 					return false;
 				}

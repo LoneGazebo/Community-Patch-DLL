@@ -10354,10 +10354,18 @@ bool CvUnit::pillage()
 							}
 						}
 					}
-					if (pPlot->IsChokePoint())
+
+					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					{
+						iValueMultiplier += 100;
+					}
+					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
 					{
 						iValueMultiplier += 50;
 					}
+
 					if (pkImprovement->IsCreatedByGreatPerson())
 					{
 						iValueMultiplier += 100;
@@ -12818,12 +12826,27 @@ void CvUnit::PerformCultureBomb(int iRadius)
 							}
 						}
 					}
+					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if (pLoopPlot->IsChokePoint())
 					{
 						iValueMultiplier += 50;
 						vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+
+						if (pkImprovement)
+						{
+							static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+							static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+							if (eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel)
+							{
+								iValueMultiplier += 100;
+							}
+							else if (eFort != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eFort)
+							{
+								iValueMultiplier += 50;
+							}
+						}
 					}
-					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if (pkImprovement)
 					{
 						if (pkImprovement->IsCreatedByGreatPerson())
@@ -30346,7 +30369,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
-	// R: +10 Accuracy 1-3, +10 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
+	// R: +10 Accuracy 1-3, +5 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
 	// R + S: -10 Indirect Fire, -20 Range. 	R + mR +nR +S: -30 Logistics.
 	if(iTemp != 0)
 	{

@@ -576,7 +576,7 @@ public:
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer);
 #endif
 
-	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal);
+	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);
 	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();

@@ -696,12 +696,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Does not have tech for Embassy trading
 		if(!pToTeam->isAllowEmbassyTradingAllowed())
 			return false;
-		// Already has embassy
-		if (!pRenewDeal)
+
+		bool bIgnoreExistingEmbassy = pRenewDeal != NULL && pRenewDeal->IsAllowEmbassyTrade(ePlayer);
+
+		// Already has OB
+		if (!bIgnoreExistingEmbassy)
 		{
 			if (pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 		}
+
 		// Same team
 		if(eFromTeam == eToTeam)
 			return false;

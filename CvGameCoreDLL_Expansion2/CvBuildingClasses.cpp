@@ -4899,6 +4899,12 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	{
 		int iOldNumBuilding = GetNumBuilding(eIndex);
 
+		if (iNewValue == 0)
+		{
+			m_pCity->SetBuildingInvestment(buildingClassType, false);
+			m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex);
+		}
+
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
 #if defined(MOD_BALANCE_CORE)
@@ -4914,8 +4920,6 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
 				m_buildingsThatExistAtLeastOnce.erase(pos);
 		}
-		if (iNewValue == 0)
-			m_pCity->SetBuildingInvestment(buildingClassType, false);
 #endif
 
 		if(GetNumRealBuilding(eIndex) > 0)

@@ -9327,7 +9327,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 }
 #endif
 //	--------------------------------------------------------------------------------
-UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
+UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY)
 {
 	// Find the unique units that have already been assigned
 	int iRandomSeed = 0;
@@ -9483,7 +9483,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(5, eLoopUnit + iUnitLoop);
+		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())

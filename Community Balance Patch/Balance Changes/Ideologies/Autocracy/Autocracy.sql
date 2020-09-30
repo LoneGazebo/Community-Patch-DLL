@@ -234,6 +234,7 @@ VALUES
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
 VALUES
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_FORT', 'YIELD_SCIENCE', 3),
 	('POLICY_MOBILIZATION', 'IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Policy_BuildingClassYieldModifiers

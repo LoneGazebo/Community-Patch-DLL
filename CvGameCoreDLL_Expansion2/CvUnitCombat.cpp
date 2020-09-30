@@ -904,7 +904,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
-	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
+	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
 	if (MOD_BUGFIX_BARB_GP_XP)
@@ -1064,7 +1064,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
-	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
+	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))

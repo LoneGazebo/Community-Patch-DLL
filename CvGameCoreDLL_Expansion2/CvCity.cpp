@@ -11209,6 +11209,10 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		return iCost;
 	}
 
+	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eCityReligion = GetCityReligions()->GetReligiousMajority();
+
 	// LATE-GAME GREAT PERSON
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 	if (pkUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
@@ -11225,8 +11229,6 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			if (eUnitClass != NO_UNITCLASS)
 			{
 				const UnitTypes eThisPlayersUnitType = (UnitTypes)kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
-				ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-				ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 				{
@@ -11400,8 +11402,19 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
 		iCost = iCost * iMultiplier / 100;
 
-		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+		if (pkUnitInfo->IsSpreadReligion())
 		{
+			if (eCityReligion == NO_RELIGION)
+				return 0;
+			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
+			iCost = iCost * iMultiplier / 100;
+		}
+
+		else if (pkUnitInfo->IsRemoveHeresy())
+		{
+			if (eFoundedReligion == NO_RELIGION)
+				return 0;
+
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 			iCost = iCost * iMultiplier / 100;
 		}
@@ -27753,9 +27766,6 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			if (pGarrisonedUnit)
 			{
 				int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
-				if (!pGarrisonedUnit->isNativeDomain(plot()))
-					iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
-
 				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 				iValue -= (iStrengthFromGarrison * 100);
 			}
@@ -28565,12 +28575,27 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					}
 				}
 			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pPlot->IsChokePoint())
 			{
 				iValueMultiplier += 50;
 				bStoleHighValueTile = true;
+
+				if (pkImprovement)
+				{
+					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					{
+						iValueMultiplier += 100;
+					}
+					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
+					{
+						iValueMultiplier += 50;
+					}
+				}
 			}
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pkImprovement)
 			{
 				if (pkImprovement->IsCreatedByGreatPerson())
@@ -30759,19 +30784,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 	case YIELD_FAITH:
 	{
 		int iFaithCost = -1;
-
-		// Does this city have a majority religion?
-		ReligionTypes eReligion = GetCityReligions()->GetReligiousMajority();
-#if defined(MOD_BUGFIX_MINOR)
-		// Permit faith purchases from pantheon beliefs
-		if(eReligion < RELIGION_PANTHEON)
-#else
-		if(eReligion <= RELIGION_PANTHEON)
-#endif
-		{
-			return false;
-		}
-
 		// Unit
 		if(eUnitType != NO_UNIT)
 		{
@@ -30793,6 +30805,16 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				//naval units are only for the UA!
 				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && pkUnitInfo->GetSpecialUnitType() == NO_SPECIALUNIT && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPurchaseNavalUnitsFaith())
 					return false;
+
+				ReligionTypes eReligion;
+				if (pkUnitInfo->IsFoundReligion())
+				{
+					eReligion = GET_PLAYER(m_eOwner).GetReligions()->GetReligionCreatedByPlayer();
+				}
+				else
+				{
+					eReligion = GetCityReligions()->GetReligiousMajority();
+				}
 
 #if defined(MOD_BUGFIX_MINOR)
 				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
@@ -30860,6 +30882,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 								return false;
 							}
 						}
+						else
+							return false;
 					}
 					else
 					{
@@ -30873,7 +30897,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 							const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 							if (pReligion)
 							{
-
 								if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra(), getOwner(), this))
 								{
 									return false;
@@ -30888,6 +30911,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 									return false;
 								}
 							}
+							else
+								return false;
 						}
 					}
 				}
