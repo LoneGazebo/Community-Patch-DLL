@@ -1067,6 +1067,7 @@ protected:
 	static int lGetWeDenouncedFriendCount(lua_State* L);
 	static int lIsFriendDeclaredWarOnUs(lua_State* L);
 	static int lGetWeDeclaredWarOnFriendCount(lua_State* L);
+	static int lCanRequestCoopWar(lua_State* L);
 	static int lGetCoopWarAcceptedState(lua_State* L);
 	static int lGetNumWarsFought(lua_State* L);
 	static int lGetLandDisputeLevel(lua_State* L);
@@ -1125,10 +1126,9 @@ protected:
 	static int lDoForceDoF(lua_State* L);
 	static int lDoForceDenounce(lua_State* L);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 	LUAAPIEXTN(IsHasDefensivePact, bool);
 	LUAAPIEXTN(IsHasDefensivePactWithPlayer, bool);
-#endif
+
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetNumTurnsMilitaryPromise, int);
 	LUAAPIEXTN(GetNumTurnsExpansionPromise, int);

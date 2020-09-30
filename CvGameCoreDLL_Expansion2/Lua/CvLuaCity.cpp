@@ -1170,8 +1170,8 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() > 0)
+
+	if (MOD_BALANCE_CORE && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE");
 
@@ -1184,7 +1184,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE)
 	{

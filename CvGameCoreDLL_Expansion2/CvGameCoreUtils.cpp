@@ -987,11 +987,7 @@ bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 		return false;
 	}
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, (PlayerTypes)iData1));
-#else
-	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam));
-#endif
 }
 
 bool PUF_canDefend(const CvUnit* pUnit, int, int)

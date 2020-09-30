@@ -576,8 +576,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		addSmallGenericButtonIf( (tech.VassalageTradingAllowed and not g_bNoVassalage) and "TXT_KEY_ALLOWS_VASSALAGE" )
 		-- END
 
-		addSmallGenericButtonIf( tech.TradeAgreementTradingAllowed and "TXT_KEY_ALLOWS_TRADE_AGREEMENTS" )
-
 		addSmallGenericButtonIf( tech.UnlocksEspionageAdvancedActions and "TXT_KEY_ALLOWS_ADVANCED_ACTIONS" )
 
 		if tech.BridgeBuilding then

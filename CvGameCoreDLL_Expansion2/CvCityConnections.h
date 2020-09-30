@@ -67,7 +67,7 @@ protected:
 	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;
 	PlotIndexStore m_plotIdsToConnect;
-	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes;
+	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes; //this is not about trade routes but city connections
 	CvPlayer* m_pPlayer;
 	bool m_bDirty;
 	SingleCityConnectionStore dummy;

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "3.2.7"
+#define MyAppVersion "5.8.16"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -30,12 +30,12 @@ DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
 SetupIconFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=3.2.7
+VersionInfoVersion=5.8.16
 VersionInfoCompany=Community Patch Project Team
 VersionInfoDescription=Vox Populi
-VersionInfoCopyright=2018
+VersionInfoCopyright=2019
 VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=3.2.7
+VersionInfoProductVersion=5.8.16
 WizardImageStretch=False
 
 [Languages]
@@ -62,6 +62,8 @@ Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\Cv
 Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
 Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
 Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
@@ -95,3 +97,5 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"; Components: FullEUI FullNoEUI Basic
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7b) UI - Promotion Tree for VP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7a) Promotion Icons for VP"

@@ -1638,37 +1638,29 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
+	// sometimes we have no choice
+	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
+		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
+
 	// CASE 1: I have an enhanced religion. 
 	if (pMyReligion && pMyReligion->m_bEnhanced)
 	{
-#if defined(MOD_BALANCE_CORE)
 		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET);
+
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement <= iFlavor)
+		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit)==NULL)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-		}
-		//Only convert once we've hit our peak.
-		if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
-		}
-#else
-		// Spread religion if there is any city that needs it
-		if (GetReligionAI()->ChooseProphetConversionCity())
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
 		else
 		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			//Only convert once we've hit our peak.
+			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
-#endif
 	}
-
 
 	// CASE 2: I have a religion that hasn't yet been enhanced
 	else if (pMyReligion)
@@ -1681,25 +1673,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	else
 	{
 		// Locked out?
-#if defined(MOD_BALANCE_CORE)
 		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && !GetPlayerTraits()->IsAlwaysReligion())
-#else
-		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0)
-#endif
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
-
 		// Not locked out
 		else
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
-	}
-
-	if ((GC.getGame().getGameTurn() - pUnit->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 	}
 
 	return eDirective;
@@ -1975,7 +1957,8 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+				if (pUnit->GeneratePath(pCity->plot(), iFlags))
 					return pCity;
 			}
 		}
@@ -2025,7 +2008,8 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+				if (pUnit->GeneratePath(pCity->plot(), iFlags))
 					return pCity;
 			}
 		}

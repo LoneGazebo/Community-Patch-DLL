@@ -124,10 +124,6 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::AddCityTrade);
 	};
-	static int lAddUnitTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddUnitTrade);
-	};
 	static int lAddAllowEmbassy(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::AddAllowEmbassy);
@@ -144,22 +140,6 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::AddResearchAgreement);
 	};
-	static int lAddTradeAgreement(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddTradeAgreement);
-	};
-	static int lAddPermamentAlliance(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddPermamentAlliance);
-	};
-	static int lAddSurrender(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddSurrender);
-	};
-	static int lAddTruce(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddTruce);
-	};
 	static int lAddPeaceTreaty(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::AddPeaceTreaty);
@@ -171,10 +151,6 @@ protected:
 	static int lAddThirdPartyWar(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::AddThirdPartyWar);
-	};
-	static int lAddThirdPartyEmbargo(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddThirdPartyEmbargo);
 	};
 
 	static int lAddDeclarationOfFriendship(lua_State* L)
@@ -204,10 +180,6 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::ChangeThirdPartyPeaceDuration);
 	};
-	static int lChangeThirdPartyEmbargoDuration(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::ChangeThirdPartyEmbargoDuration);
-	};
 
 	static int lRemoveByType(lua_State* L);
 	static int lRemoveResourceTrade(lua_State* L)
@@ -218,10 +190,6 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveCityTrade);
 	};
-	static int lRemoveUnitTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::RemoveUnitTrade);
-	};
 	static int lRemoveThirdPartyPeace(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveThirdPartyPeace);
@@ -229,10 +197,6 @@ protected:
 	static int lRemoveThirdPartyWar(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveThirdPartyWar);
-	};
-	static int lRemoveThirdPartyEmbargo(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::RemoveThirdPartyEmbargo);
 	};
 	static int lRemoveVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
 

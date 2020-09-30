@@ -1111,11 +1111,12 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
+				if (iMinWaterSize < 2)
+					return true;
+
 				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
 				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-				{
 					return true;
-				}
 			}
 		}
 
@@ -3746,7 +3747,6 @@ int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 	return iScore;
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighbors) const
 {
 	int iPassable = 0;
@@ -3899,7 +3899,6 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 	return false;
 }
 
-#endif
 //	--------------------------------------------------------------------------------
 void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
 {
@@ -7306,7 +7305,7 @@ void CvPlot::removeMinorResources(bool bVenice)
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
 		bRemoveUniqueLuxury = true;
 
-	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if (MOD_BALANCE_CORE)
 		bRemoveUniqueLuxury = false;
 		
 	if (bVenice)
@@ -10673,8 +10672,6 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-
 //	--------------------------------------------------------------------------------
 int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 {
@@ -10709,8 +10706,6 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 	//naval exploration - the further away, the better
 	return pPlayer->GetCityDistanceInPlots(this) - pPlayer->GetCityDistanceInPlots(pRefPlot);
 }
-
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
@@ -13515,7 +13510,8 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	{
 		if(thisUnitDomain == DOMAIN_SEA)
 		{
-			if(!isWater() && !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
+			//fast check for ocean (-1) or any lake (1) allows building ships
+			if(!isWater() && !isCoastalLand(-1) && !isCoastalLand(1))
 			{
 				return false;
 			}

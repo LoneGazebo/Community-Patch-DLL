@@ -931,7 +931,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				{
 					int iNoStarveModifier = (GC.getAI_CITIZEN_VALUE_FOOD() * 125) - store.iExcessFoodTimes100;
 					int iMultiplier = max(iNoStarveModifier, GC.getAI_CITIZEN_VALUE_FOOD());
-					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
+					int iFoodTurnsRemaining = bCityFoodProduction ? GC.getAI_CITIZEN_VALUE_FOOD() : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
@@ -4643,18 +4643,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-		int iReligionSpreads = newUnit->getUnitInfo().GetReligionSpreads();
-		int iReligiousStrength = newUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-		iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
-		iReligiousStrength /= 100;
-#endif
-		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-		{
-			newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
-			newUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-			newUnit->GetReligionData()->SetReligion(eReligion);
-		}
+		newUnit->GetReligionData()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 
 	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)

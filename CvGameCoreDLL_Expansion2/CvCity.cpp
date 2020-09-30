@@ -8113,13 +8113,11 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
 	// Resource Monopoly requirements met?
-	if(MOD_BALANCE_CORE_DEALS && !IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
+	if(!IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
 	{
 		return false;
 	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!IsBuildingFeatureValid(eBuilding, toolTipSink))
 	{
@@ -9165,7 +9163,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE_DEALS)
+
 //	--------------------------------------------------------------------------------
 /// Does eBuilding pass the resource monopoly requirement test?
 bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink) const
@@ -9291,7 +9289,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 bool CvCity::IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
@@ -10710,7 +10708,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 		iNumProductionNeeded /= 100;
 #endif
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
 		{
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 			if (IsUnitInvestment(eUnitClass))
@@ -11211,6 +11209,10 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		return iCost;
 	}
 
+	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eCityReligion = GetCityReligions()->GetReligiousMajority();
+
 	// LATE-GAME GREAT PERSON
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 	if (pkUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
@@ -11227,8 +11229,6 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			if (eUnitClass != NO_UNITCLASS)
 			{
 				const UnitTypes eThisPlayersUnitType = (UnitTypes)kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
-				ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-				ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 				{
@@ -11402,8 +11402,19 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
 		iCost = iCost * iMultiplier / 100;
 
-		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+		if (pkUnitInfo->IsSpreadReligion())
 		{
+			if (eCityReligion == NO_RELIGION)
+				return 0;
+			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
+			iCost = iCost * iMultiplier / 100;
+		}
+
+		else if (pkUnitInfo->IsRemoveHeresy())
+		{
+			if (eFoundedReligion == NO_RELIGION)
+				return 0;
+
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 			iCost = iCost * iMultiplier / 100;
 		}
@@ -16213,7 +16224,7 @@ void CvCity::CheckForOperationUnits()
 							//take the money...
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 							if (bInvest)
 							{
 								const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -16336,7 +16347,7 @@ void CvCity::CheckForOperationUnits()
 				//take the money...
 				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -16647,8 +16658,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (MOD_BALANCE_CORE)
 		{
 			int iGrowthTourism = GetGrowthFromTourism();
 			iTotalMod += iGrowthTourism;
@@ -16657,7 +16667,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
 			}
 		}
-#endif
+
 		if (IsPuppet())
 		{
 			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
@@ -16847,13 +16857,13 @@ int CvCity::getGrowthMods() const
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+
+	if (MOD_BALANCE_CORE)
 	{
 		int iGrowthTourism = GetGrowthFromTourism();
 		iTotalMod += iGrowthTourism;
 	}
-#endif
+
 	if (IsPuppet())
 	{
 		int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
@@ -20747,7 +20757,7 @@ bool CvCity::DoRazingTurn()
 				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
 			}
 
-			if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
+			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
 				{
@@ -27660,8 +27670,7 @@ void CvCity::updateStrengthValue()
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
+	if (MOD_BALANCE_CORE && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
 	{
 		PlayerTypes eAlly = GET_PLAYER(getOwner()).GetMinorCivAI()->GetAlly();
 		if(eAlly != NO_PLAYER)
@@ -27696,7 +27705,6 @@ void CvCity::updateStrengthValue()
 			}
 		}
 	}
-#endif
 
 	// Terrain mod
 	if(plot()->isHills())
@@ -27758,9 +27766,6 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			if (pGarrisonedUnit)
 			{
 				int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
-				if (!pGarrisonedUnit->isNativeDomain(plot()))
-					iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
-
 				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 				iValue -= (iStrengthFromGarrison * 100);
 			}
@@ -28570,12 +28575,27 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					}
 				}
 			}
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pPlot->IsChokePoint())
 			{
 				iValueMultiplier += 50;
 				bStoleHighValueTile = true;
+
+				if (pkImprovement)
+				{
+					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+
+					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					{
+						iValueMultiplier += 100;
+					}
+					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
+					{
+						iValueMultiplier += 50;
+					}
+				}
 			}
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
 			if (pkImprovement)
 			{
 				if (pkImprovement->IsCreatedByGreatPerson())
@@ -30630,7 +30650,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			}
 			//Have we already invested here?
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
 			{
 				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 				if (IsUnitInvestment(eUnitClass))
@@ -30764,19 +30784,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 	case YIELD_FAITH:
 	{
 		int iFaithCost = -1;
-
-		// Does this city have a majority religion?
-		ReligionTypes eReligion = GetCityReligions()->GetReligiousMajority();
-#if defined(MOD_BUGFIX_MINOR)
-		// Permit faith purchases from pantheon beliefs
-		if(eReligion < RELIGION_PANTHEON)
-#else
-		if(eReligion <= RELIGION_PANTHEON)
-#endif
-		{
-			return false;
-		}
-
 		// Unit
 		if(eUnitType != NO_UNIT)
 		{
@@ -30798,6 +30805,16 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				//naval units are only for the UA!
 				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && pkUnitInfo->GetSpecialUnitType() == NO_SPECIALUNIT && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPurchaseNavalUnitsFaith())
 					return false;
+
+				ReligionTypes eReligion;
+				if (pkUnitInfo->IsFoundReligion())
+				{
+					eReligion = GET_PLAYER(m_eOwner).GetReligions()->GetReligionCreatedByPlayer();
+				}
+				else
+				{
+					eReligion = GetCityReligions()->GetReligiousMajority();
+				}
 
 #if defined(MOD_BUGFIX_MINOR)
 				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
@@ -30865,6 +30882,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 								return false;
 							}
 						}
+						else
+							return false;
 					}
 					else
 					{
@@ -30878,7 +30897,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 							const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 							if (pReligion)
 							{
-
 								if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra(), getOwner(), this))
 								{
 									return false;
@@ -30893,6 +30911,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 									return false;
 								}
 							}
+							else
+								return false;
 						}
 					}
 				}
@@ -31163,7 +31183,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
 			if (pGameUnit)
 			{
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT));
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{	
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
@@ -31469,24 +31489,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
-			pUnit->GetReligionData()->SetReligion(eReligion);
 
-			int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
-			int iReligiousStrength = pUnit->getUnitInfo().GetReligiousStrength();
-#if defined(MOD_BALANCE_CORE)
-			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
-#else
-			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
-#endif
-			iReligiousStrength /= 100;
-
-			// Missionary strength
-			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
-			{
-				int iExtraReligionSpreads = pUnit->getUnitInfo().IsFoundReligion() ? 0 : GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads();
-				pUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + iExtraReligionSpreads);
-				pUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-			}
+			pUnit->GetReligionData()->SetFullStrength(pUnit->getOwner(),pUnit->getUnitInfo(),eReligion,this);
 
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{
@@ -32593,7 +32597,8 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires coast
 	if(pkBuildingInfo->IsWater())
 	{
-		if(!isCoastal(pkBuildingInfo->GetMinAreaSize()))
+		//-1 is ocean (fast check), 1 is any lake (not cached, slower)
+		if(!isCoastal(-1) && !isCoastal(1))
 			return false;
 	}
 
@@ -32903,17 +32908,9 @@ bool CvCity::canRangeStrike() const
 {
 	VALIDATE_OBJECT
 
-#if !defined(MOD_BALANCE_CORE_MILITARY)
-	// Can't shoot more than once per turn
-	if(isMadeAttack())
+#if defined(MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
+	if (MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
 		return false;
-#endif
-#if defined(MOD_BALANCE_CORE)
-	// Can't shoot if it's not our turn
-	if(!GET_PLAYER(getOwner()).isTurnActive())
-	{
-		return false;
-	}
 #endif
 
 	// Can't shoot when in resistance
@@ -32924,11 +32921,9 @@ bool CvCity::canRangeStrike() const
 	if(getDamage() == GetMaxHitPoints())
 		return false;
 
-#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Apparently it's possible for someone to fire during another player's turn
 	if(!GET_PLAYER(getOwner()).isTurnActive())
 		return false;
-#endif
 
 	return true;
 }
@@ -32937,14 +32932,10 @@ bool CvCity::canRangeStrike() const
 bool CvCity::CanRangeStrikeNow() const
 {
 	if(!canRangeStrike())
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	if (isMadeAttack())
 		return false;
-#endif
 
 	bool bIndirectFireAllowed; // By reference, yuck!!!	
 #if defined(MOD_EVENTS_CITY_BOMBARD)
@@ -33370,65 +33361,49 @@ void CvCity::DoNearbyEnemy()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 {
-	int iRange = 4;
-	int iFriendlyPower = GetPower()*2;
+	//cannot use the tactical zone here, because it's not specific to a certain enemy
+	//but we can use the danger plots to exclude some cities
+	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
+		return false;
+
+	int iFriendlyPower = GetPower();
 	int iEnemyPower = 0;
-
-	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
-
-	int iX = this->plot()->getX();
-	int iY = this->plot()->getY();
 	bool bFriendlyGeneralInTheVicinity = false;
 	bool bEnemyGeneralInTheVicinity = false;
-
-	int iUnitLoop;
-	for (const CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 	{
-		if (pLoopUnit->IsCombatUnit())
+		CvPlot* pPlot = iterateRingPlots(plot(), i);
+		if (!pPlot)
+			continue;
+
+		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
+			CvUnit* pUnit = pPlot->getUnitByIndex(j);
+			if (pUnit->IsCombatUnit())
 			{
-				iFriendlyPower += pLoopUnit->GetPower();
+				if (pUnit->getTeam() == getTeam())
+					iFriendlyPower += pUnit->GetPower();
+				if (pUnit->getOwner() == eEnemy)
+					iEnemyPower += pUnit->GetPower();
 			}
-		}
-		if (!bFriendlyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
+			else if (pUnit->IsGreatGeneral())
 			{
-				bFriendlyGeneralInTheVicinity = true;
+				if (pUnit->getTeam() == getTeam())
+					bFriendlyGeneralInTheVicinity = true;
+				if (pUnit->getOwner() == eEnemy)
+					bEnemyGeneralInTheVicinity = true;
 			}
 		}
 	}
+
 	if (bFriendlyGeneralInTheVicinity)
 	{
 		iFriendlyPower *= 11;
 		iFriendlyPower /= 10;
 	}
 
-	for (const CvUnit* pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
-	{
-		if (pLoopUnit->IsCombatUnit())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
-			{
-				iEnemyPower += pLoopUnit->GetPower();
-			}
-		}
-		if (!bEnemyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-		{
-			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-			if (iDistance <= iRange)
-			{
-				bEnemyGeneralInTheVicinity = true;
-			}
-		}
-	}
 	if (bEnemyGeneralInTheVicinity)
 	{
 		iEnemyPower *= 11;
@@ -33437,7 +33412,6 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 
 	return (iEnemyPower>iFriendlyPower);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)

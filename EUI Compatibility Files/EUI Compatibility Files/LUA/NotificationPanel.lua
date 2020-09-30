@@ -964,7 +964,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		local player = FindPlayer( g_majorControlTable, control )
 		local team = Teams[ player:GetTeam() ]
 		if team:IsVassal( g_activeTeamID ) then
-			ShowSimpleTip( L( "TXT_KEY_DIPLO_MASTER_OF", player:GetCivilizationShortDescriptionKey() ) )
+			ShowSimpleTip( L"TXT_KEY_DIPLO_MASTER_OF" )
 		end
 	end;
 

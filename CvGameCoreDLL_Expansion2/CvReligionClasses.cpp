@@ -1397,46 +1397,12 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
-	// In case we have another prophet sitting around, make sure he's set to this religion
+	// Just in case we have another prophet sitting around, make sure he's set to this religion
 	int iLoopUnit;
-	CvUnit* pLoopUnit;
-	for(pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
+	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
-		{
 			pLoopUnit->GetReligionData()->SetReligion(eReligion);
-#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
-			{
-				if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else if (kPlayer.getCapitalCity())
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
-				}
-				else
-				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-				}
-			}
-			else
-			{
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-			}
-#else
-			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
-#endif
-#if defined(MOD_BALANCE_CORE)
-			int iReligiousStrength = pLoopUnit->getUnitInfo().GetReligiousStrength();
-			iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
-			iReligiousStrength /= 100;
-			pLoopUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
-#else
-			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
-#endif
-		}
 	}
 
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -2606,6 +2572,26 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 #endif
 }
 
+/// Get the pantheon this player created
+ReligionTypes CvGameReligions::GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const
+{
+	ReligionTypes eRtnValue = NO_RELIGION;
+
+	ReligionList::const_iterator it;
+	for (it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		if (it->m_eFounder == ePlayer)
+		{
+			if (it->m_bPantheon)
+			{
+				eRtnValue = it->m_eReligion;
+			}
+		}
+	}
+	return eRtnValue;
+}
+
+
 ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
 {
 	ReligionTypes eRtnValue = NO_RELIGION;
@@ -3279,6 +3265,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 {
 	iNumTradeRoutesInfluencing = 0;
 
+	//no pressure from pantheons
 	if (eReligion <= RELIGION_PANTHEON)
 	{
 		return 0;
@@ -3293,51 +3280,45 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	// Does this city have a majority religion?
+	//Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
-	//We don't get the full value here if not the majority.
-	if (eMajorityReligion == NO_RELIGION)
+	if (eMajorityReligion != eReligion)
 	{
-		int iNumFollowers = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-		if (iNumFollowers > 0)
-		{
-			int iCitySize = pFromCity->getPopulation();
-			//scale the amount of pressure we get.
-			int iRatio = (iNumFollowers * 100) / max(1, iCitySize);
-
-			iPressureMod += (iRatio-100);
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	//No pressure at all if the majority is something else
-	else if (eMajorityReligion != eReligion)
 		return 0;
+	}
 
+	//do we have a trade route or pretend to have one
 	if (bConnectedWithTrade || bPretendTradeConnection)
 	{
 		if (bActualValue)
 			iNumTradeRoutesInfluencing++;
 
 		int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
-#if defined(MOD_BALANCE_CORE_POLICIES)
 		iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(pFromCity->GetReligiousTradeModifier() != 0)
-		{
-			iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
-		}
-		int iReligionTradeMod = pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
-		if(iReligionTradeMod != 0)
-		{
-			iTradeReligionModifer += iReligionTradeMod;
-		}
-#endif
+		iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
+		iTradeReligionModifer += pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
 
 		iPressureMod += iTradeReligionModifer;
+	}
+	else
+	{
+#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
+		if (MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
+		{
+			//no trade route, no pressure!
+			return 0;
+		}
+#endif	
+
+		//if there is no traderoute, pressure falls off with distance
+		iPressureMod -= iRelativeDistancePercent;
+
+		/*
+		//alternative version with quadratic scaling - higher pressure
+		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
+		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
+		iPressure = int(iPressure * fScaleFactor);
+		*/
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
@@ -3424,23 +3405,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	}
 #endif
 
-	//if there is an explicit trade route, there is no distance taper
-	if (!bConnectedWithTrade && !bPretendTradeConnection)
-	{
-		//now the most important thing - linear scaling
-		iPressureMod -= iRelativeDistancePercent;
-
-		/*
-		//alternative version with quadratic scaling - higher pressure
-		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
-		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
-		iPressure = int(iPressure * fScaleFactor);
-		*/
-	}
-
 	int iPressure = iBasePressure * (100 + iPressureMod);
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
-	return iPressure / 100;
+	return max(0, iPressure / 100);
 }
 
 /// How much does this prophet cost (recursive)
@@ -5246,7 +5213,6 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				iNumTradeRoutesInvolved += iNumTradeRoutes;
 			}
 
-#if defined(MOD_BUGFIX_RELIGIOUS_SPY_PRESSURE)
 			// Include any pressure from "Underground Sects"
 			if (eReligion > RELIGION_PANTHEON && (kPlayer.GetReligions()->GetReligionInMostCities() == eReligion || GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID()) == eReligion))
 			{
@@ -5259,7 +5225,6 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 					}
 				}
 			}
-#endif
 		}
 	}
 
@@ -5302,8 +5267,13 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 		return false;
 	}
 
+	if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pTargetCity, m_pCity))
+	{
+		iAmount = 0;
+		return false;
+	}
+	
 	int iNumTradeRoutes = 0;
-
 	bool bConnectedWithTrade;
 	int iRelativeDistancePercent;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
@@ -5311,8 +5281,7 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
 	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-	iAmount = (iWithTR-iNoTR);
-	return (iAmount>0);
+	return (iWithTR>iNoTR);
 }
 
 
@@ -6645,6 +6614,37 @@ void CvUnitReligion::Init()
 	m_iSpreadsLeft = 0;
 }
 
+void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity * pOriginCity)
+{
+	if (eOwner == NO_PLAYER || eReligion <= RELIGION_PANTHEON)
+		return;
+
+	unsigned short iReligionSpreads = kUnitInfo.GetReligionSpreads();
+	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength();
+
+	//strength can be buffed
+	int iExtraStrength = iReligiousStrength * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
+	iReligiousStrength += iExtraStrength / 100;
+
+	//missionary spreads can be buffed but not prophets
+	if (!kUnitInfo.IsFoundReligion())
+	{
+		iReligionSpreads += pOriginCity ? pOriginCity->GetCityBuildings()->GetMissionaryExtraSpreads() : 0;
+		iReligionSpreads += GET_PLAYER(eOwner).GetNumMissionarySpreads();
+	}
+
+	m_eReligion = eReligion;
+	m_iSpreadsLeft = iReligionSpreads;
+	m_iStrength = iReligiousStrength;
+	m_iMaxSpreads = iReligionSpreads;
+	m_iMaxStrength = iReligiousStrength;
+}
+
+bool CvUnitReligion::IsFullStrength() const
+{
+	return m_iSpreadsLeft == m_iMaxSpreads && m_iStrength == m_iMaxStrength;
+}
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 {
@@ -6656,18 +6656,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 	int temp;
 	loadFrom >> temp;
 	writeTo.SetReligion((ReligionTypes)temp);
-	loadFrom >> temp;
-	writeTo.SetReligiousStrength(temp);
+	loadFrom >> writeTo.m_iStrength;
+	loadFrom >> writeTo.m_iMaxStrength;
 
-	if(uiVersion >= 2)
-	{
-		loadFrom >> temp;
-		writeTo.SetSpreadsLeft(temp);
-	}
-	else
-	{
-		writeTo.SetSpreadsLeft(0);
-	}
+	loadFrom >> writeTo.m_iSpreadsLeft;
+	loadFrom >> writeTo.m_iMaxSpreads;
 
 	return loadFrom;
 }
@@ -6680,9 +6673,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-	saveTo << readFrom.GetReligion();
-	saveTo << readFrom.GetReligiousStrength();
-	saveTo << readFrom.GetSpreadsLeft();
+	saveTo << readFrom.m_eReligion;
+	saveTo << readFrom.m_iStrength;
+	saveTo << readFrom.m_iMaxStrength;
+
+	saveTo << readFrom.m_iSpreadsLeft;
+	saveTo << readFrom.m_iMaxSpreads;
 
 	return saveTo;
 }
@@ -7121,6 +7117,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
+	int iMaxCityDistance = 13;
 	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through all the players
@@ -7142,6 +7139,10 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
+				//ignore far-flung cities
+				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistance)
+					continue;
+
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
 				{
 					int iScore = ScoreCityForMissionary(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
@@ -7160,7 +7161,8 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
 		//cache the path, we're about to reuse it
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,piTurns,true) )
+		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns,true) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -7203,7 +7205,8 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN,INT_MAX,piTurns) )
+		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -7213,7 +7216,14 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 /// If we were going to use a prophet to convert a city, which one would it be?
 CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) const
 {
-	int iMinScore = 1000;  // Not zero because we don't want prophets to ALWAYS pick something up
+	if (piTurns)
+		*piTurns = INT_MAX;
+
+	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
+	int iDistanceBias = 7; //score drops linearly with distance from holy city
+	int iMinScore = 500;  //equivalent to converting 10 heretics at a distance of 13 plots to our holy city
+	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
+		iMinScore = 200;
 
 	// Make sure we're spreading a religion and find holy city
 	ReligionTypes eReligion = GetReligionToSpread();
@@ -7301,6 +7311,11 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					}
 				}
 #endif
+
+				//ignore far-flung cities
+				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistanceTurns)
+					continue;
+
 				CvCityReligions* pCR = pLoopCity->GetCityReligions();
 				if (!pCR->IsDefendedAgainstSpread(eReligion))
 				{
@@ -7308,22 +7323,17 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 					if (iHeretics == 0)
 						continue;
 
-					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 					ReligionTypes eMajorityReligion = pCR->GetReligiousMajority();
+					if (eMajorityReligion == eReligion)
+						continue;
 
 					int iDummy = 0;
 					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
-
 					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
+					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
 					// Score this city
-					int iScore = (iHeretics * 1000) / (iDistanceToHolyCity + 1);
-
-					//    - Low score if this city already has our religion as its majority
-					if (eMajorityReligion == eReligion)
-					{
-						iScore /= 5;
-					}
+					int iScore = (iHeretics * 1000) / (iDistanceToHolyCity + iDistanceBias);
 
 					//    - Low score if we would soon convert this city anyway
 					//	(but not the other way around: do not go for the most difficult targets first!)
@@ -7384,13 +7394,36 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	std::sort(vCandidates.begin(),vCandidates.end());
 	std::reverse(vCandidates.begin(),vCandidates.end());
 
-	for (size_t i=0; i<vCandidates.size(); i++)
+	//look at the top two and take the one that is closest
+	if (pUnit && vCandidates.size()>1)
 	{
-		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,piTurns))
+		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+
+		int iTurnsToTargetA = INT_MAX;
+		int iTurnsToTargetB = INT_MAX;
+		int iScoreA = 0;
+		int iScoreB = 0;
+
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA))
+			iScoreA = vCandidates[0].score / (iTurnsToTargetA + 3); //add some bias for close targets
+		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB))
+			iScoreB = vCandidates[1].score / (iTurnsToTargetB + 3); //add some bias for close targets
+
+		if (iScoreA > 0 && iScoreA > iScoreB)
 		{
-			return vCandidates[i].pPlot->getPlotCity();
+			if (piTurns)
+				*piTurns = iTurnsToTargetA;
+			return vCandidates[0].pPlot->getPlotCity();
+		}
+		if (iScoreB > 0 && iScoreB > iScoreA)
+		{
+			if (piTurns)
+				*piTurns = iTurnsToTargetB;
+			return vCandidates[1].pPlot->getPlotCity();
 		}
 	}
+	else if (!vCandidates.empty())
+		return vCandidates.front().pPlot->getPlotCity();
 
 	return NULL;
 }
@@ -7992,6 +8025,13 @@ bool CvReligionAI::BuyMissionary(ReligionTypes eReligion)
 			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eMissionary, eReligion);
 			if (pBestCity)
 			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Buying a missionary in %s", pBestCity->getName().c_str());
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+
 				pBestCity->Purchase(eMissionary, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 				return true;
 			}
@@ -8017,6 +8057,13 @@ bool CvReligionAI::BuyInquisitor(ReligionTypes eReligion)
 			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eInquisitor, eReligion);
 			if (pBestCity)
 			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Buying an inquisitor in %s", pBestCity->getName().c_str());
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+
 				pBestCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 				return true;
 			}
