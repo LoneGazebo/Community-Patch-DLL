@@ -2595,7 +2595,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			}
 		}
 #else
-		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
+		// Do we think he's going for culture victory? If we're contesting this, don't give them open borders!
 		if (pDiploAI->IsCompetingForVictory() && pDiploAI->GetMajorCivOpinion(eOtherPlayer) != MAJOR_CIV_OPINION_ALLY && pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY)
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);

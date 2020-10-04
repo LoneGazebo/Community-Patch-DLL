@@ -13385,11 +13385,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						bWantToAttack = true;
 					}
 				}
-
-				if (!IsEndgameAggressiveTo(eTargetPlayer))
-				{
-					bWantToAttack = false;
-				}
 				
 				// Don't get into multiple wars at once (unless this is an easy target)
 				if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
