@@ -5,7 +5,7 @@
 	All other marks and trademarks are the property of their respective owners.  
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
-
+// test
 #include "CvGameCoreDLLPCH.h"
 #include "CvArea.h"
 #include "CvMap.h"
