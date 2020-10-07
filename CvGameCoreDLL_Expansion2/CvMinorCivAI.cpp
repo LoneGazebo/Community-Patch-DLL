@@ -15788,6 +15788,12 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	int iGold = GC.getMINOR_BULLY_GOLD();
 	int iGoldGrowthFactor = 500; //antonjs: todo: XML
 
+	if (eYield == YIELD_SCIENCE)
+	{
+		iGold *= 9;
+		iGold /= 10;
+	}
+
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float)GC.getGame().getElapsedGameTurns() / (float)GC.getGame().getEstimateEndTurn());
 	CvAssertMsg(fGameProgressFactor >= 0.0f, "fGameProgressFactor is not expected to be negative! Please send Anton your save file and version.");

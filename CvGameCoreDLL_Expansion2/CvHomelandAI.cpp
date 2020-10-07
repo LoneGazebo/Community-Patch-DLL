@@ -2821,12 +2821,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
-	//may need this later
-	map<CvCity*, int> mapCityNeed;
-	int iLoop = 0;
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
-
 	//see if we have work to do
 	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
 	{
@@ -2838,39 +2832,48 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			//make sure no other worker tries to target the same plot
 			it->second.clear();
 			it->second.insert( SMovePlot(pTarget->GetPlotIndex(),-1,0,0) );
-		}
-		else
-		{
-			//find the city which is most in need of workers
-			int iMaxNeed = -100;
-			CvCity* pBestCity = NULL;
-			for (map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
-			{
-				if (it2->second > iMaxNeed)
-				{
-					iMaxNeed = it2->second;
-					pBestCity = it2->first;
-				}
-			}
-
-			if (pBestCity && pUnit->GeneratePath(pBestCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY,23))
-			{
-				ExecuteMoveToTarget(pUnit, pBestCity->plot(), 0);
-				int iCurrentNeed = mapCityNeed[pBestCity];
-				if (iCurrentNeed > 0)
-					mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
-				else
-					mapCityNeed[pBestCity]--; //in case all cities have all tiles improved, try spread the workers over all our cities
-			}
-			else if (pUnit->IsCivilianUnit())
-			{
-				MoveCivilianToGarrison(pUnit);
-			}
-
-			//simply ignore this unit for further building tasks 
-			it->second.clear();
 			UnitProcessed(pUnit->GetID());
 		}
+	}
+
+	//may need this later
+	map<CvCity*, int> mapCityNeed;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
+
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		if (!pUnit || pUnit->TurnProcessed())
+			continue;
+
+		//find the city which is most in need of workers
+		int iMaxNeed = -100;
+		CvCity* pBestCity = NULL;
+		for (map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
+		{
+			if (it2->second > iMaxNeed)
+			{
+				iMaxNeed = it2->second;
+				pBestCity = it2->first;
+			}
+		}
+
+		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 23))
+		{
+			ExecuteMoveToTarget(pUnit, pBestCity->plot(), 0);
+			int iCurrentNeed = mapCityNeed[pBestCity];
+			if (iCurrentNeed > 0)
+				mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
+			else
+				mapCityNeed[pBestCity]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+		}
+		else if (pUnit->IsCivilianUnit())
+		{
+			MoveCivilianToGarrison(pUnit);
+		}
+		UnitProcessed(pUnit->GetID());
 	}
 }
 
