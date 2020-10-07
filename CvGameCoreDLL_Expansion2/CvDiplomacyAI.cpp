@@ -13385,11 +13385,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						bWantToAttack = true;
 					}
 				}
-
-				if (!IsEndgameAggressiveTo(eTargetPlayer))
-				{
-					bWantToAttack = false;
-				}
 				
 				// Don't get into multiple wars at once (unless this is an easy target)
 				if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
@@ -27690,6 +27685,9 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsCoopWarRequestsDisabled())
+		return;
 
 	// Don't start a war if our empire is in bad shape for it
 	if (GetPlayer()->IsEmpireInBadShapeForWar())
