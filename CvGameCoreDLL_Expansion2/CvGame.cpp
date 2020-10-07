@@ -821,7 +821,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 
-		if(kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		if (kPlayer.isAlive() && kPlayer.isMajorCiv())
 		{
 			kPlayer.GetFlavorManager()->AdjustWeightsForMap();
 		}
@@ -837,10 +837,9 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	bool bCanWorkWater = GC.getCAN_WORK_WATER_FROM_GAME_START();
 
 	// Team Stuff
-	TeamTypes eTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
-		eTeam = (TeamTypes) iTeamLoop;
+		TeamTypes eTeam = (TeamTypes) iTeamLoop;
 
 		if(bCanWorkWater)
 		{
@@ -851,20 +850,23 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	}
 
 	// Player Stuff
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if(GET_PLAYER(ePlayer).isAlive())
 		{
 			// Major Civ init
-			if(!GET_PLAYER(ePlayer).isMinorCiv())
+			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality();
+
+				// Military skill rating
+				int iStartingMilitaryRating = (getStartEra() > 0) ? (1000 * getStartEra()) : 1000;
+				GET_PLAYER(ePlayer).SetMilitaryRating(iStartingMilitaryRating);
 			}
 			// Minor Civ init
-			else
+			else if (GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				GET_PLAYER(ePlayer).GetMinorCivAI()->DoPickInitialItems();
 			}
@@ -872,9 +874,8 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
 
-			// To have an orientation which plots are relatively good or bad
-			if (GET_PLAYER(ePlayer).isMajorCiv())
-				GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
+			// To have an orientation of which plots are relatively good or bad
+			GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
 		}
 	}
 
@@ -1485,11 +1486,7 @@ void CvGame::initDiplomacy()
 				const TeamTypes eTeamB = static_cast<TeamTypes>(iJ);
 				if(iI != iJ)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					kTeamA.declareWar(eTeamB, false, kTeamA.getLeaderID());
-#else
-					kTeamA.declareWar(eTeamB);
-#endif
 				}
 			}
 		}
@@ -4524,25 +4521,22 @@ bool CvGame::canTrainNukes() const
 //	--------------------------------------------------------------------------------
 EraTypes CvGame::getCurrentEra() const
 {
-	int iEra;
-	int iCount;
-	int iI;
+	float fEra = 0;
+	int iCount = 0;
 
-	iEra = 0;
-	iCount = 0;
-
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			iEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
+			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
 		}
 	}
 
 	if(iCount > 0)
 	{
-		return ((EraTypes)(iEra / iCount));
+		int iRoundedEra = int(fEra / iCount + 0.5f);
+		return ((EraTypes)iRoundedEra);
 	}
 
 	return NO_ERA;
@@ -6289,6 +6283,469 @@ void CvGame::setPausePlayer(PlayerTypes eNewValue)
 }
 
 //	-----------------------------------------------------------------------------------------------
+int CvGame::GetDefaultFlavorValue() const
+{
+	int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
+
+	// Error handling to prevent out of bounds values
+	if (iDefaultFlavorValue < 1 || iDefaultFlavorValue > 20)
+	{
+		iDefaultFlavorValue = 5;
+	}
+
+	return iDefaultFlavorValue;
+}
+
+///	-----------------------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Diplomacy AI Options - Configurable in DiploAIOptions.sql
+/// Also consolidates some checks from various game options, for simplicity.
+
+/// Disable Victory Competition
+bool CvGame::IsVictoryCompetitionEnabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_VICTORY_COMPETITION() > 0)
+	{
+		return false;
+	}
+
+	// Victory competition automatically ends when someone wins the game.
+	if (IsGameWon())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/// Disable Endgame Aggression Boost
+bool CvGame::IsEndgameAggressionEnabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_ENDGAME_AGGRESSION() > 0)
+	{
+		return false;
+	}
+
+	// Automatically disabled if victory competition is disabled.
+	if (!IsVictoryCompetitionEnabled())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/// Enable Nuclear Gandhi
+/// NOTE: Only affects his extra personality changes, not his NUKE or USE_NUKE flavors.
+bool CvGame::IsNuclearGandhiEnabled() const
+{
+	if (isNoNukes())
+	{
+		return false;
+	}
+	
+	if (isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_ENABLE_NUCLEAR_GANDHI() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Insult Messages
+/// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
+bool CvGame::IsInsultMessagesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_INSULT_MESSAGES() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Compliment Messages
+/// Only affects human players, and only applies to friendly messages sent by the AI on their turn.
+bool CvGame::IsComplimentMessagesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_COMPLIMENT_MESSAGES() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Show All Opinion Modifiers
+/// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
+bool CvGame::IsShowAllOpinionModifiers() const
+{
+	if (GC.getDIPLOAI_SHOW_ALL_OPINION_MODIFIERS() > 0)
+	{
+		return true;
+	}
+
+	if (IsDiploDebugModeEnabled())
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	{
+		return true;
+	}
+#endif
+
+	return false;
+}
+
+/// Show Opinion Values
+/// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
+bool CvGame::IsShowAllOpinionValues() const
+{
+	if (GC.getDIPLOAI_SHOW_ALL_OPINION_VALUES() > 0)
+	{
+		return true;
+	}
+
+	if (IsDiploDebugModeEnabled())
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	{
+		return true;
+	}
+#endif
+
+	return false;
+}
+
+/// Show Base Human Opinion
+/// CvDiplomacyAI::GetBaseOpinionScore()
+bool CvGame::IsShowBaseHumanOpinion() const
+{
+	if (GC.getDIPLOAI_SHOW_BASE_HUMAN_OPINION() > 0)
+	{
+		return true;
+	}
+
+	if (IsShowAllOpinionModifiers())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Friendship Requests
+/// Only affects human players, and only affects requests sent by the AI on their turn.
+bool CvGame::IsFriendshipRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_FRIENDSHIP_REQUESTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Gift Offers
+/// Only affects human players, and only affects gift offers sent by the AI on their turn.
+bool CvGame::IsGiftOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_GIFT_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Help Requests
+/// Only affects human players, and only affects help requests sent by the AI on their own turn.
+bool CvGame::IsHelpRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_HELP_REQUESTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Trade Offers
+/// Only affects human players, and only affects trade offers sent by the AI on their turn. Does not affect peace offers.
+bool CvGame::IsTradeOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_TRADE_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable Peace Offers
+/// Only affects human players, and only affects peace offers sent by the AI on their turn.
+bool CvGame::IsPeaceOffersDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_PEACE_OFFERS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Disable All Statements
+/// Only affects human players. Affects statements sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
+bool CvGame::IsAllDiploStatementsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_ALL_STATEMENTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Passive Mode (towards all players)
+bool CvGame::IsAIPassiveMode() const
+{
+	if (GC.getDIPLOAI_PASSIVE_MODE_GLOBAL() > 0)
+	{
+		return true;
+	}
+
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Passive Mode (towards humans)
+bool CvGame::IsAIPassiveTowardsHumans() const
+{
+	if (GC.getDIPLOAI_PASSIVE_MODE_HUMANS() > 0)
+	{
+		return true;
+	}
+
+	if (IsAIPassiveMode())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Helper function to determine if a given player can attempt a Domination Victory (returns true if it is currently possible for them to win one)
+/// Can also pass in optional parameter eMakePeacePlayer to determine if making peace with a player would lock a player out of attempting a Domination Victory
+bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer /* = NO_PLAYER */) const
+{
+	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	{
+		// Loop through all major civs
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			// Ignore this player and their teammates
+			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
+				continue;
+
+			// Ignore players who never founded an original capital
+			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			int iX = kPlayer.GetOriginalCapitalX();
+			int iY = kPlayer.GetOriginalCapitalY();
+			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+				continue;
+
+			PlayerTypes eCapitalOwner = pCapitalPlot->getOwner();
+			CvPlayerAI& kCapitalOwner = GET_PLAYER(eCapitalOwner);
+			if (eCapitalOwner != NO_PLAYER && !kCapitalOwner.isBarbarian())
+			{
+				// Not already at war?
+				if (!kCapitalOwner.IsAtWarWith(ePlayer))
+				{
+					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
+						{
+							return false;
+						}
+						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+						{
+							return false;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+	else if (!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveTowardsHumans())
+	{
+		// Loop through all major civs
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			// Ignore this AI and their teammates
+			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
+				continue;
+
+			// Ignore players who never founded an original capital
+			if (kPlayer.GetNumCitiesFounded() == 0)
+				continue;
+
+			int iX = kPlayer.GetOriginalCapitalX();
+			int iY = kPlayer.GetOriginalCapitalY();
+			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+				continue;
+
+			PlayerTypes eCapitalOwner = pCapitalPlot->getOwner();
+			CvPlayerAI& kCapitalOwner = GET_PLAYER(eCapitalOwner);
+			if (eCapitalOwner != NO_PLAYER && kCapitalOwner.isHuman()) // Capital owned by human?
+			{
+				// Not already at war?
+				if (!kCapitalOwner.IsAtWarWith(ePlayer))
+				{
+					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
+						{
+							return false;
+						}
+						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+						{
+							return false;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+/// Would making peace with this player prevent us from achieving a Domination Victory?
+bool CvGame::WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return false;
+
+	return (CanPlayerAttemptDominationVictory(ePlayer) && !CanPlayerAttemptDominationVictory(ePlayer, eMakePeacePlayer));
+}
+
+/// Aggressive Mode (towards all players)
+bool CvGame::IsAIAggressiveMode() const
+{
+	if (IsAIPassiveMode())
+	{
+		return false;
+	}
+
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE_GLOBAL() > 0)
+	{
+		return true;
+	}
+
+	bool bDiplomaticVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
+	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
+	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
+
+	if (!bDiplomaticVictoryEnabled && !bScienceVictoryEnabled && !bCultureVictoryEnabled)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Aggressive Mode (towards humans)
+bool CvGame::IsAIAggressiveTowardsHumans() const
+{
+	if (IsAIPassiveTowardsHumans())
+	{
+		return false;
+	}
+
+	if (IsAIAggressiveMode())
+	{
+		return true;
+	}
+
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE_HUMANS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Diplomacy AI Debug Mode
+/// Enables the debug mode
+bool CvGame::IsDiploDebugModeEnabled() const
+{
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/// Forces the AI to accept all Discuss requests from human players
+bool CvGame::IsAIMustAcceptHumanDiscussRequests() const
+{
+	if (GC.getDIPLOAI_ENABLE_DEBUG_MODE() == 2)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///	-----------------------------------------------------------------------------------------------
 UnitTypes CvGame::getBestLandUnit()
 {
 	return m_eBestLandUnit;
@@ -8870,7 +9327,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 }
 #endif
 //	--------------------------------------------------------------------------------
-UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
+UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY)
 {
 	// Find the unique units that have already been assigned
 	int iRandomSeed = 0;
@@ -9026,7 +9483,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(5, eLoopUnit + iUnitLoop);
+		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
@@ -9065,11 +9522,7 @@ void CvGame::updateWar()
 									{
 										if(!atWar(((TeamTypes)iI), ((TeamTypes)iJ)))
 										{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 											teamI.declareWar(((TeamTypes)iJ), false, teamI.getLeaderID());
-#else
-											teamI.declareWar(((TeamTypes)iJ));
-#endif
 										}
 									}
 								}
@@ -14335,11 +14788,11 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
 
-	if (strCityName != "")
-	{
-		CvString localizedText = "TXT_KEY_FREE_CITY";
-		pNewCity->setName(strCityName, false, true);
-	}
+	//if (strCityName != "")
+	//{
+	//	CvString localizedText = "TXT_KEY_FREE_CITY";
+	//	pNewCity->setName(strCityName, false, true);
+	//}
 
 	pNewCity->ChangeNumTimesOwned(eNewPlayer, 1);
 	pNewCity->SetOccupied(false);

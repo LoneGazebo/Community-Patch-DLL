@@ -4715,10 +4715,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
 			}
+			/*
+			//this is an expensive check and the effect is minor so just skip it
 			else if (pCity->canConstruct(buildingInteractions[i]))
 			{
 				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 2);
 			}
+			*/
 			else
 			{
 				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield));
@@ -4788,11 +4791,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) * iCount / 100);
 		}
 	}
+
 	int iNumResourceInfos = GC.getNumResourceInfos();
 	for (int iI = 0; iI < iNumResourceInfos; iI++)
 	{
 		ResourceTypes eResource = (ResourceTypes)iI;
 		if (eResource == NO_RESOURCE)
+			continue;
+
+		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
+			continue;
+		else if (eYield == YIELD_FAITH && pkBuildingInfo->GetResourceFaithChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
+			continue;
+		else if (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
 			continue;
 
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -4814,13 +4825,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (!GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
 			continue;
 
-		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-		else if (eYield == YIELD_FAITH && pkBuildingInfo->GetResourceFaithChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-		else if (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-	
+		//expensive
 		int iNumResource = pCity->CountResource(eResource);
 
 		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) > 0)
@@ -4854,6 +4859,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 		}
 	}
+
 	int iNumImprovementInfos = GC.getNumImprovementInfos();
 	for (int iI = 0; iI < iNumImprovementInfos; iI++)
 	{
@@ -5416,6 +5422,104 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 
 	return iYieldValue;
+}
+
+int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer)
+{
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	//Skip if null
+	if (pkBuildingInfo == NULL)
+		return 0;
+
+	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+	int iReligionBonus = 0;
+
+	int iModifier = max(2, (15 - kPlayer.GetCurrentEra()));
+	if (kPlayer.GetPlayerTraits()->IsReligious())
+		iModifier *= 2;
+
+	if (!kPlayer.GetReligions()->HasCreatedPantheon())
+		iModifier *= 2;
+
+	if (kPlayer.GetReligions()->HasCreatedPantheon() && !kPlayer.GetReligions()->HasCreatedReligion(true) && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(true) > 0)
+		iModifier *= 2;
+
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+	if (eReligion == NO_RELIGION)
+	{
+		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	}
+	if (eReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
+		if (pReligion)
+		{	
+			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
+			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
+			for (int iI = 0; iI < iNumBeliefs; iI++)
+			{
+				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+				{
+					int iTempBonus = 0;
+					if (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()) > 0)
+					{
+						iTempBonus += (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()));
+					}
+					if (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()) > 0)
+					{
+						iTempBonus += (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()));
+					}
+					if (pkBuildingInfo->GetGreatWorkSlotType() != NO_GREAT_WORK_SLOT)
+					{
+						if (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) > 0)
+						{
+							iTempBonus += (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()));
+						}
+					}
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						const YieldTypes eYield = static_cast<YieldTypes>(iI);
+						if (eYield != NO_YIELD)
+						{
+							if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
+							{
+								if (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield) > 0)
+								{
+									iTempBonus += (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield));
+								}
+								if (pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
+								{
+									iTempBonus += (pEntry->GetYieldChangeAnySpecialist(eYield));
+								}
+							}
+							if (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+							{
+								iTempBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield));
+							}
+
+							if (eYield == YIELD_FAITH)
+								iTempBonus *= max(1, (iModifier/2));
+						}
+					}
+					if (pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
+					{
+						iTempBonus += pEntry->GetWonderProductionModifier();
+					}
+
+					iTempBonus += iReligionBonus;
+				}
+			}
+		}
+	}
+
+	iReligionBonus *= iModifier;
+
+	return iReligionBonus;
 }
 int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer)
 {

@@ -357,14 +357,7 @@ function PopulateTrade(iPlayer, pStack)
     if (g_pTeam:IsHasResearchAgreement(iTeam)) then
 		tradeRow = AddTrade(Locale.ConvertTextKey("TXT_KEY_DIPLO_RESCH_AGREEMENT"), tradeRow, g_MajorCivTradeRowIM);
     end
-    ---------------------------------------------------------------------------------- 
-    -- pocket Trade Agreement
-    ---------------------------------------------------------------------------------- 
-     bTradeAgreementAllowed = g_Deal:IsPossibleToTradeItem(iPlayer, g_iUs, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iDealDuration);  
-    -- Are they not allowed to give RA? (don't have tech, or are already providing it to us)
-    if (bTradeAgreementAllowed) then
-		tradeRow = AddTrade(Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_AGREEMENT"), tradeRow, g_MajorCivTradeRowIM);
-    end
+
     ---------------------------------------------------------------------------------- 
     -- pocket resources for them
     ---------------------------------------------------------------------------------- 

@@ -23,18 +23,12 @@ enum TradeableItems
     TRADE_ITEM_MAPS,
     TRADE_ITEM_RESOURCES,
     TRADE_ITEM_CITIES,
-    TRADE_ITEM_UNITS,
     TRADE_ITEM_OPEN_BORDERS,
     TRADE_ITEM_DEFENSIVE_PACT,
     TRADE_ITEM_RESEARCH_AGREEMENT,
-    TRADE_ITEM_TRADE_AGREEMENT, // not in use
-    TRADE_ITEM_PERMANENT_ALLIANCE,
-    TRADE_ITEM_SURRENDER,
-    TRADE_ITEM_TRUCE,
     TRADE_ITEM_PEACE_TREATY,
     TRADE_ITEM_THIRD_PARTY_PEACE,
     TRADE_ITEM_THIRD_PARTY_WAR,
-    TRADE_ITEM_THIRD_PARTY_EMBARGO, // not in use
     TRADE_ITEM_ALLOW_EMBASSY,
 	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
@@ -69,8 +63,6 @@ struct CvTradedItem
 	int m_iData3;
 	bool m_bFlag1;
 	PlayerTypes m_eFromPlayer;      // Which player is giving up this item?
-	bool m_bFromRenewed;		    // Was this trade item used in a renewal?
-	bool m_bToRenewed;				// Was this trade item
 	int m_iValue;					// not serialized, only temporary
 	bool m_bValueIsEven;			// not serialized, only temporary
 };
@@ -113,6 +105,9 @@ public:
 	int m_iFinalTurn;
 	int m_iDuration;
 
+	int m_iFromPlayerValue;
+	int m_iToPlayerValue;
+
 	PeaceTreatyTypes m_ePeaceTreatyType;
 	PlayerTypes m_eSurrenderingPlayer;
 	PlayerTypes m_eDemandingPlayer;
@@ -120,10 +115,10 @@ public:
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
-	bool m_bDealCancelled;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bRealDeal;
 	bool m_bIsGift;
-#endif
+	bool m_bDoNotModifyFrom;
+	bool m_bDoNotModifyTo;
 
 	TradedItemList m_TradedItems;
 
@@ -132,6 +127,17 @@ public:
 
 	void SetFromPlayer(PlayerTypes ePlayer);
 	void SetToPlayer(PlayerTypes ePlayer);
+
+	void SetFromPlayerValue(int iValue);
+	void ChangeFromPlayerValue(int iValue);
+
+	void SetToPlayerValue(int iValue);
+	void ChangeToPlayerValue(int iValue);
+
+	void SetDuration(int iValue);
+
+	void SetDoNotModifyFrom(bool bValue);
+	void SetDoNotModifyTo(bool bValue);
 
 	PlayerTypes GetOtherPlayer(PlayerTypes eFromPlayer) const;
 	PlayerTypes GetToPlayer()   const
@@ -153,6 +159,24 @@ public:
 	uint GetEndTurn()   const
 	{
 		return m_iFinalTurn;
+	};
+	uint GetFromPlayerValue() const
+	{
+		return m_iFromPlayerValue;
+	};
+	uint GetToPlayerValue() const
+	{
+		return m_iToPlayerValue;
+	};
+
+	bool DoNotModifyFrom() const
+	{
+		return m_bDoNotModifyFrom;
+	};
+
+	bool DoNotModifyTo() const
+	{
+		return m_bDoNotModifyTo;
 	};
 
 	// Peace Treaty stuff
@@ -192,19 +216,13 @@ public:
 	void AddMapTrade(PlayerTypes eFrom);
 	void AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
 	void AddCityTrade(PlayerTypes eFrom, int iCityID);
-	void AddUnitTrade(PlayerTypes eFrom, int iUnitID);
 	void AddAllowEmbassy(PlayerTypes eFrom);
 	void AddOpenBorders(PlayerTypes eFrom, int iDuration);
 	void AddDefensivePact(PlayerTypes eFrom, int iDuration);
 	void AddResearchAgreement(PlayerTypes eFrom, int iDuration);
-	void AddTradeAgreement(PlayerTypes eFrom, int iDuration);
-	void AddPermamentAlliance();
-	void AddSurrender(PlayerTypes eFrom);
-	void AddTruce();
 	void AddPeaceTreaty(PlayerTypes eFrom, int iDuration);
 	void AddThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iDuration);
 	void AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
-	void AddThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty, int iDuration);
 	void AddDeclarationOfFriendship(PlayerTypes eFrom);
 	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -226,19 +244,20 @@ public:
 	int GetGoldPerTurnTrade(PlayerTypes eFrom);
 	bool ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDuration);
 
+	bool IsStrategicsTrade();
+	int GetNumStrategicsOnTheirSide(PlayerTypes eFrom);
+
 	bool IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource);
 	int GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource);
 	bool ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
 	bool IsCityTrade(PlayerTypes eFrom, int x, int y);
 	void ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iNewDuration);
 	void ChangeThirdPartyPeaceDuration(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iNewDuration);
-	void ChangeThirdPartyEmbargoDuration(PlayerTypes eFrom, PlayerTypes eThirdParty, int iNewDuration);
 
 	bool IsAllowEmbassyTrade(PlayerTypes eFrom);
 	bool IsOpenBordersTrade(PlayerTypes eFrom);
 	bool IsDefensivePactTrade(PlayerTypes eFrom);
 	bool IsResearchAgreementTrade(PlayerTypes eFrom);
-	bool IsTradeAgreementTrade(PlayerTypes eFrom);
 	bool IsPeaceTreatyTrade(PlayerTypes eFrom);
 	bool IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	bool IsThirdPartyWarTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
@@ -249,10 +268,8 @@ public:
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
-	void RemoveUnitTrade(int iUnitID);
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
-	void RemoveThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty);
 	void RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 
 	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER);
@@ -292,6 +309,7 @@ public:
 #endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void DoTurn();
+	void DoTurnPost();
 
 	void DoUpdateCurrentDealsList();
 
@@ -310,6 +328,9 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	uint GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	CvDeal* GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
+	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
@@ -321,11 +342,11 @@ public:
 	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
-	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled);
+	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip = false);
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
-	static void PrepareRenewDeal(CvDeal* pOldDeal, const CvDeal* pNewDeal);
+	static void PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal);
 
 	// Variables below should really be lists to support easy deletion
 	DealList m_ProposedDeals;

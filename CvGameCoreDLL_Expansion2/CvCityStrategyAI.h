@@ -356,6 +356,7 @@ int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, Player
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue);
+int GetBuildingReligionValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 #endif
 }
 

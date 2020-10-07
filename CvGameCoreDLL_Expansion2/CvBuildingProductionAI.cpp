@@ -260,7 +260,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo == NULL)
 		return 0;
 
-
 	//Bonus additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
 
@@ -296,6 +295,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
+
 		if (iValue > 300)
 		{
 			iValue = 300;
@@ -443,9 +443,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//No Sea Trade Connections?
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->AllowsWaterRoutes())
 	{
-		CvCity* pCapital = kPlayer.getCapitalCity();
-		if (pkBuildingInfo->AllowsWaterRoutes())
+		//we know the city must be coastal. but if this is a lake and there are no other cities reachable via water, then it makes no sense to build this
+		if (!m_pCity->plot()->isCoastalLand(-1) && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity,true).empty())
+			return 0;
+
+		if (pkBuildingInfo->AllowsWaterRoutes()) //this is not about trade routes but city connections
 		{
+			CvCity* pCapital = kPlayer.getCapitalCity();
 			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 			{
 				iBonus -= 50;
@@ -1013,7 +1017,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	YieldTypes eFocusYield = m_pCity->GetCityCitizens()->GetFocusTypeYield(m_pCity->GetCityCitizens()->GetFocusType());
 
-	bool bSmall = m_pCity->getPopulation() <= 12 && !m_pCity->isCapital();
+	bool bSmall = m_pCity->getPopulation() <= 10;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
@@ -1067,19 +1071,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				break;
 			case YIELD_FAITH:
+
+				if (kPlayer.isMinorCiv())
+				{
+					iYieldTrait = 0;
+					iYieldValue /= 10;
+					break;
+				}
 				if (iReligion > 0)
 				{
 					iYieldValue += iHappinessReduction * 50;
-
-					//explicit check for stonehenge.
-					if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
-						iReligion /= 50;
 
 					iYieldValue += (iReligion * 10);
 					iYieldTrait += (iReligion * 10);
 
 					bGoodforHappiness = true;
 				}
+
+				//explicit check for stonehenge.
+				if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
+					iReligion /= 50;
+
 				break;
 			case YIELD_CULTURE:
 				if (iBoredom > 0)
@@ -1094,8 +1106,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			case YIELD_PRODUCTION:
 				if (bSmall)
 				{
-					iYieldValue *= 2;
-					iYieldTrait *= 2;
+					iYieldValue *= 4;
+					iYieldTrait *= 4;
 				}
 				if (iCrime > 0)
 				{
@@ -1113,7 +1125,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldTrait = 0;
 				}
 				else if (bSmall)
-					iYieldValue *= 2;
+					iYieldValue *= 10;
 
 				if (iCrime > 0)
 				{
@@ -1175,69 +1187,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-	if (eReligion == NO_RELIGION)
-	{
-		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-	}
-	if(eReligion != NO_RELIGION)
-	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
-		if(pReligion)
-		{
-			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-			for(int iI = 0; iI < iNumBeliefs; iI++)
-			{
-				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-				{
-					if(pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()))
-					{
-						iBonus += (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()) * 5);
-					}
-					if(pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()))
-					{
-						iBonus += (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()) * 5);
-					}
-					if(pkBuildingInfo->GetGreatWorkSlotType() != NO_GREAT_WORK_SLOT)
-					{
-						if(pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()))
-						{
-							iBonus += (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) * 5);
-						}
-					}
-					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						const YieldTypes eYield = static_cast<YieldTypes>(iI);
-						if(eYield != NO_YIELD)
-						{
-							if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
-							{
-								if (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield))
-								{
-									iBonus += (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield) * 5);
-								}
-								if (m_pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
-								{
-									iBonus += (pEntry->GetYieldChangeAnySpecialist(eYield) * 2);
-								}
-							}
-							if(pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield))
-							{
-								iBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
-							}
-						}
-					}
-					if(pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
-					{
-						iBonus += pEntry->GetWonderProductionModifier();
-					}
-				}
-			}
-		}
-	}
+	int iReligionValue = CityStrategyAIHelpers::GetBuildingReligionValue(m_pCity, eBuilding, kPlayer.GetID());
+
+	iBonus += iReligionValue;
 
 	//////
 	//WAR
@@ -1348,7 +1300,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
-		iBonus += m_pCity->getPopulation() * 25;
+		if (pkBuildingInfo->IsNoOccupiedUnhappiness())
+			iBonus += max(15, m_pCity->getPopulation()) * 25;
+		else
+			iBonus += m_pCity->getPopulation() * 25;
 	}
 
 	//Danger? Prioritize units!
@@ -1374,6 +1329,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus -= 250;
 	}
 
+	if (iBonus <= 0)
+		return 1;
+
+	//iValue is the compunded value of the items.
 	iValue += iBonus;
 
 	return iValue;

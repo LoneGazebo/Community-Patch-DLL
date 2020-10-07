@@ -274,8 +274,6 @@ void CvEconomicAI::Init(CvEconomicAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	FAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvStrategyAI::m_aiTempFlavors");
 	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
 
-	m_auiYields.clear();
-	m_auiYields.push_back_copy(-1, NUM_YIELD_TYPES);
 	m_RequestedSavings.clear();
 
 	Reset();
@@ -300,27 +298,8 @@ void CvEconomicAI::Reset()
 		m_paiTurnStrategyAdopted[iI] = -1;
 	}
 
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		m_auiYields[ui] = 0;
-	}
-
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	m_vPlotsToExploreLand.clear();
 	m_vPlotsToExploreSea.clear();
-#else
-	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
-	{
-		m_aiExplorationPlots[ui] = -1;
-		m_aiExplorationPlotRatings[ui] = -1;
-	}
-
-	for(uint ui = 0; ui < m_aiGoodyHutPlots.size(); ui++)
-	{
-		m_aiGoodyHutPlots[ui] = -1;
-		m_aiGoodyHutUnitAssignments[ui].Clear();
-	}
-#endif
 
 	for(uint ui = 0; ui < NUM_PURCHASE_TYPES; ui++)
 	{
@@ -373,17 +352,11 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	ArrayWrapper<int> wrapGetNumEconomicAIStrategies2(iEntriesToRead, m_paiTurnStrategyAdopted);
 	kStream >> wrapGetNumEconomicAIStrategies2;
 
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		kStream >> m_auiYields[ui];
-	}
-
 	kStream >> iEntriesToRead;
 
 #define MAX_PLOT_ARRAY_SIZE	((152+1)*(96+1))
 	int iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	for(int i = 0; i < iMaxEntriesToRead; i++)
 	{
 		int idx,score;
@@ -401,46 +374,6 @@ void CvEconomicAI::Read(FDataStream& kStream)
 		kStream >> score;
 		m_vPlotsToExploreSea.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
 	}
-
-#else
-	m_aiExplorationPlots.resize(iMaxEntriesToRead);
-	m_aiExplorationPlotRatings.resize(iMaxEntriesToRead);
-
-	for(int i = 0; i < iMaxEntriesToRead; i++)
-	{
-		kStream >> m_aiExplorationPlots[i];
-		kStream >> m_aiExplorationPlotRatings[i];
-	}
-
-	// Skip any ones that go over the limit
-	for(int i = iMaxEntriesToRead; i < iEntriesToRead; i++)
-	{
-		int iDummy;
-		kStream >> iDummy;
-		kStream >> iDummy;
-	}
-
-	// goody hut plots
-	kStream >> iEntriesToRead;
-	iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
-	m_aiGoodyHutPlots.resize(iMaxEntriesToRead);
-	m_aiGoodyHutUnitAssignments.resize(iMaxEntriesToRead);
-
-	for(int i = 0; i < iMaxEntriesToRead; i++)
-	{
-		kStream >> m_aiGoodyHutPlots[i];
-		m_aiGoodyHutUnitAssignments[i].Clear();
-		kStream >> m_aiGoodyHutUnitAssignments[i].m_iUnitID;
-	}
-
-	// Skip any ones that go over the limit
-	for(int i = iMaxEntriesToRead; i < iEntriesToRead; i++)
-	{
-		int iDummy;
-		kStream >> iDummy;
-		kStream >> iDummy;
-	}
-#endif
 
 	int iTemp;
 	kStream >> iTemp;
@@ -478,12 +411,7 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	kStream << m_pAIStrategies->GetNumEconomicAIStrategies();
 	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumEconomicAIStrategies(), m_pabUsingStrategy);
 	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumEconomicAIStrategies(), m_paiTurnStrategyAdopted);
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		kStream << m_auiYields[ui];
-	}
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	kStream << m_vPlotsToExploreLand.size();
 	for(uint ui = 0; ui < m_vPlotsToExploreLand.size(); ui++)
 	{
@@ -496,21 +424,6 @@ void CvEconomicAI::Write(FDataStream& kStream)
 		kStream << GC.getMap().plotNum( m_vPlotsToExploreSea[ui].pPlot->getX(), m_vPlotsToExploreSea[ui].pPlot->getY() );
 		kStream << m_vPlotsToExploreSea[ui].score;
 	}
-#else
-	kStream << m_aiExplorationPlots.size();
-	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
-	{
-		kStream << m_aiExplorationPlots[ui];
-		kStream << m_aiExplorationPlotRatings[ui];
-	}
-
-	kStream << m_aiGoodyHutPlots.size();
-	for(uint ui = 0; ui < m_aiGoodyHutPlots.size(); ui++)
-	{
-		kStream << m_aiGoodyHutPlots[ui];
-		kStream << m_aiGoodyHutUnitAssignments[ui].m_iUnitID;
-	}
-#endif
 
 	kStream << (int)m_eReconState;
 	kStream << (int)m_eNavalReconState;
@@ -1066,7 +979,7 @@ int CvEconomicAI::GetNavalExplorersNeeded() const
 }
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
-int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
+int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
 	int iSmallScore = 5;
@@ -1189,7 +1102,7 @@ bool CvEconomicAI::CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmou
 	}
 
 	// Copy into temp array and sort by priority
-	m_TempRequestedSavings = m_RequestedSavings;
+	vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
 	std::stable_sort(m_TempRequestedSavings.begin(), m_TempRequestedSavings.end());
 
 	for(int iI = 0; iI < (int)m_TempRequestedSavings.size(); iI++)
@@ -1225,7 +1138,7 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase)
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 
 	// Copy into temp array and sort by priority
-	m_TempRequestedSavings = m_RequestedSavings;
+	vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
 	std::stable_sort(m_TempRequestedSavings.begin(), m_TempRequestedSavings.end());
 
 	for(int iI = 0; iI < (int)m_TempRequestedSavings.size(); iI++)
@@ -2035,7 +1948,7 @@ void CvEconomicAI::DoHurry()
 					m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 					//and train it!
-					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)))
+					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT))
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);
@@ -2290,11 +2203,7 @@ void CvEconomicAI::DoReconState()
 		vector< pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
 		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
-				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_COUNTER) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || 
-				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
+			if(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE) 
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
@@ -2972,7 +2881,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 	{
 		if (pPlot->isShallowWater() || bAllowDeepWater)
 		{
-			int iScore = EconomicAIHelpers::ScoreExplorePlot2(pPlot, pPlayer, DOMAIN_SEA, false);
+			int iScore = EconomicAIHelpers::ScoreExplorePlot(pPlot, pPlayer, DOMAIN_SEA, false);
 			if (iScore <= 0)
 				return;
 
@@ -2986,7 +2895,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 	}
 	else
 	{
-		int iScore = EconomicAIHelpers::ScoreExplorePlot2(pPlot, pPlayer, DOMAIN_LAND, false);
+		int iScore = EconomicAIHelpers::ScoreExplorePlot(pPlot, pPlayer, DOMAIN_LAND, false);
 		if (iScore <= 0)
 			return;
 
@@ -3886,17 +3795,14 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 }
 
 /// "Found City" Player Strategy: If there is a settler who isn't in an operation?  If so, find him a city site
-// Very dependent on the fact that the player probably won't have more than 2 settlers available at a time; needs an
-//   upgrade if that assumption is no longer true
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 #else
-bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStrategy*/, CvPlayer* pPlayer)
-{
+	eStrategy;
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
 		return false;
 #endif

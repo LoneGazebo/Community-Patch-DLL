@@ -166,17 +166,7 @@ function UpdateScreen()
 
 		iTotalUnhappiness = iTotalUnhappiness + iUnhappiness;
 		
-		-- Occupation tooltip
-		local strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_IS_NOT_OCCUPIED");
-		if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_IS_OCCUPIED");
-		end
-
--- COMMUNITY CHANGE
-		strOccupationTT = strOccupationTT .. pCity:GetCityUnhappinessBreakdown(false);
--- END CHANGE
-		
-		instance.TradeIncome:SetToolTipString(strOccupationTT);
+		instance.TradeIncome:SetToolTipString(pCity:GetCityUnhappinessBreakdown(false));
 	end
 
 	Controls.CityUnhappinessValue:SetText(iTotalUnhappiness);
@@ -245,7 +235,7 @@ function UpdateScreen()
     Controls.ResourcesImportedStack:DestroyAllChildren();
 	for pResource in GameInfo.Resources() do
 		local iResourceID = pResource.ID;
-		local iNum = pPlayer:GetResourceImport(iResourceID) + pPlayer:GetResourceFromMinors(iResourceID);
+		local iNum = pPlayer:GetResourceImport(iResourceID);
 		
 		if (iNum > 0) then
 			-- Only Luxuries or Strategic Resources

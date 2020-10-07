@@ -319,7 +319,7 @@ for k, v, w in ([[
 	NOTIFICATION_LEAGUE_PROJECT_COMPLETE		LeagueProjectComplete
 	NOTIFICATION_LEAGUE_PROJECT_PROGRESS		LeagueProjectProgress
 
-	NOTIFICATION_INSTANT_YIELD			InstantYieldItem B
+	NOTIFICATION_INSTANT_YIELD			InstantYieldItem 
 	NOTIFICATION_EVENT_CHOICE			ChooseEvent
 	NOTIFICATION_EVENT_CHOICE_CITY		ChooseCityEvent
 	
@@ -964,7 +964,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		local player = FindPlayer( g_majorControlTable, control )
 		local team = Teams[ player:GetTeam() ]
 		if team:IsVassal( g_activeTeamID ) then
-			ShowSimpleTip( L( "TXT_KEY_DIPLO_MASTER_OF", player:GetCivilizationShortDescriptionKey() ) )
+			ShowSimpleTip( L"TXT_KEY_DIPLO_MASTER_OF" )
 		end
 	end;
 

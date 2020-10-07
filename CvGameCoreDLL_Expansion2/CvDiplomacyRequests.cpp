@@ -352,10 +352,9 @@ foundRequest:
 		else
 		{						
 			CvDealAI* dealAI = GET_PLAYER(eFrom).GetDealAI();
-			int iTotalValueToMe = 0, iValueImOffering = 0, iValueTheyreOffering = 0;
-			int iAmountOverWeWillRequest = 0, iAmountUnderWeWillOffer = 0;
+			int iTotalValueToMe = 0;
 			bool bCantMatch = false;
-			bool bAcceptable = dealAI->IsDealWithHumanAcceptable(&kDeal, eTo, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatch, false);
+			bool bAcceptable = dealAI->IsDealWithHumanAcceptable(&kDeal, eTo, iTotalValueToMe, &bCantMatch, false);
 
 			if (!bAcceptable)
 			{				
@@ -374,9 +373,9 @@ foundRequest:
 					bool bGoodToBeginWith = true;
 					bool bCantMatchOffer = false;
 					// just try modify gold to start off iwth since it could maybe be possible that the AI had something in mind at the time
-					bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, true, true, bGoodToBeginWith, bCantMatchOffer);
+					bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
 					if (!bAcceptable) // now try harder to get a deal to avoid an improptu withdrawl
-						bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, false, false, bGoodToBeginWith, bCantMatchOffer);
+						bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
 					if (!bAcceptable) // well, we tried. Gonna just clear the deal and being up a empty non-descript trade as it is slightly less wierd than the deal abruptly being withdrawn
 					{
 						//bBlankDeal = true; // blanking seems to works fine but from reading bug reports, simply cancelling might be less surprising
@@ -599,6 +598,9 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //static
 void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
 {
+	if (pkDeal->GetNumItems() <= 0)
+		return;
+
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
@@ -623,7 +625,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	else
 	{
 		// Deals must currently happen on the active player's turn...
-		if(GC.getGame().getActivePlayer() == eToPlayer && pkDeal->GetNumItems() > 0)
+		if(GC.getGame().getActivePlayer() == eToPlayer)
 		{
 			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());

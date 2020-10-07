@@ -55,8 +55,6 @@ CvTechEntry::CvTechEntry(void):
 	m_bOpenBordersTradingAllowed(false),
 	m_bDefensivePactTradingAllowed(false),
 	m_bResearchAgreementTradingAllowed(false),
-	m_bTradeAgreementTradingAllowed(false),
-	m_bPermanentAllianceTrading(false),
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
@@ -146,8 +144,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bOpenBordersTradingAllowed = kResults.GetBool("OpenBordersTradingAllowed");
 	m_bDefensivePactTradingAllowed = kResults.GetBool("DefensivePactTradingAllowed");
 	m_bResearchAgreementTradingAllowed = kResults.GetBool("ResearchAgreementTradingAllowed");
-	m_bTradeAgreementTradingAllowed = kResults.GetBool("TradeAgreementTradingAllowed");
-	m_bPermanentAllianceTrading = kResults.GetBool("PermanentAllianceTradingAllowed");
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
 #endif
@@ -502,18 +498,6 @@ bool CvTechEntry::IsResearchAgreementTradingAllowed() const
 	return m_bResearchAgreementTradingAllowed;
 }
 
-/// Can you form Trade Agreements?
-bool CvTechEntry::IsTradeAgreementTradingAllowed() const
-{
-	return m_bTradeAgreementTradingAllowed;
-}
-
-/// Can you form a permanent alliance?
-bool CvTechEntry::IsPermanentAllianceTrading() const
-{
-	return m_bPermanentAllianceTrading;
-}
-
 #if defined(MOD_TECHS_CITY_WORKING)
 /// Change in number of rings a city can work
 int CvTechEntry::GetCityWorkingChange() const
@@ -797,10 +781,9 @@ void CvPlayerTechs::Uninit()
 /// Reset tech status array to all false
 void CvPlayerTechs::Reset()
 {
-	int iI;
 	CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
 
-	for(iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
+	for(int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
 		m_pabResearchingTech[iI] = false;
 		m_piCivTechPriority[iI] = 1;
@@ -824,7 +807,7 @@ void CvPlayerTechs::Reset()
 		if(pkInfo)
 		{
 			// Loop through all building classes
-			for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
 				CvBuildingEntry* pkBuildingInfo = NULL;
@@ -856,6 +839,9 @@ void CvPlayerTechs::Reset()
 						}
 					}
 #endif // AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+
+					//this is called at a time where m_pPlayer may not be initialized completely
+					/*
 					if (GC.getGame().getElapsedGameTurns() > 5)
 					{
 						if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE)
@@ -897,11 +883,12 @@ void CvPlayerTechs::Reset()
 							}
 						}
 					}
+					*/
 				}
 			}
 
 			// Loop through all units
-			for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 			{
 				// Is this one overridden for our civ?
 				if(pkInfo->isCivilizationUnitOverridden(iI))
@@ -924,7 +911,7 @@ void CvPlayerTechs::Reset()
 			}
 
 			// Loop through all improvements
-			for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
 				CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo((ImprovementTypes)iI);
 				if(pkImprovementEntry)
@@ -2676,16 +2663,22 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 
 	//to avoid overflow, we have to work a bit differently here
 	int iCost = pkTechInfo->GetResearchCost();
-	int iModifier = 0;
+	int iModifier = 100;
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
 	if(pkHandicapInfo)
-		iModifier += (pkHandicapInfo->getResearchPercent() - 100);
-
-	iModifier += (GC.getMap().getWorldInfo().getResearchPercent() - 100);
-	iModifier += (GC.getGame().getGameSpeedInfo().getResearchPercent() - 100);
-	iModifier += (GC.getGame().getStartEraInfo().getResearchPercent() - 100);
-	iModifier += std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1));
+	{
+		iModifier *= (pkHandicapInfo->getResearchPercent());
+		iModifier /= 100;
+	}
+	iModifier *= (GC.getMap().getWorldInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (GC.getGame().getGameSpeedInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (GC.getGame().getStartEraInfo().getResearchPercent());
+	iModifier /= 100;
+	iModifier *= (100 + std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)));
+	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
 	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
@@ -2693,10 +2686,10 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 
 	if (iCost<10000)
 		//avoid rounding errors
-		return std::max(1, iCost + (iCost*iModifier)/100);
+		return std::max(1, (iCost*iModifier)/100);
 	else
 		//avoid overflow
-	return std::max(1, iCost + (iCost/100)*iModifier);
+	return std::max(1, (iCost/100)*iModifier);
 }
 
 #if defined(MOD_CIV6_EUREKA)

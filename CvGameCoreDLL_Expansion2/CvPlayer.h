@@ -46,12 +46,10 @@ class CvMinorCivAI;
 class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	class CvDistanceMap;
-#endif
+class CvDistanceMap;
 #if defined(MOD_BALANCE_CORE)
-	class CvPlayerCorporations;
-	class CvPlayerContracts;
+class CvPlayerCorporations;
+class CvPlayerContracts;
 #endif
 class CvCityConnections;
 class CvNotifications;
@@ -483,6 +481,8 @@ public:
 	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
+	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive);
+	bool IsCityConnectionPlot(const CvPlot* pPlot) const;
 
 	// Culture
 	int GetTotalJONSCulturePerTurn() const;
@@ -654,6 +654,10 @@ public:
 	void ChangeGreatWorksTourismModifierGlobal(int iChange);
 	int GetGreatWorksTourismModifierGlobal() const;
 #endif
+
+	bool CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const;
+	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER, bool bDontCheckPhonyWars = false) const;
+
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -1694,6 +1698,7 @@ public:
 	void changeConversionTimer(int iChange);
 
 	CvCity* getCapitalCity() const;
+	int getCapitalCityID() const;
 	void setCapitalCity(CvCity* pNewCapitalCity);
 
 	int GetOriginalCapitalX() const;
@@ -1789,13 +1794,11 @@ public:
 	uint getTotalTimePlayed() const;
 
 	bool isMinorCiv() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	bool IsVassalOfSomeone() const;
 	int GetNumVassals() const;
-#endif
+
 	int GetNumValidMajorsMet(bool bJustMetBuffer) const;
 	bool HasMetValidMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
@@ -2197,6 +2200,10 @@ public:
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
 	int GetMonopolyPercent(ResourceTypes eResource) const;
+	//cache these because we need them a lot
+	int GetCombatAttackBonusFromMonopolies() const;
+	int GetCombatDefenseBonusFromMonopolies() const;
+	void UpdateMonopolyCache();
 
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
@@ -2451,6 +2458,8 @@ public:
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = AI_OPERATION_TYPE_INVALID) const;
 
 	int GetNumOffensiveOperations(DomainTypes eDomain);
+
+	bool HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps);
 
 	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
@@ -2910,6 +2919,7 @@ public:
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
+	CvCity* GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const;
 
 protected:
 	class ConqueredByBoolField
@@ -3007,11 +3017,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
-
-	//FAutoVariable<int, CvPlayer> m_iCultureAverage;
-//	FAutoVariable<int, CvPlayer> m_iScienceAverage;
-//	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
-//	FAutoVariable<int, CvPlayer> m_iGoldAverage;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3041,7 +3046,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iVassalCSBonusModifier;		
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
-	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
+	FAutoVariable<int, CvPlayer> m_iDummy;  //unused
 	FAutoVariable<int, CvPlayer> m_iWoundedUnitDamageMod;
 	FAutoVariable<int, CvPlayer> m_iUnitUpgradeCostMod;
 	FAutoVariable<int, CvPlayer> m_iBarbarianCombatBonus;
@@ -3401,7 +3406,6 @@ protected:
 #endif
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
-	FAutoVariable<int, CvPlayer> m_iNextOperationID;
 	FAutoVariable<int, CvPlayer> m_iCostNextPolicy;
 	FAutoVariable<int, CvPlayer> m_iNumBuilders;
 	FAutoVariable<int, CvPlayer> m_iMaxNumBuilders;
@@ -3585,6 +3589,8 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
+	int m_iCombatAttackBonusFromMonopolies;
+	int m_iCombatDefenseBonusFromMonopolies;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
@@ -3614,15 +3620,12 @@ protected:
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
-	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
-
-	// Obsolete: only used to read old saves
-	FAutoVariable< std::vector< Firaxis::Array< int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiBuildingClassYieldMod;
 
 	CvUnitCycler	m_UnitCycle;	
 
@@ -3659,11 +3662,9 @@ protected:
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
-#endif
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;
@@ -3783,6 +3784,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMilitaryLandMight;
 #endif
 
+	std::vector<int> m_vCityConnectionPlots; //serialized
 };
 
 bool CancelActivePlayerEndTurn();

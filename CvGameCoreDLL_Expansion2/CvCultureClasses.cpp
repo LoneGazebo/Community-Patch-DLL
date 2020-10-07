@@ -3348,7 +3348,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			}
 			else
 			{
-				if ((MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
+				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
 					eRtnValue = ARCHAEOLOGY_LANDMARK;
 			}
 		}
@@ -4828,49 +4828,20 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		case INFLUENCE_LEVEL_EXOTIC:
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				iRtnValue = GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC();
-			}
+			iRtnValue = MOD_BALANCE_CORE ? GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC() : 0;
 			break;
-#endif
 		case INFLUENCE_LEVEL_FAMILIAR:
-			iRtnValue = 1;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				iRtnValue = GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR();
-			}
-#endif
+			iRtnValue = MOD_BALANCE_CORE ? GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR() : 1;
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
-			iRtnValue = 2;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				iRtnValue = GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR();
-			}
-#endif
+			iRtnValue = MOD_BALANCE_CORE ? GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR() : 2;
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
-			iRtnValue = 3;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				iRtnValue = GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL();
-			}
-#endif
+			iRtnValue = MOD_BALANCE_CORE ? GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL() : 3;
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
-			iRtnValue = 4;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-				iRtnValue = GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_DOMINANT();
-			}
-#endif
+			iRtnValue = MOD_BALANCE_CORE ? GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_DOMINANT() : 4;
 			break;
 		}
 	}
@@ -5194,7 +5165,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if(MOD_BALANCE_CORE)
 	{
 		if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
@@ -5207,7 +5178,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		int iDelta = iBoredom - GetBoredomCache();
 		if (iDelta > 0)
 		{
-			iMultiplier += (iDelta * 3);
+			iMultiplier += iDelta;
 		}
 	}
 
@@ -5240,20 +5211,11 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 	{
 		iMultiplier += GC.getTOURISM_MODIFIER_DIFFERENT_IDEOLOGIES();
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		{
-		}
-		else
-		{
-#endif
-		if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
+
+		if (!MOD_BALANCE_CORE && m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	int iLessHappyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
@@ -5357,7 +5319,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", GetTourismModifierSharedReligion()) + "[ENDCOLOR]";
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if(MOD_BALANCE_CORE)
 	{
 		if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
@@ -5426,7 +5388,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - GetBoredomCache();
-		iDelta *= 3;
 		if (iDelta > 0)
 		{	
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iDelta) + "[ENDCOLOR]";
@@ -5615,6 +5576,9 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 {
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if (iMultiplier <= 0)
+		return 0;
+
 	int iStrength = 0;
 	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	{
@@ -7414,11 +7378,11 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage (ie not generating a yield)
-	int iBase = GetNumGreatWorks(false) * GC.getBASE_TOURISM_PER_GREAT_WORK();
+	int iBase = GetNumGreatWorks(false) * (GC.getBASE_TOURISM_PER_GREAT_WORK() + GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_TOURISM));
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
+	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -7901,20 +7865,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIFFERENT_IDEOLOGIES();
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			{
-			}
-			else
-			{
-#endif
-			if (kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
+
+			if (!MOD_BALANCE_CORE && kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 			{
 				iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 	}
 	if (!bIgnorePolicies)
@@ -7955,7 +7910,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if(MOD_BALANCE_CORE)
 	{
 		if (kCityPlayer.GetEspionage() && kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 		{
@@ -7968,7 +7923,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		int iDelta = iBoredom - kCityPlayer.GetCulture()->GetBoredomCache();
 		if (iDelta > 0)
 		{
-			iMultiplier += (iDelta * 3);
+			iMultiplier += iDelta;
 		}
 	}
 

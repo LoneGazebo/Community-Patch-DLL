@@ -268,13 +268,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-
-		if(kAttacker.getDomainType() == DOMAIN_AIR && pkDefender->getDomainType() != DOMAIN_AIR)
-		{
-			iAttackerDamageInflicted /= 2;
-			iDefenderDamageInflicted /= 3;
-		}
+		int iDefenderDamageInflicted = pkDefender->isEmbarked() ? 0 : pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 #if defined(MOD_BALANCE_CORE)
 		if(kAttacker.getForcedDamageValue() != 0)
@@ -418,9 +412,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = false;
 		}
 #if defined(MOD_UNITS_MAX_HP)
-		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
+		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 #else
-		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
+		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 #endif
 		{
 			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());
@@ -436,7 +430,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = true;
 		}
 
-		if (!kAttacker.plot()->MeleeAttackerAdvances())
+		if (!kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
 			bAdvance = false;
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
@@ -796,8 +790,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iMaxXP = pkDefender->maxXPValue();
 
 		//CvAssert(pkDefender->IsCanDefend());
-
-		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -910,7 +904,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
-	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
+	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
 	if (MOD_BUGFIX_BARB_GP_XP)
@@ -1023,8 +1017,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 
 		//CvAssert(pkDefender->IsCanDefend());
-
-		iDamage = kAttacker.rangeCombatDamage(pkDefender);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iDamage = kAttacker.rangeCombatDamage(pkDefender,NULL,bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -1070,7 +1064,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
-	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
+	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -1692,21 +1686,27 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			// Is the interception successful?
 			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()+kAttacker.getDamage()) <= pInterceptor->interceptionProbability())
 			{
-				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, true, &plot);
+				bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
 			}
 		}
+
+		//set these even if the interception failed (ie zero damage)
+		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
+		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);
+		pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
+		pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, true );
+		pkCombatInfo->setAttackIsBombingMission(true);
+		pkCombatInfo->setDefenderRetaliates(false);
+		//no experience by default, may be overwritten
+		pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
+
+		//is the attack aborted?
 		if (iInterceptionDamage > 0)
 		{
-			pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
-			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);		// Damage inflicted this round
-
 			int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
 			pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
 			pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, MAX_INT );
-			pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
-			pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, true );
-			pkCombatInfo->setAttackIsBombingMission(true);
-			pkCombatInfo->setDefenderRetaliates(false);
 
 			//make sure we have zero values everywhere else
 			pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, 0);
@@ -1718,7 +1718,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 			pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
 			pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
-			pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());	// Not really correct
+			pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());
 			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
 
 			pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, 0);
@@ -1761,7 +1761,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iMaxXP = pkDefender->maxXPValue();
 
 		// Calculate attacker damage
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -2370,7 +2371,8 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	// Ground AA interceptor
 	if(pkDefender->getDomainType() != DOMAIN_AIR)
 	{
-		int iInterceptionDamage = pkDefender->GetInterceptionDamage(&kAttacker, true, &plot);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		int iInterceptionDamage = pkDefender->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
 
 		// Reduce damage for performing a sweep
 		iInterceptionDamage *= 100 + GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD();
@@ -2769,7 +2771,6 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		{
 			if (!kAttacker.isEnemy((TeamTypes)iI))
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 				if(GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
 				{
 					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
@@ -2778,9 +2779,6 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 				{
 					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
 				}
-#else
-				GET_TEAM(kAttacker.getTeam()).declareWar(((TeamTypes)iI));
-#endif
 
 				if (iPlotTeam == iI) 
 				{
@@ -3831,7 +3829,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		eFireSupportResult = AttackRanged(kAttacker, pDefender->getX(), pDefender->getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 		if (pDefender->isDelayedDeath())
 		{
-			if (kAttacker.plot()->MeleeAttackerAdvances())
+			if (kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
 			{
 				// Killed him, move to the plot if we can.
 				if (targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
@@ -3935,8 +3933,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		if(pNotification)
 			pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pDefender->getX(), pDefender->getY(), (int) pDefender->getUnitType(), pDefender->getOwner());
 
-		bool bAdvance;
-		bAdvance = kAttacker.canAdvance(targetPlot, ((pDefender->IsCanDefend()) ? 1 : 0));
+		bool bAdvance = kAttacker.canAdvance(targetPlot, ((pDefender->IsCanDefend()) ? 1 : 0));
 
 		// Move forward
 		if(targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)

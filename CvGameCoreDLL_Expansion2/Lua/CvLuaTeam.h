@@ -131,10 +131,6 @@ protected:
 	static int lChangeDefensivePactTradingAllowedCount(lua_State* L);
 	static int lIsResearchAgreementTradingAllowed(lua_State* L);
 	static int lIsResearchAgreementTradingAllowedWithTeam(lua_State* L);
-	static int lIsTradeAgreementTradingAllowed(lua_State* L);
-	static int lGetPermanentAllianceTradingCount(lua_State* L);
-	static int lIsPermanentAllianceTrading(lua_State* L);
-	static int lChangePermanentAllianceTradingCount(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(SetOpenBorders, int);
 	LUAAPIEXTN(SetForcePeace, int);
@@ -211,7 +207,6 @@ protected:
 	static int lIsObsoleteBuilding(lua_State* L);
 
 	static int lIsHasResearchAgreement(lua_State* L);
-	static int lIsHasTradeAgreement(lua_State* L);
 
 	static int lIsHasTech(lua_State* L);
 	static int lSetHasTech(lua_State* L);

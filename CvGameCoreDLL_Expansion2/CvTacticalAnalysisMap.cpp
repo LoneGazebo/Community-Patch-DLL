@@ -601,21 +601,21 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				if(!pLoopUnit->IsCombatUnit())
 					continue;
 
+				CvPlot* pPlot = pLoopUnit->plot();
+				if(!pPlot)
+					continue;
+
 				bool bZoneTypeMatch = 
 							(pLoopUnit->getDomainType() == DOMAIN_AIR) ||
 							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
-				if (!bZoneTypeMatch)
-					continue;
-
-				CvPlot* pPlot = pLoopUnit->plot();
-				if(!pPlot)
+				if (!bZoneTypeMatch && !pLoopUnit->isRanged())
 					continue;
 
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
-				bool bReducedStrength = pLoopUnit->isEmbarked() || !bVisible;
+				bool bReducedStrength = pLoopUnit->isEmbarked() || !bVisible || !bZoneTypeMatch;
 
 				int iPlotDistance = 0;
 				//if there is a city, units in adjacent zones can also count
@@ -627,7 +627,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				}
 				else
 				{
-					//if there is no city, the unit must be in the zone itself
+					//if there is no city, the unit must be in the zone itself, distance is zero by definition
 					if ( GetDominanceZoneID(pLoopUnit->plot()->GetPlotIndex()) != pZone->GetZoneID() )
 						continue;
 				}
@@ -941,23 +941,22 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
+		int iDistance = plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY());
 
 		// If this is a temporary zone, matches if unowned and close enough
 		if((pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE) &&
 		        (pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL) &&
-		        (plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY()) <= GetTacticalRangeTurns()))
+		        (iDistance <= GetTacticalRangeTurns())) //awkward: turns vs plots
 		{
 			return pZone;
 		}
 
-		// If not friendly or enemy, just 1 zone per area
-		if((pZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL) &&
-		        (pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL))
+		// If unowned, just 1 zone per area
+		if((pZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER) &&
+		        (pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER) &&
+				(pZone->GetAreaID() == pNewZone->GetAreaID()))
 		{
-			if(pZone->GetAreaID() == pNewZone->GetAreaID())
-			{
-				return pZone;
-			}
+			return pZone;
 		}
 
 		// Otherwise everything needs to match

@@ -182,7 +182,11 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 							
 								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
 								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-								bAppend = true;
+								UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+								if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
+								{
+									bAppend = true;
+								}
 							}
 						}
 				}
@@ -517,9 +521,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 		{
 			const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
-			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
+			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO())
 			{
 				//need to declare war first
 				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
@@ -622,7 +624,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
 					{
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
-						if(!pUnit2->AreUnitsOfSameType(*hUnit))
+
+						//only combat units need to swap
+						if(!pUnit2->IsCombatUnit())
 							continue;
 
 						if(pUnit2->ReadyToSwap())
@@ -736,10 +740,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 		{
 			const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
-			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_SWAP_UNITS() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
+			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO() || kMissionData.eMissionType == CvTypes::getMISSION_SWAP_UNITS())
 			{
 				//in case we loaded a savegame, the cached path is gone. try to regenerate it before cancelling the mission
 				CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
@@ -1036,20 +1037,6 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 			return true;
 		}
 	}
-	else if(iMission == CvTypes::getMISSION_EMBARK())
-	{
-		if(hUnit->canEmbarkAtPlot(pPlot))
-		{
-			return true;
-		}
-	}
-	else if(iMission == CvTypes::getMISSION_DISEMBARK())
-	{
-		if(hUnit->canDisembarkAtPlot(pPlot))
-		{
-			return true;
-		}
-	}
 	else if(iMission == CvTypes::getMISSION_AIRPATROL())
 	{
 		if(hUnit->canAirPatrol(pPlot))
@@ -1059,7 +1046,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_HEAL())
 	{
-		if(hUnit->canHeal(pPlot, bTestVisible, false))
+		if(hUnit->canHeal(pPlot, false)) //next turn is also ok
 		{
 			return true;
 		}
@@ -1101,7 +1088,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_REBASE())
 	{
-		if(hUnit->canRebaseAt(pPlot, iData1, iData2))
+		if(hUnit->canRebaseAt(iData1, iData2))
 		{
 			return true;
 		}
@@ -1499,16 +1486,6 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK())
 			{
 				hUnit->setSetUpForRangedAttack(true);
-				bAction = true;
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_EMBARK())
-			{
-				bAction = true;
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_DISEMBARK())
-			{
 				bAction = true;
 			}
 

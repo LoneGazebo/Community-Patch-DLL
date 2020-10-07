@@ -191,6 +191,10 @@
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_LIBERATE_VASSAL</ResponseType>
 			<Response>TXT_KEY_RESPONSE_LIBERATE_VASSAL%</Response>
+		</Row>	
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_VASSALAGE_BECOME_VASSAL</ResponseType>
+			<Response>TXT_KEY_RESPONSE_VASSALAGE_BECOME_VASSAL%</Response>
 		</Row>
 	</Diplomacy_Responses>
 </GameData>

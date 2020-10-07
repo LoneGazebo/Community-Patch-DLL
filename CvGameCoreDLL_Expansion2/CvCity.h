@@ -35,6 +35,28 @@ class CvCityEspionage;
 class CvCityCulture;
 class CvPlayer;
 
+struct SCityExtraYields
+{
+	vector<pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
+	vector<pair<FeatureTypes, int>> forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
+	vector<pair<ImprovementTypes, int>> forImprovement;
+	vector<pair<SpecialistTypes, int>> forSpecialist;
+	vector<pair<ResourceTypes, int>> forResource;
+	vector<pair<PlotTypes, int>> forPlot;
+	vector<pair<YieldTypes, int>> forYield, forActualYield;
+	vector<pair<BuildingClassTypes, int>> forLocalBuilding, forReligionBuilding;
+};
+
+struct SCityEventYields
+{
+	vector<pair<BuildingClassTypes, int>> forBuilding, forBuildingModifier;
+	vector<pair<ImprovementTypes, int>> forImprovement;
+	vector<pair<ResourceTypes, int>> forResource;
+	vector<pair<SpecialistTypes, int>> forSpecialist;
+	vector<pair<TerrainTypes, int>> forTerrain;
+	vector<pair<FeatureTypes, int>> forFeature;
+};
+
 class CvCity
 {
 
@@ -203,7 +225,7 @@ public:
 	bool IsIndustrialRouteToCapitalConnected() const;
 	void SetIndustrialRouteToCapitalConnected(bool bValue);
 
-	void SetRouteToCapitalConnected(bool bValue);
+	void SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate = false);
 	bool IsRouteToCapitalConnected(void) const;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -254,6 +276,8 @@ public:
 
 	int GetTerrainImprovementNeed() const;
 	void UpdateTerrainImprovementNeed();
+
+	const SCityExtraYields& GetYieldChanges(YieldTypes eYield) const { return m_yieldChanges[eYield]; }
 
 	int GetResourceExtraYield(ResourceTypes eResource, YieldTypes eYield) const;
 	void ChangeResourceExtraYield(ResourceTypes eResource, YieldTypes eYield, int iChange);
@@ -329,9 +353,7 @@ public:
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool bUnimproved = false);
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
-#if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 #endif
@@ -498,6 +520,7 @@ public:
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
 	bool IsOriginalMinorCapital() const;
+	bool IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -602,6 +625,8 @@ public:
 	void setPopulation(int iNewValue, bool bReassignPop = true);
 #endif
 	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
+
+	void setLowestRazingPop(int iValue);
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getAutomatons() const;
@@ -1084,6 +1109,7 @@ public:
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromTerrain(YieldTypes eIndex, int iValue);
 
 	int GetBaseYieldRateFromBuildings(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange);
@@ -1496,9 +1522,7 @@ public:
 
 	void DoNearbyEnemy();
 
-#if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsInDanger(PlayerTypes eEnemy) const;
-#endif
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
@@ -1870,6 +1894,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iDemandResourceCounter;
 	FAutoVariable<int, CvCity> m_iResistanceTurns;
 	FAutoVariable<int, CvCity> m_iRazingTurns;
+	FAutoVariable<int, CvCity> m_iLowestRazingPop;
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
 	FAutoVariable<int, CvCity> m_iCheapestPlotInfluenceDistance;
 	FAutoVariable<int, CvCity> m_iEspionageModifier;
@@ -2086,32 +2111,10 @@ protected:
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
-	int** m_aaiBuildingSpecialistUpgradeProgresses;
-	int** m_ppaiResourceYieldChange;
-	int** m_ppaiFeatureYieldChange;
-#if defined(MOD_BALANCE_CORE)
-	int** m_ppaiYieldFromYield;
-	int** m_ppaiActualYieldFromYield;
-	int** m_ppaiImprovementYieldChange;
-	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvCity> m_ppaaiSpecialistExtraYield;
-#endif
-	int** m_ppaiTerrainYieldChange;
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	int** m_ppaiPlotYieldChange;
-	int** m_ppaiYieldPerXTerrainFromBuildings;
-	int** m_ppaiYieldPerXFeatureFromBuildings;
-	int** m_ppaiYieldPerXTerrainFromReligion;
-	int** m_ppaiYieldPerXTerrain;
-	int** m_ppaiYieldPerXFeature;
-	int** m_ppaiYieldPerXFeatureFromReligion;
-	int** m_ppaiYieldPerXUnimprovedFeature;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	int** m_ppaiReligionBuildingYieldRateModifier;
-	int** m_ppaiLocalBuildingClassYield;
-#endif
+	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
+
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
-	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction; // short because theres an overload for the >> operator in CvUnit.h if map->second is an int, which will cause a compile failure
+	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
@@ -2124,13 +2127,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCityYield;
 	FAutoVariable<int, CvCity> m_iEventHappiness;
 	FAutoVariable<int, CvCity> m_iCityEventCooldown;
-	int** m_ppaiEventBuildingClassYield;
-	int** m_ppaiEventBuildingClassYieldModifier;
-	int** m_ppaiEventImprovementYield;
-	int** m_ppaiEventResourceYield;
-	int** m_ppaiEventSpecialistYield;
-	int** m_ppaiEventTerrainYield;
-	int** m_ppaiEventFeatureYield;
+	vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
 #endif
 
 #if defined(MOD_BALANCE_CORE_JFD)
@@ -2187,7 +2184,6 @@ protected:
 	void doProduction(bool bAllowNoProduction);
 	void doProcess();
 	void doDecay();
-	void doGreatPeople();
 	void doMeltdown();
 	bool doCheckProduction();
 
@@ -2239,3 +2235,8 @@ protected:
 };
 
 #endif
+
+FDataStream& operator>>(FDataStream& loadFrom, SCityExtraYields& writeTo);
+FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom);
+FDataStream& operator>>(FDataStream& loadFrom, SCityEventYields& writeTo);
+FDataStream& operator<<(FDataStream& saveTo, const SCityEventYields& readFrom);

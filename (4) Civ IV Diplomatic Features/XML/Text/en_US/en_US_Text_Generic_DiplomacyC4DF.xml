@@ -358,5 +358,11 @@
 		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER_1">
 			<Text>I am pleased to announce that I've lowered your taxes. Our empire can thrive just fine without your help, and I see no need to strain our relations unnecessarily.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_BECOME_VASSAL_1">
+			<Text>My weakness is apparent to the world. Please, accept my offer of fealty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_BECOME_VASSAL_2">
+			<Text>Your great power knows no bounds. Our weakness makes us a tempting target. Your protection is humbly requested.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

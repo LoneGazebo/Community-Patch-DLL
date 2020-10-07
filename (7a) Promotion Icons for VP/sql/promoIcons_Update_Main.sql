@@ -1,4 +1,4 @@
--- rev.03
+-- rev.04
 
 
 -- Temporary Atlas
@@ -567,8 +567,8 @@ UPDATE UnitPromotions SET PortraitIndex = '40' WHERE Type = 'PROMOTION_PRESS_GAN
 --UPDATE UnitPromotions SET PortraitIndex = '41' WHERE Type = '';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_I'; --                              ->  Boarded (I)
 UPDATE UnitPromotions SET PortraitIndex = '42' WHERE Type = 'PROMOTION_BOARDED_I';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_II'; --                             ->  Boarded (II)
-UPDATE UnitPromotions SET PortraitIndex = '43' WHERE Type = 'PROMOTION_BOARDED_II';
+--UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_II'; --                             ->  UNUSED
+--UPDATE UnitPromotions SET PortraitIndex = '43' WHERE Type = 'PROMOTION_BOARDED_II';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_MINELAYER'; --                              ->  Minelayer
 UPDATE UnitPromotions SET PortraitIndex = '44' WHERE Type = 'PROMOTION_MINELAYER';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_FIELD_WORKS_1'; --                          ->  Field Works
@@ -584,8 +584,8 @@ UPDATE UnitPromotions SET PortraitIndex = '48' WHERE Type = 'PROMOTION_ROUGH_TER
 --UPDATE UnitPromotions SET PortraitIndex = '49' WHERE Type = '';
 --UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  UNUSED (Bonus vs Barbarian)
 --UPDATE UnitPromotions SET PortraitIndex = '50' WHERE Type = '';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_III'; --                             ->  Boarded (III)
-UPDATE UnitPromotions SET PortraitIndex = '51' WHERE Type = 'PROMOTION_BOARDED_III';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_BOARDED_II'; --                             ->  Boarded (II)
+UPDATE UnitPromotions SET PortraitIndex = '51' WHERE Type = 'PROMOTION_BOARDED_II';
 --UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                                  ->  UNUSED (Ignore ZOC)
 --UPDATE UnitPromotions SET PortraitIndex = '52' WHERE Type = '';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_NOBILITY'; --                                ->  Noble

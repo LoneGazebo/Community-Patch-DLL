@@ -4304,6 +4304,7 @@ CvCityBuildings::CvCityBuildings():
 #endif
 	m_iNumBuildings(0),
 	m_iBuildingProductionModifier(0),
+	m_iBuildingProductionModifierPotentialFromMinorTrade(0),
 	m_iBuildingDefense(0),
 	m_iBuildingDefenseMod(0),
 	m_iMissionaryExtraSpreads(0),
@@ -4388,6 +4389,7 @@ void CvCityBuildings::Reset()
 	// Initialize non-arrays
 	m_iNumBuildings = 0;
 	m_iBuildingProductionModifier = 0;
+	m_iBuildingProductionModifierPotentialFromMinorTrade = 0;
 	m_iBuildingDefense = 0;
 	m_iBuildingDefenseMod = 0;
 	m_iMissionaryExtraSpreads = 0;
@@ -4428,6 +4430,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_iNumBuildings;
 	kStream >> m_iBuildingProductionModifier;
+	kStream >> m_iBuildingProductionModifierPotentialFromMinorTrade;
 	kStream >> m_iBuildingDefense;
 	kStream >> m_iBuildingDefenseMod;
 	kStream >> m_iMissionaryExtraSpreads;
@@ -4470,6 +4473,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 
 	kStream << m_iNumBuildings;
 	kStream << m_iBuildingProductionModifier;
+	kStream << m_iBuildingProductionModifierPotentialFromMinorTrade;
 	kStream << m_iBuildingDefense;
 	kStream << m_iBuildingDefenseMod;
 	kStream << m_iMissionaryExtraSpreads;
@@ -4895,6 +4899,12 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	{
 		int iOldNumBuilding = GetNumBuilding(eIndex);
 
+		if (iNewValue == 0)
+		{
+			m_pCity->SetBuildingInvestment(buildingClassType, false);
+			m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex);
+		}
+
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
 #if defined(MOD_BALANCE_CORE)
@@ -4910,8 +4920,6 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
 				m_buildingsThatExistAtLeastOnce.erase(pos);
 		}
-		if (iNewValue == 0)
-			m_pCity->SetBuildingInvestment(buildingClassType, false);
 #endif
 
 		if(GetNumRealBuilding(eIndex) > 0)
@@ -5986,36 +5994,21 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 /// Accessor: What is the production modifier for each city state trade route?
 int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 {
-	int iRtnValue = 0;
 	int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
-	if (iCityStates==0)
-		return 0;
-
-	const std::vector<BuildingTypes>& vBuildings = GetAllBuildingsHere();
-	for (size_t iI = 0; iI < vBuildings.size(); iI++)
-	{
-		BuildingTypes eBuilding = vBuildings[iI];
-		if (NO_BUILDING != eBuilding)
-		{
-			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-			if (pkEntry)
-			{
-				int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
-				if (iProductionModifier > 0)
-				{
-#if defined(MOD_BUGFIX_MINOR)
-					iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
-#else
-					iRtnValue = iProductionModifier * iCityStates;
-#endif
-				}
-			}
-		}
-	}
-
-	return iRtnValue;
+	return iCityStates * GetBuildingProductionModifierPotentialFromMinorTrade();
 }
 
+/// Accessor: Get current production modifier from buildings
+int CvCityBuildings::GetBuildingProductionModifierPotentialFromMinorTrade() const
+{
+	return m_iBuildingProductionModifierPotentialFromMinorTrade;
+}
+
+/// Accessor: Change current production modifier from buildings
+void CvCityBuildings::ChangeBuildingProductionModifierPotentialFromMinorTrade(int iChange)
+{
+	m_iBuildingProductionModifierPotentialFromMinorTrade += iChange;
+}
 
 /// Accessor: Get current production modifier from buildings
 int CvCityBuildings::GetBuildingProductionModifier() const
@@ -6026,7 +6019,7 @@ int CvCityBuildings::GetBuildingProductionModifier() const
 /// Accessor: Change current production modifier from buildings
 void CvCityBuildings::ChangeBuildingProductionModifier(int iChange)
 {
-	m_iBuildingProductionModifier = (m_iBuildingProductionModifier + iChange);
+	m_iBuildingProductionModifier += iChange;
 	CvAssert(GetBuildingProductionModifier() >= 0);
 }
 
@@ -6075,31 +6068,7 @@ int CvCityBuildings::GetMissionaryExtraSpreads() const
 /// Accessor: Change extra times to spread religion for missionaries from this city
 void CvCityBuildings::ChangeMissionaryExtraSpreads(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iMissionaryExtraSpreads = (m_iMissionaryExtraSpreads + iChange);
-		CvAssert(m_iMissionaryExtraSpreads >= 0);
-		if (iChange > 0)
-		{
-			int iUnitLoop;
-			for (CvUnit* pLoopUnit = GET_PLAYER(m_pCity->getOwner()).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_pCity->getOwner()).nextUnit(&iUnitLoop))
-			{
-				if (pLoopUnit->getOriginCity() != m_pCity)
-					continue;
-
-				if (pLoopUnit->IsGreatPerson())
-					continue;
-
-				if (pLoopUnit->GetReligionData() == NULL)
-					continue;
-
-				if (pLoopUnit->GetReligionData()->GetSpreadsLeft() <= 0)
-					continue;
-
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->GetReligionData()->GetSpreadsLeft() + iChange);
-			}
-		}
-	}
+	m_iMissionaryExtraSpreads += iChange;
 }
 
 void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)

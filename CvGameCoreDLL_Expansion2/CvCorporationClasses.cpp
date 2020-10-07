@@ -1663,7 +1663,15 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 	if (pOriginCity == NULL || pTargetCity == NULL)
 		return false;
 
-	if (!HasFoundedCorporation() || IsNoFranchisesInForeignCities() || GET_PLAYER(pTargetCity->getOwner()).GetCorporations()->IsNoForeignCorpsInCities() || GetCorporationOfficesAsFranchises() > 0)
+	if (!HasFoundedCorporation() || GET_PLAYER(pTargetCity->getOwner()).GetCorporations()->IsNoForeignCorpsInCities())
+		return false;
+
+	//no local franchises? check ownership.
+	if (GetCorporationOfficesAsFranchises() > 0 && pOriginCity->getOwner() == m_pPlayer->GetID())
+		return false;
+
+	//no foreign franchises? Exception for vassals.
+	if (IsNoFranchisesInForeignCities() && !GET_TEAM(pTargetCity->getTeam()).GetMaster() == pOriginCity->getTeam())
 		return false;
 
 	if (pTargetCity->IsHasFranchise(m_eFoundedCorporation) || !pOriginCity->IsHasOffice())

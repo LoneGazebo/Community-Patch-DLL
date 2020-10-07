@@ -6,7 +6,7 @@
 			<Text>Public Works</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_HELP">
-			<Text>Increases [ICON_HAPPINESS_1] Happiness in the City by 1, reduces the city's Empire Needs modifier by 5%, and reduces [ICON_HAPPINESS_3] Unhappiness Need Modifiers for [ICON_FOOD]/[ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, [ICON_CULTURE] Boredom, and [ICON_PEACE] Religious Unrest by 15% in the City.[NEWLINE][NEWLINE]Is a repeatable project, however the [ICON_PRODUCTION] Production cost scales by +100 [ICON_PRODUCTION] Production every Era, and +100 [ICON_PRODUCTION] Production every time you construct this project in this City.[NEWLINE][NEWLINE]Increases the City's [ICON_GOLD] Gold maintenance by 2 every time it is constructed.</Text>
+			<Text>Increases [ICON_HAPPINESS_1] Happiness in the City by 1, reduces the city's Empire Needs modifier by 10%, and reduces [ICON_HAPPINESS_3] Unhappiness Need Modifiers for [ICON_FOOD]/[ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, [ICON_CULTURE] Boredom, and [ICON_PEACE] Religious Unrest by 15% in the City.[NEWLINE][NEWLINE]Is a repeatable project, however the [ICON_PRODUCTION] Production cost scales by +100 [ICON_PRODUCTION] Production every Era, and +100 [ICON_PRODUCTION] Production every time you construct this project in this City.[NEWLINE][NEWLINE]Increases the City's [ICON_GOLD] Gold maintenance by 2 every time it is constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA">
 			<Text>Public works are a broad category of infrastructure projects, financed and constructed by the government, for recreational, employment, and health and safety uses in the greater community. They include public buildings (municipal buildings, schools, hospitals), transport infrastructure (roads, railroads, bridges, pipelines, canals, ports, airports), public spaces (public squares, parks, beaches), public services (water supply and treatment, sewage treatment, electrical grid, dams), and other, usually long-term, physical assets and facilities. Though often interchangeable with public infrastructure and public capital, public works does not necessarily carry an economic component, thereby being a broader term.</Text>
@@ -324,7 +324,7 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Water Mill[ENDCOLOR].</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
 			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>
@@ -379,7 +379,7 @@
 			<Text>Slater Mill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-			<Text>Can only be built in a City next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and a large boost to [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
+			<Text>Can only be built in a City next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and +5 [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
 			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
@@ -522,7 +522,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. Increases the Military Unit Supply Cap by 4. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>

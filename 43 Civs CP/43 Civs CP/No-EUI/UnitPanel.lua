@@ -1089,8 +1089,6 @@ function TipHandler( control )
 			
 			-- Can't upgrade because we lack the Resources
 			local strResourcesNeeded = "";
-			local strResourcesTotalNeeded = "";
-			local strResourcesNetPositiveNeeded = "";
 			
 			local iNumResourceNeededToUpgrade;
 			local iResourceLoop;

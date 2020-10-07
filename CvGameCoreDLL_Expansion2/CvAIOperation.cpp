@@ -442,9 +442,8 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		}
 	}
 
-	ReachablePlots turnsFromMuster;
 	SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
-	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,thisFormation))
 	{
@@ -501,9 +500,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		if (GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 		{
 			//this is just a rough indication so we don't need to do pathfinding for all our units
-			ReachablePlots turnsFromMuster;
 			SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns());
-			turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+			ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
@@ -575,9 +573,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	}
 	else //non-naval operation
 	{
-		ReachablePlots turnsFromMuster;
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
-		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+		ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 		WeightedUnitIdVector UnitChoices;
 		int iLoop = 0;
@@ -1205,7 +1202,7 @@ const char* CvAIOperation::GetInfoString()
 		strTemp2 = "Not initialized";
 		break;
 	case AI_OPERATION_STATE_ABORTED:
-		strTemp2.Format("Aborted, %d", m_eAbortReason);
+		strTemp2.Format("Aborted, %s", AbortReasonString(m_eAbortReason));
 		break;
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 		strTemp2 = "Recruiting Units";
@@ -1271,7 +1268,7 @@ void CvAIOperation::LogOperationStart() const
 			strTemp2 = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp2.Format("Aborted, %d", m_eAbortReason);
+			strTemp2.Format("Aborted, %s", AbortReasonString(m_eAbortReason));
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp2 = "Recruiting Units";
@@ -1347,7 +1344,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			strTemp = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp.Format("Aborted: %d", m_eAbortReason);
+			strTemp.Format("Aborted: %s", AbortReasonString(m_eAbortReason));
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp = "";
@@ -1463,66 +1460,7 @@ void CvAIOperation::LogOperationEnd() const
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, %s, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetOperationName(), GetID() );
-
-		strTemp = "Ended: ";
-
-		switch(m_eAbortReason)
-		{
-		case AI_ABORT_SUCCESS:
-			strTemp += "Success";
-			break;
-		case AI_ABORT_NO_TARGET:
-			strTemp += "NoTarget";
-			break;
-		case AI_ABORT_CANCELLED:
-			strTemp += "Cancelled";
-			break;
-		case AI_ABORT_LOST_TARGET:
-			strTemp += "LostTarget";
-			break;
-		case AI_ABORT_TARGET_ALREADY_CAPTURED:
-			strTemp += "TargetAlreadyCaptured";
-			break;
-		case AI_ABORT_NO_ROOM_DEPLOY:
-			strTemp += "NoRoomToDeploy";
-			break;
-		case AI_ABORT_HALF_STRENGTH:
-			strTemp += "HalfStrength";
-			break;
-		case AI_ABORT_NO_MUSTER:
-			strTemp += "NoMusterPoint";
-			break;
-		case AI_ABORT_LOST_CIVILIAN:
-			strTemp += "LostCivilian";
-			break;
-		case AI_ABORT_ESCORT_DIED:
-			strTemp += "EscortDied";
-			break;
-		case AI_ABORT_TOO_DANGEROUS:
-			strTemp += "TooDangerous";
-			break;
-		case AI_ABORT_KILLED:
-			strTemp += "Killed";
-			break;
-		case AI_ABORT_WAR_STATE_CHANGE:
-			strTemp += "WarStateChange";
-			break;
-		case AI_ABORT_DIPLO_OPINION_CHANGE:
-			strTemp += "DiploOpinionChange";
-			break;
-		case AI_ABORT_LOST_PATH:
-			strTemp += "NoTarget";
-			break;
-		case AI_ABORT_TIMED_OUT:
-			strTemp += "TimedOut";
-			break;
-		case AI_ABORT_NO_UNITS:
-			strTemp += "NoUnits";
-			break;
-		default:
-			strTemp += "UnknownReason";
-		}
-
+		strTemp.Format("Ended: %s", AbortReasonString(m_eAbortReason));
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
@@ -2536,8 +2474,13 @@ CvAIOperationCivilianMerchantDelegation::~CvAIOperationCivilianMerchantDelegatio
 /// If at target, cash in; if at muster point, merge merchant and escort and move out
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1 || !pMerchant->canMove())
+		return false;
+
 	// If the merchant made it, we don't care about the entire army
-	if(pMerchant && pMerchant->plot()->getOwner() == GetTargetPlot()->getOwner() && pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
+	if(pMerchant->canTrade(pMerchant->plot()))
 	{
 		if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
 		{
@@ -2562,9 +2505,22 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMerchant->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pMerchant->canTrade(aNeighbors[iI]))
+			{
+				pMerchant->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
-	return false;
-}
+	SetToAbort(AI_ABORT_NO_TARGET);
+	return false;}
 
 /// Find the plot where we want to settler
 CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
@@ -2599,24 +2555,46 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 		return NULL;
 
 	//this mission is for diplomacy bomb, constructing embassies is handled in homeland AI
+	//therefore use the messenger target selection
 	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit);
 }
 
 bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
-	if(pDiplomat && pDiplomat->plot() == GetTargetPlot() && pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pDiplomat || plotDistance(*pDiplomat->plot(), *GetTargetPlot()) > 1 || !pDiplomat->canMove())
+		return false;
+
+	if(pDiplomat->canTrade(pDiplomat->plot()))
 	{
+		//this is not an embassy, this is for influence
 		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
 
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pDiplomat->plot()->GetAdjacentCity()->getName().c_str());
+			CvCity* pTargetCity = pDiplomat->plot()->GetAdjacentCity();
+			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pTargetCity ? pTargetCity->getName().c_str() : "UNKNOWN");
 			LogOperationSpecialMessage(strMsg);
 		}
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pDiplomat->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pDiplomat->canTrade(aNeighbors[iI]))
+			{
+				pDiplomat->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
+	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
 
@@ -2700,7 +2678,12 @@ CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, i
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
-	if(pMusician && pMusician->plot() == GetTargetPlot() && pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
+	//we don't actually have to be exactly at the target plot
+	//in fact we cannot go there if it's a city
+	if (!pMusician || plotDistance(*pMusician->plot(), *GetTargetPlot()) > 1 || !pMusician->canMove())
+		return false;
+
+	if(pMusician->canBlastTourism(pMusician->plot()))
 	{
 		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
 		if(GC.getLogging() && GC.getAILogging())
@@ -2711,7 +2694,21 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 		}
 		return true;
 	}
+	else
+	{
+		//uh, this should not happen? look for a neighboring plot
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMusician->plot());
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			if (aNeighbors[iI] && pMusician->canBlastTourism(aNeighbors[iI]))
+			{
+				pMusician->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
+				return false; //try again next turn
+			}
+		}
+	}
 
+	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
 
@@ -3430,8 +3427,8 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			if (!pLoopCity || plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) > pLoopUnit->GetRange())
 				continue;
 
-			//don't nuke if we're about to capture it
-			if (pLoopCity->isInDangerOfFalling())
+			//don't nuke if we're about to capture it or if it was captured from us
+			if (pLoopCity->isInDangerOfFalling() || pLoopCity->getOriginalOwner()==m_eOwner)
 				continue;
 
 			CvPlot* pCityPlot = pLoopCity->plot();
@@ -4288,4 +4285,64 @@ CvCity* OperationalAIHelpers::GetNearestCoastalCityEnemy(PlayerTypes ePlayer, Pl
 	}
 
 	return pBestCoastalCity;
+}
+
+const char* AbortReasonString(AIOperationAbortReason eReason)
+{
+	switch(eReason)
+	{
+	case AI_ABORT_SUCCESS:
+		return "Success";
+		break;
+	case AI_ABORT_NO_TARGET:
+		return "NoTarget";
+		break;
+	case AI_ABORT_CANCELLED:
+		return "Cancelled";
+		break;
+	case AI_ABORT_LOST_TARGET:
+		return "LostTarget";
+		break;
+	case AI_ABORT_TARGET_ALREADY_CAPTURED:
+		return "TargetAlreadyCaptured";
+		break;
+	case AI_ABORT_NO_ROOM_DEPLOY:
+		return "NoRoomToDeploy";
+		break;
+	case AI_ABORT_HALF_STRENGTH:
+		return "HalfStrength";
+		break;
+	case AI_ABORT_NO_MUSTER:
+		return "NoMusterPoint";
+		break;
+	case AI_ABORT_LOST_CIVILIAN:
+		return "LostCivilian";
+		break;
+	case AI_ABORT_ESCORT_DIED:
+		return "EscortDied";
+		break;
+	case AI_ABORT_TOO_DANGEROUS:
+		return "TooDangerous";
+		break;
+	case AI_ABORT_KILLED:
+		return "Killed";
+		break;
+	case AI_ABORT_WAR_STATE_CHANGE:
+		return "WarStateChange";
+		break;
+	case AI_ABORT_DIPLO_OPINION_CHANGE:
+		return "DiploOpinionChange";
+		break;
+	case AI_ABORT_LOST_PATH:
+		return "NoTarget";
+		break;
+	case AI_ABORT_TIMED_OUT:
+		return "TimedOut";
+		break;
+	case AI_ABORT_NO_UNITS:
+		return "NoUnits";
+		break;
+	default:
+		return "UnknownReason";
+	}
 }

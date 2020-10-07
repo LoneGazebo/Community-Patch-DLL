@@ -29,7 +29,7 @@ WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMM
 
 UPDATE Traits
 SET CSBullyValueModifier = '100'
-WHERE Type = 'TRAIT_BUFFALO_HORNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET BullyYieldMultiplierAnnex = '0'
@@ -173,6 +173,11 @@ INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
+
+INSERT INTO Improvement_YieldAdjacentSameType
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TERRACE_FARM', 'YIELD_FOOD', 1);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -326,6 +331,7 @@ INSERT INTO Trait_MountainRangeYield
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '1'),
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '1'),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FOOD', '1');
 
 INSERT INTO Trait_UnimprovedFeatureYieldChanges

@@ -2645,7 +2645,7 @@
 
 		<!-- Civilopedia Jazz-->
 		<Row Tag="TXT_KEY_ABLTY_HAPPINESS_BUMP">
-			<Text>{1_Num} extra [ICON_HAPPINESS_1] Happiness in [ICON_CAPITAL] Capital.</Text>
+			<Text>{1_Num} extra [ICON_HAPPINESS_1] Happiness in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_TRADEROUTE_CBP_LABEL">
 			<Text>Bonus on City Connections:</Text>
@@ -2735,6 +2735,41 @@
 		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN">
 			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to trading within your Empire)</Text>
 		</Row>
+
+		<!-- Diplomacy Screen Buttons -->
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT">
+			<Text>They cannot negotiate peace with you for another {1_Num} turn(s) because of a deal they made with another player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
+			<Text>You are always at war with this player!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
+			<Text>May not declare war on a vassal of another civilization (you must declare war on their master, {1_CivName}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT">
+			<Text>May not declare war as a vassal (war is automatically declared when your Master declares war with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT">
+			<Text>You cannot declare war on your Master until you request independence or are liberated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_MAKE_PEACE_VASSAL">
+			<Text>May not make peace with a vassal of another civilization (you must make peace with their master, {1_CivName}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
+			<Text>May not make peace as a vassal (peace is automatically made when your Master makes peace with this civilization).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEMAND_BUTTON_TT">
+			<Text>Demand tribute from this civilization. This option carries a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON">
+			<Text>Request Help</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_BUTTON_TT">
+			<Text>Request help from a player whom you've made a Declaration of Friendship with. This option does not carry a diplomatic penalty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON">
+			<Text>REQUEST</Text>
+		</Row>
 	
 		<!-- LUA for CBP -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
@@ -2742,6 +2777,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
 			<Text>A Defensive Pact prevents this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_PTP">
+			<Text>A Pledge of Protection prevents this.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
@@ -2859,16 +2897,16 @@
 		
 		<!-- Base Opinion Mod -->
 		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
-			<Text>[COLOR_POSITIVE_TEXT]They instinctively like you![ENDCOLOR]</Text>
+			<Text>They instinctively like you!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
-			<Text>[COLOR_POSITIVE_TEXT]They instinctively view you more favorably.[ENDCOLOR]</Text>
+			<Text>They instinctively view you more favorably.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
-			<Text>[COLOR_NEGATIVE_TEXT]They instinctively view you as a competitor.[ENDCOLOR]</Text>
+			<Text>They instinctively view you as a competitor.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
-			<Text>[COLOR_NEGATIVE_TEXT]They instinctively hate you![ENDCOLOR]</Text>
+			<Text>They instinctively hate you!</Text>
 		</Row>
 		
 		<!-- Show True Approach Debug Text -->
@@ -2899,115 +2937,118 @@
 
 		<!-- Embassy Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
-			<Text>[COLOR_POSITIVE_TEXT]We have shared embassies.[ENDCOLOR]</Text>
+			<Text>We have shared embassies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
-			<Text>[COLOR_POSITIVE_TEXT]We have an embassy in their capital.[ENDCOLOR]</Text>
+			<Text>We have an embassy in their capital.</Text>
 		</Row>
 
 		<!-- Open Borders Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
-			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>
+			<Text>We have opened our borders to each other.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_US">
-			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to them.[ENDCOLOR]</Text>
+			<Text>We have opened our borders to them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
-			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
+			<Text>They have opened their borders to us.</Text>
 		</Row>
 
 		<!-- Defensive Pact Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
-			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact![ENDCOLOR]</Text>
+			<Text>We have made a Defensive Pact!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DP_MUTUAL">
-			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact with the same leaders!</Text>
+			<Text>We have made a Defensive Pact with the same leaders!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DP_WITH_ENEMY">
-			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
+			<Text>You have made a Defensive Pact with one of their enemies!</Text>
 		</Row>
 		
 		<!-- Research Agreement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
-			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
+			<Text>We have made a Research Agreement!</Text>
 		</Row>
 
 		<!-- Denouncement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
-			<Text>[COLOR_NEGATIVE_TEXT]We have denounced each other![ENDCOLOR]</Text>
+			<Text>We have denounced each other!</Text>
 		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
 		<Row Tag="TXT_KEY_DIPLO_TECH_DISPUTE">
-			<Text>[COLOR_NEGATIVE_TEXT]You are competing for technological advancement.</Text>
+			<Text>You are competing for technological advancement.</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
-			<Text>[COLOR_POSITIVE_TEXT]You are not competing for World Wonders.</Text>
+			<Text>You are not competing for World Wonders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
-			<Text>[COLOR_POSITIVE_TEXT]You are not competing for the favor of the same City-States.</Text>
+			<Text>You are not competing for the favor of the same City-States.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_TECH_DISPUTE">
-			<Text>[COLOR_POSITIVE_TEXT]You are not competing for technological advancement.</Text>
+			<Text>You are not competing for technological advancement.</Text>
 		</Row>
 		
 		<!-- Wonder Spammer Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_WONDER_SPAMMER">
-			<Text>[COLOR_NEGATIVE_TEXT]They believe we are building World Wonders too aggressively!</Text>
+			<Text>They believe we are building World Wonders too aggressively!</Text>
 		</Row>
 
 		<!-- Social Policies Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
-			<Text>[COLOR_POSITIVE_TEXT]We have similar Social Policies.[ENDCOLOR]</Text>
+			<Text>We have similar Social Policies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_POLICIES">
-			<Text>[COLOR_NEGATIVE_TEXT]We have divergent Social Policies.[ENDCOLOR]</Text>
+			<Text>We have divergent Social Policies.</Text>
 		</Row>
 		
 		<!-- PTP Same CS Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
-			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+			<Text>We have Pledged to Protect the same City-States.</Text>
 		</Row>
 		
 		<!-- Same Master Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
-			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
+			<Text>We are vassals of the same master!</Text>
 		</Row>
 		
 		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
-			<Text>[COLOR_NEGATIVE_TEXT]You excavated their cultural artifacts![ENDCOLOR]</Text>
+			<Text>You excavated their cultural artifacts!</Text>
 		</Row>
 		
 		<!-- Plotted Against Them Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_PLOTTED_AGAINST_US">
-			<Text>[COLOR_NEGATIVE_TEXT]You were caught plotting against them.[ENDCOLOR]</Text>
+			<Text>You were caught plotting against them.</Text>
 		</Row>
 		
 		<!-- City-State Coup Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
-			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
+			<Text>Our spies usurped their City-State Alliance in a coup d'état.</Text>
 		</Row>
 
 		<!-- Aggressive Posture Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">
-			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is threatening.[ENDCOLOR]</Text>
+			<Text>Your military deployment is threatening.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
-			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is extremely threatening.[ENDCOLOR]</Text>
+			<Text>Your military deployment is extremely threatening.</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_MAJORITY_RELIGIONS">
-			<Text>[COLOR_POSITIVE_TEXT]We have adopted the same religion in the majority of our cities.[ENDCOLOR]</Text>
+			<Text>We have adopted the same religion in the majority of our cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES">
-			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
+			<Text>Religious differences strain your relationship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCES_NEUTRAL">
+			<Text>We have different religious beliefs.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
-			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
+			<Text>You captured their Holy City!</Text>
 		</Row>
 
 		<!-- Ideology Diplo Mods -->
@@ -3015,24 +3056,24 @@
 			<Text>You have both adopted the {1_PolicyTree} Ideology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL">
-			<Text>[COLOR_NEGATIVE_TEXT]You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.[ENDCOLOR]</Text>
+			<Text>You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.</Text>
 		</Row>
 
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
-			<Text>[COLOR_POSITIVE_TEXT]They liked our proposal to the United Nations.[ENDCOLOR]</Text>
+			<Text>They liked our proposal to the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN">
-			<Text>[COLOR_NEGATIVE_TEXT]They disliked our proposal to the United Nations.[ENDCOLOR]</Text>
+			<Text>They disliked our proposal to the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN">
-			<Text>[COLOR_POSITIVE_TEXT]We helped them pass their proposal in the United Nations.[ENDCOLOR]</Text>
+			<Text>We helped them pass their proposal in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN">
-			<Text>[COLOR_NEGATIVE_TEXT]We helped their proposal fail in the United Nations.[ENDCOLOR]</Text>
+			<Text>We helped their proposal fail in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
-			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
+			<Text>We helped them become the host of the United Nations.</Text>
 		</Row>
 
 		<!-- Special Warmonger Hate Descriptor for Aztecs -->
@@ -3042,7 +3083,7 @@
 		
 		<!-- :) -->
 		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
-			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
+			<Text>Gandhi's words are backed with NUCLEAR WEAPONS!</Text>
 		</Row>
 
 		<!-- Defense Pact Offer -->
@@ -5945,18 +5986,13 @@
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
-		
-		<!-- Coop war button disabled (must be friends) -->
-		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_BLOCKED_NOT_FRIENDS">
-			<Text>You must be friends to start a cooperative war with this civilization.</Text>
-		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
 			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
-			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions!</Text>
+			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions![NEWLINE][NEWLINE]Depending on the AI's response, a cooperative war could begin immediately, after 10 turns have passed, or as soon as one of you goes to war with the target.[NEWLINE][NEWLINE]Cooperative wars are cancelled if you prematurely end your friendship with this leader (including through denouncements or war).[NEWLINE][NEWLINE]If you befriend the target, form a Defensive Pact with them, or become unable to declare war on them, your agreement with this leader will also be cancelled.</Text>
 		</Row>
 
 		<!-- Tourism and League Stuff -->
@@ -6542,7 +6578,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_SCORE_EXPLANATION">
-			<Text>This value indiates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
+			<Text>This value indicates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic!</Text>

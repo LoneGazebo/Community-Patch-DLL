@@ -27,9 +27,9 @@ const MissionTypes getMISSION_SLEEP();
 const MissionTypes getMISSION_ALERT();
 const MissionTypes getMISSION_FORTIFY();
 const MissionTypes getMISSION_GARRISON();
-const MissionTypes getMISSION_SET_UP_FOR_RANGED_ATTACK();
-const MissionTypes getMISSION_EMBARK();
-const MissionTypes getMISSION_DISEMBARK();
+const MissionTypes getMISSION_SET_UP_FOR_RANGED_ATTACK(); //deprecated
+const MissionTypes getMISSION_EMBARK(); //deprecated 
+const MissionTypes getMISSION_DISEMBARK(); //deprecated
 const MissionTypes getMISSION_AIRPATROL();
 const MissionTypes getMISSION_HEAL();
 const MissionTypes getMISSION_AIRLIFT();

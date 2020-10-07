@@ -771,10 +771,12 @@ struct UnitPathCacheData
 {
 	CvUnit* pUnit;
 
-	int m_aBaseMoves[NUM_DOMAIN_TYPES];
 	PlayerTypes m_ePlayerID;
 	TeamTypes m_eTeamID;
 	DomainTypes m_eDomainType;
+
+	unsigned char m_aBaseMovesNative;
+	unsigned char m_aBaseMovesNonNative;
 
 	bool m_bAIControl;
 	bool m_bIsNoRevealMap;
@@ -783,7 +785,7 @@ struct UnitPathCacheData
 	bool m_bCanAttack;
 	bool m_bDoDanger;
 
-	inline int baseMoves(DomainTypes eType) const { return m_aBaseMoves[eType]; }
+	inline int baseMoves(bool bEmbarked) const { return bEmbarked ? m_aBaseMovesNonNative : m_aBaseMovesNative; }
 	inline PlayerTypes getOwner() const { return m_ePlayerID; }
 	inline TeamTypes getTeam() const { return m_eTeamID; }
 	inline DomainTypes getDomainType() const { return m_eDomainType; }
@@ -804,8 +806,8 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	CvUnit* pUnit = GET_PLAYER(data.ePlayer).getUnit(data.iUnitID);
 	pCacheData->pUnit = pUnit;
 
-	for (int i = 0; i < NUM_DOMAIN_TYPES; ++i)
-		pCacheData->m_aBaseMoves[i] = pUnit->baseMoves((DomainTypes)i);
+	pCacheData->m_aBaseMovesNative = pUnit->baseMoves(false);
+	pCacheData->m_aBaseMovesNonNative = pUnit->baseMoves(true);
 
 	pCacheData->m_ePlayerID = pUnit->getOwner();
 	pCacheData->m_eTeamID = pUnit->getTeam();
@@ -951,6 +953,14 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
 			return false;
 
+		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
+		{
+			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
+			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
+			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
+				return false;
+		}
+
 		//need to make sure there are no mountains/ice plots in between
 		return CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY()));
 	}
@@ -963,7 +973,18 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		return ::plotDistance(iToX,iToY,GetDestX(),GetDestY()) < 2;
+		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 1)
+			return false;
+
+		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
+		{
+			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
+			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
+			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
+				return false;
+		}
+
+		return true;
 	}
 	else
 		return iToX==GetDestX() && iToY==GetDestY();
@@ -1236,7 +1257,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		iMovementCost = iStartMoves;
 	else
 	{
-		int iMaxMoves = pUnitDataCache->baseMoves(pToPlot->getDomain())*GC.getMOVE_DENOMINATOR(); //important, use the cached value
+		//important, use the cached value
+		int iMaxMoves = pUnitDataCache->baseMoves(kToNodeCacheData.bIsNonNativeDomain)*GC.getMOVE_DENOMINATOR(); 
 
 		if (bCheckZOC)
 		{
@@ -1381,11 +1403,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritoryPermanent)
 				return FALSE;
 
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-			if(!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || pCacheData->m_bCanAttack)
-#else
-			if(true)
-#endif
+			if(pCacheData->m_bCanAttack)
 			{
 				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;
@@ -1511,7 +1529,9 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		//in this case we did not call PathCost() before, so we have to set the initial values here
 		node->m_iMoves = GetData().iStartMoves;
 		node->m_iTurns = 0;
-		node->m_iStartMovesForTurn = pCacheData->baseMoves(pUnit->plot()->getDomain());
+
+		CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+		node->m_iStartMovesForTurn = pCacheData->baseMoves( pPlot->needsEmbarkation(pUnit) );
 
 		AddToOpen(node);
 		UpdateNodeCacheData(node,pUnit,this);
@@ -1527,7 +1547,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		{
 			//if necessary manually update the start turn moves field
 			CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-			node->m_iStartMovesForTurn = pCacheData->baseMoves(pPlot->getDomain());
+			node->m_iStartMovesForTurn = pCacheData->baseMoves( pPlot->needsEmbarkation(pUnit) );
 		}
 		else if (parent) //should always be true
 		{
@@ -1632,9 +1652,9 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, const S
 	int iScale = 100;
 	bool bIsValidRoute = pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged();
 
-	//todo: is there a fast way to check whether embarkation / deep water embarkation is allowed?
+	//todo: is there a fast way to check the movement speed on routes?
 	if (bIsValidRoute)
-		iScale = 67;
+		iScale = 50;
 	else if (pToPlot->isImpassable())
 		iScale = 400;
 	else if (pToPlot->isRoughGround())
@@ -2076,10 +2096,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else
 	{
 		// if the tile already been tagged for building a road, then provide a discount
-		if(pPlot->GetBuilderAIScratchPadTurn() >= (GC.getGame().getGameTurn()-1) && 
-			pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer &&
-			pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE
-			)
+		if(GET_PLAYER(data.ePlayer).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
 			return PATH_BASE_COST/2;
 
 		//should we prefer rough terrain because the gain in movement points is greater?
@@ -3077,13 +3094,10 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 
 	int iCost = PATH_BASE_COST;
 
-	// prefer the coastline (not identical with coastal water)
-	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand())
-		iCost += PATH_BASE_COST/4;
-
-	// avoid cities (just for the looks)
-	if (pToPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
-		iCost += PATH_BASE_COST*2;
+	// it's a difference whether coast is cheaper or high seas are more expensive
+	// because it influences the normalized distance of the path!
+	if (pToPlot->isDeepWater() && !pCacheData->m_bCanCrossOcean)
+		iCost += PATH_BASE_COST/3;
 
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();

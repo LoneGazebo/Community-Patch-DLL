@@ -168,10 +168,10 @@ public:
 	void DoTurn();
 	void SpreadReligion();
 	void SpreadReligionToOneCity(CvCity* pCity);
-	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pLoopCity, CvCity* pCity, bool& bConnectedWithTrade, int& iApparentDistance, int& iMaxDistance);
+	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pLoopCity, CvCity* pCity, bool& bConnectedWithTrade, int& iRelativeDistancePercent);
 	bool IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity);
 	// Functions invoked each player turn
-	EraTypes GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer, bool bIgnorePlayer = false);
+	EraTypes GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer);
 	void DoPlayerTurn(CvPlayer& kPlayer);
 	FOUNDING_RESULT CanCreatePantheon(PlayerTypes ePlayer, bool bCheckFaithTotal);
 	FOUNDING_RESULT CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);
@@ -244,6 +244,7 @@ public:
 	bool IsEligibleForFounderBenefits(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer) const;
+	ReligionTypes GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE)
@@ -275,7 +276,8 @@ public:
 	std::vector<BeliefTypes> GetAvailableReformationBeliefs();
 #endif
 
-	int GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection, bool bConnectedWithTrade, int iApparentDistance, int iMaxDistance);
+	int GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, 
+		bool bPretendTradeConnection, bool bConnectedWithTrade, int iRelativeDistancePercent);
 
 	// Great Prophet/Person information functions
 	int GetFaithGreatProphetNumber(int iNum) const;
@@ -574,10 +576,6 @@ public:
 	{
 		return m_iStrength;
 	};
-	void SetReligiousStrength(int iValue)
-	{
-		m_iStrength = iValue;
-	};
 	int GetSpreadsLeft() const
 	{
 		return m_iSpreadsLeft;
@@ -586,11 +584,22 @@ public:
 	{
 		m_iSpreadsLeft = iValue;
 	};
+	void SetReligiousStrength(int iValue)
+	{
+		m_iStrength = iValue;
+	};
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	bool IsFullStrength() const;
 
 private:
 	ReligionTypes m_eReligion;
-	int m_iStrength;
-	int m_iSpreadsLeft;
+	unsigned short m_iStrength;
+	unsigned short m_iSpreadsLeft;
+	unsigned short m_iMaxStrength;
+	unsigned short m_iMaxSpreads;
+
+	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
+	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitReligion&);

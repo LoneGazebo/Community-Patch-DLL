@@ -192,11 +192,13 @@ public:
 	CvString GetLogFileName() const;
 	void LogTradeMsg(CvString& strMsg);
 
+	const vector<int>& GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const;
 	size_t GetNumTradeConnections() const { return m_aTradeConnections.size(); }
 	const TradeConnection& GetTradeConnection(size_t iIndex) const { return m_aTradeConnections[iIndex]; }
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
 	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
+	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(uint iOriginPlayer);
 	void InvalidateTradePathCache(uint iPlayer);
@@ -204,10 +206,11 @@ public:
 protected:
 
 	TradeConnectionList m_aTradeConnections;
-
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
 	std::map<uint,int> m_lastTradePathUpdate;
+	std::vector<vector<int>> m_routesPerPlayer;
+	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
 	int m_aaiTechDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
@@ -289,7 +292,7 @@ public:
 	int GetNumberOfCityStateTradeRoutes();
 	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
 
-	int GetNumberOfTradeRoutesFromCity(CvCity* pCity);
+	int GetNumberOfTradeRoutesFromCity(const CvCity* pCity);
 	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);

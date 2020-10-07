@@ -89,9 +89,7 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetSpaceShipProductionMod);
 	Method(GetSpaceShipPurchaseMod);
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	Method(GetPotentialVotesForMember);
-#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
 	Method(IsPlayerEmbargoed);
 #endif
@@ -735,7 +733,6 @@ int CvLuaLeague::lGetSpaceShipPurchaseMod(lua_State* L)
 	return 1;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 //------------------------------------------------------------------------------
 //int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer)
 int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
@@ -748,7 +745,6 @@ int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
 //------------------------------------------------------------------------------
 //bool IsPlayerEmbargoed(PlayerTypes iPlayer);

@@ -87,9 +87,7 @@ protected:
 	LUAAPIEXTN(GetSpaceShipProductionMod, int);
 	LUAAPIEXTN(GetSpaceShipPurchaseMod, int);
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
 	LUAAPIEXTN(GetPotentialVotesForMember, int);
-#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
 	LUAAPIEXTN(IsPlayerEmbargoed, bool, iPlayer);
 #endif

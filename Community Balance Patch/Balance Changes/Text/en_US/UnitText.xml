@@ -268,7 +268,7 @@
 			<Text>Gift of the Pharaoh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
-			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an Enemy Unit.</Text>
+			<Text>Receive [ICON_PRODUCTION] Production in unit's City of origin when you defeat an Enemy Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
 			<Text>Raider</Text>
@@ -693,12 +693,6 @@
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
 			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III">
-			<Text>Boarded (III)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III_HELP">
-			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
 			<Text>Minelayer</Text>
@@ -737,7 +731,7 @@
 			<Text>Vanguard</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR_HELP">
-			<Text>+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 50%.</Text>
+			<Text>+125% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 50%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE">
@@ -903,7 +897,7 @@
 			<Text>Spotters</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING_HELP">
-			<Text>+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy territory[ENDCOLOR] of a Major Civ.</Text>
+			<Text>+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">
@@ -966,6 +960,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MECH_HELP">
 			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Begins combat with a free Ranged attack.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_IKLWA">
+			<Text>Iklwa</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
 
 		<!-- New unit combats -->

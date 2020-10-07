@@ -123,19 +123,11 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 
 	if(bWar)
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		kTeam.declareWar(eRivalTeam, false, ePlayer);
-#else
-		kTeam.declareWar(eRivalTeam);
-#endif
 	}
 	else
 	{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		kTeam.makePeace(eRivalTeam, true, false, ePlayer);
-#else
-		kTeam.makePeace(eRivalTeam);
-#endif
 	}
 }
 //------------------------------------------------------------------------------
@@ -1355,7 +1347,7 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 			{
 				CvUnit* pkUnit2 = pkTargetPlot->getUnitByIndex(iI);
 
-				if(pkUnit2 && pkUnit2->AreUnitsOfSameType(*pkUnit,pkTargetPlot->needsEmbarkation(pkUnit)))
+				if(pkUnit2 && pkUnit2->IsCombatUnit() && pkUnit->IsCombatUnit())
 				{
 					// Start the swap
 					pkUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iData1, iData2, CvUnit::MOVEFLAG_IGNORE_STACKING, bShift, true);

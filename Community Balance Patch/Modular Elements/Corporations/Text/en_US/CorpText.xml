@@ -238,7 +238,7 @@
 			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREAD}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_BODY">
-			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foriegn City, if you are trading with that Civilization already.</Text>
+			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foreign City, if you are trading with that Civilization already.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
@@ -546,7 +546,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise, and Corporate [ICON_INTERNATIONAL_TRADE] Trade Route bonuses to cities with Franchises are doubled. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities, and foreign Corporations can no longer set up Franchises in your Cities. +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities. +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
 			<Text>Nationalization</Text>
@@ -759,7 +759,7 @@
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>

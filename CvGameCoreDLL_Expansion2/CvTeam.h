@@ -49,20 +49,13 @@ public:
 	void updateYield();
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
+
 	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void declareWar(TeamTypes eTeam, bool bDefensivePact = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
-#else
-	bool canDeclareWar(TeamTypes eTeam) const;
-	void declareWar(TeamTypes eTeam, bool bDefensivePact = false);
-	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false);
-#endif
 
 	int GetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam) const;
 	void SetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam, int iNewValue);
-	bool IsHasBrokenPeaceTreaty() const;
-	void SetHasBrokenPeaceTreaty(bool bValue);
 
 	void meet(TeamTypes eTeam, bool bSuppressMessages);
 
@@ -99,29 +92,13 @@ public:
 	bool isObserver() const;
 	bool isBarbarian() const;
 	bool isMinorCiv() const;
-#if defined(MOD_API_EXTENSIONS)
 	bool isMajorCiv() const;
-#endif
 
 	int GetNumMinorCivsAttacked() const;
 	void SetNumMinorCivsAttacked(int iValue);
 	void ChangeNumMinorCivsAttacked(int iChange);
 	bool IsMinorCivAggressor() const;
 	bool IsMinorCivWarmonger() const;
-
-	// Some diplo stuff
-	bool IsBrokenMilitaryPromise() const;
-	void SetBrokenMilitaryPromise(bool bValue);
-	bool IsBrokenExpansionPromise() const;
-	void SetBrokenExpansionPromise(bool bValue);
-	bool IsBrokenBorderPromise() const;
-	void SetBrokenBorderPromise(bool bValue);
-	bool IsBrokenCityStatePromise() const;
-	void SetBrokenCityStatePromise(bool bValue);
-#if defined(MOD_BALANCE_CORE)
-	bool IsCivilianKiller() const;
-	void SetCivilianKiller(bool bValue);
-#endif
 
 	PlayerTypes getLeaderID() const;
 	PlayerTypes getSecretaryID() const;
@@ -210,14 +187,6 @@ public:
 	bool IsResearchAgreementTradingAllowedWithTeam(TeamTypes eTeam) const;
 	void ChangeResearchAgreementTradingAllowedCount(int iChange);
 
-	int GetTradeAgreementTradingAllowedCount() const;
-	bool IsTradeAgreementTradingAllowed() const;
-	void ChangeTradeAgreementTradingAllowedCount(int iChange);
-
-	int getPermanentAllianceTradingCount() const;
-	bool isPermanentAllianceTrading() const;
-	void changePermanentAllianceTradingCount(int iChange);
-
 #if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 	bool isCityWorkingChange() const;
@@ -296,17 +265,11 @@ public:
 	bool IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const;
 	bool SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue);
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	bool isAggressor(TeamTypes eIndex) const;
 	bool isPacifier(TeamTypes eIndex) const;
-#endif
 
 	bool isAtWar(TeamTypes eIndex) const;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	void setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier);
-#else
-	void setAtWar(TeamTypes eIndex, bool bNewValue);
-#endif
 	bool HasCommonEnemy(TeamTypes eOtherTeam) const;
 
 	int GetNumTurnsAtWar(TeamTypes eTeam) const;
@@ -346,9 +309,6 @@ public:
 	bool IsHasResearchAgreement(TeamTypes eIndex) const;
 	void SetHasResearchAgreement(TeamTypes eIndex, bool bNewValue);
 	void CancelResearchAgreement(TeamTypes eIndex);
-
-	bool IsHasTradeAgreement(TeamTypes eIndex) const;
-	void SetHasTradeAgreement(TeamTypes eIndex, bool bNewValue);
 
 	bool isForcePeace(TeamTypes eIndex) const;
 	void setForcePeace(TeamTypes eIndex, bool bNewValue);
@@ -572,8 +532,6 @@ protected:
 	int m_iOpenBordersTradingAllowedCount;
 	int m_iDefensivePactTradingAllowedCount;
 	int m_iResearchAgreementTradingAllowedCount;
-	int m_iTradeAgreementTradingAllowedCount;
-	int m_iPermanentAllianceTradingCount;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif
@@ -599,17 +557,8 @@ protected:
 	int m_iNumMinorCivsAttacked;
 
 	bool m_bMapCentering;
-	bool m_bHasBrokenPeaceTreaty;
 	bool m_bHomeOfUnitedNations;
 	bool m_bHasTechForWorldCongress;
-
-	bool m_bBrokenMilitaryPromise;
-	bool m_bBrokenExpansionPromise;
-	bool m_bBrokenBorderPromise;
-	bool m_bBrokenCityStatePromise;
-#if defined(MOD_BALANCE_CORE)
-	bool m_bCivilianKiller;
-#endif
 
 	EraTypes m_eCurrentEra;
 
@@ -626,15 +575,12 @@ protected:
 	Firaxis::Array< bool, REALLY_MAX_PLAYERS > m_abHasFoundPlayersTerritory;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abHasMet;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abAtWar;
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abAggressorPacifier;
-#endif
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abPermanentWarPeace;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abEmbassy;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abOpenBorders;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abDefensivePact;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abResearchAgreement;
-	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abTradeAgreement;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abForcePeace;
 	Firaxis::Array< int, REALLY_MAX_PLAYERS > m_aiTurnTeamMet;
 
@@ -742,24 +688,9 @@ protected:
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
-#else
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
-#endif
-#else
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	void DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
-#else
-	void DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
-#endif
-#endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
-#else
-	void DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
-#endif
 };
 
 // helper for accessing static functions

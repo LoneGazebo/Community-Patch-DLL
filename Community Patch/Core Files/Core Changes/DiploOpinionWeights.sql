@@ -246,9 +246,9 @@ UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_ASKED_NO_SETTLE';
 
--- 10 (unchanged)
+-- 10
 UPDATE Defines
-SET Value = '10'
+SET Value = '0'
 WHERE Name = 'OPINION_WEIGHT_ASKED_STOP_SPYING';
 
 -- 20
@@ -256,9 +256,9 @@ UPDATE Defines
 SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_MADE_DEMAND_OF_US';
 
--- 30 (unchanged)
+-- 30
 UPDATE Defines
-SET Value = '30'
+SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_CULTURE_BOMBED';
 
 -- 5 (unchanged)
@@ -329,7 +329,7 @@ INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_PLOTTED_AGAINST_US', '20';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_PERFORMED_COUP', '15';
+SELECT 'OPINION_WEIGHT_PERFORMED_COUP', '30';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_EXCAVATED_THREE_ARTIFACTS', '40';
@@ -686,6 +686,10 @@ UPDATE Defines
 SET Value = '-40'
 WHERE Name = 'OPINION_WEIGHT_TRADE_MAX';
 
+-- Increases current and maximum trade bonus if player is considered a strategic trade partner
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', '150';
+
 -- Common Foe Values
 -- 25 (unchanged)
 UPDATE Defines
@@ -727,7 +731,7 @@ INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_MAX', '50';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', '10';
+SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', '20';
 
 -- Similar/Divergent Social Policies Weight
 INSERT INTO Defines (Name, Value)
