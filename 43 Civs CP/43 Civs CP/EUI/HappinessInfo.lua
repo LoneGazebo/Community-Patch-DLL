@@ -235,7 +235,7 @@ function UpdateScreen()
     Controls.ResourcesImportedStack:DestroyAllChildren();
 	for pResource in GameInfo.Resources() do
 		local iResourceID = pResource.ID;
-		local iNum = pPlayer:GetResourceImport(iResourceID) + pPlayer:GetResourceFromMinors(iResourceID);
+		local iNum = pPlayer:GetResourceImport(iResourceID);
 		
 		if (iNum > 0) then
 			-- Only Luxuries or Strategic Resources

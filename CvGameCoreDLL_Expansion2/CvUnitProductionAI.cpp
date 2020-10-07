@@ -462,7 +462,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	////////////////////////
 
 	// sanity check for building ships on isolated small inland seas (not lakes)
-	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) // if needed allow workboats...
+	// if needed allow workboats...
+	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) 
 	{
 		int iWaterTiles = 0;
 		int iNumUnitsofMine = 0;
@@ -470,6 +471,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumCitiesofMine = 0;
 		int iNumCitiesOther = 0;
 
+		//todo: alternatively check whether we can create a sea trade route to another player?
 		std::vector<int> areas = m_pCity->plot()->getAllAdjacentAreas();
 		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 		{

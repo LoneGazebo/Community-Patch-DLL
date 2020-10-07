@@ -430,6 +430,7 @@ public:
 	BeliefTypes GetBelief(int iIndex) const;
 	int GetNumBeliefs() const;
 #if defined(MOD_BALANCE_CORE)
+	bool IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	bool IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
 

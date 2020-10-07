@@ -553,8 +553,7 @@ private:
 	void PlotRepositionMoves(bool bWater);
 //--------------------------------
 
-	void PlotAirInterceptMoves();
-	void PlotAirSweepMoves();
+	void PlotAirPatrolMoves();
 
 	void PlotAttritFromRangeMoves(CvTacticalDominanceZone* pZone);
 	void PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone);
@@ -610,7 +609,7 @@ private:
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
-	void ExecuteAirInterceptMoves();
+	void ExecuteAirPatrolMoves();
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);

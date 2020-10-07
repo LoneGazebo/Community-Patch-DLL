@@ -75,23 +75,8 @@ if Game and PreGame then
 					print( "Cannot add city trade", city and city:GetName(), unpack(item) )
 				end
 			end,
-			[ TradeableItems.TRADE_ITEM_UNITS or false ] = function( from, item )
-				return g_deal:AddUnitTrade( from, item[4] )
-			end,
 			[ TradeableItems.TRADE_ITEM_OPEN_BORDERS or false ] = function( from, item )
 				return g_deal:AddOpenBorders( from, item[2] )
-			end,
-			[ TradeableItems.TRADE_ITEM_TRADE_AGREEMENT or false ] = function( from, item )
-				return g_deal:AddTradeAgreement( from, item[2] )
-			end,
-			[ TradeableItems.TRADE_ITEM_PERMANENT_ALLIANCE or false ] = function()
-				print( "Error - alliance not supported by game DLL")--g_deal:AddPermamentAlliance()
-			end,
-			[ TradeableItems.TRADE_ITEM_SURRENDER or false ] = function( from )
-				return g_deal:AddSurrender( from )
-			end,
-			[ TradeableItems.TRADE_ITEM_TRUCE or false ] = function()
-				print( "Error - truce not supported by game DLL")--g_deal:AddTruce()
 			end,
 			[ TradeableItems.TRADE_ITEM_PEACE_TREATY or false ] = function( from, item )
 				return g_deal:AddPeaceTreaty( from, item[2] )
@@ -101,9 +86,6 @@ if Game and PreGame then
 			end,
 			[ TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR or false ] = function( from, item )
 				return g_deal:AddThirdPartyWar( from, item[4] )
-			end,
-			[ TradeableItems.TRADE_ITEM_THIRD_PARTY_EMBARGO or false ] = function( from, item )
-				return g_deal:AddThirdPartyEmbargo( from, item[4], item[2] )
 			end,
 			-- civ5
 			[ TradeableItems.TRADE_ITEM_GOLD or false ] = function( from, item )

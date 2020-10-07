@@ -55,8 +55,6 @@
 //If you enable this, the CS AI can settle more cities.
 //#define MOD_MINOR_CAN_SETTLE
 
-/// simpler algorithm for scoring exploration plots
-#define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
 #define MOD_BALANCE_CORE_GLOBAL_IDS
 /// ships on land tiles (city, fort) cannot attack
@@ -92,8 +90,6 @@
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
-/// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
-#define AUI_GS_CONQUEST_FIX_CRAMPED
 /// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
 #define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
 
@@ -308,10 +304,7 @@
 #define MOD_BALANCE_CORE_SPIES						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES())
 #define MOD_BALANCE_CORE_SPIES_ADVANCED				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES_ADVANCED())
 #define MOD_BALANCE_CORE_MILITARY					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY())
-#define MOD_BALANCE_CORE_SETTLER					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SETTLER())
 #define MOD_BALANCE_CORE_SETTLER_ADVANCED			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SETTLER_ADVANCED())
-#define MOD_BALANCE_CORE_DEALS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DEALS())
-#define MOD_BALANCE_CORE_DEALS_ADVANCED				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DEALS_ADVANCED())
 #define MOD_BALANCE_CORE_MINORS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MINORS())
 #define MOD_BALANCE_CORE_DIFFICULTY					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIFFICULTY())
 #define MOD_BALANCE_CORE_HAPPINESS					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_HAPPINESS())
@@ -324,7 +317,6 @@
 #define MOD_BALANCE_CORE_BELIEFS_RESOURCE			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BELIEFS_RESOURCE())
 #define MOD_BALANCE_CORE_AFRAID_ANNEX				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_AFRAID_ANNEX())
 #define MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BUILDING_INSTANT_YIELD())
-#define MOD_BALANCE_CORE_GRANDSTRATEGY_AI			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GRANDSTRATEGY_AI())
 #define MOD_BALANCE_CORE_BELIEFS					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BELIEFS())
 #define MOD_BALANCE_CORE_FOLLOWER_POP_WONDER		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_FOLLOWER_POP_WONDER())
 #define MOD_BALANCE_CORE_POLICIES					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_POLICIES())
@@ -337,9 +329,7 @@
 #define MOD_BALANCE_CORE_IDEOLOGY_START				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_IDEOLOGY_START())
 #define MOD_BALANCE_CORE_WONDER_COST_INCREASE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_WONDER_COST_INCREASE())
 #define MOD_BALANCE_CORE_MINOR_CIV_GIFT				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MINOR_CIV_GIFT())
-#define MOD_BALANCE_CORE_DIPLOMACY					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLOMACY())
 #define MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLOMACY_ERA_INFLUENCE())
-#define MOD_BALANCE_CORE_DIPLOMACY_ADVANCED			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLOMACY_ADVANCED())
 #define MOD_BALANCE_CORE_LUXURIES_TRAIT				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_LUXURIES_TRAIT())
 #define MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED (MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_PROMOTION_ADVANCED())
 #define MOD_BALANCE_CORE_MILITARY_LOGGING			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_LOGGING())
@@ -522,6 +512,11 @@
 #define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
+// if true, you need a trade route to get passive religious pressure to a city
+#define MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY()
+
+// if true, only cities cannot do ranged strikes
+#define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
@@ -922,49 +917,39 @@
 // Fixes the bug where Venice puppets it's own capital (v42)
 #define MOD_BUGFIX_VENICE_PUPPETS_CAPITAL			(true)
 // Fixes the bug in the Lua Plot:ChangeVisibilityCount() method where iChange is treated as a boolean and not a signed int (v23)
-#define MOD_BUGFIX_LUA_CHANGE_VISIBILITY_COUNT      gCustomMods.isBUGFIX_LUA_CHANGE_VISIBILITY_COUNT()
-// Fixes the bug that excludes spy pressure (Underground Sects) from the city banner tooltip display (v45)
-#define MOD_BUGFIX_RELIGIOUS_SPY_PRESSURE           gCustomMods.isBUGFIX_RELIGIOUS_SPY_PRESSURE()
+#define MOD_BUGFIX_LUA_CHANGE_VISIBILITY_COUNT      (true)
 // Fixes the CanMoveAfterPurchase() bug where it is only tested for at one specific point in the code (v26)
-#define MOD_BUGFIX_MOVE_AFTER_PURCHASE              gCustomMods.isBUGFIX_MOVE_AFTER_PURCHASE()
+#define MOD_BUGFIX_MOVE_AFTER_PURCHASE              (true)
 // Fixes the issues caused by using UNIT_XYZ instead of UNITCLASS_XYZ (v26)
-#define MOD_BUGFIX_UNITCLASS_NOT_UNIT               gCustomMods.isBUGFIX_UNITCLASS_NOT_UNIT()
+#define MOD_BUGFIX_UNITCLASS_NOT_UNIT               (true)
 // Fixes the issues caused by using BUILDING_XYZ instead of BUILDINGCLASS_XYZ (v26)
-#define MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING       gCustomMods.isBUGFIX_BUILDINGCLASS_NOT_BUILDING()
+#define MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING       (true)
 // Fixes the NumCitiesFreeFoodBuilding (policy finisher) bug where the civilization has a UB for the Aqueduct - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_BUGFIX_FREE_FOOD_BUILDING               gCustomMods.isBUGFIX_FREE_FOOD_BUILDING()
 // Fixes the bug where the naval Civilization_FreeUnits start on land
-#define MOD_BUGFIX_NAVAL_FREE_UNITS                 gCustomMods.isBUGFIX_NAVAL_FREE_UNITS()
-// Fixes the bug where the naval units jump to the nearest city and not the nearest available non-lake water plot
-#define MOD_BUGFIX_NAVAL_NEAREST_WATER              gCustomMods.isBUGFIX_NAVAL_NEAREST_WATER()
+#define MOD_BUGFIX_NAVAL_FREE_UNITS                 (true)
 // Fixes the bug in goody hut messages that have parameters (v38)
 #define MOD_BUGFIX_GOODY_HUT_MESSAGES               (true)
 // Fixes the bug where Barb Camps ignore the ValidTerrains and ValidFeatures tables
 #define MOD_BUGFIX_BARB_CAMP_TERRAINS               gCustomMods.isBUGFIX_BARB_CAMP_TERRAINS()
 // Fixes the bug where Barb Camps won't spawn units if they are added via pPlot:SetImprovementType() (v21)
-#define MOD_BUGFIX_BARB_CAMP_SPAWNING               gCustomMods.isBUGFIX_BARB_CAMP_SPAWNING()
+#define MOD_BUGFIX_BARB_CAMP_SPAWNING               (true)
 // Fixes the bug where ranged combat (archers, catapults, ships and planes) against barbarians generates Great People XP (v43)
 #define MOD_BUGFIX_BARB_GP_XP                       gCustomMods.isBUGFIX_BARB_GP_XP()
 // Fixes the bug where you can't remove roads in no-mans-land originally built by a now dead player
-#define MOD_BUGFIX_REMOVE_GHOST_ROUTES              gCustomMods.isBUGFIX_REMOVE_GHOST_ROUTES()
+#define MOD_BUGFIX_REMOVE_GHOST_ROUTES              (true)
 // Fixes healing units ignoring enemy units and sleeping units under direct fire remaining asleep - thanks to hulkster for highlighting the latter issue
 #define MOD_BUGFIX_UNITS_AWAKE_IN_DANGER            gCustomMods.isBUGFIX_UNITS_AWAKE_IN_DANGER()
-// Fixes workers stopping what they are doing at any hint of danger to only when they can see an enemy unit
-#define MOD_BUGFIX_WORKERS_VISIBLE_DANGER           gCustomMods.isBUGFIX_WORKERS_VISIBLE_DANGER()
 // Fixes the hard-coding of what builds remove which features (v45)
-#define MOD_BUGFIX_FEATURE_REMOVAL                  gCustomMods.isBUGFIX_FEATURE_REMOVAL()
-// Fixes the bug in calculating AA interception strength which takes terrain into account
-#define MOD_BUGFIX_INTERCEPTOR_STRENGTH             gCustomMods.isBUGFIX_INTERCEPTOR_STRENGTH()
+#define MOD_BUGFIX_FEATURE_REMOVAL                  (true)
 // Fixes the very dodgy maths in the calculation of a unit's power
 #define MOD_BUGFIX_UNIT_POWER_CALC                  gCustomMods.isBUGFIX_UNIT_POWER_CALC()
-// Fixes the Anti-Air non-domain bonuses issue, requires BUGFIX_UNIT_POWER_CALC to be enabled
-#define MOD_BUGFIX_UNIT_POWER_BONUS_VS_DOMAIN_ONLY  gCustomMods.isBUGFIX_UNIT_POWER_BONUS_VS_DOMAIN_ONLY()
 // Fixes the naval imbalance in a unit's power calculation, requires BUGFIX_UNIT_POWER_CALC to be enabled
 #define MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY     gCustomMods.isBUGFIX_UNIT_POWER_NAVAL_CONSISTENCY()
 // Fixes the bug where units can upgrade even without any pre-req project being available (v22)
-#define MOD_BUGFIX_UNIT_PREREQ_PROJECT              gCustomMods.isBUGFIX_UNIT_PREREQ_PROJECT()
+#define MOD_BUGFIX_UNIT_PREREQ_PROJECT              (true)
 // Fixes a bug where hovering units can be chosen as rebels! (v39)
-#define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
+#define MOD_BUGFIX_NO_HOVERING_REBELS               (true)
 // Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
 #define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
 // Fixes the ExtraMissionarySpreads column to affect naturally born Prophets
@@ -1467,10 +1452,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_SPIES);
 	MOD_OPT_DECL(BALANCE_CORE_SPIES_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY);
-	MOD_OPT_DECL(BALANCE_CORE_SETTLER);
 	MOD_OPT_DECL(BALANCE_CORE_SETTLER_ADVANCED);
-	MOD_OPT_DECL(BALANCE_CORE_DEALS);
-	MOD_OPT_DECL(BALANCE_CORE_DEALS_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MINORS);
 	MOD_OPT_DECL(BALANCE_CORE_DIFFICULTY);
 	MOD_OPT_DECL(BALANCE_CORE_HAPPINESS);
@@ -1483,7 +1465,6 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_BELIEFS_RESOURCE);
 	MOD_OPT_DECL(BALANCE_CORE_AFRAID_ANNEX);
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_INSTANT_YIELD);
-	MOD_OPT_DECL(BALANCE_CORE_GRANDSTRATEGY_AI);
 	MOD_OPT_DECL(BALANCE_CORE_BELIEFS);
 	MOD_OPT_DECL(BALANCE_CORE_FOLLOWER_POP_WONDER);
 	MOD_OPT_DECL(BALANCE_CORE_POLICIES);
@@ -1496,9 +1477,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_IDEOLOGY_START);
 	MOD_OPT_DECL(BALANCE_CORE_WONDER_COST_INCREASE);
 	MOD_OPT_DECL(BALANCE_CORE_MINOR_CIV_GIFT);
-	MOD_OPT_DECL(BALANCE_CORE_DIPLOMACY);
 	MOD_OPT_DECL(BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE);
-	MOD_OPT_DECL(BALANCE_CORE_DIPLOMACY_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_LUXURIES_TRAIT);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_PROMOTION_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_LOGGING);
@@ -1609,7 +1588,9 @@ public:
 	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
+	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
 
+	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
@@ -1618,17 +1599,11 @@ public:
 	MOD_OPT_DECL(AI_SECONDARY_SETTLERS);
 	MOD_OPT_DECL(AI_SMART_V3);
 	MOD_OPT_DECL(AI_SMART);
-	MOD_OPT_DECL(AI_SMART_DEALS);
 	MOD_OPT_DECL(AI_SMART_GREAT_PEOPLE);
 	MOD_OPT_DECL(AI_SMART_GRAND_STRATEGY);
 	MOD_OPT_DECL(AI_SMART_ARCHAEOLOGISTS);
 	MOD_OPT_DECL(AI_SMART_DISBAND);
-	MOD_OPT_DECL(AI_SMART_UPGRADES);
-	MOD_OPT_DECL(AI_SMART_HEALING);
-	MOD_OPT_DECL(AI_SMART_FLEE_FROM_DANGER);
-	MOD_OPT_DECL(AI_SMART_RANGED_UNITS);
 	MOD_OPT_DECL(AI_SMART_AIR_TACTICS);
-	MOD_OPT_DECL(AI_SMART_MELEE_TACTICS);
 
 	MOD_OPT_DECL(EVENTS_TERRAFORMING);
 	MOD_OPT_DECL(EVENTS_TILE_IMPROVEMENTS);
@@ -1708,29 +1683,12 @@ public:
 	MOD_OPT_DECL(CONFIG_AI_IN_XML);
 
 	MOD_OPT_DECL(BUGFIX_RESEARCH_OVERFLOW);
-	MOD_OPT_DECL(BUGFIX_LUA_CHANGE_VISIBILITY_COUNT);
-	MOD_OPT_DECL(BUGFIX_RELIGIOUS_SPY_PRESSURE);
-	MOD_OPT_DECL(BUGFIX_MOVE_AFTER_PURCHASE);
-	MOD_OPT_DECL(BUGFIX_UNITCLASS_NOT_UNIT);
-	MOD_OPT_DECL(BUGFIX_BUILDINGCLASS_NOT_BUILDING);
 	MOD_OPT_DECL(BUGFIX_FREE_FOOD_BUILDING);
-	MOD_OPT_DECL(BUGFIX_NAVAL_FREE_UNITS);
-	MOD_OPT_DECL(BUGFIX_NAVAL_NEAREST_WATER);
 	MOD_OPT_DECL(BUGFIX_BARB_CAMP_TERRAINS);
-	MOD_OPT_DECL(BUGFIX_BARB_CAMP_SPAWNING);
 	MOD_OPT_DECL(BUGFIX_BARB_GP_XP);
-	MOD_OPT_DECL(BUGFIX_REMOVE_GHOST_ROUTES);
 	MOD_OPT_DECL(BUGFIX_UNITS_AWAKE_IN_DANGER);
-	MOD_OPT_DECL(BUGFIX_WORKERS_VISIBLE_DANGER);
-	MOD_OPT_DECL(BUGFIX_FEATURE_REMOVAL);
-	MOD_OPT_DECL(BUGFIX_INTERCEPTOR_STRENGTH);
 	MOD_OPT_DECL(BUGFIX_UNIT_POWER_CALC);
-	MOD_OPT_DECL(BUGFIX_UNIT_POWER_BONUS_VS_DOMAIN_ONLY);
 	MOD_OPT_DECL(BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY);
-	MOD_OPT_DECL(BUGFIX_UNIT_PREREQ_PROJECT);
-	MOD_OPT_DECL(BUGFIX_NO_HOVERING_REBELS);
-	MOD_OPT_DECL(BUGFIX_HOVERING_PATHFINDER);
-	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 

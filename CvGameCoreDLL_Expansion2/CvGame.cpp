@@ -1486,11 +1486,7 @@ void CvGame::initDiplomacy()
 				const TeamTypes eTeamB = static_cast<TeamTypes>(iJ);
 				if(iI != iJ)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 					kTeamA.declareWar(eTeamB, false, kTeamA.getLeaderID());
-#else
-					kTeamA.declareWar(eTeamB);
-#endif
 				}
 			}
 		}
@@ -6558,10 +6554,6 @@ bool CvGame::IsAIPassiveTowardsHumans() const
 /// Can also pass in optional parameter eMakePeacePlayer to determine if making peace with a player would lock a player out of attempting a Domination Victory
 bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer /* = NO_PLAYER */) const
 {
-	// Game has already been won
-	if (IsGameWon())
-		return false;
-
 	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs
@@ -9335,7 +9327,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 }
 #endif
 //	--------------------------------------------------------------------------------
-UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
+UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY)
 {
 	// Find the unique units that have already been assigned
 	int iRandomSeed = 0;
@@ -9491,7 +9483,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(5, eLoopUnit + iUnitLoop);
+		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
@@ -9530,11 +9522,7 @@ void CvGame::updateWar()
 									{
 										if(!atWar(((TeamTypes)iI), ((TeamTypes)iJ)))
 										{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 											teamI.declareWar(((TeamTypes)iJ), false, teamI.getLeaderID());
-#else
-											teamI.declareWar(((TeamTypes)iJ));
-#endif
 										}
 									}
 								}

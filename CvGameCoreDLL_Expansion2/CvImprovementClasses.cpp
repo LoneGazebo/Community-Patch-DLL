@@ -1597,7 +1597,7 @@ bool CvImprovementEntry::IsExpandedImprovementResourceTrade(int i, bool bIgnoreP
 			return true;
 	}
 
-	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	if (MOD_BALANCE_CORE)
 	{
 		if (IsCreatedByGreatPerson() || IsAdjacentCity())
 			return true;

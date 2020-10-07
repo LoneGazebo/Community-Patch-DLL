@@ -46,12 +46,10 @@ class CvMinorCivAI;
 class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	class CvDistanceMap;
-#endif
+class CvDistanceMap;
 #if defined(MOD_BALANCE_CORE)
-	class CvPlayerCorporations;
-	class CvPlayerContracts;
+class CvPlayerCorporations;
+class CvPlayerContracts;
 #endif
 class CvCityConnections;
 class CvNotifications;
@@ -656,6 +654,10 @@ public:
 	void ChangeGreatWorksTourismModifierGlobal(int iChange);
 	int GetGreatWorksTourismModifierGlobal() const;
 #endif
+
+	bool CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const;
+	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER, bool bDontCheckPhonyWars = false) const;
+
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -2457,6 +2459,8 @@ public:
 
 	int GetNumOffensiveOperations(DomainTypes eDomain);
 
+	bool HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps);
+
 	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
 
@@ -2915,6 +2919,7 @@ public:
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
+	CvCity* GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const;
 
 protected:
 	class ConqueredByBoolField
@@ -3657,11 +3662,9 @@ protected:
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
-#endif
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

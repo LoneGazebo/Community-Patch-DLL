@@ -1019,8 +1019,6 @@ function ResetDisplay()
     Controls.ThemPocketDefensivePact:SetHide( false );
     Controls.UsPocketResearchAgreement:SetHide( false );
     Controls.ThemPocketResearchAgreement:SetHide( false );
-    --Controls.UsPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
-    --Controls.ThemPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
     if (Controls.UsPocketDoF ~= nil) then
 		Controls.UsPocketDoF:SetHide( false );
 		Controls.UsPocketDoF:RegisterCallback( Mouse.eLClick, PocketDoFHandler );
@@ -1455,53 +1453,6 @@ function ResetDisplay()
 		Controls.ThemPocketResearchAgreement:SetDisabled(false);
 		Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
     end
-        
-    ---------------------------------------------------------------------------------- 
-    -- pocket Trade Agreement
-    ---------------------------------------------------------------------------------- 
-    
-    local bTradeAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iDealDuration);
-    
-    -- Are we not allowed to give TA? (don't have tech, or are already providing it to them)
-    strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_TT" );
-    if (not bTradeAgreementAllowed) then
-		
-		local strDisabledTT = "";
-		
-		if (not g_pUsTeam:IsTradeAgreementTradingAllowed() and not g_pThemTeam:IsTradeAgreementTradingAllowed()) then
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_NO_TECH" );
-		elseif (g_pUsTeam:IsHasTradeAgreement(g_iThemTeam)) then
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_EXISTS" );
-		else
-			strDisabledTT = " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_AGREEMENT_NO_AGREEMENT" );
-		end
-		
-		strDisabledTT = "[COLOR_WARNING_TEXT]" .. strDisabledTT .. "[ENDCOLOR]";
-		strTooltip = strTooltip .. strDisabledTT;
-	end
-
-	Controls.UsPocketTradeAgreement:SetToolTipString(strTooltip);
-	Controls.ThemPocketTradeAgreement:SetToolTipString(strTooltip);
-    
-    -- Are we not allowed to give RA? (don't have tech, or are already providing it to them)
-    if (not bTradeAgreementAllowed) then
-		Controls.UsPocketTradeAgreement:SetDisabled(true);
-		Controls.UsPocketTradeAgreement:GetTextControl():SetColorByName("Gray_Black");
-	else
-		Controls.UsPocketTradeAgreement:SetDisabled(false);
-		Controls.UsPocketTradeAgreement:GetTextControl():SetColorByName("Beige_Black");
-    end
-
-    bTradeAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iDealDuration);
-    
-    -- Are they not allowed to give RA? (don't have tech, or are already providing it to us)
-    if (not bTradeAgreementAllowed) then
-		Controls.ThemPocketTradeAgreement:SetDisabled(true);
-		Controls.ThemPocketTradeAgreement:GetTextControl():SetColorByName("Gray_Black");
-	else
-		Controls.ThemPocketTradeAgreement:SetDisabled(false);
-		Controls.ThemPocketTradeAgreement:GetTextControl():SetColorByName("Beige_Black");
-    end
 
     ---------------------------------------------------------------------------------- 
     -- Pocket Declaration of Friendship
@@ -1857,8 +1808,6 @@ function DoClearTable()
 	Controls.ThemTableDefensivePact:SetHide( true );
 	Controls.UsTableResearchAgreement:SetHide( true );
 	Controls.ThemTableResearchAgreement:SetHide( true );
-	Controls.UsTableTradeAgreement:SetHide( true );
-	Controls.ThemTableTradeAgreement:SetHide( true );
     Controls.UsTableCitiesStack:SetHide( true );
     Controls.ThemTableCitiesStack:SetHide( true );
 	Controls.UsTableStrategicStack:SetHide( true );
@@ -2141,17 +2090,7 @@ function DisplayDeal()
                 Controls.ThemPocketResearchAgreement:SetHide( true );
                 Controls.ThemTableResearchAgreement:SetHide( false );
             end
-        
-        elseif( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT == itemType ) then
-        
-            if( bFromUs ) then
-                Controls.UsPocketTradeAgreement:SetHide( true );
-                Controls.UsTableTradeAgreement:SetHide( false );
-            else
-                Controls.ThemPocketTradeAgreement:SetHide( true );
-                Controls.ThemTableTradeAgreement:SetHide( false );
-            end
-        
+
         elseif( TradeableItems.TRADE_ITEM_RESOURCES == itemType ) then
         
             if( bFromUs ) then
@@ -2678,45 +2617,6 @@ function TableResearchAgreementHandler()
 end
 Controls.UsTableResearchAgreement:RegisterCallback( Mouse.eLClick, TableResearchAgreementHandler );
 Controls.ThemTableResearchAgreement:RegisterCallback( Mouse.eLClick, TableResearchAgreementHandler );
-
-
-
-
------------------------------------------------------------------------------------------------------------------------
--- Trade Agreement Handlers
------------------------------------------------------------------------------------------------------------------------
-function PocketTradeAgreementHandler( isUs )
-
-	-- Note that currently Trade Agreement is required on both sides
-	
-    if( isUs == 1 ) then
-        g_Deal:AddTradeAgreement( g_iUs, g_iDealDuration );
-        g_Deal:AddTradeAgreement( g_iThem, g_iDealDuration );
-    else
-        g_Deal:AddTradeAgreement( g_iUs, g_iDealDuration );
-        g_Deal:AddTradeAgreement( g_iThem, g_iDealDuration );
-    end
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-Controls.UsPocketTradeAgreement:RegisterCallback( Mouse.eLClick, PocketTradeAgreementHandler );
-Controls.ThemPocketTradeAgreement:RegisterCallback( Mouse.eLClick, PocketTradeAgreementHandler );
-Controls.UsPocketTradeAgreement:SetVoid1( 1 );
-Controls.ThemPocketTradeAgreement:SetVoid1( 0 );
-
-function TableTradeAgreementHandler()
-	-- Remove from BOTH sides of the table
-    g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iUs );
-    g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_TRADE_AGREEMENT, g_iThem );
-    DoClearTable();
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-Controls.UsTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgreementHandler );
-Controls.ThemTableTradeAgreement:RegisterCallback( Mouse.eLClick, TableTradeAgreementHandler );
-
-
-
 
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -3375,11 +3275,19 @@ function ShowOtherPlayerChooser( isUs, type )
 						end		
 						-- City-State ally
 						if (pLoopPlayer:IsMinorCiv()) then
+							-- Alliance
 							if (pLoopPlayer:GetAlly() == iToPlayer or pLoopPlayer:GetAlly() == iFromPlayer) then
 								if(strToolTip ~= "") then
 									strToolTip = strToolTip .. "[NEWLINE]";
 								end
 								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+							end
+							-- PTP
+							if (pLoopPlayer:IsProtectedByMajor(iToPlayer) or pLoopPlayer:IsProtectedByMajor(iFromPlayer)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_PTP");
 							end
 						else
 							-- DOF

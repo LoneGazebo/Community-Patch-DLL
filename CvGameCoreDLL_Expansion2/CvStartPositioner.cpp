@@ -677,16 +677,9 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 					if (uiPlotFoundValue<1)
 						continue;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
 						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
 					{
-#else
-					// If we're a Maritime Minor Civ then decrease the value of non-coastal starts
-					if(bIsMinorCiv)
-					{
-						if(GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME)
-#endif // MOD_BALANCE_CORE_SETTLER
 						{
 							if(!pLoopPlot->isCoastalLand(GC.getLAKE_MAX_AREA_SIZE()))
 							{
