@@ -4616,9 +4616,13 @@ void CvTeam::SetNumTurnsLockedIntoWar(TeamTypes eTeam, int iValue)
 	{
 		m_aiNumTurnsLockedIntoWar[eTeam] = 0;
 	}
-	else if (m_aiNumTurnsLockedIntoWar[eTeam] <= 0) // Don't allow adding more locked turns if already locked at war! Prevents happiness exploit.
+	else
 	{
-		m_aiNumTurnsLockedIntoWar[eTeam] = iValue;
+		int iCurrentValue = m_aiNumTurnsLockedIntoWar[eTeam];
+		if ((iCurrentValue <= 0) || (iValue < iCurrentValue)) // Don't allow adding more locked turns if already locked at war! Prevents happiness exploit.
+		{
+			m_aiNumTurnsLockedIntoWar[eTeam] = iValue;
+		}
 	}
 }
 
