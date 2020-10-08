@@ -2464,7 +2464,7 @@ void CvCity::kill()
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = oldUnits.next(pUnitNode);
 
 		if(pLoopUnit)
@@ -7203,31 +7203,27 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker, bool bNavalAttack) const
 	int iNeutralPlots = 0;
 	int iCitadelCount = 0;
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-	for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
+	for (int iI=RING0_PLOTS; iI<RING3_PLOTS; iI++)
 	{
+		iTotalPlots++;
+
 		CvPlot* pLoopPlot = iterateRingPlots(plot(), iI);
 		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam))
 			continue;
 
-		iTotalPlots++;
-
-		//for inner plots we care if the plot is impassable
 		if (pLoopPlot->isImpassable(eAttackerTeam))
 		{
-			if (iI<RING2_PLOTS)
-				iImpassablePlots++;
+			iImpassablePlots++;
 			continue;
 		}
 		else if (pLoopPlot->isWater() && !bNavalAttack)
 		{
-			if (iI < RING2_PLOTS)
-				iImpassablePlots++;
+			iImpassablePlots++;
 			continue;
 		}
 		else if (!pLoopPlot->isWater() && bNavalAttack)
 		{
-			if (iI < RING2_PLOTS)
-				iImpassablePlots++;
+			iImpassablePlots++;
 			continue;
 		}
 
@@ -7268,7 +7264,7 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker, bool bNavalAttack) const
 	}
 
 	//higher than 100 is good for attack, lower than 100 is good for defender
-	int iScore = 100 + (iAttackerOwnedPlots * 300 + iNeutralPlots * 100	- iDefenderOwnedPlots * 100	- iImpassablePlots * 100) / iTotalPlots + iCitadelCount * 3;
+	int iScore = 100 + (iAttackerOwnedPlots * 300 + iNeutralPlots * 100	- iDefenderOwnedPlots * 50	- iImpassablePlots * 100) / iTotalPlots + iCitadelCount * 3;
 	return max(1,iScore);
 }
 #endif
@@ -8571,7 +8567,7 @@ bool CvCity::canMaintain(ProcessTypes eProcess, bool bContinue) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::canJoin() const
+bool CvCity::canJoinCity() const
 {
 	VALIDATE_OBJECT
 	return true;
@@ -16193,8 +16189,8 @@ void CvCity::CheckForOperationUnits()
 		if(pThisArmy)
 		{
 			// figure out the primary and secondary unit type to potentially build
-			int iFormationIndex = pThisArmy->GetFormationIndex();
-			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);
+			MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
+			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
 			if(thisFormation)
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
@@ -16263,6 +16259,7 @@ void CvCity::CheckForOperationUnits()
 										pUnit->finishMoves();
 									}
 
+									//assume the unit will be recruited automatically?
 									kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
 									CleanUpQueue();
@@ -16284,8 +16281,8 @@ void CvCity::CheckForOperationUnits()
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(!bAppend)
 							{
-								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(this);
-								m_unitBeingBuiltForOperation = thisOperationSlot2;
+								kPlayer.CityCommitToBuildUnitForOperationSlot(thisOperationSlot);
+								m_unitBeingBuiltForOperation = thisOperationSlot;
 								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 							}
 							//Log it
@@ -16307,7 +16304,7 @@ void CvCity::CheckForOperationUnits()
 			}
 		}
 	}
-	eBestUnit = kPlayer.GetMilitaryAI()->GetUnitForArmy(this);
+	eBestUnit = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(this);
 	if(eBestUnit != NO_UNIT)
 	{
 		if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
@@ -20788,8 +20785,8 @@ bool CvCity::DoRazingTurn()
 					if (bNotification)
 					{
 						//the former owner hates the razing and wants it back
-						if (!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
-							GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(plot(), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+						if (!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsInFocusArea(plot()))
+							GET_PLAYER(eFormerOwner).GetTacticalAI()->AddFocusArea(plot(), 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
 
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
@@ -27195,7 +27192,7 @@ const CvString CvCity::getName() const
 
 const CvString CvCity::getNameNoSpace() const
 {
-	CvString ret = m_strName.get();
+	CvString ret = getName();
 	ret.Replace(' ', '_');
 	return ret;
 }
@@ -30454,7 +30451,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		if(pLoopUnit != NULL)
 		{
 			// check stacking
@@ -33902,8 +33899,8 @@ UnitTypes CvCity::GetUnitForOperation()
 			}
 #endif
 			// figure out the primary and secondary unit type to potentially build
-			int iFormationIndex = pThisArmy->GetFormationIndex();
-			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);
+			MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
+			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
 			if(thisFormation)
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
@@ -34031,13 +34028,13 @@ bool CvCity::IsBusy() const
 //	---------------------------------------------------------------------------
 const CvUnit* CvCity::getCombatUnit() const
 {
-	return ::getUnit(m_combatUnit);
+	return ::GetPlayerUnit(m_combatUnit);
 }
 
 //	---------------------------------------------------------------------------
 CvUnit* CvCity::getCombatUnit()
 {
-	return ::getUnit(m_combatUnit);
+	return ::GetPlayerUnit(m_combatUnit);
 }
 
 //	---------------------------------------------------------------------------

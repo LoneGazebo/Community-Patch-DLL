@@ -32,8 +32,13 @@
 // PUBLIC FUNCTIONS
 
 /// Constructor
-CvAIOperation::CvAIOperation()
+CvAIOperation::CvAIOperation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, AIOperationTypes eType, ArmyType eMoveType)
 {
+	m_iID = iID;
+	m_eOwner = eOwner;
+	m_eEnemy = eEnemy;
+	m_eType = eType;
+	m_eArmyType = eMoveType;
 	Reset();
 }
 
@@ -44,7 +49,7 @@ CvAIOperation::~CvAIOperation()
 }
 
 /// Delete allocated objects
-void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
+void CvAIOperation::Reset()
 {
 	if(m_eOwner != NO_PLAYER)  //if this has been init'ed this should not happen
 	{
@@ -55,10 +60,7 @@ void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 		{
 			CvArmyAI* thisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
 			if(thisArmy)
-			{
-				DeleteArmyAI(m_viArmyIDs[uiI]);
 				thisArmy->Kill();
-			}
 		}
 	}
 
@@ -67,9 +69,6 @@ void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 	m_viListOfUnitsWeStillNeedToBuild.clear();
 	m_viListOfUnitsCitiesHaveCommittedToBuild.clear();
 
-	m_iID = iID;
-	m_eOwner = eOwner;
-	m_eEnemy = eEnemy;
 	m_eCurrentState = AI_OPERATION_STATE_INVALID;
 	m_eAbortReason = NO_ABORT_REASON;
 
@@ -81,12 +80,16 @@ void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 	m_iLastTurnMoved = -1;
 	m_iTurnStarted = -1;
 	m_iDistanceMusterToTarget = -1;
+	m_progressToTarget.clear();
 }
 
-/// How long will we wait for a recruit to show up?
-int CvAIOperation::GetMaximumRecruitTurnsBase() const
+bool CvAIOperation::IsOffensive() const
 {
-	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT();
+	CvPlot* pTargetPlot = GetTargetPlot();
+	if (!pTargetPlot)
+		return false;
+
+	return !pTargetPlot->IsFriendlyTerritory(m_eOwner);
 }
 
 /// How long will we wait for a recruit to show up?
@@ -94,7 +97,51 @@ int CvAIOperation::GetMaximumRecruitTurns() const
 {
 	//extend the range each turn
 	int iElapsedTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-	return GetMaximumRecruitTurnsBase() + iElapsedTurns;
+	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT() + iElapsedTurns/2;
+}
+
+const char * CvAIOperation::GetOperationName() const
+{
+	switch (m_eType)
+	{
+	case AI_OPERATION_FOUND_CITY:
+		return "OP_FOUND_CITY";
+	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
+		return "OP_KILL_BARBARIANS";
+	case AI_OPERATION_PILLAGE_ENEMY:
+		return "OP_PILLAGE";
+	case AI_OPERATION_CITY_ATTACK_LAND:
+		if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+			return "OP_CITY_ATTACK_LAND";
+		else
+			return "OP_CITY_ATTACK_LAND_SNEAKY";
+	case AI_OPERATION_CITY_ATTACK_NAVAL:
+		if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+			return "OP_CITY_ATTACK_NAVAL";
+		else
+			return "OP_CITY_ATTACK_NAVAL_SNEAKY";
+	case AI_OPERATION_CITY_ATTACK_COMBINED:
+		if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+			return "OP_CITY_ATTACK_COMBINED";
+		else
+			return "OP_CITY_ATTACK_COMBINED_SNEAKY";
+	case AI_OPERATION_CITY_DEFENSE:
+		return "OP_CITY_DEFENSE";
+	case AI_OPERATION_RAPID_RESPONSE:
+		return "OP_RAPID_RESPONSE";
+	case AI_OPERATION_NAVAL_SUPERIORITY:
+		return "OP_NAVAL_SUPERIORITY";
+	case AI_OPERATION_NUKE_ATTACK:
+		return "OP_NUKE";
+	case AI_OPERATION_MUSICIAN_CONCERT_TOUR:
+		return "OP_MUSICIAN";
+	case AI_OPERATION_MERCHANT_DELEGATION:
+		return "OP_MERCHANT";
+	case AI_OPERATION_DIPLOMAT_DELEGATION:
+		return "OP_DIPLOMAT";
+	}
+
+	return "UNKNOWN_OP_TYPE";
 }
 
 /// Retrieve plot targeted by this operation
@@ -113,31 +160,33 @@ void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 	{
 		m_iTargetX = INVALID_PLOT_COORD;
 		m_iTargetY = INVALID_PLOT_COORD;
-		return;
 	}
-
-	if ( pTarget!=GetTargetPlot() )
+	else
 	{
-		LogOperationSpecialMessage( CvString::format("setting new target (%d:%d)",pTarget->getX(),pTarget->getY()).c_str() );
-
-		//have to start moving again!
-		if (m_eCurrentState == AI_OPERATION_STATE_AT_TARGET)
+		if ( pTarget!=GetTargetPlot() )
 		{
-			m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
+			LogOperationSpecialMessage( CvString::format("setting new target (%d:%d)",pTarget->getX(),pTarget->getY()).c_str() );
+
+			//have to start moving again!
+			if (m_eCurrentState == AI_OPERATION_STATE_AT_TARGET)
 			{
-				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-				if(pThisArmy)
-					pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+				for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
+				{
+					CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
+					if(pThisArmy)
+						pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				}
 			}
 		}
-	}
 
-	m_iTargetX = pTarget->getX();
-	m_iTargetY = pTarget->getY();
+		m_iTargetX = pTarget->getX();
+		m_iTargetY = pTarget->getY();
+	}
 
 	//update the distance
 	m_iDistanceMusterToTarget = GetStepDistanceBetweenPlots(GetMusterPlot(),GetTargetPlot());
+	m_progressToTarget.clear();
 }
 
 /// Retrieve plot where this operation assembles
@@ -156,173 +205,93 @@ void CvAIOperation::SetMusterPlot(CvPlot* pMuster)
 	{
 		m_iMusterX = INVALID_PLOT_COORD;
 		m_iMusterX = INVALID_PLOT_COORD;
-		return;
 	}
-
-	m_iMusterX = pMuster->getX();
-	m_iMusterY = pMuster->getY();
+	else
+	{
+		m_iMusterX = pMuster->getX();
+		m_iMusterY = pMuster->getY();
+	}
 
 	//update the distance
 	m_iDistanceMusterToTarget = GetStepDistanceBetweenPlots(GetMusterPlot(),GetTargetPlot());
+	m_progressToTarget.clear();
 }
 
 int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 {
-	int iRtnValue = 1;
 	int iValidPlotsNearby = 0;
+	if (!pPlot)
+		return 1;
 
 	// Find out how many units are trying to gather
 	int iNumUnits = pArmy->GetNumSlotsFilled();
+	int iRange = (iNumUnits < 5) ? 4 : 3;
 
-	// If not more than 1, zero tolerance is fine (we should get the unit to the gather point)
-	if(iNumUnits < 1)
+	//naval needs more space without ocean travel.
+	if (IsNavalOperation() && !GET_PLAYER(pArmy->GetOwner()).CanCrossOcean())
+		iRange++;
+
+	for (int i=0; i<RING2_PLOTS; i++)
 	{
-		iRtnValue = 0;
-	}
-	else
-	{
-		int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNumUnits);
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot,i);
+		if (!pLoopPlot)
+			continue;
 
-		//naval needs more space without ocean travel.
-		if (IsNavalOperation() && !GET_PLAYER(pArmy->GetOwner()).CanCrossOcean())
-			iRange++;
+		if (!IsNavalOperation() && pLoopPlot->isWater())
+			continue;
 
-		for(int iX = -iRange; iX <= iRange; iX++)
-		{
-			for(int iY = -iRange; iY <= iRange; iY++)
-			{
-				CvPlot* pLoopPlot = GC.getMap().plot(pPlot->getX()+iX, pPlot->getY()+iY);
+		if (IsNavalOperation() && !pLoopPlot->isWater())
+			continue;
 
-				if (!pLoopPlot)
-					continue;
+		if (IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
+			continue;
 
-				if (!IsNavalOperation() && pLoopPlot->isWater())
-					continue;
-
-				if (IsNavalOperation() && !pLoopPlot->isWater())
-					continue;
-
-				if (IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
-					continue;
-
-				if (pLoopPlot->canPlaceCombatUnit(GetOwner()))
-					iValidPlotsNearby++;
-			}
-		}
-
-		// Find more valid plots than units?
-		if(iValidPlotsNearby > iNumUnits)
-		{
-			// If so, just use normal range for this many units
-			iRtnValue = iRange;
-		}
-		// Something constrained here, give ourselves a lot of leeway
-		else
-		{
-			iRtnValue = iRange + 1;
-		}
+		if (pLoopPlot->canPlaceCombatUnit(GetOwner()))
+			iValidPlotsNearby++;
 	}
 
-	return iRtnValue;
+	// Find more valid plots than units?
+	if (iValidPlotsNearby <= iNumUnits)
+		iRange++;
+
+	return iRange;
 }
 
 /// Factory method: you are responsible for cleaning up the operation created by this routine!
-CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
+CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 {
 	switch(eAIOperationType)
 	{
-	case AI_OPERATION_CITY_BASIC_ATTACK:
-		return FNEW(CvAIOperationCityBasicAttack(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_CITY_ATTACK_LAND:
+		return new CvAIOperationCityAttackLand(iID, eOwner, eEnemy);
+	case AI_OPERATION_CITY_ATTACK_NAVAL:
+		return new CvAIOperationCityAttackNaval(iID, eOwner, eEnemy);
+	case AI_OPERATION_CITY_ATTACK_COMBINED:
+		return new CvAIOperationCityAttackCombined(iID, eOwner, eEnemy);
 	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
-		return FNEW(CvAIOperationAntiBarbarian(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_FOUND_CITY:
-	case AI_OPERATION_FOUND_CITY_OVERSEAS: //should not be used anymore ...
-		return FNEW(CvAIOperationCivilianFoundCity(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_MERCHANT_DELEGATION:
-		return FNEW(CvAIOperationCivilianMerchantDelegation(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_DIPLOMAT_DELEGATION:
-		return FNEW(CvAIOperationCivilianDiplomatDelegation(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_ALLY_DEFENSE:
-		return FNEW(CvAIOperationDefendAlly(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CONCERT_TOUR:
-		return FNEW(CvAIOperationCivilianConcertTour(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_BOMBARDMENT:
-		return FNEW(CvAIOperationNavalBombardment(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_SUPERIORITY:
-		return FNEW(CvAIOperationNavalSuperiority(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
-		return FNEW(CvAIOperationNavalOnlyCityAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_FOUND_CITY_QUICK:
-		return FNEW(CvAIOperationCivilianFoundCityQuick(), c_eCiv5GameplayDLL, 0);
+		return new CvAIOperationAntiBarbarian(iID, eOwner, eEnemy);
 	case AI_OPERATION_PILLAGE_ENEMY:
-		return FNEW(CvAIOperationPillageEnemy(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_CLOSE_DEFENSE:
-		return FNEW(CvAIOperationDefendCity(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_BULLY_CITY_STATE:
-		return FNEW(CvAIOperationBullyCityState(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_BULLY_CITY_STATE:
-		return FNEW(CvAIOperationNavalBullyCityState(), c_eCiv5GameplayDLL, 0);
+		return new CvAIOperationPillageEnemy(iID, eOwner, eEnemy);
+	case AI_OPERATION_NAVAL_SUPERIORITY:
+		return new CvAIOperationNavalSuperiority(iID, eOwner, eEnemy);
+	case AI_OPERATION_CITY_DEFENSE:
+		return new CvAIOperationDefendCity(iID, eOwner, eEnemy);
 	case AI_OPERATION_RAPID_RESPONSE:
-		return FNEW(CvAIOperationDefenseRapidResponse(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_SNEAK_ATTACK:
-		return FNEW(CvAIOperationCitySneakAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_STATE_ATTACK:
-		return FNEW(CvAIOperationCityStateAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_INVASION:
-		return FNEW(CvAIOperationNavalInvasion(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_INVASION_SNEAKY:
-		return FNEW(CvAIOperationNavalInvasionSneaky(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
-		return FNEW(CvAIOperationNavalInvasionCityState(), c_eCiv5GameplayDLL, 0);
+		return new CvAIOperationDefenseRapidResponse(iID, eOwner, eEnemy);
 	case AI_OPERATION_NUKE_ATTACK:
-		return FNEW(CvAIOperationNukeAttack(), c_eCiv5GameplayDLL, 0);
+		return new CvAIOperationNukeAttack(iID, eOwner, eEnemy);
+	//civilian
+	case AI_OPERATION_FOUND_CITY:
+		return new CvAIOperationCivilianFoundCity(iID, eOwner, eEnemy);
+	case AI_OPERATION_MERCHANT_DELEGATION:
+		return new CvAIOperationCivilianMerchantDelegation(iID, eOwner, eEnemy);
+	case AI_OPERATION_DIPLOMAT_DELEGATION:
+		return new CvAIOperationCivilianDiplomatDelegation(iID, eOwner, eEnemy);
+	case AI_OPERATION_MUSICIAN_CONCERT_TOUR:
+		return new CvAIOperationCivilianConcertTour(iID, eOwner, eEnemy);
 	}
 
 	return 0;
-}
-
-/// Compile a list of all the units we need
-void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
-{
-	m_viListOfUnitsCitiesHaveCommittedToBuild.clear();
-	m_viListOfUnitsWeStillNeedToBuild.clear();
-
-	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
-	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
-	{
-		CvArmyAI* pThisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
-		// if it is still waiting on initial units
-		if(pThisArmy && pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-		{
-			int iThisFormationIndex = pThisArmy->GetFormationIndex();
-			if(iThisFormationIndex != NO_MUFORMATION)
-			{
-				CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
-				if(thisFormation)
-				{
-					for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
-					{
-						//is it still open?
-						if (pThisArmy->GetFormationSlot(iThisSlotIndex)->GetUnitID()<0)
-							m_viListOfUnitsWeStillNeedToBuild.push_back(OperationSlot(m_iID,m_viArmyIDs[uiI],iThisSlotIndex));
-					}
-				}
-			}
-			else
-			{
-#if defined(MOD_BALANCE_CORE)
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("ERROR - No Formation Type for Army!! Eek!");
-					LogOperationSpecialMessage(strMsg);
-				}
-#endif
-				// punt -- sub-class should be taking care of this
-				CvAssertMsg(false,"A sub-class should have dealt with this");
-			}
-		}
-	}
 }
 
 /// Find out the next item to build for this operation
@@ -335,20 +304,23 @@ OperationSlot CvAIOperation::PeekAtNextUnitToBuild()
 }
 
 /// Called by a city when it decides to build a unit
-OperationSlot CvAIOperation::CommitToBuildNextUnit()
+bool CvAIOperation::CommitToBuildNextUnit(OperationSlot slot)
 {
-	OperationSlot thisSlot;
-	if(!m_viListOfUnitsWeStillNeedToBuild.empty())
+	for (std::deque<OperationSlot>::iterator it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
 	{
-		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
-		m_viListOfUnitsWeStillNeedToBuild.pop_front();
-		m_viListOfUnitsCitiesHaveCommittedToBuild.push_back(thisSlot);
+		if (*it == slot)
+		{
+			m_viListOfUnitsCitiesHaveCommittedToBuild.push_back(slot);
+			m_viListOfUnitsWeStillNeedToBuild.erase(it);
+			return true;
+		}
 	}
-	return thisSlot;
+
+	return false;
 }
 
 /// Called by a city when it decides NOT to build a unit (that it had previously committed to)
-bool CvAIOperation::UncommitToBuild(OperationSlot thisOperationSlot)
+bool CvAIOperation::UncommitToBuildUnit(OperationSlot thisOperationSlot)
 {
 	// find the operation in the list of committed units
 	std::vector<OperationSlot>::iterator iter = find(m_viListOfUnitsCitiesHaveCommittedToBuild.begin(),m_viListOfUnitsCitiesHaveCommittedToBuild.end(),thisOperationSlot);
@@ -365,7 +337,7 @@ bool CvAIOperation::UncommitToBuild(OperationSlot thisOperationSlot)
 }
 
 /// Called by a city after a unit is done training
-bool CvAIOperation::FinishedBuilding(OperationSlot thisOperationSlot)
+bool CvAIOperation::FinishedBuildingUnit(OperationSlot thisOperationSlot)
 {
 	// find the operation in the list of committed units
 	std::vector<OperationSlot>::iterator iter = find(m_viListOfUnitsCitiesHaveCommittedToBuild.begin(),m_viListOfUnitsCitiesHaveCommittedToBuild.end(),thisOperationSlot);
@@ -392,11 +364,11 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 
 	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI( m_viArmyIDs[0] );
 
-	int iThisFormationIndex = pThisArmy->GetFormationIndex();
-	if(iThisFormationIndex == NO_MUFORMATION)
+	MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
+	if(eFormation == NO_MUFORMATION)
 		return false;
 
-	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
+	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
 	if (!thisFormation)
 		return false;
 
@@ -444,53 +416,46 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 
 	SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
 	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+	vector<int> freeSlots = pThisArmy->GetOpenSlots(false);
+	vector<pair<int,CvFormationSlotEntry>> freeSlotInfo;
+	for (size_t i = 0; i < freeSlots.size(); i++)
+		freeSlotInfo.push_back( make_pair(freeSlots[i],pThisArmy->GetSlotInfo(freeSlots[i])) );
 
-	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,thisFormation))
+	int iIndex = OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit, turnsFromMuster, IsNavalOperation(), bMustBeDeepWaterNaval, freeSlotInfo);
+	if (iIndex>=0)
 	{
-		std::deque<OperationSlot>::iterator it;
-		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
+		pThisArmy->AddUnit(pUnit->GetID(), freeSlotInfo[iIndex].first, freeSlotInfo[iIndex].second.m_requiredSlot);
+		//stupid but true
+		for (std::deque<OperationSlot>::iterator it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
 		{
-			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(it->m_iSlotID);
-			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(it->m_iSlotID);
-			if (pSlot && pSlot->IsFree())
+			if (it->m_iSlotID == iIndex)
 			{
-				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
-				{
-					//we have a match!
-					pThisArmy->AddUnit(pUnit->GetID(), it->m_iSlotID);
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						if (pMusterPlot != NULL && pTargetPlot != NULL)
-						{
-							strMsg.Format("Recruited %s %d to fill in a new army at x=%d y=%d, target of x=%d y=%d", pUnit->getName().GetCString(), pUnit->GetID(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogOperationSpecialMessage(strMsg);
-						}
-					}
-
-					m_viListOfUnitsWeStillNeedToBuild.erase(it);
-					return true;
-				}
+				m_viListOfUnitsWeStillNeedToBuild.erase(it);
+				break;
 			}
 		}
+		return true;
 	}
 
 	return false;
 }
 
-bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pArmy)
+int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pArmy)
 {
 	if (!pMusterPlot || !pTargetPlot || pArmy == NULL)
 		return false;
 
+	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormation());
+	vector<int> freeSlots = pArmy->GetOpenSlots(false);
 	//anything to do?
-	if (m_viListOfUnitsWeStillNeedToBuild.empty())
+	if (freeSlots.empty())
 		return true;
 
-	int iExtraUnits = 0; //optional slot but filled
-	CvString strMsg;
+	vector<pair<int,CvFormationSlotEntry>> freeSlotInfo;
+	for (size_t i = 0; i < freeSlots.size(); i++)
+		freeSlotInfo.push_back( make_pair(freeSlots[i],pArmy->GetSlotInfo(freeSlots[i])) );
 
-	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
+	vector<OptionWithScore<int>> choices;
 	if (IsNavalOperation())
 	{
 		bool bMustBeDeepWaterNaval = pArmy->NeedOceanMoves();
@@ -503,11 +468,10 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns());
 			ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
-			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
 			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 			{
-				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,thisFormation,pArmy))
+				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit, turnsFromMuster, true, bMustBeDeepWaterNaval, freeSlotInfo) >= 0)
 				{
 					int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 					int iTurnsToReachCheckpoint = pLoopUnit->TurnsToReachTarget(pMusterPlot, iFlags, GetMaximumRecruitTurns());
@@ -518,51 +482,16 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
 						iTurnsToReachCheckpoint++;
 
-					UnitChoices.push_back(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() - iTurnsToReachCheckpoint *30);
+					choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() - iTurnsToReachCheckpoint * 30));
 				}
 			}
 
 			if (GC.getLogging() && GC.getAILogging())
 			{
-				if (pMusterPlot != NULL && pTargetPlot != NULL)
-				{
-					strMsg.Format("Found %d potential units to recruit for operation %d at x=%d y=%d, target of x=%d y=%d", 
-						UnitChoices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-					LogOperationSpecialMessage(strMsg);
-				}
-			}
-
-			if (UnitChoices.size()==0 && pArmy->GetNumSlotsFilled() <= 0)
-			{ 
-				SetToAbort(AI_ABORT_NO_UNITS);
-				return false;
-			}
-
-			UnitChoices.SortItems();
-
-			//rebuild the list
-			m_viListOfUnitsWeStillNeedToBuild.clear();
-			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
-				if (!pSlot)
-					return false;
-
-				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-				if (pSlot->IsFree())
-				{
-					OperationSlot opSlot(m_iID, pArmy->GetID(), iI);
-					if (!FindBestFitReserveUnit(opSlot, UnitChoices))
-					{
-						if (thisSlotEntry.m_requiredSlot)
-							m_viListOfUnitsWeStillNeedToBuild.push_back(opSlot);
-					}
-				}
-				else
-				{
-					if (!thisSlotEntry.m_requiredSlot)
-						iExtraUnits++;
-				}
+				CvString strMsg;
+				strMsg.Format("Found %d potential units to recruit for naval operation %d at (%d:%d) with target at (%d:%d)",
+					choices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+				LogOperationSpecialMessage(strMsg);
 			}
 		}
 		else
@@ -573,14 +502,13 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	}
 	else //non-naval operation
 	{
-		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GetMaximumRecruitTurns());
+		SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns());
 		ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
-		WeightedUnitIdVector UnitChoices;
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 		{
-			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,thisFormation))
+			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit, turnsFromMuster, false, false, freeSlotInfo) >= 0)
 			{
 				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 				int iTurnsToReachCheckpoint = pLoopUnit->TurnsToReachTarget(pMusterPlot, iFlags, GetMaximumRecruitTurns());
@@ -591,56 +519,48 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 				if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
 					iTurnsToReachCheckpoint++;
 
-				UnitChoices.push_back(pLoopUnit->GetID(), 1000 + pLoopUnit->GetPower() - iTurnsToReachCheckpoint*10);
+				choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() - iTurnsToReachCheckpoint * 10));
 			}
 		}
 
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			if (pMusterPlot != NULL && pTargetPlot != NULL)
-			{
-				strMsg.Format("Found %d potential units to recruit for operation %d at x=%d y=%d, target of x=%d y=%d", 
-					UnitChoices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
-				LogOperationSpecialMessage(strMsg);
-			}
+			CvString strMsg;
+			strMsg.Format("Found %d potential units to recruit for land operation %d at (%d:%d) with target at (%d:%d)",
+				choices.size(), m_iID, pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
+			LogOperationSpecialMessage(strMsg);
 		}
+	}
 
-		if (UnitChoices.size()==0 && pArmy->GetNumSlotsFilled() <= 0)
-		{ 
-			SetToAbort(AI_ABORT_NO_UNITS);
+	if (choices.empty() && pArmy->GetNumSlotsFilled() <= 0)
+	{ 
+		SetToAbort(AI_ABORT_NO_UNITS);
+		return false;
+	}
+
+	std::sort(choices.begin(),choices.end());
+
+	//rebuild the list
+	m_viListOfUnitsWeStillNeedToBuild.clear();
+	for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
+	{
+		CvArmyFormationSlot* pSlot = pArmy->GetSlotStatus(iI);
+		if (!pSlot)
 			return false;
-		}
 
-		UnitChoices.SortItems();
-
-		//rebuild the list
-		m_viListOfUnitsWeStillNeedToBuild.clear();
-		for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
+		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+		if (pSlot->IsFree())
 		{
-			CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
-			if (!pSlot)
-				return false;
-
-			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-			if (pSlot->IsFree())
+			OperationSlot opSlot(m_iID, pArmy->GetID(), iI);
+			if (!FindBestFitReserveUnit(opSlot, choices))
 			{
-				OperationSlot opSlot(m_iID, pArmy->GetID(), iI);
-				if (!FindBestFitReserveUnit(opSlot, UnitChoices))
-				{
-					if (thisSlotEntry.m_requiredSlot)
-						m_viListOfUnitsWeStillNeedToBuild.push_back(opSlot);
-				}
-			}
-			else
-			{
-				if (!thisSlotEntry.m_requiredSlot)
-					iExtraUnits++;
+				if (thisSlotEntry.m_requiredSlot)
+					m_viListOfUnitsWeStillNeedToBuild.push_back(opSlot);
 			}
 		}
 	}
 
-	//two optional units can make up for one required unit
-	return (size_t)iExtraUnits>=2*m_viListOfUnitsWeStillNeedToBuild.size();
+	return (int)m_viListOfUnitsWeStillNeedToBuild.size();
 }
 
 CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const
@@ -742,7 +662,7 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot*
 }
 
 /// Report percentage distance traveled from muster point to target (using army that is furthest along)
-int CvAIOperation::PercentFromMusterPointToTarget()
+int CvAIOperation::PercentFromMusterPointToTarget() const
 {
 	int iRtnValue = 0;
 
@@ -808,21 +728,27 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
 bool CvAIOperation::ShouldAbort()
 {
+	//failsafe in case we're stuck somehow
 	int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-
-	if (m_eCurrentState < AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurnsBase())
+	if (iTurns > 50)
+	{
 		SetToAbort(AI_ABORT_TIMED_OUT);
+		return true;
+	}
 
-	if (m_eCurrentState >= AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurnsBase()*4)
-		SetToAbort(AI_ABORT_TIMED_OUT);
+	if (GetEnemy() != NO_PLAYER)
+	{
+		CvTeam& enemyTeam = GET_TEAM(GET_PLAYER(GetEnemy()).getTeam());
+		if (enemyTeam.IsVassalOfSomeone() && !enemyTeam.isAtWar(GET_PLAYER(m_eOwner).getTeam()))
+		{
+			SetToAbort(AI_ABORT_TARGET_NOT_VALID);
+			return true;
+		}
+	}
 
 	CvPlot* pMuster = GetMusterPlot();
 	if (pMuster)
 	{
-		//the muster plot should be in friendly territory initially. if not, we are victims of a counterattack and should abort
-		if (GET_PLAYER(m_eOwner).IsAtWarWith(pMuster->getOwner()))
-			SetToAbort(AI_ABORT_TOO_DANGEROUS);
-
 		//for offensive ops, we even need the muster plot to be in a friendly zone
 		CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pMuster);
 		if (IsOffensive() && pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
@@ -891,6 +817,7 @@ void CvAIOperation::Kill()
 	LogOperationEnd();
 	Reset();
 
+	//this calls the destructor
 	GET_PLAYER(eOwner).deleteAIOperation(iID);
 }
 
@@ -907,7 +834,13 @@ bool CvAIOperation::Move()
 		return false;
 	}
 
+	//recruit more units if needed
+	if (pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+		GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pThisArmy);
+
+	//drop any units which have become stuck
 	pThisArmy->UpdateCheckpointTurnsAndRemoveBadUnits();
+
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
@@ -919,13 +852,15 @@ bool CvAIOperation::Move()
 	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false,&fOldVarX,&fOldVarY);
 
 	//todo: move the relevant code from tactical AI to operations
-	switch (GetMoveType())
+	switch (GetArmyType())
 	{
-	case AI_OPERATION_MOVETYPE_ESCORT:
+	case ARMY_TYPE_ESCORT_LAND:
+	case ARMY_TYPE_ESCORT_SEA:
 		GET_PLAYER(m_eOwner).GetTacticalAI()->PlotArmyMovesEscort(pThisArmy);
 		break;
-	case AI_OPERATION_MOVETYPE_COMBAT:
-	case AI_OPERATION_MOVETYPE_COMBAT_ESCORT:
+	case ARMY_TYPE_LAND:
+	case ARMY_TYPE_NAVAL:
+	case ARMY_TYPE_COMBINED:
 		GET_PLAYER(m_eOwner).GetTacticalAI()->PlotArmyMovesCombat(pThisArmy);
 		break;
 	default:
@@ -1022,7 +957,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 		{
 			// If down below half strength, abort
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(iArmyID);
-			CvMultiUnitFormationInfo* pkFormation = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+			CvMultiUnitFormationInfo* pkFormation = GC.getMultiUnitFormationInfo(pThisArmy->GetFormation());
 			if(pkFormation)
 			{
 				int iNumRequiredSlots = 0;
@@ -1083,8 +1018,8 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 						return NULL;
 				}
 
-				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCurrent, pGoalPlot, pArmy->GetMovementRate(), true);
+				//get where we want to be next. always put the carrot a little bit further out
+				pRtnValue = GetPlotXInStepPath(pCurrent, pGoalPlot, pArmy->GetMovementRate()+1, true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
@@ -1120,7 +1055,7 @@ bool CvAIOperation::BuyFinalUnit()
 		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
 		if (!pArmy)
 			return false;
-		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
+		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormation());
 		if (!thisFormation)
 			return false;
 		const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisSlot.m_iSlotID);
@@ -1128,7 +1063,7 @@ bool CvAIOperation::BuyFinalUnit()
 		CvUnit* pUnit = GET_PLAYER(m_eOwner).GetMilitaryAI()->BuyEmergencyUnit(thisSlotEntry.m_primaryUnitType, pCity);
 		if(pUnit != NULL)
 		{
-			pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID);
+			pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID, true);
 			m_viListOfUnitsWeStillNeedToBuild.pop_front();
 
 			if (m_viListOfUnitsWeStillNeedToBuild.empty() && m_viListOfUnitsCitiesHaveCommittedToBuild.empty())
@@ -1150,19 +1085,23 @@ void CvAIOperation::Read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iID;
+	kStream >> m_eType;
+	kStream >> m_eArmyType;
 	kStream >> m_eOwner;
 	kStream >> m_eEnemy;
 	kStream >> m_eCurrentState;
+	kStream >> m_eAbortReason;
 	kStream >> m_iTargetX;
 	kStream >> m_iTargetY;
 	kStream >> m_iMusterX;
 	kStream >> m_iMusterY;
+	kStream >> m_iTurnStarted;
 	kStream >> m_iLastTurnMoved;
 	kStream >> m_viArmyIDs;
 	kStream >> m_viListOfUnitsWeStillNeedToBuild;
 	kStream >> m_viListOfUnitsCitiesHaveCommittedToBuild;
-	kStream >> m_iTurnStarted;
 	kStream >> m_iDistanceMusterToTarget;
+	//kStream >> m_progressToTarget;
 }
 
 /// Write serialized data
@@ -1174,19 +1113,23 @@ void CvAIOperation::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iID;
+	kStream << m_eType;
+	kStream << m_eArmyType;
 	kStream << m_eOwner;
 	kStream << m_eEnemy;
 	kStream << m_eCurrentState;
+	kStream << m_eAbortReason;
 	kStream << m_iTargetX;
 	kStream << m_iTargetY;
 	kStream << m_iMusterX;
 	kStream << m_iMusterY;
+	kStream << m_iTurnStarted;
 	kStream << m_iLastTurnMoved;
 	kStream << m_viArmyIDs;
 	kStream << m_viListOfUnitsWeStillNeedToBuild;
 	kStream << m_viListOfUnitsCitiesHaveCommittedToBuild;
-	kStream << m_iTurnStarted;
 	kStream << m_iDistanceMusterToTarget;
+	//kStream << m_progressToTarget;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -1258,7 +1201,7 @@ void CvAIOperation::LogOperationStart() const
 		for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 		{
 			CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-			strTemp1.Format("Started, Army: %d, Units Recruited: %d, Max Formation Size: %d, ", pThisArmy->GetID(), pThisArmy->GetNumSlotsFilled(), pThisArmy->GetNumFormationEntries());
+			strTemp1.Format("Started Army %d, Units Recruited: %d, Max Formation Size: %d, ", pThisArmy->GetID(), pThisArmy->GetNumSlotsFilled(), pThisArmy->GetNumFormationEntries());
 		}
 
 		strOutBuf = strBaseString + strTemp1;
@@ -1290,33 +1233,6 @@ void CvAIOperation::LogOperationStart() const
 		strOutBuf += strTemp2;
 
 		pLog->Msg(strOutBuf);
-
-		// Message to summary log?
-		switch (GetOperationType())
-		{
-		case AI_OPERATION_CITY_BASIC_ATTACK:
-		case AI_OPERATION_PILLAGE_ENEMY:
-		case AI_OPERATION_CITY_SNEAK_ATTACK:
-		case AI_OPERATION_NAVAL_BOMBARDMENT:
-		case AI_OPERATION_NAVAL_SUPERIORITY:
-		case AI_OPERATION_NAVAL_INVASION:
-		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
-		case AI_OPERATION_CITY_STATE_ATTACK:
-		case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
-		case AI_OPERATION_NUKE_ATTACK:
-		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
-		case AI_OPERATION_DIPLOMAT_DELEGATION:
-		case AI_OPERATION_ALLY_DEFENSE:
-			
-			strOutBuf = CvString( GetOperationName() ) + ", ";
-			strOutBuf += strTemp1 + strTemp2;
-			if (m_eEnemy != NO_PLAYER)
-			{
-				strPlayerName = GET_PLAYER(m_eEnemy).getCivilizationShortDescription();
-				strOutBuf += ", vs. " + strPlayerName;
-			}
-			LogOperationSpecialMessage(strOutBuf);
-		}
 	}
 }
 
@@ -1351,12 +1267,12 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-				szTemp2.Format("Recruiting Units, Army: %d, ", pThisArmy->GetID());
+				szTemp2.Format("Recruiting Units for army %d, ", pThisArmy->GetID());
 				strTemp += szTemp2;
 
 				for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 				{
-					CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+					CvArmyFormationSlot* pSlot = pThisArmy->GetSlotStatus(iI);
 					if(pSlot->IsFree())
 					{
 						szTemp2 = "Open, ";
@@ -1371,7 +1287,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 						if(pThisUnit)
 						{
 							szTemp2.Format("%s %d at (%d:%d) - ETA %d, ", 
-								pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY(), pSlot->GetTurnsToCheckpoint());
+								pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY(), pSlot->GetTurnsToCheckpoint(0));
 						}
 					}
 
@@ -1387,15 +1303,8 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 				//we don't really need the center of mass but the variance
 				float varX=-1,varY=-1;
 				pThisArmy->GetCenterOfMass(false,&varX,&varY);
-				szTemp2.Format("Gathering Forces, Army: %d, Gather (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
+				szTemp2.Format("Gathering Forces for army %d, center (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
 				strTemp += szTemp2;
-				CvUnit* pUnit = pThisArmy->GetFirstUnit();
-				while(pUnit)
-				{
-					szTemp2.Format("%s %d at (%d:%d),", pUnit->getName().GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-					strTemp += szTemp2;
-					pUnit = pThisArmy->GetNextUnit(pUnit);
-				}
 			}
 			break;
 		case AI_OPERATION_STATE_MOVING_TO_TARGET:
@@ -1403,15 +1312,8 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-				szTemp2.Format("Moving To Target, Army: %d, At (%d:%d), To (%d:%d), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), m_iTargetX, m_iTargetY);
+				szTemp2.Format("Moving To Target with Army %d, center (%d:%d), target (%d:%d), Progress %d percent", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), m_iTargetX, m_iTargetY, PercentFromMusterPointToTarget());
 				strTemp += szTemp2;
-				CvUnit* pUnit = pThisArmy->GetFirstUnit();
-				while(pUnit)
-				{
-					szTemp2.Format("%s %d at (%d:%d), ", pUnit->getName().GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-					strTemp += szTemp2;
-					pUnit = pThisArmy->GetNextUnit(pUnit);
-				}
 			}
 			break;
 		case AI_OPERATION_STATE_AT_TARGET:
@@ -1502,7 +1404,6 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 
 	//this is for the operation
 	SetTurnStarted(GC.getGame().getGameTurn());
-	LogOperationStart();
 	SetTargetPlot(pTargetPlot);
 	SetMusterPlot(pMusterPlot);
 
@@ -1518,7 +1419,7 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	pArmyAI->SetOceanMoves(bOceanMoves);
 
 	if (pInitialUnit)
-		pArmyAI->AddUnit(pInitialUnit->GetID(),0);
+		pArmyAI->AddUnit(pInitialUnit->GetID(),0,true);
 
 	if (bSkipRecruiting && pInitialUnit)
 	{
@@ -1533,15 +1434,14 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 		LogOperationSpecialMessage("Initial stage is recruiting");
 	}
 
-	// Find the list of units we need to build before starting this operation in earnest
-	BuildListOfUnitsWeStillNeedToBuild();
+	//recruit units
+	GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pArmyAI);
 
 	//see if we can switch to gathering stage
-	CheckTransitionToNextStage();
-	//maybe we can even switch to movement stage
-	CheckTransitionToNextStage();
+	if (CheckTransitionToNextStage())
+		//maybe we can even switch to movement stage
+		CheckTransitionToNextStage();
 
-	//do it again to see whether recruitment was successful
 	LogOperationStart();
 	return true;
 }
@@ -1555,13 +1455,13 @@ CvArmyAI * CvAIOperation::AddArmy()
 	m_viArmyIDs.push_back(pArmyAI->GetID());
 	pArmyAI->SetOperationID(m_iID);
 	pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
-	pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
-	pArmyAI->SetFormationIndex(GetFormation());
+	pArmyAI->SetType(m_eArmyType);
+	pArmyAI->SetFormation(GetFormation());
 	return pArmyAI;
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices)
+bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 	CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -1569,7 +1469,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 	if(!pThisArmy)
 		return false;
 
-	int iThisFormationIndex = pThisArmy->GetFormationIndex();
+	int iThisFormationIndex = pThisArmy->GetFormation();
 	if(iThisFormationIndex == NO_MUFORMATION)
 		return false;
 
@@ -1577,7 +1477,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 	if (!thisFormation)
 		return false;
 
-	CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(thisOperationSlot.m_iSlotID);
+	CvArmyFormationSlot* pSlot = pThisArmy->GetSlotStatus(thisOperationSlot.m_iSlotID);
 	if (!pSlot)
 		return false;
 
@@ -1610,18 +1510,18 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 		*/
 	}
 
-	for (int iI=0; iI<UnitChoices.size(); iI++)
+	for (size_t iI=0; iI<choices.size(); iI++)
 	{
-		CvUnit* pBestUnit = GET_PLAYER(m_eOwner).getUnit(UnitChoices.GetElement(iI));
+		CvUnit* pBestUnit = GET_PLAYER(m_eOwner).getUnit(choices[iI].option);
 		if (pBestUnit != NULL)
 		{
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pBestUnit->getUnitType());
 			if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 			{
-				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
+				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID, thisSlotEntry.m_requiredSlot);
 
-				//overwrite with invalid ID so we don't use it a second time
-				UnitChoices.SetElement(iI,-1);
+				//remove it so we don't use it a second time
+				choices.erase(choices.begin() + iI);
 
 				return true;
 			}
@@ -1631,33 +1531,20 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 	return false;
 }
 
-FDataStream& operator<<(FDataStream& saveTo, const AIOperationMovementType& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-FDataStream& operator>>(FDataStream& loadFrom, AIOperationMovementType& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<AIOperationMovementType>(v);
-	return loadFrom;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperation
 ////////////////////////////////////////////////////////////////////////////////
 
 /// How long will we wait for a recruit to show up?
-int CvAIOperationOffensive::GetMaximumRecruitTurnsBase() const
+int CvAIOperationMilitary::GetMaximumRecruitTurns() const
 {
 	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY();
 }
 
-AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+AIOperationAbortReason CvAIOperationMilitary::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
 	//should we be concentrating on defense instead?
-	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(false);
+	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(false, IsNavalOperation());
 	if (pTroubleSpot)
 	{
 		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
@@ -1674,29 +1561,54 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 	}
 
 	//somebody unexpected owning the target? abort. don't check for war, that would break sneak attacks
-	if (GetTargetPlot()->getOwner()!=m_eEnemy)
+	if (GetTargetPlot()->isOwned() && GetTargetPlot()->getOwner()!=m_eEnemy)
 		return AI_ABORT_TARGET_ALREADY_CAPTURED;
 
 	return NO_ABORT_REASON;
 }
 
 //sometimes we don't really mean it
-bool CvAIOperationOffensive::IsShowOfForce() const
+bool CvAIOperationMilitary::IsShowOfForce() const
 {
 	return GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND;
 }
 
-/// Kick off this operation
-void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
+MultiunitFormationTypes CvAIOperationMilitary::GetFormation() const
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
+	switch (m_eType)
+	{
+	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
+		return MUFORMATION_ANTI_BARBARIAN_TEAM;
 
+	case AI_OPERATION_PILLAGE_ENEMY:
+		return MUFORMATION_FAST_PILLAGERS;
+
+	case AI_OPERATION_CITY_ATTACK_LAND:
+		return MilitaryAIHelpers::GetCurrentBestFormationTypeForLandAttack();
+
+	case AI_OPERATION_CITY_ATTACK_COMBINED:
+		return MilitaryAIHelpers::GetCurrentBestFormationTypeForCombinedAttack();
+
+	case AI_OPERATION_CITY_ATTACK_NAVAL:
+		return MilitaryAIHelpers::GetCurrentBestFormationTypeForPureNavalAttack();
+
+	case AI_OPERATION_NAVAL_SUPERIORITY:
+		return MUFORMATION_NAVAL_SQUADRON;
+
+	default:
+		OutputDebugString("warning, no formation for unexpected operation type\n");
+		return NO_MUFORMATION;
+	}
+}
+
+/// Kick off this operation
+void CvAIOperationMilitary::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
+{
 	if (!pTarget)
 		return;
 
 	if (!pMuster)
-		pMuster = GET_PLAYER(eOwner).GetClosestCity(pTarget->plot(),23,true);
+		pMuster = GET_PLAYER(m_eOwner).GetClosestCity(pTarget->plot(),23,true);
 
 	if (!pMuster)
 		return;
@@ -1705,45 +1617,17 @@ void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnem
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationCityBasicAttack
+// CvAIOperationCityAttackLand
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationCityBasicAttack::CvAIOperationCityBasicAttack()
-{
-}
-
-/// Destructor
-CvAIOperationCityBasicAttack::~CvAIOperationCityBasicAttack()
-{
-}
 
 /// Kick off this operation
-void CvAIOperationCityBasicAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
+void CvAIOperationCityAttackLand::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
 	if (!pMuster || !pTarget)
 		return;
 
 	SetupWithSingleArmy(pMuster->plot(),pTarget->plot());
-}
-
-MultiunitFormationTypes CvAIOperationCityBasicAttack::GetFormation() const
-{
-	//varies with era
-	return MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack();
-}
-
-/// Allows an outside class to terminate the operation
-void CvAIOperationMilitary::SetToAbort(AIOperationAbortReason eReason)
-{
-	if(eReason == AI_ABORT_LOST_TARGET || eReason == AI_ABORT_NO_ROOM_DEPLOY || eReason == AI_ABORT_NO_MUSTER || eReason == AI_ABORT_LOST_PATH)
-		// Clear cached targets so we don't do this over and over.
-		GET_PLAYER(GetOwner()).GetMilitaryAI()->ClearCachedTargets();
-
-	CvAIOperation::SetToAbort(eReason);
 }
 
 bool CvAIOperationMilitary::CheckTransitionToNextStage()
@@ -1761,49 +1645,68 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 	{
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pThisArmy))
+			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
 				LogOperationSpecialMessage("Transition to gathering stage");
 				bStateChanged = true;
 			}
-			else if (pThisArmy->GetNumSlotsFilled() > 3)
+
+			//if we have an initial cluster of units, everyone should go there
+			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+			float fX = 0, fY = 0;
+			CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
+			if (pCoM && fX < iGatherTolerance && fY < iGatherTolerance && GetMusterPlot() && GetTargetPlot())
 			{
-				//if we already have a significant amount of units and they are close together, move the muster plot there
-				float fX = 0, fY = 0;
-				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
-				if (fX < 10 && fY < 10 && plotDistance(*pCoM,*GetTargetPlot())<plotDistance(*GetMusterPlot(),*GetTargetPlot()))
+				//be a bit careful, don't have units hanging around just anywhere
+				if (plotDistance(*pCoM,*GetTargetPlot())<plotDistance(*GetMusterPlot(),*GetTargetPlot()) &&	pCoM->getOwner() == m_eOwner)
 					SetMusterPlot(pCoM);
 			}
+
+
 			break;
 		}
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
-			if(GetMusterPlot() != NULL)
+			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+			float fX = 0, fY = 0;
+			CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
+			if (fX < iGatherTolerance && fY < iGatherTolerance)
 			{
-				int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-				if(pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= iGatherTolerance)
-				{
-					pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-					m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-					LogOperationSpecialMessage("Transition to movement stage");
-					bStateChanged = true;
-				}
+				//put the muster plot where our units are and go straight to movement phase
+				SetMusterPlot(pCoM);
+			}
+
+			if(pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= iGatherTolerance)
+			{
+				pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+				LogOperationSpecialMessage("Transition to movement stage");
+				bStateChanged = true;
 			}
 			break;
 		}
 		case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
+			//check progress but tolerate intermittent stalls
+			m_progressToTarget.push_front(PercentFromMusterPointToTarget());
+			if (m_progressToTarget.size() > 5)
+			{
+				m_progressToTarget.pop_back();
+				if (m_progressToTarget.front() <= m_progressToTarget.back())
+					LogOperationSpecialMessage("No progress to target");
+			}
+
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if (pCenterOfMass && pTarget && IsOffensive())
+			if (pCenterOfMass && pTarget)
 			{
 				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange());
 
 				//check for nearby enemy (for sneak attacks)
-				if (!bInPlace && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
+				if (!bInPlace && GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
 				{
 					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))
@@ -1812,7 +1715,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 							nVisible++;
 					}
 
-					//the jig is up
+					//the jig is up - happens also if we run up against the enemy border
 					if (nVisible>2)
 					{
 						LogOperationSpecialMessage("Discovered by enemy");
@@ -1837,7 +1740,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				if(bInPlace)
 				{
 					// Notify Diplo AI we're in place for attack (unless this is just for show)
-					if(!IsShowOfForce() && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+					if(!IsShowOfForce() && GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetArmyInPlaceForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
@@ -1870,32 +1773,37 @@ CvPlot* CvAIOperationMilitary::FindBestTarget(CvPlot** ppMuster) const
 // CvAIOperationAntiBarbarian
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationAntiBarbarian::CvAIOperationAntiBarbarian()
+void CvAIOperationAntiBarbarian::Init(int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
 {
-	m_iUnitToRescue = -1;
-}
-
-/// Destructor
-CvAIOperationAntiBarbarian::~CvAIOperationAntiBarbarian()
-{
-}
-
-void CvAIOperationAntiBarbarian::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,BARBARIAN_PLAYER);
-
 	CvPlot* pMuster = NULL;
 	CvPlot* pTarget = FindBestTarget(&pMuster);
 
 	SetupWithSingleArmy(pMuster,pTarget);
 }
 
+bool CvAIOperationAntiBarbarian::PreconditionsAreMet(CvPlot* pMuster, int iMaxMissingUnits)
+{
+	//overwrite pMuster (should be null anyway)
+	CvPlot* pTarget = FindBestTarget(&pMuster);
+	if (!pTarget || !pMuster)
+		return false;
+
+	if (!CvAIOperation::PreconditionsAreMet(pMuster, iMaxMissingUnits))
+		return false;
+
+	return true;
+}
+
 /// How close to target do we end up?
 int CvAIOperationAntiBarbarian::GetDeployRange() const
 {
 	return GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE();
+}
+
+int CvAIOperationAntiBarbarian::GetMaximumRecruitTurns() const
+{
+	//don't block units in partial armies early on
+	return 4;
 }
 
 /// Read serialized data
@@ -1927,46 +1835,32 @@ void CvAIOperationAntiBarbarian::Write(FDataStream& kStream) const
 /// Find the barbarian camp we want to eliminate
 CvPlot* CvAIOperationAntiBarbarian::FindBestTarget(CvPlot** ppMuster) const
 {
-	return OperationalAIHelpers::FindBestBarbCamp(m_eOwner,ppMuster);
+	return OperationalAIHelpers::FindClosestBarbarianCamp(m_eOwner,ppMuster);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationPillageEnemy
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationPillageEnemy::CvAIOperationPillageEnemy()
+void CvAIOperationPillageEnemy::Init(int /*iAreaID*/, CvCity*, CvCity*, bool /*bOceanMoves */)
 {
-}
-
-/// Destructor
-CvAIOperationPillageEnemy::~CvAIOperationPillageEnemy()
-{
-}
-
-void CvAIOperationPillageEnemy::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity*, CvCity*, bool /*bOceanMoves */)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
 	CvPlot* pMuster = NULL;
 	CvPlot* pTarget = FindBestTarget(&pMuster);
 
 	SetupWithSingleArmy(pMuster,pTarget);
 }
 
-/// How close to target do we end up?
-int CvAIOperationPillageEnemy::GetDeployRange() const
+bool CvAIOperationPillageEnemy::PreconditionsAreMet(CvPlot* pMuster, int iMaxMissingUnits)
 {
-	return 3;
-}
+	//overwrite pMuster (should be null anyway)
+	CvPlot* pTarget = FindBestTarget(&pMuster);
+	if (!pTarget || !pMuster)
+		return false;
 
-//pillagers should be told to pillage!
-void CvAIOperationPillageEnemy::OnSuccess() const
-{
-	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot( GetTargetPlot() );
-	if (pZone)
-		pZone->SetPillageZone(true);
+	if (!CvAIOperation::PreconditionsAreMet(pMuster, iMaxMissingUnits))
+		return false;
+
+	return true;
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
@@ -1995,65 +1889,34 @@ AIOperationAbortReason CvAIOperationPillageEnemy::VerifyOrAdjustTarget(CvArmyAI*
 CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 {
 	CvCity* pBestTargetCity = NULL;
-	int iValue;
-	int iBestValue;
-	CvCity* pLoopCity;
-	int iDistance;
-	int iLoop;
-
 	CvPlayerAI& kEnemyPlayer = GET_PLAYER(m_eEnemy);
 	CvPlayerAI& kPlayer = GET_PLAYER(m_eOwner);
 
-	if(!kEnemyPlayer.isAlive())
-	{
-		return NULL;
-	}
-
-	iBestValue = 0;
-	for(pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
+	int iLoop;
+	int iBestValue = 0;
+	for(CvCity* pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 	{
 		// Make sure city is in the same area as our potential muster point
 		CvCity* pClosestCity = kPlayer.GetClosestCityByEstimatedTurns(pLoopCity->plot());
-		if (pClosestCity && pLoopCity->getArea() != pClosestCity->getArea())
+		if (!pClosestCity)
+			continue;
+		
+		if (pLoopCity->getArea() != pClosestCity->getArea() && !kPlayer.CanCrossOcean())
 			continue;
 
-		if (pLoopCity->plot() != GetTargetPlot() && kPlayer.IsCityAlreadyTargeted(pLoopCity, DOMAIN_LAND, 0, GetID(), AI_OPERATION_PILLAGE_ENEMY))
+		//Only pillage in border zones
+		CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity, false);
+		if (!pLandZone || !pLandZone->HasNeighborZone(m_eOwner))
 			continue;
 
-		// Initial value of target is the number of improved plots
-		iValue = pLoopCity->countNumImprovedPlots();
-
-		ResourceTypes eResource;
+		int iValue = 0;
 		int iNumResourceInfos = GC.getNumResourceInfos();
 		for (int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
-			eResource = (ResourceTypes)iResourceLoop;
-			iValue += pLoopCity->CountNumWorkedResource(eResource);
-		}
-
-		CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity, false);
-		if (!pLandZone)
-			continue;
-
-		iValue -= pLandZone->GetTotalEnemyUnitCount();
-
-		//stick with what we know.
-		if (pLoopCity->plot() == GetTargetPlot())
-		{
-			if (iValue <= 0)
-				iValue = 1;
-			else
-				iValue += 250;
-		}
-
-		if (iValue <= 0)
-			continue;
-
-		// Adjust value based on proximity to our start location
-		iDistance = kPlayer.GetCityDistanceInEstimatedTurns(pLoopCity->plot());
-		if(iDistance > 0)
-		{
-			iValue = iValue * 100 / iDistance;
+			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+			if (eResourceUsage==RESOURCEUSAGE_LUXURY || eResourceUsage==RESOURCEUSAGE_STRATEGIC)
+				iValue += pLoopCity->CountNumWorkedResource(eResource);
 		}
 
 		if(iValue > iBestValue)
@@ -2078,20 +1941,10 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCivilian
 ////////////////////////////////////////////////////////////////////////////////
-CvAIOperationCivilian::CvAIOperationCivilian()
-{
-}
-
-CvAIOperationCivilian::~CvAIOperationCivilian()
-{
-}
 
 /// Kick off this operation
-void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEnemy */, int iAreaID, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
+void CvAIOperationCivilian::Init(int iAreaID, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,NO_PLAYER);
-
 	CvUnit* pOurCivilian = FindBestCivilian();
 	if (!pOurCivilian)
 	{
@@ -2110,10 +1963,10 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 
 	//don't wait for the escort in the wild (happens with settlers a lot)
 	CvPlot* pMusterPlot = pOurCivilian->plot();
-	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || 
+	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(m_eOwner)) || 
 		(pOurCivilian->GetDanger(pMusterPlot)>30 && pOurCivilian->GetDanger(pTargetSite)>30))
 	{
-		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
+		CvCity* pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
 	}
@@ -2121,7 +1974,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 	//problem: naval op but civilian not in a coastal city
 	if (IsNavalOperation() && !(pMusterPlot->isCity() && pMusterPlot->getPlotCity()->isCoastal()))
 	{
-		CvCity* pMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(eOwner, pMusterPlot);
+		CvCity* pMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner, pMusterPlot);
 		if (pMusterCity)
 			pMusterPlot = pMusterCity->plot();
 	}
@@ -2135,7 +1988,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 			CvPlot* pLoopPlot = iterateRingPlots(pMusterPlot->getX(), pMusterPlot->getY(), iCityPlotLoop);
 
 			// Invalid plot or not owned by this player
-			if (pLoopPlot == NULL || pLoopPlot->getOwner() != eOwner) 
+			if (pLoopPlot == NULL || pLoopPlot->getOwner() != m_eOwner) 
 				continue;
 
 			//No water and not impassable
@@ -2149,7 +2002,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				continue;
 
 			//Empty
-			if(pLoopPlot->getNumDefenders(eOwner) > 0)
+			if(pLoopPlot->getNumDefenders(m_eOwner) > 0)
 				continue;
 
 			//Not dangerous
@@ -2180,7 +2033,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 	{
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pThisArmy))
+			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -2243,29 +2096,25 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 /// Always abort if settler is removed
 void CvAIOperationCivilian::UnitWasRemoved(int iArmyID, int iSlotID)
 {
-	CvAIOperation::UnitWasRemoved(iArmyID,iSlotID);
-
 	//the civilian slot is special - without it there's nothing we can do
 	if(iSlotID == 0)
 		SetToAbort( AI_ABORT_LOST_CIVILIAN );
+
+	//now the default handling
+	CvAIOperation::UnitWasRemoved(iArmyID,iSlotID);
 }
 
 /// Find the civilian we want to use
 CvUnit* CvAIOperationCivilian::FindBestCivilian()
 {
 	int iUnitLoop;
-	CvUnit* pLoopUnit;
-
-	for(pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iUnitLoop))
+	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit != NULL)
+		if (pLoopUnit->AI_getUnitAIType() == GetCivilianType() || (pLoopUnit->CanFoundColony() && (GetOperationType() == AI_OPERATION_FOUND_CITY)))
 		{
-			if (pLoopUnit->AI_getUnitAIType() == GetCivilianType() || (pLoopUnit->CanFoundColony() && (GetOperationType() == AI_OPERATION_FOUND_CITY || GetOperationType() == AI_OPERATION_FOUND_CITY_QUICK)))
+			if(pLoopUnit->getArmyID() == -1)
 			{
-				if(pLoopUnit->getArmyID() == -1)
-				{
-					return pLoopUnit;
-				}
+				return pLoopUnit;
 			}
 		}
 	}
@@ -2298,21 +2147,19 @@ bool CvAIOperationCivilian::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 // CvAIOperationCivilianFoundCity
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationCivilianFoundCity::CvAIOperationCivilianFoundCity()
-{
-}
 
-/// Destructor
-CvAIOperationCivilianFoundCity::~CvAIOperationCivilianFoundCity()
+void CvAIOperationCivilianFoundCity::Init(int iAreaID, CvCity * pTarget, CvCity * pMuster, bool bQuick)
 {
+	m_eFormation = bQuick ? MUFORMATION_QUICK_COLONY_SETTLER : MUFORMATION_SETTLER_ESCORT;
+
+	CvAIOperationCivilian::Init(iAreaID, pTarget, pMuster, bQuick);
 }
 
 bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 {
 	// If the settler made it, we don't care about the entire army
 	CvPlot* pCityPlot = GetTargetPlot();
-	if(pSettler && pSettler->canFound(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
+	if(pSettler && pSettler->canFoundCity(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
 	{
 		//check this before building the new city ...
 		bool bIsFrontier = (GC.getGame().GetClosestCityDistanceInTurns(pCityPlot) < GET_PLAYER(m_eOwner).GetCityDistanceInEstimatedTurns(pCityPlot));
@@ -2333,7 +2180,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 
 		// Notify tactical AI to focus on this area
 		if (bIsFrontier)
-			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone( pCityPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 6 );
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pCityPlot, 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 3 );
 
 		return true;
 	}
@@ -2347,8 +2194,12 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 	if (!pSettler)
 		return AI_ABORT_NO_UNITS;
 
-	bool bCanFound = pSettler->canFound(GetTargetPlot());
-	bool bHavePath = pSettler->GeneratePath(GetTargetPlot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+	if (!IsEscorted())
+		iFlags |= CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+
+	bool bCanFound = pSettler->canFoundCity(GetTargetPlot());
+	bool bHavePath = pSettler->GeneratePath(GetTargetPlot(),iFlags);
 
 	if (!bCanFound)
 		LogOperationSpecialMessage( CvString::format("cannot found city at (%d:%d)",m_iTargetX,m_iTargetY).c_str() );
@@ -2444,32 +2295,8 @@ void CvAIOperationCivilianFoundCity::LogSettleTarget(const char* hint, CvPlot* p
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationCivilianFoundCityQuick
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationCivilianFoundCityQuick::CvAIOperationCivilianFoundCityQuick()
-{
-}
-
-/// Destructor
-CvAIOperationCivilianFoundCityQuick::~CvAIOperationCivilianFoundCityQuick()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCivilianMerchantDelegation
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationCivilianMerchantDelegation::CvAIOperationCivilianMerchantDelegation()
-{
-}
-
-/// Destructor
-CvAIOperationCivilianMerchantDelegation::~CvAIOperationCivilianMerchantDelegation()
-{
-}
 
 /// If at target, cash in; if at muster point, merge merchant and escort and move out
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
@@ -2538,16 +2365,6 @@ CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* p
 // CvAIOperationCivilianDiplomatDelegation
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationCivilianDiplomatDelegation::CvAIOperationCivilianDiplomatDelegation()
-{
-}
-
-/// Destructor
-CvAIOperationCivilianDiplomatDelegation::~CvAIOperationCivilianDiplomatDelegation()
-{
-}
-
 /// Find the plot where we want to influence
 CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
 {
@@ -2574,7 +2391,7 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			CvCity* pTargetCity = pDiplomat->plot()->GetAdjacentCity();
+			CvCity* pTargetCity = GET_PLAYER(pDiplomat->plot()->getOwner()).getCapitalCity();
 			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pTargetCity ? pTargetCity->getName().c_str() : "UNKNOWN");
 			LogOperationSpecialMessage(strMsg);
 		}
@@ -2597,75 +2414,11 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationDefendAlly - 
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationDefendAlly::CvAIOperationDefendAlly()
-{
-}
-
-/// Destructor
-CvAIOperationDefendAlly::~CvAIOperationDefendAlly()
-{
-}
-
-/// Kick off this operation
-void CvAIOperationDefendAlly::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eAlly);
-
-	CvPlot* pMusterPlot;
-	CvPlot* pTargetPlot;
-	if (pTarget && pMuster)
-	{
-		pMusterPlot = pMuster->plot();
-		pTargetPlot = pTarget->plot();
-	}
-	else
-		pTargetPlot = FindBestTarget(&pMusterPlot);
-
-	SetupWithSingleArmy(pMusterPlot,pTargetPlot);
-}
-
-AIOperationAbortReason CvAIOperationDefendAlly::VerifyOrAdjustTarget(CvArmyAI* /*pArmy*/)
-{
-	// See if our target city is still owned by our ally (which is stored in m_eEnemy)
-	if(GetTargetPlot()->getOwner() != m_eEnemy)
-	{
-		// Bummer! The city has been captured/destroyed
-		return AI_ABORT_TARGET_ALREADY_CAPTURED;
-	}
-	else if(GET_PLAYER(m_eEnemy).isMinorCiv())
-	{
-		// Quest is over?
-		if( !GET_PLAYER(m_eEnemy).GetMinorCivAI()->IsActiveQuestForPlayer(m_eOwner, MINOR_CIV_QUEST_HORDE) && 
-			!GET_PLAYER(m_eEnemy).GetMinorCivAI()->IsActiveQuestForPlayer(m_eOwner, MINOR_CIV_QUEST_REBELLION))
-		{
-			return AI_ABORT_CANCELLED;
-		}
-	}
-
-	return NO_ABORT_REASON;
-}
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCivilianConcertTour
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationCivilianConcertTour::CvAIOperationCivilianConcertTour()
-{
-}
-
-/// Destructor
-CvAIOperationCivilianConcertTour::~CvAIOperationCivilianConcertTour()
-{
-}
 
 /// Find the plot where we want to settler
 CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/)
@@ -2713,136 +2466,12 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationNavalOnlyBasic
-////////////////////////////////////////////////////////////////////////////////
-
-/// Kick off this operation
-void CvAIOperationNavalOnlyBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
-	if (!pMuster || !pTarget)
-		return;
-
-	//this is where we gather the army
-	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster->plot());
-	//this is where the army should go
-	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget->plot());
-	if (!pMusterPlot || !pGoalPlot)
-		return;
-
-	SetupWithSingleArmy(pMusterPlot,pTarget->plot(),pGoalPlot, NULL, bOceanMoves);
-}
-MultiunitFormationTypes CvAIOperationNavalOnlyBasic::GetFormation() const
-{
-	//varies with era
-	return MilitaryAIHelpers::GetCurrentBestFormationTypeForPureNavalAttack();
-}
-/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
-AIOperationAbortReason CvAIOperationNavalOnlyBasic::VerifyOrAdjustTarget(CvArmyAI* pArmy)
-{
-	CvPlot* pNewTarget = FindBestTarget(NULL);
-
-	if (pNewTarget)
-	{
-		SetTargetPlot(pNewTarget);
-		pArmy->SetGoalPlot(pNewTarget);
-		return NO_ABORT_REASON;
-	}
-
-	return AI_ABORT_NO_TARGET;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationNavalBombardment
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationNavalBombardment::CvAIOperationNavalBombardment()
-{
-}
-
-/// Destructor
-CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
-{
-}
-
-/// Kick off this operation
-void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
-{
-	//do this before calling any FindX methods!
-	Reset(iID, eOwner, eAlly);
-
-	if (!pMuster || !pTarget)
-		return;
-
-	//this is where we gather the army
-	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster->plot());
-	//this is where the army should go
-	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget->plot());
-	if (!pMusterPlot || !pGoalPlot)
-		return;
-
-	CvPlot* pTargetPlot = FindBestTarget(&pMusterPlot);
-	if (pTargetPlot == NULL)
-	{
-		pTargetPlot = pGoalPlot;
-	}
-	SetupWithSingleArmy(pMusterPlot, pTargetPlot, NULL, NULL, bOceanMoves);
-}
-
-/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
-AIOperationAbortReason CvAIOperationNavalBombardment::VerifyOrAdjustTarget(CvArmyAI* pArmy)
-{
-	CvPlot* pNewTarget = FindBestTarget(NULL);
-
-	if (pNewTarget)
-	{
-		SetTargetPlot(pNewTarget);
-		pArmy->SetGoalPlot(pNewTarget);
-		return NO_ABORT_REASON;
-	}
-
-	return AI_ABORT_NO_TARGET;
-}
-/// Find the barbarian camp we want to eliminate
-CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
-{
-	CvPlot* pRefPlot = GetTargetPlot();
-	if (pRefPlot)
-	{
-		CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearPlot(m_eOwner, m_eEnemy, DOMAIN_SEA, false, pRefPlot->getArea(), pRefPlot);
-		if (ppMuster)
-			*ppMuster = pTarget;
-		return pTarget;
-	}
-
-	return NULL;
-	//return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationNavalSuperiority
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationNavalSuperiority::CvAIOperationNavalSuperiority()
-{
-}
-
-/// Destructor
-CvAIOperationNavalSuperiority::~CvAIOperationNavalSuperiority()
-{
-}
-
 /// Kick off this operation
-void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
+void CvAIOperationNavalSuperiority::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
 {
-	//do this before calling any FindX methods!
-	Reset(iID, eOwner, eAlly);
-
 	if (!pMuster || !pTarget)
 		return;
 
@@ -2878,22 +2507,15 @@ AIOperationAbortReason CvAIOperationNavalSuperiority::VerifyOrAdjustTarget(CvArm
 /// Find the nearest enemy naval unit to eliminate
 CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 {
-	CvCity* pTargetCity;
 	CvPlot* pPlot = NULL;
-	CvCity* pEnemyCapital;
-	int iLoop;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
+	CvCity* pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
 
 	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
 	if (pTargetCity == NULL || !pTargetCity->isCoastal())
 	{
-		pEnemyCapital = GET_PLAYER(m_eEnemy).getCapitalCity();
-		if (pEnemyCapital == NULL)
-		{
-			pEnemyCapital = GET_PLAYER(m_eEnemy).firstCity(&iLoop);
-		}
+		CvCity* pEnemyCapital = GET_PLAYER(m_eEnemy).getCapitalCity();
 		if (pEnemyCapital != NULL)
 		{
 			pTargetCity = GC.getMap().findCity(pEnemyCapital->getX(), pEnemyCapital->getY(), m_eOwner, NO_TEAM, true, true, NO_TEAM, NO_DIRECTION, NULL);
@@ -2920,40 +2542,20 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	return pPlot;
 }
 
-//pillagers should be told to pillage!
-void CvAIOperationNavalSuperiority::OnSuccess() const
-{
-	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot( GetTargetPlot() );
-	if (pZone)
-		pZone->SetPillageZone(true);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationNavalOnlyCityAttack
+// CvAIOperationCityAttackNaval
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationNavalOnlyCityAttack::CvAIOperationNavalOnlyCityAttack()
-{
-}
-
-/// Destructor
-CvAIOperationNavalOnlyCityAttack::~CvAIOperationNavalOnlyCityAttack()
-{
-}
 
 /// Kick off this operation
-void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
+void CvAIOperationCityAttackNaval::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
 	CvPlot* pMusterPlot = NULL;
 	CvPlot* pTargetPlot = NULL;
 
 	if(pMuster == NULL || !pMuster->isCoastal())
 	{
-		CvCity* pNearestCoastalCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner,eEnemy);
+		CvCity* pNearestCoastalCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner,m_eEnemy);
 		if(pNearestCoastalCity != NULL)
 		{
 			pMuster = pNearestCoastalCity;
@@ -2966,7 +2568,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 
 	if(pTarget == NULL || !pTarget->isCoastal())
 	{
-		CvCity* pNearestCoastalCity = OperationalAIHelpers::GetNearestCoastalCityEnemy(m_eOwner,eEnemy);
+		CvCity* pNearestCoastalCity = OperationalAIHelpers::GetNearestCoastalCityEnemy(m_eOwner,m_eEnemy);
 		if(pNearestCoastalCity != NULL)
 		{
 			pTarget = pNearestCoastalCity;
@@ -2981,127 +2583,14 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationBullyCityState - Place holder
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationBullyCityState::CvAIOperationBullyCityState()
-{
-}
-
-/// Destructor
-CvAIOperationBullyCityState::~CvAIOperationBullyCityState()
-{
-}
-
-//just some additional logging
-bool CvAIOperationBullyCityState::DoTurn()
-{
-	CvAIOperationCityStateAttack::DoTurn();
-
-	if (GetTargetPlot()->isCity() && GET_PLAYER(m_eEnemy).isMinorCiv())
-	{
-		//do not set a player - that way we can traverse unrevealed plots and foreign territory
-		SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
-		ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(GetTargetPlot(), data);
-
-		//taken from CalculateBullyScore
-		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
-		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
-
-		CvString strMsg;
-		strMsg.Format("%s, local power ratio %d, unit bullying metric %d", GET_PLAYER(m_eEnemy).getName(), iLocalPowerRatio, GET_PLAYER(m_eEnemy).GetMinorCivAI()->CalculateBullyScore(m_eOwner,true));
-		LogOperationSpecialMessage(strMsg);
-
-		if (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner))
-		{
-			GC.getGame().DoMinorBullyUnit(m_eOwner, m_eEnemy);
-			SetToAbort(AI_ABORT_SUCCESS);
-		}
-		else if (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyGold(m_eOwner))
-		{
-			GC.getGame().DoMinorBullyUnit(m_eOwner, m_eEnemy);
-			SetToAbort(AI_ABORT_SUCCESS);
-		}
-	}
-	return true;
-}
-
-/// simply use the enemy capital
-CvPlot* CvAIOperationBullyCityState::FindBestTarget(CvPlot** ppMuster) const
-{
-	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
-	if (!pTargetCity)
-		return NULL;
-
-	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
-	if (!pMusterCity)
-		return NULL;
-
-	//need to use a naval bullying op in that case
-	int iDistance = plotDistance(*pMusterCity->plot(), *pTargetCity->plot());
-	if (pMusterCity->getArea() != pTargetCity->getArea() && iDistance>6)
-		return NULL;
-
-	if (ppMuster)
-		*ppMuster = pMusterCity->plot();
-
-	return pTargetCity->plot();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationNavalBullyCityState - Place holder
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationNavalBullyCityState::CvAIOperationNavalBullyCityState()
-{
-}
-
-/// Destructor
-CvAIOperationNavalBullyCityState::~CvAIOperationNavalBullyCityState()
-{
-}
-
-/// simply use the enemy capital
-CvPlot* CvAIOperationNavalBullyCityState::FindBestTarget(CvPlot** ppMuster) const
-{
-	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
-	if (!pTargetCity || !pTargetCity->isCoastal())
-		return NULL;
-
-	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
-	if (!pMusterCity || !pMusterCity->isCoastal())
-		return NULL;
-
-	if (ppMuster)
-		*ppMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterCity->plot(),true);
-
-	return pTargetCity->plot();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationDefendCity - Place holder
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationDefendCity::CvAIOperationDefendCity()
-{
-}
-
-/// Destructor
-CvAIOperationDefendCity::~CvAIOperationDefendCity()
-{
-}
-
 /// Kick off this operation
-void CvAIOperationDefendCity::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
+void CvAIOperationDefendCity::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
-	CvPlot* pMusterPlot;
-	CvPlot* pTargetPlot;
+	CvPlot* pMusterPlot = NULL;
+	CvPlot* pTargetPlot = NULL;
 	if (pTarget && pMuster)
 	{
 		pMusterPlot = pMuster->plot();
@@ -3170,25 +2659,9 @@ CvPlot* CvAIOperationDefendCity::FindBestTarget(CvPlot** ppMuster) const
 // CvAIOperationDefenseRapidResponse
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationDefenseRapidResponse::CvAIOperationDefenseRapidResponse()
-{
-}
-
-/// Destructor
-CvAIOperationDefenseRapidResponse::~CvAIOperationDefenseRapidResponse()
-{
-}
-
 /// Kick off this operation
-void CvAIOperationDefenseRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
+void CvAIOperationDefenseRapidResponse::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
-	if(iAreaID == -1)
-		return;
-
 	CvPlot* pMusterPlot = pMuster->plot();
 	CvPlot* pTargetPlot = pTarget->plot();
 	if (!pTargetPlot || !pMusterPlot)
@@ -3234,11 +2707,8 @@ CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) con
 }
 
 /// Kick off this operation
-void CvAIOperationNavalInvasion::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
+void CvAIOperationCityAttackCombined::Init(int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
 {
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
 	if (!pTarget || !pMuster)
 		return;
 
@@ -3249,85 +2719,50 @@ void CvAIOperationNavalInvasion::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 
 	SetupWithSingleArmy(pCoastalMuster, pCoastalTarget, NULL, NULL, bOceanMoves);
 }
-MultiunitFormationTypes CvAIOperationNavalInvasion::GetFormation() const
-{
-	//varies with era
-	return MilitaryAIHelpers::GetCurrentBestFormationTypeForNavalAttack();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationNavalInvasionSneaky
+// CvAIOperationMilitary
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Constructor
-CvAIOperationNavalInvasionSneaky::CvAIOperationNavalInvasionSneaky()
-{
-}
-
-CvAIOperationNavalInvasionSneaky::~CvAIOperationNavalInvasionSneaky()
-{
-}
-
-void CvAIOperationCityBasicAttack::OnSuccess() const
+void CvAIOperationMilitary::OnSuccess() const
 {
 	CvPlot* pPlot = GetTargetPlot();
 	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
 	{
-		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
-		if (pCity)
-			pPlot = pCity->plot();
+		if (GET_PLAYER(m_eEnemy).GetCityDistanceInPlots(pPlot) < 4)
+		{
+			CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
+			if (pCity)
+				pPlot = pCity->plot();
+		}
 	}
 
-	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone( pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
-}
-
-void CvAIOperationNavalOnlyCityAttack::OnSuccess() const
-{
-	CvPlot* pPlot = GetTargetPlot();
-	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
-	{
-		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
-		if (pCity)
-			pPlot = pCity->plot();
-	}
-
-	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-}
-
-void CvAIOperationNavalInvasion::OnSuccess() const
-{
-	CvPlot* pPlot = GetTargetPlot();
-	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
-	{
-		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
-		if (pCity)
-			pPlot = pCity->plot();
-	}
-
-	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddFocusArea( pPlot, 3, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationNukeAttack
 ////////////////////////////////////////////////////////////////////////////////
 
-CvAIOperationNukeAttack::CvAIOperationNukeAttack()
+void CvAIOperationNukeAttack::Init(int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
 {
-}
-
-CvAIOperationNukeAttack::~CvAIOperationNukeAttack()
-{
-}
-
-void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/, bool /*bOceanMoves */)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
 	CvPlot* pMuster = NULL;
 	CvPlot* pTarget = FindBestTarget(&pMuster);
 
 	SetupWithSingleArmy(pMuster, pTarget, pMuster);
+}
+
+bool CvAIOperationNukeAttack::PreconditionsAreMet(CvPlot* pMuster, int iMaxMissingUnits)
+{
+	//overwrite pMuster (should be null anyway)
+	CvPlot* pTarget = FindBestTarget(&pMuster);
+	if (!pTarget || !pMuster)
+		return false;
+
+	if (!CvAIOperation::PreconditionsAreMet(pMuster, iMaxMissingUnits))
+		return false;
+
+	return true;
 }
 
 bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
@@ -3341,7 +2776,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 	//don't care about the intermediate niceties ... just nuke away!
 	if(pTargetPlot && pArmy)
 	{
-		if(pArmy->GetNumSlotsFilled()>0 || GrabUnitsFromTheReserves(GetMusterPlot(),pTargetPlot, pArmy))
+		if(OperationalAIHelpers::HaveEnoughUnits(pArmy->GetSlotStatus(),0))
 		{
 			// Now get the nuke
 			CvUnit* pNuke = pArmy->GetFirstUnit();
@@ -3358,7 +2793,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 					const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 					while (pUnitNode != NULL)
 					{
-						CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+						CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 						if (pLoopUnit && pLoopUnit->getOwner() == m_eOwner && pLoopUnit->canMove())
 						{
@@ -3492,7 +2927,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 				const CvUnit* pInnerLoopUnit;
 				while(pUnitNode != NULL)
 				{
-					pInnerLoopUnit = ::getUnit(*pUnitNode);
+					pInnerLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 					if(pInnerLoopUnit != NULL)
 					{
@@ -3569,7 +3004,7 @@ AIOperationAbortReason CvAIOperationNukeAttack::VerifyOrAdjustTarget(CvArmyAI* /
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector&)
+bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>&)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 
@@ -3580,7 +3015,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 		if(pLoopUnit && pLoopUnit->canNuke() && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
 		{
 			CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID);
+			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID,true);
 			return true;
 		}
 	}
@@ -3638,13 +3073,12 @@ AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI
 		CvPlot* pNewTarget = FindBestTarget(NULL);
 		if(pNewTarget != NULL)
 		{
-			SetTargetPlot(pNewTarget);
-
 			CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pNewTarget,15,true);
 			if (!pMusterCity)
 				return AI_ABORT_NO_MUSTER;
 
-			SetMusterPlot( pMusterCity->plot() );
+			SetTargetPlot(pNewTarget);
+			SetMusterPlot(pMusterCity->plot());
 
 			CvUnit* pRescueUnit = pNewTarget->getFirstUnitOfAITypeSameTeam(BARBARIAN_TEAM, UNITAI_SETTLE);
 			if (!pRescueUnit)
@@ -3711,7 +3145,7 @@ AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pAr
 		return AI_ABORT_TOO_DANGEROUS;
 }
 
-bool CvAIOperationCivilian::IsEscorted()
+bool CvAIOperationCivilian::IsEscorted() const
 {
 	if (m_eCurrentState==AI_OPERATION_STATE_RECRUITING_UNITS || m_eCurrentState == AI_OPERATION_STATE_INVALID)
 	{
@@ -3739,6 +3173,23 @@ bool CvAIOperationCivilian::IsEscorted()
 		return pEscort != NULL;
 	}
 }
+
+/// Read serialized data
+void CvAIOperationCivilian::Read(FDataStream& kStream)
+{
+	CvAIOperation::Read(kStream);
+	kStream >> m_eCivilianType;
+	kStream >> m_eFormation;
+}
+
+/// Write serialized data
+void CvAIOperationCivilian::Write(FDataStream& kStream) const
+{
+	CvAIOperation::Write(kStream);
+	kStream << m_eCivilianType;
+	kStream << m_eFormation;
+}
+
 
 AIOperationAbortReason CvAIOperationCivilianMerchantDelegation::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
@@ -3797,6 +3248,74 @@ AIOperationAbortReason CvAIOperationCivilianConcertTour::VerifyOrAdjustTarget(Cv
 
 //----------------------------------------------
 
+FDataStream& operator<<(FDataStream& saveTo, const AIOperationTypes& readFrom)
+{
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, AIOperationTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<AIOperationTypes>(v);
+	return loadFrom;
+}
+
+//----------------------------------------------
+
+FDataStream& operator<<(FDataStream& saveTo, const AIOperationAbortReason& readFrom)
+{
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, AIOperationAbortReason& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<AIOperationAbortReason>(v);
+	return loadFrom;
+}
+
+//----------------------------------------------
+
+FDataStream& operator<<(FDataStream& saveTo, const ArmyAIState& readFrom)
+{
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, ArmyAIState& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<ArmyAIState>(v);
+	return loadFrom;
+}
+
+//----------------------------------------------
+
+FDataStream& operator<<(FDataStream& saveTo, const ArmyType& readFrom)
+{
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, ArmyType& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<ArmyType>(v);
+	return loadFrom;
+}
+
+//----------------------------------------------
+
 FDataStream& operator<<(FDataStream& saveTo, const AIOperationState& readFrom)
 {
 	int v = static_cast<int>(readFrom);
@@ -3828,58 +3347,8 @@ FDataStream& operator>>(FDataStream& loadFrom, OperationSlot& writeTo)
 	return loadFrom;
 }
 
-int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
-{
-	if(iTotalUnits < 5)
-		return 3;
-
-	return 4;
-}
-
 /// Find the barbarian camp we want to eliminate
-CvPlot* OperationalAIHelpers::FindBestCoastalBombardmentTarget(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot** ppMuster)
-{
-	CvCity* pBestStart = NULL;
-	CvPlot* pBestTarget = NULL;
-	int iBestDistance = INT_MAX;
-
-	CvCity* pLoopCity;
-	int iCityLoop;
-	// Loop through each of our cities
-	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-	{
-		if (pLoopCity->isCoastal())
-		{
-			std::vector<int> vAreas = pLoopCity->plot()->getAllAdjacentAreas();
-			for (size_t i=0; i<vAreas.size(); i++)
-			{
-				//they should all be water, but doesn't hurt to check
-				if (GC.getMap().getArea(vAreas[i])->isWater())
-				{
-					CvPlot* pBestTargetHere = OperationalAIHelpers::FindEnemiesNearPlot(ePlayer,eEnemy,DOMAIN_LAND,false,vAreas[i],pLoopCity->plot());
-					if (pBestTargetHere)
-					{
-						int iDistance = plotDistance(*pBestTargetHere,*pLoopCity->plot());
-						if (iDistance < iBestDistance)
-						{
-							pBestStart = pLoopCity;
-							pBestTarget = pBestTargetHere;
-							iBestDistance = iDistance;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (ppMuster && pBestStart)
-		*ppMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pBestStart->plot());
-
-	return pBestTarget;
-}
-
-/// Find the barbarian camp we want to eliminate
-CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster)
+CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPlot** ppMuster)
 {
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
@@ -3903,7 +3372,9 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 			// Loop through each of our cities
 			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				if (pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+				//maybe we could reach it with embarkation but too complex to check
+				//also if the camp is really close, tactical AI should be able to handle it without forming an army
+				if (pPlot->getArea() != pLoopCity->getArea() && !GET_PLAYER(ePlayer).CanCrossOcean())
 					continue;
 
 				int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
@@ -3930,10 +3401,10 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot)
 {
 	const CvArmyAI* pThisArmy = GET_PLAYER(ePlayer).getArmyAI(thisOperationSlot.m_iArmyID);
-	int iThisFormationIndex = pThisArmy->GetFormationIndex();
-	if (iThisFormationIndex != NO_MUFORMATION)
+	MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
+	if (eFormation != NO_MUFORMATION)
 	{
-		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
+		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
 		if (thisFormation)
 		{
 			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
@@ -3943,24 +3414,15 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 	return false;
 }
 
-bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
-														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
+int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<int,CvFormationSlotEntry>>& availableSlots)
 {
-	//cannot use most types of civilian
-	if (pLoopUnit->IsCivilianUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_GENERAL && pLoopUnit->AI_getUnitAIType() != UNITAI_ADMIRAL && pLoopUnit->AI_getUnitAIType() != UNITAI_CITY_SPECIAL)
-		return false;
-
 	//otherwise engaged?
 	if (!pLoopUnit->canRecruitFromTacticalAI())
-		return false;
+		return -1;
 
 	//In an army?
 	if (pLoopUnit->getArmyID() != -1)
-		return false;
-
-	CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
-	if (!pkLoopUnitPlot || !pMusterPlot || !pTargetPlot)
-		return false;
+		return -1;
 
 	//don't recruit if currently healing
 	if (pLoopUnit->shouldHeal(false))
@@ -3973,7 +3435,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			LogOperationSpecialMessage(strMsg);
 		}
 		*/
-		return false;
+		return -1;
 	}
 	if (pLoopUnit->IsRecentlyDeployedFromOperation())
 	{
@@ -3985,7 +3447,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			LogOperationSpecialMessage(strMsg);
 		}
 		*/
-		return false;
+		return -1;
 	}
 	if (pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION()) / 100))
 	{
@@ -3997,7 +3459,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			LogOperationSpecialMessage(strMsg);
 		}
 		*/
-		return false;
+		return -1;
 	}
 	if (bMustBeDeepWaterNaval && pLoopUnit->isTerrainImpassable(TERRAIN_OCEAN))
 	{
@@ -4009,34 +3471,13 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			LogOperationSpecialMessage(strMsg);
 		}
 		*/
-		return false;
+		return -1;
 	}
-	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-	
-	//Check formation entry here.
-	if(thisFormation && pArmy)
-	{
-		bool bGood = false;
-		for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
-		{
-			CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
-			if (!pSlot)
-				return false;
 
-			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-			if (pSlot->IsFree())
-			{
-				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
-				{
-					bGood = true;
-					break;
-				}
-			}
-		}
-		if (!bGood)
-		{
-			return false;
-		}
+	//skip pure explorers
+	if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+	{
+		return -1;
 	}
 
 	//don't pull out units from zones we need to defend
@@ -4044,17 +3485,11 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	if (pZone && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 		//exception: ships in harbor
 		if (pLoopUnit->getDomainType()!=DOMAIN_SEA || !pLoopUnit->plot()->isCity())
-			return false;
-
-	//don't take explorers
-	if (unitInfo == NULL || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-	{
-		return false;
-	}
+			return -1;
 
 	if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 	{
-		if (bMustNaval && !pLoopUnit->CanEverEmbark())
+		if (bMustEmbark && !pLoopUnit->CanEverEmbark())
 		{
 			/*
 			if (GC.getLogging() && GC.getAILogging())
@@ -4064,64 +3499,43 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 				LogOperationSpecialMessage(strMsg);
 			}
 			*/
-			return false;
+			return -1;
 		}
 	}
 
-	// Special for paratroopers
-	if (pLoopUnit->getDropRange() > 0)
+	// finally, if the unit is too far away, no deal
+	ReachablePlots::const_iterator it = turnsFromMuster.find(pLoopUnit->plot()->GetPlotIndex());
+	if (it==turnsFromMuster.end() && !turnsFromMuster.empty())
 	{
-		if (pLoopUnit->canParadropAt(pMusterPlot, pMusterPlot->getX(), pMusterPlot->getY()))
+		/*/
+		if (GC.getLogging() && GC.getAILogging())
 		{
-			return true;
+			CvString strMsg;
+			strMsg.Format("Cannot recruit unit: Too far away. Unit is: %s", pLoopUnit->getName().GetCString());
+			LogOperationSpecialMessage(strMsg);
 		}
-		else
-		{
-			for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(pMusterPlot->getX(), pMusterPlot->getY(), ((DirectionTypes)jJ));
-				if (pAdjacentPlot && pLoopUnit->canParadropAt(pAdjacentPlot, pAdjacentPlot->getX(), pAdjacentPlot->getY()))
-					return true;
-			}
-		}
+		*/
+		return -1;
 	}
-	else
-	{ 
-		// finally, if the unit is too far away, no deal
-		ReachablePlots::const_iterator it = turnsFromMuster.find(pLoopUnit->plot()->GetPlotIndex());
-		if (it==turnsFromMuster.end())
-		{
-			/*/
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Cannot recruit unit: Too far away. Unit is: %s", pLoopUnit->getName().GetCString());
-				LogOperationSpecialMessage(strMsg);
-			}
-			*/
-			return false;
-		}
-		else
-		{
-			if (bMustNaval)
-			{
-				if (!pMusterPlot->isWater())
-					pMusterPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterPlot);
-				if (!pTargetPlot->isWater())
-					pTargetPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTargetPlot);
 
-				if (pMusterPlot != NULL && pTargetPlot != NULL)
-				{
-					//naval units are fast and terrain is easy. if there's a path we assume we can attack it
-					//we enforce the same area for naval ops, everything else leads to problems later
-					if ((pMusterPlot->getArea() != pLoopUnit->plot()->getArea()) || (pMusterPlot->getArea() != pTargetPlot->getArea()))
-						return false;
-				}
-			}
+	//finally check formation entries here
+	int iMatchingIndex = -1;
+	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+	for (size_t i=0; i<availableSlots.size(); i++)
+	{
+		CvFormationSlotEntry slot = availableSlots[i].second;
+		if (slot.m_primaryUnitType==NO_UNITAI || //wildcard
+			pLoopUnit->AI_getUnitAIType() == slot.m_primaryUnitType ||
+			pLoopUnit->AI_getUnitAIType() == slot.m_secondaryUnitType ||
+			unitInfo->GetUnitAIType(slot.m_primaryUnitType) || 
+			unitInfo->GetUnitAIType(slot.m_secondaryUnitType))
+		{
+			iMatchingIndex = i;
+			break;
 		}
 	}
 
-	return true;
+	return iMatchingIndex;
 }
 
 CvPlot* OperationalAIHelpers::FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot)
@@ -4226,7 +3640,7 @@ CvCity* OperationalAIHelpers::GetNearestCoastalCityFriendly(PlayerTypes ePlayer,
 					{
 						SPathFinderUserData data(ePlayer, PT_GENERIC_SAME_AREA, eEnemy);
 						data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getEmbarkedAllWaterPassage())
+						if (!GET_PLAYER(ePlayer).CanCrossOcean())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
 						int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data);
@@ -4269,7 +3683,7 @@ CvCity* OperationalAIHelpers::GetNearestCoastalCityEnemy(PlayerTypes ePlayer, Pl
 					{
 						SPathFinderUserData data(ePlayer, PT_GENERIC_SAME_AREA, eEnemy);
 						data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getEmbarkedAllWaterPassage())
+						if (!GET_PLAYER(ePlayer).CanCrossOcean())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
 						int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data);
@@ -4318,8 +3732,8 @@ const char* AbortReasonString(AIOperationAbortReason eReason)
 	case AI_ABORT_LOST_CIVILIAN:
 		return "LostCivilian";
 		break;
-	case AI_ABORT_ESCORT_DIED:
-		return "EscortDied";
+	case AI_ABORT_TARGET_NOT_VALID:
+		return "TargetNotValid";
 		break;
 	case AI_ABORT_TOO_DANGEROUS:
 		return "TooDangerous";
@@ -4334,7 +3748,7 @@ const char* AbortReasonString(AIOperationAbortReason eReason)
 		return "DiploOpinionChange";
 		break;
 	case AI_ABORT_LOST_PATH:
-		return "NoTarget";
+		return "LostPath";
 		break;
 	case AI_ABORT_TIMED_OUT:
 		return "TimedOut";
@@ -4346,3 +3760,50 @@ const char* AbortReasonString(AIOperationAbortReason eReason)
 		return "UnknownReason";
 	}
 }
+
+bool CvAIOperation::PreconditionsAreMet(CvPlot* pMuster, int iMaxMissingUnits)
+{
+	//we check existance of suitable target in subclassed implementations
+
+	//use all slots, not only required slots
+	vector<pair<int,CvFormationSlotEntry>> freeSlots;
+	vector<CvArmyFormationSlot> fakeStatus;
+	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo( GetFormation() );
+	for (int i = 0; i < thisFormation->getNumFormationSlotEntries(); i++)
+	{
+		freeSlots.push_back( make_pair(i, thisFormation->getFormationSlotEntry(i)) );
+		fakeStatus.push_back( CvArmyFormationSlot(-1,thisFormation->getFormationSlotEntry(i).m_requiredSlot) );
+	}
+
+	ReachablePlots turnsFromMuster;
+	if (pMuster)
+	{
+		//this is just a rough indication so we don't need to do pathfinding for all our units
+		//be generous and add two turns here ...
+		SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns()+2);
+		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMuster, data);
+	}
+
+	size_t iExtraUnits = 0;
+	int iLoop = 0;
+	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
+	{
+		//if we pass an empty turnsFromMuster, all units will be eligible no matter where they are
+		int iIndex = OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit, turnsFromMuster, IsNavalOperation(), false, freeSlots);
+		if (iIndex >= 0)
+		{
+			fakeStatus[freeSlots[iIndex].first] = CvArmyFormationSlot( pLoopUnit->GetID(), freeSlots[iIndex].second.m_requiredSlot );
+
+			if (!freeSlots[iIndex].second.m_requiredSlot)
+				iExtraUnits++;
+
+			freeSlots.erase(freeSlots.begin() + iIndex);
+
+			if (freeSlots.empty())
+				break;
+		}
+	}
+
+	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus,iMaxMissingUnits);
+}
+

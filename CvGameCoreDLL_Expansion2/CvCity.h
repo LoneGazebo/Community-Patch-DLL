@@ -272,7 +272,7 @@ public:
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
-	bool canJoin() const;
+	bool canJoinCity() const;
 
 	int GetTerrainImprovementNeed() const;
 	void UpdateTerrainImprovementNeed();

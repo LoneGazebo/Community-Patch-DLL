@@ -3007,7 +3007,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = oldUnits.next(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTeam() != getTeam())
@@ -4808,11 +4808,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// AI decides what to do with a City
 			if(!isHuman())
 			{
-#if defined(MOD_BALANCE_CORE)
 				AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
-#else
-				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
-#endif
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
 				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
@@ -11201,7 +11197,6 @@ void CvPlayer::doTurn()
 			if(!isMinorCiv())
 			{
 				GetTrade()->DoTurn();
-				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
 				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
@@ -12904,7 +12899,7 @@ void CvPlayer::disband(CvCity* pCity)
 		{
 			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				CvUnit* pUnit = ::getUnit(*itr);
+				CvUnit* pUnit = ::GetPlayerUnit(*itr);
 
 				if(pUnit && !pUnit->canEndTurnAtPlot(pPlot))
 				{
@@ -14437,12 +14432,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::canFound(int iX, int iY) const
+bool CvPlayer::canFoundCity(int iX, int iY) const
 {
-	return canFoundExt(iX,iY,false,false);
+	return canFoundCityExt(iX,iY,false,false);
 }
 
-bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
+bool CvPlayer::canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -14466,21 +14461,21 @@ bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities,
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFoundCity(pPlot, this, bIgnoreDistanceToExistingCities);
 }
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
+void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
+void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce)
 #elif defined(MOD_BALANCE_CORE)
-void CvPlayer::found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
+void CvPlayer::foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
 #else
-void CvPlayer::found(int iX, int iY)
+void CvPlayer::foundCity(int iX, int iY)
 #endif
 {
-	if(!bForce && !canFound(iX, iY))
+	if(!bForce && !canFoundCity(iX, iY))
 	{
 		return;
 	}
@@ -14592,11 +14587,11 @@ void CvPlayer::found(int iX, int iY)
 		// And if the very first turn, we haven't even run player strategies once yet, so do that too.
 		if(GC.getGame().getGameTurn() == 0)
 		{
-			this->GetEconomicAI()->DoTurn();
-			this->GetMilitaryAI()->DoTurn();
-			this->GetReligionAI()->DoTurn();
-			this->GetEspionageAI()->DoTurn();
-			this->GetTradeAI()->DoTurn();
+			GetEconomicAI()->DoTurn();
+			GetMilitaryAI()->DoTurn();
+			GetReligionAI()->DoTurn();
+			GetEspionageAI()->DoTurn();
+			GetTradeAI()->DoTurn();
 		}
 		pCity->GetCityStrategyAI()->DoTurn();
 
@@ -37107,7 +37102,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit->getTransportUnit() == pUnit)
@@ -37433,7 +37428,7 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit->getTransportUnit() == pUnit)
@@ -41397,20 +41392,28 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
+CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, int iArea, 
+	CvCity* pTarget, CvCity* pMuster, bool bGenericFlag /*interpretation depending on op type*/)
 {
-	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
+	CvAIOperation* pNewOperation = CreateAIOperation(eOperationType,GC.getGame().GetNextGlobalID(),GetID(),eEnemy);
 	if (!pNewOperation)
 		return NULL;
 
-	int m_iNextOperationID = GC.getGame().GetNextGlobalID();
+	//bail if impossible (just to avoid spamming the logs)
+	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, iMaxMissingUnits))
+	{
+		delete pNewOperation;
+		return NULL;
+	}
 
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.insert(std::make_pair(m_iNextOperationID, pNewOperation));
+	m_AIOperations.insert(std::make_pair(pNewOperation->GetID(), pNewOperation));
 
 	//check if initialization works out
-	pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
-	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
+	pNewOperation->Init(iArea, pTarget, pMuster, bGenericFlag);
+
+	//undo if necessary
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID )
 	{
 		pNewOperation->LogOperationEnd();
 		deleteAIOperation(pNewOperation->GetID());
@@ -41435,39 +41438,33 @@ void CvPlayer::deleteAIOperation(int iID)
 	}
 }
 
-bool CvPlayer::HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps)
+CvAIOperation* CvPlayer::getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
-
 	// loop through all entries looking for match
 	std::map<int, CvAIOperation*>::iterator iter;
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); iter++)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && pThisOperation->GetEnemy() == ePlayer)
-		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				return true;
-			}
-		}
+		if (pThisOperation->IsOffensive() && (pThisOperation->GetEnemy() == eTargetPlayer || eTargetPlayer == NO_PLAYER))
+			return pThisOperation;
 	}
 
-	return false;
+	return NULL;
 }
 
-bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+bool CvPlayer::HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
+	return getFirstOffensiveAIOperation(ePlayer) != NULL;
+}
 
+bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+{
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
@@ -41475,17 +41472,16 @@ bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				bFoundOne = true;
-				pThisOperation->SetToAbort(eReason);
-			}
+			bFoundOne = true;
+			pThisOperation->SetToAbort(eReason);
 		}
 	}
 
@@ -41500,7 +41496,10 @@ int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if (!pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		if (pThisOperation->IsCivilianOperation())
+			continue;
+
+		if (pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if (eDomain == DOMAIN_SEA && pThisOperation->IsNavalOperation())
 				iNum++;
@@ -41514,9 +41513,6 @@ int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
 
 bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	if (ePlayer == NO_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
@@ -41524,11 +41520,13 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsDefensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (!pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
 			bFoundOne = true;
 			pThisOperation->SetToAbort(eReason);
@@ -41538,12 +41536,8 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	return bFoundOne;
 }
 
-bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
@@ -41551,17 +41545,16 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, b
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				bFoundOne = true;
-				pThisOperation->SetToAbort(eReason);
-			}
+			bFoundOne = true;
+			pThisOperation->SetToAbort(eReason);
 		}
 	}
 
@@ -41570,9 +41563,6 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, b
 
 bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	if (ePlayer == NO_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
@@ -41580,11 +41570,13 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsDefensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (!pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
 			bFoundOne = true;
 			pThisOperation->SetToAbort(eReason);
@@ -41595,266 +41587,67 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional return argument */, PlayerTypes eTargetPlayer /* optional additional match criteria */, CvPlot* pTarget /* optional additional match criteria */)
+CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer /* optional */, CvPlot* pTarget /* optional */)
 {
 	// loop through all entries looking for match
 	std::map<int , CvAIOperation*>::iterator iter;
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		if(pThisOperation->GetOperationType() == eOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
-				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot() || pTarget == pThisOperation->GetMusterPlot())
+				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot())
 				{
-					// Fill in optional parameter (ID) if passed in
-					if(piID != NULL)
-					{
-						*piID = pThisOperation->GetID();
-					}
-					return true;
+					return pThisOperation;
 				}
 			}
 		}
 	}
-	// Fill in optional parameter (ID) if passed in
-	if(piID != NULL)
-	{
-		*piID = -1;
-	}
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::numOperationsOfType(int iOperationType)
-{
-	int iRtnValue = 0;
-
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
-		{
-			iRtnValue++;
-		}
-	}
-
-	return iRtnValue;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is an existing operation already going after this city?
-bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
+bool CvPlayer::IsTargetCityForOperation(CvCity* pCity, bool bNaval) const
 {
-	if (pCity == NULL)
-		return false;	
+	if (!pCity)
+		return false;
 
-	CvAIOperation* pOperation;
-	std::map<int , CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
-	if (iPercentToTarget <= 50)
-	{
-		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
-	}
-	else
-	{
-		eOperationState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-	}
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		pOperation = iter->second;
-
-		if(pOperation)
-		{
-			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if(pOperation->GetTargetPlot() != NULL)
-					{
-						if(pOperation->GetTargetPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if(pOperation->GetTargetPlot()->getOwningCity() != NULL)
-						{
-							if(pOperation->GetTargetPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if (pOperation->GetTargetPlot() != NULL)
-					{
-						if (pOperation->GetTargetPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if (pOperation->GetTargetPlot()->getOwningCity() != NULL)
-						{
-							if (pOperation->GetTargetPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-/// Is an existing operation already starting from this city?
-bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
-{
-	CvAIOperation* pOperation;
 	std::map<int, CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
-	if (iPercentToTarget <= 50)
-	{
-		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
-	}
-	else
-	{
-		eOperationState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-	}
 	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
-		pOperation = iter->second;
-
-		if (pOperation)
+		CvAIOperation* pOperation = iter->second;
+		if (plotDistance(*pOperation->GetTargetPlot(),*pCity->plot())<3)
 		{
-			if (iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if(pOperation->GetMusterPlot() != NULL)
-					{
-						if(pOperation->GetMusterPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if(pOperation->GetMusterPlot()->getOwningCity() != NULL)
-						{
-							if(pOperation->GetMusterPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if (pOperation->GetMusterPlot() != NULL)
-					{
-						if (pOperation->GetMusterPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if (pOperation->GetMusterPlot()->getOwningCity() != NULL)
-						{
-							if (pOperation->GetMusterPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
+			return (bNaval == pOperation->IsNavalOperation());
 		}
 	}
 
 	return false;
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Is an existing operation already starting from this city?
+bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
+{
+	if (!pCity)
+		return false;
+
+	std::map<int, CvAIOperation*>::const_iterator iter;
+	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pOperation = iter->second;
+		if (plotDistance(*pOperation->GetMusterPlot(),*pCity->plot())<3)
+		{
+			return (bNaval == pOperation->IsNavalOperation());
+		}
+	}
+
+	return false;
+}
+
 bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
 {
 	if (!pPlot)
@@ -41876,7 +41669,6 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 	}
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Are we already sending a settler to this plot (or any plot within 3)
@@ -41891,13 +41683,9 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) 
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_FOUND_CITY_OVERSEAS:
-			case AI_OPERATION_FOUND_CITY_QUICK:
+				if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
 				{
-					if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
@@ -42354,7 +42142,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				IDInfo* pUnitNode = pPlot->headUnitNode();
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 					if(NULL != pLoopUnit && pLoopUnit->getUnitType() == eUnit)
@@ -42370,7 +42158,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			IDInfo* pUnitNode = pPlot->headUnitNode();
 			if(pUnitNode != NULL)
 			{
-				CvUnit* pUnit = ::getUnit(*pUnitNode);
+				CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 
 				iCost = getAdvancedStartUnitCost(pUnit->getUnitType(), false);
 				CvAssertMsg(iCost != -1, "If this is -1 then that means it's going to try to delete a unit which shouldn't exist");
@@ -42434,7 +42222,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			}
 			if(getAdvancedStartPoints() >= iCost || 0 == getNumCities())
 			{
-				found(iX, iY);
+				foundCity(iX, iY);
 				changeAdvancedStartPoints(-iCost);
 				CvCity* pCity = pPlot->getPlotCity();
 				if(pCity != NULL)
@@ -42857,7 +42645,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 			IDInfo* pUnitNode = pPlot->headUnitNode();
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 				if(NULL != pLoopUnit && pLoopUnit->getUnitType() == eUnit)
@@ -42897,7 +42685,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot)
 		// Need valid plot to found on if adding
 		if(bAdd)
 		{
-			if(!canFound(pPlot->getX(), pPlot->getY()))
+			if(!canFoundCity(pPlot->getX(), pPlot->getY()))
 			{
 				return -1;
 			}
@@ -45923,25 +45711,16 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		m_AIOperations.clear();
 		uint iSize;
-		int iID;
 		int iOperationType;
 		kStream >> iSize;
 		for(uint i = 0; i < iSize; i++)
 		{
-			kStream >> iID;
 			kStream >> iOperationType;
-			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType);
+			//ok to pass dummy parameters, they will be overwritten ... only the type must be right
+			CvAIOperation* pThisOperation = CreateAIOperation((AIOperationTypes)iOperationType,0,NO_PLAYER,NO_PLAYER);
 			pThisOperation->Read(kStream);
 			m_AIOperations.insert(std::make_pair(pThisOperation->GetID(), pThisOperation));
 		}
-	}
-
-	if (uiVersion <= 10)
-	{
-		// Unused popup queue
-		int iSize;
-		kStream >> iSize;
-		CvAssert(iSize == 0);
 	}
 
 	kStream >> m_ReplayDataSets;
@@ -46150,7 +45929,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 		std::map<int, CvAIOperation*>::const_iterator it;
 		for(it = m_AIOperations.begin(); it != m_AIOperations.end(); ++it)
 		{
-			kStream << it->first;
 			CvAIOperation* pThisOperation = it->second;
 			kStream << pThisOperation->GetOperationType();
 			pThisOperation->Write(kStream);
@@ -46737,7 +46515,7 @@ bool CvPlayer::canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const
 
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = kUnit.plot()->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit != &kUnit)
@@ -47743,7 +47521,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 			bool bWarMayBeComing = false;
 
 			//do we want to start a war?
-			if(GetDiplomacyAI()->IsArmyInPlaceForAttack(eLoopPlayer) || GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+			if(GetDiplomacyAI()->IsArmyInPlaceForAttack(eLoopPlayer) || HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 				bWarMayBeComing = true;
 
 			//do they want to start a war?
@@ -48115,7 +47893,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			}
 		}
 
-		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
+		if(pUnit && (!pUnit->canFoundCity(pPlot) || !pUnit->canMoveInto(*pPlot)))
 		{
 			//--------------
 			if (bLogging) 

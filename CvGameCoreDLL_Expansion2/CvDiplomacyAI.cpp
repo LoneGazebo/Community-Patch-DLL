@@ -11746,16 +11746,15 @@ void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	SetDemandTargetPlayer(ePlayer);
-	CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation((ePlayer));
 
 	// Not yet readying an attack
-	if (pOperation == NULL && !IsArmyInPlaceForAttack(ePlayer))
+	if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) && !IsArmyInPlaceForAttack(ePlayer))
 	{
 		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
 			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
 			{
-				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(ePlayer);
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,2);
 				SetWarGoal(ePlayer, WAR_GOAL_DEMAND);
 			}
 		}
@@ -11779,14 +11778,9 @@ void CvDiplomacyAI::DoCancelHaltDemandProcess()
 			else
 			{
 				SetWarGoal(eDemandTarget, NO_WAR_GOAL_TYPE);
-
-				// Get rid of the operation to put Units near them
-				CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
-				if (pOperation != NULL)
-				{
-					pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
-					SetArmyInPlaceForAttack(eDemandTarget, false);
-				}
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eDemandTarget,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eDemandTarget,AI_ABORT_DIPLO_OPINION_CHANGE);
+				SetArmyInPlaceForAttack(eDemandTarget, false);
 			}
 		}
 
@@ -11801,28 +11795,18 @@ void CvDiplomacyAI::DoTestDemandReady()
 	PlayerTypes eDemandTarget = GetDemandTargetPlayer();
 
 	// Are we actually targeting anyone for a demand?
-	if (eDemandTarget != NO_PLAYER)
+	if (eDemandTarget != NO_PLAYER && !IsAtWar(eDemandTarget))
 	{
 		if (GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
 		{
-			CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
-
-			if (pOperation)
+			if (IsArmyInPlaceForAttack(eDemandTarget))
 			{
-				if (!IsAtWar(eDemandTarget))
-				{
-					// If we're at least 50% of the way to our objective, let loose the dogs of war!
-					if (IsArmyInPlaceForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))
-					{
-						SetArmyInPlaceForAttack(eDemandTarget, false);
-
-						SetDemandReady(true);
-					}
-				}
+				SetArmyInPlaceForAttack(eDemandTarget, false);
+				SetDemandReady(true);
 			}
 			else
 			{
-				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eDemandTarget);
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eDemandTarget,2);
 			}
 		}
 	}
@@ -13408,7 +13392,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	}
 
 	// Not yet readying an attack
-	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
+	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
 	if (pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
 	{
 		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
@@ -13423,12 +13407,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					// Attack on minor
 					if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 					{
-						GetPlayer()->GetMilitaryAI()->RequestCityStateAttack(eTargetPlayer);
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,1);
 					}
 					// Attack on major
 					else
 					{
-						GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
 						SetWantsSneakAttack(eTargetPlayer, true);
 
 						// Update approach to WAR
@@ -17014,7 +16998,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 		return false;
 
 	// We have offensive operations ongoing.
-	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(ePlayer, false))
+	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 		return false;
 
 	// Our cities are threatened by them
@@ -23610,13 +23594,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else
 			{
-				CvAIOperation* pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetShowOfForceOperation(GetPlayer()->GetID());
-				if (!pOperation)
-				{
-					pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetSneakAttackOperation(GetPlayer()->GetID());
-				}
-
-				if ((pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsArmyInPlaceForAttack(GetPlayer()->GetID()))
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsArmyInPlaceForAttack(GetPlayer()->GetID()))
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetPlayer()->getTeam()))
 					{
@@ -23873,7 +23851,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
 						}
 					}
 				}
@@ -23894,7 +23872,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
 						}
 					}
 				}
@@ -23949,7 +23927,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
 						}
 					}
 				}
@@ -23970,7 +23948,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
 						}
 					}
 				}
@@ -24649,7 +24627,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 				{
 					pDeal->ClearItems();
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+					GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
 				}
 			}
 			else
@@ -27912,7 +27890,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 					bool bActivePlayer = GC.getGame().getActivePlayer() == ePlayer;
 					if (DeclareWar(ePlayer))
 					{
-						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 1);
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,1);
 					}
 
 					if(bActivePlayer)
@@ -33120,7 +33098,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			if (DeclareWar(eFromPlayer))
 			{
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3);
 			}
 		}
 
@@ -33266,7 +33244,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < ((GetMeanness() + GetBoldness()) / 2))
 			{
 				if (bDeclareWar)
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3);
 			}
 
 			if (bActivePlayer)
@@ -33343,7 +33321,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < ((GetMeanness() + GetBoldness()) / 2))
 			{
 				if (bDeclareWar)
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3);
 			}
 
 			if (bActivePlayer)
@@ -33853,7 +33831,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				bDeclareWar = DeclareWar(GET_PLAYER(eFromPlayer).getTeam());
 				if (bDeclareWar)
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3);
 			}
 			//check again, might have failed.
 			if (!bDeclareWar)
@@ -36290,8 +36268,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	{
 		if (!GetPlayer()->isHuman())
 		{
-			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
-			GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
+			GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
 		}
 
 		// Their war declaration
@@ -36299,8 +36276,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		{
 			if (!GET_PLAYER(eAllyPlayer).isHuman())
 			{
-				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 3);
-				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestPureNavalAttack(eTargetPlayer, 3);
+				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
 			}
 
 			int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
@@ -43366,7 +43342,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 			{
 				return true;
 			}
-			if(m_pPlayer->GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+			if(m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 			{
 				return true;
 			}
@@ -48398,7 +48374,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 	// Log progress towards Sneak Attack Operation launch if we're not yet at war
 	if(GetWarGoal(ePlayer) == WAR_GOAL_PREPARE)
 	{
-		CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(ePlayer);
+		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
 		if(pOperation)
 		{
@@ -48418,7 +48394,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 	// Preparing a demand?
 	if(GetWarGoal(ePlayer) == WAR_GOAL_DEMAND)
 	{
-		CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(ePlayer);
+		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
 		if(pOperation)
 		{
@@ -53811,8 +53787,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 		return MOVE_TROOPS_RESPONSE_REFUSE; // War!
 
 	// We have an operation en route to opponent
-	CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(ePlayer);
-	if(pOperation != NULL)
+	if(GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 	{
 		return MOVE_TROOPS_RESPONSE_REFUSE;	// War!
 	}

@@ -18,7 +18,6 @@
 //!  - Array of these objects created by CvTacticalAnalysisMap::Init()
 //!  - Objects refilled and sorted each turn
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#define SAFE_ESTIMATE_NUM_DOMINANCE_ZONES (5 * MAX_MAJOR_CIVS)
 
 enum eTacticalDominanceFlags
 {
@@ -35,7 +34,6 @@ enum eDominanceTerritoryTypes
     TACTICAL_TERRITORY_FRIENDLY,
     TACTICAL_TERRITORY_ENEMY,
     TACTICAL_TERRITORY_NEUTRAL,
-    TACTICAL_TERRITORY_TEMP_ZONE,
 };
 
 class CvTacticalDominanceZone
@@ -222,7 +220,6 @@ public:
 	{
 		m_iFriendlyNavalUnitCount += iUnitCount;
 	};
-
 	inline int GetDominanceZoneValue() const
 	{
 		return m_iZoneValue;
@@ -231,35 +228,15 @@ public:
 	{
 		m_iZoneValue = iValue;
 	};
-	inline bool IsWater() const
-	{
-		return m_bIsWater;
-	};
-	inline void SetWater(bool bWater)
-	{
-		m_bIsWater = bWater;
-	};
 	inline DomainTypes GetDomain() const
 	{
-		return m_bIsWater ? DOMAIN_SEA : DOMAIN_LAND;
+		//encoded into the sign of the ID
+		return m_iZoneID < 0 ? DOMAIN_SEA : DOMAIN_LAND;
 	}
-	inline bool IsNavalInvasion() const
+	inline bool IsWater() const
 	{
-		return m_bIsNavalInvasion;
-	};
-	inline void SetNavalInvasion(bool bIsNavalInvasion)
-	{
-		m_bIsNavalInvasion = bIsNavalInvasion;
-	};
-
-	inline bool IsPillageZone() const
-	{
-		return m_bIsPillageZone;
-	};
-	inline void SetPillageZone(bool bIsPillageZone)
-	{
-		m_bIsPillageZone = bIsPillageZone;
-	};
+		return m_iZoneID < 0;
+	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void Extend(CvPlot* pPlot);
@@ -296,9 +273,6 @@ private:
 	int m_iFriendlyNavalUnitCount; //all naval units
 	int m_iZoneValue;
 	int m_iDistanceOfClosestEnemyUnit;
-	bool m_bIsWater;
-	bool m_bIsNavalInvasion;
-	bool m_bIsPillageZone;
 
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;

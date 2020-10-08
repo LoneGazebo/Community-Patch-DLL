@@ -1785,7 +1785,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 							while(pPlotUnitNode != NULL)
 							{
-								CvUnit* pLoopUnit = ::getUnit(*pPlotUnitNode);
+								CvUnit* pLoopUnit = ::GetPlayerUnit(*pPlotUnitNode);
 								pPlotUnitNode = pPlot->nextUnitNode(pPlotUnitNode);
 
 								if(pLoopUnit->getOwner() != ePlayer)

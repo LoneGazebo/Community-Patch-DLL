@@ -15,6 +15,17 @@ enum eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
+enum ArmyType
+{
+    ARMY_TYPE_ANY = -1,
+    ARMY_TYPE_LAND,
+	ARMY_TYPE_NAVAL,
+    ARMY_TYPE_COMBINED, //land and sea
+    ARMY_TYPE_AIR,
+    ARMY_TYPE_ESCORT_LAND, //not out to fight
+    ARMY_TYPE_ESCORT_SEA, //not out to fight
+};
+
 //! An enumeration for indexing units within a CvBattleDefinition
 enum BattleUnitTypes
 {

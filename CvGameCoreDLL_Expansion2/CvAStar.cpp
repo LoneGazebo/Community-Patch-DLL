@@ -1193,17 +1193,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		}
 		else //civilian
 		{
-			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2)
+			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2 && bAbortInDanger)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*4*iFutureFactor;
 			else if (iPlotDanger > 0) //note that fog will cause some danger on adjacent plots
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
-
-		//sometimes we need to abort if there are only bad options around
-		if (bAbortInDanger && iTurnsInFuture < 2 && iPlotDanger > pUnit->GetCurrHitPoints() / 2)
-			return -1;
 	}
 
 	return iCost;
@@ -1300,7 +1296,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam)
 		{
 			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
-			return -1; //forbidden
+				return -1; //forbidden
 		}
 
 		// check stacking (if visible)
@@ -1487,12 +1483,9 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//ocean allowed?
-		if ( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN )
+		if ( (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->isDeepWater() )
 		{
-			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
-			{
-				return FALSE;
-			}
+			return FALSE;
 		}
 	}
 
@@ -1746,7 +1739,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return FALSE;
 
 	//are we allowed to use ocean plots?
-	if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->getTerrainType() == TERRAIN_OCEAN)
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->isDeepWater())
 		return FALSE;
 
 	//territory check
@@ -2891,7 +2884,7 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 		// Loop through all units on this plot
 		while(pUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 			
 			if (pUnit->canLoad(*(pLoopUnit->plot())))
@@ -3040,11 +3033,6 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 	if (eFeature == FEATURE_OASIS && iRouteFactor==1)
 		iCost -= PATH_BASE_COST/4;
 	
-	// avoid enemy lands
-	TeamTypes eToPlotTeam = pToPlot->getTeam();
-	if (pCacheData->GetTeam()!=NO_TEAM && eToPlotTeam != NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
-		iCost += PATH_BASE_COST*10;
-
 	return iCost;
 }
 
@@ -3068,7 +3056,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		return FALSE;
 	}
 
-	if (pToPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{
 		return FALSE;
 	}
@@ -3098,11 +3086,6 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 	// because it influences the normalized distance of the path!
 	if (pToPlot->isDeepWater() && !pCacheData->m_bCanCrossOcean)
 		iCost += PATH_BASE_COST/3;
-
-	// avoid enemy territory
-	TeamTypes eToPlotTeam = pToPlot->getTeam();
-	if (pCacheData->GetTeam()!=NO_TEAM && eToPlotTeam!=NO_TEAM && GET_TEAM(pCacheData->GetTeam()).isAtWar(eToPlotTeam))
-		iCost += PATH_BASE_COST*10;
 
 	return iCost;
 }
@@ -3228,10 +3211,14 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 
 CvPlot * SPath::get(int i) const
 {
-	if (i<(int)vPlots.size())
-		return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
+	if (i >= (int)vPlots.size())
+		return NULL;
 
-	return NULL;
+	//allow negative indices
+	while (i < 0)
+		i += vPlots.size();
+
+	return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 }
 
 int SPath::getNormalizedDistanceBase()

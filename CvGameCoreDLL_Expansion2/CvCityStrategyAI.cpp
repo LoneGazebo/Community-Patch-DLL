@@ -883,7 +883,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 	// Next units for sneak attack armies
-	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 	if(eUnitForArmy != NO_UNIT)
 	{
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
@@ -1331,7 +1331,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		}
 		// Next units for sneak attack armies
-		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);

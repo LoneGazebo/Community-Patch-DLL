@@ -1810,7 +1810,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	const CvUnit* pLoopUnit = NULL;
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit != pUnit)

@@ -12,44 +12,58 @@
 #ifndef CIV5_ARMYAI_H
 #define CIV5_ARMYAI_H
 
+#include <deque>
 class CvPlot;
 
 class CvArmyFormationSlot
 {
 public:
-	CvArmyFormationSlot()
+	CvArmyFormationSlot(int iUnitID=-1, bool bIsRequired=false)
+	{
+		m_iUnitID = iUnitID;
+		m_bIsRequired = bIsRequired;
+	};
+
+	void Clear()
 	{
 		m_iUnitID = -1;
-		m_iEstimatedTurnsToCheckpoint = -1;
-		m_iPrevEstimatedTurnsToCheckpoint = -1;
-	};
+		m_estTurnsToCheckpoint.clear();
+		m_bIsRequired = false;
+	}
 
 	int GetUnitID() const
 	{
 		return m_iUnitID;
 	};
-	void SetUnitID(int iValue)
+
+	int GetTurnsToCheckpoint(size_t iIndex) const
 	{
-		m_iUnitID = iValue;
-	};
-	int GetTurnsToCheckpoint() const
-	{
-		return m_iEstimatedTurnsToCheckpoint;
-	};
-	void SetTurnsToCheckpoint(int iValue)
-	{
-		m_iPrevEstimatedTurnsToCheckpoint = m_iEstimatedTurnsToCheckpoint;
-		m_iEstimatedTurnsToCheckpoint = iValue;
+		if (m_estTurnsToCheckpoint.size() < iIndex)
+			return m_estTurnsToCheckpoint[iIndex];
+		
+		return -1;
 	};
 
-	bool IsMakingProgressTowardsCheckpoint(int iNextValue);
+	void SetCurrentTurnsToCheckpoint(int iValue)
+	{
+		m_estTurnsToCheckpoint.push_front(iValue);
+		if (m_estTurnsToCheckpoint.size()>3)
+			m_estTurnsToCheckpoint.pop_back();
+	};
+
+	bool IsMakingProgressTowardsCheckpoint() const;
 
 	bool IsFree() const { return m_iUnitID == -1; }
 	bool IsUsed() const { return m_iUnitID >= 0; }
+	bool IsRequired() const { return m_bIsRequired; }
 
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvArmyFormationSlot& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvArmyFormationSlot& writeTo);
+
+protected:
 	int m_iUnitID;
-	int m_iEstimatedTurnsToCheckpoint;
-	int m_iPrevEstimatedTurnsToCheckpoint;
+	std::deque<int> m_estTurnsToCheckpoint;
+	bool m_bIsRequired;
 };
 
 enum ArmyAIState
@@ -60,6 +74,12 @@ enum ArmyAIState
     ARMYAISTATE_MOVING_TO_DESTINATION,
     ARMYAISTATE_AT_DESTINATION,
 };
+
+FDataStream& operator<<(FDataStream&, const ArmyAIState&);
+FDataStream& operator>>(FDataStream&, ArmyAIState&);
+
+FDataStream& operator<<(FDataStream&, const MultiunitFormationTypes&);
+FDataStream& operator>>(FDataStream&, MultiunitFormationTypes&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvArmyAI
@@ -107,15 +127,19 @@ public:
 	inline int GetOperationID() const { return m_iOperationID; }
 
 	// Formation accessors
-	int GetFormationIndex() const;
-	void SetFormationIndex(int iFormationIndex);
+	MultiunitFormationTypes GetFormation() const;
+	void SetFormation(MultiunitFormationTypes eFormation);
 	int GetNumFormationEntries() const;
 	int GetNumSlotsFilled() const;
-	CvArmyFormationSlot* GetFormationSlot(int iSlotID) { return &m_FormationEntries[iSlotID]; }
+	CvArmyFormationSlot* GetSlotStatus(int iSlotID) { return &m_FormationEntries[iSlotID]; }
+	const vector<CvArmyFormationSlot>& GetSlotStatus() const { return m_FormationEntries; }
+	CvFormationSlotEntry GetSlotInfo(int iSlotID);
+	vector<int> GetOpenSlots(bool bRequiredOnly) const;
+	DomainTypes GetDomainType() const;
+	void SetType(ArmyType eType);
+	ArmyType GetType() const;
 
-	int GetTurnOfLastUnitAtNextCheckpoint() const;
 	void UpdateCheckpointTurnsAndRemoveBadUnits();
-	int GetUnitsOfType(MultiunitPositionTypes ePosition) const;
 	bool IsAllOceanGoing();
 
 	//Army strength accessors
@@ -127,8 +151,6 @@ public:
 	void SetXY(int iX, int iY);
 	CvPlot* GetCurrentPlot() const;
 	int GetArea() const;
-	DomainTypes GetDomainType() const;
-	void SetDomainType(DomainTypes domainType);
 
 	// Goal accessors
 	void SetGoalPlot(CvPlot* pGoalPlot);
@@ -136,14 +158,12 @@ public:
 	int GetGoalX() const;
 	int GetGoalY() const;
 
-#if defined(MOD_BALANCE_CORE)
-	//Water parameters
+	// Army type doesn't differentiate between coastal navy and deepwater navy
 	void SetOceanMoves(bool bValue);
 	bool NeedOceanMoves() const;
-#endif
 
 	// Unit handling
-	void AddUnit(int iUnitId, int iSlotNum);
+	void AddUnit(int iUnitId, int iSlotNum, bool bIsRequired);
 	bool RemoveUnit(int iUnitId);
 	CvUnit* GetFirstUnit();
 	CvUnit* GetNextUnit(CvUnit* pCurUnit);
@@ -159,14 +179,12 @@ protected:
 	int m_iCurrentY;
 	int m_iGoalX;
 	int m_iGoalY;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bOceanMoves;
-#endif
-	int m_eDomainType; // DomainTypes
-	int m_iFormationIndex;
-	int m_eAIState; // ArmyAIState
+
+	ArmyType					m_eType;
+	MultiunitFormationTypes		m_eFormation;
+	ArmyAIState					m_eAIState;
 	vector<CvArmyFormationSlot> m_FormationEntries;
-	vector<CvArmyFormationSlot>::iterator m_CurUnitIter;
 };
 
 FDataStream& operator<<(FDataStream&, const CvArmyAI&);
@@ -174,5 +192,10 @@ FDataStream& operator>>(FDataStream&, CvArmyAI&);
 
 FDataStream& operator<<(FDataStream&, const CvArmyFormationSlot&);
 FDataStream& operator>>(FDataStream&, CvArmyFormationSlot&);
+
+namespace OperationalAIHelpers
+{
+	bool HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits);
+}
 
 #endif

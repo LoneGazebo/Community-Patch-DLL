@@ -42,11 +42,7 @@ public:
 	void AI_doTurnUnitsPost();
 
 	void AI_unitUpdate();
-#if defined(MOD_BALANCE_CORE)
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze);
-#else
-	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner);
-#endif
 
 	void AI_chooseFreeGreatPerson();
 	void AI_chooseFreeTech();
@@ -89,7 +85,7 @@ public:
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster);
-	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(CvCity* pCity);
+	virtual void CityCommitToBuildUnitForOperationSlot(OperationSlot thisSlot);
 	virtual void CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot);
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit);
 	virtual int GetNumUnitsNeededToBeBuilt();

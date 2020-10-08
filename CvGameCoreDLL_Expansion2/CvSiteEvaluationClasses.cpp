@@ -70,7 +70,7 @@ void CvCitySiteEvaluator::Init()
 }
 
 /// Is it valid for this player to found a city here?
-bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
+bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -319,7 +319,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		return -1;
 
 	// Make sure this player can even build a city here
-	if(!CanFound(pPlot, pPlayer, false))
+	if(!CanFoundCity(pPlot, pPlayer, false))
 	{
 		if(pDebug)
 			*pDebug = "cannot found";
@@ -1339,7 +1339,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std:
 	if(!pPlot) 
 		return rtnValue;
 
-	if(!CanFound(pPlot, NULL, false))
+	if(!CanFoundCity(pPlot, NULL, false))
 	{
 		return rtnValue;
 	}

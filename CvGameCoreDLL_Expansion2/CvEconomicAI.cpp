@@ -3826,7 +3826,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 		if (pLoopUnit->getArmyID() != -1)
 			continue;
 
-		if(pLoopUnit->canFound(NULL,true,true))
+		if(pLoopUnit->canFoundCity(NULL,true,true))
 			vSettlers.push_back(pLoopUnit);
 	}
 
@@ -3872,8 +3872,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
 			//could be a conquistador ...
-			AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
-			if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
+			bool bQuick = (bIsSafe || pLoopUnit->IsCombatUnit());
+			if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, pBestSettle->getArea(), NULL, NULL, bQuick)!=NULL)
 			{
 				//may fail if there is no path ...
 				pPlayer->GetHomelandAI()->LogHomelandMessage("Success!");
@@ -3919,9 +3919,7 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	if(iStrategyWeight >= iWeightThreshold)
 	{
 		// Launch an operation.
-		if (pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION))
-			// Set this strategy active
-			return true;
+		return pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION, 1) != NULL;
 	}
 
 	return false;
@@ -3962,10 +3960,7 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION,1)!=NULL;
 		}
 	}
 
@@ -4007,10 +4002,7 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_CONCERT_TOUR);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_MUSICIAN_CONCERT_TOUR,1)!=NULL;
 		}
 	}
 

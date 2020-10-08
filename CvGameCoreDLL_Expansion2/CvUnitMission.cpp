@@ -1109,14 +1109,14 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_FOUND())
 	{
-		if(hUnit->canFound(pPlot, bTestVisible))
+		if(hUnit->canFoundCity(pPlot, bTestVisible))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_JOIN())
 	{
-		if(hUnit->canJoin(pPlot, ((SpecialistTypes)iData1)))
+		if(hUnit->canJoinCity(pPlot, ((SpecialistTypes)iData1)))
 		{
 			return true;
 		}
@@ -1563,7 +1563,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_FOUND())
 			{
-				if(hUnit->found())
+				if(hUnit->foundCity())
 				{
 					bAction = true;
 				}
@@ -1571,7 +1571,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_JOIN())
 			{
-				if(hUnit->join((SpecialistTypes)(hUnit->HeadMissionData()->iData1)))
+				if(hUnit->joinCity((SpecialistTypes)(hUnit->HeadMissionData()->iData1)))
 				{
 					bAction = true;
 				}

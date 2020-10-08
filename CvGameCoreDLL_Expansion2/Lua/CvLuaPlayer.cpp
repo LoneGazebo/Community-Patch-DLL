@@ -2119,7 +2119,7 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFound);
+	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFoundCity);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);
@@ -2129,7 +2129,7 @@ int CvLuaPlayer::lFound(lua_State* L)
 	const int iX = lua_tointeger(L, 2);
 	const int iY = lua_tointeger(L, 3);
 
-	pkPlayer->found(iX, iY);
+	pkPlayer->foundCity(iX, iY);
 
 	return 0;
 }
@@ -11468,7 +11468,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			}
 
 			// Can't actually found here!
-			if(!pkPlayer->canFound(iPlotX, iPlotY))
+			if(!pkPlayer->canFoundCity(iPlotX, iPlotY))
 			{
 				continue;
 			}
@@ -12365,7 +12365,7 @@ int CvLuaPlayer::lAddTemporaryDominanceZone(lua_State* L)
 	const int iY = lua_tointeger(L, 3);
 
 	// Notify tactical AI to focus on this area
-	pkPlayer->GetTacticalAI()->AddTemporaryZone( GC.getMap().plot(iX,iY), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+	pkPlayer->GetTacticalAI()->AddFocusArea( GC.getMap().plot(iX,iY), 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
 	return 1;
 }
 //------------------------------------------------------------------------------

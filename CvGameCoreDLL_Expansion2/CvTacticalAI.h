@@ -327,59 +327,22 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTemporaryZone
-//!  \brief		Location of a temporary dominance zone (like around a barbarian camp)
+//  CLASS:      CvFocusArea
+//!  \brief		Location of a temporary focus of attention (like around a barbarian camp)
 //
 //!  Key Attributes:
 //!  - Used to add dominance zones for short duration tactical strikes
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvTemporaryZone
+struct CvFocusArea
 {
-public:
-	CvTemporaryZone()
-	{
-		Clear();
-	}
-	void Clear()
-	{
-		m_iX = 0;
-		m_iY = 0;
-		m_iLastTurn = 0;
-	};
-
-	int GetX() const
-	{
-		return m_iX;
-	};
-	void SetX(int iX)
-	{
-		m_iX = iX;
-	};
-	int GetY() const
-	{
-		return m_iY;
-	};
-	void SetY(int iY)
-	{
-		m_iY = iY;
-	};
-	int GetLastTurn() const
-	{
-		return m_iLastTurn;
-	};
-	void SetLastTurn(int iTurn)
-	{
-		m_iLastTurn = iTurn;
-	};
-
-private:
 	int m_iX;
 	int m_iY;
+	int m_iRadius;
 	int m_iLastTurn;
 };
 
-FDataStream& operator<<(FDataStream&, const CvTemporaryZone&);
-FDataStream& operator>>(FDataStream&, CvTemporaryZone&);
+FDataStream& operator<<(FDataStream&, const CvFocusArea&);
+FDataStream& operator>>(FDataStream&, CvFocusArea&);
 
 enum TacticalAIInfoTypes
 {
@@ -489,16 +452,14 @@ public:
 	// Public turn update routines
 	void Update();
 
-	// Temporary dominance zones
-	void AddTemporaryZone(CvPlot* pPlot, int iDuration);
-	void DeleteTemporaryZone(CvPlot* pPlot);
-	void DropObsoleteZones();
-	bool IsTemporaryZoneCity(CvCity* pCity);
+	// temporary focus of attention
+	void AddFocusArea(CvPlot* pPlot, int iRadius, int iDuration);
+	void DeleteFocusArea(CvPlot* pPlot);
+	void DropOldFocusAreas();
+	bool IsInFocusArea(const CvPlot* pPlot) const;
 
-#if defined(MOD_BALANCE_CORE)
+	// For air units
 	bool ShouldRebase(CvUnit* pUnit) const;
-	CvCity* GetNearestTargetCity(CvPlot* pPlot);
-#endif
 
 	// Public logging
 	void LogTacticalMessage(const CvString& strMsg);
@@ -572,7 +533,7 @@ private:
 
 	// Operational AI support functions
 	bool CheckForEnemiesNearArmy(CvArmyAI* pArmy);
-	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget, CvPlot* pFarTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -595,9 +556,9 @@ private:
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
-	bool ExecuteSpotterMove(vector<CvUnit*> vUnits, CvPlot* pTargetPlot);
+	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
-	bool PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTargetPlot);
+	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	void ExecuteMissileAttacks();
@@ -681,7 +642,7 @@ private:
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
 
-	std::vector<CvTemporaryZone> m_TempZones;
+	std::vector<CvFocusArea> m_focusAreas;
 };
 
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...

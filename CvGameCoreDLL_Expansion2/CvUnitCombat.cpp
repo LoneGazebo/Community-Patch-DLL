@@ -3092,7 +3092,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = oldUnits.next(pUnitNode);
 
 					if(pLoopUnit != NULL)

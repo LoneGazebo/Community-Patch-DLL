@@ -3138,8 +3138,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
 								}
 
 								//If human attacked, send notification with info.
@@ -3821,8 +3820,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
 								}
 
 								//If human attacked, send notification with info.

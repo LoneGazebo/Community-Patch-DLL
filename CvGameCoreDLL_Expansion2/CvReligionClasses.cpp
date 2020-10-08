@@ -7576,7 +7576,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 					if (pUnitEntry)
 					{
-						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitForArmy(pCity))
+						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitTypeForArmy(pCity))
 						{
 							pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 							if (GC.getLogging())

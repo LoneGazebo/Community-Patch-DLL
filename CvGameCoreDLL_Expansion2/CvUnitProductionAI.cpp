@@ -488,7 +488,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
 		//Are we mustering a naval attack here?
-		if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+		if(bForOperation && !kPlayer.IsMusterCityForOperation(m_pCity, true))
 		{
 			bOperationalOverride = true;
 		}

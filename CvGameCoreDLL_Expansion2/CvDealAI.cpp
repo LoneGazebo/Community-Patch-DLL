@@ -3449,11 +3449,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		iItemValue += 500;
 	}
-	if(bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eOtherPlayer))
+	if(bFromMe && GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eOtherPlayer))
 	{
 		return INT_MAX;
 	}
-	if(!bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eOtherPlayer))
+	if(!bFromMe && GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eOtherPlayer))
 	{
 		iItemValue += 500;
 	}
@@ -3467,11 +3467,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		iItemValue += 500;
 	}
-	if(bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eWithPlayer))
+	if(bFromMe && GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eWithPlayer))
 	{
 		iItemValue += 250;
 	}
-	if(!bFromMe && GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eWithPlayer))
+	if(!bFromMe && GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eWithPlayer))
 	{
 		iItemValue += 500;
 	}
@@ -3684,7 +3684,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 75;
 			iItemValue /= 100;
 		}
-		if(GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eWithPlayer))
+		if(GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eWithPlayer))
 		{
 			iItemValue *= 75;
 			iItemValue /= 100;

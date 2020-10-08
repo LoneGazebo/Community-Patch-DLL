@@ -2714,10 +2714,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		//Let's issue an attack request.
 		if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
 		{
-			if(pAssignedPlayer->GetMilitaryAI()->GetSneakAttackOperation(eMostRecentBully) == NULL)
-			{
-				pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eMostRecentBully);
-			}
+			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eMostRecentBully,2);
 		}
 	}
 	// Find a City State
@@ -2838,10 +2835,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				{
 					if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(eConquerorTeam), pAssignedPlayer->GetID())
 					{
-						if(pAssignedPlayer->GetMilitaryAI()->GetSneakAttackOperation(eTeamPlayer) == NULL)
-						{
-							pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eTeamPlayer);
-						}
+						pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eTeamPlayer,2);
 					}
 				}
 			}
@@ -2872,16 +2866,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
 					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
-					{
-						int iNumRequiredSlots;
-						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
-							pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-						// Not willing to build units to get this off the ground
-						if (iFilledSlots >= iNumRequiredSlots)
-						{
-							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
-						}
-					}
+						pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
 				}
 			}
 
@@ -2953,18 +2938,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				CvCity* pMinorCap = pMinor->getCapitalCity();
 				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
 				if (pClosestCity)
-				{
-					int iNumRequiredSlots;
-					int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE,
-						false, false, pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-
-					// Not willing to build units to get this off the ground
-					if (iFilledSlots >= iNumRequiredSlots)
-					{
-						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), 
-							pMinor->getCapitalCity(), pClosestCity);
-					}
-				}
+					pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pClosestCity);
 			}
 		}
 	}
@@ -3621,11 +3595,9 @@ bool CvMinorCivQuest::DoFinishQuest()
 		}
 
 		//Update Military AI
-		int iOperationID;
-		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
-		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
-		}
+		CvAIOperation* pOp = GET_PLAYER(m_eAssignedPlayer).getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, pMinor->GetID());
+		if (pOp)
+			pOp->SetToAbort(AI_ABORT_NO_TARGET);
 	}
 	// Rebellion
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -3641,11 +3613,9 @@ bool CvMinorCivQuest::DoFinishQuest()
 		}
 	
 		//Update Military AI
-		int iOperationID;
-		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
-		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
-		}
+		CvAIOperation* pOp = GET_PLAYER(m_eAssignedPlayer).getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, pMinor->GetID());
+		if (pOp)
+			pOp->SetToAbort(AI_ABORT_NO_TARGET);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -3865,11 +3835,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 			}
 
 			//Update Military AI
-			int iOperationID;
-			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
-			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
-			}
+			CvAIOperation* pOp = GET_PLAYER(m_eAssignedPlayer).getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, pMinor->GetID());
+			if (pOp)
+				pOp->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 
 		else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -3898,12 +3866,11 @@ bool CvMinorCivQuest::DoCancelQuest()
 				pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 				pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
 			}
+
 			//Update Military AI
-			int iOperationID;
-			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
-			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
-			}
+			CvAIOperation* pOp = GET_PLAYER(m_eAssignedPlayer).getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, pMinor->GetID());
+			if (pOp)
+				pOp->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -12234,7 +12201,7 @@ void CvMinorCivAI::DoIntrusion()
 
 			while(pUnitNode != NULL)
 			{
-				const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// Does this unit not cause anger?
@@ -15782,6 +15749,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
+
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {

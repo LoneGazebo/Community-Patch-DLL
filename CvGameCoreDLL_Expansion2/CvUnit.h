@@ -132,7 +132,7 @@ public:
 		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
-		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
+		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use deep water even if we could
 		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
 		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
@@ -395,15 +395,15 @@ public:
 	bool canRebaseAt(int iXDest, int iYDest, bool bForced = false) const;
 	bool rebase(int iX, int iY, bool bForced = false);
 
-	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
-	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, int iMovesOverride = 0) const;
+	bool canPillage(const CvPlot* pPlot) const;
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
 	bool pillage();
 
-	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
-	bool found();
+	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
+	bool foundCity();
 
-	bool canJoin(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
-	bool join(SpecialistTypes eSpecialist);
+	bool canJoinCity(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
+	bool joinCity(SpecialistTypes eSpecialist);
 
 	bool canConstruct(const CvPlot* pPlot, BuildingTypes eBuilding) const;
 	bool construct(BuildingTypes eBuilding);
@@ -1805,6 +1805,7 @@ public:
 	CvPlot* GetPathEndFirstTurnPlot() const;
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
+	const CvPathNodeArray& GetLastPath() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -2311,7 +2312,7 @@ protected:
 	IDInfo m_missionAIUnit;
 	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
 	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
-	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType;
+	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType; //current AI type, might be different from default
 	FAutoVariable<int, CvUnit> m_eCombatType;
 
 	//not serialized

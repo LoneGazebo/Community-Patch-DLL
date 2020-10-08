@@ -1520,7 +1520,7 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 int CvLuaCity::lCanJoin(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const bool bResult = pkCity->canJoin();
+	const bool bResult = pkCity->canJoinCity();
 
 	lua_pushboolean(L, bResult);
 	return 1;

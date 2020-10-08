@@ -639,7 +639,7 @@ void CvPlot::updateVisibility()
 			const CvIDInfoFixedVector &kUnits = kPlotManager.GetUnitsByIndex(m_iX, m_iY, iLayer);
 			for (CvIDInfoFixedVector::const_iterator itrUnit = kUnits.begin(); itrUnit != kUnits.end(); ++itrUnit)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*itrUnit);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*itrUnit);
 				if (pLoopUnit)
 				{
 					InvisibleTypes eInvisibleType = pLoopUnit->getInvisibleType();
@@ -8932,7 +8932,7 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::GetResourceLinkedCity() const
 {
-	return getCity(m_ResourceLinkedCity);
+	return ::GetPlayerCity(m_ResourceLinkedCity);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9171,7 +9171,7 @@ int CvPlot::getOwningCityID() const
 
 CvCity* CvPlot::getOwningCity() const
 {
-	return getCity(m_owningCity);
+	return ::GetPlayerCity(m_owningCity);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9253,7 +9253,7 @@ void CvPlot::updateOwningCity()
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::getOwningCityOverride() const
 {
-	return getCity(m_owningCityOverride);
+	return ::GetPlayerCity(m_owningCityOverride);
 }
 
 
@@ -12273,7 +12273,7 @@ CvUnit* CvPlot::getLayerUnit(int iIndex, int iLayerID /*= -1*/) const
 				{		
 					const CvIDInfoFixedVector& kUnits = kManager.GetUnitsByIndex(m_iX, m_iY, iLayerIndex);
 					if (iIndex < (iCount + (int)kUnits.size()))
-						return ::getUnit( kUnits[iIndex - iCount] );
+						return ::GetPlayerUnit( kUnits[iIndex - iCount] );
 					else
 						iCount += kUnits.size();
 				}				
@@ -12284,7 +12284,7 @@ CvUnit* CvPlot::getLayerUnit(int iIndex, int iLayerID /*= -1*/) const
 			// Specific layer
 			const CvIDInfoFixedVector& kUnits = GC.getMap().plotManager().GetUnits(m_iX, m_iY, iLayerID);
 			if (iIndex < (int)kUnits.size())
-				return ::getUnit( kUnits[iIndex] );
+				return ::GetPlayerUnit( kUnits[iIndex] );
 		}
 	}
 
@@ -14841,7 +14841,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				if(pLoopUnit)
@@ -14879,7 +14879,7 @@ int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
 	const CvUnit* pInnerLoopUnit;
 	while(pUnitNode != NULL)
 	{
-		pInnerLoopUnit = ::getUnit(*pUnitNode);
+		pInnerLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 		if(pInnerLoopUnit != NULL && kPlayer.IsAtWarWith(pInnerLoopUnit->getOwner()) && !pInnerLoopUnit->isInvisible(kPlayer.getTeam(),false))
 		{
@@ -14918,7 +14918,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -14965,7 +14965,7 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -15011,7 +15011,7 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -15054,7 +15054,7 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
@@ -15086,7 +15086,7 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude

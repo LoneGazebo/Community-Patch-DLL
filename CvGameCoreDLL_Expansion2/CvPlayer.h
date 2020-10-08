@@ -332,17 +332,17 @@ public:
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
-	bool canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
-	bool canFound(int iX, int iY) const;
+	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
+	bool canFoundCity(int iX, int iY) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
+	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
 #elif defined(MOD_BALANCE_CORE)
-	void found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	void foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
-	void found(int iX, int iY);
+	void foundCity(int iX, int iY);
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
@@ -2451,28 +2451,26 @@ public:
 	CvAIOperation* getNextAIOperation();
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
-	CvAIOperation* addAIOperation(int iOperationType, PlayerTypes eEnemy = NO_PLAYER, int iArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bNeedOceanMoves = false);
+	CvAIOperation* addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy = NO_PLAYER, int iArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bGenericFlag = false);
 	void deleteAIOperation(int iID);
-	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
-	int numOperationsOfType(int iOperationType);
-	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = AI_OPERATION_TYPE_INVALID) const;
+	CvAIOperation* getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
+	CvAIOperation* getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer);
+
+	bool IsTargetCityForOperation(CvCity* pCity, bool bNaval) const;
+	bool IsMusterCityForOperation(CvCity* pCity, bool bNavalOp) const;
 
 	int GetNumOffensiveOperations(DomainTypes eDomain);
-
-	bool HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps);
+	bool HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer);
 
 	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
-	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
+	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
 	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
-	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
+	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
-#if defined(MOD_BALANCE_CORE)
-	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = AI_OPERATION_TYPE_INVALID) const;
 	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
-#endif
-
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
+
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -2847,12 +2845,9 @@ public:
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
-#if defined(MOD_BALANCE_CORE)
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
-#else
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
-#endif
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
@@ -2868,7 +2863,7 @@ public:
 	virtual void AI_chooseResearch() = 0;
 	virtual void AI_launch(VictoryTypes eVictory) = 0;
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster) = 0;
-	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(CvCity* pCity) = 0;
+	virtual void CityCommitToBuildUnitForOperationSlot(OperationSlot slot) = 0;
 	virtual void CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot) = 0;
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit) = 0;
 	virtual int GetNumUnitsNeededToBeBuilt() = 0;

@@ -998,7 +998,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 
 			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
 
-			if (!pThisArmy || !pThisArmy->GetFormationSlot(thisSlot.m_iSlotID)->IsFree())
+			if (!pThisArmy || !pThisArmy->GetSlotStatus(thisSlot.m_iSlotID)->IsFree())
 				continue;
 
 			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
@@ -1013,66 +1013,18 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 }
 
 
-OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(CvCity* pCity)
+void CvPlayerAI::CityCommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
-	OperationSlot thisSlot;
-	if (!pCity)
-		return thisSlot;
-
-	CvAIOperation* pBestOperation = NULL;
-	int iBestScore = -1;
-
-	// search through our operations till we find one that needs a unit
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if (!pThisOperation || pThisOperation->GetMusterPlot() == NULL)
-			continue;
-
-		int iScore = 0;
-		int iMusterArea = pThisOperation->GetMusterPlot()->getArea();
-		int iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
-
-		//check if we're on the correct continent/ocean
-		if(!pCity->isAdjacentToArea(iMusterArea))
-			continue;
-
-		iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
-		iScore += range( 10-iDistance, 0, 10 );
-
-		if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
-		{
-			iScore *= 2;
-		}
-
-		if(iScore > iBestScore)
-		{
-			pBestOperation = pThisOperation;
-			iBestScore = iScore;
-		}
-	}
-
-	if(pBestOperation != NULL)
-	{
-		thisSlot = pBestOperation->CommitToBuildNextUnit();
-		if(thisSlot.IsValid())
-		{
-			return thisSlot;
-		}
-	}
-
-	return thisSlot;
+	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
+	if (pThisOperation)
+		pThisOperation->CommitToBuildNextUnit(thisSlot);
 }
 
 void CvPlayerAI::CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
-	// find this operation
 	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
 	if(pThisOperation)
-	{
-		pThisOperation->UncommitToBuild(thisSlot);
-	}
+		pThisOperation->UncommitToBuildUnit(thisSlot);
 }
 
 void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit)
@@ -1082,8 +1034,8 @@ void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot
 	CvArmyAI* pThisArmy = getArmyAI(thisSlot.m_iArmyID);
 	if(pThisOperation && pThisArmy && pThisUnit)
 	{
-		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID);
-		pThisOperation->FinishedBuilding(thisSlot);
+		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID,true);
+		pThisOperation->FinishedBuildingUnit(thisSlot);
 	}
 }
 
