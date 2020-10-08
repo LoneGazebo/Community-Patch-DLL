@@ -11771,6 +11771,24 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> *m_pGameContracts;
 #endif
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer == NO_PLAYER || eLoopPlayer > MAX_MAJOR_CIVS)
+					continue;
+
+				if (GET_PLAYER(eLoopPlayer).isAlive())
+					GET_PLAYER(eLoopPlayer).CheckForMonopoly((ResourceTypes)iResourceLoop);
+			}
+		}
+	}
+#endif
+
 	unsigned int lSize = 0;
 	kStream >> lSize;
 	if(lSize > 0)

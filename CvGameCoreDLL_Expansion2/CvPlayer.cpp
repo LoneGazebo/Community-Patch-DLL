@@ -46067,16 +46067,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabHasGlobalMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			CheckForMonopoly((ResourceTypes)iResourceLoop);
-		}
-	}
-#endif
-
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
