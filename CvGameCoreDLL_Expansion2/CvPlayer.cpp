@@ -4894,12 +4894,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				CvCity* pCapital = getCapitalCity();
 				bool bShouldSpawn = true;
 
-				// Give the unit the player's religion if it's a missionary or inquisitor
-				if (pkUnit->isReligiousUnit() && pkUnit->getUnitClassType() != GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+				// Give religious units the player's religion
+				if (pkUnit->isReligiousUnit())
 				{
 					pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion());
 
-					if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION)
+					// Unless it's a prophet we shouldn't give a free religious unit without a religion
+					if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && pkUnit->getUnitClassType() != GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 					{
 						bShouldSpawn = false;
 					}
