@@ -4892,7 +4892,29 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
 				CvCity* pCapital = getCapitalCity();
-				bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+				bool bShouldSpawn = true;
+
+				// Give the unit the player's religion if it's a missionary or inquisitor
+				if (pkUnit->isReligiousUnit() && pkUnit->getUnitClassType() != GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+				{
+					pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion());
+
+					if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION)
+					{
+						bShouldSpawn = false;
+					}
+				}
+
+				bool bJumpSuccess;
+				if (bShouldSpawn)
+				{
+					bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+				}
+				else
+				{
+					bJumpSuccess = false;
+				}
+
 				if (bJumpSuccess && pCapital != NULL)
 				{
 					pCapital->addProductionExperience(pkUnit);
