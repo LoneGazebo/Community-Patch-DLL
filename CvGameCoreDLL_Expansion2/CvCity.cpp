@@ -30815,21 +30815,21 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					eReligion = GetCityReligions()->GetReligiousMajority();
 				}
-
-#if defined(MOD_BUGFIX_MINOR)
-				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
-#else
-				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_bEnhanced))
-#endif
-				{
-					return false;
-				}
-#if defined(MOD_BALANCE_CORE)
+				const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 				bool bSpecificBeliefBlocked = false;
-				const CvReligion *pReligion2 = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
-				if (pReligion2)
+				if (pReligion)
 				{
-					BeliefTypes SpecificBelief = pReligion2->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
+#if defined(MOD_BUGFIX_MINOR)
+					if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
+#else
+					if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_bEnhanced))
+#endif
+					{
+					return false;
+					}
+#if defined(MOD_BALANCE_CORE)
+						
+					BeliefTypes SpecificBelief = pReligion->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
 					if (SpecificBelief != NO_BELIEF && SpecificBelief != NULL)
 					{
 						bSpecificBeliefBlocked = true;
@@ -30842,7 +30842,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 								return false;
 							}
 						}
-						if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
+						if (pReligion->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
 						{
 							bSpecificBeliefBlocked = false;
 							if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))

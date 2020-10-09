@@ -21,6 +21,13 @@ SELECT 'DIPLOAI_DISABLE_ENDGAME_AGGRESSION', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
 
+-- [DISABLE WAR BRIBES]
+-- If set to 1, AI civilizations are unable to bribe other AI civilizations into declaring war, but they can still bribe (and be bribed) by humans.
+-- If set to 2, the option to bribe another AI civilization into declaring war on a third party is removed globally.
+-- War bribes between human players are unaffected by this setting.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_WAR_BRIBES', '0';
+
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.
@@ -67,6 +74,13 @@ SELECT 'DIPLOAI_DISABLE_FRIENDSHIP_REQUESTS', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_GIFT_OFFERS', '0';
 
+-- [DISABLE COOP WAR REQUESTS]
+-- If set to 1, AI civilizations will not request that friends join them in a cooperative war against other players.
+-- This does not affect offers in the Trade screen to declare war on a third party.
+-- Humans can still request that AI friends join them in a cooperative war.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_COOP_WAR_REQUESTS', '0';
+
 -- [DISABLE HELP REQUESTS]
 -- If set to 1, AI civilizations will not request help (gold/resources/etc.) from human players.
 -- Does not affect the human's ability to request help from the AI.
@@ -95,31 +109,19 @@ SELECT 'DIPLOAI_DISABLE_PEACE_OFFERS', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_ALL_STATEMENTS', '0';
 
--- [PASSIVE MODE (TOWARDS HUMANS)]
+-- [PASSIVE MODE]
 -- If set to 1, AI civilizations will never declare war on human players. They also won't attempt Domination Victories, unless they can win one without declaring war on a human.
+-- If set to 2, AI civilizations will never declare war on any other civilizations or City-States. They also won't attempt Domination Victories, unless they can win one without declaring war.
 -- Humans can still declare war on AI players, and AI players already at war will still fight their opponents.
 INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_PASSIVE_MODE_HUMANS', '0';
+SELECT 'DIPLOAI_PASSIVE_MODE', '0';
 
--- [PASSIVE MODE (GLOBAL)]
--- If set to 1, AI civilizations will never declare war on any other civilizations or City-States. They also won't attempt Domination Victories, unless they can win one without declaring war.
--- Humans can still declare war on AI players, and AI players already at war will still fight their opponents.
+-- [AGGRESSIVE MODE]
+-- If set to 1, AI civilizations will be much more aggressive towards human players. This is just for fun, and is not balanced at all! NOTE: Has no effect if Passive Mode is enabled.
+-- If set to 2, AI civilizations will be much more aggressive towards all other civilizations and City-States. NOTE: If Passive Mode is set to 1, this has no effect towards human players, and if set to 2, this has no effect.
+-- This setting is switched on automatically if Passive Mode is not enabled and the Science, Culture and Diplomatic victory conditions are all disabled.
 INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_PASSIVE_MODE_GLOBAL', '0';
-
--- [AGGRESSIVE MODE (TOWARDS HUMANS)]
--- If set to 1, AI civilizations will be much more aggressive towards human players.
--- This is just for fun, and is not balanced at all!
--- NOTE: If Passive Mode (Towards Humans) or Passive Mode (Global) are enabled, this does nothing.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_AGGRESSIVE_MODE_HUMANS', '0';
-
--- [AGGRESSIVE MODE (GLOBAL)]
--- If set to 1, AI civilizations will be much more aggressive towards all other civilizations and City-States.
--- They will still prioritize their aggression, however, so they will not declare war on the entire planet at once.
--- NOTE: If Passive Mode (Global) is enabled, this does nothing. If Passive Mode (Towards Humans) is enabled, Aggressive Mode does not affect attitudes towards human players.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_AGGRESSIVE_MODE_GLOBAL', '0';
+SELECT 'DIPLOAI_AGGRESSIVE_MODE', '0';
 
 
 -- Debug Mode

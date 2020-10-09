@@ -332,6 +332,8 @@ public:
 	bool IsVictoryCompetitionEnabled() const;
 	bool IsEndgameAggressionEnabled() const;
 	bool IsNuclearGandhiEnabled() const;
+	bool IsAllWarBribesDisabled() const;
+	bool IsAIWarBribesDisabled() const;
 	bool IsInsultMessagesDisabled() const; // Only affects humans
 	bool IsComplimentMessagesDisabled() const; // Only affects humans
 	bool IsShowAllOpinionModifiers() const;
@@ -341,6 +343,7 @@ public:
 	// Advanced Options
 	bool IsFriendshipRequestsDisabled() const; // Only affects humans
 	bool IsGiftOffersDisabled() const; // Only affects humans
+	bool IsCoopWarRequestsDisabled() const; // Only affects humans
 	bool IsHelpRequestsDisabled() const; // Only affects humans
 	bool IsTradeOffersDisabled() const; // Only affects humans
 	bool IsPeaceOffersDisabled() const; // Only affects humans

@@ -6357,6 +6357,28 @@ bool CvGame::IsNuclearGandhiEnabled() const
 	return false;
 }
 
+/// Disable War Bribes
+/// NOTE: Does not affect coop war requests.
+bool CvGame::IsAllWarBribesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_WAR_BRIBES() == 2)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CvGame::IsAIWarBribesDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_WAR_BRIBES() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Disable Insult Messages
 /// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
 bool CvGame::IsInsultMessagesDisabled() const
@@ -6470,6 +6492,18 @@ bool CvGame::IsGiftOffersDisabled() const
 	return false;
 }
 
+/// Disable Coop War Requests
+/// Only affects human players, and only affects coop war requests sent by the AI on their turn.
+bool CvGame::IsCoopWarRequestsDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_COOP_WAR_REQUESTS() > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Disable Help Requests
 /// Only affects human players, and only affects help requests sent by the AI on their own turn.
 bool CvGame::IsHelpRequestsDisabled() const
@@ -6521,7 +6555,7 @@ bool CvGame::IsAllDiploStatementsDisabled() const
 /// Passive Mode (towards all players)
 bool CvGame::IsAIPassiveMode() const
 {
-	if (GC.getDIPLOAI_PASSIVE_MODE_GLOBAL() > 0)
+	if (GC.getDIPLOAI_PASSIVE_MODE() == 2)
 	{
 		return true;
 	}
@@ -6537,7 +6571,7 @@ bool CvGame::IsAIPassiveMode() const
 /// Passive Mode (towards humans)
 bool CvGame::IsAIPassiveTowardsHumans() const
 {
-	if (GC.getDIPLOAI_PASSIVE_MODE_HUMANS() > 0)
+	if (GC.getDIPLOAI_PASSIVE_MODE() > 0)
 	{
 		return true;
 	}
@@ -6683,7 +6717,7 @@ bool CvGame::IsAIAggressiveMode() const
 		return false;
 	}
 
-	if (GC.getDIPLOAI_AGGRESSIVE_MODE_GLOBAL() > 0)
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE() == 2)
 	{
 		return true;
 	}
@@ -6713,7 +6747,7 @@ bool CvGame::IsAIAggressiveTowardsHumans() const
 		return true;
 	}
 
-	if (GC.getDIPLOAI_AGGRESSIVE_MODE_HUMANS() > 0)
+	if (GC.getDIPLOAI_AGGRESSIVE_MODE() > 0)
 	{
 		return true;
 	}
@@ -11735,6 +11769,24 @@ void CvGame::Read(FDataStream& kStream)
 	// Don't even try to worry about save compatibility
 	kStream >> *m_pGameCorporations;
 	kStream >> *m_pGameContracts;
+#endif
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer == NO_PLAYER || eLoopPlayer > MAX_MAJOR_CIVS)
+					continue;
+
+				if (GET_PLAYER(eLoopPlayer).isAlive())
+					GET_PLAYER(eLoopPlayer).CheckForMonopoly((ResourceTypes)iResourceLoop);
+			}
+		}
+	}
 #endif
 
 	unsigned int lSize = 0;

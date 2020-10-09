@@ -1120,6 +1120,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 				}
 			}
+			if (GC.getGame().IsAllWarBribesDisabled())
+			{
+				return false;
+			}
+			if (GC.getGame().IsAIWarBribesDisabled() && !GET_PLAYER(eToPlayer).isHuman() && !GET_PLAYER(ePlayer).isHuman())
+			{
+				return false;
+			}
 		}
 
 		// Can this player actually declare war?
