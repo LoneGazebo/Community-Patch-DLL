@@ -7448,8 +7448,8 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 					if featureType == FeatureTypes.NO_FEATURE then
 						if terrainType ~= TerrainTypes.TERRAIN_SNOW then
 							table.insert(temp_hills_open_list, i);
+							table.insert(temp_marble_list, i);
 						end
-						table.insert(temp_marble_list, i);
 						if terrainType == TerrainTypes.TERRAIN_TUNDRA then			-- MOD.Barathor: New Condition
 							table.insert(temp_hills_open_no_desert, i);				-- MOD.Barathor: New
 							table.insert(temp_hills_open_no_grass, i);				-- MOD.Barathor: New
