@@ -136,6 +136,7 @@ function AssignStartingPlots.Create()
 		FindFallbackForUnmatchedRegionPriority = AssignStartingPlots.FindFallbackForUnmatchedRegionPriority,
 		AddStrategicBalanceResources = AssignStartingPlots.AddStrategicBalanceResources,
 		AttemptToPlaceForestAtGrassPlot = AssignStartingPlots.AttemptToPlaceForestAtGrassPlot,
+		AttemptToPlaceStoneAtGrassPlot = AssignStartingPlots.AttemptToPlaceStoneAtGrassPlot,
 		NormalizeStartLocation = AssignStartingPlots.NormalizeStartLocation,
 		NormalizeTeamLocations = AssignStartingPlots.NormalizeTeamLocations,
 		
@@ -4038,6 +4039,34 @@ function AssignStartingPlots:AttemptToPlaceForestAtGrassPlot(x, y)
 	end
 end
 ------------------------------------------------------------------------------
+function AssignStartingPlots:AttemptToPlaceStoneAtGrassPlot(x, y)
+	-- Function modified May 2011 to boost production at heavy grass starts. - BT
+	-- Now placing Stone instead of Cows. Returns true if Stone is placed.
+	--print("-"); print("Attempting to place Stone at: ", x, y);
+	local plot = Map.GetPlot(x, y);
+	if plot == nil then
+		--print("Placement failed, plot was nil.");
+		return false
+	end
+	if plot:GetResourceType(-1) ~= -1 then
+		--print("Plot already had a resource.");
+		return false
+	end
+	local plotType = plot:GetPlotType()
+	if plotType == PlotTypes.PLOT_LAND then
+		local featureType = plot:GetFeatureType()
+		if featureType == FeatureTypes.NO_FEATURE then
+			local terrainType = plot:GetTerrainType()
+			if terrainType == TerrainTypes.TERRAIN_GRASS then -- Place Stone
+				plot:SetResourceType(self.stone_ID, 1);
+				--print("Placed Stone.");
+				self.amounts_of_resources_placed[self.stone_ID + 1] = self.amounts_of_resources_placed[self.stone_ID + 1] + 1;
+				return true
+			end
+		end
+	end
+end
+------------------------------------------------------------------------------
 function AssignStartingPlots:NormalizeStartLocation(region_number)
 	--[[ This function measures the value of land in two rings around a given start
 	     location, primarily for the purpose of determining how much support the site
@@ -7376,7 +7405,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	local temp_flat_covered_no_grass, temp_flat_covered_no_tundra, temp_flat_covered_no_grass_no_tundra = {}, {}, {};	-- MOD.Barathor: New
 	local temp_flat_open, temp_flat_open_no_grass_no_plains, temp_flat_open_no_tundra_no_desert = {}, {}, {};			-- MOD.Barathor: New
 	local temp_flat_open_no_desert, temp_flat_desert_including_flood, temp_hills_open_no_grass_no_plains = {}, {}, {};	-- MOD.Barathor: New
-	local temp_tropical_marsh_list = {};
+	local temp_tropical_marsh_list, temp_hills_snow_list = {}, {};
 	--
 	-- local iW, iH = Map.GetGridSize();	-- MOD.Barathor: Disabled -- already initialized above, though, not a big deal
 	local temp_hills_list, temp_coast_list, temp_grass_flat_no_feature = {}, {}, {};
@@ -7414,10 +7443,12 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 							self.barren_plots = self.barren_plots + 1;
 						end
 					end
-				elseif plotType == PlotTypes.PLOT_HILLS and terrainType ~= TerrainTypes.TERRAIN_SNOW then
+				elseif plotType == PlotTypes.PLOT_HILLS then
 					table.insert(temp_hills_list, i);
 					if featureType == FeatureTypes.NO_FEATURE then
-						table.insert(temp_hills_open_list, i);
+						if terrainType ~= TerrainTypes.TERRAIN_SNOW then
+							table.insert(temp_hills_open_list, i);
+						end
 						table.insert(temp_marble_list, i);
 						if terrainType == TerrainTypes.TERRAIN_TUNDRA then			-- MOD.Barathor: New Condition
 							table.insert(temp_hills_open_no_desert, i);				-- MOD.Barathor: New
@@ -7438,6 +7469,8 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 							table.insert(temp_hills_open_no_tundra, i);				-- MOD.Barathor: New
 							table.insert(temp_hills_open_no_desert, i);				-- MOD.Barathor: New
 							table.insert(temp_hills_open_no_tundra_no_desert, i);	-- MOD.Barathor: New
+						elseif terrainType == TerrainTypes.TERRAIN_SNOW then
+							table.insert(temp_hills_snow_list, i);
 						else
 							self.barren_plots = self.barren_plots + 1;				-- MOD.Barathor: New
 							table.remove(temp_hills_list);							-- MOD.Barathor: New
@@ -7594,6 +7627,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	self.hills_covered_list = GetShuffledCopyOfTable(temp_hills_covered_list)
 	self.hills_jungle_list = GetShuffledCopyOfTable(temp_hills_jungle_list)
 	self.hills_forest_list = GetShuffledCopyOfTable(temp_hills_forest_list)
+	self.hills_snow_list = GetShuffledCopyOfTable(temp_hills_snow_list)
 	self.jungle_flat_list = GetShuffledCopyOfTable(temp_jungle_flat_list)
 	self.forest_flat_list = GetShuffledCopyOfTable(temp_forest_flat_list)
 	self.desert_flat_no_feature = GetShuffledCopyOfTable(temp_desert_flat_no_feature)
