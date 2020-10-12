@@ -25,7 +25,7 @@
 			<Text>Morrigan, the Harbinger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>+3 [ICON_CULTURE_LOCAL] Border Growth in every City. Receive +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold when your Borders expand, scaling with Era. +5 [ICON_CULTURE_LOCAL] Border Growth from Ceilidh Hall.</Text>
+			<Text>+3 [ICON_CULTURE_LOCAL] Border Growth in every City. Receive +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era. +5 [ICON_CULTURE_LOCAL] Border Growth from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
@@ -37,7 +37,7 @@
 			<Text>Nuada, the Silver-Handed</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles. +1 [ICON_PEACE] Faith from Jungles and Forests if unimproved. +1 [ICON_CULTURE] Culture from Camps and +2 [ICON_CULTURE] Culture from Plantations. +2 [ICON_CULTURE] Culture from Ceilidh Hall.</Text>
+			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from Jungles. +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science from Camps and Plantations. +2 [ICON_CULTURE] Culture from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
