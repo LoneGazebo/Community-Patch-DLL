@@ -364,6 +364,9 @@ function AssignStartingPlots.Create()
 		extra_deer_list = {},
 		desert_wheat_list = {},
 		banana_list = {},
+		-- MOD.HungryForFood: Start
+		coconut_list = {},
+		-- MOD.HungryForFood: End
 		barren_plots = 0,
 		
 		-- Positioner defaults. These are the controls for the "Center Bias" placement method for civ starts in regions.
@@ -422,6 +425,10 @@ function AssignStartingPlots.Create()
 		copper_ID, salt_ID, citrus_ID, truffles_ID, crab_ID, cocoa_ID,
 		-- Mod luxuries
 		coffee_ID, tea_ID, tobacco_ID, amber_ID, jade_ID, olives_ID, perfume_ID, coral_ID, lapis_ID, -- MOD.Barathor: New
+		-- Even More Resources for Vox Populi (luxuries)
+		lavender_ID, obsidian_ID, platinum_ID, poppy_ID, tin_ID, -- MOD.HungryForFood: New
+		-- Even More Resources for Vox Populi (bonus)
+		coconut_ID, hardwood_ID, lead_ID, maize_ID, pineapple_ID, potato_ID, rice_ID, rubber_ID, sulfur_ID, titanium_ID, -- MOD.HungryForFood: New
 		
 		-- Local arrays for storing Natural Wonder Placement XML data
 		EligibilityMethodNumber = {},
@@ -664,6 +671,40 @@ function AssignStartingPlots:__Init()
 			self.coral_ID = resourceID;
 		elseif resourceType == "RESOURCE_LAPIS" then	-- MOD.Barathor: New
 			self.lapis_ID = resourceID;
+		elseif self:IsEvenMoreResourcesActive() == true then
+		-- Even More Resources for Vox Populi (luxuries)
+			if resourceType == "RESOURCE_LAVENDER" then	-- MOD.HungryForFood: New
+				self.lavender_ID = resourceID;
+			elseif resourceType == "RESOURCE_OBSIDIAN" then	-- MOD.HungryForFood: New
+				self.obsidian_ID = resourceID;
+			elseif resourceType == "RESOURCE_PLATINUM" then	-- MOD.HungryForFood: New
+				self.platinum_ID = resourceID;
+			elseif resourceType == "RESOURCE_POPPY" then	-- MOD.HungryForFood: New
+				self.poppy_ID = resourceID;
+			elseif resourceType == "RESOURCE_TIN" then		-- MOD.HungryForFood: New
+				self.tin_ID = resourceID;
+			-- Even More Resources for Vox Populi (bonus)
+			elseif resourceType == "RESOURCE_COCONUT" then	-- MOD.HungryForFood: New
+				self.coconut_ID = resourceID;
+			elseif resourceType == "RESOURCE_HARDWOOD" then	-- MOD.HungryForFood: New
+				self.hardwood_ID = resourceID;
+			elseif resourceType == "RESOURCE_LEAD" then		-- MOD.HungryForFood: New
+				self.lead_ID = resourceID;
+			elseif resourceType == "RESOURCE_MAIZE" then	-- MOD.HungryForFood: New
+				self.maize_ID = resourceID;
+			elseif resourceType == "RESOURCE_PINEAPPLE" then	-- MOD.HungryForFood: New
+				self.pineapple_ID = resourceID;
+			elseif resourceType == "RESOURCE_POTATO" then	-- MOD.HungryForFood: New
+				self.potato_ID = resourceID;
+			elseif resourceType == "RESOURCE_RICE" then	-- MOD.HungryForFood: New
+				self.rice_ID = resourceID;
+			elseif resourceType == "RESOURCE_RUBBER" then	-- MOD.HungryForFood: New
+				self.rubber_ID = resourceID;
+			elseif resourceType == "RESOURCE_SULFUR" then	-- MOD.HungryForFood: New
+				self.sulfur_ID = resourceID;
+			elseif resourceType == "RESOURCE_TITANIUM" then	-- MOD.HungryForFood: New
+				self.titanium_ID = resourceID;
+			end
 		end
 	end
 end
@@ -692,6 +733,14 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+	
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[1], {self.obsidian_ID,	10});
+		table.insert(self.luxury_region_weights[1], {self.platinum_ID,	10});
+		table.insert(self.luxury_region_weights[1], {self.tin_ID,		10});
+	end
+	-- MOD.HungryForFood: End
 
 	self.luxury_region_weights[2] = {			-- Jungle
 	{self.citrus_ID,	40},
@@ -706,7 +755,16 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
-	
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[2], {self.obsidian_ID,	40});
+		table.insert(self.luxury_region_weights[2], {self.poppy_ID,		40});
+		table.insert(self.luxury_region_weights[2], {self.platinum_ID,	10});
+		table.insert(self.luxury_region_weights[2], {self.tin_ID,		10});
+	end
+	-- MOD.HungryForFood: End
+
 	self.luxury_region_weights[3] = {			-- Forest
 	{self.truffles_ID,	40},
 	{self.silk_ID,		40},
@@ -720,7 +778,13 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
-	
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[3], {self.lavender_ID,	10});
+	end
+	-- MOD.HungryForFood: End
+
 	self.luxury_region_weights[4] = {			-- Desert
 	{self.incense_ID,	40},
 	{self.salt_ID,		40},
@@ -735,6 +799,14 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[4], {self.obsidian_ID,	10});
+		table.insert(self.luxury_region_weights[4], {self.platinum_ID,	10});
+		table.insert(self.luxury_region_weights[4], {self.tin_ID,		10});
+	end
+	-- MOD.HungryForFood: End
 	
 	self.luxury_region_weights[5] = {			-- Hills
 	{self.gold_ID,		30},
@@ -749,6 +821,15 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[5], {self.obsidian_ID,	30});
+		table.insert(self.luxury_region_weights[5], {self.poppy_ID,		30});
+		table.insert(self.luxury_region_weights[5], {self.platinum_ID,	30});
+		table.insert(self.luxury_region_weights[5], {self.tin_ID,		30});
+	end
+	-- MOD.HungryForFood: End
 
 	
 	self.luxury_region_weights[6] = {			-- Plains
@@ -765,6 +846,13 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[6], {self.lavender_ID,	40});
+		table.insert(self.luxury_region_weights[6], {self.poppy_ID,		40});
+	end
+	-- MOD.HungryForFood: End
 	
 	self.luxury_region_weights[7] = {			-- Grass
 	{self.tobacco_ID,	40},
@@ -779,6 +867,13 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[7], {self.lavender_ID,	40});
+		table.insert(self.luxury_region_weights[7], {self.poppy_ID,		40});
+	end
+	-- MOD.HungryForFood: End
 	
 	self.luxury_region_weights[8] = {			-- Hybrid
 	{self.gold_ID,		30},
@@ -810,6 +905,16 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		20},
 	{self.pearls_ID,	20},
 	{self.coral_ID,		20},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_region_weights[8], {self.obsidian_ID,	30});
+		table.insert(self.luxury_region_weights[8], {self.platinum_ID,	30});
+		table.insert(self.luxury_region_weights[8], {self.tin_ID,		30});
+		table.insert(self.luxury_region_weights[8], {self.lavender_ID,	05});
+		table.insert(self.luxury_region_weights[8], {self.poppy_ID,		05});
+	end
+	-- MOD.HungryForFood: End
 	
 	self.luxury_fallback_weights = {			-- Random / Fallback
 	{self.gold_ID,		10},
@@ -842,6 +947,16 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.pearls_ID,	30},
 	{self.coral_ID,		30},	};
 
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_fallback_weights, {self.obsidian_ID,	30});
+		table.insert(self.luxury_fallback_weights, {self.platinum_ID,	30});
+		table.insert(self.luxury_fallback_weights, {self.tin_ID,		30});
+		table.insert(self.luxury_fallback_weights, {self.lavender_ID,	05});
+		table.insert(self.luxury_fallback_weights, {self.poppy_ID,		05});
+	end
+	-- MOD.HungryForFood: End
+
 	self.luxury_city_state_weights = {			-- City States	
 	{self.gold_ID,		10},
 	{self.silver_ID,	10},					-- MOD.Barathor: Slightly favor water resources since they're flexible and most city-states are coastal.
@@ -872,6 +987,16 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	{self.crab_ID,		10},
 	{self.pearls_ID,	10},
 	{self.coral_ID,		10},	};
+
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		table.insert(self.luxury_city_state_weights, {self.obsidian_ID,	10});
+		table.insert(self.luxury_city_state_weights, {self.platinum_ID,	10});
+		table.insert(self.luxury_city_state_weights, {self.tin_ID,		10});
+		table.insert(self.luxury_city_state_weights, {self.lavender_ID,	05});
+		table.insert(self.luxury_city_state_weights, {self.poppy_ID,	05});
+	end
+	-- MOD.HungryForFood: End
 	-- MOD.Barathor: End
 
 end	
@@ -7411,6 +7536,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	local temp_hills_list, temp_coast_list, temp_grass_flat_no_feature = {}, {}, {};
 	local temp_tundra_flat_no_feature, temp_snow_flat_list, temp_land_list = {}, {}, {}, {};
 	local temp_marble_list, temp_deer_list, temp_desert_wheat_list, temp_banana_list = {}, {}, {}, {};
+	local temp_coconut_list = {};																						-- MOD.HungryForFood: New
 	--
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
@@ -7542,8 +7668,14 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 							table.insert(temp_flat_covered_no_tundra, i);				-- MOD.Barathor: New
 							table.insert(temp_flat_covered_no_grass, i);				-- MOD.Barathor: New
 							table.insert(temp_flat_covered_no_grass_no_tundra, i);		-- MOD.Barathor: New
+							if plot:IsCoastalLand() then								-- MOD.HungryForFood: New Condition
+								table.insert(temp_coconut_list, i);						-- MOD.HungryForFood: New
+							end
 						elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 							table.insert(temp_flat_covered_no_tundra, i);				-- MOD.Barathor: New
+							if plot:IsCoastalLand() then								-- MOD.HungryForFood: New Condition
+								table.insert(temp_coconut_list, i);						-- MOD.HungryForFood: New
+							end
 						end
 					elseif featureType == FeatureTypes.FEATURE_FOREST then
 						table.insert(temp_forest_flat_list, i);
@@ -7583,6 +7715,11 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 							if plot:IsFreshWater() then
 								table.insert(temp_desert_wheat_list, i);
 							end
+							if plot:IsCoastalLand() then								-- MOD.HungryForFood: New Condition
+								if plot:GetLatitude() < 15 then							-- MOD.HungryForFood: New Condition
+									table.insert(temp_coconut_list, i);					-- MOD.HungryForFood: New
+								end
+							end
 						elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
 							table.insert(temp_plains_flat_no_feature, i);
 							table.insert(temp_marble_list, i);								-- MOD.Barathor: Updated
@@ -7594,6 +7731,11 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 							else
 								table.insert(temp_dry_plains_flat_no_feature, i);			-- MOD.Barathor: New
 							end
+							if plot:IsCoastalLand() then								-- MOD.HungryForFood: New Condition
+								if plot:GetLatitude() < 15 then							-- MOD.HungryForFood: New Condition
+									table.insert(temp_coconut_list, i);					-- MOD.HungryForFood: New
+								end
+							end
 						elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 							table.insert(temp_grass_flat_no_feature, i);
 							table.insert(temp_marble_list, i);							-- MOD.Barathor: Updated
@@ -7604,6 +7746,11 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 								table.insert(temp_fresh_water_grass_flat_no_feature, i);
 							else
 								table.insert(temp_dry_grass_flat_no_feature, i);
+							end
+							if plot:IsCoastalLand() then								-- MOD.HungryForFood: New Condition
+								if plot:GetLatitude() < 15 then							-- MOD.HungryForFood: New Condition
+									table.insert(temp_coconut_list, i);					-- MOD.HungryForFood: New
+								end
 							end
 						else
 							self.barren_plots = self.barren_plots + 1;
@@ -7670,6 +7817,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	self.desert_wheat_list = GetShuffledCopyOfTable(temp_desert_wheat_list)
 	self.banana_list = GetShuffledCopyOfTable(temp_banana_list)
 	self.tropical_marsh_list = GetShuffledCopyOfTable(temp_tropical_marsh_list)
+	self.coconut_list = GetShuffledCopyOfTable(temp_coconut_list)												-- MOD.HungryForFood: New
 	--
 	-- Set up the Global Luxury Plot Lists matrix, with indices synched to GetIndicesForLuxuryType()
 	self.global_luxury_plot_lists = {
@@ -8677,6 +8825,12 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								--
 								allowed_luxuries[self.fur_ID] = true
 								allowed_luxuries[self.dye_ID] = true
+								-- MOD.HungryForFood
+								if self:IsEvenMoreResourcesActive() == true then
+									allowed_luxuries[self.obsidian_ID] = true
+									allowed_luxuries[self.platinum_ID] = true
+									allowed_luxuries[self.tin_ID] = true
+								end
 							elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 								allowed_luxuries[self.marble_ID] = true
 								allowed_luxuries[self.gold_ID] = true
@@ -8690,6 +8844,13 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								--
 								allowed_luxuries[self.incense_ID] = true
 								allowed_luxuries[self.ivory_ID] = true
+								-- MOD.HungryForFood
+								if self:IsEvenMoreResourcesActive() == true then
+									allowed_luxuries[self.obsidian_ID] = true
+									allowed_luxuries[self.platinum_ID] = true
+									allowed_luxuries[self.poppy_ID] = true
+									allowed_luxuries[self.tin_ID] = true
+								end
 							elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
 								allowed_luxuries[self.marble_ID] = true
 								allowed_luxuries[self.gold_ID] = true
@@ -8719,6 +8880,14 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								allowed_luxuries[self.perfume_ID] = true
 								allowed_luxuries[self.olives_ID] = true
 								allowed_luxuries[self.incense_ID] = true
+								-- MOD.HungryForFood
+								if self:IsEvenMoreResourcesActive() == true then
+									allowed_luxuries[self.lavender_ID] = true
+									allowed_luxuries[self.obsidian_ID] = true
+									allowed_luxuries[self.platinum_ID] = true
+									allowed_luxuries[self.poppy_ID] = true
+									allowed_luxuries[self.tin_ID] = true
+								end
 							elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 								allowed_luxuries[self.marble_ID] = true
 								allowed_luxuries[self.gold_ID] = true
@@ -8748,6 +8917,14 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								allowed_luxuries[self.perfume_ID] = true
 								allowed_luxuries[self.olives_ID] = true	
 								allowed_luxuries[self.incense_ID] = true
+								-- MOD.HungryForFood
+								if self:IsEvenMoreResourcesActive() == true then
+									allowed_luxuries[self.lavender_ID] = true
+									allowed_luxuries[self.obsidian_ID] = true
+									allowed_luxuries[self.platinum_ID] = true
+									allowed_luxuries[self.poppy_ID] = true
+									allowed_luxuries[self.tin_ID] = true
+								end
 							end
 						end
 					end
@@ -9296,6 +9473,21 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 		primary, secondary, tertiary, quaternary, quinary, senary = 16, 11, 33, 24, 28, 2;
 	elseif resource_ID == self.cotton_ID then
 		primary, secondary, tertiary, quaternary, quinary, senary = 16, 11, 33, 24, 28, 2;
+	-- MOD.HungryForFood: Start
+	-- Even More Resources for Vox Populi
+	elseif self:IsEvenMoreResourcesActive() == true then
+		if resource_ID == self.lavender_ID then
+			primary, secondary, tertiary, quaternary, quinary, senary = 16, 11, 33, 24, 28, 2;
+		elseif resource_ID == self.obsidian_ID then
+			primary, secondary, tertiary, quaternary, quinary, senary = 27, 6, 24, 36, 37, 5;
+		elseif resource_ID == self.platinum_ID then
+			primary, secondary, tertiary, quaternary, quinary, senary = 27, 24, 36, 37, 5, 31;
+		elseif resource_ID == self.poppy_ID then
+			primary, secondary, tertiary, quaternary, quinary, senary = 4, 39, 11, 22, 33, 28;
+		elseif resource_ID == self.tin_ID then
+			primary, secondary, tertiary, quaternary, quinary, senary = 27, 24, 36, 37, 5, 31;
+		end
+	-- MOD.HungryForFood: End
 	end
 	--print("Found indices of", primary, secondary, tertiary, quaternary);
 	return primary, secondary, tertiary, quaternary, quinary, senary;		-- MOD.Barathor: New -- added a quinary and senary list
@@ -10545,7 +10737,17 @@ function AssignStartingPlots:PlaceOilInTheSea()
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:AdjustTiles()
+	--[[ MOD.Barathor: 
+	
+		 Hijacked this function and it now fixes many resource types.  Formerly, this function was FixSugarJungles.
+		 This function does not adjust terrain types (except when under jungle), so that terrain bands stay intact.
+	
+		 This allows much greater flexibility when assigning resources to the map. ]]
+
 	-- ####Not Communitu_79a's version since that depends on map settings, so here's a generic one
+	
+	-- This function was renamed to AdjustTiles from FixResourceGraphics
+
 	local iW, iH = Map.GetGridSize()
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
@@ -10563,7 +10765,19 @@ function AssignStartingPlots:AdjustTiles()
 			   res_ID == self.salt_ID or 
 			   res_ID == self.lapis_ID or 
 			   res_ID == self.jade_ID or 
-			   res_ID == self.amber_ID then 
+			   res_ID == self.amber_ID or
+			   -- MOD.HungryForFood: Start
+			   self:IsEvenMoreResourcesActive() == true and
+			   (
+			   res_ID == self.obsidian_ID or
+			   res_ID == self.platinum_ID or
+			   res_ID == self.tin_ID or
+			   res_ID == self.lead_ID or
+			   res_ID == self.sulfur_ID or
+			   res_ID == self.titanium_ID
+			   )
+			   -- MOD.HungryForFood: End
+			   then 
 			   
 				-- If a forest, jungle or flood plains is present, keep it.  Remove anything else.
 				if (featureType ~= FeatureTypes.FEATURE_FOREST) and (featureType ~= FeatureTypes.FEATURE_JUNGLE) and (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then
@@ -10579,7 +10793,15 @@ function AssignStartingPlots:AdjustTiles()
 				   res_ID == self.silk_ID or 
 				   res_ID == self.dye_ID or 
 				   res_ID == self.fur_ID or 
-				   res_ID == self.deer_ID then
+				   res_ID == self.deer_ID or
+				   -- MOD.HungryForFood: Start
+				   self:IsEvenMoreResourcesActive() == true and
+				   (
+				   res_ID == self.hardwood_ID or
+				   res_ID == self.rubber_ID
+				   )
+				   -- MOD.HungryForFood: End
+				   then
 				
 				if res_ID == self.fur_ID then
 					-- Always want it flat.  The foxes fall into the hills.
@@ -10648,7 +10870,14 @@ function AssignStartingPlots:AdjustTiles()
 				   res_ID == self.tobacco_ID or 
 				   res_ID == self.tea_ID or 
 				   res_ID == self.perfume_ID or 
-				   res_ID == self.cotton_ID then 
+				   res_ID == self.cotton_ID or 
+				   -- MOD.HungryForFood: Start
+				   self:IsEvenMoreResourcesActive() == true and
+				   (
+				   res_ID == self.poppy_ID
+				   )
+				   -- MOD.HungryForFood: End
+				   then
 				
 				if res_ID == self.ivory_ID then
 					-- Always want it flat.  Other types are fine on hills.
@@ -10738,6 +10967,17 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 	print(self.coral_ID,  	"Coral...: ", self.amounts_of_resources_placed[self.coral_ID + 1])
 	print(self.lapis_ID,  	"Lapis...: ", self.amounts_of_resources_placed[self.lapis_ID + 1])
 	print("-")
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		print("- Even More Resources for Vox Populi (Luxuries) -")
+		print(self.lavender_ID,  "Lavender: ", self.amounts_of_resources_placed[self.lavender_ID + 1])
+		print(self.obsidian_ID,  "Obsidian: ", self.amounts_of_resources_placed[self.obsidian_ID + 1])
+		print(self.platinum_ID,  "Platinum: ", self.amounts_of_resources_placed[self.platinum_ID + 1])
+		print(self.poppy_ID,     "Poppy...: ", self.amounts_of_resources_placed[self.poppy_ID + 1])
+		print(self.tin_ID,       "Tin.....: ", self.amounts_of_resources_placed[self.tin_ID + 1])
+		print("-")
+	end
+	-- MOD.HungryForFood: End
 	print("+ TOTAL.Lux: ", self.realtotalLuxPlacedSoFar)	-- MOD.Barathor: Fixed: The old variable gets corrupted with non-luxury additions after all luxuries have been placed.  This will display the correct total.
 	-- MOD.Barathor: End
 	print("-");
@@ -10759,6 +10999,21 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 	print(self.stone_ID,    "Stone...: ", self.amounts_of_resources_placed[self.stone_ID + 1])
 	print(self.bison_ID,    "Bison...: ", self.amounts_of_resources_placed[self.bison_ID + 1])
 	print("-");
+	-- MOD.HungryForFood: Start
+	if self:IsEvenMoreResourcesActive() == true then
+		print("- Even More Resources for Vox Populi (Bonus) -")
+		print(self.coconut_ID,  "Coconut.: ", self.amounts_of_resources_placed[self.coconut_ID + 1])
+		print(self.hardwood_ID, "Hardwood: ", self.amounts_of_resources_placed[self.hardwood_ID + 1])
+		print(self.lead_ID,     "Lead....: ", self.amounts_of_resources_placed[self.lead_ID + 1])
+		print(self.maize_ID,    "Maize...: ", self.amounts_of_resources_placed[self.maize_ID + 1])
+		print(self.pineapple_ID,"Pineapple: ", self.amounts_of_resources_placed[self.pineapple_ID + 1])
+		print(self.potato_ID,   "Potato..: ", self.amounts_of_resources_placed[self.potato_ID + 1])
+		print(self.rice_ID,     "Rice....: ", self.amounts_of_resources_placed[self.rice_ID + 1])
+		print(self.rubber_ID,   "Rubber..: ", self.amounts_of_resources_placed[self.rubber_ID + 1])
+		print(self.sulfur_ID,   "Sulfur..: ", self.amounts_of_resources_placed[self.sulfur_ID + 1])
+		print(self.titanium_ID, "Titanium: ", self.amounts_of_resources_placed[self.titanium_ID + 1])
+	end
+	-- MOD.HungryForFood: End
 	print("-----------------------------------------------------");
 end
 ------------------------------------------------------------------------------
