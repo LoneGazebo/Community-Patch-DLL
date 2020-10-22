@@ -3310,15 +3310,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		}
 #endif
 
-		//if there is no traderoute, pressure falls off with distance
-		iPressureMod -= iRelativeDistancePercent;
-
-		/*
-		//alternative version with quadratic scaling - higher pressure
-		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
-		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
-		iPressure = int(iPressure * fScaleFactor);
-		*/
+		//if there is no traderoute, base pressure falls off with distance
+		int iPressurePercent = max(100 - iRelativeDistancePercent,1);
+		iBasePressure = (iBasePressure*iPressurePercent) / 100;
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
@@ -3406,6 +3400,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 #endif
 
 	int iPressure = iBasePressure * (100 + iPressureMod);
+
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
 	return max(0, iPressure / 100);
 }
