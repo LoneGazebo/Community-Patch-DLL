@@ -5277,7 +5277,8 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
 	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-	return (iWithTR>iNoTR);
+	iAmount = (iWithTR - iNoTR);
+	return iAmount>0;
 }
 
 
@@ -10743,7 +10744,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 	if (!pMyReligion)
 		return 0;
 
-	//Inquisition reduces population so don't be overly zeleaous here
+	//Inquisition causes unrest so don't be overly zeleaous here
 	int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
 	int iThreshold = max(3,pCity->getPopulation()/3);
 
