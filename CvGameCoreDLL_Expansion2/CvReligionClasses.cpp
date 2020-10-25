@@ -7989,11 +7989,7 @@ bool CvReligionAI::DoFaithPurchases()
 // check whether a missionary or an inquisitor is better
 bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 {
-	//missionaries for easy targets first
-	if (HaveNearbyConversionTarget(eReligion, false, true))
-		return BuyMissionary(eReligion);
-
-	//inquisitors second
+	//inquisitors first
 	if (!HaveEnoughInquisitors(eReligion))
 		return BuyInquisitor(eReligion);
 
@@ -10959,7 +10955,8 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 			iNumNeeded++;
 	}
 
-	return iNumInquisitors >= iNumNeeded;
+	// We want two to spare ... 
+	return iNumInquisitors >= iNumNeeded + 2;
 }
 
 /// Do we have a belief that allows a faith generating building to be constructed?

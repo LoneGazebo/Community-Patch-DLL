@@ -306,25 +306,20 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
-#else
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
-#endif
 {
 	if (isHuman())
 		return;
 
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
-#if defined(MOD_BALANCE_CORE)
+
 	//Don't burn down gifts, that makes you look ungrateful.
 	if (bGift && eOriginalOwner != GetID())
 	{
 		pCity->DoCreatePuppet();
 		return;
 	}
-#endif
 
 	// Liberate a city?
 	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
@@ -2335,12 +2330,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
-	{
 		return NULL;
-	}
 
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
-
 	if(pCity == NULL)
 		return NULL;
 
@@ -2348,43 +2340,37 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 	CvPlot* pBestTarget = NULL;
 
 	// Find suitable adjacent plot
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	for(int iI = RING0_PLOTS; iI<RING2_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+		// Stay in ring 1 if there is a candidate
+		if (pBestTarget != NULL && iI >= RING1_PLOTS)
+			break;
 
-		if(pLoopPlot != NULL)
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(), iI);
+		if (pLoopPlot == NULL)
+			continue;
+
+		if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), true))
+			continue;
+
+		if(pLoopPlot->getResourceType() != NO_RESOURCE)
+			continue;
+
+		// Make sure this is still owned by target and is revealed to us
+		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+		if(!bRightOwner || !bIsRevealed)
+			continue;
+
+		// Don't be captured
+		if (pUnit->GetDanger(pLoopPlot) > 0)
+			continue;
+
+		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+		if(iDistance < iBestDistance)
 		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
-			{
-				continue;
-			}
-			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), false) || pLoopPlot->isMountain() || pLoopPlot->isIce())
-			{
-				continue;
-			}
-			if(pLoopPlot->getResourceType() != NO_RESOURCE)
-			{
-				continue;
-			}
-			// Make sure this is still owned by target and is revealed to us
-			bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-			bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-			if(!bRightOwner || !bIsRevealed)
-			{
-				continue;
-			}
-			// Don't be captured
-			if(pUnit->GetDanger(pLoopPlot)>0)
-				continue;
-
-			int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-
-			if(iDistance < iBestDistance)
-			{
-				iBestDistance = iDistance;
-				pBestTarget = pLoopPlot;
-			}
+			iBestDistance = iDistance;
+			pBestTarget = pLoopPlot;
 		}
 	}
 
