@@ -32979,22 +32979,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				DoUpdateMajorCivApproaches(v);
 			}
 
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
-				if(bAcceptable)
+				if (bAcceptable)
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US_YES);
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
 				}
 				else
 				{
-					if (IsDoFMessageTooSoon(eFromPlayer))
-					{
-						strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
-						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
-					}
-					else
-					{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US_NO);
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 				}
@@ -33934,21 +33927,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			break;
 		case COOP_WAR_STATE_REJECTED:
 		case COOP_WAR_STATE_WARNED_TARGET:
-			if (IsCoopWarMessageTooSoon(eFromPlayer, eTargetPlayer))
+			if (bActivePlayer)
 			{
-				if (bActivePlayer)
-				{
-					strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
-					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
-				}
-			}
-			else
-			{
-				if (bActivePlayer)
-				{
-					strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_NO);
-					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
-				}
+				strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_NO);
+				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 			}
 			break;
 		}
