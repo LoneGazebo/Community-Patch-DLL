@@ -306,25 +306,20 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
-#else
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
-#endif
 {
 	if (isHuman())
 		return;
 
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
-#if defined(MOD_BALANCE_CORE)
+
 	//Don't burn down gifts, that makes you look ungrateful.
 	if (bGift && eOriginalOwner != GetID())
 	{
 		pCity->DoCreatePuppet();
 		return;
 	}
-#endif
 
 	// Liberate a city?
 	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
@@ -1756,10 +1751,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* /*pGreatAdmira
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
-	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
-
 	bool bTheVeniceException = false;
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -1782,31 +1773,16 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	int iEmbassies = GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && pCity != NULL)
+	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
+	if (pCity && !bTheAustriaException && !bTheVeniceException)
 	{
-		if (!bTheAustriaException && !bTheVeniceException)
+		if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-			}
+			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
 
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		if(pCity == NULL || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
-	}
-
-	if ((GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
-	return eDirective;
+	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
 #endif
 
@@ -1919,48 +1895,75 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
+bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 {
-	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
 
-	// Loop through each city state
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	if(!pCity->plot()->isRevealed(kPlayer.getTeam()))
+		return false;
+
+	if (!kPlayer.GetDiplomacyAI()->IsHasMet(pCity->getOwner()))
+		return false;
+
+	if(atWar(kPlayer.getTeam(), kCityPlayer.getTeam()))
+		return false;
+
+	if (!pCity->isCapital())
+		return false;
+
+	//Danger
+	if(kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_HORDE) || 
+		kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_REBELLION) ||
+		kCityPlayer.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(ePlayer))
+		return false;
+
+	//Are we planning on conquering them?
+	if(kPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCityPlayer.GetID()) == MINOR_CIV_APPROACH_CONQUEST)
+		return false;
+
+	// Does somebody already have an embassy here?
+	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
+	// Iterate all plots owned by a city
+	ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+	for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && kPlayer.isMinorCiv())
-		{
-		//Loop through each city
-			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				if(pLoopCity)
-				{
-					int iScore = ScoreCityForDiplomat(pLoopCity, pUnit);
-					if(iScore > 0)
-					{
-						vTargets.push_back( pLoopCity,iScore);
-					}
-				}
-			}
-		}
+		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+		if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+			if(pCityPlot->getImprovementType() == eEmbassy)
+				return false;
 	}
 
-	//highest score first ..
-	if(vTargets.size() > 0)
-	{
-		vTargets.SortItems();
+	return true;
+}
 
-		//check if we can actually go there only if the city is promising
-		for (int i = 0; i < vTargets.size(); ++i )
+CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
+{
+	if (!pUnit)
+		return NULL;
+
+	//don't go too far out, it's dangerous
+	SPathFinderUserData data(pUnit, 0, 17);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
+	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+	set<PlayerTypes> badTargets;
+	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+	{
+		//don't check for cities directly because we cannot enter them ...
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 		{
-			CvCity* pCity = vTargets.GetElement(i);
-			if(pCity != NULL)
-			{
-				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-				if (pUnit->GeneratePath(pCity->plot(), iFlags))
-					return pCity;
-			}
+			//small performance optimization
+			if (badTargets.find(pPlot->getOwner()) != badTargets.end())
+				continue;
+
+			//we iterate by distance, so take the first one we find
+			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
+			if (WantEmbassyAt(GetID(), pCity))
+				return pCity;
+			else
+				badTargets.insert(pPlot->getOwner());
 		}
 	}
 
@@ -2017,99 +2020,6 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 
 	return NULL;
 }	
-
-int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit)
-{
-	int iScore = 0;
-	int iI;
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-	CvPlayer& eMinor = GET_PLAYER(pCity->getOwner());
-
-	// Skip if not revealed
-	if(!pCity->plot()->isRevealed(getTeam()))
-	{
-		return iScore;
-	}
-
-	// Return score if at war
-	if(atWar(getTeam(), kCityPlayer.getTeam()))
-	{
-		return iScore;
-	}
-
-	if(eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
-	{
-		return 0;
-	}
-
-	//Return score if we can't embark and they aren't on our landmass.
-	if(pCity->getArea() != pUnit->plot()->getArea())
-	{
-		if(!GET_TEAM(getTeam()).canEmbark())
-		{
-			return iScore;
-		}
-	}
-
-	// Do we already have an embassy here?
-	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
-	// Iterate all plots owned by a city
-
-	for(iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-	{
-		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-		if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
-		{
-			ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
-			ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
-			if(CSImprovement == eEmbassy)
-			{
-				return iScore;
-			}
-		}
-	}
-
-	//Are we planning on conquering them?
-	if(GetDiplomacyAI()->GetMinorCivApproach(kCityPlayer.GetID()) == MINOR_CIV_APPROACH_CONQUEST)
-	{
-		return iScore;
-	}
-
-	iScore = 500;
-
-	// Subtract distance (XML value important here!)
-	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
-
-	//Are there barbarians near the city-state? If so, careful!
-	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
-	{
-		iDistance *= 2;
-	}
-
-	//Let's downplay minors we can't walk to if we don't have embarkation.
-	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
-	{
-		iDistance *= 2;
-	}
-
-	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
-	{
-		iDistance *= 4;
-	}
-
-	//If this is way too far away, let's not penalize it too much.
-	iScore -= iDistance;
-
-	//All CSs should theoretically be valuable if we've gotten this far.
-	if(iScore <= 0)
-	{
-		iScore = 1;
-	}
-
-	return iScore;
-}
 	
 int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 {
@@ -2420,12 +2330,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
-	{
 		return NULL;
-	}
 
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
-
 	if(pCity == NULL)
 		return NULL;
 
@@ -2433,43 +2340,37 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 	CvPlot* pBestTarget = NULL;
 
 	// Find suitable adjacent plot
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	for(int iI = RING0_PLOTS; iI<RING2_PLOTS; iI++)
 	{
-		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+		// Stay in ring 1 if there is a candidate
+		if (pBestTarget != NULL && iI >= RING1_PLOTS)
+			break;
 
-		if(pLoopPlot != NULL)
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(), iI);
+		if (pLoopPlot == NULL)
+			continue;
+
+		if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), true))
+			continue;
+
+		if(pLoopPlot->getResourceType() != NO_RESOURCE)
+			continue;
+
+		// Make sure this is still owned by target and is revealed to us
+		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+		if(!bRightOwner || !bIsRevealed)
+			continue;
+
+		// Don't be captured
+		if (pUnit->GetDanger(pLoopPlot) > 0)
+			continue;
+
+		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+		if(iDistance < iBestDistance)
 		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
-			{
-				continue;
-			}
-			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), false) || pLoopPlot->isMountain() || pLoopPlot->isIce())
-			{
-				continue;
-			}
-			if(pLoopPlot->getResourceType() != NO_RESOURCE)
-			{
-				continue;
-			}
-			// Make sure this is still owned by target and is revealed to us
-			bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-			bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-			if(!bRightOwner || !bIsRevealed)
-			{
-				continue;
-			}
-			// Don't be captured
-			if(pUnit->GetDanger(pLoopPlot)>0)
-				continue;
-
-			int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-
-			if(iDistance < iBestDistance)
-			{
-				iBestDistance = iDistance;
-				pBestTarget = pLoopPlot;
-			}
+			iBestDistance = iDistance;
+			pBestTarget = pLoopPlot;
 		}
 	}
 

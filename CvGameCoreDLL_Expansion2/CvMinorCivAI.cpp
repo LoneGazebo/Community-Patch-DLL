@@ -4611,9 +4611,10 @@ void CvMinorCivAI::DoPickUniqueUnit()
 					}
 				}
 			}
-		}
 
-		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
+																	bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
+		}
 	}
 }
 
@@ -11433,8 +11434,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 
 	DoTestEndWarsVSMinors(eOldAlly, eNewAlly);
 #if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
-	if (MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES) 
-	{
+	if (MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES) {
 		DoTestEndSkirmishes(eNewAlly);
 	}
 #endif

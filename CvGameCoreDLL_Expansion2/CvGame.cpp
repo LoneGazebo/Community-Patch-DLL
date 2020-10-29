@@ -14824,8 +14824,6 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kTeam.updateTeamStatus();
 	initDiplomacy();
 
-	kPlayer.GetMinorCivAI()->DoPickInitialItems();
-	
 	// get the plot before transferring ownership
 	CvPlot *pPlot = pStartingCity->plot();
 
@@ -14834,6 +14832,8 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	// closest city to grant the bonus food for the civ first meeting this city state, before
 	// this function has finished executing.
 	kPlayer.setStartingPlot(pPlot);
+	kPlayer.GetMinorCivAI()->DoPickInitialItems();
+	
 	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
 	kPlayer.setFoundedFirstCity(true);
 	kPlayer.setCapitalCity(pNewCity);
