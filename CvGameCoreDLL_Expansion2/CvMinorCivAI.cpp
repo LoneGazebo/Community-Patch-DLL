@@ -4611,9 +4611,10 @@ void CvMinorCivAI::DoPickUniqueUnit()
 					}
 				}
 			}
-		}
 
-		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
+																	bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
+		}
 	}
 }
 
