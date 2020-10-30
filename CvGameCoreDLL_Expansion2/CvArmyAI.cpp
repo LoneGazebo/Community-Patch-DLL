@@ -324,9 +324,9 @@ int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 // FORMATION ACCESSORS
 
 /// Retrieve index of the formation used by this army
-MultiunitFormationTypes CvArmyAI::GetFormation() const
+CvMultiUnitFormationInfo* CvArmyAI::GetFormation() const
 {
-	return m_eFormation;
+	return m_eFormation != NO_MUFORMATION ? GC.getMultiUnitFormationInfo(m_eFormation) : NULL;
 }
 
 /// Set index of the formation used by this army
@@ -519,7 +519,7 @@ int CvArmyAI::GetArea() const
 
 CvFormationSlotEntry CvArmyAI::GetSlotInfo(int iSlotID)
 {
-	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(m_eFormation);
+	CvMultiUnitFormationInfo* thisFormation = GetFormation();
 	if (thisFormation && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
 		return thisFormation->getFormationSlotEntry(iSlotID);
 
@@ -831,24 +831,15 @@ bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 	if (m_estTurnsToCheckpoint.size() < 3)
 		return true;
 
-	// can't get better than this
-	if (m_estTurnsToCheckpoint.front() == 0)
+	// can't get much better than this
+	if (m_estTurnsToCheckpoint.front() < 2)
 		return true;
 
-	if (m_estTurnsToCheckpoint.front() == INT_MAX)
-	{
-		// check long-time block, otherwise ignore
-		if (m_estTurnsToCheckpoint.back() == INT_MAX)
-			return false;
-	}
-	else
-	{
-		// regular case, see if we made progress over several turns
-		if (m_estTurnsToCheckpoint.front() < m_estTurnsToCheckpoint.back())
-			return true;
-	}
+	// regular case, see if we made progress over several turns
+	if (m_estTurnsToCheckpoint.front() >= m_estTurnsToCheckpoint.back())
+		return false;
 
-	return false;
+	return true;
 }
 
 bool OperationalAIHelpers::HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits)

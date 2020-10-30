@@ -42,9 +42,7 @@ enum PathType
 	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach in N turns
 	PT_GENERIC_REACHABLE_PLOTS, //all plots that can be reached in N turns without knowning the particular unit
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
-	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
-	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
 	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
 	PT_TRADE_LAND,				//land trade (path or reachable plots if dest -1)
 	PT_BUILD_ROUTE,				//prospective route, land only
@@ -136,7 +134,7 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_REACHABLE_PLOTS), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 

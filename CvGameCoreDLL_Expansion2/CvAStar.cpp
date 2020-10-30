@@ -1664,8 +1664,7 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, const S
 /// Default heuristic cost
 int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	//todo: do we need tiebreaks here? cross product between step direction and target direction?
-	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2;
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1756,7 +1755,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	}
 
 	//for multi-unit formations it makes sense to have a wide path
-	if (bWide)
+	if (bWide && parent)
 	{
 		//direction looking backward!
 		DirectionTypes eRear = directionXY(pToPlot,pFromPlot);
@@ -1786,10 +1785,6 @@ int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const S
 int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
 {
 	return StepValidGeneric(parent,node,data,finder,false,true);
-}
-int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return StepValidGeneric(parent,node,data,finder,true,true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2479,20 +2474,12 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
-	case PT_GENERIC_ANY_AREA:
-		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL);
-		m_iBasicPlotCost = PATH_BASE_COST;
-		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
 		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidWide, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
-	case PT_GENERIC_ANY_AREA_WIDE:
-		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidWideAnyArea, NULL, NULL, NULL);
-		m_iBasicPlotCost = PATH_BASE_COST;
-		break;
 	case PT_TRADE_WATER:
-		SetFunctionPointers(NULL, PathHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
@@ -2938,6 +2925,7 @@ struct TradePathCacheData
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
 	bool m_bIsWoodlandMovementBonus:1;
+	bool m_bAvoidBarbs:1;
 
 	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
@@ -2945,6 +2933,7 @@ struct TradePathCacheData
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
 	inline bool IsWoodlandMovementBonus() const { return m_bIsWoodlandMovementBonus; }
+	inline bool AvoidBarbarians() const { return m_bAvoidBarbs; }
 };
 
 //	--------------------------------------------------------------------------------
@@ -2957,8 +2946,9 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 		pCacheData->m_ePlayer = data.ePlayer;
 		pCacheData->m_eTeam = kPlayer.getTeam();
-		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() || GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage();
+		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
+		pCacheData->m_bAvoidBarbs = (data.iTypeParameter < 0);
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
 		if (pPlayerTraits)
@@ -2980,6 +2970,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsWoodlandMovementBonus = false;
+		pCacheData->m_bAvoidBarbs = (data.iTypeParameter < 0);
 	}
 
 }
@@ -3043,12 +3034,14 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		return TRUE;
 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
-	CvMap& kMap = GC.getMap();
-	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 	if (pToPlot->isCity())
 	{
-		return TRUE;
+		if (pToPlot->getTeam() == pCacheData->GetTeam())
+			return TRUE;
+		else
+			return finder->IsPathDest(node->m_iX, node->m_iY);
 	}
 
 	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
@@ -3056,12 +3049,12 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		return FALSE;
 	}
 
-	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pCacheData->AvoidBarbarians() && pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{
 		return FALSE;
 	}
 
-	if(!pToPlot->isValidMovePlot( pCacheData->GetPlayer(), false ))
+	if (!pToPlot->isValidMovePlot( pCacheData->GetPlayer(), false ))
 	{
 		return FALSE;
 	}
@@ -3117,8 +3110,13 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		return TRUE;
 
 	//check passable improvements
-	if(pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false) && pNewPlot->isAdjacentToShallowWater() )
-		return TRUE;
+	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false) && pNewPlot->isAdjacentToShallowWater())
+	{
+		if (pNewPlot->getTeam() == pCacheData->GetTeam())
+			return TRUE;
+		else
+			return finder->IsPathDest(node->m_iX, node->m_iY);
+	}
 
 	return FALSE;
 }

@@ -1174,7 +1174,7 @@ int CvMilitaryAI::ScoreAttackTarget(CvAttackTarget & target)
 #endif
 
 	// Economic value / hardness of target
-	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints())) );
+	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
 
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fDesirability * fEconomicValue);
@@ -2703,7 +2703,7 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 0, eEnemy, pStartPlot->getArea(), pStartPlot->getOwningCity(), pStartPlot->getOwningCity());
 
 	bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
-	if (bIsEnemyZone || m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, eEnemy, pThreatenedCity->plot())==NULL)
+	if (bIsEnemyZone && m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, eEnemy, pThreatenedCity->plot())==NULL)
 		m_pPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 2, eEnemy, pThreatenedCity->getArea(), pThreatenedCity, pThreatenedCity);
 }
 

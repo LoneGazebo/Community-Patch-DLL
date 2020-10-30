@@ -16189,8 +16189,7 @@ void CvCity::CheckForOperationUnits()
 		if(pThisArmy)
 		{
 			// figure out the primary and secondary unit type to potentially build
-			MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
-			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
+			CvMultiUnitFormationInfo* thisFormation = pThisArmy->GetFormation();
 			if(thisFormation)
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
@@ -33899,8 +33898,7 @@ UnitTypes CvCity::GetUnitForOperation()
 			}
 #endif
 			// figure out the primary and secondary unit type to potentially build
-			MultiunitFormationTypes eFormation = pThisArmy->GetFormation();
-			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
+			CvMultiUnitFormationInfo* thisFormation = pThisArmy->GetFormation();
 			if(thisFormation)
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);

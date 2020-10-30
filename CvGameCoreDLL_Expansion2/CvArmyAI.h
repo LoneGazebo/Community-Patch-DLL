@@ -38,7 +38,7 @@ public:
 
 	int GetTurnsToCheckpoint(size_t iIndex) const
 	{
-		if (m_estTurnsToCheckpoint.size() < iIndex)
+		if (iIndex < m_estTurnsToCheckpoint.size())
 			return m_estTurnsToCheckpoint[iIndex];
 		
 		return -1;
@@ -127,7 +127,7 @@ public:
 	inline int GetOperationID() const { return m_iOperationID; }
 
 	// Formation accessors
-	MultiunitFormationTypes GetFormation() const;
+	CvMultiUnitFormationInfo* GetFormation() const;
 	void SetFormation(MultiunitFormationTypes eFormation);
 	int GetNumFormationEntries() const;
 	int GetNumSlotsFilled() const;
