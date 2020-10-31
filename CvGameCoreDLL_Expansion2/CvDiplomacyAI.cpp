@@ -32993,7 +32993,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 			}
 		}
-		}
 
 		break;
 	}

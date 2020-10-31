@@ -6379,6 +6379,37 @@ bool CvGame::IsAIWarBribesDisabled() const
 	return false;
 }
 
+/// Disable City Trading
+bool CvGame::IsAICityTradingHumanOnly() const
+{
+	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() == 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CvGame::IsAICityTradingDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() >= 2)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CvGame::IsAllCityTradingDisabled() const
+{
+	if (GC.getDIPLOAI_DISABLE_CITY_TRADING() >= 3)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Disable Insult Messages
 /// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
 bool CvGame::IsInsultMessagesDisabled() const
