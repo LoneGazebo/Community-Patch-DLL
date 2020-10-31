@@ -2528,7 +2528,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 			//see if we can make an easy kill
 			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
-			if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit,pEnemyUnit))
+			if (pEnemyUnit && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit,pEnemyUnit))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{

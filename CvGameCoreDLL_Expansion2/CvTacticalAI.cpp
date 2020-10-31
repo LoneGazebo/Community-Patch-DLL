@@ -3058,7 +3058,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 	{
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 		if (pOperation)
-			pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+			pOperation->SetToAbort(AI_ABORT_NO_UNITS);
 	}
 	else
 		pArmy->SetXY(pCoM->getX(),pCoM->getY());
@@ -4390,7 +4390,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			{
 				//unless we can eliminate the danger!
 				std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot(),m_pPlayer->getTeam());
-				if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
+				if (vAttackers.size() == 1 && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, vAttackers[0]))
 				{
 					if (GC.getLogging() && GC.getAILogging())
 					{
@@ -4410,7 +4410,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			{
 				std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot(),m_pPlayer->getTeam());
 				//try to turn the tables on him
-				if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
+				if (vAttackers.size() == 1 && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, vAttackers[0]))
 				{
 					if (GC.getLogging() && GC.getAILogging())
 					{
@@ -6828,15 +6828,14 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		int iDanger = pUnit->GetDanger(pPlot);
 		if (iDanger <= pUnit->healRate(pPlot)) //ignore pillage health here, it's a one-time effect and may lead into dead ends
 		{
-			int iScore = pUnit->healRate(pPlot) - iDanger / 5;
-			//friendly combat unit nearby = good
-			iScore += pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit);
+			int iScore = pUnit->healRate(pPlot) + pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit) * 3 - iDanger;
+
 			//can pillage = good
 			if (bPillage)
 				iScore += GC.getPILLAGE_HEAL_AMOUNT();
-			//higher distance = bad
+
+			//tiebreaker
 			iScore -= GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
-			//todo: check distance to enemy cities as well?
 
 			vCandidates.push_back(SPlotWithScore(pPlot, iScore));
 		}
@@ -7023,41 +7022,41 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 	return iDamage;
 }
 
-bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
+bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemyUnit)
 {
-	if (!pAttacker || !pDefender || pDefender->isDelayedDeath())
+	if (!pOurUnit || !pEnemyUnit || pEnemyUnit->isDelayedDeath())
 		return false;
 
 	//aircraft are different
-	if (pAttacker->getDomainType()==DOMAIN_AIR || pDefender->getDomainType()==DOMAIN_AIR)
+	if (pOurUnit->getDomainType()==DOMAIN_AIR || pEnemyUnit->getDomainType()==DOMAIN_AIR)
 		return false;
 
 	//see how the attack would go
 	int iDamageDealt = 0, iDamageReceived = 0;
-	iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pDefender->plot(), pAttacker->plot(), iDamageReceived);
+	iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemyUnit, pOurUnit, pEnemyUnit->plot(), pOurUnit->plot(), iDamageReceived);
 
-	//is it worth it?
-	if ( iDamageDealt+7 > pDefender->GetCurrHitPoints() && pAttacker->GetCurrHitPoints()-iDamageReceived > GC.getMAX_HIT_POINTS()/2 )
+	//is it worth it? (take into account some randomness ...)
+	if ( iDamageDealt-3 > pEnemyUnit->GetCurrHitPoints() && pOurUnit->GetCurrHitPoints()-iDamageReceived > 3 )
 	{
-		if (pAttacker->isRanged())
+		if (pOurUnit->isRanged())
 		{
 			//can we attack directly
-			if (pAttacker->canRangeStrikeAt(pDefender->getX(),pDefender->getY()))
+			if (pOurUnit->canRangeStrikeAt(pEnemyUnit->getX(),pEnemyUnit->getY()))
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getY());
+				pOurUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pEnemyUnit->getX(),pEnemyUnit->getY());
 				return true;
 			}
-			else if (pAttacker->canRangeStrike())
+			else if (pOurUnit->canRangeStrike())
 			{
 				//need to move and shoot
-				bool bIgnoreLOS = pAttacker->IsRangeAttackIgnoreLOS();
-				std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(), pAttacker->GetRange(), false, !bIgnoreLOS);
+				bool bIgnoreLOS = pOurUnit->IsRangeAttackIgnoreLOS();
+				std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pEnemyUnit->plot(), pOurUnit->GetRange(), false, !bIgnoreLOS);
 				for (std::vector<CvPlot*>::iterator it = vAttackPlots.begin(); it != vAttackPlots.end(); ++it)
 				{
-					if (pAttacker->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pAttacker->canEverRangeStrikeAt(pDefender->getX(), pDefender->getY(), *it, false))
+					if (pOurUnit->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pOurUnit->canEverRangeStrikeAt(pEnemyUnit->getX(), pEnemyUnit->getY(), *it, false))
 					{
-						pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-						pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
+						pOurUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+						pOurUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pEnemyUnit->getX(), pEnemyUnit->getY());
 						return true;
 					}
 				}
@@ -7065,9 +7064,9 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 		}
 		else //melee
 		{
-			if (pAttacker->TurnsToReachTarget(pDefender->plot(),0,1)==0)
+			if (pOurUnit->TurnsToReachTarget(pEnemyUnit->plot(),0,1)==0)
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY());
+				pOurUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pEnemyUnit->getX(),pEnemyUnit->getY());
 				return true;
 			}
 		}
