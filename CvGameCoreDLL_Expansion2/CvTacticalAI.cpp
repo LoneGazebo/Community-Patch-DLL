@@ -8452,6 +8452,12 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			//pillaging must have a positive score
 			if (newAssignment.iScore > 0)
 				possibleMoves.push_back(newAssignment);
+			else if (refAssignment.iScore > 0)
+				//if the current plot is good, assume we can stay here but recheck later
+				possibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_FINISH_TEMP));
+			else
+				//if the current plot is bad, try to find another use for the unit
+				possibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, -1, unit.eStrategy, 0, A_BLOCKED));
 		}
 		else
 		{
@@ -8824,6 +8830,9 @@ bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextT
 
 	//note that the score may well be lower than the initial score if we killed an enemy.
 	//also melee units might have taken attacker damage, so their danger score increased.
+	if (unit.eLastAssignment == A_MELEEKILL || unit.eLastAssignment == A_MELEEKILL_NO_ADVANCE)
+		iNextTurnScore += 50;
+
 	//if we have many units we can afford to allow some extra danger!
 	if (iNextTurnScore > -10 * nOurUnits)
 		return true;
@@ -9239,6 +9248,7 @@ const SAssignmentSummary& CvTacticalPosition::updateSummary(const STacticalAssig
 
 	//ignore those, they don't change the plot
 	case A_FINISH:
+	case A_FINISH_TEMP:
 	case A_BLOCKED:
 	case A_RESTART:
 	case A_PILLAGE:
@@ -9456,6 +9466,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 			refreshVolatilePlotProperties();
 		break;
 	case A_FINISH:
+	case A_FINISH_TEMP:
 	case A_BLOCKED:
 		itUnit->iMovesLeft = 0;
 		//todo: mark end turn plot? as opposed to transient blocks
@@ -10279,6 +10290,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		switch (vAssignments[i].eAssignmentType)
 		{
 		case A_INITIAL:
+		case A_FINISH_TEMP:
 			continue; //skip this!
 			break;
 		case A_MOVE:
