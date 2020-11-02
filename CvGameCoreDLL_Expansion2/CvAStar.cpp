@@ -2921,19 +2921,21 @@ struct TradePathCacheData
 {
 	PlayerTypes m_ePlayer;
 	TeamTypes m_eTeam;
+	bool m_bCanEmbark:1;
 	bool m_bCanCrossOcean:1;
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
 	bool m_bIsWoodlandMovementBonus:1;
-	bool m_bAvoidBarbs:1;
+	bool m_bArmyMode:1;
 
 	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
+	inline bool CanEmbark() const { return m_bCanEmbark; }
 	inline bool CanCrossOcean() const { return m_bCanCrossOcean; }
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
 	inline bool IsWoodlandMovementBonus() const { return m_bIsWoodlandMovementBonus; }
-	inline bool AvoidBarbarians() const { return m_bAvoidBarbs; }
+	inline bool IsArmyMode() const { return m_bArmyMode; }
 };
 
 //	--------------------------------------------------------------------------------
@@ -2947,8 +2949,9 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_ePlayer = data.ePlayer;
 		pCacheData->m_eTeam = kPlayer.getTeam();
 		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
+		pCacheData->m_bCanEmbark = GET_TEAM(kPlayer.getTeam()).canEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
-		pCacheData->m_bAvoidBarbs = (data.iTypeParameter < 0);
+		pCacheData->m_bArmyMode = (data.iTypeParameter > 0);
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
 		if (pPlayerTraits)
@@ -2966,11 +2969,12 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	{
 		pCacheData->m_ePlayer = NO_PLAYER;
 		pCacheData->m_eTeam = NO_TEAM;
-		pCacheData->m_bCanCrossOcean = false;
+		pCacheData->m_bCanCrossOcean = !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
+		pCacheData->m_bCanEmbark = !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsWoodlandMovementBonus = false;
-		pCacheData->m_bAvoidBarbs = (data.iTypeParameter < 0);
+		pCacheData->m_bArmyMode = (data.iTypeParameter > 0);
 	}
 
 }
@@ -3040,16 +3044,31 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	{
 		if (pToPlot->getTeam() == pCacheData->GetTeam())
 			return TRUE;
-		else
+		else if (pCacheData->IsArmyMode()) //do not go through non-targeted cities
 			return finder->IsPathDest(node->m_iX, node->m_iY);
+		else
+			return TRUE;
 	}
 
-	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
+	if (!pToPlot->isRevealed(pCacheData->GetTeam()))
 	{
 		return FALSE;
 	}
 
-	if (pCacheData->AvoidBarbarians() && pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pToPlot->isWater())
+	{
+		if (pCacheData->IsArmyMode()) //armies may sometimes use water
+		{
+			if (pCacheData->CanCrossOcean())
+				return TRUE;
+			if (pToPlot->isShallowWater() && pCacheData->CanEmbark())
+				return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	if (!pCacheData->IsArmyMode() && pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{
 		return FALSE;
 	}
@@ -3114,8 +3133,10 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 	{
 		if (pNewPlot->getTeam() == pCacheData->GetTeam())
 			return TRUE;
-		else
+		else if (pCacheData->IsArmyMode()) //do not go through non-targeted cities
 			return finder->IsPathDest(node->m_iX, node->m_iY);
+		else
+			return TRUE;
 	}
 
 	return FALSE;

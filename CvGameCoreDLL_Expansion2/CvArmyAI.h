@@ -51,6 +51,7 @@ public:
 			m_estTurnsToCheckpoint.pop_back();
 	};
 
+	void ResetTurnsToCheckpoint();
 	bool IsMakingProgressTowardsCheckpoint() const;
 
 	bool IsFree() const { return m_iUnitID == -1; }

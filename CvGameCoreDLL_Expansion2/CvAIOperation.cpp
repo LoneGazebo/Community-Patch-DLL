@@ -218,6 +218,11 @@ void CvAIOperation::SetMusterPlot(CvPlot* pMuster)
 	//update the distance
 	m_iDistanceMusterToTarget = GetStepDistanceBetweenPlots(GetMusterPlot(),GetTargetPlot());
 	m_progressToTarget.clear();
+
+	//make sure we don't dump units needlessly
+	CvArmyAI* pArmy = GetArmy(0);
+	for(int iI = 0; pArmy && iI < pArmy->GetNumFormationEntries(); iI++)
+		pArmy->GetSlotStatus(iI)->ResetTurnsToCheckpoint();
 }
 
 int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
@@ -456,6 +461,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	{
 		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit, turnsFromMuster, bMustEmbark, bMustBeDeepWaterNaval, freeSlotInfo) >= 0)
 		{
+			//now the real pathfinding
 			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 			int iTurnsToReachCheckpoint = pLoopUnit->TurnsToReachTarget(pMusterPlot, iFlags, GetMaximumRecruitTurns());
 			if (iTurnsToReachCheckpoint == INT_MAX)
@@ -549,7 +555,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 		if (GC.getGame().GetClosestCityDistanceInPlots(path.get(i)) < 3)
 		{
 			CvCity* pCity = GC.getGame().GetClosestCityByPlots(path.get(i));
-			if (pCity && GET_PLAYER(m_eOwner).IsAtWarWith(pCity->getOwner()))
+			if (pCity && GET_PLAYER(m_eOwner).isMajorCiv() && GET_PLAYER(m_eOwner).IsAtWarWith(pCity->getOwner()))
 				return NULL; //this will abort the operation
 		}
 	}
@@ -1594,7 +1600,10 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			if (pCoM && fX < iGatherTolerance && fY < iGatherTolerance && GetMusterPlot() && GetTargetPlot())
 			{
 				//be a bit careful, don't have units hanging around just anywhere
-				if (plotDistance(*pCoM,*GetTargetPlot())<plotDistance(*GetMusterPlot(),*GetTargetPlot()) &&	pCoM->getOwner() == m_eOwner)
+				//also don't update too frequently, because it interferes with the "progress to checkpoint" logic
+				if (plotDistance(*pCoM,*GetTargetPlot())<plotDistance(*GetMusterPlot(),*GetTargetPlot()) &&	
+					plotDistance(*pCoM,*GetMusterPlot())>2 &&	
+					pCoM->getOwner() == m_eOwner)
 					SetMusterPlot(pCoM);
 			}
 
@@ -1609,6 +1618,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			if (fX < iGatherTolerance && fY < iGatherTolerance)
 			{
 				//put the muster plot where our units are and go straight to movement phase
+				//this should only happen once ...
 				SetMusterPlot(pCoM);
 			}
 
@@ -3653,7 +3663,7 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnit
 	if (pMusterPlot)
 	{
 		//this is just a rough indication so we don't need to do pathfinding for all our units
-		SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, GetMaximumRecruitTurns());
+		SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_TRADE_WATER : PT_TRADE_LAND, 1, GetMaximumRecruitTurns()*4);
 		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 	}
 

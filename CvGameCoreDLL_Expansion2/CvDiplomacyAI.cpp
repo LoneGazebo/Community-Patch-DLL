@@ -13334,7 +13334,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
-		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST && !GetPlayer()->IsEmpireInBadShapeForWar());
+		//we want to have an army for conquest or for bullying.
+		//if we are out to bully we will never actually declare war because we will never set the "in place for attack" flag
+		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST && !GetPlayer()->IsEmpireInBadShapeForWar()) || GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_BULLY;
 
 		// Don't get into multiple wars at once (unless this is an easy target)
 		if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
@@ -13382,10 +13384,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					bWantToAttack = false;
 				}
 
-				// Don't attack someone else's vassal!
-				if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone() && !IsMaster(eTargetPlayer))
+				// Don't attack someone else's vassal unless we want to attack the master too
+				if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
 				{
-					bWantToAttack = false;
+					TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).GetMaster();
+					if ( GetMajorCivApproach( GET_TEAM(eMasterTeam).getLeaderID() ) != MAJOR_CIV_APPROACH_WAR )
+						bWantToAttack = false;
 				}
 			}
 		}
@@ -13475,18 +13479,15 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	else
 	{
 		// Our Approach with this player calls for war
-		if (bWantToAttack)
+		if (bWantToAttack && !IsAtWar(eTargetPlayer))
 		{
-			if (!IsAtWar(eTargetPlayer))
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 			{
-				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
-				{
-					if (IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
-					{	
-						bDeclareWar = true;
-						SetArmyInPlaceForAttack(eTargetPlayer, false);
-						SetWantsSneakAttack(eTargetPlayer, false);
-					}
+				if (IsArmyInPlaceForAttack(eTargetPlayer))
+				{	
+					bDeclareWar = true;
+					SetArmyInPlaceForAttack(eTargetPlayer, false);
+					SetWantsSneakAttack(eTargetPlayer, false);
 				}
 			}
 		}

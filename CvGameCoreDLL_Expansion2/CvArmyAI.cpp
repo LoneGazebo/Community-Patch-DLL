@@ -825,6 +825,12 @@ FDataStream& operator>>(FDataStream& loadFrom, MultiunitFormationTypes& writeTo)
 	return loadFrom;
 }
 
+void CvArmyFormationSlot::ResetTurnsToCheckpoint()
+{
+	//useful if eg the muster point was updated
+	m_estTurnsToCheckpoint.clear();
+}
+
 bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 {
 	//sometimes we get into a fight or there is a temporary block so we need some history
