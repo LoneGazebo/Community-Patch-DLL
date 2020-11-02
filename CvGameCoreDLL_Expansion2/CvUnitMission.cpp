@@ -133,106 +133,61 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-					FeatureTypes eFeature = hUnit->plot()->getFeatureType();
-					if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
-					{
-						// Don't bother looking if this is the build that removes this feature
-						if (!pkBuildInfo->isFeatureRemoveOnly(eFeature)) {
+				FeatureTypes eFeature = hUnit->plot()->getFeatureType();
+				if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
+				{
+					// Don't bother looking if this is the build that removes this feature
+					if (!pkBuildInfo->isFeatureRemoveOnly(eFeature)) {
 						
-							// We need to find the build that will remove eFeature.
-							CvBuildInfo* pRemoveBuild = NULL;
+						// We need to find the build that will remove eFeature.
+						CvBuildInfo* pRemoveBuild = NULL;
 						
-							// Assumes that the BuildFeatures table has an extra column RemoveOnly
-							for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
-								CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-								if(pRemoveBuildInfo) {
-									if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
-										CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
-										TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
+						// Assumes that the BuildFeatures table has an extra column RemoveOnly
+						for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
+							CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+							if(pRemoveBuildInfo) {
+								if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
+									CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
+									TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
 
-										if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
-											TechTypes ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
+									if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
+										TechTypes ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
 									
-											// We have a candidate build for removing this feature
-											if (ePrereqTech == NO_TECH) {
-												if (pRemoveBuild == NULL) {
-													pRemoveBuild = pRemoveBuildInfo;
-												}
-										}
-										else if (pTechs->HasTech(ePrereqTech)) {
-												if (pRemoveBuild == NULL) {
-													pRemoveBuild = pRemoveBuildInfo;
+										// We have a candidate build for removing this feature
+										if (ePrereqTech == NO_TECH) {
+											if (pRemoveBuild == NULL) {
+												pRemoveBuild = pRemoveBuildInfo;
 											}
-											else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
-													pRemoveBuild = pRemoveBuildInfo;
-												}
+									}
+									else if (pTechs->HasTech(ePrereqTech)) {
+											if (pRemoveBuild == NULL) {
+												pRemoveBuild = pRemoveBuildInfo;
+										}
+										else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
+												pRemoveBuild = pRemoveBuildInfo;
 											}
 										}
 									}
 								}
 							}
+						}
 						
-							if (pRemoveBuild != NULL) {
-								MissionData removeMission;
-								removeMission.eMissionType = eMission;
-								removeMission.iData1 = pRemoveBuild->GetID();
-								removeMission.iData2 = iData2;
-								removeMission.iFlags = iFlags;
-								removeMission.iPushTurn = GC.getGame().getGameTurn();
+						if (pRemoveBuild != NULL) {
+							MissionData removeMission;
+							removeMission.eMissionType = eMission;
+							removeMission.iData1 = pRemoveBuild->GetID();
+							removeMission.iData2 = iData2;
+							removeMission.iFlags = iFlags;
+							removeMission.iPushTurn = GC.getGame().getGameTurn();
 							
-								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-								UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
-								if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
-								{
-									bAppend = true;
-								}
+							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+							UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+							if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
+							{
+								bAppend = true;
 							}
 						}
-				}
-
-
-				ImprovementTypes eImprovement = NO_IMPROVEMENT;
-				RouteTypes eRoute = NO_ROUTE;
-
-				if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
-				{
-					eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
-				}
-				else
-				{
-					eRoute = (RouteTypes) pkBuildInfo->getRoute();
-				}
-
-				int iNumResource = 0;
-
-				// Update the amount of a Resource used up by popped Build
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					iNumResource = 0;
-
-					if(eImprovement != NO_IMPROVEMENT)
-					{
-						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-						CvAssert(pkImprovementInfo);
-						if(pkImprovementInfo)
-						{
-							iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
-						}
-					}
-					else if(eRoute != NO_ROUTE)
-					{
-						CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-						CvAssert(pkRouteInfo);
-						if(pkRouteInfo)
-						{
-							iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-						}
-					}
-
-					if(iNumResource > 0)
-					{
-						GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, iNumResource);
 					}
 				}
 			}
@@ -1746,6 +1701,52 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				BuildTypes currentBuild = (BuildTypes)(hUnit->HeadMissionData()->iData1);
 				// Gold cost for Improvement construction
 				kUnitOwner.GetTreasury()->ChangeGold(-kUnitOwner.getBuildCost(hUnit->plot(),currentBuild));
+
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(currentBuild);
+				if(pkBuildInfo)
+				{
+					ImprovementTypes eImprovement = NO_IMPROVEMENT;
+					RouteTypes eRoute = NO_ROUTE;
+
+					if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
+					{
+						eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
+					}
+					else
+					{
+						eRoute = (RouteTypes) pkBuildInfo->getRoute();
+					}
+
+					// Update the amount of a Resource used up by popped Build
+					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						int iNumResource = 0;
+
+						if(eImprovement != NO_IMPROVEMENT)
+						{
+							CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+							CvAssert(pkImprovementInfo);
+							if(pkImprovementInfo)
+							{
+								iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
+							}
+						}
+						else if(eRoute != NO_ROUTE)
+						{
+							CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+							CvAssert(pkRouteInfo);
+							if(pkRouteInfo)
+							{
+								iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
+							}
+						}
+
+						if(iNumResource > 0)
+						{
+							GET_PLAYER(hUnit->getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, iNumResource);
+						}
+					}
+				}
 
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 				gDLL->GameplayUnitWork(pDllUnit.get(),currentBuild);

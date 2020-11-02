@@ -921,9 +921,13 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
-		int iDistance = plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY());
+
+		// Keep the elements nicely separated
+		if (pZone->IsWater() != pNewZone->IsWater())
+			continue;
 
 		// If this is a temporary zone, matches if unowned and close enough
+		int iDistance = plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY());
 		if((pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL) &&
 		        (iDistance <= GetTacticalRangeTurns())) //awkward: turns vs plots
 		{

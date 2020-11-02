@@ -973,23 +973,14 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			bCitySameAsMuster = false;
 
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
-
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity())
+			if (pCity == pMusterPlot->getOwningCity() && pCity->isMatchingArea(pMusterPlot))
 				bCitySameAsMuster = true;
-			else if (!pThisOperation->IsNavalOperation() && pCity != NULL && pMusterPlot->getOwningCity() != NULL && pCity->getArea() == pMusterPlot->getOwningCity()->getArea())
-			{
-				int iDistance = plotDistance(pMusterPlot->getOwningCity()->getX(), pMusterPlot->getOwningCity()->getY(), pCity->getX(), pCity->getY());
-				if (iDistance <= 5)
-					bCitySameAsMuster = true;
-			}
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
-			{
-					continue;
-			}				
+				continue;
 #endif
 			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 
@@ -2288,6 +2279,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 	if(pCity == NULL)
 		return NULL;
 
+	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
@@ -2316,6 +2308,10 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 
 		// Don't be captured
 		if (pUnit->GetDanger(pLoopPlot) > 0)
+			continue;
+
+		// Anything here that blocks us?
+		if (!pUnit->canBuild(pLoopPlot, eEmbassy))
 			continue;
 
 		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());

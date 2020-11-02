@@ -18989,8 +18989,6 @@ void CvUnit::changeGroundAttackDamage(int iValue)
 	}
 }
 
-
-
 //	--------------------------------------------------------------------------------
 int CvUnit::cityAttackModifier() const
 {

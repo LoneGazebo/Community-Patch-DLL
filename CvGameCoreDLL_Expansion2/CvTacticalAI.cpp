@@ -1856,7 +1856,7 @@ void CvTacticalAI::PlotBarbarianCampDefense()
 			else if (currentDefender->isRanged())
 			{
 				//don't leave camp
-				TacticalAIHelpers::PerformOpportunityAttack(currentDefender);
+				TacticalAIHelpers::PerformRangedOpportunityAttack(currentDefender);
 				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
 			}
 			else
@@ -3461,30 +3461,40 @@ CvTacticalTarget* CvTacticalAI::GetNextUnitTarget()
 /// Capture the gold from a barbarian camp
 void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 {
-	size_t iMaxUnits = min(2u,m_CurrentMoveUnits.size());
-	for (size_t i=0; i<iMaxUnits; i++)
+	//ignore visibility here so the AI doesn't go naively after revealed but invisible camps ...
+	if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, false))
 	{
-		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
-		if (!pUnit)
-			continue;
-
-		//guarded camp?
-		if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, false))
+		bool bHaveGoodAttacker = false;
+		vector<CvUnit*> vUnits;
+		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
-			//a little bit of AI cheating here.
-			//the problem is that sometimes the camp is too strong to attack with a single unit, it needs an army to take it out
-			//so if we have a single unit it moves in, does nothing, reposition moves take it away, next turn it comes back etc.
-			//so we peek at the unit in the camp even if it's invisible and see if it's even worth going there
-
-			if (!TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
+			if (!pUnit)
 				continue;
 
-			ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+			//need at least one good attacker
+			if (TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot))
+				bHaveGoodAttacker = true;
+
+			vUnits.push_back(pUnit);
 		}
-		else //empty camp, move in and move on
+
+		//just get into position, we will attack next turn when in place
+		if (bHaveGoodAttacker)
+			PositionUnitsAroundTarget(vUnits, pTargetPlot, pTargetPlot);
+	}
+	else
+	{
+		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
+			if (!pUnit)
+				continue;
+
+			//grab the goodies
 			ExecuteMoveToPlot(pUnit, pTargetPlot, false);
+			if (pUnit->plot() == pTargetPlot)
+				break;
 		}
 	}
 }
@@ -4613,7 +4623,6 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 			//see if we can harrass the enemy first
 			if (pUnit->shouldPillage(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
 
 			//safety check
 			if (pUnit->GetDanger(pTarget) <= pUnit->GetCurrHitPoints())
@@ -4629,7 +4638,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
-					//see if we can harrass the enemy now
+					//see if we can harrass the enemy
 					TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
 					if (pUnit->shouldPillage(pUnit->plot()))
 						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
