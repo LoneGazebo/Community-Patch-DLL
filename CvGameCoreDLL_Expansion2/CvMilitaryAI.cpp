@@ -828,11 +828,17 @@ bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer)
 	if (m_pPlayer->GetDiplomacyAI()->IsMaster(eOtherPlayer))
 		return false;
 
+	//minors don't do sneak attacks
+	if (m_pPlayer->isMinorCiv() && m_pPlayer->IsAtPeaceWith(eOtherPlayer))
+		return false;
+
 	return m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eOtherPlayer);
 }
 
 size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 {
+	m_cachedTargets.clear();
+
 	vector<OptionWithScore<CvAttackTarget>> vOptions;
 	int iCityLoop = 0;
 	for (CvCity* pMusterCity = m_pPlayer->firstCity(&iCityLoop); pMusterCity != NULL; pMusterCity = m_pPlayer->nextCity(&iCityLoop))
@@ -903,13 +909,16 @@ size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 		}
 	}
 
-	m_cachedTargets.clear();
 	sort(vOptions.begin(), vOptions.end());
 
 	for (size_t i = 0; i < nMaxTargets && i < vOptions.size(); i++)
 	{
 		//ignore bad targets unless we are at war
 		if (vOptions[i].score < vOptions[0].score / 3 && m_pPlayer->IsAtPeaceWith(vOptions[i].option.GetTargetPlot()->getOwner()))
+			continue;
+
+		//don't target a city twice, only keep the best approach
+		if (IsCurrentAttackTarget(vOptions[i].option.GetTargetPlot()->getPlotCity()))
 			continue;
 
 		m_cachedTargets.push_back(vOptions[i].option);
@@ -927,6 +936,7 @@ size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 				pLog->Msg(msg.c_str());
 		}
 	}
+
 
 	return m_cachedTargets.size();
 }

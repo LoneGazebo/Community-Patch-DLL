@@ -1130,7 +1130,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 				int iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 				int iExpectedDamagePerTurn = ComputeTotalExpectedDamage(pTarget, pPlot);
 				//actual siege will typically be longer because not all units actually attack the city each turn
-				int iMaxSiegeTurns = 8;
+				int iMaxSiegeTurns = 13; //do we even need a limit here or is this handled through the tactical posture?
 
 				//assume the city heals each turn ...
 				if ( (iExpectedDamagePerTurn - GC.getCITY_HIT_POINTS_HEALED_PER_TURN())*iMaxSiegeTurns < iRequiredDamage )
@@ -2366,7 +2366,9 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
 	int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
 	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
-	CvPlot* pTargetPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
+	CvPlot* pTargetPlot = pTargetZone->GetZoneCity() ? 
+		pTargetZone->GetZoneCity()->plot() : GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
+	bool bCoastal = pTargetPlot->isCoastalLand();
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
 
 	int iAlreadyInZone = 0;
@@ -2379,7 +2381,8 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 		if(pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Proper domain of unit?
-			if ((pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
+			if (bCoastal ||
+				(pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
 				(!pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND))
 			{	
 				// don't use near-dead units to attack ... misuse the flag here to be more careful when attacking
@@ -2410,7 +2413,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 		return;
 
 	//the zone can be large, try to keep our units together
-	if (iAlreadyInZone > 0)
+	if (iAlreadyInZone > 0 && (!pTargetPlot->isCity() || pTargetZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY))
 		pTargetPlot = GC.getMap().plot( iCoMX/iAlreadyInZone,iCoMY/iAlreadyInZone );
 
 	if (m_CurrentMoveUnits.size() > 0)
@@ -7431,7 +7434,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
-		else
+		else if (pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
 			result.iScore = 100;
 
 		if (pUnit->IsGainsXPFromPillaging())
@@ -9199,17 +9202,14 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	}
 
 	//simply ignore visibility here, later there's a check if there is a valid tactical plot for the targets
-	if (eAggression > AL_NONE)
+	TCachedRangeAttackPlots::iterator itA = gRangeAttackPlotsLookup.find(make_pair(unit.iUnitID, unit.iPlotIndex));
+	if (itA != gRangeAttackPlotsLookup.end())
+		gAttackCacheHit++;
+	else
 	{
-		TCachedRangeAttackPlots::iterator itA = gRangeAttackPlotsLookup.find(make_pair(unit.iUnitID, unit.iPlotIndex));
-		if (itA != gRangeAttackPlotsLookup.end())
-			gAttackCacheHit++;
-		else
-		{
-			gAttackCacheMiss++;
-			vector<int> rangeAttackPlots = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, true, true);
-			gRangeAttackPlotsLookup[make_pair(unit.iUnitID, unit.iPlotIndex)] = rangeAttackPlots;
-		}
+		gAttackCacheMiss++;
+		vector<int> rangeAttackPlots = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, true, true);
+		gRangeAttackPlotsLookup[make_pair(unit.iUnitID, unit.iPlotIndex)] = rangeAttackPlots;
 	}
 }
 
