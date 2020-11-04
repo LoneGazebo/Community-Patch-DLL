@@ -597,7 +597,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 		return false;
 
 	//don't try to build additional units, only do this if we have enough at hand
-	return m_pPlayer->addAIOperation(opType, 0, eEnemy, -1, pTargetCity, pMusterCity) != NULL;
+	return m_pPlayer->addAIOperation(opType, 0, eEnemy, pTargetCity, pMusterCity) != NULL;
 }
 
 /// Spend money to quickly add a unit to a city
@@ -978,10 +978,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 		if (m_pPlayer->getFirstAIOperationOfType(opType,eTargetPlayer,pTargetPlot)!=NULL)
 			continue;
 
-		//simple heuristic
-		bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
-
-		m_pPlayer->addAIOperation(opType, iNumUnitsWillingToBuild, eTargetPlayer, -1, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity(), bOcean);
+		m_pPlayer->addAIOperation(opType, iNumUnitsWillingToBuild, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity());
 	}
 
 	return false;
@@ -1408,25 +1405,37 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 		if (bCoastalOnly && !pLoopCity->isCoastal())
 			continue;
 
-		//with the new danger plots, the stored threat value should be accurate
-		int iThreatValue = pLoopCity->getThreatValue();
+		//ignore danger - it's too volatile or rather it's too late then
+		int iThreatValue = 0;
 
 		if (pTactMap)
 		{
 			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
 
-			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iThreatValue += 50;
-			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iThreatValue += 50;
+			//todo: scale dominance contribution by exposure score?
+			if (pLandZone)
+			{
+				iThreatValue += pLandZone->GetBorderScore(DOMAIN_LAND);
+				if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
+			if (pWaterZone)
+			{
+				iThreatValue += pWaterZone->GetBorderScore(DOMAIN_SEA);
+				if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
 		}
 
 		// Is this a focused city? If so, we need to support it ASAP.
 		if (m_pPlayer->GetTacticalAI()->IsInFocusArea(pLoopCity->plot()))
 			iThreatValue += GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL();
 
-		float fScale = 1.f;
 		if (bIncludeFutureThreats)
 		{
 			int iNeutral = 0;
@@ -1463,20 +1472,19 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 				}
 			}
 
-			iThreatValue += (iNeutral * 5);
-			iThreatValue += (iBad * 10);
-			iThreatValue += (iSuperBad * 25);
+			iThreatValue += (iNeutral * 3);
+			iThreatValue += (iBad * 7);
+			iThreatValue += (iSuperBad * 11);
 		}
 
 		//note: we don't consider a cities size or economic importance here
 		//after all, small border cities are especially vulnerable
 
-		//tolerate some danger
-		if(iThreatValue <= GC.getCITY_HEAL_RATE())
-			continue;
+		//OutputDebugString( CvString::format("%s - threat %d\n", pLoopCity->getName().c_str(), iThreatValue ).c_str() );
+		vCities.push_back( std::make_pair( pLoopCity, iThreatValue ) );
 
-		//OutputDebugString( CvString::format("%s - threat %d - scale %.3f\n", pLoopCity->getName().c_str(), iThreatValue, fScale ).c_str() );
-		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
+		//remember it too
+		pLoopCity->setThreatValue(iThreatValue);
 	}
 
 	std::stable_sort(vCities.begin(), vCities.end(), PrSortByScore());
@@ -1485,23 +1493,13 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 	for (size_t i=0; i<vCities.size(); i++)
 	{
 		//keep only the top half of the scores
-		if (vCities[i].second < vCities[0].second/2)
+		if (vCities[i].second == 0 || vCities[i].second < vCities[0].second/2)
 			break;
 
 		result.push_back(vCities[i].first);
 	}
 
 	return result;
-}
-
-/// Which city is in the most danger now?
-CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats, bool bCoastalOnly)
-{
-	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats, bCoastalOnly);
-	if (allCities.empty())
-		return 0;
-	else
-		return allCities.front();
 }
 
 /// How big is our military compared to the recommended size?
@@ -2535,120 +2533,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 	}
 }
 
-void CvMilitaryAI::DoBarbs()
-{
-	MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
-	MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
-	bool bStrategyFightAWar =  MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, true);
-	// SEE IF THERE ARE OPERATIONS THAT NEED TO BE ABORTED
-
-	// Are we willing to risk pressing forward vs. barbarians?
-	bool bWillingToAcceptRisk = (m_iTotalThreatWeight / 2) < GetBarbarianThreatTotal() ||
-		m_pPlayer->GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0 || 
-		IsUsingStrategy(eStrategyBarbsCritical);
-
-	// if they have one of our civilians
-	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-	CvUnit* pLoopUnit = NULL;
-	int iBarbLoop;
-	for (pLoopUnit = BarbPlayer.firstUnit(&iBarbLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iBarbLoop))
-	{
-		if (pLoopUnit->GetOriginalOwner() == m_pPlayer->GetID() && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER))
-		{
-			bWillingToAcceptRisk = true;
-			break;
-		}
-	}
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	int iMinorLoop;
-	PlayerTypes eMinor;
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && !bWillingToAcceptRisk)
-	{
-		// Defend CSs that need help
-		for(iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-		{
-			eMinor = (PlayerTypes) iMinorLoop;
-			if(GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
-			{
-				TeamTypes eLoopTeam;
-				for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-				{
-					eLoopTeam = (TeamTypes) iTeamLoop;
-
-					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
-					{
-						if(GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_HORDE) || GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_REBELLION))
-						{
-							bWillingToAcceptRisk = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
-
-	//Let's hunt barbs if we want to expand
-	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
-	}
-	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
-	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
-	}
-	EconomicAIStrategyTypes eEarlyExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpansion))
-	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
-	}
-	//
-	// Operations vs. Barbarians
-	//
-	// If have aborted the eradicate barbarian strategy or if the threat level from civs is significantly higher than from barbs, we better abort all of them
-	if(!IsUsingStrategy(eStrategyBarbs) || (bStrategyFightAWar && !bWillingToAcceptRisk))
-	{
-		bool bFoundOneToDelete = true;
-		while(bFoundOneToDelete)
-		{
-			bFoundOneToDelete = false;
-			CvAIOperation* pOp = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP);
-			if (pOp)
-			{
-				pOp->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
-				bFoundOneToDelete = true;
-			}
-		}
-	}
-
-	if(!m_pPlayer->IsAtWar())
-	{
-		// SEE WHAT OPERATIONS WE SHOULD ADD
-		//
-		// Operation vs. Barbarians
-		//
-		// If running the eradicate barbarian strategy, the threat is low (no higher than 1 major threat), we're not at war, and we have enough units, then launch a new operation.
-		// Which one is based on whether or not we saw any barbarian camps
-
-		if(IsUsingStrategy(eStrategyBarbs) && !bStrategyFightAWar && bWillingToAcceptRisk)
-			if (!m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP))
-				m_pPlayer->addAIOperation(AI_OPERATION_DESTROY_BARBARIAN_CAMP, 0);
-	}
-}
-void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
+void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER)
 		return;
@@ -2676,17 +2561,15 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 		LogMilitarySummaryMessage(strTemp);
 	}
 
+	//land response
 	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
 	if (pMostThreatenedCity != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, ePlayer))
-		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 2, ePlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
+		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 0, ePlayer, pMostThreatenedCity);
 
+	//naval response
 	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
-	if (pMostThreatenedCoastalCity != NULL)
-	{
-		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pMostThreatenedCoastalCity->plot());
-		if (pCoastalPlot != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer))
-			m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 2, ePlayer, pMostThreatenedCoastalCity->getArea(), pMostThreatenedCoastalCity, pMostThreatenedCoastalCity, m_pPlayer->CanCrossOcean());
-	}
+	if (pMostThreatenedCoastalCity != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer))
+		m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 0, ePlayer, pMostThreatenedCoastalCity);
 }
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity)
@@ -2706,15 +2589,16 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 		// If we are really losing, let's pull back everywhere.	
 		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(NO_PLAYER, AI_ABORT_WAR_STATE_CHANGE);
 
-	//Let's make sure our base defenses are up.
+	//first a quick one
 	bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, eEnemy) != NULL;
 	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, true, pThreatenedCity->getArea(), pThreatenedCity->plot());
 	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getOwningCity() != NULL)
-		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 0, eEnemy, pStartPlot->getArea(), pStartPlot->getOwningCity(), pStartPlot->getOwningCity());
+		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 1, eEnemy, pStartPlot->getOwningCity());
 
+	//this may take a bit longer to arrange
 	bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
 	if (bIsEnemyZone && m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, eEnemy, pThreatenedCity->plot())==NULL)
-		m_pPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 2, eEnemy, pThreatenedCity->getArea(), pThreatenedCity, pThreatenedCity);
+		m_pPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 2, eEnemy, pThreatenedCity);
 }
 
 /// Abort or start operations as appropriate given the current threats and war states
@@ -2740,7 +2624,7 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 		bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
 		bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pThreatenedCity->plot()) != NULL;
 		if (!bHasOperationUnderway || bIsEnemyZone)
-			m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 1, ePlayer, pCoastalPlot->getArea(), pThreatenedCity, pThreatenedCity, m_pPlayer->CanCrossOcean());
+			m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 1, ePlayer, pThreatenedCity);
 	}
 }
 
@@ -2768,19 +2652,6 @@ void CvMilitaryAI::UpdateOperations()
 		return;
 
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-	///////////////////////////////
-	//////////////////////
-	// Operation vs. Barbs
-	//////////////////////
-	//////////////////////////////
-	DoBarbs();
-
-	///////////////////////////////
-	//////////////////////
-	// Operation vs. Other Civs
-	//////////////////////
-	//////////////////////////////
 
 	CvCity* pThreatenedCityA = m_pPlayer->GetThreatenedCityByRank(0);
 	CvCity* pThreatenedCityB = m_pPlayer->GetThreatenedCityByRank(1);
@@ -3022,6 +2893,14 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if(!bLand && pLoopUnit->getDomainType() != DOMAIN_SEA)
 			continue;
 
+		//don't kill our explorers if we need them
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && m_pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_NEEDED)
+			continue;
+
+		//don't kill our explorers if we need them
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED)
+			continue;
+
 		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
 		if(!bDeficitForcedDisband)
 		{
@@ -3117,11 +2996,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if( (!bStillNeeded || bIsUseless))
 		{
 			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
-
-			//prefer units which are at home, meaning we get some money back
-			if (pLoopUnit->canScrap())
-				iScore = (iScore * 8) / 10;
-
 			if(iScore < iBestScore)
 			{
 				iBestScore = iScore;
@@ -4295,11 +4169,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 
 			return true;
 		}
-		// If we have an operation of this type running, we don't want to turn this strategy off
-		else if(pPlayer->getFirstAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP))
-		{
-			return true;
-		}
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//Let's hunt barbs if we want to expand
 		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");

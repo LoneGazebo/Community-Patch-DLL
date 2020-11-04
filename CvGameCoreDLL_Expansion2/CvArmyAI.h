@@ -159,10 +159,6 @@ public:
 	int GetGoalX() const;
 	int GetGoalY() const;
 
-	// Army type doesn't differentiate between coastal navy and deepwater navy
-	void SetOceanMoves(bool bValue);
-	bool NeedOceanMoves() const;
-
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum, bool bIsRequired);
 	bool RemoveUnit(int iUnitId);

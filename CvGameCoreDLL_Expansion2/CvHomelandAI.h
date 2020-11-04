@@ -291,7 +291,7 @@ private:
 	bool ExecuteExplorerMoves(CvUnit* pUnit);
 
 	void ExecuteWorkerMoves();
-	void ExecuteMovesToSafestPlot();
+	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	bool ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn = false);
 
 	void ExecuteHeals();

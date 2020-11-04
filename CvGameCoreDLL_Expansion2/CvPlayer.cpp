@@ -5396,7 +5396,6 @@ void CvPlayer::UpdateCityThreatCriteria()
 		pLoopCity->SetCoastalThreatRank(-1);
 	}
 
-	//
 	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
 		threatenedCities[i]->SetThreatRank(i);
@@ -41392,15 +41391,14 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, int iArea, 
-	CvCity* pTarget, CvCity* pMuster, bool bGenericFlag /*interpretation depending on op type*/)
+CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
 	CvAIOperation* pNewOperation = CreateAIOperation(eOperationType,GC.getGame().GetNextGlobalID(),GetID(),eEnemy);
 	if (!pNewOperation)
 		return NULL;
 
 	//bail if impossible (just to avoid spamming the logs)
-	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, iMaxMissingUnits))
+	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, pTarget ? pTarget->plot() : NULL, iMaxMissingUnits))
 	{
 		delete pNewOperation;
 		return NULL;
@@ -41410,7 +41408,7 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	m_AIOperations.insert(std::make_pair(pNewOperation->GetID(), pNewOperation));
 
 	//check if initialization works out
-	pNewOperation->Init(iArea, pTarget, pMuster, bGenericFlag);
+	pNewOperation->Init(pTarget, pMuster);
 
 	//undo if necessary
 	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID )
@@ -47782,9 +47780,8 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
-	bIsSafe = false; //set a sane default
 	std::vector<SPlotWithScore> vSettlePlots;
 
 	//--------
@@ -47851,15 +47848,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			//--------------
 			if (bLogging) 
 			dump << pPlot << ",0," << iDanger << "," << iFertility << ",-1" << ",0" << std::endl;
-			//--------------
-			continue;
-		}
-
-		if(iTargetArea != -1 && pPlot->getArea() != iTargetArea)
-		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
 			//--------------
 			continue;
 		}
@@ -47997,26 +47985,20 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	if (vSettlePlots.empty())
 		return 0;
 
-	//see where our settler can go
-	ReachablePlots reachablePlots;
-	int iMaxSafeTurns = 3;
-	if (pUnit)
-	{
-		//worst case in jungle one turn equals one plot ...
-		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-	}
-
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
 	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
 
 	CvPlot* pTestPlot = vSettlePlots[0].pPlot;
 	//look at the best two and see if maybe the second one is much closer ...
-	if (vSettlePlots.size() > 1)
+	if (pUnit && vSettlePlots.size() > 1)
 	{
+		//see where our settler can go
+		//worst case in jungle one turn equals one plot ...
+		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+
 		CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
 		CvPlot* pTestPlotB = vSettlePlots[1].pPlot;
 		int iScoreA = vSettlePlots[0].score;
@@ -48024,59 +48006,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
 		ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
 
-		//if B is at least 80% as good but less than 80% of the distance
-		if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
-			pTestPlot = pTestPlotB;
-	}
-
-	ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
-	bool bCanReachThisTurn = false;
-	if (it != reachablePlots.end())
-	{
-		//a ranged attack or some fog danger is ok
-		bIsSafe = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))<30); 
-		bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
-	}
-
-	//if it's too far from our existing cities, it's still dangerous
-	if (bIsSafe && !bCanReachThisTurn)
-	{
-		int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
-		//also consider distance to settler here in case of re-targeting an operation
-		if (iDistanceToCity>iMaxSafeTurns && pTestPlot->getOwner()!=m_eID)
-			bIsSafe = false;
-	}
-
-	//check if it's too close to an enemy
-	if (bIsSafe && !bCanReachThisTurn)
-	{
-		//check if a settler would likely be captured
-		std::vector<CvPlot*> vBadPlots;
-		for(int iI = 0; iI < iNumPlots; iI++)
+		if (itA != reachablePlots.end() && itB != reachablePlots.end())
 		{
-			CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
-			if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
-				continue;
-
-			//careful with barbarians
-			if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-				vBadPlots.push_back(pPlot);
-			//careful with humans as well!
-			else if (pPlot->isCity() && GET_PLAYER(pPlot->getOwner()).isHuman())
-				vBadPlots.push_back(pPlot);
-		}
-
-		for (size_t j = 0; j < vBadPlots.size(); j++)
-		{
-			if (pTestPlot->getArea() != vBadPlots[j]->getArea())
-				continue;
-
-			int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
-			if (iDistanceToDanger <= iMaxSafeTurns)
-			{
-				bIsSafe = false;
-				break;
-			}
+			//if B is at least 80% as good but less than 80% of the distance
+			if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
+				pTestPlot = pTestPlotB;
 		}
 	}
 
@@ -49872,7 +49806,7 @@ bool CvPlayer::HasProject(ProjectTypes iProjectType) const
 
 bool CvPlayer::IsAtPeace() const
 {
-	return !IsAtWar();
+	return GetPlayersAtWarWith().empty();
 }
 
 bool CvPlayer::IsAtPeaceAllMajors() const
@@ -49892,43 +49826,23 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 
 bool CvPlayer::IsAtWar() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	//ignore the barbarian team here!
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && kTeam.isAtWar((TeamTypes)iTeam)) {
-			return true;
-		}
-	}
-
-	return false;
+	return !IsAtPeace();
 }
 
 bool CvPlayer::IsAtWarAnyMajor() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
+	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+		if (GET_PLAYER(*it).isMajorCiv())
 			return true;
-		}
-	}
 
 	return false;
 }
 
 bool CvPlayer::IsAtWarAnyMinor() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
+	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+		if (GET_PLAYER(*it).isMinorCiv())
 			return true;
-		}
-	}
 
 	return false;
 }

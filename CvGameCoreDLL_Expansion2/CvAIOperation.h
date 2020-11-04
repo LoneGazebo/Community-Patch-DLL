@@ -145,14 +145,14 @@ public:
 	virtual ~CvAIOperation();
 
 	//pure virtual methods for subclassing
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false) = 0;
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL) = 0;
 	virtual bool CheckTransitionToNextStage() = 0;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy) = 0;
 	virtual int GetDeployRange() const = 0;
 
 	//todo: replace init with this
 	//virtual void Init(const SPath& path) = 0; 
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
+	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	//accessors
 	AIOperationState GetOperationState()
@@ -251,7 +251,7 @@ protected:
 	int GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot* pTarget) const;
 
 	virtual CvArmyAI* AddArmy(MultiunitFormationTypes eFormation);
-	virtual bool SetUpArmy(CvArmyAI* pArmyAI, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL, bool bOceanMoves = false);
+	virtual bool SetUpArmy(CvArmyAI* pArmyAI, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices);
 
 	std::vector<int> m_viArmyIDs;
@@ -304,7 +304,7 @@ public:
 		CvAIOperation(iID,eOwner,eEnemy,eType,eMoveType) {}
 	virtual ~CvAIOperationMilitary() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual int GetDeployRange() const { return 3; }
 	virtual int GetMaximumRecruitTurns() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -342,7 +342,7 @@ public:
 	CvAIOperationCityAttackNaval(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_CITY_ATTACK_NAVAL,ARMY_TYPE_NAVAL) {}
 	virtual ~CvAIOperationCityAttackNaval() {}
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 };
 
 
@@ -357,7 +357,7 @@ public:
 	CvAIOperationCityAttackCombined(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_CITY_ATTACK_COMBINED,ARMY_TYPE_COMBINED) {}
 	virtual ~CvAIOperationCityAttackCombined() {}
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -371,9 +371,9 @@ public:
 	CvAIOperationNukeAttack(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_NUKE_ATTACK, ARMY_TYPE_AIR) {}
 	virtual ~CvAIOperationNukeAttack() {}
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual int GetDeployRange() const { return 12; }
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
+	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices);
@@ -395,7 +395,7 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_DESTROY_BARBARIAN_CAMP,ARMY_TYPE_LAND), m_iUnitToRescue(-1) {}
 	virtual ~CvAIOperationAntiBarbarian() {}
 
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
+	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
@@ -422,7 +422,7 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_PILLAGE_ENEMY,ARMY_TYPE_LAND) {}
 	virtual ~CvAIOperationPillageEnemy() {}
 
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
+	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual AIOperationTypes GetOperationType() const
 	{
@@ -451,13 +451,13 @@ public:
 		CvAIOperation(iID, eOwner, eEnemy, eType, ARMY_TYPE_ESCORT_LAND), m_eCivilianType(eCivilianType) {}
 	virtual ~CvAIOperationCivilian() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetDeployRange() const { return 1; }
 	virtual bool CheckTransitionToNextStage();
 
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID) = 0;
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit) = 0;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsEscorted() const;
@@ -494,13 +494,12 @@ public:
 		CvAIOperationCivilian(iID,eOwner,eEnemy,AI_OPERATION_FOUND_CITY, UNITAI_SETTLE) {}
 	virtual ~CvAIOperationCivilianFoundCity() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bQuick = false);
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
-	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, int iAreaID);
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
+	virtual CvUnit* FindBestCivilian();
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
 	virtual void	LogSettleTarget(const char* hint, CvPlot* pTarget) const;
 };
 
@@ -518,7 +517,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -535,7 +534,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -552,7 +551,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -567,7 +566,7 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_NAVAL_SUPERIORITY, ARMY_TYPE_NAVAL) {}
 	virtual ~CvAIOperationNavalSuperiority() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 

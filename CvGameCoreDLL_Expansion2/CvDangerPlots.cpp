@@ -333,33 +333,6 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			}
 		}
 	}
-
-	// testing city danger values
-	int iLoopCity = 0;
-	for(CvCity* pLoopCity = thisPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoopCity))
-	{
-		//adding danger would count each unit multiple times, is biased towards fast units
-		//so we pretend they would all attack the city and tally up the damage
-		//question is, what about our own defensive units in the area. should we count those as well?
-		int iEvalRange = 4;
-		int iThreatValue = 0;
-		for(int iX = -iEvalRange; iX <= iEvalRange; iX++)
-			for(int iY = -iEvalRange; iY <= iEvalRange; iY++)
-			{
-				CvPlot* pEvalPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iEvalRange);
-				if (pEvalPlot)
-				{
-					const CvUnit* pEnemy = pEvalPlot->getBestDefender(NO_PLAYER, thisPlayer.GetID(), NULL, true);
-					if (pEnemy)
-					{
-						int iAttackerDamage = 0; //to be ignored
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage,true,0,true);
-					}
-				}
-			}
-
-		pLoopCity->setThreatValue(iThreatValue);
-	}
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot

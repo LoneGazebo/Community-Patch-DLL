@@ -7319,6 +7319,9 @@ bool CvUnit::canUseForTacticalAI() const
 	if (IsGarrisoned() && GetGarrisonedCity()->isBorderCity())
 		return false;
 
+	if (IsCivilianUnit() && !(IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral()))
+		return false;
+
 	return true;
 }
 

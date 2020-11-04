@@ -1667,11 +1667,11 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					//Setup our defenses!
 					if(!kAttackingPlayer.isHuman())
 					{
-						kAttackingPlayer.GetMilitaryAI()->SetupDefenses(eDefendingPlayer);
+						kAttackingPlayer.GetMilitaryAI()->SetupInstantDefenses(eDefendingPlayer);
 					}
 					if(!kDefendingPlayer.isHuman())
 					{
-						kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
+						kDefendingPlayer.GetMilitaryAI()->SetupInstantDefenses(eAttackingPlayer);
 					}
 
 					// Update Diplo.

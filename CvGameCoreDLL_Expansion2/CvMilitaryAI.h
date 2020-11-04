@@ -221,7 +221,6 @@ public:
 		return max(0, m_iNumLandUnits - m_iNumLandUnitsInArmies - m_iMandatoryReserveSize/2);
 	};
 
-	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool bCoastalOnly = false);
 	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool bCoastalOnly = false);
 
 	int GetPercentOfRecommendedMilitarySize() const;
@@ -276,6 +275,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
+	void SetupInstantDefenses(PlayerTypes ePlayer);
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -303,11 +303,8 @@ public:
 	{
 		return m_iNumFreeCarriers;
 	}
+#endif
 
-#endif
-#if defined(MOD_BALANCE_CORE)
-	void SetupDefenses(PlayerTypes ePlayer);
-#endif
 private:
 
 	// Functions to process a turn
@@ -323,7 +320,6 @@ private:
 	void UpdateOperations();
 #if defined(MOD_BALANCE_CORE)
 	void DoNuke(PlayerTypes ePlayer);
-	void DoBarbs();
 	void CheckLandDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoCityAttacks(PlayerTypes ePlayer);

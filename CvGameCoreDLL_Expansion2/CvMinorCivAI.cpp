@@ -2862,11 +2862,9 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				CvCity* pMinorCap = pMinor->getCapitalCity();
 				if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
-
 					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
-						pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
+					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+						pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinorCap);
 				}
 			}
 
@@ -2938,7 +2936,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				CvCity* pMinorCap = pMinor->getCapitalCity();
 				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
 				if (pClosestCity)
-					pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pClosestCity);
+					pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinor->getCapitalCity(), pClosestCity);
 			}
 		}
 	}

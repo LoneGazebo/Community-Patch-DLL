@@ -3770,7 +3770,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
 	//check distance to all major players
-	//if homefront for more than one ...
+	//if homefront for at least one ...
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;

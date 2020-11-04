@@ -599,18 +599,6 @@ int CvArmyAI::GetGoalY() const
 	return m_iGoalY;
 }
 
-//Water parameters
-void CvArmyAI::SetOceanMoves(bool bValue)
-{
-	m_bOceanMoves = bValue;
-}
-
-/// Retrieve target plot X coordinate
-bool CvArmyAI::NeedOceanMoves() const
-{
-	return m_bOceanMoves;
-}
-
 // UNIT HANDLING
 /// Add a unit to our army (and we know which slot)
 void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
@@ -789,14 +777,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvArmyFormationSlot& writeTo)
 {
 	loadFrom >> writeTo.m_iUnitID;
 	//backward compatibility
-	//int iT0, iT1;
-	//loadFrom >> iT0;
-	//loadFrom >> iT1;
-	//writeTo.m_estTurnsToCheckpoint.clear();
-	//writeTo.m_estTurnsToCheckpoint.push_front(iT1);
-	//writeTo.m_estTurnsToCheckpoint.push_front(iT0);
+	int iT0, iT1;
+	loadFrom >> iT0;
+	loadFrom >> iT1;
+	writeTo.m_estTurnsToCheckpoint.clear();
+	writeTo.m_estTurnsToCheckpoint.push_front(iT1);
+	writeTo.m_estTurnsToCheckpoint.push_front(iT0);
 	//---
-	loadFrom >> writeTo.m_estTurnsToCheckpoint;
+	//loadFrom >> writeTo.m_estTurnsToCheckpoint;
 	//---
 	loadFrom >> writeTo.m_bIsRequired;
 	return loadFrom;

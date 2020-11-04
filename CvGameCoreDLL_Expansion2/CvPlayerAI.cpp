@@ -1458,8 +1458,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		else
 		{
-			bool bIsSafe;
-			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
+			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant);
 			if (pSettlePlot == NULL)
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
@@ -1473,8 +1472,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 	else if (pGreatMerchant->CanFoundColony())
 	{
-		bool bIsSafe;
-		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant);
 		if (pPlot != NULL)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1515,50 +1513,20 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
-	//if he has a directive, don't change it
-	if (pGreatGeneral->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		return pGreatGeneral->GetGreatPeopleDirective();
-
-	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
-
-	//in army or recently out of an army?
-	if (pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation() || pGreatGeneral->GetDanger(pGreatGeneral->plot()) > 0)
-	{
+	//during war we want field commanders
+	if (IsAtWar() || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
 
-	int iFriendlies = 0;
-	if (bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
-	{
-		iFriendlies++;
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if (pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
-				{
-					iFriendlies++;
-				}
-			}
-		}
-	}
-	if (iFriendlies > 2)
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-
-	int iGreatGeneralCount = 0;
+	int iGreatGeneralsNotUsingPower = 0;
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-		if(pLoopUnit->IsGreatGeneral())
-			iGreatGeneralCount++;
+		if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetGreatPeopleDirective()!=GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+			iGreatGeneralsNotUsingPower++;
 
 	std::vector<CvPlot*> vDummy;
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	//keep at least one general around
-	if(iGreatGeneralCount > 1 && pGreatGeneral->getArmyID() == -1)
+	//keep at least one general around for field command
+	if(iGreatGeneralsNotUsingPower > 1 && pGreatGeneral->getArmyID() == -1)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
 		//build a citadel
@@ -1566,6 +1534,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
+	//go to a border city
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
@@ -1625,42 +1594,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	return eDirective;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	//if he has a directive, don't change it
-	if (pGreatAdmiral->GetGreatPeopleDirective()!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		return pGreatAdmiral->GetGreatPeopleDirective();
-
-	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
-
-	if(pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation() || pGreatAdmiral->GetDanger(pGreatAdmiral->plot()) > 0)
+	if(IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
-	int iFriendlies = 0;
-	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
-	{
-		iFriendlies++;
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGreatAdmiral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_SEA)
-				{
-					iFriendlies++;
-				}
-			}
-		}
-	}
-	if(iFriendlies > 2)
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	//No war? Let's settle down.
 	int iGreatAdmiralCount = 0;
-
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -1680,16 +1619,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
-
-#else
-
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* /*pGreatAdmiral*/)
-{
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
-	return eDirective;
-}
-#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)

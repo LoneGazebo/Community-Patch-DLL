@@ -2451,7 +2451,7 @@ public:
 	CvAIOperation* getNextAIOperation();
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
-	CvAIOperation* addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy = NO_PLAYER, int iArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bGenericFlag = false);
+	CvAIOperation* addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy = NO_PLAYER, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	void deleteAIOperation(int iID);
 	CvAIOperation* getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	CvAIOperation* getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer);
@@ -2622,7 +2622,7 @@ public:
 
 	bool HaveGoodSettlePlot(int iAreaID);
 	vector<int> GetBestSettleAreas();
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;

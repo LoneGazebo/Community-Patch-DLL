@@ -3835,52 +3835,33 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 
 	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	bool bIsEarlyExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY) && pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-
-	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
-	vector<int> vSearchAreas = pPlayer->GetBestSettleAreas();
-	//try the available areas one after another, but global search first
-	vSearchAreas.insert(vSearchAreas.begin(), -1);
-
 	bool bStartedOp = false;
+
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-		for (size_t i = 0; i < vSearchAreas.size(); i++)
+		//this ignores all existing operations' targets by default so we won't pick the same plot twice
+		CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit);
+		if (!pBestSettle)
+			continue;
+
+		//we need good plots for our core cities, so hold off for a while if the plot is not good enough
+		//there's a chance we just haven't explored enough yet
+		int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
+		if (bIsEarlyExpansion && pPlayer->getCapitalCity())
 		{
-			bool bIsSafe = false;
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], bIsSafe);
-			if (!pBestSettle)
+			int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
+			if (iFoundValue < iCapitalFoundValue / 2)
+			{
+				CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - value %d - because it is not good enough", 
+					pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), iFoundValue);
+				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 				continue;
-
-			//we need good plots for our core cities, so hold off for a while if the plot is not good enough
-			//there's a chance we just haven't explored enough yet
-			int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
-			if (bIsEarlyExpansion && pPlayer->getCapitalCity())
-			{
-				int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
-				if (iFoundValue < iCapitalFoundValue / 2)
-				{
-					CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - area %d, value %d - because it is not good enough", 
-						pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), vSearchAreas[i], iFoundValue);
-					pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-					continue;
-				}
-			}
-
-			CvString msg = CvString::format("Trying settle plot for unit %d at %d,%d - area %d, value %d", 
-				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), iFoundValue);
-			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-
-			//could be a conquistador ...
-			bool bQuick = (bIsSafe || pLoopUnit->IsCombatUnit());
-			if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, pBestSettle->getArea(), NULL, NULL, bQuick)!=NULL)
-			{
-				//may fail if there is no path ...
-				pPlayer->GetHomelandAI()->LogHomelandMessage("Success!");
-				bStartedOp = true;
-				break;
 			}
 		}
+
+		if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, NULL, NULL)!=NULL)
+			bStartedOp = true;
 	}
 
 	return bStartedOp;

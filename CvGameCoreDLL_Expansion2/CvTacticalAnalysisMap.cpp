@@ -560,12 +560,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 {
 	TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
 
+	//weigh units close to the center of the zone higher
+	int iMaxDistance = GetTacticalRangeTurns();	//turns to plots is factor 2, distance to diameter is also factor 2
+	int iBias = 2; // some bias because action may still be spread out over the zone
+
 	// Loop through the dominance zones
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
-		//turns to plots is factor 2, distance to diameter is also factor 2
-		int iMaxDistance = GetTacticalRangeTurns();
 		CvCity *pZoneCity = pZone->GetZoneCity();
 
 		if(pZoneCity)
@@ -626,76 +628,57 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						continue;
 				}
 
-				int iBias = 2; // some bias because action may still be spread out over the zone
-				int iEffectiveDistance = MAX(iPlotDistance - iBias,0); 
-				int iMultiplier = iMaxDistance - iBias - iEffectiveDistance;  
-				if(iMultiplier > 0)
+				int iEffectiveDistance = MAX(0,iPlotDistance - iBias); 
+				int iMultiplier = MAX(1,iMaxDistance - iEffectiveDistance);  
+				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iMultiplier * m_iUnitStrengthMultiplier;
+				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iMultiplier * m_iUnitStrengthMultiplier;
+
+				if(bReducedStrength)
 				{
-					int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true);
-					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true);
-					if(bReducedStrength)
+					iUnitStrength /= 2;
+					iRangedStrength /= 2;
+				}
+
+				if (bEnemy)
+				{
+					if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 					{
-						iUnitStrength /= 2;
-						iRangedStrength /= 2;
-					}
-
-					if (bEnemy)
-					{
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						//CvString msg;
-						//msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
-						//	pZone->GetZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
-						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetOverallEnemyStrength());
-						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg);
-#endif
-
-						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-						{
-							pZone->AddEnemyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddEnemyNavalRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddEnemyNavalUnitCount(1);
-						}
-						else
-						{
-							pZone->AddEnemyMeleeStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddEnemyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddEnemyUnitCount(1);
-						}
-
-						//again only for enemies
-						if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iPlotDistance<pZone->GetDistanceOfClosestEnemyUnit())
-							pZone->SetDistanceOfClosestEnemyUnit(iPlotDistance);
-					}
-					else if (bFriendly)
-					{
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						//CvString msg;
-						//msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
-						//	pZone->GetZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
-						//	pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetOverallFriendlyStrength());
-						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg);
-#endif
-
-						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-						{
-							pZone->AddFriendlyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddFriendlyNavalRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddFriendlyNavalUnitCount(1);
-						}
-						else
-						{
-							pZone->AddFriendlyMeleeStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddFriendlyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
-							pZone->AddFriendlyUnitCount(1);
-						}
+						pZone->AddEnemyNavalStrength(iUnitStrength);
+						pZone->AddEnemyNavalRangedStrength(iRangedStrength);
+						pZone->AddEnemyNavalUnitCount(1);
 					}
 					else
 					{
-						//neutral has only very few stats
-						pZone->AddNeutralStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
-						pZone->AddNeutralUnitCount(1);
+						pZone->AddEnemyMeleeStrength(iUnitStrength);
+						pZone->AddEnemyRangedStrength(iRangedStrength);
+						pZone->AddEnemyUnitCount(1);
 					}
+
+					//again only for enemies
+					if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iPlotDistance<pZone->GetDistanceOfClosestEnemyUnit())
+						pZone->SetDistanceOfClosestEnemyUnit(iPlotDistance);
+				}
+				else if (bFriendly)
+				{
+
+					if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+					{
+						pZone->AddFriendlyNavalStrength(iUnitStrength);
+						pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
+						pZone->AddFriendlyNavalUnitCount(1);
+					}
+					else
+					{
+						pZone->AddFriendlyMeleeStrength(iUnitStrength);
+						pZone->AddFriendlyRangedStrength(iRangedStrength);
+						pZone->AddFriendlyUnitCount(1);
+					}
+				}
+				else
+				{
+					//neutral has only very few stats
+					pZone->AddNeutralStrength(iUnitStrength);
+					pZone->AddNeutralUnitCount(1);
 				}
 			}
 		}
