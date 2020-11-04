@@ -130,12 +130,12 @@ public:
 	// Formation accessors
 	CvMultiUnitFormationInfo* GetFormation() const;
 	void SetFormation(MultiunitFormationTypes eFormation);
-	int GetNumFormationEntries() const;
-	int GetNumSlotsFilled() const;
-	CvArmyFormationSlot* GetSlotStatus(int iSlotID) { return &m_FormationEntries[iSlotID]; }
+	size_t GetNumFormationEntries() const;
+	size_t GetNumSlotsFilled() const;
+	CvArmyFormationSlot* GetSlotStatus(size_t iSlotID) { return &m_FormationEntries[iSlotID]; }
 	const vector<CvArmyFormationSlot>& GetSlotStatus() const { return m_FormationEntries; }
-	CvFormationSlotEntry GetSlotInfo(int iSlotID);
-	vector<int> GetOpenSlots(bool bRequiredOnly) const;
+	CvFormationSlotEntry GetSlotInfo(size_t iSlotID) const;
+	vector<size_t> GetOpenSlots(bool bRequiredOnly) const;
 	DomainTypes GetDomainType() const;
 	void SetType(ArmyType eType);
 	ArmyType GetType() const;

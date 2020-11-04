@@ -428,7 +428,7 @@ int ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSize);
 MultiunitFormationTypes GetCurrentBestFormationTypeForLandAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForCombinedAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
-CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
+CvPlot* GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
 }
 
 #endif //CIV5_MILITARY_AI_H

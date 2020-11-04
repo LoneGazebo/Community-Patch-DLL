@@ -14041,7 +14041,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 		//now check territory also - majors only (minors are always open)
 		if ( bCheckTerritory && getTeam()!=NO_TEAM && getTeam()!=eTeam && !GET_TEAM(getTeam()).isMinorCiv())
 		{
-			if (!GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(getTeam()) && !GET_TEAM(eTeam).isAtWar(getTeam()))
+			if (!GET_TEAM(getTeam()).IsAllowsOpenBordersToTeam(eTeam) && !GET_TEAM(eTeam).isAtWar(getTeam()))
 			{
 				return false;
 			}

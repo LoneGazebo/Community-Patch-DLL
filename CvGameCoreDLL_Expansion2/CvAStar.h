@@ -437,6 +437,9 @@ void UnitPathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder);
 void TradePathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 
+int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
+int ArmyStepValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
+
 //helper functions
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
 

@@ -251,7 +251,7 @@ protected:
 	int GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot* pTarget) const;
 
 	virtual CvArmyAI* AddArmy(MultiunitFormationTypes eFormation);
-	virtual bool SetupWithSingleArmy(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL, CvUnit* pInitialUnit = NULL, bool bOceanMoves = false, bool bSkipRecruiting = false);
+	virtual bool SetUpArmy(CvArmyAI* pArmyAI, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL, bool bOceanMoves = false);
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices);
 
 	std::vector<int> m_viArmyIDs;
@@ -314,7 +314,7 @@ public:
 	virtual void OnSuccess() const;
 
 protected:
-	//the default version returns the initial target always
+	//default version does nothing
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
 };
 
@@ -329,7 +329,6 @@ public:
 	CvAIOperationCityAttackLand(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_CITY_ATTACK_LAND,ARMY_TYPE_LAND) {}
 	virtual ~CvAIOperationCityAttackLand() {}
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -396,7 +395,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_DESTROY_BARBARIAN_CAMP,ARMY_TYPE_LAND), m_iUnitToRescue(-1) {}
 	virtual ~CvAIOperationAntiBarbarian() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
 	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
 
 	virtual void Read(FDataStream& kStream);
@@ -424,7 +422,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_PILLAGE_ENEMY,ARMY_TYPE_LAND) {}
 	virtual ~CvAIOperationPillageEnemy() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
 	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, int iMaxMissingUnits);
 
 	virtual AIOperationTypes GetOperationType() const
@@ -591,8 +588,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_CITY_DEFENSE,ARMY_TYPE_LAND) {}
 	virtual ~CvAIOperationDefendCity() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
-
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 };
 
@@ -608,8 +603,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_RAPID_RESPONSE,ARMY_TYPE_LAND) {}
 	virtual ~CvAIOperationDefenseRapidResponse() {}
 
-	virtual void Init(int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
-
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
@@ -623,10 +616,9 @@ namespace OperationalAIHelpers
 	CvPlot* FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
 	CvPlot* FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
-	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, 	bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<int,CvFormationSlotEntry>>& availableSlots);
-	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, CvPlot* pRefPlot);
-	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, PlayerTypes eEnemy);
-	CvCity* GetNearestCoastalCityEnemy(PlayerTypes ePlayer, PlayerTypes eEnemy);
+	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, 	bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots);
+	CvCity* GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, CvPlot* pRefPlot);
+	pair<CvCity*, CvCity*> GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB);
 }
 
 #endif

@@ -16188,116 +16188,111 @@ void CvCity::CheckForOperationUnits()
 
 		if(pThisArmy)
 		{
-			// figure out the primary and secondary unit type to potentially build
-			CvMultiUnitFormationInfo* thisFormation = pThisArmy->GetFormation();
-			if(thisFormation)
+			CvFormationSlotEntry slotEntry = pThisArmy->GetSlotInfo(thisOperationSlot.m_iSlotID);
+			int iTempWeight = 100;
+			eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+			eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+			if(eBestUnit == NO_UNIT)
 			{
-				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
-				int iTempWeight = 100;
-				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
+				eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
-				if(eBestUnit == NO_UNIT)
+			}
+			if(eBestUnit != NO_UNIT)
+			{
+				iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
+				if(iTempWeight > 0)
 				{
-					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
-				}
-				if(eBestUnit != NO_UNIT)
-				{
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
-					if(iTempWeight > 0)
+					int iGoldCost = GetPurchaseCost(eBestUnit);
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+					if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 					{
-						int iGoldCost = GetPurchaseCost(eBestUnit);
-						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-						if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+						//Log it
+						CvString strLogString;
+						strLogString.Format("MOD - Buying unit for active operation from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+							pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+						GetCityStrategyAI()->LogHurryMessage(strLogString);
+
+						//take the money...
+						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
+						bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
+						if (bInvest)
 						{
-							//Log it
-							CvString strLogString;
-							strLogString.Format("MOD - Buying unit for active operation from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-							GetCityStrategyAI()->LogHurryMessage(strLogString);
-
-							//take the money...
-							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
-
-							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
-							if (bInvest)
+							const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
+							if (eUnitClass != NO_UNITCLASS)
 							{
-								const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
-								if (eUnitClass != NO_UNITCLASS)
+								SetUnitInvestment(eUnitClass, true);
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
 								{
-									SetUnitInvestment(eUnitClass, true);
-									if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+									if (getProductionProcess() != NO_PROCESS)
 									{
-										if (getProductionProcess() != NO_PROCESS)
-										{
-											clearOrderQueue();
-										}
-										pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+										clearOrderQueue();
 									}
-									else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+									pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+								}
+								else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+								{
+									if (getProductionProcess() != NO_PROCESS)
 									{
-										if (getProductionProcess() != NO_PROCESS)
-										{
-											clearOrderQueue();
-										}
-										pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+										clearOrderQueue();
 									}
+									pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 								}
 							}
-							else
+						}
+						else
+						{
+							//and train it!
+							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+							int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
+							CvAssertMsg(iResult != -1, "Unable to create unit");
+							if (iResult != -1)
 							{
-								//and train it!
-								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 								{
-									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-									{
-										pUnit->finishMoves();
-									}
-
-									//assume the unit will be recruited automatically?
-									kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-
-									CleanUpQueue();
-									return;
+									pUnit->finishMoves();
 								}
+
+								//assume the unit will be recruited automatically?
+								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+
+								CleanUpQueue();
+								return;
 							}
 						}
 					}
-					else
+				}
+				else
+				{
+					if(getProductionTurnsLeft(eBestUnit, 0) >= 7)
 					{
-						if(getProductionTurnsLeft(eBestUnit, 0) >= 7)
-						{
-							return;
-						}
+						return;
+					}
 
-						iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
-						if (iTempWeight > 0)
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
+					if (iTempWeight > 0)
+					{
+						pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
+						if(!bAppend)
 						{
-							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
-							if(!bAppend)
-							{
-								kPlayer.CityCommitToBuildUnitForOperationSlot(thisOperationSlot);
-								m_unitBeingBuiltForOperation = thisOperationSlot;
-								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-							}
-							//Log it
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-							if(pkUnitEntry)
-							{
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("MOD - Building unit for active operation from City root function: %s in %s. Turns: %d",
-										pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
-									GetCityStrategyAI()->LogHurryMessage(strLogString);
-								}
-							}
-							return;
+							kPlayer.CityCommitToBuildUnitForOperationSlot(thisOperationSlot);
+							m_unitBeingBuiltForOperation = thisOperationSlot;
+							kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 						}
+						//Log it
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+						if(pkUnitEntry)
+						{
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("MOD - Building unit for active operation from City root function: %s in %s. Turns: %d",
+									pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
+								GetCityStrategyAI()->LogHurryMessage(strLogString);
+							}
+						}
+						return;
 					}
 				}
 			}
@@ -33898,31 +33893,19 @@ UnitTypes CvCity::GetUnitForOperation()
 			}
 #endif
 			// figure out the primary and secondary unit type to potentially build
-			CvMultiUnitFormationInfo* thisFormation = pThisArmy->GetFormation();
-			if(thisFormation)
+			CvFormationSlotEntry slotEntry = pThisArmy->GetSlotInfo(thisOperationSlot.m_iSlotID);
+
+			eUnitAI = slotEntry.m_primaryUnitType;
+			eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+			if(eBestUnit == NO_UNIT)
 			{
-				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
-
-				eUnitAI = slotEntry.m_primaryUnitType;
-#if defined(MOD_BALANCE_CORE)
+				eUnitAI = slotEntry.m_secondaryUnitType;
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
-#else
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
-#endif
-				if(eBestUnit == NO_UNIT)
-				{
-					eUnitAI = slotEntry.m_secondaryUnitType;
-#if defined(MOD_BALANCE_CORE)
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
-#else
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
-#endif
-				}
+			}
 
-				if(eBestUnit != NO_UNIT)
-				{
-					return eBestUnit;
-				}
+			if(eBestUnit != NO_UNIT)
+			{
+				return eBestUnit;
 			}
 		}
 	}

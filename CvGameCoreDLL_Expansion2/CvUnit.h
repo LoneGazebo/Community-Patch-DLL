@@ -147,6 +147,10 @@ public:
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
 		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
+		//specials for army pathfinder
+		MOVEFLAG_ARMY_LAND_ONLY					= 0x10000000, //land plots; unowned, friendly or potential enemy
+		MOVEFLAG_ARMY_LAND_AND_WATER			= 0x20000000, //land and water plots; unowned, friendly or potential enemy
+		MOVEFLAG_ARMY_WATER_ONLY				= 0x40000000, //water plots; unowned, friendly or potential enemy
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),

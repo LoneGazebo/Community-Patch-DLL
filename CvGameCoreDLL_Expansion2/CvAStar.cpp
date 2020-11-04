@@ -2478,6 +2478,10 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidWide, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
+	case PT_ARMY:
+		SetFunctionPointers(NULL, StepHeuristic, ArmyStepCost, ArmyStepValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
 	case PT_TRADE_WATER:
 		SetFunctionPointers(NULL, StepHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
@@ -2926,7 +2930,6 @@ struct TradePathCacheData
 	bool m_bCanCrossMountain:1;
 	bool m_bIsRiverTradeRoad:1;
 	bool m_bIsWoodlandMovementBonus:1;
-	bool m_bArmyMode:1;
 
 	inline PlayerTypes GetPlayer() const { return m_ePlayer; }
 	inline TeamTypes GetTeam() const { return m_eTeam; }
@@ -2935,7 +2938,6 @@ struct TradePathCacheData
 	inline bool CanCrossMountain() const { return m_bCanCrossMountain; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
 	inline bool IsWoodlandMovementBonus() const { return m_bIsWoodlandMovementBonus; }
-	inline bool IsArmyMode() const { return m_bArmyMode; }
 };
 
 //	--------------------------------------------------------------------------------
@@ -2951,7 +2953,6 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanEmbark = GET_TEAM(kPlayer.getTeam()).canEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
-		pCacheData->m_bArmyMode = (data.iTypeParameter > 0);
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
 		if (pPlayerTraits)
@@ -2974,7 +2975,6 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossMountain = false;
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsWoodlandMovementBonus = false;
-		pCacheData->m_bArmyMode = (data.iTypeParameter > 0);
 	}
 
 }
@@ -2989,13 +2989,8 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
-	int iFromPlotX = parent->m_iX;
-	int iFromPlotY = parent->m_iY;
-	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
-
-	int iToPlotX = node->m_iX;
-	int iToPlotY = node->m_iY;
-	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
+	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
@@ -3040,35 +3035,24 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == pCacheData->GetTeam())
-			return TRUE;
-		else if (pCacheData->IsArmyMode()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-		else
-			return TRUE;
-	}
-
 	if (!pToPlot->isRevealed(pCacheData->GetTeam()))
 	{
 		return FALSE;
 	}
 
+	if (pToPlot->isCity())
+	{
+		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
+		//so we have to allow all cities
+		return TRUE;
+	}
+
 	if (pToPlot->isWater())
 	{
-		if (pCacheData->IsArmyMode()) //armies may sometimes use water
-		{
-			if (pCacheData->CanCrossOcean())
-				return TRUE;
-			if (pToPlot->isShallowWater() && pCacheData->CanEmbark())
-				return TRUE;
-		}
-
 		return FALSE;
 	}
 
-	if (!pCacheData->IsArmyMode() && pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
+	if (pToPlot->getRevealedImprovementType(pCacheData->GetTeam())==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{
 		return FALSE;
 	}
@@ -3087,10 +3071,7 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 {
 	CvMap& kMap = GC.getMap();
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
-
-	int iToPlotX = node->m_iX;
-	int iToPlotY = node->m_iY;
-	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
+	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
 
 	int iCost = PATH_BASE_COST;
 
@@ -3131,16 +3112,110 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 	//check passable improvements
 	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false) && pNewPlot->isAdjacentToShallowWater())
 	{
-		if (pNewPlot->getTeam() == pCacheData->GetTeam())
-			return TRUE;
-		else if (pCacheData->IsArmyMode()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-		else
-			return TRUE;
+		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
+		//so we have to allow all cities and forts
+		return TRUE;
 	}
 
 	return FALSE;
 }
+
+int ArmyStepCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar*)
+{
+	CvMap& kMap = GC.getMap();
+	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
+
+	int iScale = 100;
+	//prefer to stay close to routes ... even if we cannot really use them
+	if (pToPlot->isRoute())
+		iScale -= 54;
+	else if (pToPlot->isRoughGround())
+		//try to avoid rough plots. uneven number to avoid ties.
+		iScale += 57;
+	
+	return (PATH_BASE_COST*iScale)/100;
+}
+
+int ArmyStepValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+{
+	if(parent == NULL)
+		return TRUE;
+
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	if (!pToPlot->isRevealed(kPlayer.getTeam()))
+	{
+		return FALSE;
+	}
+
+	//cities
+	if (pToPlot->isCity())
+	{
+		if (pToPlot->getTeam() == kPlayer.getTeam())
+			return TRUE;
+		else if (finder->HasValidDestination()) //do not go through non-targeted cities
+			return finder->IsPathDest(node->m_iX, node->m_iY);
+	}
+
+	//check terrain
+	if (pToPlot->isWater())
+	{
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_ARMY_LAND_ONLY))
+			return FALSE;
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_ARMY_LAND_AND_WATER) && parent)
+		{
+			//allow moving into water only at the start plot (useful for recruiting)
+			CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);	
+			if (!pFromPlot->isWater() && (pFromPlot->getX() != finder->GetStartX() || pFromPlot->getY() != finder->GetStartY()))
+				return FALSE;
+		}
+		//we could check the trait directly but theoretically we could have an old army of non-oceangoing ships ...
+		if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
+			return FALSE;
+		if (pToPlot->isIce() && !kPlayer.CanCrossIce())
+			return FALSE;
+	}
+	else
+	{
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_ARMY_WATER_ONLY))
+			return FALSE;
+		if (pToPlot->isMountain() && !kPlayer.CanCrossMountain())
+			return FALSE;
+	}
+
+	//check territory
+	if (pToPlot->isOwned() && pToPlot->getTeam() != kPlayer.getTeam())
+	{
+		if (pToPlot->getOwner() == data.iTypeParameter) //type is enemy but we may be still at peace
+		{
+			return TRUE;
+		}
+
+		CvTeam& plotTeam = GET_TEAM(pToPlot->getTeam());
+		if (plotTeam.isAtWar(kPlayer.getTeam()))
+		{
+			return TRUE;
+		}
+
+		if (plotTeam.isMajorCiv())
+		{
+			if (plotTeam.IsAllowsOpenBordersToTeam(kPlayer.getTeam()))
+				return TRUE;
+		}
+		else
+		{
+			CvMinorCivAI* pMinorAI = GET_PLAYER(plotTeam.getLeaderID()).GetMinorCivAI();
+			if (pMinorAI->IsPlayerHasOpenBorders(kPlayer.GetID()))
+				return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 
 //	---------------------------------------------------------------------------
 CvPlot* CvPathNodeArray::GetTurnDestinationPlot(int iTurn) const

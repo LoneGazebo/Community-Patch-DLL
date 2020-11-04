@@ -2683,7 +2683,7 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
 	if (pMostThreatenedCoastalCity != NULL)
 	{
-		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMostThreatenedCoastalCity->plot());
+		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pMostThreatenedCoastalCity->plot());
 		if (pCoastalPlot != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer))
 			m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 2, ePlayer, pMostThreatenedCoastalCity->getArea(), pMostThreatenedCoastalCity, pMostThreatenedCoastalCity, m_pPlayer->CanCrossOcean());
 	}
@@ -2734,7 +2734,7 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 	if (!pThreatenedCity->isCoastal())
 		return;
 
-	CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatenedCity->plot());
+	CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pThreatenedCity->plot());
 	if(pCoastalPlot != NULL)
 	{
 		bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
@@ -3153,7 +3153,7 @@ UnitTypes CvMilitaryAI::GetUnitTypeForArmy(CvCity* pCity) const
 	int iLoop;
 	for (CvArmyAI* pLoopArmyAI = m_pPlayer->firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = m_pPlayer->nextArmyAI(&iLoop))
 	{
-		vector<int> vOpenSlots = pLoopArmyAI->GetOpenSlots(true);
+		vector<size_t> vOpenSlots = pLoopArmyAI->GetOpenSlots(true);
 		for (size_t i = 0; i < vOpenSlots.size(); i++)
 		{
 			CvFormationSlotEntry slot = pLoopArmyAI->GetSlotInfo(vOpenSlots[i]);
@@ -4644,7 +4644,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 }
 
 //todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
-CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam)
+CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam)
 {
 	if (!pTarget)
 		return NULL;

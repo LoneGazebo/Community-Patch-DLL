@@ -1539,14 +1539,14 @@ const char* CvMultiUnitFormationInfo::getFormationName() const
 	return m_strFormationName;
 }
 
-int CvMultiUnitFormationInfo::getNumFormationSlotEntries() const
+size_t CvMultiUnitFormationInfo::getNumFormationSlotEntries() const
 {
 	return m_vctSlotEntries.size();
 }
 
-int CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
+size_t CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
 {
-	int iCount = 0;
+	size_t iCount = 0;
 	for (size_t i = 0; i < m_vctSlotEntries.size(); i++)
 		if (m_vctSlotEntries[i].m_requiredSlot)
 			iCount++;
@@ -1558,7 +1558,7 @@ bool CvMultiUnitFormationInfo::IsRequiresNavalUnitConsistency() const
 	return m_bRequiresNavalUnitConsistency;
 }
 
-const CvFormationSlotEntry& CvMultiUnitFormationInfo::getFormationSlotEntry(int index) const
+const CvFormationSlotEntry& CvMultiUnitFormationInfo::getFormationSlotEntry(size_t index) const
 {
 	return m_vctSlotEntries[index];
 }

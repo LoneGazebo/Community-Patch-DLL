@@ -338,23 +338,23 @@ void CvArmyAI::SetFormation(MultiunitFormationTypes eFormation)
 
 		m_eFormation = eFormation;
 		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
-		for (int i=0; i<thisFormation->getNumFormationSlotEntries(); i++)
+		for (size_t i=0; i<thisFormation->getNumFormationSlotEntries(); i++)
 			m_FormationEntries.push_back( CvArmyFormationSlot(-1,thisFormation->getFormationSlotEntry(i).m_requiredSlot) );
 	}
 }
 
 /// How many slots are there in this formation if filled
-int CvArmyAI::GetNumFormationEntries() const
+size_t CvArmyAI::GetNumFormationEntries() const
 {
 	return m_FormationEntries.size();
 }
 
 /// How many slots do we currently have filled?
-int CvArmyAI::GetNumSlotsFilled() const
+size_t CvArmyAI::GetNumSlotsFilled() const
 {
-	int iRtnValue = 0;
+	size_t iRtnValue = 0;
 
-	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
+	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
 		if(m_FormationEntries[iI].IsUsed())
 		{
@@ -517,7 +517,7 @@ int CvArmyAI::GetArea() const
 	}
 }
 
-CvFormationSlotEntry CvArmyAI::GetSlotInfo(int iSlotID)
+CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
 	CvMultiUnitFormationInfo* thisFormation = GetFormation();
 	if (thisFormation && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
@@ -526,18 +526,12 @@ CvFormationSlotEntry CvArmyAI::GetSlotInfo(int iSlotID)
 	return CvFormationSlotEntry();
 }
 
-vector<int> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
+vector<size_t> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
 {
-	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(m_eFormation);
-
-	//something is wrong ...
-	if (!thisFormation || m_FormationEntries.size() != thisFormation->getNumFormationSlotEntries())
-		return vector<int>();
-
-	vector<int> result;
-	for (int i = 0; i<thisFormation->getNumFormationSlotEntries(); i++)
+	vector<size_t> result;
+	for (size_t i = 0; i<m_FormationEntries.size(); i++)
 		if (m_FormationEntries[i].IsFree())
-			if (!bRequiredOnly || thisFormation->getFormationSlotEntry(i).m_requiredSlot)
+			if (!bRequiredOnly || m_FormationEntries[i].IsRequired())
 				result.push_back(i);
 
 	return result;

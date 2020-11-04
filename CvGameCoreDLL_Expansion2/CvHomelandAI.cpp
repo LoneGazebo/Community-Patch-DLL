@@ -931,7 +931,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 			ReachablePlots turnsFromMuster;
 			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex()) );
 
-			vector<pair<int,CvFormationSlotEntry>> availableSlots(1,make_pair(0,CvFormationSlotEntry()));
+			vector<pair<size_t,CvFormationSlotEntry>> availableSlots(1,make_pair(0,CvFormationSlotEntry()));
 			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,turnsFromMuster,false,false,availableSlots)>=0)
 			{
 				CvHomelandUnit unit;
@@ -2153,7 +2153,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					int iLoop;
 					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTestCity->plot());
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pTestCity->plot());
 						if(pPlot != NULL)
 						{
 							if (pPlot->getArea() != pUnit->getArea())
