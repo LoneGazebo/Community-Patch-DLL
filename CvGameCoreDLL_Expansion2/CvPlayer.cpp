@@ -47518,6 +47518,8 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
+	//do not include medics here, it kills performance
+	//medics are range 1, they can easily be found by iterating the 6 neighbor plots
 	if (pUnit->isNearbyPromotion())
 	{
 		bool bFound = false;
@@ -47580,7 +47582,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		if (pLoopUnit->isNearbyPromotion() || pLoopUnit->getAdjacentTileHeal()>0)
+		//do not include medics here, it kills performance
+		//medics are range 1, they can easily be found by iterating the 6 neighbor plots
+		if (pLoopUnit->isNearbyPromotion())
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())

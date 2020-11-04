@@ -4782,7 +4782,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory())
 		return true;
 
-		// Minors can't intrude into one another's territory
+	// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
@@ -23426,28 +23426,6 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 		}
 	}
 	return iHP;
-}
-
-//a medic also affects itself!
-bool CvUnit::IsNearMedic(CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-		pAtPlot = plot();
-
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
-	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), pAtPlot->getX(), pAtPlot->getY()) > 1)
-			continue;
-
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getAdjacentTileHeal() != 0)
-			return true;
-	}
-
-	return false;
 }
 #endif
 //	--------------------------------------------------------------------------------
