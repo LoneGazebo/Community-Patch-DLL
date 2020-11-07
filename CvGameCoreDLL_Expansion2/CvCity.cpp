@@ -388,8 +388,6 @@ CvCity::CvCity() :
 	, m_iTradeRouteLandDistanceModifier("CvCity::m_iTradeRouteLandDistanceModifier", m_syncArchive)
 	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
-	, m_iThreatRank("CvCity::m_iThreatRank", m_syncArchive)
-	, m_iCoastalThreatRank("CvCity::m_iCoastalThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
 	, m_iUnitFaithPurchaseCooldown("CvCity::m_iUnitFaithPurchaseCooldown", m_syncArchive)
@@ -1514,8 +1512,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradeRouteSeaDistanceModifier = 0;
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradePrioritySea = 0;
-	m_iThreatRank = 0;
-	m_iCoastalThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
 	m_iUnitFaithPurchaseCooldown = 0;
@@ -3020,19 +3016,6 @@ bool CvCity::isCitySelected()
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::canBeSelected() const
-{
-	VALIDATE_OBJECT
-	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-
-//	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 void CvCity::updateYield(bool bRecalcPlotYields)
 #else
@@ -3100,32 +3083,6 @@ int CvCity::GetStaticYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
 	return m_aiStaticCityYield[eYield];
-}
-
-void CvCity::SetThreatRank(int iValue)
-{
-	if(iValue != m_iThreatRank)
-	{
-		m_iThreatRank = iValue;
-	}
-}
-int CvCity::GetThreatRank() const
-{
-	VALIDATE_OBJECT
-	return m_iThreatRank;
-}
-
-void CvCity::SetCoastalThreatRank(int iValue)
-{
-	if (iValue != m_iCoastalThreatRank)
-	{
-		m_iCoastalThreatRank = iValue;
-	}
-}
-int CvCity::GetCoastalThreatRank() const
-{
-	VALIDATE_OBJECT
-	return m_iCoastalThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)
@@ -26329,6 +26286,9 @@ void CvCity::DoBarbIncursion()
 		if(GET_PLAYER(getOwner()).isBarbarian())
 			return;
 
+		if (HasGarrison())
+			return;
+
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -29121,7 +29081,7 @@ void CvCity::setThreatValue(int iThreatValue)
 
 //	--------------------------------------------------------------------------------
 /// Getting the danger value threat amount
-int CvCity::getThreatValue(void)
+int CvCity::getThreatValue() const
 {
 	VALIDATE_OBJECT
 	return m_iThreatValue;

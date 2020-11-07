@@ -455,9 +455,8 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
 
 	//this is just a rough indication so we don't need to do pathfinding for all our units
-	SPathFinderUserData data(m_eOwner, PT_ARMY, m_eEnemy, GetMaximumRecruitTurns()*4);
+	SPathFinderUserData data(m_eOwner, PT_ARMY_MIXED, m_eEnemy, GetMaximumRecruitTurns()*4);
 	//cast a wide net for recruiting - land units may come from anywhere and mixed naval ops include land units
-	data.iFlags = CvUnit::MOVEFLAG_ARMY_LAND_AND_WATER;
 	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -538,9 +537,8 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	}
 
 	// use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
-	SPathFinderUserData data(m_eOwner, PT_ARMY, m_eEnemy);
 	//once the army has gathered both pure and mixed naval ops can only use water plots
-	data.iFlags = IsNavalOperation() ? CvUnit::MOVEFLAG_ARMY_WATER_ONLY : CvUnit::MOVEFLAG_ARMY_LAND_ONLY;
+	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -585,10 +583,9 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot*
 			return -1;
 	}
 
-	// use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
-	SPathFinderUserData data(m_eOwner, PT_ARMY, m_eEnemy);
+	//use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
 	//once the army has gathered both pure and mixed naval ops can only use water plots
-	data.iFlags = IsNavalOperation() ? CvUnit::MOVEFLAG_ARMY_WATER_ONLY : CvUnit::MOVEFLAG_ARMY_LAND_ONLY;
+	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -2372,39 +2369,39 @@ AIOperationAbortReason CvAIOperationNavalSuperiority::VerifyOrAdjustTarget(CvArm
 /// Find the nearest enemy naval unit to eliminate
 CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 {
-	CvPlot* pPlot = NULL;
+	CvPlot* pCurrent = GetArmy(0) ? GetArmy(0)->GetCurrentPlot() : NULL;
+	CvPlot* pTarget = NULL;
+	int iClostestDistance = INT_MAX;
 
-	// Defend the city most under threat
-	CvCity* pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
+	//once the army has gathered both pure and mixed naval ops can only use water plots
+	SPathFinderUserData data(m_eOwner, PT_ARMY_WATER, m_eEnemy);
+	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
+		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
-	if (pTargetCity == NULL || !pTargetCity->isCoastal())
+	vector<CvCity*> coastCities = GET_PLAYER(m_eOwner).GetThreatenedCities(true);
+	for (size_t i = 0; i < coastCities.size() && i < 3; i++)
 	{
-		CvCity* pEnemyCapital = GET_PLAYER(m_eEnemy).getCapitalCity();
-		if (pEnemyCapital != NULL)
+		if (!pCurrent)
+			return MilitaryAIHelpers::GetCoastalWaterNearPlot(coastCities[i]->plot(), true);
+
+		SPath path = GC.GetStepFinder().GetPath(pCurrent, coastCities[i]->plot(), data);
+		if (!!path && path.length() < iClostestDistance)
 		{
-			pTargetCity = GC.getMap().findCity(pEnemyCapital->getX(), pEnemyCapital->getY(), m_eOwner, NO_TEAM, true, true, NO_TEAM, NO_DIRECTION, NULL);
+			iClostestDistance = path.length();
+			pTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(coastCities[i]->plot(), true);
 		}
 	}
 
-	if (pTargetCity != NULL && pTargetCity->isCoastal())
+	if (ppMuster)
 	{
-		pPlot = pTargetCity->plot();
-
-		if (ppMuster)
-		{
-			CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pPlot, 23, true);
-			if (!pMusterCity)
-				pMusterCity = pTargetCity;
-
-			if (pMusterCity->isCoastal())
-			{
-				*ppMuster = pMusterCity->plot();
-			}
-		}
+		CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,pTarget);
+		if (pMusterCity && pMusterCity->isCoastal())
+			*ppMuster = pMusterCity->plot();
+		else
+			*ppMuster = pTarget;
 	}
 
-	return pPlot;
+	return pTarget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2947,7 +2944,6 @@ void CvAIOperationCivilian::Read(FDataStream& kStream)
 {
 	CvAIOperation::Read(kStream);
 	kStream >> m_eCivilianType;
-	kStream >> m_eFormation;
 }
 
 /// Write serialized data
@@ -2955,7 +2951,6 @@ void CvAIOperationCivilian::Write(FDataStream& kStream) const
 {
 	CvAIOperation::Write(kStream);
 	kStream << m_eCivilianType;
-	kStream << m_eFormation;
 }
 
 
@@ -3152,8 +3147,7 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 				if (iScore > iBestScore)
 				{
 					//check if we can go there, some camps are remote in mountains or behind foreign territory
-					SPathFinderUserData data(ePlayer, PT_ARMY, BARBARIAN_PLAYER, 23);
-					data.iFlags = CvUnit::MOVEFLAG_ARMY_LAND_ONLY;
+					SPathFinderUserData data(ePlayer, PT_ARMY_LAND, BARBARIAN_PLAYER, 23);
 					SPath path = GC.GetStepFinder().GetPath(pLoopCity->plot(), pBestPlot, data);
 					if (!!path)
 					{
@@ -3402,8 +3396,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 					if(pLoopCityA->hasSharedAdjacentArea(pLoopCityB))
 					{
 						//pathfinding for player A, not entirely symmetric ...
-						SPathFinderUserData data(ePlayerA, PT_ARMY, ePlayerB);
-						data.iFlags = CvUnit::MOVEFLAG_ARMY_WATER_ONLY;
+						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB);
 						if (!GET_PLAYER(ePlayerA).CanCrossOcean())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -3503,9 +3496,8 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 		bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
 
 		//this is just a rough indication so we don't need to do pathfinding for all our units
-		SPathFinderUserData data(m_eOwner, PT_ARMY, m_eEnemy, GetMaximumRecruitTurns()*4);
+		SPathFinderUserData data(m_eOwner, PT_ARMY_MIXED, m_eEnemy, GetMaximumRecruitTurns()*4);
 		//cast a wide net for recruiting - land units may come from anywhere and mixed naval ops include land units
-		data.iFlags = CvUnit::MOVEFLAG_ARMY_LAND_AND_WATER;
 		if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 			data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);

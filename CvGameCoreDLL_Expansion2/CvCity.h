@@ -99,8 +99,6 @@ public:
 	void doTurn();
 
 	bool isCitySelected();
-	bool canBeSelected() const;
-	void updateSelectedCity();
 #if defined(MOD_BALANCE_CORE)
 	void updateYield(bool bRecalcPlotYields = true);
 	void ResetGreatWorkYieldCache();
@@ -111,12 +109,6 @@ public:
 	void UpdateCityYields(YieldTypes eYield);
 	void SetStaticYield(YieldTypes eYield, int iValue);
 	int GetStaticYield(YieldTypes eYield) const;
-
-	void SetThreatRank(int iValue);
-	int GetThreatRank() const;
-
-	void SetCoastalThreatRank(int iValue);
-	int GetCoastalThreatRank() const;
 
 	void SetTradePriorityLand(int iValue);
 	int GetTradePriorityLand(void) const;
@@ -1550,7 +1542,7 @@ public:
 	bool isValidBuildingLocation(BuildingTypes eIndex) const;
 
 	void setThreatValue(int iThreatValue);
-	int getThreatValue(void);
+	int getThreatValue() const;
 
 	void clearOrderQueue();
 	void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush=false);
@@ -1974,8 +1966,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyDefense;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
-	FAutoVariable<int, CvCity> m_iThreatRank;
-	FAutoVariable<int, CvCity> m_iCoastalThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;

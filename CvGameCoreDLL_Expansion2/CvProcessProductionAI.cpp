@@ -159,15 +159,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			if (iNumWar > 0)
 			{
 				iModifier += (iNumWar * 5);
-				if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
-				{
-					//More cities = more threat.
-					int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 5;
-					if (iThreat > 0)
-					{
-						iModifier += iThreat;
-					}
-				}
+				iModifier += m_pCity->getThreatValue();
+
 				if (m_pCity->isBorderCity())
 				{
 					iModifier += 25;

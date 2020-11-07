@@ -135,7 +135,7 @@ public:
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
-	CvCity* GetThreatenedCityByRank(int iRank = 0, bool bCoastalOnly = false);
+	vector<CvCity*> GetThreatenedCities(bool bCoastalOnly);
 
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
@@ -252,7 +252,6 @@ public:
 	void DoUnitReset();
 	void DoUnitAttrition();
 	void RepositionInvalidUnits();
-	void ResetReachablePlotsForAllUnits();
 
 	void updateYield();
 	void updateExtraSpecialistYield();

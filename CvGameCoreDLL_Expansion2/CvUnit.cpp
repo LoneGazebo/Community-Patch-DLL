@@ -2317,13 +2317,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 	*/
 
-
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-	//important - zoc has probably changed
-	if (ePlayer != NO_PLAYER && IsCombatUnit())
-		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
-#endif
-
 	auto_ptr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
 
 	if(IsSelected() && !bDelay)
@@ -5557,7 +5550,6 @@ bool CvUnit::jumpToNearestValidPlot()
 
 	//remember we're calling this because the unit is trapped, so use the stepfinder
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 12);
-	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
 
 	CvPlot* pBestPlot = NULL;
 	vector<SPlotWithScore> candidates;
@@ -5594,7 +5586,6 @@ bool CvUnit::jumpToNearestValidPlot()
 		// check to make sure this is not a dead end
 		// alternatively we could verify against all plots reachable from owner's capital?
 		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
 		//want to sort by ascending area size
@@ -28507,7 +28498,7 @@ bool CvUnit::SentryAlert() const
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
-								{
+	{
 		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
@@ -29365,7 +29356,6 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//any mission resets the cache
- 	ClearReachablePlots();
 	m_lastStrengthModifiers.clear();
 
 	//safety check - air units should not use ranged attack missions (for unknown reasons)
@@ -29662,23 +29652,7 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 	if (!bAllowEmbark)
 		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
-	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
-	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags && 
-		plot()->GetPlotIndex()==m_lastReachablePlotsStart && getMoves()==m_lastReachablePlotsMoves)
-		return m_lastReachablePlots;
-
-	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);
-
-	m_lastReachablePlots = result;
-	m_lastReachablePlotsFlags = iFlags;
-	m_lastReachablePlotsStart = plot()->GetPlotIndex();
-	m_lastReachablePlotsMoves = getMoves();
-	return result;
-#else
 	return TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -29791,14 +29765,6 @@ void CvUnit::ClearPathCache()
 	m_uiLastPathFlags = 0xFFFFFFFF;
 	m_uiLastPathTurnSlice = 0xFFFFFFFF;
 	m_uiLastPathLength = 0xFFFFFFFF;
-}
-
-void CvUnit::ClearReachablePlots()
-{
-	m_lastReachablePlots.clear();
-	m_lastReachablePlotsFlags = 0xFFFFFFFF;
-	m_lastReachablePlotsStart = 0xFFFFFFFF;
-	m_lastReachablePlotsMoves = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

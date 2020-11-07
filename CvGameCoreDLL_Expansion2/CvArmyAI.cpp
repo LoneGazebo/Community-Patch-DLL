@@ -68,7 +68,6 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 	m_eType = ARMY_TYPE_ANY;
 	m_eFormation = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
-	m_bOceanMoves = false;
 }
 
 /// Delete the army
@@ -108,7 +107,6 @@ void CvArmyAI::Read(FDataStream& kStream)
 	kStream >> m_eFormation;
 	kStream >> m_eAIState;
 	kStream >> m_iOperationID;
-	kStream >> m_bOceanMoves;
 	kStream >> m_FormationEntries;
 }
 
@@ -130,7 +128,6 @@ void CvArmyAI::Write(FDataStream& kStream) const
 	kStream << m_eFormation;
 	kStream << m_eAIState;
 	kStream << m_iOperationID;
-	kStream << m_bOceanMoves;
 	kStream << m_FormationEntries;
 }
 
@@ -776,16 +773,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArmyFormationSlot& readFrom
 FDataStream& operator>>(FDataStream& loadFrom, CvArmyFormationSlot& writeTo)
 {
 	loadFrom >> writeTo.m_iUnitID;
-	//backward compatibility
-	int iT0, iT1;
-	loadFrom >> iT0;
-	loadFrom >> iT1;
-	writeTo.m_estTurnsToCheckpoint.clear();
-	writeTo.m_estTurnsToCheckpoint.push_front(iT1);
-	writeTo.m_estTurnsToCheckpoint.push_front(iT0);
-	//---
-	//loadFrom >> writeTo.m_estTurnsToCheckpoint;
-	//---
+	loadFrom >> writeTo.m_estTurnsToCheckpoint;
 	loadFrom >> writeTo.m_bIsRequired;
 	return loadFrom;
 }
@@ -833,16 +821,19 @@ bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 bool OperationalAIHelpers::HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits)
 {
 	int iFreeRequired = 0;
+	int iPresentRequired = 0;
 	int iPresentOptional = 0;
 
 	for (vector<CvArmyFormationSlot>::const_iterator it = slotStatus.begin(); it != slotStatus.end(); ++it)
 	{
 		if (it->IsFree() && it->IsRequired())
 			iFreeRequired++;
+		else if (it->IsUsed() && it->IsRequired())
+			iPresentRequired++;
 		else if (it->IsUsed() && !it->IsRequired())
 			iPresentOptional++;
 	}
 
 	// make up for missing required units with additional optional units
-	return iFreeRequired <= iPresentOptional/2 + iMaxMissingUnits;
+	return iPresentRequired > 0 && iFreeRequired <= iPresentOptional/2 + iMaxMissingUnits;
 }

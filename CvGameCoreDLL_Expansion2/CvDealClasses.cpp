@@ -469,7 +469,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if (pRenewDeal)
 			{
-				OutputDebugString("Renewal failed because of GPT \n");
+//				OutputDebugString("Renewal failed because of GPT \n");
 			}
 			return false;
 		}
@@ -564,7 +564,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			{
 				if (pRenewDeal)
 				{
-					OutputDebugString("Renewal failed because of missing resources \n");
+//					OutputDebugString("Renewal failed because of missing resources \n");
 				}
 				return false;
 			}
@@ -594,7 +594,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				{
 					if (pRenewDeal)
 					{
-						OutputDebugString("Renewal failed because player got another copy \n");
+//						OutputDebugString("Renewal failed because player got another copy \n");
 					}
 					return false;
 				}
@@ -4880,7 +4880,7 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 		}
 	}
 
-	OutputDebugString("Renewal deal ready.\n");
+	//OutputDebugString("Renewal deal ready.\n");
 	pNewDeal->m_bCheckedForRenewal = true;
 	pOldDeal->m_bCheckedForRenewal = true;
 

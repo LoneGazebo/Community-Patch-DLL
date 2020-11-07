@@ -486,6 +486,7 @@ private:
 	void PrioritizeNavalTargetsAndAddToMainList();
 	void ProcessDominanceZones();
 	void AssignGlobalHighPrioMoves();
+	void AssignGlobalMidPrioMoves();
 	void AssignGlobalLowPrioMoves();
 	void AssignBarbarianMoves();
 

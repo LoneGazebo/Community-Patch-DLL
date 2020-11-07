@@ -159,11 +159,18 @@ int CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, 
 /// Updates the lookup table
 void CvDistanceMapByTurns::Update()
 {
-	int iMaxTurns = 12;
-	int iVeryFar = iMaxTurns * 6;
+	int iMaxTurns = 36;
+	int iVeryFar = iMaxTurns * 2;
 
 	const CvMap& map = GC.getMap();
 	int nPlots = map.numPlots();
+
+	//default
+	PathType ePathType = PT_ARMY_MIXED;
+	if (m_domain == DOMAIN_LAND)
+		ePathType = PT_ARMY_LAND;
+	if (m_domain == DOMAIN_SEA)
+		ePathType = PT_ARMY_WATER;
 
 	allPlayers.Reset(nPlots, iVeryFar);
 	allMajorPlayers.Reset(nPlots, iVeryFar);
@@ -184,16 +191,17 @@ void CvDistanceMapByTurns::Update()
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
 			//do not set a player - that way we can traverse unrevealed plots and foreign territory
-			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
+			SPathFinderUserData data(NO_PLAYER, ePathType, -1, iMaxTurns);
 			ReachablePlots turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
-				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
+				//important, compute the estimated turns from the normalized path cost!
+				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
 				if (thisPlayer.isMajorCiv())
 				{
-					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
-					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
+					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
+					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
 				}
 			}
 		}

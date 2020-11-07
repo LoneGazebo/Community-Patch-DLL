@@ -15040,8 +15040,8 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 	{
 		if (GetPlayer()->getCapitalCity())
 		{
-			//do not set a player - that way we can traverse unrevealed plots and foreign territory
-			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
+			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
 		}

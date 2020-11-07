@@ -1207,16 +1207,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 		{
-			WarPenalty += 50;
-			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
-			{
-				//More cities = more threat.
-				int iThreat = m_pCity->GetThreatRank();
-				if (iThreat > 0)
-				{
-					WarPenalty += max(1, (20 - iThreat));
-				}
-			}
+			WarPenalty += 50 + m_pCity->getThreatValue();
+
 			if (bDesperate)
 			{
 				WarPenalty += 25;

@@ -7114,7 +7114,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
-	int iMaxCityDistance = 13;
+	int iMaxCityDistance = 17;
 	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through all the players

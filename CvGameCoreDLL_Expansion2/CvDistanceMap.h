@@ -56,8 +56,11 @@ public:
 
 class CvDistanceMapByTurns : public CvDistanceMapWrapper
 {
+public:
+	CvDistanceMapByTurns(DomainTypes eDomain) : m_domain(eDomain) {}
 protected:
 	virtual void Update();
+	DomainTypes m_domain;
 };
 
 class CvDistanceMapByPlots : public CvDistanceMapWrapper

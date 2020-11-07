@@ -221,8 +221,6 @@ public:
 		return max(0, m_iNumLandUnits - m_iNumLandUnitsInArmies - m_iMandatoryReserveSize/2);
 	};
 
-	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool bCoastalOnly = false);
-
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
 	bool HasAirforce() const

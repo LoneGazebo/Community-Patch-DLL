@@ -761,10 +761,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
 
-		//this only works because the civilian is not embarked!
-		CvUnit* pBestDefender = m_pPlot->getBestDefender(pUnit->getOwner());
-
-		if (!pBestDefender && m_bEnemyCanCapture)
+		// We do not check for covering units, it's too unreliable since they might move
+		if (m_bEnemyCanCapture)
 			return MAX_INT;
 
 		//need to use m_bEnemyCanCapture to differentiate between plots that the enemy can move into and those merely under ranged attack
@@ -784,25 +782,14 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 				}
 				else 
 				{
-					// If there is a defender and it might be killed, high danger
-					if (pBestDefender)
+					//ranged attack but no capture
+					int iDummy = 0;
+					if (pAttacker->plot() != m_pPlot)
 					{
-						if (GetDanger(pBestDefender,unitsToIgnore,iAirAction) > pBestDefender->GetCurrHitPoints())
-						{
-							return m_bEnemyCanCapture ? MAX_INT : 0;
-						}
-					}
-					else
-					{
-						//ranged attack but no capture
-						int iDummy = 0;
-						if (pAttacker->plot() != m_pPlot)
-						{
-							int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
-							if (!m_pPlot->isVisible(pAttacker->getTeam()))
-								iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
-							iPlotDamage += iDamage;
-						}
+						int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+						if (!m_pPlot->isVisible(pAttacker->getTeam()))
+							iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+						iPlotDamage += iDamage;
 					}
 				}
 			}

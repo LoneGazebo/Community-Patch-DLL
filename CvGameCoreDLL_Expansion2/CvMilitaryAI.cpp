@@ -576,8 +576,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (iDistanceTurns > 13)
 		return false;
 
-	//do not set a player - that way we can traverse unrevealed plots and foreign territory
-	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
 
 	//taken from CalculateBullyScore
@@ -1279,21 +1278,21 @@ CityAttackApproaches CvMilitaryAI::EvaluateTargetApproach(CvAttackTarget & targe
 			nUsablePlots++;
 	}
 
-	//we have 15 eligible plots, so max score is 30
-	int iScore = nGoodPlots * 2 + nUsablePlots;
+	//we have 15 eligible plots, so max score is 45
+	int iScore = nGoodPlots * 3 + nUsablePlots;
 
-	if (iScore > 25)
-		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-	else if (iScore > 20)
-		eRtnValue = ATTACK_APPROACH_OPEN;
-	else if (iScore > 15)
-		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-	else if (iScore > 10)
-		eRtnValue = ATTACK_APPROACH_LIMITED;
-	else if (iScore > 5)
-		eRtnValue = ATTACK_APPROACH_RESTRICTED;
-	else
+	if (iScore < 6)
 		eRtnValue = ATTACK_APPROACH_NONE;
+	else if (iScore < 14)
+		eRtnValue = ATTACK_APPROACH_RESTRICTED;
+	else if (iScore < 22)
+		eRtnValue = ATTACK_APPROACH_LIMITED;
+	else if (iScore < 30)
+		eRtnValue = ATTACK_APPROACH_NEUTRAL;
+	else if (iScore < 38)
+		eRtnValue = ATTACK_APPROACH_OPEN;
+	else
+		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 
 	if (gDebugOutput)
 	{
@@ -1385,121 +1384,6 @@ int CvMilitaryAI::GetNumberCivsAtWarWith(bool bIncludeMinor) const
 	}
 
 	return iRtnValue;
-}
-
-vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bool bCoastalOnly)
-{
-	std::vector<std::pair<CvCity*,int>> vCities;
-	struct PrSortByScore {
-		bool operator()(const std::pair<CvCity*,int> &left, const std::pair<CvCity*,int> &right) {
-			return left.second > right.second;
-		}
-	};
-
-	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
-
-	CvCity* pLoopCity;
-	int iLoopCity = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-	{
-		if (bCoastalOnly && !pLoopCity->isCoastal())
-			continue;
-
-		//ignore danger - it's too volatile or rather it's too late then
-		int iThreatValue = 0;
-
-		if (pTactMap)
-		{
-			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
-			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
-
-			//todo: scale dominance contribution by exposure score?
-			if (pLandZone)
-			{
-				iThreatValue += pLandZone->GetBorderScore(DOMAIN_LAND);
-				if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-					iThreatValue += 50;
-				else if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
-					iThreatValue += 23;
-			}
-			if (pWaterZone)
-			{
-				iThreatValue += pWaterZone->GetBorderScore(DOMAIN_SEA);
-				if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-					iThreatValue += 50;
-				else if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
-					iThreatValue += 23;
-			}
-		}
-
-		// Is this a focused city? If so, we need to support it ASAP.
-		if (m_pPlayer->GetTacticalAI()->IsInFocusArea(pLoopCity->plot()))
-			iThreatValue += GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL();
-
-		if (bIncludeFutureThreats)
-		{
-			int iNeutral = 0;
-			int iBad = 0;
-			int iSuperBad = 0;
-
-			//check the wider area for enemy tiles. may also be on another landmass
-			for(int i=2; i<RING5_PLOTS; i++)
-			{
-				CvPlot* pLoopNearbyPlot = iterateRingPlots(pLoopCity->plot(), i);
-
-				//Don't want them adjacent to cities, but we do want to check for plot ownership.
-				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(m_pPlayer->getTeam()))
-				{
-					if((pLoopNearbyPlot->getOwner() != m_pPlayer->GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
-					{
-						PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
-						if(pNeighborNearby != NULL)
-						{
-							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
-							{
-								iNeutral++;
-							}
-							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
-							{
-								iBad++;
-							}
-							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
-							{
-								iSuperBad++;
-							}
-						}
-					}
-				}
-			}
-
-			iThreatValue += (iNeutral * 3);
-			iThreatValue += (iBad * 7);
-			iThreatValue += (iSuperBad * 11);
-		}
-
-		//note: we don't consider a cities size or economic importance here
-		//after all, small border cities are especially vulnerable
-
-		//OutputDebugString( CvString::format("%s - threat %d\n", pLoopCity->getName().c_str(), iThreatValue ).c_str() );
-		vCities.push_back( std::make_pair( pLoopCity, iThreatValue ) );
-
-		//remember it too
-		pLoopCity->setThreatValue(iThreatValue);
-	}
-
-	std::stable_sort(vCities.begin(), vCities.end(), PrSortByScore());
-
-	vector<CvCity*> result;
-	for (size_t i=0; i<vCities.size(); i++)
-	{
-		//keep only the top half of the scores
-		if (vCities[i].second == 0 || vCities[i].second < vCities[0].second/2)
-			break;
-
-		result.push_back(vCities[i].first);
-	}
-
-	return result;
 }
 
 /// How big is our military compared to the recommended size?
@@ -2562,12 +2446,14 @@ void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 	}
 
 	//land response
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
+	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
+	CvCity* pMostThreatenedCity = allCities.empty() ? NULL : allCities.front();
 	if (pMostThreatenedCity != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, ePlayer))
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 0, ePlayer, pMostThreatenedCity);
 
 	//naval response
-	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
+	vector<CvCity*> coastCities = m_pPlayer->GetThreatenedCities(true);
+	CvCity* pMostThreatenedCoastalCity = coastCities.empty() ? NULL : coastCities.front();
 	if (pMostThreatenedCoastalCity != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer))
 		m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 0, ePlayer, pMostThreatenedCoastalCity);
 }
@@ -2653,10 +2539,12 @@ void CvMilitaryAI::UpdateOperations()
 
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	CvCity* pThreatenedCityA = m_pPlayer->GetThreatenedCityByRank(0);
-	CvCity* pThreatenedCityB = m_pPlayer->GetThreatenedCityByRank(1);
-	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
-	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
+	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
+	CvCity* pThreatenedCityA = allCities.size()<1 ? NULL : allCities[0];
+	CvCity* pThreatenedCityB = allCities.size()<2 ? NULL : allCities[1];
+	vector<CvCity*> coastCities = m_pPlayer->GetThreatenedCities(true);
+	CvCity* pThreatenedCoastalCityA = coastCities.size()<1 ? NULL : coastCities[0];
+	CvCity* pThreatenedCoastalCityB = coastCities.size()<2 ? NULL : coastCities[1];
 
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
@@ -3285,7 +3173,8 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf += strTemp;
 
 		// Most threatened city
-		pCity = m_pPlayer->GetThreatenedCityByRank();
+		vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+		pCity = threatCities.empty() ? NULL : threatCities.front();
 		if(pCity != NULL)
 		{
 			cityName = pCity->getName();
@@ -4547,68 +4436,34 @@ CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckT
 
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCombinedAttack()
 {
-	int iTurnMin = 100;
-	iTurnMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iTurnMin /= 100;
-
-	//Granular, for later variation (if needed)
-	if(GC.getGame().getGameTurn() <= (iTurnMin * 4))
-	{
-		return MUFORMATION_NAVAL_INVASION;
-	}
-	else if(GC.getGame().getGameTurn() > (iTurnMin * 4))
-	{
-		return MUFORMATION_LATE_GAME_INVASION_FORCE;
-	}
-	return MUFORMATION_NAVAL_INVASION;
+	static EraTypes eThreshold = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	return GC.getGame().getCurrentEra() > eThreshold ? MUFORMATION_LATE_GAME_INVASION_FORCE : MUFORMATION_NAVAL_INVASION;
 }
 
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForPureNavalAttack()
 {
-	int iTurnMin = 100;
-	iTurnMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iTurnMin /= 100;
-
-	
-	//Granular, for later variation (if needed)
-	if (GC.getGame().getGameTurn() <= iTurnMin * 2)
-	{
-		return MUFORMATION_NAVAL_BOMBARDMENT;
-	}
-	else if(GC.getGame().getGameTurn() <= (iTurnMin * 4))
-	{
-		return MUFORMATION_PURE_NAVAL_CITY_ATTACK;
-	}
-	else if(GC.getGame().getGameTurn() > (iTurnMin * 4))
-	{
-		return MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE;
-	}
-	return MUFORMATION_NAVAL_INVASION;
+	static EraTypes eThreshold = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	return GC.getGame().getCurrentEra() > eThreshold ? MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE : MUFORMATION_PURE_NAVAL_CITY_ATTACK;
 }
 
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForLandAttack()
 {
-	int iTurnMin = 100;
-	iTurnMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iTurnMin /= 100;
-
-	//Granular, for later variation (if needed)
-	if(GC.getGame().getGameTurn() <= iTurnMin)
+	switch (GC.getGame().getCurrentEra())
 	{
+	case 0: //ancient
 		return MUFORMATION_EARLY_RUSH;
-	}
-	else if(GC.getGame().getGameTurn() <= iTurnMin * 2)
-	{
+	case 1: //classic
+	case 2: //medieval
 		return MUFORMATION_SMALL_CITY_ATTACK_FORCE;
-	}
-	else if(GC.getGame().getGameTurn() <= (iTurnMin * 3))
-	{
+	case 3: //renaissance
+	case 4: //industrial
 		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
-	}
-	else if(GC.getGame().getGameTurn() > (iTurnMin * 3))
-	{
+	case 5: //modern
+	case 6: //atomic
+	case 7: //information
 		return MUFORMATION_BIGGER_CITY_ATTACK_FORCE;
 	}
+
 	return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 }
 

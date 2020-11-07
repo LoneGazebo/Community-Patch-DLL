@@ -114,6 +114,8 @@ CvGame::CvGame() :
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
+	, m_cityDistanceTurns(NO_DOMAIN) //for now!
+	, m_cityDistancePlots()
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
 	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...

@@ -5381,47 +5381,99 @@ void CvPlayer::SetCenterOfMassEmpire()
 
 void CvPlayer::UpdateCityThreatCriteria()
 {
-	//What are you doing here? Get out!
-	if(isMinorCiv() || isBarbarian() || isHuman())
-		return;
+	CvTacticalAnalysisMap* pTactMap = GetTacticalAI()->GetTacticalAnalysisMap();
 
-	if(getNumCities() <= 1)
-		return;
-
-	//Reset the criteria.
-	int iLoop;
-	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	int iLoopCity = 0;
+	for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 	{
-		pLoopCity->SetThreatRank(-1);
-		pLoopCity->SetCoastalThreatRank(-1);
+		//ignore danger - it's too volatile or rather it's too late then
+		int iThreatValue = 0;
+
+		if (pTactMap)
+		{
+			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
+
+			//todo: scale dominance contribution by exposure score?
+			if (pLandZone)
+			{
+				iThreatValue += pLandZone->GetBorderScore(DOMAIN_LAND);
+				if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
+			if (pWaterZone)
+			{
+				iThreatValue += pWaterZone->GetBorderScore(DOMAIN_SEA);
+				if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
+		}
+
+		// Is this a focused city? If so, we need to support it ASAP.
+		if (GetTacticalAI()->IsInFocusArea(pLoopCity->plot()))
+			iThreatValue += GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL();
+		
+		//check the wider area for enemy tiles. may also be on another landmass
+		for(int i=RING2_PLOTS; i<RING5_PLOTS; i++)
+		{
+			CvPlot* pLoopNearbyPlot = iterateRingPlots(pLoopCity->plot(), i);
+
+			//Don't want them adjacent to cities, but we do want to check for plot ownership.
+			if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(getTeam()))
+			{
+				if((pLoopNearbyPlot->getOwner() != GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+				{
+					PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
+					if(pNeighborNearby != NULL)
+					{
+						if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 3 : 1;
+						}
+						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 5 : 2;
+						}
+						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 7 : 3;
+						}
+					}
+				}
+			}
+		}
+
+		//note: we don't consider a cities size or economic importance here
+		//after all, small border cities are especially vulnerable
+
+		pLoopCity->setThreatValue(iThreatValue);
 	}
-
-	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
-	for(int i = 0; i < (int)threatenedCities.size(); i++)
-		threatenedCities[i]->SetThreatRank(i);
-
-	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(true, true);
-	for (int i = 0; i < (int)threatenedCoastalCities.size(); i++)
-		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool bCoastalOnly)
+//sorted by threat level, descending
+vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
 {
+	vector<CvCity*> result;
+	struct SortByThreatLevel
+	{
+		bool operator()(const CvCity* lhs, const CvCity* rhs) const { return lhs->getThreatValue() > rhs->getThreatValue(); }
+	};
+
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (bCoastalOnly)
-		{
-			if (pLoopCity->GetCoastalThreatRank() == iRank)
-				return pLoopCity;
-		}
-		else if (pLoopCity->GetThreatRank() == iRank)
-		{
-			return pLoopCity;
-		}
+		if (bCoastalOnly && !pLoopCity->isCoastal())
+			continue;
+
+		result.push_back(pLoopCity);
 	}
 
-	return NULL;
+	sort(result.begin(), result.end(), SortByThreatLevel());
+	return result;
 }
 
 void CvPlayer::UpdateBestMilitaryCities()
@@ -11625,10 +11677,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-		pLoopUnit->ClearReachablePlots();
-#endif
-
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pLoopUnit->flipDamageReceivedPerTurn();
 #endif
@@ -11712,14 +11760,6 @@ void CvPlayer::DoUnitReset()
 		}
 	}
 }
-
-void CvPlayer::ResetReachablePlotsForAllUnits()
-{
-	int iLoop;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-		pLoopUnit->ClearReachablePlots();
-}
-
 
 //	--------------------------------------------------------------------------------
 /// Damage units from attrition (start of turn so we can get notifications)
@@ -47996,7 +48036,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		//see where our settler can go
 		//worst case in jungle one turn equals one plot ...
 		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
 		CvPlot* pTestPlotA = vSettlePlots[0].pPlot;

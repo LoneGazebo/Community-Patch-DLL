@@ -45591,7 +45591,7 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 		TradedItemList::iterator itemIter;
 		for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
 		{
-			OutputDebugString("Cleared item from expired renewal deal \n");
+			//OutputDebugString("Cleared item from expired renewal deal \n");
 			//If we checked for renewal, we don't need to remove items, as we already did it.
 			GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
 		}

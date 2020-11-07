@@ -1877,7 +1877,8 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
+	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
 	CvCityBuildable bestSelection;
 	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;

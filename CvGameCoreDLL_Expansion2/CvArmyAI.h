@@ -176,7 +176,6 @@ protected:
 	int m_iCurrentY;
 	int m_iGoalX;
 	int m_iGoalY;
-	bool m_bOceanMoves;
 
 	ArmyType					m_eType;
 	MultiunitFormationTypes		m_eFormation;

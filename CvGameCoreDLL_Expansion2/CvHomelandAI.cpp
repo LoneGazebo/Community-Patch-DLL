@@ -107,8 +107,9 @@ void CvHomelandAI::RecruitUnits()
 		// Never want units that have already moved or zombies
 		if (pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
 		{
-			//if there is an unfinished mission but the unit can still move, that means there is a problem ...
-			if (pLoopUnit->GetLengthMissionQueue() > 0 && pLoopUnit->canMove())
+			//if there is an unfinished mission from this turn but the unit can still move, that means there is a problem ...
+			//if the mission is from last turn that means we just did not touch it this turn
+			if (pLoopUnit->GetLengthMissionQueue() > 0 && pLoopUnit->canMove() && pLoopUnit->GetHeadMissionData()->iPushTurn==GC.getGame().getGameTurn())
 			{
 				OutputDebugString( CvString::format("warning, %s %d has unfinished mission %d\n", pLoopUnit->getName().c_str(), pLoopUnit->GetID(),pLoopUnit->GetHeadMissionData()->eMissionType).c_str() );
 				pLoopUnit->ClearMissionQueue();
@@ -277,7 +278,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	if (pUnit)
 	{
 		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, iMaxTurns);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(iRefX, iRefY, data);
 	}
 
@@ -478,14 +478,6 @@ void CvHomelandAI::FindHomelandTargets()
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 23;
 
-						if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
-						{
-							//More cities = more threat.
-							int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
-							if (iThreat > 0)
-								iWeight += iThreat;
-						}
-
 						if (iWeight > 0)
 						{
 							newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
@@ -528,6 +520,9 @@ void CvHomelandAI::FindHomelandTargets()
 /// Choose which moves to run and assign units to it
 void CvHomelandAI::AssignHomelandMoves()
 {
+	//get this out of the way, do not flee
+	PlotFirstTurnSettlerMoves();
+
 	//most of these functions are very specific, so their order is not so important ...
 	PlotExplorerMoves();
 
@@ -547,7 +542,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotPatrolMoves();
 
 	//civilians again
-	PlotFirstTurnSettlerMoves();
 	PlotWorkerMoves();
 	PlotWorkerSeaMoves();
 	PlotWriterMoves();
@@ -563,7 +557,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotInquisitorMoves();
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-			//this is for embassies - diplomatic missions are handled via AI operation
+	//this is for embassies - diplomatic missions are handled via AI operation
 	if (MOD_DIPLOMACY_CITYSTATES)
 	{
 		PlotDiplomatMoves();
@@ -1252,7 +1246,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
 
 	int iUnitMoveRange = m_pPlayer->isMinorCiv() ? 5 : 9; //determines how far a unit can move for a patrol
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iUnitMoveRange);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
 		mapReachablePlots[vLandTargets[i].pTarget] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data);
@@ -2095,13 +2089,15 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			if (pUnit->GetLengthMissionQueue() > 0)
 			{
 				//unit can still move? then there is a problem with the mission, better delete it!
-				if (pUnit->canMove())
+				//if the mission is from last turn that means we just did not touch it this turn
+				if (pUnit->canMove() && pUnit->GetHeadMissionData()->iPushTurn==GC.getGame().getGameTurn())
 				{
 					OutputDebugString(CvString::format("warning, %s %d has unfinished mission %d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->GetHeadMissionData()->eMissionType).c_str());
 					pUnit->ClearMissionQueue();
 				}
 				else
 				{
+					pUnit->AutoMission(); //go on please
 					pUnit->SetTurnProcessed(true);
 					continue;
 				}
@@ -2239,7 +2235,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 						{
 							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-							if (pAdjacentPlot != NULL && pUnit->canFoundCity(pAdjacentPlot))
+							if (pAdjacentPlot != NULL && pUnit->canFoundCity(pAdjacentPlot) && pUnit->GetDanger(pBestAdjacentPlot)<INT_MAX)
 							{
 								iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());
 								if (iAdjacentValue > iInitialPlotValue*1.1f) //should be at least ten percent better to justify the hassle
@@ -2304,7 +2300,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					{
 						int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-						if (pLoopPlotSearch != NULL)
+						if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
 						{
 							if (pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
@@ -2661,7 +2657,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			continue;
 
 		SPathFinderUserData data(pUnit, 0, 5);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
@@ -2698,7 +2693,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (iTurnLimit >= iBuildTimeLeft)
 		{
 			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iTurnLimit-iBuildTimeLeft);
-			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->getX(), pUnit->getY(), data);
 	
 			// add offset for fair comparison
@@ -2841,7 +2835,7 @@ bool CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 	}
 
 	//don't actually call finish moves, it will prevent healing
-	if(bEndTurn)
+	if(bEndTurn && bResult)
 		UnitProcessed(pUnit->GetID());
 
 	return bResult;
@@ -3780,7 +3774,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 {
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	vector<CvPlot*> vPlotsToAvoid;
-	vector<CvCity*> vTargets = m_pPlayer->GetMilitaryAI()->GetThreatenedCities();
+	vector<CvCity*> vTargets = m_pPlayer->GetThreatenedCities(false);
 
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -5247,7 +5241,6 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 	//pretend there are no other workers ...
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
 	SPathFinderUserData data(pUnit, 0, 17);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	return ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 }
@@ -5584,7 +5577,11 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 	if(pUnit->GeneratePath(pTargetPlot,iFlags,INT_MAX,NULL,true))
 	{
 		CvPlot* pOldPlot = pUnit->plot();
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
+		CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
+		//don't do it if it's too dangerous
+		if (pUnit->GetDanger(pWayPoint)<pUnit->GetCurrHitPoints())
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
+
 		return pUnit->plot() != pOldPlot;
 	}
 	else

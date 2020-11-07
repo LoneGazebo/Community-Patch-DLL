@@ -479,7 +479,6 @@ protected:
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 
 	UnitAITypes m_eCivilianType;
-	MultiunitFormationTypes m_eFormation;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

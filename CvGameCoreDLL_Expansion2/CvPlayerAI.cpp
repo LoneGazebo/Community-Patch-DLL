@@ -1816,7 +1816,6 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 	//don't go too far out, it's dangerous
 	SPathFinderUserData data(pUnit, 0, 17);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	set<PlayerTypes> badTargets;

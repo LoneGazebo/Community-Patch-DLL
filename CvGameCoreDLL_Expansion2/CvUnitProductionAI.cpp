@@ -1614,21 +1614,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (bAtWar)
 		{
-			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
+			if (bCombat)
 			{
-				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 25;
-				if (iThreat > 0)
-				{
-					if (bCombat)
-					{
-						iBonus += iThreat;
-					}
-					else
-					{
-						iBonus -= iThreat;
-					}
-				}
+				iBonus += m_pCity->getThreatValue();
+			}
+			else
+			{
+				iBonus -= m_pCity->getThreatValue();
 			}
 		}
 		if (bCombat && bForOperation)

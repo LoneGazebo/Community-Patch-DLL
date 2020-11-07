@@ -147,10 +147,6 @@ public:
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
 		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
-		//specials for army pathfinder
-		MOVEFLAG_ARMY_LAND_ONLY					= 0x10000000, //land plots; unowned, friendly or potential enemy
-		MOVEFLAG_ARMY_LAND_AND_WATER			= 0x20000000, //land and water plots; unowned, friendly or potential enemy
-		MOVEFLAG_ARMY_WATER_ONLY				= 0x40000000, //water plots; unowned, friendly or potential enemy
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
@@ -1918,7 +1914,6 @@ public:
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
 	void ClearPathCache();
-	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
@@ -2353,11 +2348,6 @@ protected:
 	CvString m_strGreatName;
 #endif
 	GreatWorkType m_eGreatWork;
-
-	mutable ReachablePlots m_lastReachablePlots;
-	mutable uint m_lastReachablePlotsFlags;
-	mutable uint m_lastReachablePlotsStart;
-	mutable uint m_lastReachablePlotsMoves;
 
 	//this is always stored with the zero-counting convention
 	//ie every plot we can reach this turn has turn count 0, even if there are no moves left

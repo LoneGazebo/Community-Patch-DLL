@@ -66,9 +66,6 @@
 /// visible tiles stay visible until the end of the turn
 #define MOD_CORE_DELAYED_VISIBILITY
 
-/// experimental performance improvement
-#define MOD_CORE_CACHE_REACHABLE_PLOTS
-
 /// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
 //#define MOD_CORE_TWO_PASS_DANGER
 
