@@ -1300,7 +1300,7 @@ public:
 	int getNumAttacksMadeThisTurn() const;
 	void changeExtraAttacks(int iChange);
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
@@ -1309,11 +1309,12 @@ public:
 	int GetHealNeutralTerritoryFromNearbyUnit() const;
 	int GetHealFriendlyTerritoryFromNearbyUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
-	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
 #endif
+	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
+
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;

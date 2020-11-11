@@ -5428,16 +5428,23 @@ int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
 int CvLuaUnit::lGetGiveCombatModToUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	const int bResult = pkUnit->GetGiveCombatModToUnit();
 	lua_pushinteger(L, bResult);
-
+#else
+	lua_pushinteger(L, 0);
+#endif
 	return 1;
 }
 int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	const int bResult = pkUnit->GetNearbyCityBonusCombatMod();
 	lua_pushinteger(L, bResult);
+#else
+	lua_pushinteger(L, 0);
+#endif
 
 	return 1;
 }

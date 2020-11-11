@@ -2914,6 +2914,7 @@ public:
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const;
+	CvCity* GetClosestCityToCity(const CvCity* pRefCity);
 
 protected:
 	class ConqueredByBoolField

@@ -289,8 +289,11 @@
 // Ability to add new natural wonder features with graphics
 #define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 
-//Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
+// Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
+
+// Enables support for some promotions affecting nearby units, but with a significant performance impact
+//#define MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS
 
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()

@@ -41165,12 +41165,36 @@ CvCity* CvPlayer::GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const
 	return pTheirClosestCity;
 }
 
+CvCity* CvPlayer::GetClosestCityToCity(const CvCity * pRefCity)
+{
+	if (!pRefCity)
+		return NULL;
+
+	CvCity* pNeighborCity = NULL;
+	int iRefDist = INT_MAX;
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		//important ...
+		if (pLoopCity == pRefCity)
+			continue;
+
+		int iDist = plotDistance(*pLoopCity->plot(),*pRefCity->plot());
+		if (iDist < iRefDist)
+		{
+			iRefDist = iDist;
+			pNeighborCity = pLoopCity;
+		}
+	}
+
+	return pNeighborCity;
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {
-	CvCity *pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)eBuildingClass);
