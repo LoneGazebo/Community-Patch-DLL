@@ -2325,6 +2325,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	GET_PLAYER(getOwner()).removeFromArmy(m_iArmyId, GetID());
+	ClearMissionQueue();
 
 	pPlot = plot();
 	CvAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");

@@ -10317,7 +10317,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_MELEEKILL:
 		case A_MELEEKILL_NO_ADVANCE:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present
-			//because of randomness in previous combat results, it may happen that we cannot actually kill the enemy
+			//splash damage from previous attacks or a heavy charge pushback may result in the enemy not being present anymore
 			if (bPrecondition)
 			{
 				int iDamageDealt = 0, iDamageReceived = 0;
@@ -10339,6 +10339,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
 
+			//because of randomness in previous combat results, it may happen that we cannot actually kill the enemy
 			bPostcondition = !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
 			if (vAssignments[i].eAssignmentType == A_MELEEKILL)
 				bPostcondition &= (pUnit->plot() == pToPlot); //advanced into enemy plot
@@ -10375,10 +10376,11 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		if (vAssignments[i].iRemainingMoves > 0 && !pUnit->canMove())
 			OutputDebugString("ouch, inconsistent movement points\n");
 
+		//this can happen sometimes because of randomness or splash damage etc
 		if (!bPrecondition || !bPostcondition)
 		{
 			stringstream out;
-			out << "could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (!bPrecondition?"":" (unexpected result)") << "\n";
+			out << "could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
 			OutputDebugString(out.str().c_str());
 			return false;
 		}

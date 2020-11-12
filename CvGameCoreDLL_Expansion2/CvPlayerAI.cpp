@@ -1513,29 +1513,47 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
+	//this one is sticky
+	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+
+	//we might have multiple generals ... first get an overview
+	int iCommanders = 0;
+	int iCitadels = 0;
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsGreatGeneral())
+		{
+			switch (pLoopUnit->GetGreatPeopleDirective())
+			{
+			case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
+				iCitadels++;
+				break;
+			case GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND:
+				iCommanders++;
+				break;
+			}
+		}
+	}
+
 	//during war we want field commanders
-	if (IsAtWar() || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+	int iWars = (int)GetPlayersAtWarWith().size();
+	if (iCommanders < iWars+1 || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
-	int iGreatGeneralsNotUsingPower = 0;
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-		if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetGreatPeopleDirective()!=GREAT_PEOPLE_DIRECTIVE_USE_POWER)
-			iGreatGeneralsNotUsingPower++;
-
+	//build one citadel at a time
 	std::vector<CvPlot*> vDummy;
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	//keep at least one general around for field command
-	if(iGreatGeneralsNotUsingPower > 1 && pGreatGeneral->getArmyID() == -1)
+	if(iCitadels==0)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
-		//build a citadel
 		if (pTargetPlot)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
-	//go to a border city
-	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	// default
+	return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)

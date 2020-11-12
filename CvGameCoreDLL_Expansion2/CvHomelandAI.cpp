@@ -3873,9 +3873,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		}
 		else
 		{
-			// GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND (normally handled in tactical AI)
-			// NO_GREAT_PEOPLE_DIRECTIVE_TYPE
-
+			// These are field commanders without an enemy around so tactical AI skipped them
 			// Score cities to move to - ordered by threat level
 			for (size_t i=0; i<vTargets.size(); i++)
 			{
@@ -3897,6 +3895,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					continue;
 
 				ExecuteMoveToTarget(pUnit, pTarget, 0, true);
+				vPlotsToAvoid.push_back(pTarget);
 			}
 
 			if (!pUnit->TurnProcessed())
