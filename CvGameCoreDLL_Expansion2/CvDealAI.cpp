@@ -1754,7 +1754,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 5 + GC.getGame().getCurrentEra();
+	int iItemValue = 10 + GC.getGame().getCurrentEra();
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -2153,7 +2153,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			if(pLoopCity != NULL)
 			{
 				//If city we're looking at is better than or equal to one of our cities, go for it.
-
 				int iEconomicDelta = (pLoopCity->getEconomicValue(buyingPlayer.GetID()) / (max(1, pLoopCity->getPopulation())));
 			
 				//Better per capita? Not good!
@@ -2163,7 +2162,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				}
 			}
 		}
-		if (iBetterThanTotal > (buyingPlayer.getNumCities() / 2))
+		if (iBetterThanTotal >= (buyingPlayer.getNumCities() / 2))
 		{
 			bGood = true;
 		}
@@ -2174,6 +2173,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		CvCity* pLoopCity;
 		int iCityLoop;
 		int iBetterThanTotal = 0;
+		int iTotalCities = 0;
 		int iTargetEconomicDelta = (iEconomicValue / (max(1, pCity->getPopulation())));
 		for (pLoopCity = sellingPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = sellingPlayer.nextCity(&iCityLoop))
 		{
@@ -2188,14 +2188,19 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					iBetterThanTotal++;
 				}
+
+				iTotalCities++;
 			}
 		}
-		//only sell if it's in the bottom half
-		if (iBetterThanTotal < (sellingPlayer.getNumCities() / 2))
+		//only sell if it's in the bottom quarter
+		if (iTotalCities > 5 && iBetterThanTotal <= max(1, iTotalCities/4))
 		{
 			bGood = true;
 		}
 	}
+
+	if (!bGood && !sellingPlayer.isHuman() && !buyingPlayer.isHuman())
+		return MAX_INT;
 
 	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
@@ -3525,6 +3530,14 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+
+		//anti-exploit rule - AI to AI bribes should only be for competitors.
+		if (!bWithHuman)
+		{
+			if (!GetPlayer()->GetDiplomacyAI()->IsMajorCompetitor(eWithPlayer))
+				return INT_MAX;
+		}
+		
 		// Don't accept war bribes if we recently made peace.
 		if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
 		{
@@ -7695,7 +7708,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	if(bFromMe)
 	{
 		//prevent AI spam
-		if (iItemValue <= 500 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -7732,7 +7745,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	}
 	else
 	{
-		if (iItemValue <= 500 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal

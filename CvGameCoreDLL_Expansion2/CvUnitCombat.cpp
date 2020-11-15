@@ -1163,6 +1163,14 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 									if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(pkAttacker->getTeam()))
 									{
 										CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+
+										if (pkAttacker->getSplashDamage() + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
+										{
+											// Earn bonuses for kills?
+											CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
+											kAttackingPlayer.DoYieldsFromKill(pkAttacker, pkDefender);
+										}
+
 										pEnemyUnit->changeDamage(pkAttacker->getSplashDamage(), pkAttacker->getOwner(), 0.0, &strAppendText);
 									}
 								}

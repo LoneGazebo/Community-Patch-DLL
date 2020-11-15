@@ -334,6 +334,9 @@ public:
 	bool IsNuclearGandhiEnabled() const;
 	bool IsAllWarBribesDisabled() const;
 	bool IsAIWarBribesDisabled() const;
+	bool IsAICityTradingHumanOnly() const;
+	bool IsAICityTradingDisabled() const;
+	bool IsAllCityTradingDisabled() const;
 	bool IsInsultMessagesDisabled() const; // Only affects humans
 	bool IsComplimentMessagesDisabled() const; // Only affects humans
 	bool IsShowAllOpinionModifiers() const;

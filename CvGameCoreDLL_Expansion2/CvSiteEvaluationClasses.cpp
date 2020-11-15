@@ -478,10 +478,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				if (pLoopPlot->getFeatureType() != NO_FEATURE)
 				{
 					CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
+					if (pFeatureInfo->IsNaturalWonder())
+						nGoodPlots++;
+					if (pFeatureInfo->isAddsFreshWater())
+						nGoodPlots++;
 					int iTotalFeatureYield = 0;
 					for (int i=0; i<YIELD_TOURISM; i++)
 						iTotalFeatureYield += pFeatureInfo->getYieldChange((YieldTypes)i);
-					if (iTotalFeatureYield > 4)
+					if (iTotalFeatureYield >= 3)
 						nGoodPlots++;
 				}
 
