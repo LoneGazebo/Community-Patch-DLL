@@ -2590,7 +2590,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		if (pBestPlot)
 		{
 			//this  must be the same moveflags as above so we can reuse the path next turn
-			if (pUnit->GeneratePath(pBestPlot, iMoveFlags, INT_MAX, NULL, true))
+			if (pUnit->GeneratePath(pBestPlot, iMoveFlags))
 			{
 				CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 				if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
@@ -5573,7 +5573,7 @@ void CvHomelandAI::ClearCurrentMoveUnits(AIHomelandMove eNextMove)
 
 bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
-	if(pUnit->GeneratePath(pTargetPlot,iFlags,INT_MAX,NULL,true))
+	if(pUnit->GeneratePath(pTargetPlot,iFlags))
 	{
 		CvPlot* pOldPlot = pUnit->plot();
 		CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();

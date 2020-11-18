@@ -25,6 +25,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iZoneID = -1;
 	m_eTerritoryType = TACTICAL_TERRITORY_NONE;
 	m_eOverallDominanceFlag = TACTICAL_DOMINANCE_NO_UNITS_VISIBLE;
+	m_ePosture = TACTICAL_POSTURE_NONE;
 	m_eOwner = NO_PLAYER;
 	m_iCityID = -1;
 	m_iAreaID = 0;
@@ -330,6 +331,124 @@ bool CvTacticalDominanceZone::HasNeighborZone(PlayerTypes eOwner) const
 	return false;
 }
 
+eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominancePercent)
+{
+	m_ePosture = TACTICAL_POSTURE_NONE;
+
+	eTacticalDominanceFlags eOverallDominance = GetOverallDominanceFlag(); //this one is precomputed
+	eTacticalDominanceFlags eRangedDominance = IsWater() ? GetNavalRangedDominanceFlag(iDominancePercent) : GetRangedDominanceFlag(iDominancePercent);
+
+	//are our forces mostly ranged and the enemy has a lot of melee units?
+	bool bInDangerOfCounterattack = IsWater() ? GetEnemyNavalStrength() > 2 * GetFriendlyNavalStrength() && GetFriendlyNavalRangedStrength() > 2 * GetFriendlyNavalStrength() :
+									GetEnemyMeleeStrength() > 2 * GetFriendlyMeleeStrength() && GetFriendlyRangedStrength() > 2 * GetFriendlyMeleeStrength();
+
+	// Choice based on whose territory this is
+	switch (GetTerritoryType())
+	{
+	case TACTICAL_TERRITORY_ENEMY:
+	{
+		// Default for this zone
+		m_ePosture = TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+
+		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
+		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		{
+			//try to grab it ...
+			CvCity *pClosestCity = GetZoneCity();
+			if (pClosestCity && pClosestCity->isInDangerOfFalling())
+				m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			else
+				m_ePosture = TACTICAL_POSTURE_WITHDRAW;
+		}
+		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
+		{
+			if (GetEnemyMeleeStrength() > GetFriendlyMeleeStrength())
+			{
+				//if we have ranged dominance, keep our risk lower
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			}
+			else
+			{
+				//if we have ranged dominance and melee dominance, go all in
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_STEAMROLL : TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			}
+		}
+		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
+		{
+			m_ePosture = TACTICAL_POSTURE_STEAMROLL;
+		}
+		break;
+	}
+
+	case TACTICAL_TERRITORY_NEUTRAL:
+	case TACTICAL_TERRITORY_NO_OWNER:
+	{
+		// Default for this zone
+		m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_EXPLOIT_FLANKS;
+
+		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY)
+		{
+			if (GetEnemyMeleeStrength() > GetFriendlyMeleeStrength())
+			{
+				//if we have ranged dominance, keep our risk lower
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_ATTRIT_FROM_RANGE : TACTICAL_POSTURE_WITHDRAW;
+			}
+			else
+			{
+				//if we have ranged dominance, keep our risk lower
+				m_ePosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? TACTICAL_POSTURE_EXPLOIT_FLANKS : TACTICAL_POSTURE_WITHDRAW;
+			}
+		}
+
+		break;
+	}
+	case TACTICAL_TERRITORY_FRIENDLY:
+	{
+		m_ePosture = (eOverallDominance == TACTICAL_DOMINANCE_ENEMY) ? TACTICAL_POSTURE_HEDGEHOG : TACTICAL_POSTURE_COUNTERATTACK;
+		break;
+	}
+	}
+
+	return m_ePosture;
+}
+
+//overwrite the posture based on specific conditions in neighbor zones
+eTacticalPosture CvTacticalDominanceZone::SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors)
+{
+	for (size_t i = 0; i < vNeighbors.size(); i++)
+	{
+		//play it safe ...
+		if (vNeighbors[i] == NULL)
+			continue;
+
+		//if there is a neighboring land zone with a lot of ranged firepower, be careful
+		if (IsWater() && GetPosture() == TACTICAL_POSTURE_STEAMROLL)
+		{
+			if (!vNeighbors[i]->IsWater() &&
+				vNeighbors[i]->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY &&
+				vNeighbors[i]->GetEnemyRangedStrength() > GetFriendlyNavalRangedStrength())
+			{
+				m_ePosture = TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			}
+		}
+
+		//withdraw if there is a neighboring zone which needs support 
+		if (GetTerritoryType() != TACTICAL_TERRITORY_FRIENDLY)
+		{
+			if (IsWater() == vNeighbors[i]->IsWater() &&
+				vNeighbors[i]->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY &&
+				vNeighbors[i]->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			{
+				CvCity* pCity = vNeighbors[i]->GetZoneCity();
+				if (!pCity || !pCity->isInDangerOfFalling())
+					m_ePosture = TACTICAL_POSTURE_WITHDRAW;
+			}
+		}
+	}
+
+	return m_ePosture;
+}
+
 void CvTacticalDominanceZone::AddNeighboringZone(int iZoneID)
 { 
 	if (iZoneID==m_iZoneID || iZoneID==-1)
@@ -434,6 +553,7 @@ void CvTacticalAnalysisMap::Refresh(bool force)
 		{
 			EstablishZoneNeighborhood();
 			CalculateMilitaryStrengths();
+			UpdatePostures();
 			PrioritizeZones();
 
 			//only temporary measure, creates a huge amount of logs
@@ -819,6 +939,75 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		m_IdLookup[m_DominanceZones[i].GetZoneID()] = i;
 }
 
+/// Establish postures for each dominance zone (taking into account last posture)
+void CvTacticalAnalysisMap::UpdatePostures()
+{
+	// first pass, look at zones in isolation
+	for (unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
+		//todo: should we include the previous posture in the logic?
+		//but we've thrown it away at this point ...
+		pZone->SelectPostureSingleZone(GetDominancePercentage());
+	}
+
+	// second pass, look at neighbors as well
+	// note that we don't check for convergence ...
+	for (unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
+		//need to look up the neighbors manually ...
+		vector<CvTacticalDominanceZone*> vNeighbors;
+		vector<int> vNeighborIds = pZone->GetNeighboringZones();
+		for (size_t j = 0; j < vNeighborIds.size(); j++)
+			vNeighbors.push_back( GetZoneByID(vNeighborIds[j]) );
+
+		//todo: should we include the previous posture in the logic?
+		//but we've thrown it away at this point ...
+		pZone->SelectPostureMultiZone(vNeighbors);
+	}
+
+	//third pass, logging only
+	for (unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString szPostureMsg;
+			szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
+
+			switch(pZone->GetPosture())
+			{
+			case TACTICAL_POSTURE_ATTRIT_FROM_RANGE:
+				szPostureMsg += "Attrit from Range";
+				break;
+			case TACTICAL_POSTURE_EXPLOIT_FLANKS:
+				szPostureMsg += "Exploit Flanks";
+				break;
+			case TACTICAL_POSTURE_STEAMROLL:
+				szPostureMsg += "Steamroll";
+				break;
+			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE:
+				szPostureMsg += "Surgical City Strike";
+				break;
+			case TACTICAL_POSTURE_HEDGEHOG:
+				szPostureMsg += "Hedgehog";
+				break;
+			case TACTICAL_POSTURE_COUNTERATTACK:
+				szPostureMsg += "Counterattack";
+				break;
+			case TACTICAL_POSTURE_WITHDRAW:
+				szPostureMsg += "Withdraw";
+				break;
+			case TACTICAL_POSTURE_NONE:
+				szPostureMsg += "NoPosture";
+				break;
+			}
+			GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szPostureMsg);
+		}
+	}
+}
+
 /// Log dominance zone data
 void CvTacticalAnalysisMap::LogZones()
 {
@@ -1090,6 +1279,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iZoneID;
 	saveTo << readFrom.m_eTerritoryType;
 	saveTo << readFrom.m_eOverallDominanceFlag;
+	saveTo << readFrom.m_ePosture;
 	saveTo << readFrom.m_eOwner;
 	saveTo << readFrom.m_iCityID;
 	saveTo << readFrom.m_iAreaID;
@@ -1124,6 +1314,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iZoneID;
 	loadFrom >> tmp; writeTo.m_eTerritoryType = (eDominanceTerritoryTypes)tmp;
 	loadFrom >> tmp; writeTo.m_eOverallDominanceFlag = (eTacticalDominanceFlags)tmp;
+	loadFrom >> tmp; writeTo.m_ePosture = (eTacticalPosture)tmp;
 	loadFrom >> writeTo.m_eOwner;
 	loadFrom >> writeTo.m_iCityID;
 	loadFrom >> writeTo.m_iAreaID;

@@ -1797,7 +1797,7 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL, bool bCacheResult = false);
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);
 
 	// you must call GeneratePath with caching before using these methods!
 	CvPlot* GetPathFirstPlot() const;
@@ -1908,7 +1908,6 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
-	static CvUnit* CaptureUnit(CvUnit* pUnit);
 #endif
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);

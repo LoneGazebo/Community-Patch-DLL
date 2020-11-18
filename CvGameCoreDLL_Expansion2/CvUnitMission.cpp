@@ -581,7 +581,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
 
 						//only combat units need to swap
-						if(!pUnit2->IsCombatUnit())
+						if(!pUnit2->IsCombatUnit() || pUnit2->getDomainType() != hUnit->getDomainType())
 							continue;
 
 						if(pUnit2->ReadyToSwap())
@@ -589,7 +589,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							// Start the swap
 							hUnit->ClearPathCache(); //make sure there's no stale path
 							pUnit2->ClearPathCache(); //make sure there's no stale path
-							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0, NULL, true) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0, NULL, true))
+							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
 							{
 								//move the new unit in
 								int iResult = 0;
@@ -1425,7 +1425,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			{
 				//make sure the path cache is current (not for air units, their movement is actually an airstrike)
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				if (hUnit->getDomainType()!=DOMAIN_AIR && !hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags, INT_MAX, NULL, true))
+				if (hUnit->getDomainType()!=DOMAIN_AIR && !hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags))
 				{
 					//uh? problem ... abort mission
 					bDelete = true;

@@ -22134,22 +22134,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		return;
 	}
 
-	AggressivePostureTypes eAggressivePosture;
-
-	int iUnitValueOnMyHomeFront;
-	int iValueToAdd;
-	bool bIsAtWarWithSomeone;
-
-	CvUnit* pLoopUnit;
-	int iUnitLoop;
-
-	int iOtherPlayerLoop;
-	PlayerTypes eLoopOtherPlayer;
-	TeamTypes eLoopOtherTeam;
-
-	iUnitValueOnMyHomeFront = 0;
-	bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
-
+	int iUnitValueOnMyHomeFront = 0;
+	bool bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
 	TeamTypes eOurTeam = GetTeam();
 	PlayerTypes eOurPlayerID = GetPlayer()->GetID();
 
@@ -22157,7 +22143,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	bool bIgnoreOtherWars = (GetPlayer()->isHuman() || IsAtWar(ePlayer));
 
 	// Loop through the other guy's units
-	for (pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
+	int iUnitLoop;
+	for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 	{
 		// Don't be scared of noncombat Units!
 		if (!pLoopUnit->IsCombatUnit() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
@@ -22182,10 +22169,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		if (bIsAtWarWithSomeone && !bIgnoreOtherWars)
 		{
 			// Loop through all players...
-			for (iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
+			for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
 			{
-				eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
-				eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
+				PlayerTypes eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+				TeamTypes eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
 
 				// At war with this player?
 				if (IsPlayerValid(eLoopOtherPlayer) && eLoopOtherTeam != eTeam && kTeam.isAtWar(eLoopOtherTeam))
@@ -22199,7 +22186,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 			}
 		}
 
-		iValueToAdd = 10;
+		int iValueToAdd = 10;
 
 		// If the Unit is in the other player's territory, halve its "aggression value," since he may just be defending himself
 		if (pUnitPlot->getOwner() == ePlayer)
@@ -22211,6 +22198,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		iUnitValueOnMyHomeFront += iValueToAdd;
 	}
 
+	AggressivePostureTypes eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+
 	// So how threatening is he being?
 	if (iUnitValueOnMyHomeFront >= /*80*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE())
 		eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
@@ -22220,8 +22209,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
 	else if (iUnitValueOnMyHomeFront >= /*10*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW())
 		eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
-	else
-		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
 	SetMilitaryAggressivePosture(ePlayer, eAggressivePosture);
 }

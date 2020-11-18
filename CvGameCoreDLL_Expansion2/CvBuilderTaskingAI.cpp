@@ -394,10 +394,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iRoadLength * 50;
+		int iSideBenefits = iRoadLength * 100;
 		// give an additional bump if we're almost done (don't get distracted)
 		if (iPlotsNeeded<=3)
-			iSideBenefits += 5000;
+			iSideBenefits += 8000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
 		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 200 : 100;

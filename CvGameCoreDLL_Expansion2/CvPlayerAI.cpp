@@ -290,7 +290,7 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		CvUnit::dispatchingNetMessage(true);
 		//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-		GetTacticalAI()->UpdatePostures();
+		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 		GetHomelandAI()->Update();
 		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
@@ -1435,13 +1435,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
+
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-		{
-			YieldTypes eYield = (YieldTypes)iYield;
-			if (eYield == NULL)
-				continue;
-			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, eYield);
-		}
+			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, (YieldTypes)iYield);
+
 		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatMerchantsCreated(true));
 
 		//don't count colonias here (IMPROVEMENT_CUSTOMS_HOUSE_VENICE), so venice will build any number of them once they run out of city states to buy
@@ -1725,7 +1722,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 
 			//merchant may not be in the closest owned city, so cut him some slack
 			int iPathTurns = 0;
-			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns, true);
+			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns);
 			if (iPathTurns < INT_MAX)
 			{
 				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
@@ -1777,7 +1774,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	for (size_t i = 0; i < vCandidates.size(); i++)
 	{
 		CvPlot* pTarget = GC.getMap().plotByIndexUnchecked(vCandidates[i].second);
-		if (pMerchant->GeneratePath(pTarget, iFlags, 23, NULL, true))
+		if (pMerchant->GeneratePath(pTarget, iFlags, 23))
 			return pMerchant->GetPathLastPlot();
 	}
 
@@ -2306,12 +2303,12 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	//try the closest city first
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	CvCity* pTargetCity = GC.getGame().GetClosestCityByPlots(pMusician->plot(), eTargetPlayer);
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	//fallback, try the capital
 	pTargetCity = GET_PLAYER(eTargetPlayer).getCapitalCity();
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	return NULL;

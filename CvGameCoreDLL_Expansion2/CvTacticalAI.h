@@ -273,60 +273,6 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTacticalPosture
-//!  \brief		The posture an AI has adopted for fighting in a specific dominance zone
-//
-//!  Key Attributes:
-//!  - Used to keep consistency in approach from turn-to-turn
-//!  - Reevaluated by tactical AI each turn before units are moved for this zone
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-enum AITacticalPosture
-{
-    AI_TACTICAL_POSTURE_NONE,
-    AI_TACTICAL_POSTURE_WITHDRAW,
-    AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
-    AI_TACTICAL_POSTURE_EXPLOIT_FLANKS,
-    AI_TACTICAL_POSTURE_STEAMROLL,
-    AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE,
-    AI_TACTICAL_POSTURE_HEDGEHOG,
-    AI_TACTICAL_POSTURE_COUNTERATTACK,
-};
-
-class CvTacticalPosture
-{
-public:
-	CvTacticalPosture(PlayerTypes ePlayer, bool bIsWater, int iCityID, AITacticalPosture ePosture)
-	{
-		m_ePlayer = ePlayer;
-		//same scheme as for tactical zones - water is negative
-		m_iCityID = bIsWater ? -iCityID : iCityID;
-		m_ePosture = ePosture;
-	}
-
-	PlayerTypes GetPlayer() const
-	{
-		return m_ePlayer;
-	};
-	bool IsWater()
-	{
-		return (m_iCityID<0);
-	};
-	int GetCityID()
-	{
-		return abs(m_iCityID);
-	};
-	AITacticalPosture GetPosture()
-	{
-		return m_ePosture;
-	};
-
-private:
-	PlayerTypes m_ePlayer;
-	int m_iCityID;
-	AITacticalPosture m_ePosture;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvFocusArea
 //!  \brief		Location of a temporary focus of attention (like around a barbarian camp)
 //
@@ -465,10 +411,8 @@ public:
 	void LogTacticalMessage(const CvString& strMsg);
 
 	// Other people want to know this too
-	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap() { return &m_tacticalMap; }
-	void UpdatePostures();
 
 	// Operational AI support functions
 	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
@@ -481,7 +425,6 @@ private:
 	void RecruitUnits();
 
 	// Internal turn update routines - commandeered unit processing
-	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
 	void FindTacticalTargets();
 	void PrioritizeNavalTargetsAndAddToMainList();
 	void ProcessDominanceZones();
@@ -630,13 +573,10 @@ private:
 	TacticalList m_ZoneTargets;
 	TacticalList m_NavalTargets;
 
-	std::vector<CvTacticalPosture> m_Postures; //persistent!
-
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
 	int m_iLandBarbarianRange;
 	int m_iSeaBarbarianRange;
-	int m_iDeployRadius;
 
 	// Dominance zone info
 	int m_eCurrentTargetType;

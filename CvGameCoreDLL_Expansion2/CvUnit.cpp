@@ -5549,12 +5549,12 @@ bool CvUnit::jumpToNearestValidPlot()
 		return false;
 	}
 
-	//remember we're calling this because the unit is trapped, so use the stepfinder
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 12);
+	//ignore all sorts of restrictions
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
 
 	CvPlot* pBestPlot = NULL;
 	vector<SPlotWithScore> candidates;
-	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -5569,9 +5569,9 @@ bool CvUnit::jumpToNearestValidPlot()
 				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
 					iValue += 20000;
 
-			//avoid embarkation
-			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-				iValue += 10000;
+			//avoid embarkation but not all all cost
+			if (pLoopPlot->needsEmbarkation(this))
+				iValue += 3000;
 
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
@@ -5586,7 +5586,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		// check to make sure this is not a dead end
 		// alternatively we could verify against all plots reachable from owner's capital?
-		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
 		//want to sort by ascending area size
@@ -28177,8 +28177,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	if (pZone)
 	{
 		const char* dominance[] = { "no units", "friendly", "hostile", "contested" };
-		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], postureNames[posture]);
+		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], postureNames[pZone->GetPosture()]);
 	}
 
 	return CvString("no tactical zone");
@@ -29754,7 +29753,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path (protected, allows caching)
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns, bool bCacheResult)
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns)
 {
 	if(pToPlot == NULL)
 		return false;
@@ -29781,7 +29780,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	}
 	else
 	{
-		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult);
+		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, true);
 		if (iTurns < 0)
 		{
 			if (piPathTurns)
@@ -31923,7 +31922,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 		return 0;
 
 	//don't cache the result here
-	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue, false) )
+	if (ComputePath(pTarget, iFlags, iTargetTurns, false)<0)
 		return INT_MAX;
 
 	return rtnValue;

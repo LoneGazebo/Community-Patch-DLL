@@ -7159,7 +7159,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	{
 		//cache the path, we're about to reuse it
 		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns,true) )
+		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -11220,9 +11220,6 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 
 					if (GetReligionToSpread() > RELIGION_PANTHEON)
 					{
-						if (ChooseProphetConversionCity())
-							iScore += 200;
-
 						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 						if (pMyReligion && !pMyReligion->m_bEnhanced)
 							iScore *= 2;
