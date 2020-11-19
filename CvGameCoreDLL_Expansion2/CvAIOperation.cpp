@@ -1913,11 +1913,12 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 
 	//we look at the army's state. the operation state is really not required
 	bool bStateChanged = false;
+	CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 	switch( pThisArmy->GetArmyAIState() )
 	{
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
-			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0))
+			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0) || (pCivilian && pCivilian->TurnsToReachTarget(GetTargetPlot(),0,1)<1))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -1928,7 +1929,6 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
-			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 			if (pCivilian && pThisArmy->GetFurthestUnitDistance(pCivilian->plot())<GetGatherTolerance(pThisArmy,pCivilian->plot()))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
@@ -1940,7 +1940,6 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
-			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 			if(pCivilian && pCivilian->plot() == GetTargetPlot())
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
@@ -1959,8 +1958,6 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_AT_DESTINATION:
 		{
-			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
-
 			if (pCivilian && PerformMission(pCivilian))
 			{
 				LogOperationSpecialMessage("Transition to finished stage");

@@ -28649,7 +28649,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	}
 
 	if (!newPath)
-		return -1;
+		return INT_MAX;
 	else
 	{
 		if ( (iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && newPath.vPlots.back().moves == 0 )
@@ -28667,7 +28667,7 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
-		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
+		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) != INT_MAX;
 
 	return IsCachedPathValid();
 }
@@ -29781,18 +29781,9 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	else
 	{
 		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, true);
-		if (iTurns < 0)
-		{
-			if (piPathTurns)
-				*piPathTurns = INT_MAX;
-			return false;
-		}
-		else
-		{
-			if (piPathTurns)
-				*piPathTurns = iTurns;
-			return true;
-		}
+		if (piPathTurns)
+			*piPathTurns = iTurns;
+		return iTurns!=INT_MAX;
 	}
 }
 
@@ -31917,15 +31908,11 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 			return INT_MAX;
 	}
 
-	int rtnValue = MAX_INT;
 	if(pTarget == plot())
 		return 0;
 
 	//don't cache the result here
-	if (ComputePath(pTarget, iFlags, iTargetTurns, false)<0)
-		return INT_MAX;
-
-	return rtnValue;
+	return ComputePath(pTarget, iFlags, iTargetTurns, false);
 }
 
 //	--------------------------------------------------------------------------------
