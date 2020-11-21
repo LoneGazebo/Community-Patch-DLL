@@ -23597,15 +23597,17 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 		const std::vector<std::pair<int,int>>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
 		for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
-			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			int iDistance = plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnitPlot->getX(), pUnitPlot->getY());
-
-			//first quick check with a large, fixed distance
-			if (iDistance>5 )
-				continue;
+			//performance: very rough distance check first without looking up the unit pointer ...
+			//do not reuse the plot below
+			{
+				CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+				if (plotDistance(*pUnitPlot, *pAtPlot) > 8)
+					continue;
+			}
 
 			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
-			if (!pUnit)
+			//catch weird problems
+			if (pUnit == NULL || pUnit->isDelayedDeath() || pUnit->plot() == NULL)
 				continue;
 
 			// Unit with a combat modifier against the enemy
@@ -23616,6 +23618,7 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 				if(((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_LAND) && !pUnit->isEmbarked()) || ((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_SEA)))
 				{
 					// Within range?
+					int iDistance = plotDistance(*pAtPlot, *pUnit->plot());
 					if(iDistance <= pUnit->getNearbyEnemyCombatRange())
 					{
 						// Don't assume the first one found is the worst!

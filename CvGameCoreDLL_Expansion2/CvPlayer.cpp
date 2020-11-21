@@ -11380,11 +11380,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
+			UpdateAreaEffectUnits();
+			UpdateAreaEffectPlots();
 			UpdateDangerPlots(false);
 			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 			UpdateMilitaryStats();
-			UpdateAreaEffectUnits();
-			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 		}
@@ -47496,15 +47496,17 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 	const std::vector<std::pair<int, int>>& possibleUnits = GetAreaEffectPositiveUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-
 		//performance: very rough distance check first without looking up the unit pointer ...
-		if (plotDistance(*pUnitPlot,*pTestPlot) > 5)
-			continue;
+		//do not reuse the plot below
+		{
+			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if (plotDistance(*pUnitPlot, *pTestPlot) > 8)
+				continue;
+		}
 
-		//exclude this unit!
 		CvUnit* pUnit = getUnit(it->first);
-		if (pUnit == NULL || pUnit == pIgnoreThisUnit)
+		//catch all sorts of weird problems (this may be called while a general is being killed!)
+		if (pUnit == NULL || pUnit->isDelayedDeath() || pUnit->plot()==NULL || pUnit == pIgnoreThisUnit)
 			continue;
 
 		//domain check
@@ -47518,7 +47520,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 #endif
 
 		//actual distance check
-		int iDistance = plotDistance(*pUnitPlot,*pTestPlot);
+		int iDistance = plotDistance(*pUnit->plot(),*pTestPlot);
 		if (iDistance > iEffectRange)
 			continue;
 

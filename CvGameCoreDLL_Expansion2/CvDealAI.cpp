@@ -132,7 +132,7 @@ bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iValue)
 	return false;
 }
 
-bool CvDealAI::BothSidesIncluded(CvDeal* pDeal, bool bHuman)
+bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 {
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 		return true;
@@ -141,7 +141,7 @@ bool CvDealAI::BothSidesIncluded(CvDeal* pDeal, bool bHuman)
 		return true;
 
 	//humans sometimes give nice things!
-	if (bHuman && GetDealValue(pDeal) > 0)
+	if (GET_PLAYER(pDeal->m_eFromPlayer).isHuman() && GetDealValue(pDeal) > 0)
 		return true;
 
 	return (pDeal->GetFromPlayerValue() > 0 && pDeal->GetToPlayerValue() > 0);
@@ -1479,9 +1479,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
-	int iItemValue = max(1, iBaseHappiness);
-
-	iItemValue *= iNumTurns;
+	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra())*iNumTurns;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1759,7 +1757,11 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 5 + GC.getGame().getCurrentEra();
+	//this is to reduce rounding errors
+	int iValueScale = 10;
+
+	//more or less arbitrary base value
+	int iItemValue = (GC.getGame().getCurrentEra()+2)*iValueScale;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1792,7 +1794,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	}
 	//Get the average multiplier from the number of Flavors being considered.
 	if ((iFlavorResult > 0) && (iFlavors > 0))
-		iItemValue *= (iFlavorResult / iFlavors);
+		iItemValue += (iFlavorResult / iFlavors)*10;
 
 	if (bFromMe)
 	{
@@ -1825,37 +1827,22 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			if (GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
 				iItemValue *= 10;
-				iItemValue /= 9;
+				iItemValue /= 7;
 			}
-			else
-			{
-				iItemValue *= 9;
-				iItemValue /= 10;
-			}
+
 			//Good target? Don't sell to them!
-			bool bGood = false;
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != eOtherPlayer && eLoopPlayer != GetPlayer()->GetID())
-				{
-					if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
-					{
-						bGood = true;
-					}
-				}
-			}
-			if (bGood)
+			if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eOtherPlayer))
 			{
 				iItemValue *= 2;
 			}
+
 			//Are they close, or far away? We should always be a bit less eager to sell war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
 				iItemValue *= 10;
 				iItemValue /= 9;
 			}
+
 			//Are we going for science win? Don't sell aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
 			if (eApolloProgram != NO_PROJECT)
@@ -1915,9 +1902,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 15;
 
-			return iItemValue;
+			return iItemValue/iValueScale;
 		}
 		else
 		{
@@ -1934,29 +1920,13 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				iItemValue *= 8;
 				iItemValue /= 10;
 			}
-			else
-			{
-				iItemValue *= 10;
-				iItemValue /= 9;
-			}
+
 			//Good target? Don't buy from them!
-			bool bGood = false;
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != eOtherPlayer && eLoopPlayer != GetPlayer()->GetID())
-				{
-					if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
-					{
-						bGood = true;
-					}
-				}
-			}
-			if (bGood)
+			if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eOtherPlayer))
 			{
 				iItemValue /= 2;
 			}
+
 			//Are they close, or far away? We should always be a bit less eager to buy war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
@@ -2055,7 +2025,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue *= max(1, GetPlayer()->getResourceOverValue(eResource));
 
 			//And now speed/quantity.
-			iItemValue *= iResourceQuantity;
+			iItemValue *= (iResourceQuantity*iNumTurns);
 
 			//how many have we already bought? Diminishing returns, bby.
 			int iNumberWeGet = 0;
@@ -2066,13 +2036,14 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				if (!pCurrentDeal)
 					continue;
 
-				iNumberWeGet += pCurrentDeal->GetNumResource(eOtherPlayer, eResource);
+				iNumberWeGet += pCurrentDeal->GetNumResourceInDeal(eOtherPlayer, eResource);
 			}
 
-			iItemValue *= iNumTurns;
-			iItemValue /= max(1, (15 + iResourceQuantity + iNumberWeGet));
+			int iPrevDealScaler = 100 - min(9, iNumberWeGet);
+			iItemValue *= iPrevDealScaler;
+			iItemValue /= 100;
 
-			return iItemValue;
+			return iItemValue/iValueScale;
 		}
 		else
 		{
@@ -4875,6 +4846,10 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 		if (pDeal->IsResourceTrade(eMyPlayer, eResource))
 			continue;
 
+		//AI should not sell if they are importing in parallel
+		if (!GET_PLAYER(eThem).isHuman() && GET_PLAYER(eThem).getResourceImportFromMajor(eResource)>0)
+			continue;
+
 		// Don't bother looking at this resource if they don't even have any of it
 		int iMaxResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
 		if (iMaxResourceQuantity < 1)
@@ -4886,7 +4861,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 		int iAlreadyInDeal = pDeal->GetNumResourcesInDeal(eThem, eResource);
 		if (iAlreadyInDeal > 0)
 		{
-			iResourceQuantity = max((iAlreadyInDeal + 1), iResourceQuantity);
+			iResourceQuantity = min(iAlreadyInDeal + 1, iMaxResourceQuantity);
 		}
 		else
 		{
@@ -4951,19 +4926,27 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		if (pDeal->IsResourceTrade(eThem, eResource))
 			continue;
 
-		//always keep some for ourselves?
-		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false);
-		if (iMaxResourceQuantity <= 0)
+		//don't sell if we're importing at the same time
+		//todo: or is this a chance for arbitrage?
+		if (GET_PLAYER(eMyPlayer).getResourceImportFromMajor(eResource) > 0)
 			continue;
 
-		iMaxResourceQuantity /= 2;
-		if (iMaxResourceQuantity <= 0)
-			iMaxResourceQuantity = 1;
+		//always keep some for ourselves?
+		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false);
+		if (iMaxResourceQuantity < 2)
+			continue;
 
-		//how do we judge this? A good rule of thumb: never give away more than we're getting.
-		int iResourceQuantity = min(pDeal->GetNumStrategicsOnTheirSide(eThem), iMaxResourceQuantity);
-		if (iResourceQuantity <= 0)
-			iResourceQuantity = 1;
+		//sell max half of what we have
+		iMaxResourceQuantity /= 2;
+
+		//how do we judge this? A good rule of thumb: never give away more than we're getting
+		//but don't try to buy more than twice as much as were getting either
+		int iResourceQuantity = 1;
+		int iTheirResourceCount = pDeal->GetNumStrategicsOnTheirSide(eThem);
+		if (iMaxResourceQuantity < iTheirResourceCount / 2)
+			continue;
+		else if (iMaxResourceQuantity > iTheirResourceCount)
+			iResourceQuantity = iTheirResourceCount;
 
 		//already in deal? add one more to the mix and reset quantity
 		if (pDeal->IsResourceTrade(eThem, eResource))
@@ -6342,17 +6325,14 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		return false;
 	}
 
-	int iResourceLoop;
-	ResourceTypes eResource;
 	int iBestValue = 15;
 
 	// precalculate, it's expensive
 	int iCurrentNetGoldOfReceivingPlayer = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-	int iRand = 0;
 	// See if the other player has a Resource to trade
-	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 		// Only look at Strats
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -6362,8 +6342,12 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		if (GetPlayer()->getNumResourceAvailable(eResource, false) > 2)
 			continue;
 
-		int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
+		//don't buy more if we're already exporting it
+		//todo: or is this a chance for arbitrage?
+		if (GetPlayer()->getResourceExport(eResource)>0)
+			continue;
 
+		int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
 		if (iNum <= 0)
 			continue;
 
@@ -6379,24 +6363,20 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	// Extra Strat found!
 	if(eStratFromThem != NO_RESOURCE)
 	{
-		int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
-		//add in our deficit.
-		int iOurDeficit = max(0, GetPlayer()->getResourceOverValue(eStratFromThem));
-		int iDesired = iNum + (iOurDeficit);
-		if (iDesired > iNum)
-			iDesired = iNum;
-
-		// Any extras?
-		iRand = max(1, GC.getGame().getSmallFakeRandNum(max(iDesired, 1), iCurrentNetGoldOfReceivingPlayer + iResourceLoop + eOtherPlayer));
+		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
+		int iDesired = min(4,iAvailable/2);
+		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
+		iDesired += GetPlayer()->getResourceOverValue(eStratFromThem);
+		iDesired = min(iAvailable, iDesired);
 
 		// Can we actually complete this deal?
-		if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eStratFromThem, iRand))
+		if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eStratFromThem, iDesired))
 		{
 			return false;
 		}
 
 		// Seed the deal with the item we want
-		pDeal->AddResourceTrade(eOtherPlayer, eStratFromThem, iRand, GC.getGame().GetDealDuration());
+		pDeal->AddResourceTrade(eOtherPlayer, eStratFromThem, iDesired, GC.getGame().GetDealDuration());
 
 		bool bDealAcceptable = false;
 

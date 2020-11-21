@@ -526,12 +526,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
 		ResourceTypes eResource = (ResourceTypes) iData1;
-		if(eResource != NO_RESOURCE)
+		if (eResource != NO_RESOURCE)
 		{
 			int iResourceQuantity = iData2;
 
 			// Can't trade a negative amount of something!
-			if(iResourceQuantity < 0)
+			if (iResourceQuantity < 0)
 				return false;
 
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
@@ -557,7 +557,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					iNumAvailable += iResourcesAlreadyInDeal;
 			}
 			else
+			{
 				iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+			}
 			
 			// Offering up more of a Resource than we have available
 			if (iNumAvailable < iResourceQuantity)
@@ -1437,14 +1439,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	return true;
 }
 
-/// Get the number of resources available according to the deal being renewed and what's not on the table
-int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
+/// Get the number of resources available according to the deal being renewed and what's on the table
+int CvDeal::GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource)
 {
-	int iNumAvailable = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, false);
 	int iNumInExistingDeal = 0;
 
 	TradedItemList::iterator it;
-	// remove any that are in this deal
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
@@ -1453,7 +1453,7 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 		}
 	}
 
-	return iNumAvailable - iNumInExistingDeal;
+	return iNumInExistingDeal;
 }
 
 #if defined(MOD_BALANCE_CORE)

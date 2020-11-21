@@ -41,7 +41,7 @@ public:
 	int GetDealPercentLeeway(PlayerTypes eOtherPlayer) const;
 
 	bool WithinAcceptableRange(PlayerTypes ePlayer, int iValue);
-	bool BothSidesIncluded(CvDeal* pDeal, bool bHuman = false);
+	bool BothSidesIncluded(CvDeal* pDeal);
 	bool TooMuchAdded(PlayerTypes ePlayer, int iTotalValue, int iItemValue, bool bFromUs = false);
 
 	// Offer deal to this AI player and see what his response is
