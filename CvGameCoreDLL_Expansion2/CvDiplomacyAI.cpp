@@ -75,13 +75,11 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiPlayerNoSettleRequestCounter()
 	, m_abPlayerStopSpyingRequest()
 	, m_aiPlayerStopSpyingRequestCounter()
-#if defined(MOD_BALANCE_CORE)
 	, m_aiPlayerBackstabCounter()
 	, m_aiDefensivePactValue()
 	, m_aiDoFValue()
 	, m_aiCompetitorValue()
 	, m_aiCoopWarScore()
-#endif
 	, m_aiDemandCounter()
 	, m_aiDemandTooSoonNumTurns()
 	, m_abDoFAccepted()
@@ -289,13 +287,12 @@ CvDiplomacyAI::CvDiplomacyAI():
 
 	m_pabPlayerStopSpyingRequestAccepted(NULL),
 	m_paiPlayerStopSpyingRequestCounter(NULL),
-#if defined(MOD_BALANCE_CORE)
+
 	m_paiPlayerBackstabCounter(NULL),
 	m_paiDefensivePactValue(NULL),
 	m_paiDoFValue(NULL),
 	m_paiCompetitorValue(NULL),
 	m_paiCoopWarScore(NULL),
-#endif
 
 	m_paiDemandCounter(NULL),
 	m_paiDemandTooSoonNumTurns(NULL),
@@ -546,14 +543,13 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 	m_pabPlayerStopSpyingRequestAccepted = &m_pDiploData->m_abPlayerStopSpyingRequest[0];
 	m_paiPlayerStopSpyingRequestCounter = &m_pDiploData->m_aiPlayerStopSpyingRequestCounter[0];
-#if defined(MOD_BALANCE_CORE)
+
 	m_paiPlayerBackstabCounter = &m_pDiploData->m_aiPlayerBackstabCounter[0];
 	
 	m_paiDefensivePactValue = &m_pDiploData->m_aiDefensivePactValue[0];
 	m_paiDoFValue = &m_pDiploData->m_aiDoFValue[0];
 	m_paiCompetitorValue = &m_pDiploData->m_aiCompetitorValue[0];
 	m_paiCoopWarScore = &m_pDiploData->m_aiCoopWarScore[0];
-#endif
 
 	m_paiDemandCounter = &m_pDiploData->m_aiDemandCounter[0];
 	m_paiDemandTooSoonNumTurns = &m_pDiploData->m_aiDemandTooSoonNumTurns[0];
@@ -875,14 +871,13 @@ void CvDiplomacyAI::Uninit()
 
 	m_pabPlayerStopSpyingRequestAccepted = NULL;
 	m_paiPlayerStopSpyingRequestCounter = NULL;
-#if defined(MOD_BALANCE_CORE)
+
 	m_paiPlayerBackstabCounter = NULL;
 
 	m_paiDefensivePactValue = NULL;
 	m_paiDoFValue = NULL;
 	m_paiCompetitorValue = NULL;
 	m_paiCoopWarScore = NULL;
-#endif
 
 	m_paiDemandCounter = NULL;
 	m_paiDemandTooSoonNumTurns = NULL;
@@ -1146,9 +1141,7 @@ void CvDiplomacyAI::Reset()
 		m_pabPlayerStopSpyingRequestAccepted[iI] = false;
 		m_paiPlayerStopSpyingRequestCounter[iI] = -1;
 
-#if defined(MOD_BALANCE_CORE)
 		m_paiPlayerBackstabCounter[iI] = -1;
-#endif
 
 		m_paiDemandCounter[iI] = -1;
 		m_paiDemandTooSoonNumTurns[iI] = -1;
@@ -1607,7 +1600,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiPlayerStopSpyingRequestCounter(MAX_MAJOR_CIVS, m_paiPlayerStopSpyingRequestCounter);
 	kStream >> wrapm_paiPlayerStopSpyingRequestCounter;
 
-#if defined(MOD_BALANCE_CORE)
 	ArrayWrapper<short> wrapm_paiPlayerBackstabCounter(MAX_MAJOR_CIVS, m_paiPlayerBackstabCounter);
 	kStream >> wrapm_paiPlayerBackstabCounter;
 
@@ -1622,7 +1614,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<char> wrapm_paiCoopWarScore(MAX_MAJOR_CIVS, m_paiCoopWarScore);
 	kStream >> wrapm_paiCoopWarScore;
-#endif
 
 	ArrayWrapper<short> wrapm_paiDemandCounter(MAX_MAJOR_CIVS, m_paiDemandCounter);
 	kStream >> wrapm_paiDemandCounter;
@@ -1928,7 +1919,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabOfferedGift(MAX_MAJOR_CIVS, m_pabOfferedGift);
 	kStream >> wrapm_pabOfferedGift;
 #endif
-#if defined(MOD_BALANCE_CORE)
 
 	ArrayWrapper<bool> wrapm_pabWantsDoFWithPlayer(MAX_MAJOR_CIVS, m_pabWantsDoFWithPlayer);
 	kStream >> wrapm_pabWantsDoFWithPlayer;
@@ -2055,7 +2045,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	
 	ArrayWrapper<short> wrapm_paiPerformedCoupTurn(MAX_MAJOR_CIVS, m_paiPerformedCoupTurn);
 	kStream >> wrapm_paiPerformedCoupTurn;
-#endif
 
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -2161,14 +2150,12 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerStopSpyingRequestAccepted);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPlayerStopSpyingRequestCounter);
 
-#if defined(MOD_BALANCE_CORE)
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPlayerBackstabCounter);
 
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDefensivePactValue);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFValue);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiCompetitorValue);
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paiCoopWarScore);
-#endif
 
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDemandCounter);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDemandTooSoonNumTurns);
