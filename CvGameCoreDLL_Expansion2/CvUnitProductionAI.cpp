@@ -271,7 +271,6 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 #if defined(MOD_BALANCE_CORE)
 int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree, bool bInterruptBuildings)
 {
-	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
 
@@ -488,11 +487,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
 		//Are we mustering a naval attack here?
-		if(bForOperation && !kPlayer.IsMusterCityForOperation(m_pCity, true))
-		{
-			bOperationalOverride = true;
-		}
-		if (!bFree && !bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther == 0 && iNumCitiesOther == 0))))
+		bool bOperationalOverride = (bForOperation && kPlayer.IsMusterCityForOperation(m_pCity, true));
+		bool bTooManyUnits = (iNumUnitsofMine * iFactor > iWaterTiles);
+		bool bNoEnemies = (iNumUnitsOther == 0 && iNumCitiesOther == 0);
+
+		if (!bFree && !bOperationalOverride && (bTooManyUnits || bNoEnemies))
 		{
 			return 0;
 		}

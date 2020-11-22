@@ -19777,7 +19777,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
-			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
+			if (isNativeDomain(pOldPlot))
+				pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 			setLastMoveTurn(GC.getGame().getGameTurn());
 			pOldCity = pOldPlot->getPlotCity();
 		}
@@ -19840,7 +19841,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			pNewPlot->addUnit(this, bUpdate);
-			pNewPlot->area()->changeUnitsPerPlayer(getOwner(), 1);
+			if (isNativeDomain(pNewPlot))
+				pNewPlot->area()->changeUnitsPerPlayer(getOwner(), +1);
 			pNewCity = pNewPlot->getPlotCity();
 		}
 		else

@@ -1001,7 +1001,7 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 
 	//allow a fairly big range so we can clear islands as well unless we're at war and need the units otherwise
 	//note the barbarians are excluded from that check
-	int iRange = m_pPlayer->IsAtWar() ? 4 : 11;
+	int iRange = m_pPlayer->IsAtWarAnyMajor() ? 4 : 11;
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{

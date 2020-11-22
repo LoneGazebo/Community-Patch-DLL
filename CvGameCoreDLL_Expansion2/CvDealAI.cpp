@@ -1479,7 +1479,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
-	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra())*iNumTurns;
+	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra())*iNumTurns/2;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1761,7 +1761,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	int iValueScale = 10;
 
 	//more or less arbitrary base value
-	int iItemValue = (GC.getGame().getCurrentEra()+2)*iValueScale;
+	int iItemValue = (GC.getGame().getCurrentEra()+3)*iValueScale;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1985,7 +1985,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				int iResourceRatio = GetResourceRatio(eOtherPlayer, GetPlayer()->GetID(), eResource, iResourceQuantity);
 				//More we have compared to them, the less what they're offering is worth!
 				iItemValue *= 100;
-				iItemValue /= max(50, iResourceRatio);
+				iItemValue /= max(80, iResourceRatio); //pay a premium if we have less but max 20%
 			}
 
 			// Approach is important
@@ -2039,7 +2039,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				iNumberWeGet += pCurrentDeal->GetNumResourceInDeal(eOtherPlayer, eResource);
 			}
 
-			int iPrevDealScaler = 100 - min(9, iNumberWeGet);
+			int iPrevDealScaler = 100 - min(90, iNumberWeGet*10);
 			iItemValue *= iPrevDealScaler;
 			iItemValue /= 100;
 
@@ -4606,16 +4606,10 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-		int iItemValue;
-
-		int iResourceLoop;
-		ResourceTypes eResource;
-		int iResourceQuantity;
-
 		// Look to trade Luxuries first
-		for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -4625,10 +4619,13 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 			if (pDeal->IsResourceTrade(eThem, eResource))
 				continue;
 
-			iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
-
 			// Don't bother looking at this Resource if the other player doesn't even have any of it
-			if(iResourceQuantity <= 0)
+			int iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
+			if(iResourceQuantity < 1)
+				continue;
+
+			// Don't bother if we already have it
+			if (GetPlayer()->getNumResourceAvailable(eResource, true) > 0)
 				continue;
 
 			// Don't bother if we wouldn't get Happiness from it due to World Congress
@@ -4641,7 +4638,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 			// See if they can actually trade it to us
 			if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
 			{
-				iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ false, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration);
+				int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ false, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration);
 
 				if (iItemValue > 0 && GET_PLAYER(eMyPlayer).GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 				{
@@ -4691,7 +4688,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 				int iWeight = viTradeValues.GetWeight(iRanking);
 				if (iWeight != 0)
 				{
-					eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
+					ResourceTypes eResource = (ResourceTypes)viTradeValues.GetElement(iRanking);
 					if (eResource == NO_RESOURCE)
 						continue;
 
@@ -4699,7 +4696,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 					if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 						continue;
 
-					iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
+					int iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
 
 					// Don't bother looking at this Resource if the other player doesn't even have any of it
 					if (iResourceQuantity <= 0)
@@ -4931,13 +4928,10 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		if (GET_PLAYER(eMyPlayer).getResourceImportFromMajor(eResource) > 0)
 			continue;
 
-		//always keep some for ourselves?
-		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false);
+		//always keep some for ourselves
+		int iMaxResourceQuantity = GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, false)/2;
 		if (iMaxResourceQuantity < 2)
 			continue;
-
-		//sell max half of what we have
-		iMaxResourceQuantity /= 2;
 
 		//how do we judge this? A good rule of thumb: never give away more than we're getting
 		//but don't try to buy more than twice as much as were getting either
@@ -4946,7 +4940,8 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		if (iMaxResourceQuantity < iTheirResourceCount / 2)
 			continue;
 		else if (iMaxResourceQuantity > iTheirResourceCount)
-			iResourceQuantity = iTheirResourceCount;
+			//offer max 2 copies more
+			iResourceQuantity = min(iMaxResourceQuantity,iTheirResourceCount+2);
 
 		//already in deal? add one more to the mix and reset quantity
 		if (pDeal->IsResourceTrade(eThem, eResource))
@@ -6257,6 +6252,12 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 			continue;
 		}
 
+		//one copy is enough
+		if (m_pPlayer->getNumResourceAvailable(eResource, true) > 0)
+		{
+			continue;
+		}
+
 		// Must not be banned by World Congress
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 		{
@@ -6364,7 +6365,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	if(eStratFromThem != NO_RESOURCE)
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
-		int iDesired = min(4,iAvailable/2);
+		int iDesired = min(4,max(1,iAvailable/2));
 		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
 		iDesired += GetPlayer()->getResourceOverValue(eStratFromThem);
 		iDesired = min(iAvailable, iDesired);

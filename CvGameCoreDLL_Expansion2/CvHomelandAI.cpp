@@ -3869,9 +3869,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 			}
 			else
-				ExecuteMovesToSafestPlot(pUnit);
+				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 		}
-		else
+
+		if (pUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			// These are field commanders without an enemy around so tactical AI skipped them
 			// Score cities to move to - ordered by threat level
@@ -3896,6 +3897,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				ExecuteMoveToTarget(pUnit, pTarget, 0, true);
 				vPlotsToAvoid.push_back(pTarget);
+				break;
 			}
 
 			if (!pUnit->TurnProcessed())

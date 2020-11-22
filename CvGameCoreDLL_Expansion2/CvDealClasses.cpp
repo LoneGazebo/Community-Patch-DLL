@@ -530,14 +530,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			int iResourceQuantity = iData2;
 
-			// Can't trade a negative amount of something!
-			if (iResourceQuantity < 0)
+			// Can't trade nothing
+			if (iResourceQuantity < 1)
 				return false;
 
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
-			{
 				return false;
-			}
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo)
