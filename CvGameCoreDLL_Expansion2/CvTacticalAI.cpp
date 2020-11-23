@@ -10066,8 +10066,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			if (bPrecondition)
 			{
 				//see if we can indeed reach the target plot this turn ... 
-				pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_STOPNODES);
-				if (pUnit->GetPathEndFirstTurnPlot() != pToPlot)
+				pUnit->ClearPathCache(); 
+				if (!pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_STOPNODES) || pUnit->GetPathEndFirstTurnPlot() != pToPlot)
 					OutputDebugString("ouch, pathfinding problem\n");
 			}
 #endif

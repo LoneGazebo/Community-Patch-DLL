@@ -6232,7 +6232,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			return false;
 
 		// No non-combat units
-		if(!IsCombatUnit() && !canAirAttack())
+		if(!IsCanAttack())
 		{
 			CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
@@ -17062,14 +17062,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	return std::max(1, iBaseStrength * (iModifier + 100));
 }
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::canAirAttack() const
-{
-	VALIDATE_OBJECT
-	return (GetBaseRangedCombatStrength() > 0);
-}
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canAirDefend(const CvPlot* pPlot) const
@@ -28633,24 +28625,26 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	{
 		ClearPathCache();
 
-		for (size_t i = 0; i < newPath.vPlots.size(); i++)
-		{
-			CvPathNode nextNode( newPath.vPlots[i] );
-
-			//skip the first node (if it's not a stop node), it's the current unit plot
-			//important: this means that an empty m_kLastPath is valid!
-			if (i == 0 && nextNode.m_iMoves > 0)
-				continue;
-
-			m_kLastPath.push_back(nextNode);
-		}
-
 		// This helps in preventing us from trying to re-path to the same unreachable location.
-		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
-		m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
-		m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
-		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
+		if (!!newPath)
+		{
+			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+			m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
+			m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
+			m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
+
+			for (size_t i = 0; i < newPath.vPlots.size(); i++)
+			{
+				CvPathNode nextNode( newPath.vPlots[i] );
+
+				//skip the first node (if it's not a stop node), it's the current unit plot
+				//important: this means that an empty m_kLastPath is valid!
+				if (i == 0 && nextNode.m_iMoves > 0)
+					continue;
+
+				m_kLastPath.push_back(nextNode);
+			}
+		}
 	}
 
 	if (!newPath)
@@ -28988,7 +28982,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 			//keep the cache in sync
 			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-			m_uiLastPathLength = m_kLastPath.size();
 
 			//have we used up all plots or at least for this turn?
 			if (m_kLastPath.empty())
@@ -29742,7 +29735,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 // PATH-FINDING ROUTINES
 bool CvUnit::IsCachedPathValid() const
 {
-	return m_uiLastPathLength != 0xFFFFFFFF;
+	return m_uiLastPathCacheOrigin != -1;
 }
 
 bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
@@ -29751,8 +29744,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
 		m_uiLastPathFlags == (iFlags & PATHFINDER_FLAG_MASK) &&
-		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice() && 
-		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
+		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice()
 		);
 }
 
@@ -29764,7 +29756,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		return false;
 
 	//can we re-use the old path?
-	if (HaveCachedPathTo(pToPlot, iFlags) && IsCachedPathValid())
+	if (HaveCachedPathTo(pToPlot, iFlags))
 	{
 		if (piPathTurns == NULL)
 			return true;
@@ -29797,11 +29789,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
-	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
-	m_uiLastPathCacheDestination = 0xFFFFFFFF;
+	m_uiLastPathCacheOrigin = -1;
+	m_uiLastPathCacheDestination = -1;
 	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathTurnSlice = 0xFFFFFFFF;
-	m_uiLastPathLength = 0xFFFFFFFF;
+	m_uiLastPathTurnSlice = -1;
 }
 
 //	--------------------------------------------------------------------------------

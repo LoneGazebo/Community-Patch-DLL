@@ -16,6 +16,8 @@
 
 #include "LintFree.h"
 
+bool g_bLogZones = false;
+
 //=====================================
 // CvTacticalDominanceZone
 //=====================================
@@ -557,7 +559,8 @@ void CvTacticalAnalysisMap::Refresh(bool force)
 			PrioritizeZones();
 
 			//only temporary measure, creates a huge amount of logs
-			//LogZones();
+			if (g_bLogZones)
+				LogZones();
 		}
 	}
 }
@@ -619,7 +622,7 @@ int CvTacticalAnalysisMap::AddToDominanceZones(int iIndex)
 	TeamTypes eOwnerTeam = NO_TEAM;
 
 	//for plots far away from a city, check the owner
-	if (iCityDistance>2)
+	if (iCityDistance>4)
 	{
 		eOwnerTeam = pPlot->getTeam();
 		eOwnerPlayer = pPlot->getOwner();
@@ -714,7 +717,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			int iLoop;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if(!pLoopUnit->IsCombatUnit())
+				if(!pLoopUnit->IsCanAttack()) //do not check for combat units because that excludes air units!
 					continue;
 
 				CvPlot* pPlot = pLoopUnit->plot();
@@ -748,10 +751,13 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						continue;
 				}
 
-				int iEffectiveDistance = MAX(0,iPlotDistance - iBias); 
-				int iMultiplier = MAX(1,iMaxDistance - iEffectiveDistance);  
-				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iMultiplier * m_iUnitStrengthMultiplier;
-				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iMultiplier * m_iUnitStrengthMultiplier;
+				int iEffectiveDistance = MAX(0,iPlotDistance - iBias);
+				int iDistanceMultiplier = MAX(1,iMaxDistance - iEffectiveDistance); 
+				int iMobilityMultiplier = max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) / 2;
+
+				int iTotalMultiplier = iDistanceMultiplier * iMobilityMultiplier * m_iUnitStrengthMultiplier;
+				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iTotalMultiplier;
+				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iTotalMultiplier;
 
 				if(bReducedStrength)
 				{
@@ -767,14 +773,21 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						pZone->AddEnemyNavalRangedStrength(iRangedStrength);
 						pZone->AddEnemyNavalUnitCount(1);
 					}
-					else
+					else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 					{
 						pZone->AddEnemyMeleeStrength(iUnitStrength);
 						pZone->AddEnemyRangedStrength(iRangedStrength);
 						pZone->AddEnemyUnitCount(1);
 					}
+					else if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+					{
+						if ( pPlot->isWater() )
+							pZone->AddEnemyNavalRangedStrength(iRangedStrength);
+						else
+							pZone->AddEnemyRangedStrength(iRangedStrength);
+					}
 
-					//again only for enemies
+					//only for enemies
 					if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iPlotDistance<pZone->GetDistanceOfClosestEnemyUnit())
 						pZone->SetDistanceOfClosestEnemyUnit(iPlotDistance);
 				}
@@ -787,11 +800,18 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
 						pZone->AddFriendlyNavalUnitCount(1);
 					}
-					else
+					else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 					{
 						pZone->AddFriendlyMeleeStrength(iUnitStrength);
 						pZone->AddFriendlyRangedStrength(iRangedStrength);
 						pZone->AddFriendlyUnitCount(1);
+					}
+					else if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+					{
+						if ( pPlot->isWater() )
+							pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
+						else
+							pZone->AddFriendlyRangedStrength(iRangedStrength);
 					}
 				}
 				else
@@ -1029,7 +1049,7 @@ void CvTacticalAnalysisMap::LogZones()
 				}
 			}
 
-			of << "#------------------\n";
+			of << "#summary------------------\n";
 
 			for (unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 			{
@@ -1040,7 +1060,7 @@ void CvTacticalAnalysisMap::LogZones()
 					continue;
 
 				CvString szLogMsg;
-				szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
+				szLogMsg.Format("#Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
 					pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 					pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
 					pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetDistanceOfClosestEnemyUnit());
@@ -1098,7 +1118,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 		if (pZone->IsWater() != pNewZone->IsWater())
 			continue;
 
-		// If this is a temporary zone, matches if unowned and close enough
+		// Match if unowned and close enough
 		int iDistance = plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY());
 		if((pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL) &&
 		        (iDistance <= GetTacticalRangeTurns())) //awkward: turns vs plots
@@ -1117,7 +1137,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 		// Otherwise everything needs to match
 		if(pZone->GetTerritoryType() == pNewZone->GetTerritoryType() &&
 		        pZone->GetOwner() == pNewZone->GetOwner() &&
-		        pZone->GetAreaID() == pNewZone->GetAreaID() && //do not check water flag
+		        pZone->GetAreaID() == pNewZone->GetAreaID() && //we checked the water flag above
 		        pZone->GetZoneCity() == pNewZone->GetZoneCity())
 		{
 			return pZone;

@@ -849,36 +849,25 @@ size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 		for (map<int, SPath>::iterator it = landpaths.begin(); it != landpaths.end(); ++it)
 		{
 			PlayerTypes eTargetPlayer = it->second.get(-1)->getOwner();
-			CvCity* pTargetCity = it->second.get(-1)->getPlotCity();
 
 			if (!IsPlayerValid(eTargetPlayer))
 				continue;
 			if (!PathIsGood(it->second,eTargetPlayer))
 				continue;
 
-			//sometimes we need to decide between land and naval
-			map<int, SPath>::iterator itAlt = waterpaths.find(it->first);
-			if (itAlt != waterpaths.end())
-			{
-				//should we look at the path length as well?
-				int iLandExposure = pTargetCity->GetExposureScore(m_pPlayer->GetID(), false);
-				int iWaterExposure = pTargetCity->GetExposureScore(m_pPlayer->GetID(), true);
-				if (iLandExposure < iWaterExposure || iLandExposure == 0)
-					continue;
-			}
-
 			CvAttackTarget target;
-			target.m_armyType = ARMY_TYPE_LAND;
 			target.SetWaypoints(it->second);
+			SelectBestTargetApproach(target);
+			if (target.m_iApproachScore == 0)
+				continue;
 
 			vOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 		}
 
-		//then filter water targets
+		//then water targets
 		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			PlayerTypes eTargetPlayer = it->second.get(-1)->getOwner();
-			CvCity* pTargetCity = it->second.get(-1)->getPlotCity();
 
 			if (!IsPlayerValid(eTargetPlayer))
 				continue;
@@ -887,28 +876,16 @@ size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
-
-			//does it make sense to do a naval attack?
-			//independent of whether we have a land path at all
-			int iLandExposure = pTargetCity->GetExposureScore(m_pPlayer->GetID(), false);
-			int iWaterExposure = pTargetCity->GetExposureScore(m_pPlayer->GetID(), true);
-			int iRatio = (100 * iWaterExposure) / max(1,iLandExposure);
-
-			//water exposure relatively small
-			if (iRatio<66)
+			SelectBestTargetApproach(target);
+			if (target.m_iApproachScore == 0)
 				continue;
-			//water exposure and land exposure about even
-			else if (iRatio<150)
-				target.m_armyType = ARMY_TYPE_COMBINED;
-			//water exposure relatively high
-			else
-				target.m_armyType = ARMY_TYPE_NAVAL;
 
 			vOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 		}
 	}
 
-	sort(vOptions.begin(), vOptions.end());
+	//some might be present twice but we sort that out below
+	std::sort(vOptions.begin(), vOptions.end());
 
 	for (size_t i = 0; i < nMaxTargets && i < vOptions.size(); i++)
 	{
@@ -983,7 +960,33 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 	return false;
 }
 
-int CvMilitaryAI::ScoreAttackTarget(CvAttackTarget & target)
+void CvMilitaryAI::SelectBestTargetApproach(CvAttackTarget& target)
+{
+	//default
+	target.m_iApproachScore = 0;
+
+	int iLandScore = EvaluateTargetApproach(target,ARMY_TYPE_LAND);
+	int iNavalScore = EvaluateTargetApproach(target,ARMY_TYPE_NAVAL);
+	int iCombinedScore = EvaluateTargetApproach(target,ARMY_TYPE_COMBINED);
+
+	if (iLandScore >= iNavalScore && iLandScore >= iCombinedScore)
+	{
+		target.m_armyType = ARMY_TYPE_LAND;
+		target.m_iApproachScore = iLandScore;
+	}
+	else if (iNavalScore >= iLandScore && iNavalScore >= iCombinedScore)
+	{
+		target.m_armyType = ARMY_TYPE_NAVAL;
+		target.m_iApproachScore = iNavalScore;
+	}
+	else if (iCombinedScore >= iNavalScore && iCombinedScore >= iLandScore)
+	{
+		target.m_armyType = ARMY_TYPE_COMBINED;
+		target.m_iApproachScore = iCombinedScore;
+	}
+}
+
+int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 {
 	CvCity* pTargetCity = target.GetTargetPlot()->getPlotCity();
 
@@ -1007,39 +1010,6 @@ int CvMilitaryAI::ScoreAttackTarget(CvAttackTarget & target)
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
 		fDistWeightInterpolated = (target.GetPathLength()-fDistanceLow) * fSlope + fWeightLow;
 		fDistWeightInterpolated = min( fWeightLow, max( fWeightHigh, fDistWeightInterpolated ) );
-	}
-
-	CityAttackApproaches eApproaches = EvaluateTargetApproach(target);
-	//bail if hopeless
-	if (eApproaches==ATTACK_APPROACH_NONE)
-		return 0;
-
-	float fApproachMultiplier = 0;
-	switch(eApproaches)
-	{
-	case ATTACK_APPROACH_UNRESTRICTED:
-		fApproachMultiplier = 1.0f;
-		break;
-
-	case ATTACK_APPROACH_OPEN:
-		fApproachMultiplier = 0.8f;
-		break;
-
-	case ATTACK_APPROACH_NEUTRAL:
-		fApproachMultiplier = 0.6f;
-		break;
-
-	case ATTACK_APPROACH_LIMITED:
-		fApproachMultiplier = 0.3f;
-		break;
-
-	case ATTACK_APPROACH_RESTRICTED:
-		fApproachMultiplier = 0.1f;
-		break;
-
-	case ATTACK_APPROACH_NONE:
-		fApproachMultiplier = 0;
-		break;
 	}
 
 	//scores for each target are estimated before calling this function
@@ -1183,7 +1153,7 @@ int CvMilitaryAI::ScoreAttackTarget(CvAttackTarget & target)
 	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
 
 	//everything together now
-	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fDesirability * fEconomicValue);
+	int iRtnValue = (int)(target.m_iApproachScore * fDistWeightInterpolated * fDesirability * fEconomicValue);
 
 	/*
 	if(GC.getLogging() && GC.getAILogging())
@@ -1202,16 +1172,27 @@ int CvMilitaryAI::ScoreAttackTarget(CvAttackTarget & target)
 	return iRtnValue;
 }
 
-CityAttackApproaches CvMilitaryAI::EvaluateTargetApproach(CvAttackTarget & target)
+// score 100: optimal terrain, score 0 worst terrain 
+int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType eArmyType)
 {
 	CvPlot* pMusterPlot = target.GetMusterPlot();
 	CvPlot* pStagingPlot = target.GetStagingPlot();
 	CvPlot* pTargetPlot = target.GetTargetPlot();
 	PlayerTypes ePlayer = m_pPlayer->GetID();
-	ArmyType eArmyType = target.m_armyType;
+
+	//basic sanity check
+	if (eArmyType == ARMY_TYPE_LAND)
+	{
+		if (pStagingPlot->isWater())
+			return 0;
+	}
+	else
+	{
+		if (!pStagingPlot->isWater())
+			return 0;
+	}
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
-	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 	int nGoodPlots = 0;
 	int nUsablePlots = 0;
 
@@ -1255,14 +1236,15 @@ CityAttackApproaches CvMilitaryAI::EvaluateTargetApproach(CvAttackTarget & targe
 			if (!pLoopPlot->isWater())
 				continue;
 
+		//for naval invasions we want coastal plots
+		//ignore inland plots, combined attacks tend to get higher scores than pure naval anyway)
+		if (eArmyType == ARMY_TYPE_COMBINED)
+			if (!pLoopPlot->isWater() && !pLoopPlot->isCoastalLand())
+				continue;
+
 		//enemy citadels are dangerous, pretend we cannot use those plots
 		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, ePlayer, false))
 			continue;
-
-		//for naval invasions we need lots of coastal plots
-		if (eArmyType==ARMY_TYPE_COMBINED)
-			if (pLoopPlot->isCoastalLand())
-				bIsGood = true;
 
 		//makes us slow
 		if(!pLoopPlot->isRoughGround())
@@ -1280,28 +1262,15 @@ CityAttackApproaches CvMilitaryAI::EvaluateTargetApproach(CvAttackTarget & targe
 
 	//we have 15 eligible plots, so max score is 45
 	int iScore = nGoodPlots * 3 + nUsablePlots;
-
-	if (iScore < 6)
-		eRtnValue = ATTACK_APPROACH_NONE;
-	else if (iScore < 14)
-		eRtnValue = ATTACK_APPROACH_RESTRICTED;
-	else if (iScore < 22)
-		eRtnValue = ATTACK_APPROACH_LIMITED;
-	else if (iScore < 30)
-		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-	else if (iScore < 38)
-		eRtnValue = ATTACK_APPROACH_OPEN;
-	else
-		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
+	int iResult = (iScore * 100) / 45;
 
 	if (gDebugOutput)
 	{
-		const char* approachName[] = { "none", "restricted", "limited", "neutral", "open", "unrestricted" };
-		OutputDebugString(CvString::format("%s attack approach on %s from %s is %s. staging at (%d:%d), good %d, ok %d\n", 
-			ArmyTypeToString(eArmyType), pTargetCity->getNameKey(), pMusterCity->getNameKey(), approachName[eRtnValue], pStagingPlot->getX(), pStagingPlot->getY(), nGoodPlots, nUsablePlots).c_str());
+		OutputDebugString(CvString::format("%s attack approach on %s from %s is %d. staging at (%d:%d), good %d, ok %d\n", 
+			ArmyTypeToString(eArmyType), pTargetCity->getNameKey(), pMusterCity->getNameKey(), iResult, pStagingPlot->getX(), pStagingPlot->getY(), nGoodPlots, nUsablePlots).c_str());
 	}
 
-	return eRtnValue;
+	return iResult;
 }
 
 // PROVIDE MILITARY DATA TO OTHER SUBSYSTEMS

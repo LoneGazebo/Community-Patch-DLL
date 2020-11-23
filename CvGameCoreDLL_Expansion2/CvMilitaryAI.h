@@ -114,12 +114,13 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvAttackTarget
 {
-	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0) {}
+	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0), m_iApproachScore(0) {}
 	ArmyType m_armyType;
 	int m_iMusterPlotIndex;
 	int m_iStagingPlotIndex;
 	int m_iTargetPlotIndex;
 	int m_iPathLength;
+	int m_iApproachScore;
 
 	void SetWaypoints(const SPath&);
 	CvPlot* GetMusterPlot() const;
@@ -141,16 +142,6 @@ FDataStream& operator>>(FDataStream&, CvAttackTarget&);
 //!  - One instance for each civ (player or AI)
 //!  - Accessed by any class that needs to check a civ's AI strategy state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-enum CityAttackApproaches
-{
-    ATTACK_APPROACH_NONE,
-    ATTACK_APPROACH_RESTRICTED,
-    ATTACK_APPROACH_LIMITED,
-    ATTACK_APPROACH_NEUTRAL,
-    ATTACK_APPROACH_OPEN,
-    ATTACK_APPROACH_UNRESTRICTED,
-};
-
 class CvMilitaryAI
 {
 public:
@@ -199,8 +190,9 @@ public:
 
 	size_t UpdateAttackTargets(size_t nMaxTargets);
 	const vector<CvAttackTarget>& GetBestTargetsGlobal() const;
-	int ScoreAttackTarget(CvAttackTarget& target);
-	CityAttackApproaches EvaluateTargetApproach(CvAttackTarget& target);
+	void SelectBestTargetApproach(CvAttackTarget& target);
+	int ScoreAttackTarget(const CvAttackTarget& target);
+	int EvaluateTargetApproach(const CvAttackTarget& target, ArmyType eArmyType);
 
 	// Accessors to provide military data to other AI subsystems
 	ThreatTypes GetHighestThreat();

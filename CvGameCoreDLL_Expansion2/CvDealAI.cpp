@@ -977,18 +977,10 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 	}
 	else
 	{
-		int iTotalValue;
+		int iTotalValue = 0;
 
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValue, &bCantMatchOffer, true);
-
-		if(bMakeOffer)
-		{
-			bDealGoodToBeginWith = true;
-		}
-		else
-		{
-			bDealGoodToBeginWith = false;
-		}
+		bDealGoodToBeginWith = bMakeOffer;
 
 		// If we set this pointer again it clears the data out!
 		if (pDeal != GC.getGame().GetGameDeals().GetTempDeal())

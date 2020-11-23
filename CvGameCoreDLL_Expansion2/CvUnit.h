@@ -625,7 +625,6 @@ public:
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
 	bool canSiege(TeamTypes eTeam) const;
-	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
@@ -2356,7 +2355,6 @@ protected:
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
 	mutable uint m_uiLastPathTurnSlice;
-	mutable uint m_uiLastPathLength;
 
 	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;
 

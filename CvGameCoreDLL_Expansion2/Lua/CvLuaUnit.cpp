@@ -2968,7 +2968,7 @@ int CvLuaUnit::lGetRangedCombatLimit(lua_State* L)
 int CvLuaUnit::lCanAirAttack(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->canAirAttack();
+	const bool bResult = pkUnit->IsCanAttackRanged();
 
 	lua_pushboolean(L, bResult);
 	return 1;
