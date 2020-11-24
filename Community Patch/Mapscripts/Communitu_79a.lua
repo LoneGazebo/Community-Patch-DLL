@@ -1348,9 +1348,9 @@ function MapGlobals:New()
 			resources_to_place = {
 				{self.coal_ID, coal_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(65 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
-			self:ProcessResourceList(170 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(120 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(60 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
+			self:ProcessResourceList(110 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(90 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.oil_ID, oil_amt, 100, 1, 3}
@@ -1858,7 +1858,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.1.0",
+		Name = "Communitu_79a v2.1.1",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
