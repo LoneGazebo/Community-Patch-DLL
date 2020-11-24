@@ -114,7 +114,7 @@ CvGame::CvGame() :
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
-	, m_cityDistanceTurns(NO_DOMAIN) //for now!
+	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
@@ -14177,7 +14177,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 void CvGame::SetClosestCityMapDirty()
 {
-	m_cityDistanceTurns.SetDirty();
+	m_cityDistancePathLength.SetDirty();
 	m_cityDistancePlots.SetDirty();
 
 	//debugging
@@ -14194,9 +14194,9 @@ void CvGame::SetClosestCityMapDirty()
 				int iDP = m_cityDistancePlots.GetDistance(*pPlot,false,NO_PLAYER);
 				int iCP = m_cityDistancePlots.GetFeatureId(*pPlot,false,NO_PLAYER);
 				int iOP = m_cityDistancePlots.GetFeatureOwner(*pPlot,false,NO_PLAYER);
-				int iDT = m_cityDistanceTurns.GetDistance(*pPlot,false,NO_PLAYER);
-				int iCT = m_cityDistanceTurns.GetFeatureId(*pPlot,false,NO_PLAYER);
-				int iOT = m_cityDistanceTurns.GetFeatureOwner(*pPlot,false,NO_PLAYER);
+				int iDT = m_cityDistancePathLength.GetDistance(*pPlot,false,NO_PLAYER);
+				int iCT = m_cityDistancePathLength.GetFeatureId(*pPlot,false,NO_PLAYER);
+				int iOT = m_cityDistancePathLength.GetFeatureOwner(*pPlot,false,NO_PLAYER);
 
 				CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 					pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 1 : 0, iDP, iCP, iOP, iDT, iCT, iOT);
@@ -14207,42 +14207,42 @@ void CvGame::SetClosestCityMapDirty()
 	}
 }
 
-int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot, PlayerTypes ePlayer )
+int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
 	if (!pPlot)
 		return INT_MAX;
 
-	return m_cityDistanceTurns.GetDistance(*pPlot, false, ePlayer);
+	return m_cityDistancePathLength.GetDistance(*pPlot, false, ePlayer);
 }
 
-CvCity* CvGame::GetClosestCityByEstimatedTurns( const CvPlot* pPlot, PlayerTypes ePlayer )
+CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistanceTurns.GetFeatureOwner(*pPlot, false, ePlayer);
-	int id = m_cityDistanceTurns.GetFeatureId(*pPlot, false, ePlayer);
+	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, false, ePlayer);
+	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, false, ePlayer);
 	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;
 }
 
-int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot, bool bMajorOnly )
+int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
 	if (!pPlot)
 		return INT_MAX;
 
-	return m_cityDistanceTurns.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
+	return m_cityDistancePathLength.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
 }
 
-CvCity* CvGame::GetClosestCityByEstimatedTurns( const CvPlot* pPlot, bool bMajorOnly )
+CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistanceTurns.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
-	int id = m_cityDistanceTurns.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
+	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
+	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
 	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else

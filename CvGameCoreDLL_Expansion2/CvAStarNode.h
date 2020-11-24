@@ -223,7 +223,7 @@ struct SMovePlot
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 
-	//for the step finder turns==steps. to convert to turns, let's assume the unit has basemoves==2
+	//for the step finder normally turns==steps, but sometimes we want effective path length from cost
 	int turnsFromCost(int iMovesPerTurn) const;
 };
 

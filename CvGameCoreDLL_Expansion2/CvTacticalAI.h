@@ -389,7 +389,6 @@ public:
 	~CvTacticalAI(void);
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
-	void Reset();
 
 	// Serialization routines
 	void Read(FDataStream& kStream);
@@ -546,8 +545,6 @@ private:
 	CvPlot* FindBestBarbarianSeaTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
 	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffensive);
-	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
-	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);

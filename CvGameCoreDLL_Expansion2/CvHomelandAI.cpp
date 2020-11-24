@@ -297,8 +297,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			iRating /= 2;
 
 		//try to explore close to our cities first to find potential settle spots
-		int iCityDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pEvalPlot);
-		iRating = max(1, iRating-iCityDistance); 
+		int iCityDistance = m_pPlayer->GetCityDistancePathLength(pEvalPlot);
+		iRating = max(1, 2*iRating-iCityDistance); 
 
 		//reverse the score calculation below to get an upper bound on the distance
 		//minus one because we want to do better
@@ -474,7 +474,7 @@ void CvHomelandAI::FindHomelandTargets()
 					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(m_pPlayer->getTeam(), DOMAIN_SEA, true);
 					if (iSuspiciousNeighbors > 0)
 					{
-						int iWeight = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot) + iSuspiciousNeighbors*2;
+						int iWeight = m_pPlayer->GetCityDistancePathLength(pLoopPlot) + iSuspiciousNeighbors*2;
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 23;
 
@@ -2107,7 +2107,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			{
 				if (pUnit->getMoves() > 0)
 				{
-					CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+					CvCity* pClosestCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
 						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23) )
@@ -3700,7 +3700,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 			// Move to closest city
 			else
 			{
-				CvCity* pTargetCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+				CvCity* pTargetCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -3902,7 +3902,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			if (!pUnit->TurnProcessed())
 			{
-				CvCity* pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+				CvCity* pCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 				if (pCity)
 					ExecuteMoveToTarget(pUnit, pCity->plot(), 0, true);
 				else
@@ -3953,7 +3953,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			// GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND (normally handled in tactical AI)
 			// NO_GREAT_PEOPLE_DIRECTIVE_TYPE
 
-			CvCity* pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+			CvCity* pCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 			if (pCity && pCity->isCoastal())
 				ExecuteMoveToTarget(pUnit, pCity->plot(), 0, true);
 			else
@@ -4239,7 +4239,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			nSlotsInCarriers += pLoopUnit->cargoSpace();
 
 			//for simplicity we don't do carrier to carrier rebasing, only carrier to city
-			CvCity* pRefCity = m_pPlayer->GetClosestCityByEstimatedTurns(pLoopUnit->plot());
+			CvCity* pRefCity = m_pPlayer->GetClosestCityByPathLength(pLoopUnit->plot());
 			if (pRefCity)
 			{
 				pRefCity->AttachUnit(pLoopUnit);

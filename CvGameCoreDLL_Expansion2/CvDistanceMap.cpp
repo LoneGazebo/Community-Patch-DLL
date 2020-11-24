@@ -12,10 +12,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-int PACK(int owner, int id) { return (owner & 0xFF)<<24 | (id & 0xFFFFFF); }
-int UNPACK_OWNER(int packed) { return packed>>24; }
-int UNPACK_ID(int packed) { return (packed & 0xFFFFFF); }
-
 struct SCityTiebreak : public STiebreakGenerator
 {
 	int operator()(int iOwner, int iFeatureID) const
@@ -39,17 +35,16 @@ CvDistanceMap::~CvDistanceMap(void)
 {
 }
 
-void CvDistanceMap::Reset(int nPlots, int iDefaultDistance)
+void CvDistanceMap::Reset(int nPlots, unsigned short iDefaultDistance)
 {
-	m_vDistance = std::vector<int>(nPlots, iDefaultDistance);
-	m_vClosestFeature = std::vector<int>(nPlots, 0);
+	m_vData = std::vector< SContent >(nPlots, SContent(iDefaultDistance));
 }
 
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vDistance.size())
-		return m_vDistance[ plot.GetPlotIndex() ]; 
+	if ((size_t)plot.GetPlotIndex() < m_vData.size())
+		return int( m_vData[ plot.GetPlotIndex() ].distance ); 
 
 	return INT_MAX;
 }
@@ -57,8 +52,8 @@ int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vClosestFeature.size())
-		return UNPACK_ID( m_vClosestFeature[ plot.GetPlotIndex() ] );
+	if ((size_t)plot.GetPlotIndex() < m_vData.size())
+		return int( m_vData[ plot.GetPlotIndex() ].feature );
 
 	return -1;
 }
@@ -66,8 +61,8 @@ int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetClosestFeatureOwner(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vClosestFeature.size())
-		return UNPACK_OWNER( m_vClosestFeature[ plot.GetPlotIndex() ] );
+	if ((size_t)plot.GetPlotIndex() < m_vData.size())
+		return int( m_vData[ plot.GetPlotIndex() ].owner );
 
 	return -1;
 }
@@ -75,24 +70,22 @@ int CvDistanceMap::GetClosestFeatureOwner(const CvPlot& plot)
 //	-----------------------------------------------------------------------------------------------
 bool CvDistanceMap::UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, int iDistance, const STiebreakGenerator& tiebreak)
 {
-	if ((size_t)iPlotIndex < m_vDistance.size())
+	if ((size_t)iPlotIndex < m_vData.size())
 	{
 		//direct update
-		if (iDistance < m_vDistance[iPlotIndex])
+		if (iDistance < m_vData[iPlotIndex].distance)
 		{
-			m_vDistance[iPlotIndex] = iDistance;
-			m_vClosestFeature[iPlotIndex] = PACK(iOwner, iID);
+			m_vData[iPlotIndex] = SContent(iDistance,iOwner,iID);
 			return true;
 		}
-		else if (iDistance == m_vDistance[iPlotIndex])
+		else if (iDistance == m_vData[iPlotIndex].distance)
 		{
-			int iOldTiebreak = tiebreak(iOwner, m_vClosestFeature[iPlotIndex]);
+			int iOldTiebreak = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature);
 			int iNewTiebreak = tiebreak(iOwner, iID);
 
 			if (iNewTiebreak < iOldTiebreak)
 			{
-				m_vDistance[iPlotIndex] = iDistance;
-				m_vClosestFeature[iPlotIndex] = PACK(iOwner, iID);
+				m_vData[iPlotIndex] = SContent(iDistance,iOwner,iID);
 				return true;
 			}
 		}
@@ -197,11 +190,11 @@ void CvDistanceMapByTurns::Update()
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
 				//important, compute the estimated turns from the normalized path cost!
-				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
+				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
 				if (thisPlayer.isMajorCiv())
 				{
-					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
-					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->turnsFromCost(2), SCityTiebreak());
+					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
+					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
 				}
 			}
 		}
@@ -216,8 +209,8 @@ void CvDistanceMapByPlots::Update()
 	const CvMap& map = GC.getMap();
 	int nPlots = map.numPlots();
 
-	allPlayers.Reset(nPlots, INT_MAX);
-	allMajorPlayers.Reset(nPlots, INT_MAX);
+	allPlayers.Reset(nPlots, SHRT_MAX);
+	allMajorPlayers.Reset(nPlots, SHRT_MAX);
 	majorPlayers = vector<CvDistanceMap>(MAX_MAJOR_CIVS);
 
 	// since we know there are very few cities compared to the number of plots,
@@ -229,7 +222,7 @@ void CvDistanceMapByPlots::Update()
 			continue;
 
 		if (i < MAX_MAJOR_CIVS)
-			majorPlayers[i].Reset(nPlots, INT_MAX);
+			majorPlayers[i].Reset(nPlots, SHRT_MAX);
 
 		// for each city
 		int iCityIndex = 0;
@@ -263,15 +256,12 @@ void CvDistanceMap::Dump(const char* filename)
 	ofstream out(filename);
 	if (out)
 	{
-		out << "#x,y,hx,hz,water,distance,id,owner\n"; 
+		out << "#x,y,water,owner,id,distance\n"; 
 		for (int i=0; i<GC.getMap().numPlots(); i++)
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked(i);
-			int xHex = xToHexspaceX(pPlot->getX(),pPlot->getY());
-			int zHex = -xHex-pPlot->getY();
-
-			out << pPlot->getX() << "," << pPlot->getY() << "," << xHex << "," << zHex << "," << (pPlot->isWater() ? 1 : 0) << "," 
-				<< GetClosestFeatureDistance(*pPlot) << "," << GetClosestFeatureID(*pPlot) << "," << GetClosestFeatureOwner(*pPlot) << "\n";
+			out << pPlot->getX() << "," << pPlot->getY() << "," << (pPlot->isWater() ? 1 : 0) << "," 
+				<< GetClosestFeatureOwner(*pPlot) << "," << GetClosestFeatureID(*pPlot) << ","  << GetClosestFeatureDistance(*pPlot) << "\n";
 		}
 	}
 	out.close();

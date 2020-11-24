@@ -1460,7 +1460,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
 			//prefer to claim empty space if we can
-			if ( GetCityDistanceInEstimatedTurns(pSettlePlot) < GetCityDistanceInEstimatedTurns(pTarget)+2 )
+			if ( GetCityDistancePathLength(pSettlePlot) < GetCityDistancePathLength(pTarget)+2 )
 				return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 			else
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1717,7 +1717,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 				continue;
 
 			//should not be too far out
-			if (GetCityDistanceInEstimatedTurns(pCity->plot()) > 12)
+			if (GetCityDistancePathLength(pCity->plot()) > 23)
 				continue;
 
 			//merchant may not be in the closest owned city, so cut him some slack
@@ -2193,7 +2193,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// **************************
 
 	// Subtract distance (XML value important here!)
-	int iDistance = GetCityDistanceInEstimatedTurns(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
+	int iDistance = GetCityDistancePathLength(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(kMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))

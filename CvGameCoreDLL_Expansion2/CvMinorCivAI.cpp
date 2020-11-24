@@ -2934,7 +2934,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
 				CvCity* pMinorCap = pMinor->getCapitalCity();
-				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByPathLength(pMinorCap->plot());
 				if (pClosestCity)
 					pAssignedPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 1, pMinor->GetID(), pMinor->getCapitalCity(), pClosestCity);
 			}
@@ -9994,7 +9994,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 						continue;
 					}
 
-				int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopCity->plot()) + m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot());
+				int iDistance = GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopCity->plot()) + m_pPlayer->GetCityDistancePathLength(pLoopCity->plot());
 				if(iDistance < iMinDistance)
 				{
 					iMinDistance = iDistance;
@@ -14507,7 +14507,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 		//where to put the unit?
 		int iX = pSpawnCity->getX();
 		int iY = pSpawnCity->getY();
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByEstimatedTurns(pMinorCapitalPlot);
+		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapitalPlot);
 
 #if defined(MOD_GLOBAL_CS_GIFTS)
 		if(!bLocal && pMajorCity != NULL)

@@ -29178,7 +29178,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	}
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
-	CvCity* pMajorCity = GetClosestCityByEstimatedTurns(pMinorPlot);
+	CvCity* pMajorCity = GetClosestCityByPathLength(pMinorPlot);
 	if (pMajorCity == NULL && getCapitalCity() != NULL)
 	{
 		pMajorCity = getCapitalCity();
@@ -41097,10 +41097,10 @@ void CvPlayer::deleteCity(int iID)
 #endif
 }
 
-int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistancePathLength( const CvPlot* pPlot ) const
 {
 	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityDistancePathLength( pPlot, GetID() );
 
 	//for minors we fake it
 	CvCity* pCapital = getCapitalCity();
@@ -41110,11 +41110,11 @@ int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 	return INT_MAX;
 }
 
-CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
+CvCity* CvPlayer::GetClosestCityByPathLength( const CvPlot* pPlot ) const
 {
 	//careful, player-specific GetClosestCity only works for majors (because of performance)
 	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityByPathLength( pPlot, GetID() );
 
 	//for minors just assume they have only one city (99% correct)
 	return getCapitalCity();
@@ -47798,7 +47798,7 @@ vector<int> CvPlayer::GetBestSettleAreas()
 		if (iCurrentValue > 0)
 		{
 			//same scaling as in GetBestSettlePlot!
-			int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
+			int iCityDistance = GetCityDistancePathLength(pPlot);
 			int iDistanceScaler = max(20,MapToPercent( iCityDistance, iMaxSettleDistance, 0 ));
 			int iValue = (iCurrentValue*iDistanceScaler) / 100;
 

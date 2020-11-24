@@ -10475,7 +10475,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 			if (pCapitalCity == NULL)
 				continue;
 
-			CvCity* pOurClosestCity = GetPlayer()->GetClosestCityByEstimatedTurns(pCapitalCity->plot());
+			CvCity* pOurClosestCity = GetPlayer()->GetClosestCityByPathLength(pCapitalCity->plot());
 			if (!pOurClosestCity)
 				continue;
 
@@ -15158,7 +15158,7 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 		if (!pLoopUnit->IsCombatUnit() || pLoopUnit->isProjectedToDieNextTurn())
 			continue;
 
-		if (GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopUnit->plot()) < iTurnRange)
+		if (GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopUnit->plot()) < iTurnRange)
 			iCount++;
 	}
 

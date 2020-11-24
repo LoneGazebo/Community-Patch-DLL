@@ -2908,9 +2908,8 @@ public:
 	void SetVassalLevy(bool bValue);
 #endif
 
-	//assuming a typical unit with baseMoves==2
-	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
-	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
+	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
+	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const;

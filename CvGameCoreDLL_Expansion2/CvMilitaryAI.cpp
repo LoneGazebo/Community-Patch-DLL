@@ -567,13 +567,13 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (!pTargetCity)
 		return false;
 
-	CvCity* pMusterCity = m_pPlayer->GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	CvCity* pMusterCity = m_pPlayer->GetClosestCityByPathLength(pTargetCity->plot());
 	if (!pMusterCity)
 		return false;
 
 	//don't venture too far
-	int iDistanceTurns = m_pPlayer->GetCityDistanceInEstimatedTurns(pTargetCity->plot());
-	if (iDistanceTurns > 13)
+	int iDistanceTurns = m_pPlayer->GetCityDistancePathLength(pTargetCity->plot());
+	if (iDistanceTurns > 23)
 		return false;
 
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);

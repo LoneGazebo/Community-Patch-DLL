@@ -3176,13 +3176,17 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 	CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
 
+	//normal cost is 100
 	int iScale = 100;
 
 	if (pToPlot->isRoute())
 		//prefer to stay close to routes ... even if we cannot really use them
 		iScale = 54;
+	else if (pToPlot->isMountain() || pToPlot->isIce())
+		//normally impassable
+		iScale = 531;
 	else if (pToPlot->isRoughGround())
-		//try to avoid rough plots. uneven number to avoid ties.
+		//try to avoid rough plots
 		iScale = 157;
 	else if (pFromPlot->isWater() != pToPlot->isWater() && !pFromPlot->isCity() && !pToPlot->isCity())
 		//embarkation change
@@ -3191,6 +3195,7 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 		//movement on water is usually faster
 		iScale = 67; 
 	
+	//we're using uneven numbers here to avoid ties
 	return (PATH_BASE_COST*iScale)/100;
 }
 
@@ -3239,7 +3244,7 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return !pToPlot->isWater() && !pToPlot->isMountain();
+		return !pToPlot->isWater();
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
@@ -3274,7 +3279,7 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return pToPlot->isWater() && !pToPlot->isIce();
+		return pToPlot->isWater();
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
@@ -3313,7 +3318,7 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return !pToPlot->isMountain() && !pToPlot->isIce();
+		return true;
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);

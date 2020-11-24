@@ -361,8 +361,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	//this is in plots
-	int iBorderlandRangeTurns = 5;
+	int iBorderlandRange = 5;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -771,16 +770,16 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
 	{
 		//check if this location can be defended (from majors)
-		int iOwnCityDistanceTurns = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
-		CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
+		int iOwnCityDistance = pPlayer->GetCityDistancePathLength(pPlot);
+		CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pPlot,true);
 		if (pClosestCity && pClosestCity->getOwner() != pPlayer->GetID())
 		{
 			CvPlayer& kNeighbor = GET_PLAYER(pClosestCity->getOwner());
-			int iEnemyDistanceTurns = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+			int iEnemyDistance = kNeighbor.GetCityDistancePathLength(pPlot);
 			int iEnemyMight = kNeighbor.GetMilitaryMight();
 			int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
-			if (iEnemyDistanceTurns < min(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
+			if (iEnemyDistance < min(iOwnCityDistance - 1, iBorderlandRange))
 			{
 				//stay away if we are weak
 				if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
@@ -800,7 +799,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 		// where is our personal sweet spot?
 		// this is handled in plots, not in turns
-		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
 		int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer->isMinorCiv())
 		{

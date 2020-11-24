@@ -2890,7 +2890,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
 
 			// close coast is also interesting for embarked scouting
-			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInEstimatedTurns(pPlot)<8)
+			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistancePathLength(pPlot)<12)
 				landTargets.push_back(SPlotWithScore(pPlot, iScore));
 		}
 	}

@@ -972,7 +972,7 @@ bool CvAIOperation::BuyFinalUnit()
 	if (IsNavalOperation())
 		pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,GetMusterPlot());
 	else
-		pCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(GetMusterPlot());
+		pCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(GetMusterPlot());
 
 	if (!pCity)
 		return false;
@@ -1553,7 +1553,7 @@ void CvAIOperationMilitary::OnSuccess() const
 	{
 		if (GET_PLAYER(m_eEnemy).GetCityDistanceInPlots(pPlot) < 4)
 		{
-			CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
+			CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByPathLength(pPlot);
 			if (pCity)
 				pPlot = pCity->plot();
 		}
@@ -1814,7 +1814,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 	for(CvCity* pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 	{
 		// Make sure city is in the same area as our potential muster point
-		CvCity* pClosestCity = kPlayer.GetClosestCityByEstimatedTurns(pLoopCity->plot());
+		CvCity* pClosestCity = kPlayer.GetClosestCityByPathLength(pLoopCity->plot());
 		if (!pClosestCity)
 			continue;
 
@@ -1849,7 +1849,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 
 	if (ppMuster)
 	{
-		CvCity *pClosest = pBestTargetCity ? kPlayer.GetClosestCityByEstimatedTurns(pBestTargetCity->plot()) : NULL;
+		CvCity *pClosest = pBestTargetCity ? kPlayer.GetClosestCityByPathLength(pBestTargetCity->plot()) : NULL;
 		*ppMuster = pClosest ? pClosest->plot() : NULL;
 	}
 
@@ -1885,7 +1885,7 @@ void CvAIOperationCivilian::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 		if (IsNavalOperation())
 			pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pOurCivilian->plot());
 		else if (!pMusterPlot->IsFriendlyTerritory(m_eOwner))
-			pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
+			pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(pOurCivilian->plot());
 
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
@@ -2049,7 +2049,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 	if(pSettler && pSettler->canFoundCity(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
 	{
 		//check this before building the new city ...
-		bool bIsFrontier = (GC.getGame().GetClosestCityDistanceInTurns(pCityPlot) < GET_PLAYER(m_eOwner).GetCityDistanceInEstimatedTurns(pCityPlot));
+		bool bIsFrontier = (GC.getGame().GetClosestCityDistancePathLength(pCityPlot) < GET_PLAYER(m_eOwner).GetCityDistancePathLength(pCityPlot));
 
 		pSettler->PushMission(CvTypes::getMISSION_FOUND());
 

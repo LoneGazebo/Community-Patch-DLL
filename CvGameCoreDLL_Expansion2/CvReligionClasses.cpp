@@ -7114,7 +7114,6 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
-	int iMaxCityDistance = 17;
 	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through all the players
@@ -7136,8 +7135,8 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
-				//ignore far-flung cities
-				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistance)
+				//ignore far-flung cities - little chance we can establish our religion there
+				if (m_pPlayer->GetCityDistancePathLength(pLoopCity->plot()) > 37)
 					continue;
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
@@ -7216,7 +7215,6 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	if (piTurns)
 		*piTurns = INT_MAX;
 
-	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
 	int iDistanceBias = 7; //score drops linearly with distance from holy city
 	int iMinScore = 500;  //equivalent to converting 10 heretics at a distance of 13 plots to our holy city
 	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
@@ -7310,7 +7308,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 #endif
 
 				//ignore far-flung cities
-				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistanceTurns)
+				if (m_pPlayer->GetCityDistancePathLength(pLoopCity->plot()) > 23)
 					continue;
 
 				CvCityReligions* pCR = pLoopCity->GetCityReligions();
@@ -8226,26 +8224,22 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iScoreCity = 0;
 	int iScorePlayer = 0;
 
-	int iDistanceToCheck = pEntry->IsPantheonBelief() ? 2 : 1;
-
 	// Loop through each plot on map
 	int iPlotLoop;
-	CvPlot* pPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		// Skip if not revealed or in enemy territory
 		PlayerTypes ePlotOwner = pPlot->getOwner();
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
-			// Also skip if closest city of ours is not within 2-3 turn (pantheon check further because early game)
-			if (m_pPlayer->GetCityDistanceInEstimatedTurns(pPlot)>iDistanceToCheck)
+			// Skip if closest city of ours has no chance to work the plot
+			if (m_pPlayer->GetCityDistancePathLength(pPlot)>3)
 				continue;
 
 			// Score it
 			int iScoreAtPlot = ScoreBeliefAtPlot(pEntry, pPlot);
-
 			if (iScoreAtPlot <= 0)
 				continue;
 		

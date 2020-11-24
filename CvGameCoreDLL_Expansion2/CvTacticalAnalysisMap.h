@@ -30,7 +30,6 @@ enum eTacticalDominanceFlags
 enum eDominanceTerritoryTypes
 {
     TACTICAL_TERRITORY_NONE,
-    TACTICAL_TERRITORY_NO_OWNER,
     TACTICAL_TERRITORY_FRIENDLY,
     TACTICAL_TERRITORY_ENEMY,
     TACTICAL_TERRITORY_NEUTRAL,
@@ -80,10 +79,6 @@ public:
 	{
 		return m_eOverallDominanceFlag;
 	}
-	inline void SetOverallDominanceFlag(eTacticalDominanceFlags eDominanceFlag)
-	{
-		m_eOverallDominanceFlag = eDominanceFlag;
-	}
 
 	eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDominancePercentage) const;
 	eTacticalDominanceFlags CvTacticalDominanceZone::GetUnitCountDominanceFlag(int iDominancePercentage) const;
@@ -99,15 +94,10 @@ public:
 	{
 		return m_eOwner;
 	}
-	inline void SetOwner(PlayerTypes eOwner)
-	{
-		m_eOwner = eOwner;
-	}
+
 
 	CvCity* GetZoneCity() const;
 	void SetZoneCity(CvCity* pCity);
-	int GetDistanceOfClosestEnemyUnit() const;
-	void SetDistanceOfClosestEnemyUnit(int iRange);
 	inline int GetAreaID() const
 	{
 		return m_iAreaID;
@@ -266,6 +256,7 @@ public:
 	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
 	int GetBorderScore(DomainTypes eDomain, CvCity** ppWorstNeighborCity=NULL) const;
 	bool HasNeighborZone(PlayerTypes eOwner) const;
+	eTacticalDominanceFlags SetOverallDominance(int iDominancePercentage);
 	eTacticalPosture SelectPostureSingleZone(int iDominancePercent);
 	eTacticalPosture SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors);
 #endif
@@ -293,7 +284,6 @@ private:
 	int m_iEnemyNavalUnitCount; //all naval units
 	int m_iFriendlyNavalUnitCount; //all naval units
 	int m_iZoneValue;
-	int m_iDistanceOfClosestEnemyUnit;
 
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;
@@ -312,7 +302,7 @@ public:
 	CvTacticalAnalysisMap(void);
 	~CvTacticalAnalysisMap(void);
 
-	void Init(PlayerTypes ePlayer);
+	void Reset(PlayerTypes ePlayer);
 	void Refresh(bool force = false);
 	bool IsUpToDate();
 	void Invalidate();
@@ -326,34 +316,20 @@ public:
 	bool IsInEnemyDominatedZone(const CvPlot* pPlot);
 	int GetNumZones();
 
-	// quasi-const members
-	int GetTacticalRangeTurns() const { return m_iTacticalRangeTurns; }
-	int GetDominancePercentage() const { return m_iDominancePercentage; }
-
 protected:
-	int AddToDominanceZones(int iPlotIndex);
+	void CreateDominanceZones();
 	void CalculateMilitaryStrengths();
 	void PrioritizeZones();
 	void LogZones();
-	void UpdateZoneIds();
 	void UpdatePostures();
-
-	CvTacticalDominanceZone* MergeWithExistingZone(CvTacticalDominanceZone* pNewZone);
-	eTacticalDominanceFlags ComputeDominance(CvTacticalDominanceZone* pZone);
-	CvTacticalDominanceZone* AddNewDominanceZone(CvTacticalDominanceZone& zone);
 	void EstablishZoneNeighborhood();
 
-	// Cached global define values
-	int m_iDominancePercentage;
-	int m_iUnitStrengthMultiplier;
-	int m_iTacticalRangeTurns;
-
 	PlayerTypes m_ePlayer;
-	std::vector<int> m_vPlotZoneID;
 	int m_iTurnSliceBuilt;
 
-	std::map<int, int> m_IdLookup;
-	std::vector<CvTacticalDominanceZone> m_DominanceZones;
+	std::vector<int> m_vPlotZoneID; //zone id for each plot
+	std::map<int, int> m_IdLookup; //id to index
+	std::vector<CvTacticalDominanceZone> m_vDominanceZones;
 
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom);
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo);

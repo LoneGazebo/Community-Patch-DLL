@@ -10695,8 +10695,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 		if (getOwner() == NO_PLAYER)
 			iBonus += 20;
 
-		int iDistToOwnCities = pPlayer->GetCityDistanceInEstimatedTurns(this);
-		int iDistRef = pPlayer->GetCityDistanceInEstimatedTurns(pRefPlot);
+		int iDistToOwnCities = pPlayer->GetCityDistancePathLength(this);
+		int iDistRef = pPlayer->GetCityDistancePathLength(pRefPlot);
 		if (iDistToOwnCities < iDistRef)
 			iBonus += 20;
 
