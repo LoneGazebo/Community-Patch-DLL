@@ -2245,7 +2245,7 @@ CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort,
 	CvUnit* pPlotDefender = pNewEscortPlot->getBestDefender(pCivilian->getOwner());
 
 	//Maybe we just make this guy our new escort, eh?
-	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType())
+	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType() && pPlotDefender->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 	{
 		pThisArmy->RemoveUnit(pEscort->GetID());
 		pThisArmy->AddUnit(pPlotDefender->GetID(), 1, true);

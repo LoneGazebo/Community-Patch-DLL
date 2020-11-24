@@ -964,22 +964,25 @@ void CvMilitaryAI::SelectBestTargetApproach(CvAttackTarget& target)
 {
 	//default
 	target.m_iApproachScore = 0;
+	target.m_armyType = ARMY_TYPE_ANY;
 
+	//compare
 	int iLandScore = EvaluateTargetApproach(target,ARMY_TYPE_LAND);
 	int iNavalScore = EvaluateTargetApproach(target,ARMY_TYPE_NAVAL);
 	int iCombinedScore = EvaluateTargetApproach(target,ARMY_TYPE_COMBINED);
 
-	if (iLandScore >= iNavalScore && iLandScore >= iCombinedScore)
+	//we want a minimum score of 30!
+	if (iLandScore >= iNavalScore && iLandScore >= iCombinedScore && iLandScore>30)
 	{
 		target.m_armyType = ARMY_TYPE_LAND;
 		target.m_iApproachScore = iLandScore;
 	}
-	else if (iNavalScore >= iLandScore && iNavalScore >= iCombinedScore)
+	else if (iNavalScore >= iLandScore && iNavalScore >= iCombinedScore && iNavalScore>30)
 	{
 		target.m_armyType = ARMY_TYPE_NAVAL;
 		target.m_iApproachScore = iNavalScore;
 	}
-	else if (iCombinedScore >= iNavalScore && iCombinedScore >= iLandScore)
+	else if (iCombinedScore >= iNavalScore && iCombinedScore >= iLandScore && iCombinedScore>30)
 	{
 		target.m_armyType = ARMY_TYPE_COMBINED;
 		target.m_iApproachScore = iCombinedScore;
@@ -1196,6 +1199,9 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 	int nGoodPlots = 0;
 	int nUsablePlots = 0;
 
+	//all else equal, we prefer a pure naval approach over combined
+	int iScale = (eArmyType == ARMY_TYPE_COMBINED ? 54 : 45);
+
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
 	CvCity* pMusterCity = pMusterPlot->getPlotCity();
 
@@ -1260,9 +1266,9 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 			nUsablePlots++;
 	}
 
-	//we have 15 eligible plots, so max score is 45
+	//we have 17 eligible plots, so max score is 51
 	int iScore = nGoodPlots * 3 + nUsablePlots;
-	int iResult = (iScore * 100) / 45;
+	int iResult = (iScore * 100) / iScale;
 
 	if (gDebugOutput)
 	{
