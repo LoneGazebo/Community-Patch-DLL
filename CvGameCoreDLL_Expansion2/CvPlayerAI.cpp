@@ -973,6 +973,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			bCitySameAsMuster = false;
 
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
+
 			if (!pMusterPlot)
 				continue;
 
@@ -1435,7 +1436,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
-
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, (YieldTypes)iYield);
 
@@ -1615,6 +1615,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iGreatAdmiralCount = 0;
+
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -2219,6 +2220,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 		return NULL;
 
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
+
 	if(pCity == NULL)
 		return NULL;
 

@@ -1827,14 +1827,12 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			{
 				iItemValue *= 2;
 			}
-
 			//Are they close, or far away? We should always be a bit less eager to sell war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
 				iItemValue *= 10;
 				iItemValue /= 9;
 			}
-
 			//Are we going for science win? Don't sell aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
 			if (eApolloProgram != NO_PROJECT)
@@ -1918,7 +1916,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			{
 				iItemValue /= 2;
 			}
-
 			//Are they close, or far away? We should always be a bit less eager to buy war resources from neighbors.
 			if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
@@ -3337,6 +3334,14 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+
+		//anti-exploit rule - AI to AI bribes should only be for competitors.
+		if (!bWithHuman)
+		{
+			if (!GetPlayer()->GetDiplomacyAI()->IsMajorCompetitor(eWithPlayer))
+				return INT_MAX;
+		}
+		
 		// Don't accept war bribes if we recently made peace.
 		if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
 		{
@@ -5128,6 +5133,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	if(pDeal->IsPeaceTreatyTrade(eThem) && pDeal->GetSurrenderingPlayer() != m_pPlayer->GetID())
 		return;
 
+
 	// We don't owe them anything
 	if(iTotalValue <= 0)
 		return;
@@ -5790,7 +5796,6 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	CvPlayer* pLosingPlayer = &GET_PLAYER(eLosingPlayer);
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
-
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
@@ -7479,7 +7484,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	if(bFromMe)
 	{
 		//prevent AI spam
-		if (iItemValue <= 500 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -7516,7 +7521,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	}
 	else
 	{
-		if (iItemValue <= 500 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal

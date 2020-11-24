@@ -1212,8 +1212,6 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
 	else if(eType == MINOR_CIV_QUEST_CONTEST_FAITH)
 	{
 		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion();
-		if (eReligion == NO_RELIGION)
-			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 		if (MOD_BALANCE_CORE_QUEST_CHANGES)
 		{
 			if (eReligion != NO_RELIGION)
@@ -2548,8 +2546,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	else if(m_eType == MINOR_CIV_QUEST_CONTEST_FAITH)
 	{
 		ReligionTypes eReligion = pAssignedPlayer->GetReligions()->GetCurrentReligion();
-		if (eReligion == NO_RELIGION)
-			eReligion = pAssignedPlayer->GetReligions()->GetReligionInMostCities();
 		if (MOD_BALANCE_CORE_QUEST_CHANGES)
 		{
 			if (eReligion != NO_RELIGION)
@@ -2969,11 +2965,13 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		FAssertMsg(eBuilding != NO_BUILDING, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
 
 		int iCities = pAssignedPlayer->getNumCities() - pAssignedPlayer->GetNumPuppetCities();
-		int iActionAmount = 1 + GC.getGame().getSmallFakeRandNum(iCities, iCities);
+		int iActionAmount = 1 + GC.getGame().getSmallFakeRandNum(iCities*2, eBuilding);
 		if (iActionAmount > iCities)
 		{
 			iActionAmount = iCities;
 		}
+		if (iActionAmount < iCities / 2)
+			iActionAmount = iCities / 2;
 
 		m_iData1 = eBuilding;
 		m_iData2 = iActionAmount;
@@ -7096,8 +7094,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		int NumReligions = GC.getGame().GetGameReligions()->GetNumReligionsFounded(true);
 
 		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion();
-		if (eReligion == NO_RELIGION)
-			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 
 		if (MOD_BALANCE_CORE_QUEST_CHANGES && eReligion == NO_RELIGION)
 			return false;
@@ -15752,7 +15748,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-	int iGoldGrowthFactor = 500; //antonjs: todo: XML
+	int iGoldGrowthFactor = 750; //antonjs: todo: XML
 
 	if (eYield == YIELD_SCIENCE)
 	{

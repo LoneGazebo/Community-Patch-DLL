@@ -2595,6 +2595,9 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	if (m_pPlayer->isBarbarian())
 		return;
 
+	if (GC.getGame().getGameTurn() <= 100)
+		return;
+
 	// Don't do this if at war
 	if(GetNumberCivsAtWarWith(false) > 0)
 	{
@@ -2612,6 +2615,15 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	}
 	else
 	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if (m_pPlayer->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+					return;
+			}
+		}
 		// Are we running at a deficit?
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);

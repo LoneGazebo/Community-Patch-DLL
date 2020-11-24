@@ -635,6 +635,20 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
+		// Some game options restrict all city trades
+		if (GC.getGame().IsAllCityTradingDisabled())
+		{
+			return false;
+		}
+		else if (GC.getGame().IsAICityTradingDisabled() && !bHumanToHuman)
+		{
+			return false;
+		}
+		else if (GC.getGame().IsAICityTradingHumanOnly() && !GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(eToPlayer).isHuman())
+		{
+			return false;
+		}
+
 		CvCity* pCity = NULL;
 		CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
 		if(pPlot != NULL)
@@ -657,13 +671,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
 
-#if defined(MOD_BALANCE_CORE)
 			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
 				if (pFromTeam != pToTeam && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 					return false;
 			}
-#endif
 		}
 		// Can't trade a null city
 		else
@@ -673,7 +685,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
 			return false;
 
-#if defined(MOD_BALANCE_CORE)
 		//Can't in a peace deal if not surrendering.
 		if(!bHumanToHuman)
 		{
@@ -685,7 +696,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 		}
-#endif
 	}
 	// Embassy
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)

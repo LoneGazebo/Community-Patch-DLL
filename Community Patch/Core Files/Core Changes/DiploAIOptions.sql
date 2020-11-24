@@ -28,6 +28,13 @@ SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_WAR_BRIBES', '0';
 
+-- [DISABLE CITY TRADING]
+-- If set to 1, AI civilizations are unable to trade cities with other AIs, but can still trade cities with human players.
+-- If set to 2, AI civilizations cannot trade cities with humans or other AIs, but humans can still trade cities with other humans.
+-- If set to 3, all city trading between civilizations is disabled.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
+
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.

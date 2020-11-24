@@ -1318,7 +1318,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Greatly reduce this if we're under siege somewhere.
 	if (bInterruptBuildings && !m_pCity->IsPuppet())
 	{
-		iBonus -= 250;
+		iBonus /= 10;
 	}
 
 	if (iBonus <= 0)

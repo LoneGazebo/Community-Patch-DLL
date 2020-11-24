@@ -1609,7 +1609,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
-			iBonus += iWarBooster * 25;
+			iBonus += iWarBooster * 100;
 		}
 		if (bAtWar)
 		{

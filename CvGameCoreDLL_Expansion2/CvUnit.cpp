@@ -4776,7 +4776,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory())
 		return true;
 
-	// Minors can't intrude into one another's territory
+		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
@@ -18998,6 +18998,8 @@ void CvUnit::changeGroundAttackDamage(int iValue)
 	}
 }
 
+
+
 //	--------------------------------------------------------------------------------
 int CvUnit::cityAttackModifier() const
 {
@@ -23019,7 +23021,6 @@ int CvUnit::getNumAttacks() const
 	return m_iNumAttacks;
 #endif
 }
-
 int CvUnit::getNumAttacksMadeThisTurn() const
 {
 	VALIDATE_OBJECT
@@ -23343,7 +23344,6 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 	}
 	return false;
 }
-
 int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 {
 	VALIDATE_OBJECT
@@ -28536,7 +28536,7 @@ bool CvUnit::SentryAlert() const
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
-	{
+								{
 		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
@@ -28637,10 +28637,10 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			{
 				CvPathNode nextNode( newPath.vPlots[i] );
 
-				//skip the first node (if it's not a stop node), it's the current unit plot
-				//important: this means that an empty m_kLastPath is valid!
-				if (i == 0 && nextNode.m_iMoves > 0)
-					continue;
+			//skip the first node (if it's not a stop node), it's the current unit plot
+			//important: this means that an empty m_kLastPath is valid!
+			if (i == 0 && nextNode.m_iMoves > 0)
+				continue;
 
 				m_kLastPath.push_back(nextNode);
 			}
@@ -30351,7 +30351,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
-	// R: +10 Accuracy 1-3, +5 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
+	// R: +10 Accuracy 1-3, +10 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
 	// R + S: -10 Indirect Fire, -20 Range. 	R + mR +nR +S: -30 Logistics.
 	if(iTemp != 0)
 	{
