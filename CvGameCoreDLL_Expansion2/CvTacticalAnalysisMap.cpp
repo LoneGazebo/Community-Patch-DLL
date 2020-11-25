@@ -510,11 +510,12 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 			CvPlot* pB = GC.getMap().plot(i,j+1); //next row
 			CvPlot* pC = GC.getMap().plot(i+1,j); //next col
 
-			int iA = pA ? GetDominanceZoneID(pA->GetPlotIndex()) : -1;
-			int iB = pB ? GetDominanceZoneID(pB->GetPlotIndex()) : -1;
-			int iC = pC ? GetDominanceZoneID(pC->GetPlotIndex()) : -1;
+			int iA = pA ? GetDominanceZoneID(pA->GetPlotIndex()) : 0;
+			int iB = pB ? GetDominanceZoneID(pB->GetPlotIndex()) : 0;
+			int iC = pC ? GetDominanceZoneID(pC->GetPlotIndex()) : 0;
 
-			if (iA!=-1 && iB!=-1)
+			//ID 0 is the "unknown zone"
+			if (iA!=0 && iB!=0)
 			{
 				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
 					GetZoneByID(iB)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
@@ -523,7 +524,7 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 					GetZoneByID(iB)->AddNeighboringZone(iA);
 				}
 			}
-			if (iA!=-1 && iC!=-1)
+			if (iA!=0 && iC!=0)
 			{
 				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
 					GetZoneByID(iC)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
@@ -583,13 +584,23 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	//important, set this first so that lookups don't get us into an infinite loop
 	m_iTurnSliceBuilt = GC.getGame().getTurnSlice();
 
-	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), -1 );
+	//zero will be the "unknown zone"
+	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), 0 );
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
 
-	//first create the default zone (unowned)
+	//first create the unknown zone
 	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
+	m_vDominanceZones[0].SetZoneID(0);
 	m_IdLookup[0] = 0;
+	//then the default land zone (unowned)
+	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
+	m_vDominanceZones[1].SetZoneID(1);
+	m_IdLookup[+1] = 1;
+	//then the default water zone (unowned)
+	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
+	m_vDominanceZones[2].SetZoneID(-1);
+	m_IdLookup[-1] = 2;
 
 	int iMaxRange = 5;
 	TeamTypes eOurTeam = GET_PLAYER(m_ePlayer).getTeam();
@@ -602,7 +613,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		//some will be ignored
 		if (!pPlot || !pPlot->isRevealed(eOurTeam) || pPlot->isImpassable(eOurTeam))
 		{
-			m_vPlotZoneID[iI] = -1;
+			m_vPlotZoneID[iI] = 0;
 			continue;
 		}
 
@@ -612,8 +623,10 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		int iCityDistance = GC.getGame().GetClosestCityDistancePathLength(pPlot);
 		if (iCityDistance > iMaxRange)
 		{
-			m_vPlotZoneID[iI] = 0;
-			m_vDominanceZones[0].Extend(pPlot);
+			int iID = pPlot->isWater() ? -1 : 1;
+			int iIndex = pPlot->isWater() ? 2 : 1;
+			m_vPlotZoneID[iID] = iID;
+			m_vDominanceZones[iIndex].Extend(pPlot); //center will be useless but size may be interesting
 			continue;
 		}
 
@@ -621,8 +634,10 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pPlot);
 		if (!pClosestCity)
 		{
-			m_vPlotZoneID[iI] = 0;
-			m_vDominanceZones[0].Extend(pPlot);
+			int iID = pPlot->isWater() ? -1 : 1;
+			int iIndex = pPlot->isWater() ? 2 : 1;
+			m_vPlotZoneID[iID] = iID;
+			m_vDominanceZones[iIndex].Extend(pPlot); //center will be useless but size may be interesting
 			continue;
 		}
 
