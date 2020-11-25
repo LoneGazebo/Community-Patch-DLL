@@ -26319,7 +26319,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		DoResearchAgreementOffer(ePlayer, eStatement, pDeal);
 		DoStrategicTrade(ePlayer, eStatement, pDeal);
 		DoDefensivePactOffer(ePlayer, eStatement, pDeal);
-		DoCityTrade(ePlayer, eStatement, pDeal);
 		DoCityExchange(ePlayer, eStatement, pDeal);
 		DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
 		DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
@@ -28841,38 +28840,6 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 				// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
 				pDeal->ClearItems();
 			}
-		}
-	}
-}
-/// Possible Contact Statement - City Trade
-void CvDiplomacyAI::DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
-		return;
-
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
-	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForCity(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TRADE_CITIES_REQUEST;
-			int iTurnsBetweenStatements = 30;
-
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-			{
-				eStatement = eTempStatement;
-			}
-			else
-			{
-				pDeal->ClearItems();
-			}
-		}
-		else
-		{
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			pDeal->ClearItems();
 		}
 	}
 }

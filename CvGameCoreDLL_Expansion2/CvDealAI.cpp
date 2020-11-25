@@ -5133,20 +5133,27 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	if(pDeal->IsPeaceTreatyTrade(eThem) && pDeal->GetSurrenderingPlayer() != m_pPlayer->GetID())
 		return;
 
+	// AIs will only do city exchanges. Versus humans we only offer a city if they offer one too
+	if (!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eThem))
+		return;
 
 	// We don't owe them anything
 	if(iTotalValue <= 0)
 		return;
 
-	CvPlayer* pSellingPlayer = GetPlayer();
-
 	// Create vector of the losing players' Cities so we can see which are the closest to the winner
 	CvWeightedVector<int> viCityPriceRatio;
 
-	// Loop through all of the loser's Cities
+	// Loop through all of our cities
 	int iCityLoop;
+	CvPlayer* pSellingPlayer = GetPlayer();
 	for(CvCity* pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
+		//make sure we're not just flipping two border towns
+		CvCity* pTheirClosest = GET_PLAYER(eThem).GetClosestCityByPathLength(pLoopCity->plot());
+		if (pTheirClosest && pDeal->IsCityTrade(eThem, pTheirClosest->getX(), pTheirClosest->getY()))
+			continue;
+
 		int iWhatTheyWouldPay = GetCityValueForBuyer(pLoopCity, m_pPlayer->GetID(), eThem);
 		int iWhatIWouldPay = GetCityValueForBuyer(pLoopCity, eThem, m_pPlayer->GetID());
 
@@ -5206,19 +5213,27 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	if(pDeal->IsPeaceTreatyTrade(eThem) && pDeal->GetSurrenderingPlayer() != eThem)
 		return;
 
+	// AIs will only do city exchanges. Versus humans we only buy a city if they want one too
+	if (!pDeal->ContainsItemType(TRADE_ITEM_CITIES, GetPlayer()->GetID()))
+		return;
+
 	// They don't owe us anything
 	if(iTotalValue > 0 && pDeal->GetDemandingPlayer() == NO_PLAYER)
 		return;
 
-	CvPlayer* pSellingPlayer  = &GET_PLAYER(eThem);
-
 	// Create vector of the losing players' Cities so we can see which are the closest to the winner
 	CvWeightedVector<int> viCityPriceRatio;
 
-	// Loop through all of the loser's Cities
+	// Loop through all of the their Cities
 	int iCityLoop;
+	CvPlayer* pSellingPlayer  = &GET_PLAYER(eThem);
 	for(CvCity* pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
+		//make sure we're not just flipping two border towns
+		CvCity* pOurClosest = GetPlayer()->GetClosestCityByPathLength(pLoopCity->plot());
+		if (pOurClosest && pDeal->IsCityTrade(GetPlayer()->GetID(), pOurClosest->getX(), pOurClosest->getY()))
+			continue;
+
 		int iWhatTheyWouldPay = GetCityValueForBuyer(pLoopCity, m_pPlayer->GetID(), eThem);
 		int iWhatIWouldPay = GetCityValueForBuyer(pLoopCity, eThem, m_pPlayer->GetID());
 
