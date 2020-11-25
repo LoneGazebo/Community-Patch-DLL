@@ -5570,7 +5570,7 @@ bool CvUnit::jumpToNearestValidPlot()
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost
-			if (pLoopPlot->needsEmbarkation(this))
+			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
 				iValue += 3000;
 
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));

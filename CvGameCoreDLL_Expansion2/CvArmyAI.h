@@ -142,22 +142,14 @@ public:
 
 	void UpdateCheckpointTurnsAndRemoveBadUnits();
 	bool IsAllOceanGoing();
+	CvPlot* GetCurrentPlot();
 
 	//Army strength accessors
 	int GetTotalPower();
 
-	// Position accessors
-	int GetX() const;
-	int GetY() const;
-	void SetXY(int iX, int iY);
-	CvPlot* GetCurrentPlot() const;
-	int GetArea() const;
-
 	// Goal accessors
 	void SetGoalPlot(CvPlot* pGoalPlot);
 	CvPlot* GetGoalPlot() const;
-	int GetGoalX() const;
-	int GetGoalY() const;
 
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum, bool bIsRequired);
@@ -172,8 +164,6 @@ protected:
 	int m_iID;
 	PlayerTypes m_eOwner;
 	int m_iOperationID;
-	int m_iCurrentX;
-	int m_iCurrentY;
 	int m_iGoalX;
 	int m_iGoalY;
 

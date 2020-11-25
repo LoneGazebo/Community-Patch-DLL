@@ -5099,7 +5099,6 @@ void CvDealAI::DoAddOpenBordersToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 
 	if (iTotalValue > 0)
 	{
-
 		if (!pDeal->IsOpenBordersTrade(eMyPlayer))
 		{
 			// See if we can actually trade it to them

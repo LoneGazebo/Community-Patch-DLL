@@ -33753,22 +33753,13 @@ UnitTypes CvCity::GetUnitForOperation()
 	if (thisOperationSlot.IsValid() && bSameCity)
 	{
 		CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
+		CvAIOperation* pThisOperation = kPlayer.getAIOperation(thisOperationSlot.m_iOperationID);
 
-		if (pThisArmy)
+		if (pThisArmy && pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pThisArmy->GetDomainType() == DOMAIN_SEA && pThisArmy->GetArea() != NULL)
-			{
-				if( !isAdjacentToArea( pThisArmy->GetArea() ) )
-				{
-					return NO_UNIT;
-				}
-			}
-			else if (pThisArmy->GetDomainType() == DOMAIN_LAND && pThisArmy->GetArea() != getArea())
-			{
+			if (!isMatchingArea(pThisOperation->GetMusterPlot()))
 				return NO_UNIT;
-			}
-#endif
+
 			// figure out the primary and secondary unit type to potentially build
 			CvFormationSlotEntry slotEntry = pThisArmy->GetSlotInfo(thisOperationSlot.m_iSlotID);
 

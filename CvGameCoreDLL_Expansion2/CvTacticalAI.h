@@ -906,6 +906,8 @@ public:
 	float getAggressionBias() const;
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
+	bool lastAssignmentIsAfterRestart(int iUnitID);
+	const STacticalAssignment* getInitialAssignment(int iUnitID);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;

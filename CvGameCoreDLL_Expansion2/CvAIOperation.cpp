@@ -614,12 +614,7 @@ int CvAIOperation::PercentFromMusterPointToTarget() const
 		for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 		{
 			CvArmyAI* pArmy = GetArmy(uiI);
-
-			//this is strange, check did not work, goal plot was not null but invalid
-			if (pArmy==NULL || pArmy->GetGoalX()==-1 || pArmy->GetGoalY()==-1)
-				return 0;
-
-			if (pArmy->GetGoalPlot())
+			if (pArmy && pArmy->GetGoalPlot())
 			{
 				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass();
 				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pCenterOfMass, pArmy->GetGoalPlot() );
@@ -642,10 +637,6 @@ int CvAIOperation::PercentFromMusterPointToTarget() const
 						iRtnValue = iTempValue;
 					}
 				}
-			}
-			else 
-			{
-				CvAssertMsg (false, "Operational AI army without a goal plot!  Send save to Ed");
 			}
 		}
 	}
@@ -795,17 +786,6 @@ bool CvAIOperation::Move()
 	}
 
 	//exclude rapid response ops etc
-	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		float fNewVarX,fNewVarY;
-		//only care about the variance
-		pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
-		if (fNewVarX>=max(5.f,fOldVarX) && fNewVarY>=max(5.f,fOldVarY))
-		{
-			OutputDebugString( CvString::format("Warning: Operation %d with army at (%d,%d) not making gathering progress!\n",m_iID,pThisArmy->GetX(),pThisArmy->GetY()).c_str() );
-		}
-	}
-
 	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
 		float fNewVarX, fNewVarY;
@@ -813,7 +793,7 @@ bool CvAIOperation::Move()
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
 		if (pNewCOM == pOldCOM && fNewVarX >= max(5.f, fOldVarX) && fNewVarY >= max(5.f, fOldVarY))
 		{
-			OutputDebugString(CvString::format("Warning: Operation %d with army at (%d,%d) not making movement progress!\n", m_iID, pThisArmy->GetX(), pThisArmy->GetY()).c_str());
+			OutputDebugString(CvString::format("Warning: Operation %d with army at (%d,%d) not making movement progress!\n", m_iID, pNewCOM->getX(), pNewCOM->getY()).c_str());
 		}
 	}
 
@@ -1224,10 +1204,11 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GetArmy(uiI);
+				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true);
 				//we don't really need the center of mass but the variance
 				float varX=-1,varY=-1;
 				pThisArmy->GetCenterOfMass(false,&varX,&varY);
-				szTemp2.Format("Gathering Forces for army %d, center (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
+				szTemp2.Format("Gathering Forces for army %d, center (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), varX, varY);
 				strTemp += szTemp2;
 			}
 			break;
@@ -1236,7 +1217,8 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GetArmy(uiI);
-				szTemp2.Format("Moving To Target with Army %d, center (%d:%d), target (%d:%d), Progress %d percent", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), m_iTargetX, m_iTargetY, PercentFromMusterPointToTarget());
+				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true);
+				szTemp2.Format("Moving To Target with Army %d, center (%d:%d), target (%d:%d), Progress %d percent", pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), m_iTargetX, m_iTargetY, PercentFromMusterPointToTarget());
 				strTemp += szTemp2;
 			}
 			break;
@@ -1328,14 +1310,7 @@ bool CvAIOperation::SetUpArmy(CvArmyAI* pArmyAI, CvPlot * pMusterPlot, CvPlot * 
 	SetMusterPlot(pMusterPlot);
 
 	//this is for the army
-	if (!pDeployPlot)
-		pDeployPlot = pTargetPlot;
-
-	//do not check whether the domain is correct, trust the caller
-	//IsNavalOperation() is not detailed enough to judge
-
-	pArmyAI->SetGoalPlot(pDeployPlot);
-	pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
+	pArmyAI->SetGoalPlot(pDeployPlot?pDeployPlot:pTargetPlot);
 
 	if (pArmyAI->GetOpenSlots(true).empty())
 	{

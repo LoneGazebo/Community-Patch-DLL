@@ -50440,6 +50440,7 @@ void CvPlayer::computeFoundValueThreshold()
 	OutputDebugString(CvString::format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), vValues[vValues.size()/2], m_iReferenceFoundValue.get()).c_str());
 }
 
+
 void CvPlayer::updatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())

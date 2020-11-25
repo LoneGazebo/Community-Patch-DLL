@@ -61,8 +61,6 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_iOperationID = iOperationID;
-	m_iCurrentX = INVALID_PLOT_COORD;
-	m_iCurrentY = INVALID_PLOT_COORD;
 	m_iGoalX = INVALID_PLOT_COORD;
 	m_iGoalY = INVALID_PLOT_COORD;
 	m_eType = ARMY_TYPE_ANY;
@@ -99,8 +97,8 @@ void CvArmyAI::Read(FDataStream& kStream)
 
 	kStream >> m_iID;
 	kStream >> m_eOwner;
-	kStream >> m_iCurrentX;
-	kStream >> m_iCurrentY;
+	kStream >> uiVersion; //dummy
+	kStream >> uiVersion; //dummy
 	kStream >> m_iGoalX;
 	kStream >> m_iGoalY;
 	kStream >> m_eType;
@@ -120,8 +118,8 @@ void CvArmyAI::Write(FDataStream& kStream) const
 
 	kStream << m_iID;
 	kStream << m_eOwner;
-	kStream << m_iCurrentX;
-	kStream << m_iCurrentY;
+	kStream << 0u;
+	kStream << 0u;
 	kStream << m_iGoalX;
 	kStream << m_iGoalY;
 	kStream << m_eType;
@@ -277,10 +275,11 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		//don't return it directly but use the plot of the closest unit
 		pUnit = GetFirstUnit();
 		std::vector<SPlotWithScore> vPlots;
+		CvPlot* pGoal = GetGoalPlot();
 		while (pUnit)
 		{
 			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
-			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+			int iDistToTarget = pGoal ? plotDistance(*pUnit->plot(),*pGoal) : 0;
 			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
 
 			pUnit = GetNextUnit(pUnit);
@@ -368,8 +367,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 	if (!pOperation)
 		return;
 
-	//should be updated before calling this ...
-	CvPlot* pCurrentArmyPlot = GC.getMap().plot(GetX(), GetY());
+	CvPlot* pCurrentArmyPlot = GetCurrentPlot();
 
 	//kick out damaged units, but if we're defending or escorting, no point in running away
 	if (pOperation->IsOffensive())
@@ -473,47 +471,6 @@ int CvArmyAI::GetTotalPower()
 
 // POSITION ACCESSORS
 
-/// Army's current X position
-int CvArmyAI::GetX() const
-{
-	return m_iCurrentX;
-}
-
-/// Army's current Y position
-int CvArmyAI::GetY() const
-{
-	return m_iCurrentY;
-}
-
-/// Set current army position, passing in X and Y
-void CvArmyAI::SetXY(int iX, int iY)
-{
-	m_iCurrentX = iX;
-	m_iCurrentY = iY;
-}
-
-/// Retrieve the army's current plot
-CvPlot* CvArmyAI::GetCurrentPlot() const
-{
-	return GC.getMap().plotCheckInvalid(m_iCurrentX, m_iCurrentY);
-}
-
-/// Retrieve the army's current area
-int CvArmyAI::GetArea() const
-{
-	// try to find what plot we are in
-	CvPlot* pPlot = GC.getMap().plotCheckInvalid(m_iCurrentX, m_iCurrentY);
-	if(pPlot != NULL)
-	{
-		return pPlot->getArea();
-	}
-	else
-	{
-		// since there is no plot return the invalid index
-		return -1;
-	}
-}
-
 CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
 	CvMultiUnitFormationInfo* thisFormation = GetFormation();
@@ -532,6 +489,23 @@ vector<size_t> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
 				result.push_back(i);
 
 	return result;
+}
+
+CvPlot* CvArmyAI::GetCurrentPlot()
+{
+	switch (m_eAIState)
+	{
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
+		//stupid but true
+		return GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->GetMusterPlot();
+	case ARMYAISTATE_MOVING_TO_DESTINATION:
+		return GetCenterOfMass(true);
+	case ARMYAISTATE_AT_DESTINATION:
+		return GetGoalPlot();
+	}
+
+	return NULL;
 }
 
 /// Land or sea army?
@@ -584,18 +558,6 @@ void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 	}
 }
 
-/// Retrieve target plot X coordinate
-int CvArmyAI::GetGoalX() const
-{
-	return m_iGoalX;
-}
-
-/// Retrieve target plot Y coordinate
-int CvArmyAI::GetGoalY() const
-{
-	return m_iGoalY;
-}
-
 // UNIT HANDLING
 /// Add a unit to our army (and we know which slot)
 void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
@@ -624,7 +586,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 	pThisUnit->setTacticalMove(AI_TACTICAL_OPERATION);
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint
-	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
+	CvPlot* pMusterPlot = GetCurrentPlot();
 	if(pMusterPlot)
 	{
 		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
