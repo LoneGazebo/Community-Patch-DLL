@@ -47761,7 +47761,7 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 #if defined(MOD_BALANCE_CORE)
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
-	UpdatePlotFoundValues();
+	updatePlotFoundValues();
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -47804,7 +47804,7 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 vector<int> CvPlayer::GetBestSettleAreas()
 {
 	//lazy update
-	UpdatePlotFoundValues();
+	updatePlotFoundValues();
 
 	//find best city site for each area
 	map<int,CvPlot*> bestSitePerArea;
@@ -50400,21 +50400,19 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::computeAveragePlotFoundValue()
+void CvPlayer::computeFoundValueThreshold()
 {
+	m_iReferenceFoundValue = 0;
+
 	//minors are not so discriminating ...
 	//should they ever have a settler, just take the best available spot
 	if (!isMajorCiv())
-	{
-		m_iReferenceFoundValue = 0;
 		return;
-	}
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
-	unsigned int iSum = 0, iValidPlots = 0;
-
+	vector<int> vValues;
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -50422,15 +50420,16 @@ void CvPlayer::computeAveragePlotFoundValue()
 		int iValue = pCalc->PlotFoundValue(pPlot, this, vector<int>());
 
 		if (iValue > 0)
-		{
-			iSum += iValue / 1000;
-			iValidPlots++;
-		}
+			vValues.push_back(iValue);
 	}
 
-	//assuming a normal distribution, this should allow all but the worst plots
-	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
-	m_iReferenceFoundValue = iAvg - iAvg / 3;
+	if (vValues.empty())
+		return;
+
+	std::sort(vValues.begin(), vValues.end());
+
+	//exclude the worst third, but see below
+	m_iReferenceFoundValue = vValues[vValues.size()/3];
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
@@ -50438,10 +50437,10 @@ void CvPlayer::computeAveragePlotFoundValue()
 	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
-	OutputDebugString(CvString::format("Average city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), iAvg, m_iReferenceFoundValue.get()).c_str());
+	OutputDebugString(CvString::format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), vValues[vValues.size()/2], m_iReferenceFoundValue.get()).c_str());
 }
 
-void CvPlayer::UpdatePlotFoundValues()
+void CvPlayer::updatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
@@ -50517,7 +50516,7 @@ void CvPlayer::UpdatePlotFoundValues()
 int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
 	//lazy update
-	UpdatePlotFoundValues();
+	updatePlotFoundValues();
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 

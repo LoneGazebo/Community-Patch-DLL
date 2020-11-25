@@ -2851,8 +2851,8 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void computeAveragePlotFoundValue();
-	virtual void UpdatePlotFoundValues();
+	virtual void computeFoundValueThreshold();
+	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
