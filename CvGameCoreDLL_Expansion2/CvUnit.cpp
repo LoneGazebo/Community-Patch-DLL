@@ -4782,7 +4782,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory())
 		return true;
 
-		// Minors can't intrude into one another's territory
+	// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
@@ -10354,20 +10354,18 @@ bool CvUnit::pillage()
 							}
 						}
 					}
-					if (pPlot->IsChokePoint())
-					{
-						static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-						static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 
-						if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
-						{
-							iValueMultiplier += 100;
-						}
-						else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
-						{
-							iValueMultiplier += 50;
-						}
+					static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+					static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+					if (eCitadel != NO_IMPROVEMENT && pPlot->getImprovementType() == eCitadel)
+					{
+						iValueMultiplier += 100;
 					}
+					else if (eFort != NO_IMPROVEMENT && pPlot->getImprovementType() == eFort)
+					{
+						iValueMultiplier += 50;
+					}
+
 					if (pkImprovement->IsCreatedByGreatPerson())
 					{
 						iValueMultiplier += 100;
@@ -23429,28 +23427,6 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 	}
 	return iHP;
 }
-
-//a medic also affects itself!
-bool CvUnit::IsNearMedic(CvPlot* pAtPlot) const
-{
-	if (pAtPlot == NULL)
-		pAtPlot = plot();
-
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
-	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), pAtPlot->getX(), pAtPlot->getY()) > 1)
-			continue;
-
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getAdjacentTileHeal() != 0)
-			return true;
-	}
-
-	return false;
-}
 #endif
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
@@ -30371,7 +30347,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
-	// R: +10 Accuracy 1-3, +10 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
+	// R: +10 Accuracy 1-3, +5 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
 	// R + S: -10 Indirect Fire, -20 Range. 	R + mR +nR +S: -30 Logistics.
 	if(iTemp != 0)
 	{

@@ -78,7 +78,6 @@ public:
 	//For Great Diplomats
 	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
 	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
-	int ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit);
 	//And for messengers
 	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);

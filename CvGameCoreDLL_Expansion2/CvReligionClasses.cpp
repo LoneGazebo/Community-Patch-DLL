@@ -1397,7 +1397,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
-	// Just in case we have another prophet sitting around, make sure he's set to this religion
+	// In case we have another prophet sitting around, make sure he's set to this religion
 	int iLoopUnit;
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
@@ -3280,7 +3280,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	//Does this city have a majority religion?
+	// Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
 	if (eMajorityReligion != eReligion)
 	{
@@ -3308,17 +3308,11 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 			//no trade route, no pressure!
 			return 0;
 		}
-#endif	
+#endif
 
-		//if there is no traderoute, pressure falls off with distance
-		iPressureMod -= iRelativeDistancePercent;
-
-		/*
-		//alternative version with quadratic scaling - higher pressure
-		iRelativeDistancePercent = min(100, max(0, iRelativeDistancePercent));
-		float fScaleFactor = sqrtf(1.f - float(iRelativeDistancePercent) / 100);
-		iPressure = int(iPressure * fScaleFactor);
-		*/
+		//if there is no traderoute, base pressure falls off with distance
+		int iPressurePercent = max(100 - iRelativeDistancePercent,1);
+		iBasePressure = (iBasePressure*iPressurePercent) / 100;
 	}
 
 	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
@@ -3406,6 +3400,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 #endif
 
 	int iPressure = iBasePressure * (100 + iPressureMod);
+
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
 	return max(0, iPressure / 100);
 }
@@ -5274,6 +5269,7 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	}
 	
 	int iNumTradeRoutes = 0;
+
 	bool bConnectedWithTrade;
 	int iRelativeDistancePercent;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
@@ -5281,7 +5277,8 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
 	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
 
-	return (iWithTR>iNoTR);
+	iAmount = (iWithTR - iNoTR);
+	return iAmount>0;
 }
 
 
@@ -7329,6 +7326,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 
 					int iDummy = 0;
 					int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion, iDummy));
+
 					int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion, iDummy);
 					int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
@@ -7992,11 +7990,7 @@ bool CvReligionAI::DoFaithPurchases()
 // check whether a missionary or an inquisitor is better
 bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 {
-	//missionaries for easy targets first
-	if (HaveNearbyConversionTarget(eReligion, false, true))
-		return BuyMissionary(eReligion);
-
-	//inquisitors second
+	//inquisitors first
 	if (!HaveEnoughInquisitors(eReligion))
 		return BuyInquisitor(eReligion);
 
@@ -10750,7 +10744,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit, ReligionT
 	if (!pMyReligion)
 		return 0;
 
-	//Inquisition reduces population so don't be overly zeleaous here
+	//Inquisition causes unrest so don't be overly zeleaous here
 	int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
 	int iThreshold = max(3,pCity->getPopulation()/3);
 
@@ -10962,7 +10956,8 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 			iNumNeeded++;
 	}
 
-	return iNumInquisitors >= iNumNeeded;
+	// We want two to spare ... 
+	return iNumInquisitors >= iNumNeeded + 2;
 }
 
 /// Do we have a belief that allows a faith generating building to be constructed?

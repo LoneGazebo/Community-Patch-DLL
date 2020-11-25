@@ -4892,7 +4892,30 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
 				CvCity* pCapital = getCapitalCity();
-				bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+				bool bShouldSpawn = true;
+
+				// Give religious units the player's religion
+				if (pkUnit->isReligiousUnit())
+				{
+					pkUnit->GetReligionData()->SetReligion(GetReligions()->GetCurrentReligion(false));
+
+					// Unless it's a prophet we shouldn't give a free religious unit without a religion
+					if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
+					{
+						bShouldSpawn = false;
+					}
+				}
+
+				bool bJumpSuccess;
+				if (bShouldSpawn)
+				{
+					bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+				}
+				else
+				{
+					bJumpSuccess = false;
+				}
+
 				if (bJumpSuccess && pCapital != NULL)
 				{
 					pCapital->addProductionExperience(pkUnit);
@@ -31296,7 +31319,7 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	iResistance /= 10;
+	iResistance /= 25;
 	iResistance *= GetCurrentEra();
 
 	int iHandicapCap = std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
@@ -46067,16 +46090,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabHasGlobalMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			CheckForMonopoly((ResourceTypes)iResourceLoop);
-		}
-	}
-#endif
-
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -47528,6 +47541,8 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
+	//do not include medics here, it kills performance
+	//medics are range 1, they can easily be found by iterating the 6 neighbor plots
 	if (pUnit->isNearbyPromotion())
 	{
 		bool bFound = false;
@@ -47590,7 +47605,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		if (pLoopUnit->isNearbyPromotion() || pLoopUnit->getAdjacentTileHeal()>0)
+		//do not include medics here, it kills performance
+		//medics are range 1, they can easily be found by iterating the 6 neighbor plots
+		if (pLoopUnit->isNearbyPromotion())
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())

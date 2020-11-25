@@ -1313,7 +1313,6 @@ public:
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
-	bool IsNearMedic(CvPlot* pAtPlot=NULL) const;
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;

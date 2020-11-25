@@ -880,6 +880,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 	//////////
 	bool bAvoidGrowth = IsAvoidGrowth();
 	bool bIsFoodPlot = false;
+	bool bIsProductionPlot = false;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
@@ -906,6 +907,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			//if this is a net-positive tile, that's good!
 			if (eYield == YIELD_FOOD && iYield >= 2)
 				bIsFoodPlot = true;
+
+			if (eYield == YIELD_PRODUCTION && iYield >= 2)
+				bIsProductionPlot = true;
 
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
@@ -983,10 +987,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			}
 			else if (eYield == YIELD_SCIENCE)
 			{
-				iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 				{
-					iYieldMod += 10;
+					iYieldMod += GC.getAI_CITIZEN_VALUE_SCIENCE();
 				}
 			}
 			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
@@ -1006,40 +1009,43 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 			if (iYield > 0)
 			{
+				int iUnhappyMod = 0;
 				switch (eYield)
 				{
 				case YIELD_GOLD:
 					if (store.iUnhappinessFromGold > 0)
 					{
-						iYieldMod += store.iUnhappinessFromGold;
+						iUnhappyMod += store.iUnhappinessFromGold;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (store.iUnhappinessFromScience > 0)
 					{
-						iYieldMod += store.iUnhappinessFromScience;
+						iUnhappyMod += store.iUnhappinessFromScience;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (store.iUnhappinessFromCulture> 0)
 					{
-						iYieldMod += store.iUnhappinessFromCulture;
+						iUnhappyMod += store.iUnhappinessFromCulture;
 					}
 					break;
 				case YIELD_FAITH:
 					if (store.iUnhappinessFromReligion > 0)
 					{
-						iYieldMod += store.iUnhappinessFromReligion;
+						iUnhappyMod += store.iUnhappinessFromReligion;
 					}
 					break;
 				case YIELD_PRODUCTION:
 				case YIELD_FOOD:
 					if (store.iUnhappinessFromDistress > 0)
 					{
-						iYieldMod += store.iUnhappinessFromDistress;
+						iUnhappyMod += store.iUnhappinessFromDistress;
 					}
 					break;
 				}
+				iUnhappyMod /= 2;
+				iYieldMod += iUnhappyMod;
 			}
 
 			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
@@ -1050,6 +1056,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			//no yield mods until we're fed!
 			if (!bIsFoodPlot && eYield != YIELD_FOOD && store.iExcessFoodTimes100 <= (m_bDiscourageGrowth ? 0 : 2) && !bAvoidGrowth)
 				iYieldMod = 1;
+			else if (bIsFoodPlot || bIsProductionPlot)
+				iYieldMod += 2;
 
 			iYield *= max(1, iYieldMod);
 
@@ -2202,6 +2210,8 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 		iValue /= 10;
 	else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+		iValue /= 4;
+	else if ((eFocus == NO_CITY_AI_FOCUS_TYPE))
 		iValue /= 2;
 	else if (eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 		iValue *= 2;
