@@ -50417,7 +50417,7 @@ void CvPlayer::computeFoundValueThreshold()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = pCalc->PlotFoundValue(pPlot, this, vector<int>());
+		int iValue = pCalc->PlotFoundValue(pPlot, NULL, vector<int>()); //no player!
 
 		if (iValue > 0)
 			vValues.push_back(iValue);
@@ -50428,8 +50428,8 @@ void CvPlayer::computeFoundValueThreshold()
 
 	std::sort(vValues.begin(), vValues.end());
 
-	//exclude the worst third, but see below
-	m_iReferenceFoundValue = vValues[vValues.size()/3];
+	//set our threshold halfway between the worst plot and the median
+	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
