@@ -29886,7 +29886,7 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 	// All defaults, except test for war, and allow noncombat units
 	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);
 
-	if(pDefender && !pDefender->IsDead())
+	if(pDefender && !pDefender->IsDead() && !pDefender->isDelayedDeath())
 		return pDefender;
 
 	return NULL;

@@ -471,7 +471,7 @@ private:
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
 
-	void PlotEscortEmbarkedMoves();
+	void PlotNavalEscortMoves();
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
@@ -504,7 +504,6 @@ private:
 	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
-	void ExecuteMissileAttacks();
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);

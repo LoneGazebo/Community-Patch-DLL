@@ -206,13 +206,11 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 
 	//operation cleanup
 	itemsToDelete.clear();
-	CvAIOperation* nextOp = getFirstAIOperation();
-	while(nextOp)
+	for (size_t i=0; i<getNumAIOperations(); i++)
 	{
-		if (nextOp->ShouldAbort())
-			itemsToDelete.push_back(nextOp->GetID());
-
-		nextOp = getNextAIOperation();
+		CvAIOperation* pOp = getAIOperationByIndex(i);
+		if (pOp->ShouldAbort())
+			itemsToDelete.push_back(pOp->GetID());
 	}
 
 	for (size_t i=0; i<itemsToDelete.size(); i++)
@@ -963,10 +961,9 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 {
 	OperationSlot bestSlot;
 	// search through our operations till we find one that needs a unit
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
@@ -1035,10 +1032,9 @@ int CvPlayerAI::GetNumUnitsNeededToBeBuilt()
 {
 	int iRtnValue = 0;
 
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
 			iRtnValue += pThisOperation->GetNumUnitsNeededToBeBuilt();

@@ -1224,11 +1224,9 @@ void CvPlayer::uninit()
 	m_cityNames.clear();
 
 	// loop through all entries freeing them up
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		delete(iter->second);
-	}
+	for(size_t i=0; i<m_AIOperations.size(); i++)
+		delete( m_AIOperations[i].second );
+
 	m_AIOperations.clear();
 
 	m_aiPlots.clear();
@@ -1965,9 +1963,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_armyAIs.RemoveAll();
 
 		// loop through all entries freeing them up
-		std::map<int , CvAIOperation*>::iterator iter;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-			delete(iter->second);
+		for(size_t i=0; i<m_AIOperations.size(); i++)
+			delete(m_AIOperations[i].second);
 		m_AIOperations.clear();
 
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
@@ -10657,13 +10654,10 @@ void CvPlayer::ChangeMaxNumBuilders(int iChange)
 int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bIncludeWater)
 {
 	int iNumUnits = 0;
-
-	CvUnit* pLoopUnit;
-	CvCity* pLoopCity;
 	int iLoop;
 
 	// Current Units
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// Don't include Water Units if we don't want them
 		if(pLoopUnit->getDomainType() != DOMAIN_SEA || bIncludeWater)
@@ -10678,7 +10672,7 @@ int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingT
 	// Units being trained now
 	if(bIncludeBeingTrained)
 	{
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if(pLoopCity->isProductionUnit())
 			{
@@ -41424,56 +41418,39 @@ void CvPlayer::deleteArmyAI(int iID)
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
 
-
 //	--------------------------------------------------------------------------------
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
 {
-	std::map<int, CvAIOperation*>::const_iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
-	{
-		return it->second;
-	}
-	return 0;
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
+		if (m_AIOperations[i].first == iID)
+			return m_AIOperations[i].second;
+
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::getFirstAIOperation()
+size_t CvPlayer::getNumAIOperations() const
 {
-	CvAIOperation* rtnValue = NULL;
-
-	m_CurrentOperation = m_AIOperations.begin();
-	if(m_CurrentOperation != m_AIOperations.end())
-	{
-		rtnValue = m_CurrentOperation->second;
-	}
-	return rtnValue;
+	return m_AIOperations.size();
 }
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::getNextAIOperation()
+CvAIOperation* CvPlayer::getAIOperationByIndex(size_t iIndex) const
 {
-	CvAIOperation* rtnValue = NULL;
+	if (iIndex<m_AIOperations.size())
+		return m_AIOperations[iIndex].second;
 
-	if(m_CurrentOperation != m_AIOperations.end())
-	{
-		++m_CurrentOperation;
-		if(m_CurrentOperation != m_AIOperations.end())
-		{
-			rtnValue = m_CurrentOperation->second;
-		}
-	}
-	return rtnValue;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::getAIOperation(int iID)
 {
-	std::map<int, CvAIOperation*>::iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
-	{
-		return it->second;
-	}
-	return 0;
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
+		if (m_AIOperations[i].first == iID)
+			return m_AIOperations[i].second;
+
+	return NULL;
 }
 
 
@@ -41492,7 +41469,7 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	}
 
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.insert(std::make_pair(pNewOperation->GetID(), pNewOperation));
+	m_AIOperations.push_back(std::make_pair(pNewOperation->GetID(), pNewOperation));
 
 	//check if initialization works out
 	pNewOperation->Init(pTarget, pMuster);
@@ -41511,25 +41488,23 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteAIOperation(int iID)
 {
-	std::map<int, CvAIOperation*>::iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		delete(it->second);
-		m_AIOperations.erase(it);
-	}
-	else
-	{
-		CvAssertMsg(false, "could not find operation, delete failed");
+		if (m_AIOperations[i].first == iID)
+		{
+			delete(m_AIOperations[i].second);
+			m_AIOperations.erase(m_AIOperations.begin() + i);
+			return;
+		}
 	}
 }
 
 CvAIOperation* CvPlayer::getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer)
 {
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); iter++)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41553,10 +41528,9 @@ bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41577,10 +41551,9 @@ int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
 {
 	int iNum = 0;
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41601,10 +41574,9 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41626,10 +41598,9 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41651,10 +41622,9 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if (pThisOperation->IsCivilianOperation())
 			continue;
 
@@ -41675,10 +41645,9 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer /* optional */, CvPlot* pTarget /* optional */)
 {
 	// loop through all entries looking for match
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation->GetOperationType() == eOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
@@ -41700,13 +41669,12 @@ bool CvPlayer::IsTargetCityForOperation(CvCity* pCity, bool bNaval) const
 	if (!pCity)
 		return false;
 
-	std::map<int, CvAIOperation*>::const_iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pOperation = iter->second;
-		if (plotDistance(*pOperation->GetTargetPlot(),*pCity->plot())<3)
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (plotDistance(*pThisOperation->GetTargetPlot(),*pCity->plot())<3)
 		{
-			return (bNaval == pOperation->IsNavalOperation());
+			return (bNaval == pThisOperation->IsNavalOperation());
 		}
 	}
 
@@ -41720,13 +41688,12 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	if (!pCity)
 		return false;
 
-	std::map<int, CvAIOperation*>::const_iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pOperation = iter->second;
-		if (plotDistance(*pOperation->GetMusterPlot(),*pCity->plot())<3)
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot())<3)
 		{
-			return (bNaval == pOperation->IsNavalOperation());
+			return (bNaval == pThisOperation->IsNavalOperation());
 		}
 	}
 
@@ -41759,10 +41726,9 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 /// Are we already sending a settler to this plot (or any plot within 3)
 bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const
 {
-	std::map<int , CvAIOperation*>::const_iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pOperation = iter->second;
+		CvAIOperation* pOperation = m_AIOperations[i].second;
 		if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 		{
 			switch (pOperation->GetOperationType())
@@ -45804,7 +45770,7 @@ void CvPlayer::Read(FDataStream& kStream)
 			//ok to pass dummy parameters, they will be overwritten ... only the type must be right
 			CvAIOperation* pThisOperation = CreateAIOperation((AIOperationTypes)iOperationType,0,NO_PLAYER,NO_PLAYER);
 			pThisOperation->Read(kStream);
-			m_AIOperations.insert(std::make_pair(pThisOperation->GetID(), pThisOperation));
+			m_AIOperations.push_back(std::make_pair(pThisOperation->GetID(), pThisOperation));
 		}
 	}
 
@@ -46011,10 +45977,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	{
 		uint iSize = m_AIOperations.size();
 		kStream << iSize;
-		std::map<int, CvAIOperation*>::const_iterator it;
-		for(it = m_AIOperations.begin(); it != m_AIOperations.end(); ++it)
+		for (size_t i = 0; i < m_AIOperations.size(); i++)
 		{
-			CvAIOperation* pThisOperation = it->second;
+			CvAIOperation* pThisOperation = m_AIOperations[i].second;
 			kStream << pThisOperation->GetOperationType();
 			pThisOperation->Write(kStream);
 		}

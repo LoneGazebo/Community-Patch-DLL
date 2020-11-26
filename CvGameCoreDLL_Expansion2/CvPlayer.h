@@ -2446,8 +2446,8 @@ public:
 	void deleteArmyAI(int iID);
 
 	// operations
-	CvAIOperation* getFirstAIOperation();
-	CvAIOperation* getNextAIOperation();
+	size_t getNumAIOperations() const;
+	CvAIOperation* getAIOperationByIndex(size_t iIndex) const;
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
 	CvAIOperation* addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy = NO_PLAYER, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
@@ -3638,9 +3638,7 @@ protected:
 	TContainer<CvUnit> m_units;
 	TContainer<CvArmyAI> m_armyAIs;
 
-	std::map<int, CvAIOperation*> m_AIOperations;
-	std::map<int, CvAIOperation*>::iterator m_CurrentOperation;
-
+	std::vector< std::pair<int, CvAIOperation*> > m_AIOperations;
 	std::vector< std::pair<int, PlayerVoteTypes> > m_aVote;
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
 

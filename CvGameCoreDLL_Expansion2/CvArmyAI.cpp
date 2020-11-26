@@ -241,12 +241,8 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		pUnit = GetNextUnit(pUnit);
 	}
 
-	//this is for debugging
-	float fNUnits = (float)iNumUnits;
-	float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
-	float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
-
 	//finally, compute average
+	float fNUnits = (float)iNumUnits;
 	float fAvgX = (iTotalX/fNUnits) + iRefX;
 	float fAvgY = (iTotalY/fNUnits) + iRefY;
 
@@ -254,21 +250,21 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	int iAvgX = fAvgX > 0 ? int(fAvgX + 0.5f) : int(fAvgX - 0.5f);
 	int iAvgY = fAvgY > 0 ? int(fAvgY + 0.5f) : int(fAvgY - 0.5f);
 
-	if (fVarX > 64 || fVarY > 64)
-	{
-		CvString msg = CvString::format("Warning: Army %d with %d units Center of Mass (%d,%d) has a large variance (%.2f,%.2f)\n", GetID(), iNumUnits, iAvgX, iAvgY, fVarX, fVarY);
-		OutputDebugString( msg.c_str() );
-	}
-
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
 	if (!pCOM)
 		return NULL;
 
 	if (pfVarX)
+	{
+		float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
 		*pfVarX = fVarX;
+	}
 	if (pfVarY)
+	{
+		float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
 		*pfVarY = fVarY;
+	}
 
 	if (bClampToUnit)
 	{

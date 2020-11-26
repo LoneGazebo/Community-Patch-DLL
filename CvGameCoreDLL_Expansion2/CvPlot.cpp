@@ -14869,38 +14869,46 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 	return result;
 }
 
-int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
+//friendly, enemy power
+pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const
 {
+	int iFriendlyPower = 0;
 	int iEnemyPower = 0;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-	//also take into account cargo ships, e.g. carriers
-	const IDInfo* pUnitNode = headUnitNode();
-	const CvUnit* pInnerLoopUnit;
-	while(pUnitNode != NULL)
+	iRange = range(iRange, 1, 5);
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
-		pInnerLoopUnit = ::GetPlayerUnit(*pUnitNode);
-		pUnitNode = nextUnitNode(pUnitNode);
-		if(pInnerLoopUnit != NULL && kPlayer.IsAtWarWith(pInnerLoopUnit->getOwner()) && !pInnerLoopUnit->isInvisible(kPlayer.getTeam(),false))
+		CvPlot* pTestPlot = iterateRingPlots(this, i);
+		if (!pTestPlot || !pTestPlot->isVisible(kPlayer.getTeam()))
+			continue;
+
+		//also take into account carriers!
+		const IDInfo* pUnitNode = pTestPlot->headUnitNode();
+		while(pUnitNode != NULL)
 		{
-			iEnemyPower += pInnerLoopUnit->GetPower();
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+			pUnitNode = pTestPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit && pLoopUnit->IsCanAttack())
+			{
+				//this check skips air units ...
+				if (bSameDomain && pLoopUnit->getDomainType() != getDomain())
+					continue;
+
+				if (kPlayer.IsAtWarWith(pLoopUnit->getOwner()) && !pLoopUnit->isInvisible(kPlayer.getTeam(), false))
+				{
+					iEnemyPower += pLoopUnit->GetPower();
+				}
+				else if (kPlayer.getTeam() == pLoopUnit->getTeam())
+				{
+					iFriendlyPower += pLoopUnit->GetPower();
+				}
+			}
 		}
 	}
 
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-		if (!pNeighborPlot)
-			continue;
-
-		CvUnit* pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true);
-		if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
-			if (!pEnemy->isInvisible(kPlayer.getTeam(),false))
-				iEnemyPower += pEnemy->GetPower();
-	}
-
-	return iEnemyPower;
+	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const

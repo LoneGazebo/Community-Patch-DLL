@@ -30000,13 +30000,11 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 	// Check existing armies this unit could fit into if it wasn't automatically added to one.
 	if(pUnit && pUnit->getArmyID() == -1)
 	{
-		for (CvAIOperation* pOp = GET_PLAYER(getOwner()).getFirstAIOperation(); pOp; pOp = GET_PLAYER(getOwner()).getNextAIOperation())
+		for (size_t i=0; i<GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
 		{
-			if (pOp->GetOperationState()==AI_OPERATION_STATE_RECRUITING_UNITS)
-			{
-				if (pOp->RecruitUnit(pUnit))
-					break;
-			}
+			CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
+			if (pOp->GetOperationState()==AI_OPERATION_STATE_RECRUITING_UNITS && pOp->RecruitUnit(pUnit))
+				break;
 		}
 	}
 #endif

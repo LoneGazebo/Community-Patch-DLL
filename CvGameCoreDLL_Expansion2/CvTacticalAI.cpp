@@ -309,6 +309,10 @@ void CvTacticalAI::RecruitUnits()
 					continue;
 			}
 
+			//special handling for carriers: tactical AI will not use them except if they are part of an operation
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+				continue;
+
 			//finally, these are our combat units
 			if (pLoopUnit->getArmyID() != -1)
 				//army units will be moved as part of the army moves
@@ -791,8 +795,6 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	//make some space near the frontline
 	PlotHealMoves(true);
 	//move armies first
-	ExecuteMissileAttacks();
-	//move armies first
 	PlotOperationalArmyMoves();
 }
 
@@ -838,7 +840,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//do this last after the units in need have already moved
 	PlotRepositionMoves(false);
-	PlotEscortEmbarkedMoves();
+	PlotNavalEscortMoves();
 	PlotRepositionMoves(true);
 
 	//civilians move out of harms way last, when all potential defenders are set in place
@@ -1375,13 +1377,11 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 
 	// move all units in operations
 	std::vector<int> opsToKill;
-	CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
-	while(nextOp != NULL)
+	for (size_t i=0; i<m_pPlayer->getNumAIOperations(); i++)
 	{
-		if (!nextOp->DoTurn())
-			opsToKill.push_back(nextOp->GetID());
-
-		nextOp = m_pPlayer->getNextAIOperation();
+		CvAIOperation* pOp = m_pPlayer->getAIOperationByIndex(i);
+		if (!pOp->DoTurn())
+			opsToKill.push_back(pOp->GetID());
 	}
 
 	//clean up - have to do this in two steps so the iterator does not get invalidated
@@ -1937,16 +1937,16 @@ void CvTacticalAI::PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone)
 }
 
 /// Move naval units over top of unprotected embarked units
-void CvTacticalAI::PlotEscortEmbarkedMoves()
+void CvTacticalAI::PlotNavalEscortMoves()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_ESCORT);
 
-	std::vector<CvUnit*> vEmbarkedUnits;
+	std::vector<CvUnit*> vTargetUnits;
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pLoopUnit->isEmbarked())
-			vEmbarkedUnits.push_back(pLoopUnit);
+			vTargetUnits.push_back(pLoopUnit);
 	}
 
 	// Loop through all recruited units
@@ -1960,9 +1960,9 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 			{
 				//any embarked unit close by?
 				int iMaxDist = pUnit->getMoves();
-				for (size_t i=0; i<vEmbarkedUnits.size(); i++)
+				for (size_t i=0; i<vTargetUnits.size(); i++)
 				{
-					if (plotDistance(*pUnit->plot(),*vEmbarkedUnits[i]->plot())<=iMaxDist)
+					if (plotDistance(*pUnit->plot(),*vTargetUnits[i]->plot())<=iMaxDist)
 					{
 						m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
 						break;
@@ -1974,7 +1974,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		ExecuteEscortEmbarkedMoves(vEmbarkedUnits);
+		ExecuteEscortEmbarkedMoves(vTargetUnits);
 	}
 }
 
@@ -2149,6 +2149,10 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 					if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
 						continue;
+
+				// Carriers have special moves
+				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA || pUnit->AI_getUnitAIType() == UNITAI_MISSILE_CARRIER_SEA)
+					continue;
 
 				// Proper domain of unit?
 				// Note that coastal cities have two zones, so we will call this method twice
@@ -3334,7 +3338,6 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 		return;
 
 	// Do air attacks, ignore all other units
-	bool bDone = false;
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
@@ -3347,27 +3350,13 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 				CvPlot* pBestTarget = FindAirTargetNearTarget(pUnit, pTargetPlot);
 				if (pBestTarget != NULL)
 				{
-					//this won't change
-					CvCity *pCity = pBestTarget->getPlotCity();
-
-					//this is a bit ugly ... oh well
-					CvUnit* pDefender = pBestTarget->getVisibleEnemyDefender(m_pPlayer->GetID());
-					bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
-					bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
-
-					if (!bHaveUnitTarget && !bHaveCityTarget)
-					{
-						bDone = true;
-						break;
-					}
-
 					//it's a ranged attack but it uses the move mission ... air units are strange
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
 
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("AIR ATTACK: %s %d attacks Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY());
+						strMsg.Format("%s ATTACK: %s %d attacks target X: %d, Y: %d", pUnit->isSuicide() ? "MISSILE":"AIR" , pUnit->getName().c_str(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY());
 						LogTacticalMessage(strMsg);
 					}
 				}
@@ -3376,77 +3365,12 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 
 			if (pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn() == 0)
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-			if (bDone)
-				break;
-		}
-	}
-}
-
-void CvTacticalAI::ExecuteMissileAttacks()
-{
-	// Do air attacks, ignore all other units
-	bool bDone = false;
-	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-
-		if (pUnit && pUnit->getDomainType() == DOMAIN_AIR && pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR) //just missiles.
-		{
-			if (pUnit->canMove())
-			{
-				// Loop through all appropriate targets to see if any is of concern
-				for (unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
-				{
-					// Is the target of an appropriate type?
-					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
-						m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
-					{
-
-						CvPlot* pTestPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
-						if (pTestPlot == NULL)
-							continue;
-
-						CvPlot* pBestTarget = FindAirTargetNearTarget(pUnit, pTestPlot);
-						if (pBestTarget == NULL)
-							continue;
-
-						//this won't change
-						CvCity *pCity = pBestTarget->getPlotCity();
-
-						//this is a bit ugly ... oh well
-						CvUnit* pDefender = pBestTarget->getVisibleEnemyDefender(m_pPlayer->GetID());
-						bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
-						bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
-
-						if (!bHaveUnitTarget && !bHaveCityTarget)
-						{
-							bDone = true;
-							break;
-						}
-
-						//it's a ranged attack but it uses the move mission ... air units are strange
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-						UnitProcessed(pUnit->GetID());
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("MISSILE ATTACK: %s %d attacks Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY());
-							LogTacticalMessage(strMsg);
-						}
-						break;
-					}
-				}
-			}
 		}
 	}
 }
 
 /// Queues up attacks on enemy units on or adjacent to army's desired center
-CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot)
+CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximateTargetPlot)
 {
 	int iRange = pUnit->GetRange();
 	int iBestValue = -INT_MAX;
@@ -3459,72 +3383,60 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 		if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
 		{
 			//make sure it is close to our actual target plot
-			int iTargetDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pTargetPlot->getX(), pTargetPlot->getY());
-			if (iTargetDistance > 3)
-				continue;
+			if (pApproximateTargetPlot)
+			{
+				int iTargetDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pApproximateTargetPlot->getX(), pApproximateTargetPlot->getY());
+				if (iTargetDistance > 3)
+					continue;
+			}
 
 			int iDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pUnit->getX(), pUnit->getY());
-			if (iDistance < iRange)
+			if (iDistance <= iRange)
 			{
 				CvPlot* pTestPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
 				if (pTestPlot == NULL)
 					continue;
 
+				//don't beat a dead horse
 				CvCity *pCity = pTestPlot->getPlotCity();
-				CvUnit* pDefender = pUnit->rangeStrikeTarget(*pTestPlot, true);
+				if (pCity && pCity->getDamage() > pCity->GetMaxHitPoints() - 10)
+					continue;
 
-				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
-				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
-				if (!bHaveUnitTarget && !bHaveCityTarget)
+				CvUnit* pDefender = pUnit->rangeStrikeTarget(*pTestPlot, true);
+				if (!pDefender)
 					continue;
 
 				int iValue = 0;
 				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-					iValue += 20;
+					iValue += 23;
 				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
-					iValue += 10;
+					iValue += 11;
 
 				if (pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				{
-					//we need a unit to attack, if it's a civilian only generals are of interest
-					if (!pDefender)
-						continue;
-
 					//ignore the city when attacking!
-					int iDamage = pUnit->GetAirCombatDamage(pDefender, NULL, false);
-
-					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN)
-						iValue = 50; //flat default value - always a kill
-					else
-					{
-						iValue = iDamage;
-						//bonus for a kill
-						if (pDefender->GetCurrHitPoints() <= iDamage)
-							iValue += 20;
-						//bonus for hitting units in cities, can only do that with missiles
-						if (pDefender->plot()->isCity())
-							iValue += 10;
-					}
+					iValue = pUnit->GetAirCombatDamage(pDefender, NULL, false);
+					//bonus for a kill
+					if (pDefender->GetCurrHitPoints() <= iValue)
+						iValue += 21;
+					//bonus for hitting units in cities, can only do that with missiles
+					if (pDefender->plot()->isCity())
+						iValue += 17;
 				}
 				else
 				{
-					//no civilian attacks here, it's inefficient
-					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN)
-						continue;
-
-					//use distance from actual target as tiebreaker
-					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) - iTargetDistance * 3;
+					//use distance as tiebreaker
+					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) - iDistance * 3;
 
 					if (pCity != NULL)
 						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false);
-					else if (pDefender != NULL)
+					else
 						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false);
 
-					if (pTargetPlot->GetBestInterceptor(pUnit->getOwner(),NULL,false,true) != NULL)
+					if (pTestPlot->GetBestInterceptor(pUnit->getOwner(),NULL,false,true) != NULL)
 						iValue /= 2;
 				}
 
@@ -3649,7 +3561,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	if (!ExecuteSpotterMove(vUnits,pTargetPlot))
 		return false;
 
-	//first handle air units
+	//first handle air units (including missiles)
 	ExecuteAirSweep(pTargetPlot);
 	ExecuteAirAttack(pTargetPlot);
 

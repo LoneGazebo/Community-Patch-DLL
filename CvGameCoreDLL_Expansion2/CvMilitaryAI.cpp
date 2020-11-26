@@ -2432,6 +2432,7 @@ void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 	if (pMostThreatenedCoastalCity != NULL && !m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer))
 		m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 0, ePlayer, pMostThreatenedCoastalCity);
 }
+
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity)
 {
@@ -2452,7 +2453,7 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 
 	//first a quick one
 	bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, eEnemy) != NULL;
-	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, true, pThreatenedCity->getArea(), pThreatenedCity->plot());
+	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, pThreatenedCity->plot());
 	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getOwningCity() != NULL)
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 1, eEnemy, pStartPlot->getOwningCity());
 
@@ -2565,6 +2566,19 @@ void CvMilitaryAI::UpdateOperations()
 			}
 		}
 	}
+
+	//if we have an idle carrier, try to start a strike group. the carrier may be empty!
+	int iLoop;
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if(pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
+		{
+			//the operation will find it's own target and remain active until indefinitely.
+			//the airplanes rebase independently, they are not part of the operation.
+			m_pPlayer->addAIOperation(AI_OPERATION_CARRIER_GROUP, 0, NO_PLAYER, NULL, NULL);
+			break;
+		}
+	}
 }
 
 /// Spend money on units/buildings for military contingencies
@@ -2578,14 +2592,12 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 	if(!IsUsingStrategy(eStrategyAtWar) || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
 	{
 		// Is there an operation waiting for one more unit?
-		CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
-		while(nextOp != NULL)
+		for (size_t i=0; i<m_pPlayer->getNumAIOperations(); i++)
 		{
+			CvAIOperation* pOp = m_pPlayer->getAIOperationByIndex(i);
 			// Can we buy a unit to fill that slot?
-			if(nextOp->BuyFinalUnit())
+			if(pOp->BuyFinalUnit())
 				break;
-
-			nextOp = m_pPlayer->getNextAIOperation();
 		}
 	}
 }

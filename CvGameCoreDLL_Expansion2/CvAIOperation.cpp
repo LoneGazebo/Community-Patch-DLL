@@ -128,6 +128,8 @@ const char * CvAIOperation::GetOperationName() const
 		return "OP_NAVAL_SUPERIORITY";
 	case AI_OPERATION_NUKE_ATTACK:
 		return "OP_NUKE";
+	case AI_OPERATION_CARRIER_GROUP:
+		return "OP_CSG";
 	case AI_OPERATION_MUSICIAN_CONCERT_TOUR:
 		return "OP_MUSICIAN";
 	case AI_OPERATION_MERCHANT_DELEGATION:
@@ -166,20 +168,20 @@ void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 	}
 	else
 	{
-		if ( pTarget!=GetTargetPlot() )
-		{
-			LogOperationSpecialMessage( CvString::format("setting new target (%d:%d)",pTarget->getX(),pTarget->getY()).c_str() );
+		if (pTarget->getX() == m_iTargetX && pTarget->getY() == m_iTargetY)
+			return;
 
-			//have to start moving again!
-			if (m_eCurrentState == AI_OPERATION_STATE_AT_TARGET)
+		LogOperationSpecialMessage( CvString::format("setting new target (%d:%d)",pTarget->getX(),pTarget->getY()).c_str() );
+
+		//have to start moving again!
+		if (m_eCurrentState == AI_OPERATION_STATE_AT_TARGET)
+		{
+			m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
-				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-				for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
-				{
-					CvArmyAI* pThisArmy = GetArmy(uiI);
-					if(pThisArmy)
-						pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-				}
+				CvArmyAI* pThisArmy = GetArmy(uiI);
+				if(pThisArmy)
+					pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
 			}
 		}
 
@@ -288,6 +290,8 @@ CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, Pla
 		return new CvAIOperationDefenseRapidResponse(iID, eOwner, eEnemy);
 	case AI_OPERATION_NUKE_ATTACK:
 		return new CvAIOperationNukeAttack(iID, eOwner, eEnemy);
+	case AI_OPERATION_CARRIER_GROUP:
+		return new CvAIOperationCarrierGroup(iID, eOwner, eEnemy);
 	//civilian
 	case AI_OPERATION_FOUND_CITY:
 		return new CvAIOperationCivilianFoundCity(iID, eOwner, eEnemy);
@@ -652,7 +656,7 @@ bool CvAIOperation::ShouldAbort()
 {
 	//failsafe in case we're stuck somehow
 	int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-	if (iTurns > 50)
+	if (iTurns > 50 && !IsNeverEnding())
 	{
 		SetToAbort(AI_ABORT_TIMED_OUT);
 		return true;
@@ -786,7 +790,7 @@ bool CvAIOperation::Move()
 	}
 
 	//exclude rapid response ops etc
-	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
+	if (pThisArmy->GetNumSlotsFilled()>3)
 	{
 		float fNewVarX, fNewVarY;
 		//center of mass should be moving
@@ -1468,6 +1472,8 @@ MultiunitFormationTypes OperationalAIHelpers::GetArmyFormationForOpType(AIOperat
 		return MUFORMATION_FAST_PILLAGERS;
 	case AI_OPERATION_NUKE_ATTACK:
 		return MUFORMATION_NUKE_ATTACK;
+	case AI_OPERATION_CARRIER_GROUP:
+		return MUFORMATION_CARRIER_ESCORT;
 
 	case AI_OPERATION_CITY_ATTACK_LAND:
 		return MilitaryAIHelpers::GetCurrentBestFormationTypeForLandAttack();
@@ -1606,6 +1612,10 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
+			//some ops are not intended to ever reach their target
+			if (IsNeverEnding())
+				return false;
+
 			//check progress but tolerate intermittent stalls
 			m_progressToTarget.push_front(PercentFromMusterPointToTarget());
 			if (m_progressToTarget.size() > 5)
@@ -1870,6 +1880,7 @@ void CvAIOperationCivilian::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 	if(!pArmy)
 		return;
 
+	//we know the civilian is slot 0
 	pArmy->AddUnit(pOurCivilian->GetID(),0,true);
 
 	//a little hack - set the escort slot to not required if we can reach the target this turn
@@ -2377,6 +2388,170 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationCarrierGroup
+////////////////////////////////////////////////////////////////////////////////
+
+/// Kick off this operation
+void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+{
+	//find ourselves an idle carrier
+	CvUnit* pCarrier = NULL;
+	int iLoop;
+	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
+	{
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
+		{
+			pCarrier = pLoopUnit;
+			break;
+		}
+	}
+
+	if (!pCarrier)
+		return;
+
+	//now where should we go
+	CvPlot* pBestTarget = NULL;
+	CvPlot* pBestMuster = NULL;
+	set<int> vTargetZones = GetPossibleDeploymentZones();
+
+	//peacetime
+	if (vTargetZones.empty())
+	{
+		pBestMuster = pCarrier->plot();
+		if (pBestMuster->isCity())
+			pBestMuster = MilitaryAIHelpers::GetCoastalWaterNearPlot(pBestMuster, true);
+
+		//good enough for now, will update if war breaks out
+		pBestTarget = pBestMuster;
+	}
+	else
+	{
+		//take the deployment zone that is closest to home
+		int iClosestDistance = INT_MAX;
+		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
+		for (set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
+		{
+			CvTacticalDominanceZone* pTargetZone = pTactMap->GetZoneByID(*it);
+			CvPlot* pCenterPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
+			int iDistance = GET_PLAYER(m_eOwner).GetCityDistancePathLength(pCenterPlot);
+			if (iDistance < iClosestDistance)
+			{
+				CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCenterPlot);
+				if (!pMusterCity)
+					continue;
+
+				iClosestDistance = iDistance;
+				pBestTarget = pCenterPlot;
+				pBestMuster = pMusterCity->plot();
+			}
+		}
+	}
+
+	CvArmyAI* pArmy = AddArmy(OperationalAIHelpers::GetArmyFormationForOpType(m_eType));
+	if(!pArmy)
+		return;
+
+	//we know the carrier is slot 0
+	pArmy->AddUnit(pCarrier->GetID(),0,true);
+
+	SetUpArmy(pArmy, pBestMuster, pBestTarget, NULL);
+}
+
+/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
+AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+{
+	if (GetOperationState() < AI_OPERATION_STATE_MOVING_TO_TARGET)
+		return NO_ABORT_REASON;
+
+	CvPlot* pCurrentPosition = GetArmy(0)->GetCurrentPlot();
+	CvPlot* pNewTarget = NULL;
+
+	//this includes the zone we are currently targeting
+	set<int> vTargetZones = GetPossibleDeploymentZones();
+	if (vTargetZones.empty())
+	{
+		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
+		if (!pHomeCity)
+			return AI_ABORT_NO_TARGET;
+
+		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
+	}
+
+	//take the one that is closest to us
+	int iClosestDistance = INT_MAX;
+	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
+	for (set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
+	{
+		CvTacticalDominanceZone* pTargetZone = pTactMap->GetZoneByID(*it);
+		CvPlot* pCenterPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
+
+		//simplification
+		if (pCenterPlot->getArea() != pCurrentPosition->getArea())
+			continue;
+
+		int iDistance = plotDistance(*pCenterPlot,*pCurrentPosition);
+		if (iDistance < iClosestDistance)
+		{
+			iClosestDistance = iDistance;
+			pNewTarget = pCenterPlot;
+		}
+	}
+
+	//no-op if new target is same as old
+	SetTargetPlot(pNewTarget);
+	pArmy->SetGoalPlot(pNewTarget);
+	return NO_ABORT_REASON;
+}
+
+set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
+{
+	set<int> vTargetZones;
+
+	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
+	for (int iI = 0; iI < pTactMap->GetNumZones(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
+
+		if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		{
+			for (std::vector<int>::const_iterator it = pZone->GetNeighboringZones().begin(); it != pZone->GetNeighboringZones().end(); ++it)
+			{
+				CvTacticalDominanceZone* pNeighborZone = pTactMap->GetZoneByID(*it);
+				if (pNeighborZone->IsWater() && pNeighborZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_ENEMY)
+				{
+					//make sure we can go there
+					CvPlot* pCenterPlot = GC.getMap().plot(pNeighborZone->GetCenterX(), pNeighborZone->GetCenterY());
+					if (!pCenterPlot->isValidMovePlot(m_eOwner))
+						continue;
+
+					//see if it's already targeted by another carrier
+					bool bSkip = false;
+					for (size_t i=0; i<GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
+					{
+						CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
+						if (pOp->GetOperationType() != AI_OPERATION_CARRIER_GROUP)
+							continue;
+
+						//this is the interesting check
+						CvTacticalDominanceZone* pTargetedZone = pTactMap->GetZoneByPlot(pOp->GetTargetPlot());
+						if (pTargetedZone && pTargetedZone->GetZoneID() == *it)
+						{
+							bSkip = true;
+							break;
+						}
+					}
+
+					if (!bSkip)
+						vTargetZones.insert(*it);
+				}
+			}
+		}
+	}
+	
+	return vTargetZones;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCityAttackNaval
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2464,12 +2639,8 @@ AIOperationAbortReason CvAIOperationDefenseRapidResponse::VerifyOrAdjustTarget(C
 /// Find the best blocking position against the current threats
 CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) const
 {
-	int iRefArea = -1;
 	CvPlot* pRefPlot = GetTargetPlot();
-	if (pRefPlot)
-		iRefArea = pRefPlot->getArea();
-
-	CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearPlot(m_eOwner,m_eEnemy,DOMAIN_LAND,true,iRefArea,pRefPlot);
+	CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_eOwner,m_eEnemy,DOMAIN_LAND,pRefPlot);
 	if (ppMuster)
 		*ppMuster = pTarget;
 	return pTarget;
@@ -2789,8 +2960,11 @@ AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI
 {
 	// camp might have spawned ... abort
 	if (m_eCurrentState != AI_OPERATION_STATE_RECRUITING_UNITS)
-		if(pArmy->GetTotalPower() < GetTargetPlot()->GetAdjacentEnemyPower(m_eOwner))
+	{
+		pair<int, int> localStrength = GetTargetPlot()->GetLocalUnitPower(m_eOwner,2,true);
+		if (pArmy->GetTotalPower() < localStrength.second)
 			return AI_ABORT_TOO_DANGEROUS;
+	}
 
 	bool bNeedNewTarget = false;
 	CvString strMsg;
@@ -3271,7 +3445,7 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 	return iMatchingIndex;
 }
 
-CvPlot* OperationalAIHelpers::FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot)
+CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, CvPlot* pRefPlot)
 {
 	CvPlot* pBestPlot = NULL;
 	int iMaxEnemyPower = 0;
@@ -3291,21 +3465,15 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTyp
 		if (pLoopUnit->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
 			continue;
 
-		if (bHomelandOnly && pLoopPlot->getOwner()!=ePlayer && GET_PLAYER(ePlayer).GetCityDistanceInPlots(pLoopPlot)>4) 
-			continue;
-
-		if (!bHomelandOnly && pLoopPlot->getOwner() == ePlayer)
-			continue;
-
-		if (iRefArea!=-1 && pLoopPlot->getArea()!=iRefArea && !pLoopPlot->isAdjacentToArea(iRefArea))
+		if (pLoopPlot->getOwner()!=ePlayer && GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopPlot)>4) 
 			continue;
 
 		//a single unit is too volatile, check for a whole cluster
-		int iEnemyPower = pLoopPlot->GetAdjacentEnemyPower(ePlayer);
+		pair<int,int> localPower = pLoopPlot->GetLocalUnitPower(ePlayer,2,true);
 
 		//we don't want to adjust our target too much
 		int iDistance = pRefPlot ? plotDistance(*pRefPlot,*pLoopPlot) : 0;
-		iEnemyPower *= MapToPercent(iDistance,23,3);
+		int iEnemyPower = localPower.second * MapToPercent(iDistance,12,3);
 
 		if(iEnemyPower > iMaxEnemyPower)
 		{
@@ -3330,6 +3498,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 	int iBestDistance = MAX_INT;
 	int iLoop;
 
+	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		if(pLoopCity->isCoastal() && pLoopCity->isAdjacentToArea(pRefPlot->getArea()))
