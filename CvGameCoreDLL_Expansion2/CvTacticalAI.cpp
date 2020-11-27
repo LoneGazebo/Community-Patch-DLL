@@ -1011,6 +1011,23 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 	}
 }
 
+void CvTacticalAI::ExecuteBarbarianTheft()
+{
+	vector<CvUnit*> vUsedUnits;
+	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (CvBarbarians::DoStealFromAdjacentCity(pUnit))
+			vUsedUnits.push_back(pUnit);
+	}
+	//have to do this in two steps to keep our iterator happy
+	for (size_t i=0; i<vUsedUnits.size(); i++)
+	{
+		vUsedUnits[i]->finishMoves();
+		UnitProcessed(vUsedUnits[i]->GetID());
+	}
+}
+
 /// Assign a group of units to attack each unit we think we can destroy
 void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds)
 {
@@ -1337,9 +1354,11 @@ void CvTacticalAI::PlotBarbarianAttacks()
 {
 	//the Execute* functions are generic, need to set the current tactical move before calling them
 	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_HUNT);
+	ExecuteBarbarianTheft();
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
+	ExecuteCaptureCityMoves();
 }
 
 /// Plunder trade routes

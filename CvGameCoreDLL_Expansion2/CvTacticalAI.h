@@ -495,6 +495,7 @@ private:
 
 	// Routines to execute a mission
 	void ExecuteBarbarianCampMove(CvPlot* pTargetPlot);
+	void ExecuteBarbarianTheft();
 	bool ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);

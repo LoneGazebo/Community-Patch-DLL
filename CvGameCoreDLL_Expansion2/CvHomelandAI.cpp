@@ -5731,23 +5731,14 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 	//if a carrier is in a city - bad luck :)
 	bool bIsCarrier = !(pBasePlot->isCity());
 
-	//see if we're not at war yet but war may be coming
-	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
-
 	int iBaseScore = 1;
-
 	if (bIsCarrier)
 	{
 		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
 		if(!pDefender)  
 			return -1;
-		if (pDefender->IsHurt() && !bDesperate)
+		if (pDefender->isProjectedToDieNextTurn() && !bDesperate)
 			return -1;
-
-		iBaseScore += 10;
-
-		if (pDefender->getArmyID()!=-1)
-			iBaseScore += 30;
 	}
 	else
 	{
@@ -5761,14 +5752,10 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 			return -1;
 
 		if (GET_PLAYER(ePlayer).GetFlatDefenseFromAirUnits() != 0 && pCity->isUnderSiege())
-		{
-			iBaseScore += 2 * GET_PLAYER(ePlayer).GetFlatDefenseFromAirUnits();
-		}
+			iBaseScore++;
 
 		if (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() != 0)
-		{
-			iBaseScore += max(1, (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() * pCity->getUnhappinessAggregated() / 5));
-		}
+			iBaseScore++;
 	}
 
 	//check current targets
@@ -5805,22 +5792,11 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 		}
 	}
 
-	//check if there are potential future enemies around
+	//also check if there are potential future enemies around
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
 	CvTacticalDominanceZone* pZone = pTactMap->GetZoneByPlot( pBasePlot );
-	if (!pZone)
-	{
-		//don't know what to do with this
-		return iBaseScore;
-	}
-
-	const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
-	for (size_t i=0; i<vNeighborZones.size(); i++)
-	{
-		CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
-		if (pOtherZone && std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
-			iBaseScore ++;
-	}
+	if (pZone)
+		iBaseScore += pZone->GetBorderScore(NO_DOMAIN);
 
 	return iBaseScore;
 }
