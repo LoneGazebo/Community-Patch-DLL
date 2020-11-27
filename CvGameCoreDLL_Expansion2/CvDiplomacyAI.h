@@ -201,10 +201,6 @@ public:
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
 	//void DoUpdateOpinionTowardsUsGuesses();
-	void DoEstimateOtherPlayerOpinions();
-
-	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
-	void SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivOpinionTypes eOpinion);
 
 	/////////////////////////////////////////////////////////
 	// Approach
@@ -223,6 +219,10 @@ public:
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+
+	MajorCivApproachTypes GetMajorCivStrategicApproach(PlayerTypes ePlayer) const;
+	void SetMajorCivStrategicApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+
 	int GetNumMajorCivApproach(MajorCivApproachTypes eApproach) const;
 
 	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
@@ -251,13 +251,6 @@ public:
 
 	void DoUpdateApproachTowardsUsGuesses();
 	void DoEstimateOtherPlayerApproaches();
-
-	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
-	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, MajorCivApproachTypes eApproach);
-	
-	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
-	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iValue);
-	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Demands
@@ -534,10 +527,6 @@ public:
 
 	DisputeLevelTypes GetLastTurnLandDisputeLevel(PlayerTypes ePlayer) const;
 
-	DisputeLevelTypes GetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
-	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
-
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
 	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
@@ -646,15 +635,6 @@ public:
 	DisputeLevelTypes GetVictoryDisputeLevel(PlayerTypes ePlayer) const;
 	void SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateVictoryDisputeLevels();
-
-	DisputeLevelTypes GetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	void SetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
-	void DoUpdateEstimateOtherPlayerVictoryDisputeLevels();
-
-	// Victory Block
-	//BlockLevelTypes GetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	//void SetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, BlockLevelTypes eBlockLevel);
-	//void DoUpdateEstimateOtherPlayerVictoryBlockLevels();
 
 	// Wonder Dispute
 	DisputeLevelTypes GetWonderDisputeLevel(PlayerTypes ePlayer) const;
@@ -1269,8 +1249,6 @@ public:
 	void SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const;
-	void SetPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer, bool bValue);
 	short GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iChange);
@@ -1484,7 +1462,6 @@ public:
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);
-	int GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBorderPromiseScore(PlayerTypes ePlayer);
@@ -1707,6 +1684,7 @@ private:
 		short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
 		char m_aeMajorCivOpinion[MAX_MAJOR_CIVS];
 		char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
+		char m_aeMajorCivStrategicApproach[MAX_MAJOR_CIVS];
 		char m_aeMinorCivApproach[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
 		char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
@@ -1851,7 +1829,6 @@ private:
 		// Player's response to AI statements
 		bool m_abPlayerMadeMilitaryPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenMilitaryPromise[MAX_MAJOR_CIVS];
-		bool m_abPlayerIgnoredMilitaryPromise[MAX_MAJOR_CIVS];
 		short m_aiPlayerMilitaryPromiseCounter[MAX_MAJOR_CIVS];
 
 		short m_aiPlayerMadeExpansionPromiseTurn[MAX_MAJOR_CIVS];
@@ -1921,11 +1898,6 @@ private:
 
 		//2D Arrays
 		int* m_apaeApproachValues[MAX_MAJOR_CIVS];
-		char* m_apaeOtherPlayerMajorCivOpinion[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerMajorCivApproach[REALLY_MAX_PLAYERS];
-		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
-		char* m_apaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerWarDamageLevel[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerWarValueLost[REALLY_MAX_PLAYERS];
 		int* m_apaiOtherPlayerLastRoundWarValueLost[REALLY_MAX_PLAYERS];
@@ -1937,11 +1909,6 @@ private:
 		short* m_apaiCoopWarStateChangeTurn[MAX_MAJOR_CIVS];
 
 		int m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
-		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		char m_aaeOtherPlayerMajorCivApproach[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		short m_aaiOtherPlayerMajorCivApproachCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		char m_aaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
-		char m_aaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aaeOtherPlayerWarDamageLevel[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		int m_aaiOtherPlayerWarValueLost[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		int m_aaiOtherPlayerLastRoundWarValueLost[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
@@ -2021,11 +1988,9 @@ private:
 
 	char* m_paeMajorCivOpinion;
 	int** m_ppaaeApproachValues;
-	char** m_ppaaeOtherPlayerMajorCivOpinion;
-	char** m_ppaaeOtherPlayerMajorCivApproach;
-	short** m_ppaaiOtherPlayerMajorCivApproachCounter;
 
 	char* m_paeMajorCivApproach;
+	char* m_paeMajorCivStrategicApproach;
 	char* m_paeMinorCivApproach;
 	char* m_paeOpinionTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuess;
@@ -2098,8 +2063,6 @@ private:
 
 	char* m_paePlayerWonderDisputeLevel;
 	char* m_paePlayerMinorCivDisputeLevel;
-	char** m_ppaaeOtherPlayerLandDisputeLevel;
-	char** m_ppaaeOtherPlayerVictoryDisputeLevel;
 
 	char* m_paeMilitaryThreat;
 	char** m_ppaaeOtherPlayerMilitaryThreat;
@@ -2188,7 +2151,6 @@ private:
 	// Player's response to AI statements
 	bool* m_pabPlayerMadeMilitaryPromise;
 	bool* m_pabPlayerBrokenMilitaryPromise;
-	bool* m_pabPlayerIgnoredMilitaryPromise;
 	short* m_paiPlayerMilitaryPromiseCounter;
 
 	short* m_paiPlayerMadeExpansionPromiseTurn;

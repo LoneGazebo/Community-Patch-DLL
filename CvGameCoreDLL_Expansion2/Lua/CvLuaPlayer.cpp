@@ -10691,14 +10691,17 @@ int CvLuaPlayer::lIsPlayerBrokenMilitaryPromise(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// Removed code but kept function for compatibility
 int CvLuaPlayer::lIsPlayerIgnoredMilitaryPromise(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredMilitaryPromise(eOtherPlayer);
+	if (eOtherPlayer != pkPlayer->GetID())
+	{
+	}
 
-	lua_pushboolean(L, bValue);
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -14226,15 +14229,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiplo->GetIgnoredMilitaryPromiseScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 			aOpinions.push_back(kOpinion);
 		}
 

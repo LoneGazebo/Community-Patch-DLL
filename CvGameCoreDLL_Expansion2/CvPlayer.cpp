@@ -9938,7 +9938,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
 			
 			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
-			pDiploAI->SetPlayerIgnoredMilitaryPromise(eMePlayer, false);
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetIgnoredBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetBrokenExpansionPromiseValue(eMePlayer, 0);
