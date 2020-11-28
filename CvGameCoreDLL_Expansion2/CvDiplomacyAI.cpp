@@ -4278,13 +4278,13 @@ void CvDiplomacyAI::SetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer,
 pair<int,int> CvDiplomacyAI::GetLastTurnClosestCityPair(PlayerTypes eOtherPlayer)
 {
 	pair<int, int> errValue(-1, -1);
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return errValue;
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return errValue;
 	return m_paLastTurnEmpireDistance[eOtherPlayer];
 }
 
 void CvDiplomacyAI::SetLastTurnClosestCityPair(PlayerTypes eOtherPlayer, pair<int,int> value)
 {
-	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_MAJOR_CIVS) return;
+	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS) return;
 	m_paLastTurnEmpireDistance[eOtherPlayer] = value;
 }
 
