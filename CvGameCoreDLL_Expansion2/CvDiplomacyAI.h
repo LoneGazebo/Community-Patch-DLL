@@ -743,9 +743,10 @@ public:
 	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
 
 	// Get the amount of warmonger hatred they generated
-	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
-	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iValue);
-	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
+	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer) const;
+	int GetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer) const;
+	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iNewValue);
+	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChangeAmount);
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
