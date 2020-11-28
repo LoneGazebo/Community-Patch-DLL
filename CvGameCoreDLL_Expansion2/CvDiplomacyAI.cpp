@@ -2353,7 +2353,7 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 	}
 
 	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
-	if (GET_PLAYER(eOtherPlayer).getNumCities() == 0)
+	if (GET_PLAYER(eOtherPlayer).getNumCities() <= 0)
 	{
 		return false;
 	}
@@ -2574,13 +2574,6 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 	// Randomize!
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), ((iOriginalValue * iSeed) + ID));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
-
-	/* for stupid settings, try to make it so that we don't cluster at the extreme values
-	if (iRtnValue < iMin)
-		iRtnValue = iMin + ((iMin-iRtnValue) % (iMax-iMin));
-	if (iRtnValue > iMax)
-		iRtnValue = iMax - ((iRtnValue-iMax) % (iMax-iMin));
-	*/
 
 	return std::max(iMin, std::min(iMax, iRtnValue));
 }
@@ -2898,15 +2891,15 @@ int CvDiplomacyAI::GetMeanness() const
 /// What is this AI leader's bias towards a particular Major Civ Approach?
 int CvDiplomacyAI::GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const
 {
-	if ((int)eApproach < 0 || (int)eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
-	return (int) m_paiPersonalityMajorCivApproachBiases[(int)eApproach];
+	if (eApproach < 0 || eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
+	return (int) m_paiPersonalityMajorCivApproachBiases[eApproach];
 }
 
 /// What is this AI leader's bias towards a particular Minor Civ Approach?
 int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const
 {
-	if ((int)eApproach < 0 || (int)eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
-	return (int) m_paiPersonalityMinorCivApproachBiases[(int)eApproach];
+	if (eApproach < 0 || eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
+	return (int) m_paiPersonalityMinorCivApproachBiases[eApproach];
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2920,7 +2913,7 @@ DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
 /// Sets this AI leader's Diplomatic Personality Type
 void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonality)
 {
-	if ((int)eDiploPersonality < NO_DIPLO_PERSONALITY_TYPE || (int)eDiploPersonality >= NUM_DIPLO_PERSONALITY_TYPES) return;
+	if (eDiploPersonality < NO_DIPLO_PERSONALITY_TYPE || eDiploPersonality >= NUM_DIPLO_PERSONALITY_TYPES) return;
 	m_eDiploPersonalityType = eDiploPersonality;
 }
 
@@ -2961,7 +2954,7 @@ bool CvDiplomacyAI::IsScientist() const
 /// How much do we estimate this other leader gets angry when another player is competing for Victory?
 int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -2982,7 +2975,7 @@ int CvDiplomacyAI::GetEstimatePlayerVictoryCompetitiveness(PlayerTypes ePlayer) 
 /// How much do we estimate this other leader gets angry when they're beaten to a World Wonder?
 int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3003,7 +2996,7 @@ int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) c
 /// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
 int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3024,7 +3017,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer)
 /// What is this other leader's estimated likelihood to take risks / go for World Conquest?
 int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3045,7 +3038,7 @@ int CvDiplomacyAI::GetEstimatePlayerBoldness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader wants to maintain a balance of power in the world?
 int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3066,7 +3059,7 @@ int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
 /// How much does this other leader gets angry when someone's being a warmonger?
 int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3118,7 +3111,7 @@ int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to work with someone AGAINST another player?
 int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3139,7 +3132,7 @@ int CvDiplomacyAI::GetEstimatePlayerDenounceWillingness(PlayerTypes ePlayer) con
 /// What is this other leader's estimated likelihood to befriend other players?
 int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3160,7 +3153,7 @@ int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to refrain from backstabbing their friends?
 int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3181,7 +3174,7 @@ int CvDiplomacyAI::GetEstimatePlayerLoyalty(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader wants the support of its friends in rough times?
 int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3202,7 +3195,7 @@ int CvDiplomacyAI::GetEstimatePlayerNeediness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader is willing to forgive transgressions against them?
 int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3223,7 +3216,7 @@ int CvDiplomacyAI::GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader likes to pop up and talk?
 int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3244,7 +3237,7 @@ int CvDiplomacyAI::GetEstimatePlayerChattiness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader likes to talk smack / bully others?
 int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3265,8 +3258,8 @@ int CvDiplomacyAI::GetEstimatePlayerMeanness(PlayerTypes ePlayer) const
 /// What is our estimate of another leader's bias for a particular Major Civ Approach?
 int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
-	if ((int)eApproach < 0 || (int)eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (eApproach < 0 || eApproach >= NUM_MAJOR_CIV_APPROACHES) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3287,8 +3280,8 @@ int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, Ma
 /// What is our estimate of another leader's bias for a particular Minor Civ Approach?
 int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, MinorCivApproachTypes eApproach) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
-	if ((int)eApproach < 0 || (int)eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (eApproach < 0 || eApproach >= NUM_MINOR_CIV_APPROACHES) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3309,8 +3302,8 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, Mi
 /// What is our estimate of another leader's value for a personality flavor?
 int CvDiplomacyAI::GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_MAJOR_CIVS) return 0;
-	if ((int)eFlavor < 0 || (int)eFlavor >= GC.getNumFlavorTypes()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (eFlavor < 0 || eFlavor >= GC.getNumFlavorTypes()) return 0;
 
 	// We always know our team's flavors
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -3346,6 +3339,23 @@ int CvDiplomacyAI::GetDifferenceFromAverageFlavorValue(int iValue) const
 	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 	return iValue - iDefaultFlavorValue;
 }
+
+
+// ************************************
+// Memory Management
+// ************************************
+
+//	-----------------------------------------------------------------------------------------------
+
+// ////////////////////////////////////
+// Opinion
+// ////////////////////////////////////
+
+
+
+
+
+
 
 
 // ************************************
@@ -3566,10 +3576,10 @@ void CvDiplomacyAI::DoUpdateWarDamageLevels()
 			iCityValue *= 150;
 			iCityValue /= 100;
 		}
-		// A City-State's capital, or another major's Holy City
-		else if (pLoopCity->IsOriginalMinorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+		// A City-State's capital
+		else if (pLoopCity->IsOriginalMinorCapital())
 		{
-			iCityValue *= 125;
+			iCityValue *= 115;
 			iCityValue /= 100;
 		}
 
@@ -3713,10 +3723,10 @@ void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevels()
 				iCityValue *= 150;
 				iCityValue /= 100;
 			}
-			// A City-State's capital, or another major's Holy City
-			else if (pLoopCity->IsOriginalMinorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+			// A City-State's capital
+			else if (pLoopCity->IsOriginalMinorCapital())
 			{
-				iCityValue *= 125;
+				iCityValue *= 115;
 				iCityValue /= 100;
 			}
 
