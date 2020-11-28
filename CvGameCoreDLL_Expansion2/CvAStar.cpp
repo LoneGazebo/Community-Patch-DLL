@@ -3170,7 +3170,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 	return FALSE;
 }
 
-int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar*)
+int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
@@ -3195,6 +3195,14 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 		//movement on water is usually faster
 		iScale = 67; 
 	
+	//try to stay away from enemy cities
+	if (pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
+	{
+		PlayerTypes eClosestCityOwner = GC.getGame().GetClosestCityOwnerByPlots(pToPlot);
+		if (GET_PLAYER(finder->GetData().ePlayer).IsAtWarWith(eClosestCityOwner))
+			iScale *= 2;
+	}
+
 	//we're using uneven numbers here to avoid ties
 	return (PATH_BASE_COST*iScale)/100;
 }

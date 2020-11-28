@@ -14349,10 +14349,10 @@ void CvGame::SetClosestCityMapDirty()
 				CvPlot* pPlot = GC.getMap().plotByIndex(i);
 				int iDP = m_cityDistancePlots.GetDistance(*pPlot,false,NO_PLAYER);
 				int iCP = m_cityDistancePlots.GetFeatureId(*pPlot,false,NO_PLAYER);
-				int iOP = m_cityDistancePlots.GetFeatureOwner(*pPlot,false,NO_PLAYER);
+				PlayerTypes iOP = m_cityDistancePlots.GetFeatureOwner(*pPlot,false,NO_PLAYER);
 				int iDT = m_cityDistancePathLength.GetDistance(*pPlot,false,NO_PLAYER);
 				int iCT = m_cityDistancePathLength.GetFeatureId(*pPlot,false,NO_PLAYER);
-				int iOT = m_cityDistancePathLength.GetFeatureOwner(*pPlot,false,NO_PLAYER);
+				PlayerTypes iOT = m_cityDistancePathLength.GetFeatureOwner(*pPlot,false,NO_PLAYER);
 
 				CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 					pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 1 : 0, iDP, iCP, iOP, iDT, iCT, iOT);
@@ -14378,7 +14378,7 @@ CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, PlayerTypes ePl
 
 	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, false, ePlayer);
 	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, false, ePlayer);
-	if (id!=0) //zero means not set, far away from everything
+	if (owner!=NO_PLAYER)
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;
@@ -14397,10 +14397,10 @@ CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, bool bMajorOnly
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
+	PlayerTypes owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
 	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
-	if (id!=0) //zero means not set, far away from everything
-		return GET_PLAYER((PlayerTypes)owner).getCity(id);
+	if (owner!=NO_PLAYER)
+		return GET_PLAYER(owner).getCity(id);
 	else
 		return NULL;
 }
@@ -14418,12 +14418,20 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, PlayerTypes ePlayer 
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, false, ePlayer);
+	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, false, ePlayer);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, false, ePlayer);
-	if (id!=0) //zero means not set, far away from everything
-		return GET_PLAYER((PlayerTypes)owner).getCity(id);
+	if (owner!=NO_PLAYER)
+		return GET_PLAYER(owner).getCity(id);
 	else
 		return NULL;
+}
+
+PlayerTypes CvGame::GetClosestCityOwnerByPlots(const CvPlot * pPlot, bool bMajorsOnly)
+{
+	if (!pPlot)
+		return NO_PLAYER;
+
+	return m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorsOnly, NO_PLAYER);
 }
 
 int CvGame::GetClosestCityDistanceInPlots( const CvPlot* pPlot, bool bMajorOnly )
@@ -14439,9 +14447,9 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, bool bMajorOnly )
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
+	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
-	if (id!=0) //zero means not set, far away from everything
+	if (owner!=NO_PLAYER)
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;

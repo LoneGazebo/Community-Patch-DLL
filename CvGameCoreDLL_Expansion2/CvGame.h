@@ -737,6 +737,8 @@ public:
 	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
+	PlayerTypes GetClosestCityOwnerByPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
+
 	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
 	bool CreateFreeCityPlayer(CvCity* pCity, bool bJustChecking = false);
