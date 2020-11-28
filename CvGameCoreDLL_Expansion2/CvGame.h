@@ -25,7 +25,7 @@ class CvCity;
 class CvReplayMessage;
 class CvReplayInfo;
 class CvSiteEvaluatorForSettler;
-class CvSiteEvaluatorForStart;
+class CvCitySiteEvaluator;
 class IStartPositioner;
 class CvGameReligions;
 class CvGameCulture;
@@ -586,7 +586,7 @@ public:
 	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
-	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
+	CvCitySiteEvaluator* GetStartSiteEvaluator();
 	IStartPositioner* GetStartPositioner();
 	CvGameDeals& GetGameDeals();
 	CvGameReligions* GetGameReligions();
@@ -901,7 +901,7 @@ protected:
 	int m_iEarliestBarbarianReleaseTurn;
 
 	CvSiteEvaluatorForSettler* m_pSettlerSiteEvaluator;
-	CvSiteEvaluatorForStart*   m_pStartSiteEvaluator;
+	CvCitySiteEvaluator*	   m_pStartSiteEvaluator;
 	IStartPositioner*          m_pStartPositioner;
 	CvGameReligions*           m_pGameReligions;
 	CvGameCulture*             m_pGameCulture;

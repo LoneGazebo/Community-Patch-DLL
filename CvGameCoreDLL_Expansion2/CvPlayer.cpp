@@ -14512,7 +14512,10 @@ bool CvPlayer::canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCit
 		}
 	}
 #endif
-	
+
+	if (!pPlot->isRevealed(getTeam()))
+		return false;
+
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
@@ -41672,7 +41675,8 @@ bool CvPlayer::IsTargetCityForOperation(CvCity* pCity, bool bNaval) const
 	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
 		CvAIOperation* pThisOperation = m_AIOperations[i].second;
-		if (plotDistance(*pThisOperation->GetTargetPlot(),*pCity->plot())<3)
+		CvPlot* pTarget = pThisOperation->GetTargetPlot();
+		if (pTarget && plotDistance(*pTarget,*pCity->plot())<3)
 		{
 			return (bNaval == pThisOperation->IsNavalOperation());
 		}
@@ -47766,65 +47770,6 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-vector<int> CvPlayer::GetBestSettleAreas()
-{
-	//lazy update
-	updatePlotFoundValues();
-
-	//find best city site for each area
-	map<int,CvPlot*> bestSitePerArea;
-	map<int,int> bestScorePerArea;
-
-	//far away sites get a penalty
-	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
-	int iMaxSettleDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset;
-
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue > 0)
-		{
-			//same scaling as in GetBestSettlePlot!
-			int iCityDistance = GetCityDistancePathLength(pPlot);
-			int iDistanceScaler = max(20,MapToPercent( iCityDistance, iMaxSettleDistance, 0 ));
-			int iValue = (iCurrentValue*iDistanceScaler) / 100;
-
-			if (bestScorePerArea.find(pPlot->getArea()) == bestScorePerArea.end())
-			{
-				bestScorePerArea[pPlot->getArea()] = iValue;
-				bestSitePerArea[pPlot->getArea()] = pPlot;
-			}
-			else if (iValue > bestScorePerArea[pPlot->getArea()])
-			{
-				bestScorePerArea[pPlot->getArea()] = iCityDistance;
-				bestSitePerArea[pPlot->getArea()] = pPlot;
-			}
-
-		}
-	}
-
-	vector<int> result;
-	vector<OptionWithScore<CvPlot*>> sites;
-
-	for (map<int, int>::iterator it = bestScorePerArea.begin(); it != bestScorePerArea.end(); ++it)
-		sites.push_back( OptionWithScore<CvPlot*>(bestSitePerArea[it->first],it->second) );
-
-	if (!sites.empty())
-	{
-		//sort descending!
-		std::sort(sites.begin(), sites.end());
-
-		//take the better half
-		for (size_t i = 0; i < sites.size(); i++)
-			if (sites[i].score > sites[0].score / 2)
-				result.push_back(sites[i].option->getArea());
-	}
-
-	return result;
-}
-
-//	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
 ostream& operator<<(ostream& os, const CvPlot* pPlot)
 {
@@ -47897,7 +47842,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
-		if(!pPlot->isRevealed(getTeam()))
+		if(!pPlot->isRevealed(eTeam))
 		{
 			//--------------
 			if (bLogging) 
@@ -47906,16 +47851,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 			continue;
 		}
 
-		if ((pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner) || (pPlot->getImprovementType() == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
-			//--------------
-			continue;
-		}
-
-		if(pPlot->IsAdjacentOwnedByTeamOtherThan(eTeam))
+		if ((pPlot->isOwned() && pPlot->getOwner() != eOwner) || (pPlot->getRevealedImprovementType(eTeam) == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 
@@ -50376,18 +50312,7 @@ void CvPlayer::computeFoundValueThreshold()
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-
-	vector<int> vValues;
-	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = pCalc->PlotFoundValue(pPlot, NULL, vector<int>()); //no player!
-
-		if (iValue > 0)
-			vValues.push_back(iValue);
-	}
-
+	vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
 	if (vValues.empty())
 		return;
 
@@ -50402,7 +50327,12 @@ void CvPlayer::computeFoundValueThreshold()
 	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
-	OutputDebugString(CvString::format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), vValues[vValues.size()/2], m_iReferenceFoundValue.get()).c_str());
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), vValues[vValues.size()/2], m_iReferenceFoundValue.get());
+		GetHomelandAI()->LogHomelandMessage(strMsg);
+	}
 }
 
 

@@ -1411,11 +1411,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 		CvAssertMsg(m_pSettlerSiteEvaluator==NULL, "about to leak memory, CvGame::m_pSettlerSiteEvaluator");
 		m_pSettlerSiteEvaluator = FNEW(CvSiteEvaluatorForSettler, c_eCiv5GameplayDLL, 0);
-		m_pSettlerSiteEvaluator->Init();
 
 		CvAssertMsg(m_pStartSiteEvaluator==NULL, "about to leak memory, CvGame::m_pStartSiteEvaluator");
-		m_pStartSiteEvaluator = FNEW(CvSiteEvaluatorForStart, c_eCiv5GameplayDLL, 0);
-		m_pStartSiteEvaluator->Init();
+		m_pStartSiteEvaluator = FNEW(CvCitySiteEvaluator, c_eCiv5GameplayDLL, 0);
 
 		CvAssertMsg(m_pStartPositioner==NULL, "about to leak memory, CvGame::m_pStartPositioner");
 		m_pStartPositioner = new CvStartPositioner(m_pStartSiteEvaluator);
@@ -12592,7 +12590,7 @@ CvSiteEvaluatorForSettler* CvGame::GetSettlerSiteEvaluator()
 }
 
 //	--------------------------------------------------------------------------------
-CvSiteEvaluatorForStart* CvGame::GetStartSiteEvaluator()
+CvCitySiteEvaluator* CvGame::GetStartSiteEvaluator()
 {
 	return m_pStartSiteEvaluator;
 }

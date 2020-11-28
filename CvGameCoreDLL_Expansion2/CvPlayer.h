@@ -2620,7 +2620,6 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	bool HaveGoodSettlePlot(int iAreaID);
-	vector<int> GetBestSettleAreas();
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 
 	// New Victory Stuff

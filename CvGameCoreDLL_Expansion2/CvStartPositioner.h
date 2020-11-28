@@ -189,7 +189,7 @@ public:
 class CvStartPositioner : public IStartPositioner
 {
 public:
-	CvStartPositioner(CvSiteEvaluatorForStart * pSiteEvaluator);
+	CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator);
 	~CvStartPositioner(void);
 
 	virtual void Run(int iNumRegions);
@@ -213,7 +213,7 @@ private:
 	void LogStartPositionMessage(CvString strMsg);
 
 	// References to other objects
-	CvSiteEvaluatorForStart* m_pSiteEvaluator;
+	CvCitySiteEvaluator* m_pSiteEvaluator;
 
 	// Internal data
 	vector<CvContinent> m_ContinentVector;
@@ -227,12 +227,12 @@ private:
 class CvStartPositionerMerge : public IStartPositioner
 {
 public:
-	CvStartPositionerMerge(CvSiteEvaluatorForStart * pSiteEvaluator);
+	CvStartPositionerMerge(CvCitySiteEvaluator * pSiteEvaluator);
 	~CvStartPositionerMerge(void);
 
 	virtual void Run(int iNumRegions);
 private:
-	CvSiteEvaluatorForStart* m_pSiteEvaluator;
+	CvCitySiteEvaluator* m_pSiteEvaluator;
 };
 
 #endif //CIV5_START_POSITIONER_H

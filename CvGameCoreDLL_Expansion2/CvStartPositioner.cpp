@@ -20,7 +20,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 // CvStartPositioner
 //=====================================
 /// Constructor
-CvStartPositioner::CvStartPositioner(CvSiteEvaluatorForStart * pSiteEvaluator)
+CvStartPositioner::CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator)
 {
 	m_iRequiredSeparation = 0;
 	m_iBestFoundValueOnMap = 0;
@@ -864,7 +864,7 @@ struct SStartRegion
 	bool operator<(const SStartRegion& rhs) const { return iTotalWorth > rhs.iTotalWorth; }
 };
 
-CvStartPositionerMerge::CvStartPositionerMerge(CvSiteEvaluatorForStart * pSiteEvaluator)
+CvStartPositionerMerge::CvStartPositionerMerge(CvCitySiteEvaluator * pSiteEvaluator)
 {
 	m_pSiteEvaluator = pSiteEvaluator;
 }
