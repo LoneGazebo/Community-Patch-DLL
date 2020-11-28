@@ -1936,8 +1936,8 @@ function AssignStartingPlots:GenerateRegions(args)
 			--print("- - Searching landmasses in order to place Civ #", civToAssign); print("-");
 			for area_loop, AreaID in ipairs(best_areas) do
 				--local thisLandmassCurrentFertility = land_area_fert[AreaID] / (1 + numberOfCivsPerArea[area_loop]);
-				-- assume 80% of fertility is in relevant land areas
-				local thisLandmassCurrentFertility = land_area_fert[AreaID] - iGlobalFertilityOfLands * 0.8 * numberOfCivsPerArea[area_loop] / self.iNumCivs;
+				-- assume 60% of fertility is in relevant land areas
+				local thisLandmassCurrentFertility = land_area_fert[AreaID] - iGlobalFertilityOfLands * 0.6 * numberOfCivsPerArea[area_loop] / self.iNumCivs;
 				if thisLandmassCurrentFertility > bestRemainingFertility and numberOfCivsPerArea[area_loop] < math.max(self.iNumCivs - 2, 2) then
 					bestRemainingArea = AreaID;
 					bestRemainingFertility = thisLandmassCurrentFertility;
@@ -10191,7 +10191,7 @@ function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_li
 									elseif diceroll < 4 then
 										selected_ID = self.iron_ID;
 										selected_quantity = iron_amt;
-									elseif diceroll < 7 then
+									elseif diceroll < 9 then
 										selected_ID = self.coal_ID;
 										selected_quantity = coal_amt;
 									else
@@ -10248,10 +10248,10 @@ function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_li
 								elseif diceroll < 3 then
 									selected_ID = self.iron_ID;
 									selected_quantity = iron_amt;
-								elseif diceroll < 5 then
+								elseif diceroll < 7 then
 									selected_ID = self.coal_ID;
 									selected_quantity = coal_amt;
-								elseif diceroll < 7 then
+								elseif diceroll < 9 then
 									selected_ID = self.horse_ID;
 									selected_quantity = horse_amt;
 								else
@@ -11096,9 +11096,9 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	resources_to_place = {
 		{self.coal_ID, coal_amt, 100, 1, 2}
 	};
-	self:ProcessResourceList(65 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
-	self:ProcessResourceList(170 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
-	self:ProcessResourceList(120 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
+	self:ProcessResourceList(60 * resMultiplier, 1, self.hills_open_no_tundra_no_desert, resources_to_place);
+	self:ProcessResourceList(100 * resMultiplier, 1, self.grass_flat_no_feature, resources_to_place);
+	self:ProcessResourceList(80 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
 	
 	resources_to_place = {
 		{self.oil_ID, oil_amt, 100, 1, 3}
