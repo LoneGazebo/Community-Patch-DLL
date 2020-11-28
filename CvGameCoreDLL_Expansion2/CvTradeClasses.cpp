@@ -6359,23 +6359,16 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	std::vector<int> ValuesVector;
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
-	{
 		return ValuesVector;
-	}
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-	{
 		return ValuesVector;
-	}
 
-#ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	bool bIsToMinor = false;
-	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
-	{
-		bIsToMinor = true;
-	}
-#endif
+	// don't send trade routes if we're about to declare war?
+	// todo: should we consider diplomatic stance as well?
+	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
+		return ValuesVector;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -6493,8 +6486,10 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 #endif
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	if (bIsToMinor)
+	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+	{
 		iOtherGoldAmount = 0;
+	}
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 
 	//If we are friends with the player, let's not care about how much gold they make.

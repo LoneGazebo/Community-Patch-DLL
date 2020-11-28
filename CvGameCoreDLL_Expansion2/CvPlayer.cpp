@@ -50352,7 +50352,7 @@ void CvPlayer::updatePlotFoundValues()
 	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE)==0)
 		return;
 
-	// important preparation
+	//important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 	//these are the plots whose yield we ignore
 	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
@@ -50371,7 +50371,7 @@ void CvPlayer::updatePlotFoundValues()
 		}
 	}
 
-	// first pass: precalculate found values
+	//calculate new values and apply our threshold
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -50381,29 +50381,6 @@ void CvPlayer::updatePlotFoundValues()
 
 		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
 		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots) - m_iReferenceFoundValue;
-	}
-
-	// second pass: thresholding and non-maxima suppression
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue < 0)
-			continue;
-
-		for (int iCount = RING0_PLOTS; iCount < RING2_PLOTS; iCount++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot, iCount);
-			if (pLoopPlot == NULL)
-				continue;
-
-			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iCurrentValue)
-			{
-				//this is not a local maximum
-				m_viPlotFoundValues[iI] = 0;
-				break;
-			}
-		}
 	}
 
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();

@@ -1697,12 +1697,12 @@ void CvMilitaryAI::UpdateBaseData()
 			else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
 				if(pLoopUnit->getArmyID() != -1)
-				{
 					m_iNumNavalUnitsInArmies++;
-				}
+
 				m_iNumNavalUnits++;
 
-				if (pLoopUnit->isAircraftCarrier() && pLoopUnit->getCargo() == 0)
+				//a carrier is considered free if it is not in a strike group or empty
+				if (pLoopUnit->isAircraftCarrier() && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
 					m_iNumFreeCarriers++;
 			}
 			else if(pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
