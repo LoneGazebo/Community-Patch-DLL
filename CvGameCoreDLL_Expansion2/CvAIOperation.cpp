@@ -2468,14 +2468,6 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 
 	//this includes the zone we are currently targeting
 	set<int> vTargetZones = GetPossibleDeploymentZones();
-	if (vTargetZones.empty())
-	{
-		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
-		if (!pHomeCity)
-			return AI_ABORT_NO_TARGET;
-
-		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
-	}
 
 	//take the one that is closest to us
 	int iClosestDistance = INT_MAX;
@@ -2495,6 +2487,15 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 			iClosestDistance = iDistance;
 			pNewTarget = pCenterPlot;
 		}
+	}
+
+	if (pNewTarget==NULL)
+	{
+		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
+		if (!pHomeCity)
+			return AI_ABORT_NO_TARGET;
+
+		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
 	}
 
 	//no-op if new target is same as old
