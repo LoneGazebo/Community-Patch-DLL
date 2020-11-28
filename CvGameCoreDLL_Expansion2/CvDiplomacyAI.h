@@ -1701,7 +1701,7 @@ private:
 		bool m_abAggressor[REALLY_MAX_PLAYERS];
 		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
-		char m_aeWarFace[REALLY_MAX_PLAYERS];
+		char m_aeWarFace[MAX_MAJOR_CIVS];
 		char m_aeWarState[REALLY_MAX_PLAYERS];
 		char m_aeWarProjection[REALLY_MAX_PLAYERS];
 		char m_aeLastWarProjection[REALLY_MAX_PLAYERS];

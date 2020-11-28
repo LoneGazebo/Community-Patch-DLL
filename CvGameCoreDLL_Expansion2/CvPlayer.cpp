@@ -3084,10 +3084,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iCityValue *= 150;
 				iCityValue /= 100;
 			}
-			// A City-State's capital, or another major's Holy City
-			else if (pOldCity->IsOriginalMinorCapital() || pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+			// A City-State's capital
+			else if (pOldCity->IsOriginalMinorCapital())
 			{
-				iCityValue *= 125;
+				iCityValue *= 115;
 				iCityValue /= 100;
 			}
 
