@@ -38,15 +38,16 @@ class CvPlot;
 
 enum PathType
 {
+	//------- unit pathing
 	PT_UNIT_MOVEMENT,			//path for a particular unit (stacking,ZoC,danger handled via flag)
-	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach in N turns
-	PT_GENERIC_REACHABLE_PLOTS, //all plots that can be reached in N turns without knowning the particular unit
+	//------- step path
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
-	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
-	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
-	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
-	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
+	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide
+	PT_ARMY_LAND,				//step path land only
+	PT_ARMY_WATER,				//step path water only (and cities)
+	PT_ARMY_MIXED,				//step path land and water. allow water/land transition but not back!
 	PT_TRADE_LAND,				//land trade (path or reachable plots if dest -1)
+	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
 	PT_BUILD_ROUTE,				//prospective route, land only
 	PT_BUILD_ROUTE_MIXED,		//prospective route, allow harbors
 	PT_AREA_CONNECTION,			//assign area IDs to connected plots (hack)
@@ -112,7 +113,7 @@ public:
 	CvAStarNode();
 	void clear();
 
-	short m_iX, m_iY;	  // Coordinate position - persistent
+	short m_iX, m_iY;							// Coordinate position - persistent
 
 	long m_iKnownCost;							// Goal (g)
 	long m_iHeuristicCost;						// Heuristic (h)
@@ -123,12 +124,12 @@ public:
 	unsigned short m_iStartMovesForTurn;		// needed for move cost normalization on domain change
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
-	CvAStarNode* m_pParent;					// Parent in current path
+	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
 	std::vector<CvAStarNode*> m_apChildren;		// Nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
 
-	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
+	CvPathNodeCacheData m_kCostCacheData;		// some things we want to calculate only once
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -136,7 +137,7 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 
@@ -221,6 +222,9 @@ struct SMovePlot
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
+
+	//for the step finder normally turns==steps, but sometimes we want effective path length from cost
+	int turnsFromCost(int iMovesPerTurn) const;
 };
 
 class ReachablePlots

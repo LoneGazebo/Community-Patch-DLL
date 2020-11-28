@@ -214,9 +214,6 @@ protected:
 	unsigned int m_uiPosition;	
 };
 
-FDataStream & operator<<(FDataStream & saveTo, FDataStream & readFrom);
-FDataStream & operator>>(FDataStream & loadFrom, FDataStream & writeTo);
-
 template<typename ValueType, size_t count>
 FDataStream & operator<<(FDataStream & saveTo, const ValueType (&readFrom)[count])
 {

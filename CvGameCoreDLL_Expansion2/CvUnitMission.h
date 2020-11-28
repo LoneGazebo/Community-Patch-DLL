@@ -38,19 +38,19 @@ public:
 	static bool HasCompletedMoveMission(CvUnit* hUnit);
 
 private:
-	static void						InsertAtEndMissionQueue(CvUnit* hUnit, MissionData mission, bool bStart = true);
-	static MissionData*		DeleteMissionData(CvUnit* hUnit, MissionData* pNode);
-	static void						ActivateHeadMission(CvUnit* hUnit);
-	static void						DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer);
+	static void					InsertAtEndMissionQueue(CvUnit* hUnit, MissionData mission, bool bStart = true);
+	static MissionData*			DeleteMissionData(CvUnit* hUnit, MissionData* pNode);
+	static void					ActivateHeadMission(CvUnit* hUnit);
+	static void					DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer);
 
 	static const MissionData*	NextMissionData(const MissionQueue& kQueue, const MissionData* pNode);
 	static const MissionData*	PrevMissionData(const MissionQueue& kQueue, const MissionData* pNode);
 	static const MissionData*	HeadMissionData(const MissionQueue& kQueue);
-	static MissionData*		HeadMissionData(MissionQueue& kQueue);
+	static MissionData*			HeadMissionData(MissionQueue& kQueue);
 	static const MissionData*	TailMissionData(const MissionQueue& kQueue);
-	static MissionData*		TailMissionData(MissionQueue& kQueue);
-	static MissionData*				GetMissionFromQueue(MissionQueue& kQueue, int iIndex);
-	static int						GetLengthMissionQueue(const MissionQueue& kQueue);
+	static MissionData*			TailMissionData(MissionQueue& kQueue);
+	static MissionData*			GetMissionFromQueue(MissionQueue& kQueue, int iIndex);
+	static int					GetLengthMissionQueue(const MissionQueue& kQueue);
 };
 
 #endif // CIV_UNIT_MISSION_H

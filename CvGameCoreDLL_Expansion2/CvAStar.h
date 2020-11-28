@@ -20,8 +20,6 @@
 #include "CvAStarNode.h"
 #include <queue>
 
-#define PATH_BASE_COST (120) //base cost per plot respectively movement point expended
-
 class CvAStar;
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvAHeuristic)(int, int, int, int, int, int);
@@ -175,17 +173,6 @@ protected:
 	// Failsafe. Check if the passed flags make sense
 	virtual void SanitizeFlags() = 0;
 
-	inline int GetNormalizedLength() const
-	{
-		if (m_pBest)
-		{
-			int iCost = m_pBest->m_iKnownCost;
-			return iCost / m_iBasicPlotCost;
-		}
-		else
-			return INT_MAX;
-	}
-
 	virtual void SetFunctionPointers(CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarConst1Func CostFunc, CvAStarConst2Func ValidFunc,  
 		CvAGetExtraChildren GetExtraChildrenFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc);
 
@@ -258,79 +245,6 @@ protected:
 
 	CRITICAL_SECTION m_cs;
 };
-
-inline int CvAStar::xRange(int iX) const
-{
-	if(m_bWrapX)
-	{
-		if(iX < 0)
-		{
-			return (m_iColumns + (iX % m_iColumns));
-		}
-		else if(iX >= m_iColumns)
-		{
-			return (iX % m_iColumns);
-		}
-		else
-		{
-			return iX;
-		}
-	}
-	else
-	{
-		return iX;
-	}
-}
-
-
-inline int CvAStar::yRange(int iY) const
-{
-	if(m_bWrapY)
-	{
-		if(iY < 0)
-		{
-			return (m_iRows + (iY % m_iRows));
-		}
-		else if(iY >= m_iRows)
-		{
-			return (iY % m_iRows);
-		}
-		else
-		{
-			return iY;
-		}
-	}
-	else
-	{
-		return iY;
-	}
-}
-
-
-inline bool CvAStar::isValid(int iX, int iY) const
-{
-	if((iX < 0) || (iX >= m_iColumns))
-	{
-		return false;
-	}
-
-	if((iY < 0) || (iY >= m_iRows))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data)
-{
-	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
-}
-
-inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const
-{
-	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
-}
 
 //-------------------------------------------------------------------------------------------------
 // Derived class with some additional convenience functions
@@ -408,7 +322,6 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvA
 int StepValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
-int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int StepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
 
 int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
@@ -437,6 +350,11 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder);
 void UnitPathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
 void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder);
 void TradePathUninitialize(const SPathFinderUserData& data, CvAStar* finder);
+
+int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
+int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
+int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
+int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 //helper functions
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);

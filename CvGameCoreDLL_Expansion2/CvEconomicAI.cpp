@@ -1877,7 +1877,8 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
+	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
 	CvCityBuildable bestSelection;
 	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
@@ -2889,7 +2890,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
 
 			// close coast is also interesting for embarked scouting
-			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInEstimatedTurns(pPlot)<8)
+			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistancePathLength(pPlot)<12)
 				landTargets.push_back(SPlotWithScore(pPlot, iScore));
 		}
 	}
@@ -3826,7 +3827,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 		if (pLoopUnit->getArmyID() != -1)
 			continue;
 
-		if(pLoopUnit->canFound(NULL,true,true))
+		if(pLoopUnit->canFoundCity(NULL,true,true))
 			vSettlers.push_back(pLoopUnit);
 	}
 
@@ -3835,52 +3836,33 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 
 	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	bool bIsEarlyExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY) && pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-
-	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
-	vector<int> vSearchAreas = pPlayer->GetBestSettleAreas();
-	//try the available areas one after another, but global search first
-	vSearchAreas.insert(vSearchAreas.begin(), -1);
-
 	bool bStartedOp = false;
+
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-		for (size_t i = 0; i < vSearchAreas.size(); i++)
+		//this ignores all existing operations' targets by default so we won't pick the same plot twice
+		CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit);
+		if (!pBestSettle)
+			continue;
+
+		//we need good plots for our core cities, so hold off for a while if the plot is not good enough
+		//there's a chance we just haven't explored enough yet
+		int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
+		if (bIsEarlyExpansion && pPlayer->getCapitalCity())
 		{
-			bool bIsSafe = false;
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], bIsSafe);
-			if (!pBestSettle)
+			int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
+			if (iFoundValue < iCapitalFoundValue / 2)
+			{
+				CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - value %d - because it is not good enough", 
+					pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), iFoundValue);
+				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 				continue;
-
-			//we need good plots for our core cities, so hold off for a while if the plot is not good enough
-			//there's a chance we just haven't explored enough yet
-			int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
-			if (bIsEarlyExpansion && pPlayer->getCapitalCity())
-			{
-				int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
-				if (iFoundValue < iCapitalFoundValue / 2)
-				{
-					CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - area %d, value %d - because it is not good enough", 
-						pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), vSearchAreas[i], iFoundValue);
-					pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-					continue;
-				}
-			}
-
-			CvString msg = CvString::format("Trying settle plot for unit %d at %d,%d - area %d, value %d", 
-				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), iFoundValue);
-			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-
-			//could be a conquistador ...
-			AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
-			if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
-			{
-				//may fail if there is no path ...
-				pPlayer->GetHomelandAI()->LogHomelandMessage("Success!");
-				bStartedOp = true;
-				break;
 			}
 		}
+
+		if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, NULL, NULL)!=NULL)
+			bStartedOp = true;
 	}
 
 	return bStartedOp;
@@ -3919,9 +3901,7 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	if(iStrategyWeight >= iWeightThreshold)
 	{
 		// Launch an operation.
-		if (pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION))
-			// Set this strategy active
-			return true;
+		return pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION, 1) != NULL;
 	}
 
 	return false;
@@ -3962,10 +3942,7 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION,1)!=NULL;
 		}
 	}
 
@@ -4007,10 +3984,7 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_CONCERT_TOUR);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_MUSICIAN_CONCERT_TOUR,1)!=NULL;
 		}
 	}
 

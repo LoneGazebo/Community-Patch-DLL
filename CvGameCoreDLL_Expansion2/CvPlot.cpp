@@ -639,7 +639,7 @@ void CvPlot::updateVisibility()
 			const CvIDInfoFixedVector &kUnits = kPlotManager.GetUnitsByIndex(m_iX, m_iY, iLayer);
 			for (CvIDInfoFixedVector::const_iterator itrUnit = kUnits.begin(); itrUnit != kUnits.end(); ++itrUnit)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*itrUnit);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*itrUnit);
 				if (pLoopUnit)
 				{
 					InvisibleTypes eInvisibleType = pLoopUnit->getInvisibleType();
@@ -3770,7 +3770,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
 	//check distance to all major players
-	//if homefront for more than one ...
+	//if homefront for at least one ...
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -8932,7 +8932,7 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::GetResourceLinkedCity() const
 {
-	return getCity(m_ResourceLinkedCity);
+	return ::GetPlayerCity(m_ResourceLinkedCity);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9171,7 +9171,7 @@ int CvPlot::getOwningCityID() const
 
 CvCity* CvPlot::getOwningCity() const
 {
-	return getCity(m_owningCity);
+	return ::GetPlayerCity(m_owningCity);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9253,7 +9253,7 @@ void CvPlot::updateOwningCity()
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::getOwningCityOverride() const
 {
-	return getCity(m_owningCityOverride);
+	return ::GetPlayerCity(m_owningCityOverride);
 }
 
 
@@ -10695,8 +10695,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 		if (getOwner() == NO_PLAYER)
 			iBonus += 20;
 
-		int iDistToOwnCities = pPlayer->GetCityDistanceInEstimatedTurns(this);
-		int iDistRef = pPlayer->GetCityDistanceInEstimatedTurns(pRefPlot);
+		int iDistToOwnCities = pPlayer->GetCityDistancePathLength(this);
+		int iDistRef = pPlayer->GetCityDistancePathLength(pRefPlot);
 		if (iDistToOwnCities < iDistRef)
 			iBonus += 20;
 
@@ -12273,7 +12273,7 @@ CvUnit* CvPlot::getLayerUnit(int iIndex, int iLayerID /*= -1*/) const
 				{		
 					const CvIDInfoFixedVector& kUnits = kManager.GetUnitsByIndex(m_iX, m_iY, iLayerIndex);
 					if (iIndex < (iCount + (int)kUnits.size()))
-						return ::getUnit( kUnits[iIndex - iCount] );
+						return ::GetPlayerUnit( kUnits[iIndex - iCount] );
 					else
 						iCount += kUnits.size();
 				}				
@@ -12284,7 +12284,7 @@ CvUnit* CvPlot::getLayerUnit(int iIndex, int iLayerID /*= -1*/) const
 			// Specific layer
 			const CvIDInfoFixedVector& kUnits = GC.getMap().plotManager().GetUnits(m_iX, m_iY, iLayerID);
 			if (iIndex < (int)kUnits.size())
-				return ::getUnit( kUnits[iIndex] );
+				return ::GetPlayerUnit( kUnits[iIndex] );
 		}
 	}
 
@@ -14041,7 +14041,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 		//now check territory also - majors only (minors are always open)
 		if ( bCheckTerritory && getTeam()!=NO_TEAM && getTeam()!=eTeam && !GET_TEAM(getTeam()).isMinorCiv())
 		{
-			if (!GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(getTeam()) && !GET_TEAM(eTeam).isAtWar(getTeam()))
+			if (!GET_TEAM(getTeam()).IsAllowsOpenBordersToTeam(eTeam) && !GET_TEAM(eTeam).isAtWar(getTeam()))
 			{
 				return false;
 			}
@@ -14841,7 +14841,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				if(pLoopUnit)
@@ -14869,38 +14869,46 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 	return result;
 }
 
-int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
+//friendly, enemy power
+pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const
 {
+	int iFriendlyPower = 0;
 	int iEnemyPower = 0;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-	//also take into account cargo ships, e.g. carriers
-	const IDInfo* pUnitNode = headUnitNode();
-	const CvUnit* pInnerLoopUnit;
-	while(pUnitNode != NULL)
+	iRange = range(iRange, 1, 5);
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
-		pInnerLoopUnit = ::getUnit(*pUnitNode);
-		pUnitNode = nextUnitNode(pUnitNode);
-		if(pInnerLoopUnit != NULL && kPlayer.IsAtWarWith(pInnerLoopUnit->getOwner()) && !pInnerLoopUnit->isInvisible(kPlayer.getTeam(),false))
+		CvPlot* pTestPlot = iterateRingPlots(this, i);
+		if (!pTestPlot || !pTestPlot->isVisible(kPlayer.getTeam()))
+			continue;
+
+		//also take into account carriers!
+		const IDInfo* pUnitNode = pTestPlot->headUnitNode();
+		while(pUnitNode != NULL)
 		{
-			iEnemyPower += pInnerLoopUnit->GetPower();
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+			pUnitNode = pTestPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit && pLoopUnit->IsCanAttack())
+			{
+				//this check skips air units ...
+				if (bSameDomain && pLoopUnit->getDomainType() != getDomain())
+					continue;
+
+				if (kPlayer.IsAtWarWith(pLoopUnit->getOwner()) && !pLoopUnit->isInvisible(kPlayer.getTeam(), false))
+				{
+					iEnemyPower += pLoopUnit->GetPower();
+				}
+				else if (kPlayer.getTeam() == pLoopUnit->getTeam())
+				{
+					iFriendlyPower += pLoopUnit->GetPower();
+				}
+			}
 		}
 	}
 
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-	{
-		const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-		if (!pNeighborPlot)
-			continue;
-
-		CvUnit* pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true);
-		if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
-			if (!pEnemy->isInvisible(kPlayer.getTeam(),false))
-				iEnemyPower += pEnemy->GetPower();
-	}
-
-	return iEnemyPower;
+	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
@@ -14918,7 +14926,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -14965,7 +14973,7 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -15011,7 +15019,7 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
@@ -15054,7 +15062,7 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
@@ -15086,7 +15094,7 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 			// Loop through all units on this plot
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude

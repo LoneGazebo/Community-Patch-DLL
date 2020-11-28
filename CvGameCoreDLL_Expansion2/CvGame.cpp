@@ -114,6 +114,8 @@ CvGame::CvGame() :
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
+	, m_cityDistancePathLength(NO_DOMAIN) //for now!
+	, m_cityDistancePlots()
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
 	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...
@@ -875,7 +877,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
 
 			// To have an orientation of which plots are relatively good or bad
-			GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
+			GET_PLAYER(ePlayer).computeFoundValueThreshold();
 		}
 	}
 
@@ -2448,7 +2450,7 @@ CvUnit* CvGame::getPlotUnit(CvPlot* pPlot, int iIndex)
 
 			while(pUnitNode1 != NULL)
 			{
-				pLoopUnit1 = ::getUnit(*pUnitNode1);
+				pLoopUnit1 = ::GetPlayerUnit(*pUnitNode1);
 				pUnitNode1 = pPlot->nextUnitNode(pUnitNode1);
 
 				if(!(pLoopUnit1->isInvisible(activeTeam, true)))
@@ -2470,7 +2472,7 @@ CvUnit* CvGame::getPlotUnit(CvPlot* pPlot, int iIndex)
 
 								while(pUnitNode2 != NULL)
 								{
-									pLoopUnit2 = ::getUnit(*pUnitNode2);
+									pLoopUnit2 = ::GetPlayerUnit(*pUnitNode2);
 									pUnitNode2 = pPlot->nextUnitNode(pUnitNode2);
 
 									if(!(pLoopUnit2->isInvisible(activeTeam, true)))
@@ -2518,7 +2520,7 @@ void CvGame::getPlotUnits(CvPlot* pPlot, std::vector<CvUnit*>& plotUnits)
 
 			while(pUnitNode1 != NULL)
 			{
-				pLoopUnit1 = ::getUnit(*pUnitNode1);
+				pLoopUnit1 = ::GetPlayerUnit(*pUnitNode1);
 				pUnitNode1 = pPlot->nextUnitNode(pUnitNode1);
 
 				if(!(pLoopUnit1->isInvisible(activeTeam, true)))
@@ -2535,7 +2537,7 @@ void CvGame::getPlotUnits(CvPlot* pPlot, std::vector<CvUnit*>& plotUnits)
 
 								while(pUnitNode2 != NULL)
 								{
-									pLoopUnit2 = ::getUnit(*pUnitNode2);
+									pLoopUnit2 = ::GetPlayerUnit(*pUnitNode2);
 									pUnitNode2 = pPlot->nextUnitNode(pUnitNode2);
 
 									if(!(pLoopUnit2->isInvisible(activeTeam, true)))
@@ -2689,7 +2691,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
 			if(NULL != pLoopUnit && pLoopUnit->IsSelected())
 			{
@@ -2705,7 +2707,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
 			if((iCount - 1) == 0)
 			{
@@ -2726,7 +2728,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 
 			if(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			}
 		}
 	}
@@ -2754,7 +2756,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 				}
 			}
 
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
 			if(iCount == -1)
 			{
@@ -2903,7 +2905,7 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 
 	while(pSelectedCityNode != NULL)
 	{
-		pSelectedCity = ::getCity(*pSelectedCityNode);
+		pSelectedCity = ::GetPlayerCity(*pSelectedCityNode);
 		pSelectedCityNode = GC.GetEngineUserInterface()->nextSelectedCitiesNode(pSelectedCityNode);
 		CvAssert(pSelectedCity);
 
@@ -3088,7 +3090,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 
 		while(pUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pUnitPlot->nextUnitNode(pUnitNode);
 
 			if(NULL != pLoopUnit && pLoopUnit->getOwner() == getActivePlayer())
@@ -9957,7 +9959,7 @@ void CvGame::updateMoves()
 							IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
 							while(pUnitNodeInner != NULL && !bMoveMe)
 							{
-								CvUnit* pLoopUnitInner = ::getUnit(*pUnitNodeInner);
+								CvUnit* pLoopUnitInner = ::GetPlayerUnit(*pUnitNodeInner);
 								if(pLoopUnitInner && pLoopUnit != pLoopUnitInner)
 								{
 									if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
@@ -14333,7 +14335,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 void CvGame::SetClosestCityMapDirty()
 {
-	m_cityDistanceTurns.SetDirty();
+	m_cityDistancePathLength.SetDirty();
 	m_cityDistancePlots.SetDirty();
 
 	//debugging
@@ -14350,9 +14352,9 @@ void CvGame::SetClosestCityMapDirty()
 				int iDP = m_cityDistancePlots.GetDistance(*pPlot,false,NO_PLAYER);
 				int iCP = m_cityDistancePlots.GetFeatureId(*pPlot,false,NO_PLAYER);
 				int iOP = m_cityDistancePlots.GetFeatureOwner(*pPlot,false,NO_PLAYER);
-				int iDT = m_cityDistanceTurns.GetDistance(*pPlot,false,NO_PLAYER);
-				int iCT = m_cityDistanceTurns.GetFeatureId(*pPlot,false,NO_PLAYER);
-				int iOT = m_cityDistanceTurns.GetFeatureOwner(*pPlot,false,NO_PLAYER);
+				int iDT = m_cityDistancePathLength.GetDistance(*pPlot,false,NO_PLAYER);
+				int iCT = m_cityDistancePathLength.GetFeatureId(*pPlot,false,NO_PLAYER);
+				int iOT = m_cityDistancePathLength.GetFeatureOwner(*pPlot,false,NO_PLAYER);
 
 				CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 					pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 1 : 0, iDP, iCP, iOP, iDT, iCT, iOT);
@@ -14363,43 +14365,43 @@ void CvGame::SetClosestCityMapDirty()
 	}
 }
 
-int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot, PlayerTypes ePlayer )
+int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
 	if (!pPlot)
 		return INT_MAX;
 
-	return m_cityDistanceTurns.GetDistance(*pPlot, false, ePlayer);
+	return m_cityDistancePathLength.GetDistance(*pPlot, false, ePlayer);
 }
 
-CvCity* CvGame::GetClosestCityByEstimatedTurns( const CvPlot* pPlot, PlayerTypes ePlayer )
+CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistanceTurns.GetFeatureOwner(*pPlot, false, ePlayer);
-	int id = m_cityDistanceTurns.GetFeatureId(*pPlot, false, ePlayer);
-	if (owner!=NO_PLAYER)
+	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, false, ePlayer);
+	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, false, ePlayer);
+	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;
 }
 
-int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot, bool bMajorOnly )
+int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
 	if (!pPlot)
 		return INT_MAX;
 
-	return m_cityDistanceTurns.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
+	return m_cityDistancePathLength.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
 }
 
-CvCity* CvGame::GetClosestCityByEstimatedTurns( const CvPlot* pPlot, bool bMajorOnly )
+CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_cityDistanceTurns.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
-	int id = m_cityDistanceTurns.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
-	if (owner!=NO_PLAYER)
+	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
+	int id = m_cityDistancePathLength.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
+	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;
@@ -14420,7 +14422,7 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, PlayerTypes ePlayer 
 
 	int owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, false, ePlayer);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, false, ePlayer);
-	if (owner!=NO_PLAYER)
+	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;
@@ -14441,7 +14443,7 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, bool bMajorOnly )
 
 	int owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
-	if (owner!=NO_PLAYER)
+	if (id!=0) //zero means not set, far away from everything
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;

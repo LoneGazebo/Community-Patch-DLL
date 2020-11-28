@@ -206,18 +206,8 @@ int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot);
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);
 
-CvCity* getCity(IDInfo city);
-CvUnit* getUnit(const IDInfo& unit);
-
-inline CvUnit* GetPlayerUnit(const IDInfo& unit)
-{
-	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
-	{
-		return (GET_PLAYER((PlayerTypes)unit.eOwner).getUnit(unit.iID));
-	}
-
-	return NULL;
-}
+CvCity* GetPlayerCity(IDInfo city);
+CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit);
 bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUnit);

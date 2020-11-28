@@ -883,7 +883,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 	// Next units for sneak attack armies
-	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 	if(eUnitForArmy != NO_UNIT)
 	{
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
@@ -1331,7 +1331,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		}
 		// Next units for sneak attack armies
-		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
@@ -3754,16 +3754,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 	{
 		CvPlayer &kPlayer = GET_PLAYER(pCity->getOwner());
 
-		bool bAtPeace = GET_TEAM(kPlayer.getTeam()).getAtWarCount(false) == 0;
-
-		if (!bAtPeace && !kPlayer.isMinorCiv())
+		if (!kPlayer.isMinorCiv())
 		{
-			CvCity *pMostThreatened = kPlayer.GetThreatenedCityByRank();
-			//threat value is now calculated differently
-			if (pMostThreatened == pCity && pMostThreatened->getThreatValue() > GC.getCITY_HIT_POINTS_HEALED_PER_TURN()*2)
-			{
+			CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),false);
+			CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
+
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 				return true;
-			}
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+				return true;
 		}
 	}
 

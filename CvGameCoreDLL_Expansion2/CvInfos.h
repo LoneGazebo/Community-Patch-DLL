@@ -485,9 +485,9 @@ class CvMultiUnitFormationInfo : public CvBaseInfo
 {
 public:
 	const char* getFormationName() const;
-	int getNumFormationSlotEntries() const;
-	int getNumFormationSlotEntriesRequired() const;
-	const CvFormationSlotEntry& getFormationSlotEntry(int index) const;
+	size_t getNumFormationSlotEntries() const;
+	size_t getNumFormationSlotEntriesRequired() const;
+	const CvFormationSlotEntry& getFormationSlotEntry(size_t index) const;
 	void addFormationSlotEntry(const CvFormationSlotEntry& slotEntry);
 	bool IsRequiresNavalUnitConsistency() const;
 

@@ -98,6 +98,7 @@ struct TradeConnection
 
 typedef std::vector<TradeConnection> TradeConnectionList;
 
+//plot index -> plot index -> path
 typedef std::map<int,std::map<int,SPath>> TradePathLookup;
 
 class CvGameTrade

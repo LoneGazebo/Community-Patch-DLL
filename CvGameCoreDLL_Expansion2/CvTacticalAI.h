@@ -273,113 +273,22 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTacticalPosture
-//!  \brief		The posture an AI has adopted for fighting in a specific dominance zone
-//
-//!  Key Attributes:
-//!  - Used to keep consistency in approach from turn-to-turn
-//!  - Reevaluated by tactical AI each turn before units are moved for this zone
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-enum AITacticalPosture
-{
-    AI_TACTICAL_POSTURE_NONE,
-    AI_TACTICAL_POSTURE_WITHDRAW,
-    AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
-    AI_TACTICAL_POSTURE_EXPLOIT_FLANKS,
-    AI_TACTICAL_POSTURE_STEAMROLL,
-    AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE,
-    AI_TACTICAL_POSTURE_HEDGEHOG,
-    AI_TACTICAL_POSTURE_COUNTERATTACK,
-};
-
-class CvTacticalPosture
-{
-public:
-	CvTacticalPosture(PlayerTypes ePlayer, bool bIsWater, int iCityID, AITacticalPosture ePosture)
-	{
-		m_ePlayer = ePlayer;
-		//same scheme as for tactical zones - water is negative
-		m_iCityID = bIsWater ? -iCityID : iCityID;
-		m_ePosture = ePosture;
-	}
-
-	PlayerTypes GetPlayer() const
-	{
-		return m_ePlayer;
-	};
-	bool IsWater()
-	{
-		return (m_iCityID<0);
-	};
-	int GetCityID()
-	{
-		return abs(m_iCityID);
-	};
-	AITacticalPosture GetPosture()
-	{
-		return m_ePosture;
-	};
-
-private:
-	PlayerTypes m_ePlayer;
-	int m_iCityID;
-	AITacticalPosture m_ePosture;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTemporaryZone
-//!  \brief		Location of a temporary dominance zone (like around a barbarian camp)
+//  CLASS:      CvFocusArea
+//!  \brief		Location of a temporary focus of attention (like around a barbarian camp)
 //
 //!  Key Attributes:
 //!  - Used to add dominance zones for short duration tactical strikes
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvTemporaryZone
+struct CvFocusArea
 {
-public:
-	CvTemporaryZone()
-	{
-		Clear();
-	}
-	void Clear()
-	{
-		m_iX = 0;
-		m_iY = 0;
-		m_iLastTurn = 0;
-	};
-
-	int GetX() const
-	{
-		return m_iX;
-	};
-	void SetX(int iX)
-	{
-		m_iX = iX;
-	};
-	int GetY() const
-	{
-		return m_iY;
-	};
-	void SetY(int iY)
-	{
-		m_iY = iY;
-	};
-	int GetLastTurn() const
-	{
-		return m_iLastTurn;
-	};
-	void SetLastTurn(int iTurn)
-	{
-		m_iLastTurn = iTurn;
-	};
-
-private:
 	int m_iX;
 	int m_iY;
+	int m_iRadius;
 	int m_iLastTurn;
 };
 
-FDataStream& operator<<(FDataStream&, const CvTemporaryZone&);
-FDataStream& operator>>(FDataStream&, CvTemporaryZone&);
+FDataStream& operator<<(FDataStream&, const CvFocusArea&);
+FDataStream& operator>>(FDataStream&, CvFocusArea&);
 
 enum TacticalAIInfoTypes
 {
@@ -480,7 +389,6 @@ public:
 	~CvTacticalAI(void);
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
-	void Reset();
 
 	// Serialization routines
 	void Read(FDataStream& kStream);
@@ -489,25 +397,21 @@ public:
 	// Public turn update routines
 	void Update();
 
-	// Temporary dominance zones
-	void AddTemporaryZone(CvPlot* pPlot, int iDuration);
-	void DeleteTemporaryZone(CvPlot* pPlot);
-	void DropObsoleteZones();
-	bool IsTemporaryZoneCity(CvCity* pCity);
+	// temporary focus of attention
+	void AddFocusArea(CvPlot* pPlot, int iRadius, int iDuration);
+	void DeleteFocusArea(CvPlot* pPlot);
+	void DropOldFocusAreas();
+	bool IsInFocusArea(const CvPlot* pPlot) const;
 
-#if defined(MOD_BALANCE_CORE)
+	// For air units
 	bool ShouldRebase(CvUnit* pUnit) const;
-	CvCity* GetNearestTargetCity(CvPlot* pPlot);
-#endif
 
 	// Public logging
 	void LogTacticalMessage(const CvString& strMsg);
 
 	// Other people want to know this too
-	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap() { return &m_tacticalMap; }
-	void UpdatePostures();
 
 	// Operational AI support functions
 	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
@@ -520,11 +424,11 @@ private:
 	void RecruitUnits();
 
 	// Internal turn update routines - commandeered unit processing
-	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
 	void FindTacticalTargets();
 	void PrioritizeNavalTargetsAndAddToMainList();
 	void ProcessDominanceZones();
 	void AssignGlobalHighPrioMoves();
+	void AssignGlobalMidPrioMoves();
 	void AssignGlobalLowPrioMoves();
 	void AssignBarbarianMoves();
 
@@ -567,12 +471,12 @@ private:
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
 
-	void PlotEscortEmbarkedMoves();
+	void PlotNavalEscortMoves();
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
 	bool CheckForEnemiesNearArmy(CvArmyAI* pArmy);
-	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget, CvPlot* pFarTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -591,19 +495,19 @@ private:
 
 	// Routines to execute a mission
 	void ExecuteBarbarianCampMove(CvPlot* pTargetPlot);
+	void ExecuteBarbarianTheft();
 	bool ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
-	bool ExecuteSpotterMove(vector<CvUnit*> vUnits, CvPlot* pTargetPlot);
+	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
-	bool PositionUnitsAroundTarget(vector<CvUnit*> vUnits, CvPlot* pTargetPlot);
+	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
-	void ExecuteMissileAttacks();
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
-	void ExecuteMovesToSafestPlot();
+	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianRoaming();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
@@ -641,8 +545,6 @@ private:
 	CvPlot* FindBestBarbarianSeaTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
 	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffensive);
-	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
-	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);
@@ -668,20 +570,17 @@ private:
 	TacticalList m_ZoneTargets;
 	TacticalList m_NavalTargets;
 
-	std::vector<CvTacticalPosture> m_Postures; //persistent!
-
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
 	int m_iLandBarbarianRange;
 	int m_iSeaBarbarianRange;
-	int m_iDeployRadius;
 
 	// Dominance zone info
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
 
-	std::vector<CvTemporaryZone> m_TempZones;
+	std::vector<CvFocusArea> m_focusAreas;
 };
 
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
@@ -1007,6 +906,8 @@ public:
 	float getAggressionBias() const;
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
+	bool lastAssignmentIsAfterRestart(int iUnitID);
+	const STacticalAssignment* getInitialAssignment(int iUnitID);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;

@@ -73,7 +73,6 @@ public:
 	int GetPersonalityFlavorThresholdMod(int i) const;
 
 	bool IsNoMinorCivs() const;
-	bool IsDontUpdateCityFlavors() const;
 
 	int GetTechPrereq() const;
 	int GetTechObsolete() const;

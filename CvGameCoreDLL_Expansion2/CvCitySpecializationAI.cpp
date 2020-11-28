@@ -1441,7 +1441,7 @@ void CvCitySpecializationAI::FindBestSites()
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (m_pPlayer->canFound( pPlot->getX(),pPlot->getY() ))
+		if (m_pPlayer->canFoundCity( pPlot->getX(),pPlot->getY() ))
 		{
 			// Check if within range of any of our cities
 			CvCity* pNearestCity = m_pPlayer->GetClosestCityByPlots(pPlot);

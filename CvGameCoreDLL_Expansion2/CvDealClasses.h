@@ -203,7 +203,7 @@ public:
 #endif
 
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bCheckOtherPlayerValidity = true, bool bFinalizing = false);
-	int GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource);
+	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
 
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCities(PlayerTypes ePlayer);

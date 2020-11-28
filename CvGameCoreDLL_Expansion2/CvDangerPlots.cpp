@@ -333,33 +333,6 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			}
 		}
 	}
-
-	// testing city danger values
-	int iLoopCity = 0;
-	for(CvCity* pLoopCity = thisPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoopCity))
-	{
-		//adding danger would count each unit multiple times, is biased towards fast units
-		//so we pretend they would all attack the city and tally up the damage
-		//question is, what about our own defensive units in the area. should we count those as well?
-		int iEvalRange = 4;
-		int iThreatValue = 0;
-		for(int iX = -iEvalRange; iX <= iEvalRange; iX++)
-			for(int iY = -iEvalRange; iY <= iEvalRange; iY++)
-			{
-				CvPlot* pEvalPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iEvalRange);
-				if (pEvalPlot)
-				{
-					const CvUnit* pEnemy = pEvalPlot->getBestDefender(NO_PLAYER, thisPlayer.GetID(), NULL, true);
-					if (pEnemy)
-					{
-						int iAttackerDamage = 0; //to be ignored
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage,true,0,true);
-					}
-				}
-			}
-
-		pLoopCity->setThreatValue(iThreatValue);
-	}
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot
@@ -777,9 +750,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	//otherwise calculate from scratch
 	int iPlotDamage = 0;
 
-	CvCity* pFriendlyCity = NULL;
-	if ( m_pPlot->isFriendlyCity(*pUnit) )
-		pFriendlyCity = m_pPlot->getPlotCity();
+	CvCity* pFriendlyCity = m_pPlot->isFriendlyCity(*pUnit) ? m_pPlot->getPlotCity() : NULL;
 
 	// Civilians can be captured - unless they would need to be embarked on this plot
 	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
@@ -788,49 +759,33 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
 
-		//this only works because the civilian is not embarked!
-		CvUnit* pBestDefender = m_pPlot->getBestDefender(pUnit->getOwner());
-
-		if (!pBestDefender && m_bEnemyCanCapture)
+		// We do not check for covering units, it's too unreliable since they might move
+		if (m_bEnemyCanCapture)
 			return MAX_INT;
+
+		if (pFriendlyCity)
+		{
+			// Can't hide in a city forever
+			if (pFriendlyCity->isInDangerOfFalling())
+				return MAX_INT;
+			else
+				return 0;
+		}
 
 		//need to use m_bEnemyCanCapture to differentiate between plots that the enemy can move into and those merely under ranged attack
 		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
 			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
-
 			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead() )
 			{
-				// If in a city and the city can be captured, we are in highest danger
-				if (pFriendlyCity)
+				//ranged attack but no capture
+				int iDummy = 0;
+				if (pAttacker->plot() != m_pPlot)
 				{
-					if (GetDanger(pFriendlyCity) + pFriendlyCity->getDamage() > pFriendlyCity->GetMaxHitPoints())
-					{
-						return m_bEnemyCanCapture ? MAX_INT : 0;
-					}
-				}
-				else 
-				{
-					// If there is a defender and it might be killed, high danger
-					if (pBestDefender)
-					{
-						if (GetDanger(pBestDefender,unitsToIgnore,iAirAction) > pBestDefender->GetCurrHitPoints())
-						{
-							return m_bEnemyCanCapture ? MAX_INT : 0;
-						}
-					}
-					else
-					{
-						//ranged attack but no capture
-						int iDummy = 0;
-						if (pAttacker->plot() != m_pPlot)
-						{
-							int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
-							if (!m_pPlot->isVisible(pAttacker->getTeam()))
-								iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
-							iPlotDamage += iDamage;
-						}
-					}
+					int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+					if (!m_pPlot->isVisible(pAttacker->getTeam()))
+						iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+					iPlotDamage += iDamage;
 				}
 			}
 		}
@@ -867,7 +822,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
 	if (pFriendlyCity)
 	{
-		int iCityDanger = GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL));
+		int iCityDanger = GetDanger(pFriendlyCity, pUnit);
 		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints() + 50) //add a margin for error
 		{
 			if (pUnit->CanGarrison())

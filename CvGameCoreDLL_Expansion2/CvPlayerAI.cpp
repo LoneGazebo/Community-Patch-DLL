@@ -206,13 +206,11 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 
 	//operation cleanup
 	itemsToDelete.clear();
-	CvAIOperation* nextOp = getFirstAIOperation();
-	while(nextOp)
+	for (size_t i=0; i<getNumAIOperations(); i++)
 	{
-		if (nextOp->ShouldAbort())
-			itemsToDelete.push_back(nextOp->GetID());
-
-		nextOp = getNextAIOperation();
+		CvAIOperation* pOp = getAIOperationByIndex(i);
+		if (pOp->ShouldAbort())
+			itemsToDelete.push_back(pOp->GetID());
 	}
 
 	for (size_t i=0; i<itemsToDelete.size(); i++)
@@ -290,7 +288,7 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		CvUnit::dispatchingNetMessage(true);
 		//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-		GetTacticalAI()->UpdatePostures();
+		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 		GetHomelandAI()->Update();
 		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
@@ -963,10 +961,9 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 {
 	OperationSlot bestSlot;
 	// search through our operations till we find one that needs a unit
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
@@ -977,19 +974,11 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity())
+			if (pCity == pMusterPlot->getOwningCity() && pCity->isMatchingArea(pMusterPlot))
 				bCitySameAsMuster = true;
-			else if (!pThisOperation->IsNavalOperation() && pCity != NULL && pMusterPlot->getOwningCity() != NULL && pCity->getArea() == pMusterPlot->getOwningCity()->getArea())
-			{
-				int iDistance = plotDistance(pMusterPlot->getOwningCity()->getX(), pMusterPlot->getOwningCity()->getY(), pCity->getX(), pCity->getY());
-				if (iDistance <= 5)
-					bCitySameAsMuster = true;
-			}
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
-			{
-					continue;
-			}				
+				continue;
 #endif
 			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 
@@ -998,7 +987,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 
 			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
 
-			if (!pThisArmy || !pThisArmy->GetFormationSlot(thisSlot.m_iSlotID)->IsFree())
+			if (!pThisArmy || !pThisArmy->GetSlotStatus(thisSlot.m_iSlotID)->IsFree())
 				continue;
 
 			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
@@ -1013,66 +1002,18 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 }
 
 
-OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(CvCity* pCity)
+void CvPlayerAI::CityCommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
-	OperationSlot thisSlot;
-	if (!pCity)
-		return thisSlot;
-
-	CvAIOperation* pBestOperation = NULL;
-	int iBestScore = -1;
-
-	// search through our operations till we find one that needs a unit
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if (!pThisOperation || pThisOperation->GetMusterPlot() == NULL)
-			continue;
-
-		int iScore = 0;
-		int iMusterArea = pThisOperation->GetMusterPlot()->getArea();
-		int iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
-
-		//check if we're on the correct continent/ocean
-		if(!pCity->isAdjacentToArea(iMusterArea))
-			continue;
-
-		iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
-		iScore += range( 10-iDistance, 0, 10 );
-
-		if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
-		{
-			iScore *= 2;
-		}
-
-		if(iScore > iBestScore)
-		{
-			pBestOperation = pThisOperation;
-			iBestScore = iScore;
-		}
-	}
-
-	if(pBestOperation != NULL)
-	{
-		thisSlot = pBestOperation->CommitToBuildNextUnit();
-		if(thisSlot.IsValid())
-		{
-			return thisSlot;
-		}
-	}
-
-	return thisSlot;
+	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
+	if (pThisOperation)
+		pThisOperation->CommitToBuildNextUnit(thisSlot);
 }
 
 void CvPlayerAI::CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
-	// find this operation
 	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
 	if(pThisOperation)
-	{
-		pThisOperation->UncommitToBuild(thisSlot);
-	}
+		pThisOperation->UncommitToBuildUnit(thisSlot);
 }
 
 void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit)
@@ -1082,8 +1023,8 @@ void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot
 	CvArmyAI* pThisArmy = getArmyAI(thisSlot.m_iArmyID);
 	if(pThisOperation && pThisArmy && pThisUnit)
 	{
-		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID);
-		pThisOperation->FinishedBuilding(thisSlot);
+		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID,true);
+		pThisOperation->FinishedBuildingUnit(thisSlot);
 	}
 }
 
@@ -1091,10 +1032,9 @@ int CvPlayerAI::GetNumUnitsNeededToBeBuilt()
 {
 	int iRtnValue = 0;
 
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
 			iRtnValue += pThisOperation->GetNumUnitsNeededToBeBuilt();
@@ -1493,12 +1433,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-		{
-			YieldTypes eYield = (YieldTypes)iYield;
-			if (eYield == NULL)
-				continue;
-			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, eYield);
-		}
+			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, (YieldTypes)iYield);
+
 		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatMerchantsCreated(true));
 
 		//don't count colonias here (IMPROVEMENT_CUSTOMS_HOUSE_VENICE), so venice will build any number of them once they run out of city states to buy
@@ -1515,13 +1451,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		else
 		{
-			bool bIsSafe;
-			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
+			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant);
 			if (pSettlePlot == NULL)
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
 			//prefer to claim empty space if we can
-			if ( GetCityDistanceInEstimatedTurns(pSettlePlot) < GetCityDistanceInEstimatedTurns(pTarget)+2 )
+			if ( GetCityDistancePathLength(pSettlePlot) < GetCityDistancePathLength(pTarget)+2 )
 				return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 			else
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1530,8 +1465,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 	else if (pGreatMerchant->CanFoundColony())
 	{
-		bool bIsSafe;
-		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, bIsSafe);
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant);
 		if (pPlot != NULL)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1572,58 +1506,47 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
-	//if he has a directive, don't change it
-	if (pGreatGeneral->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		return pGreatGeneral->GetGreatPeopleDirective();
+	//this one is sticky
+	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
-	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
-
-	//in army or recently out of an army?
-	if (pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation() || pGreatGeneral->GetDanger(pGreatGeneral->plot()) > 0)
+	//we might have multiple generals ... first get an overview
+	int iCommanders = 0;
+	int iCitadels = 0;
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-
-	int iFriendlies = 0;
-	if (bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
-	{
-		iFriendlies++;
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		if (pLoopUnit->IsGreatGeneral())
 		{
-			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
+			switch (pLoopUnit->GetGreatPeopleDirective())
 			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if (pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
-				{
-					iFriendlies++;
-				}
+			case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
+				iCitadels++;
+				break;
+			case GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND:
+				iCommanders++;
+				break;
 			}
 		}
 	}
-	if (iFriendlies > 2)
-	{
+
+	//during war we want field commanders
+	int iWars = (int)GetPlayersAtWarWith().size();
+	if (iCommanders < iWars+1 || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
 
-	int iGreatGeneralCount = 0;
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-		if(pLoopUnit->IsGreatGeneral())
-			iGreatGeneralCount++;
-
+	//build one citadel at a time
 	std::vector<CvPlot*> vDummy;
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	//keep at least one general around
-	if(iGreatGeneralCount > 1 && pGreatGeneral->getArmyID() == -1)
+	if(iCitadels==0)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
-		//build a citadel
 		if (pTargetPlot)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
-	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	// default
+	return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
@@ -1682,40 +1605,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	return eDirective;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	//if he has a directive, don't change it
-	if (pGreatAdmiral->GetGreatPeopleDirective()!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		return pGreatAdmiral->GetGreatPeopleDirective();
-
-	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
-
-	if(pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation() || pGreatAdmiral->GetDanger(pGreatAdmiral->plot()) > 0)
+	if(IsAtWar() || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
-	int iFriendlies = 0;
-	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
-	{
-		iFriendlies++;
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGreatAdmiral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_SEA)
-				{
-					iFriendlies++;
-				}
-			}
-		}
-	}
-	if(iFriendlies > 2)
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	//No war? Let's settle down.
 	int iGreatAdmiralCount = 0;
 
 	int iLoop;
@@ -1737,16 +1631,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
-
-#else
-
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* /*pGreatAdmiral*/)
-{
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
-	return eDirective;
-}
-#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
@@ -1830,12 +1714,12 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 				continue;
 
 			//should not be too far out
-			if (GetCityDistanceInEstimatedTurns(pCity->plot()) > 12)
+			if (GetCityDistancePathLength(pCity->plot()) > 23)
 				continue;
 
 			//merchant may not be in the closest owned city, so cut him some slack
 			int iPathTurns = 0;
-			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns, true);
+			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns);
 			if (iPathTurns < INT_MAX)
 			{
 				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
@@ -1887,7 +1771,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	for (size_t i = 0; i < vCandidates.size(); i++)
 	{
 		CvPlot* pTarget = GC.getMap().plotByIndexUnchecked(vCandidates[i].second);
-		if (pMerchant->GeneratePath(pTarget, iFlags, 23, NULL, true))
+		if (pMerchant->GeneratePath(pTarget, iFlags, 23))
 			return pMerchant->GetPathLastPlot();
 	}
 
@@ -1944,7 +1828,6 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 	//don't go too far out, it's dangerous
 	SPathFinderUserData data(pUnit, 0, 17);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	set<PlayerTypes> badTargets;
@@ -2307,7 +2190,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// **************************
 
 	// Subtract distance (XML value important here!)
-	int iDistance = GetCityDistanceInEstimatedTurns(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
+	int iDistance = GetCityDistancePathLength(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(kMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
@@ -2333,9 +2216,11 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 		return NULL;
 
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
+
 	if(pCity == NULL)
 		return NULL;
 
+	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
@@ -2364,6 +2249,10 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 
 		// Don't be captured
 		if (pUnit->GetDanger(pLoopPlot) > 0)
+			continue;
+
+		// Anything here that blocks us?
+		if (!pUnit->canBuild(pLoopPlot, eEmbassy))
 			continue;
 
 		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -2412,12 +2301,12 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	//try the closest city first
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	CvCity* pTargetCity = GC.getGame().GetClosestCityByPlots(pMusician->plot(), eTargetPlayer);
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	//fallback, try the capital
 	pTargetCity = GET_PLAYER(eTargetPlayer).getCapitalCity();
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	return NULL;
