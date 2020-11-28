@@ -5924,6 +5924,9 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	if(plot()->isUnitFighting())
 		return false;
 
+	if (isDelayedDeath())
+		return false;
+
 	if(!canMove())
 		return false;
 

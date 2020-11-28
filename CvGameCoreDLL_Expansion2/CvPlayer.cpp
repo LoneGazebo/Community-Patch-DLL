@@ -36818,14 +36818,14 @@ void CvPlayer::DoDeficit()
 			//if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			if (iRand <= 25)
 			{
-				pLandUnit = GetMilitaryAI()->FindBestUnitToScrap(true /*bLand*/, true /*bDeficitForcedDisband*/, iLandScore);
+				pLandUnit = GetMilitaryAI()->FindObsoleteUnitToScrap(true /*bLand*/, true /*bForcedDisband*/, iLandScore);
 			}
 
 			// Look for obsolete naval units if in deficit or have sufficient units
 			//if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			else
 			{
-				pNavalUnit = GetMilitaryAI()->FindBestUnitToScrap(false/*bNaval*/, true /*bDeficitForcedDisband*/, iNavalScore);
+				pNavalUnit = GetMilitaryAI()->FindObsoleteUnitToScrap(false/*bNaval*/, true /*bForcedDisband*/, iNavalScore);
 			}
 
 			if(iLandScore < MAX_INT && (GetMilitaryAI()->GetLandDefenseState() <= GetMilitaryAI()->GetNavalDefenseState() || iLandScore <= iNavalScore))
