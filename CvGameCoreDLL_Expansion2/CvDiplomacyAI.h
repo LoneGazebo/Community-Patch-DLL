@@ -947,7 +947,6 @@ public:
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
 
 	bool IsPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer) const;
-	bool IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const;
 	bool IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool bValue);
 	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
@@ -962,7 +961,6 @@ public:
 
 	bool IsPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer) const;
 
-	bool IsPlayerStopSpyingRequestRejected(PlayerTypes ePlayer) const;
 	bool IsPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer, bool bValue);
 
@@ -981,7 +979,6 @@ public:
 
 	bool IsDoFEverAsked(PlayerTypes ePlayer) const;
 
-	bool IsDoFRejected(PlayerTypes ePlayer) const;
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 

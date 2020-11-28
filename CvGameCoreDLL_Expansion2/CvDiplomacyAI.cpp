@@ -4404,20 +4404,6 @@ bool CvDiplomacyAI::IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const
 	return false;
 }
 
-/// Has this AI rejected a request from ePlayer to not settle near them?
-bool CvDiplomacyAI::IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const
-{
-	// If the counter is -1, it means he hasn't asked
-	if (GetPlayerNoSettleRequestCounter(ePlayer) < 0)
-		return false;
-
-	// Did the player actually accept?
-	if (IsPlayerNoSettleRequestAccepted(ePlayer))
-		return false;
-
-	return true;
-}
-
 /// Has ePlayer ever asked us not to spy on him?
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer) const
 {
@@ -4468,20 +4454,6 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 	}
 
 	return false;
-}
-
-/// Has this AI rejected a request from ePlayer to not spy on them?
-bool CvDiplomacyAI::IsPlayerStopSpyingRequestRejected(PlayerTypes ePlayer) const
-{
-	// If the counter is -1, it means he hasn't asked
-	if (GetPlayerStopSpyingRequestCounter(ePlayer) < 0)
-		return false;
-
-	// Did the player actually accept?
-	if (IsPlayerStopSpyingRequestAccepted(ePlayer))
-		return false;
-
-	return true;
 }
 
 /// How many turns has it been since ePlayer backstabbed us?
@@ -5311,20 +5283,6 @@ bool CvDiplomacyAI::IsDoFMessageTooSoon(PlayerTypes ePlayer) const
 		return true;
 
 	return false;
-}
-
-/// Have we rejected ePlayer's request to work with us?
-bool CvDiplomacyAI::IsDoFRejected(PlayerTypes ePlayer) const
-{
-	// If the counter is -1, it means he hasn't asked
-	if (GetDoFCounter(ePlayer) == -1)
-		return false;
-
-	// Did the player actually accept?
-	if (IsDoFAccepted(ePlayer))
-		return false;
-
-	return true;
 }
 
 /// Returns the type of Declaration of Friendship that could potentially be made with this player (based on previous relationship)
