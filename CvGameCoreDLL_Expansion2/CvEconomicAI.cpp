@@ -2070,10 +2070,10 @@ void CvEconomicAI::DoPlotPurchases()
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 	int iBestCost = 0;
+	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
 
-	// Let's always invest any money we have in plot purchases
-	//  (LATER -- save up money to spend at newly settled cities)
-	if(iCurrentCost < iBalance && iGoldForHalfCost > iCurrentCost)
+	// Let's not blow all our money on plot purchases
+	if(iCurrentCost*iMultiplier < iBalance && iGoldForHalfCost > iCurrentCost)
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
