@@ -83,8 +83,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiCoopWarScore()
 	, m_aiDemandCounter()
 	, m_aiDemandTooSoonNumTurns()
-	, m_abDoFAccepted()
-	, m_aiDoFCounter()
+	, m_aiDoFAcceptedTurn()
 	, m_abUntrustworthyFriend()
 	, m_abFriendDenouncedUs()
 	, m_abFriendDeclaredWarOnUs()
@@ -282,8 +281,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiDemandCounter(NULL),
 	m_paiDemandTooSoonNumTurns(NULL),
 
-	m_pabDoFAccepted(NULL),
-	m_paiDoFCounter(NULL),
+	m_paiDoFAcceptedTurn(NULL),
 
 	m_pabUntrustworthyFriend(NULL),
 	m_pabFriendDenouncedUs(NULL),
@@ -538,8 +536,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiDemandCounter = &m_pDiploData->m_aiDemandCounter[0];
 	m_paiDemandTooSoonNumTurns = &m_pDiploData->m_aiDemandTooSoonNumTurns[0];
 
-	m_pabDoFAccepted = &m_pDiploData->m_abDoFAccepted[0];
-	m_paiDoFCounter = &m_pDiploData->m_aiDoFCounter[0];
+	m_paiDoFAcceptedTurn = &m_pDiploData->m_aiDoFAcceptedTurn[0];
 
 	m_pabUntrustworthyFriend = &m_pDiploData->m_abUntrustworthyFriend[0];
 	m_pabFriendDenouncedUs = &m_pDiploData->m_abFriendDenouncedUs[0];
@@ -835,8 +832,7 @@ void CvDiplomacyAI::Uninit()
 	m_paiDemandCounter = NULL;
 	m_paiDemandTooSoonNumTurns = NULL;
 
-	m_pabDoFAccepted = NULL;
-	m_paiDoFCounter = NULL;
+	m_paiDoFAcceptedTurn = NULL;
 
 	m_pabUntrustworthyFriend = NULL;
 	m_pabFriendDenouncedUs = NULL;
@@ -1091,8 +1087,7 @@ void CvDiplomacyAI::Reset()
 		m_paiDemandCounter[iI] = -1;
 		m_paiDemandTooSoonNumTurns[iI] = -1;
 
-		m_pabDoFAccepted[iI] = false;
-		m_paiDoFCounter[iI] = -1;
+		m_paiDoFAcceptedTurn[iI] = -1;
 
 		m_pabUntrustworthyFriend[iI] = false;
 		m_pabFriendDenouncedUs[iI] = false;
@@ -1547,11 +1542,8 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiDemandTooSoonNumTurns(MAX_MAJOR_CIVS, m_paiDemandTooSoonNumTurns);
 	kStream >> wrapm_paiDemandTooSoonNumTurns;
 
-	ArrayWrapper<bool> wrapm_pabDoFAccepted(MAX_MAJOR_CIVS, m_pabDoFAccepted);
-	kStream >> wrapm_pabDoFAccepted;
-
-	ArrayWrapper<short> wrapm_paiDoFCounter(MAX_MAJOR_CIVS, m_paiDoFCounter);
-	kStream >> wrapm_paiDoFCounter;
+	ArrayWrapper<short> wrapm_paiDoFAcceptedTurn(MAX_MAJOR_CIVS, m_paiDoFAcceptedTurn);
+	kStream >> wrapm_paiDoFAcceptedTurn;
 
 	ArrayWrapper<bool> wrapm_pabUntrustworthyFriend(MAX_MAJOR_CIVS, m_pabUntrustworthyFriend);
 	kStream >> wrapm_pabUntrustworthyFriend;
@@ -2074,8 +2066,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDemandCounter);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDemandTooSoonNumTurns);
 
-	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFAccepted);
-	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFCounter);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFAcceptedTurn);
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabUntrustworthyFriend);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabFriendDenouncedUs);
@@ -4204,7 +4195,7 @@ void CvDiplomacyAI::SetDemandReady(bool bValue)
 bool CvDiplomacyAI::IsDoFAccepted(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return m_pabDoFAccepted[ePlayer];
+	return (GetDoFAcceptedTurn(ePlayer) != -1);
 }
 
 /// We made a Declaration of Friendship with someone, handle everything that means
@@ -4214,12 +4205,12 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 	if (bValue != IsDoFAccepted(ePlayer))
 	{
-		m_pabDoFAccepted[ePlayer] = bValue;
 		m_pPlayer->recomputeGreatPeopleModifiers();
 
 		// Someone made a DoF, send out notifications to everyone
 		if (bValue)
 		{
+			SetDoFAcceptedTurn(ePlayer, GC.getGame().getGameTurn());
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF");
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF_S");
 			for (int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer)
@@ -4279,6 +4270,10 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 				}
 			}
 		}
+		else
+		{
+			SetDoFAcceptedTurn(ePlayer, -1);
+		}
 	}
 }
 
@@ -4300,36 +4295,24 @@ int CvDiplomacyAI::GetNumDoF()
 	return iRtnValue;
 }
 
-/// Returns how many turns we've had a Declaration of Friendship with ePlayer for
-short CvDiplomacyAI::GetDoFCounter(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetDoFAcceptedTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
-	return m_paiDoFCounter[ePlayer];
+	return m_paiDoFAcceptedTurn[ePlayer];
 }
 
-/// Sets how many turns we've had a Declaration of Friendship with ePlayer for
-void CvDiplomacyAI::SetDoFCounter(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetDoFAcceptedTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiDoFCounter[ePlayer] = iValue;
+	m_paiDoFAcceptedTurn[ePlayer] = iTurn;
 }
 
-/// Changes how many turns we've had a Declaration of Friendship with ePlayer for
-void CvDiplomacyAI::ChangeDoFCounter(PlayerTypes ePlayer, int iChange)
+int CvDiplomacyAI::GetTurnsSinceBefriendedPlayer(PlayerTypes ePlayer) const
 {
-	SetDoFCounter(ePlayer, GetDoFCounter(ePlayer) + iChange);
-}
+	if (!IsDoFAccepted(ePlayer))
+		return -1;
 
-/// Has ePlayer asked to work with us lately?
-bool CvDiplomacyAI::IsDoFMessageTooSoon(PlayerTypes ePlayer) const
-{
-	if (GetDoFCounter(ePlayer) >= 0 && GetDoFCounter(ePlayer) < /*20*/ GC.getDOF_TURN_BUFFER())
-		return true;
-
-	if (IsDoFAccepted(ePlayer))
-		return true;
-
-	return false;
+	return (GC.getGame().getGameTurn() - GetDoFAcceptedTurn(ePlayer));
 }
 
 /// Returns the type of Declaration of Friendship that could potentially be made with this player (based on previous relationship)
@@ -9599,10 +9582,6 @@ void CvDiplomacyAI::DoCounters()
 					}
 				}
 
-				// DoF?
-				if(GetDoFCounter(eLoopPlayer) > -1)
-					ChangeDoFCounter(eLoopPlayer, 1);
-
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 				if (MOD_DIPLOMACY_CIV4_FEATURES) {
 					// Shared Opinion?
@@ -9656,24 +9635,23 @@ void CvDiplomacyAI::DoCounters()
 				}
 
 				// Has our Friendship expired?
-				if (IsDoFAccepted(eLoopPlayer) && GetDoFCounter(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
+				if (IsDoFAccepted(eLoopPlayer) && GetTurnsSinceBefriendedPlayer(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
 				{
-					SetDoFCounter(eLoopPlayer, -1);
 					SetDoFAccepted(eLoopPlayer, false);
-
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 
 					//Notify both parties that our friendship has expired.
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotifications){
+					if (pNotifications)
+					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
 						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);				
 					}
 
 					pNotifications = GET_PLAYER(GetPlayer()->GetID()).GetNotifications();
-					if (pNotifications){
+					if (pNotifications)
+					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
 						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, eLoopPlayer, GetPlayer()->GetID());				
@@ -25217,10 +25195,8 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 				// Reset DoF values
 				SetDoFAccepted(ePlayer, false);
-				SetDoFCounter(ePlayer, -1);
 				SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -1);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
 
 				// Cancel any desire for exchanges
@@ -26411,9 +26387,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			SetDoFCounter(ePlayer, 0);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
-
 			// Accept - reject is assumed from the counter
 			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetPlayer()->GetID()))
 			{
@@ -26446,9 +26419,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			SetDoFCounter(ePlayer, 0);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
-
 			// Accept - reject is assumed from the counter
 			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetPlayer()->GetID()))
 			{
@@ -26478,9 +26448,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			SetDoFCounter(ePlayer, 0);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
-
 			// Accept - reject is assumed from the counter
 			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetPlayer()->GetID()))
 			{
@@ -26512,9 +26479,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			SetDoFCounter(ePlayer, 0);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
-
 			// Accept - reject is assumed from the counter
 			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetPlayer()->GetID()))
 			{
@@ -26546,9 +26510,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			SetDoFCounter(ePlayer, 0);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), 0);
-
 			// Accept - reject is assumed from the counter
 			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetPlayer()->GetID()))
 			{
@@ -26576,9 +26537,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		
 		SetDoFAccepted(ePlayer, false);
-		SetDoFCounter(ePlayer, -666);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 		
 		// End all coop war agreements with this player
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->CancelCoopWarsWithPlayer(eMyPlayer, true);
@@ -31786,7 +31745,7 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(pTheirDiploAI->GetDoFCounter(eLoopPlayer) > 1)
+				if(pTheirDiploAI->GetTurnsSinceBefriendedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				// Found a match!
@@ -32003,7 +31962,7 @@ void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementT
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(pTheirDiploAI->GetDoFCounter(eLoopPlayer) > 1)
+				if(pTheirDiploAI->GetTurnsSinceBefriendedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				// Found a match!
@@ -32118,7 +32077,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(GetDoFCounter(eLoopPlayer) > 1)
+				if(GetTurnsSinceBefriendedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				eOpinion = GetMajorCivOpinion(ePlayer);
@@ -32413,7 +32372,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(GetDoFCounter(eLoopPlayer) > 1)
+				if(GetTurnsSinceBefriendedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				eOpinion = GetMajorCivOpinion(ePlayer);
@@ -35104,12 +35063,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US:
 	{
 		// AI hasn't known the human for long enough yet
-		if(IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+		if (IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 		{
-			SetDoFCounter(eFromPlayer, 0);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
-
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_FOR_DOF);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
@@ -35118,7 +35074,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Already have a DoF? This should never happen, but just in case...
 		else if (IsDoFAccepted(eFromPlayer))
 		{
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
@@ -35127,10 +35083,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// AI gives a new answer
 		else
 		{
-			SetDoFCounter(eFromPlayer, 0);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
 			bool bAcceptable = IsDoFAcceptable(eFromPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests();
-			if(bAcceptable)
+			if (bAcceptable)
 			{
 				SetDoFAccepted(eFromPlayer, true);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
@@ -35186,8 +35140,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		SetDoFAccepted(eFromPlayer, false);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
-		SetDoFCounter(eFromPlayer, -666);
-		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 		SetDoFType(eFromPlayer, DOF_TYPE_UNTRUSTWORTHY);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
 
@@ -35727,31 +35679,28 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_WORK_WITH_US_RESPONSE:
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
-		SetDoFCounter(eFromPlayer, 0);
-		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
-
 		// Human agrees
-		if(iArg1 == 1)
+		if (iArg1 == 1)
 		{
 			SetDoFAccepted(eFromPlayer, true);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
 
-			if(GetDoFType(eFromPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_ALLIES)
+			if (GetDoFType(eFromPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_ALLIES)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_BATTLE_BROTHERS);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_BATTLE_BROTHERS);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_FRIENDS)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_FRIENDS)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_ALLIES);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_ALLIES);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_NEW || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_NEW)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_NEW || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_NEW)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_FRIENDS);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_FRIENDS);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_UNTRUSTWORTHY)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_UNTRUSTWORTHY)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_NEW);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_NEW);
@@ -35769,9 +35718,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 		}
 		// Human says sorry, no
-		else if(iArg1 == 2)
+		else if (iArg1 == 2)
 		{
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
@@ -35788,9 +35737,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		if((IsDoFAccepted(eMyPlayer) || GET_PLAYER(eMyPlayer).GetDiplomacyAI()->IsDoFAccepted(eFromPlayer)))
 		{
-			SetDoFCounter(eFromPlayer, -666);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
-
 			SetDoFAccepted(eFromPlayer, false);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 
@@ -40142,9 +40088,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	if (IsDoFAccepted(ePlayer) || bBackstabTimer)
 	{
 		SetDoFAccepted(ePlayer, false);
-		SetDoFCounter(ePlayer, -666);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 
 		SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);

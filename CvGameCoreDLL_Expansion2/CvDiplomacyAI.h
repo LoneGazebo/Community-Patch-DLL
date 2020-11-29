@@ -294,10 +294,9 @@ public:
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 	int GetNumDoF();
 
-	short GetDoFCounter(PlayerTypes ePlayer) const;
-	void SetDoFCounter(PlayerTypes ePlayer, int iValue);
-	void ChangeDoFCounter(PlayerTypes ePlayer, int iChange);
-	bool IsDoFMessageTooSoon(PlayerTypes ePlayer) const;
+	int GetDoFAcceptedTurn(PlayerTypes ePlayer) const;
+	void SetDoFAcceptedTurn(PlayerTypes ePlayer, int iValue);
+	int GetTurnsSinceBefriendedPlayer(PlayerTypes ePlayer) const;
 
 	DoFLevelTypes GetDoFType(PlayerTypes ePlayer) const;
 	void SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel);
@@ -1871,8 +1870,6 @@ private:
 		short m_aiDemandCounter[MAX_MAJOR_CIVS];
 		short m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
 
-		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
-
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
 		short m_aiBrokenMilitaryPromiseTurn[MAX_MAJOR_CIVS];
@@ -1884,7 +1881,7 @@ private:
 		pair<int,int> m_paNoExpansionPromise[MAX_MAJOR_CIVS];
 		pair<int,int> m_paLastTurnEmpireDistance[MAX_MAJOR_CIVS];
 
-		short m_aiDoFCounter[MAX_MAJOR_CIVS];
+		short m_aiDoFAcceptedTurn[MAX_MAJOR_CIVS];
 
 		bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
@@ -2200,8 +2197,6 @@ private:
 	short* m_paiDemandCounter;
 	short* m_paiDemandTooSoonNumTurns;
 
-	bool* m_pabDoFAccepted;
-
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
 	short* m_paiBrokenMilitaryPromiseTurn;
@@ -2213,7 +2208,7 @@ private:
 	pair<int,int>* m_paNoExpansionPromise;
 	pair<int,int>* m_paLastTurnEmpireDistance;
 
-	short* m_paiDoFCounter;
+	short* m_paiDoFAcceptedTurn;
 
 	bool* m_pabUntrustworthyFriend;
 	bool* m_pabFriendDenouncedUs;
