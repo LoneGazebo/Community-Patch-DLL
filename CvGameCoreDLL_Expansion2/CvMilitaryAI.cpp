@@ -1702,7 +1702,7 @@ void CvMilitaryAI::UpdateBaseData()
 				m_iNumNavalUnits++;
 
 				//a carrier is considered free if it is not in a strike group or empty
-				if (pLoopUnit->isAircraftCarrier() && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
+				if (pLoopUnit->AI_getUnitAIType()==UNITAI_CARRIER_SEA && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
 					m_iNumFreeCarriers++;
 			}
 			else if(pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
@@ -2742,9 +2742,11 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 				{
 					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
 					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
+					bool bTooManyUnits = (pWaterBody->getNumTiles() <  pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID()) * GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP());
 
-					if (iForeignCities > 0 || iForeignUnits > 0)
-						bIsUseless = false;
+					if (!bTooManyUnits)
+						if (iForeignCities > 0 || iForeignUnits > 0)
+							bIsUseless = false;
 				}
 			}
 

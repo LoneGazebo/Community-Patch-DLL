@@ -839,9 +839,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotGuardImprovementMoves(1);
 
 	//do this last after the units in need have already moved
-	PlotRepositionMoves(false);
 	PlotNavalEscortMoves();
-	PlotRepositionMoves(true);
 
 	//civilians move out of harms way last, when all potential defenders are set in place
 	PlotMovesToSafety(false);
@@ -1296,36 +1294,6 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		ExecuteMovesToSafestPlot(pUnit);
-	}
-}
-
-/// Move units to a better location
-void CvTacticalAI::PlotRepositionMoves(bool bWater)
-{
-	ClearCurrentMoveUnits(AI_TACTICAL_REPOSITION);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->canUseForTacticalAI()) //important, don't move units which have been processed already even if they have movement left!
-		{
-			// Never use this (default) move for Great Admirals or Generals
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-				continue;
-
-			if (bWater && pUnit->getDomainType() != DOMAIN_SEA)
-				continue;
-			if (!bWater && pUnit->getDomainType() != DOMAIN_LAND)
-				continue;
-
-			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteRepositionMoves();
 	}
 }
 
@@ -2170,7 +2138,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 						continue;
 
 				// Carriers have special moves
-				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA || pUnit->AI_getUnitAIType() == UNITAI_MISSILE_CARRIER_SEA)
+				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 					continue;
 
 				// Proper domain of unit?

@@ -454,7 +454,6 @@ private:
 	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
-	void PlotRepositionMoves(bool bWater);
 //--------------------------------
 
 	void PlotAirPatrolMoves();

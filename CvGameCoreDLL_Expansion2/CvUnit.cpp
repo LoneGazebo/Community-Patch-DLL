@@ -5533,7 +5533,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		int iLoop;
 		for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
 		{
-			if (!pLoopUnit->isAircraftCarrier())
+			if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
 				continue;
 
 			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
@@ -19439,24 +19439,6 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 
 	return iCount;
 }
-
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-bool CvUnit::isAircraftCarrier() const
-{
-	if(cargoSpace() > 0 && getDomainType()==DOMAIN_SEA && domainCargo() == DOMAIN_AIR)
-	{
-		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-		SpecialUnitTypes eSpecialUnitMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
-		if(specialCargo() == eSpecialUnitPlane || specialCargo() == eSpecialUnitMissile)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getIndex() const

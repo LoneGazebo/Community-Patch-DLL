@@ -750,10 +750,9 @@ bool CvAIOperation::Move()
 
 	//drop any units which have become stuck
 	pThisArmy->UpdateCheckpointTurnsAndRemoveBadUnits();
-
+	//this might cause us to abort
 	if (ShouldAbort())
 	{
-		LogOperationSpecialMessage( "operation aborted before move" );
 		pThisArmy->ReleaseAllUnits();
 		return false;
 	}
@@ -870,7 +869,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 
 				if (pThisArmy->GetNumSlotsFilled() < iNumRequiredSlots / 2)
 				{
-					SetToAbort( AI_ABORT_HALF_STRENGTH);
+					SetToAbort(AI_ABORT_HALF_STRENGTH);
 				}
 
 				//special for escorted ops
@@ -2451,6 +2450,10 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 	if (GetOperationState() < AI_OPERATION_STATE_MOVING_TO_TARGET)
 		return NO_ABORT_REASON;
 
+	//carrier should retreat
+	if (GetArmy(0)->GetFirstUnit()->isProjectedToDieNextTurn())
+		return AI_ABORT_HALF_STRENGTH;
+
 	CvPlot* pCurrentPosition = GetArmy(0)->GetCurrentPlot();
 	CvPlot* pNewTarget = NULL;
 
@@ -2538,6 +2541,17 @@ set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
 	}
 	
 	return vTargetZones;
+}
+
+/// Handles notification that a unit in this operation was lost. Can be overridden if needed
+void CvAIOperationCarrierGroup::UnitWasRemoved(int iArmyID, int iSlotID)
+{
+	//the carrier slot is special - without it there's nothing we can do
+	if(iSlotID == 0)
+		SetToAbort( AI_ABORT_CANCELLED );
+
+	//now the default handling
+	CvAIOperation::UnitWasRemoved(iArmyID,iSlotID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

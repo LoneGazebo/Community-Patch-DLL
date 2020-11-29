@@ -271,10 +271,6 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-#if defined(MOD_BALANCE_CORE)
-	bool isAircraftCarrier() const;
-#endif
-
 	bool canHold(const CvPlot* pPlot) const; // skip turn
 	bool canSleep(const CvPlot* pPlot) const;
 	bool canFortify(const CvPlot* pPlot) const;
