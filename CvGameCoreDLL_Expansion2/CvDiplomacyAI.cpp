@@ -85,11 +85,10 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiDemandTooSoonNumTurns()
 	, m_abDoFAccepted()
 	, m_aiDoFCounter()
-	, m_abDenouncedPlayer()
 	, m_abUntrustworthyFriend()
 	, m_abFriendDenouncedUs()
 	, m_abFriendDeclaredWarOnUs()
-	, m_aiDenouncedPlayerCounter()
+	, m_aiDenouncedPlayerTurn()
 	, m_aiNumCiviliansReturnedToMe()
 	, m_aiNumLandmarksBuiltForMe()
 	, m_aiResurrectedOnTurn()
@@ -286,11 +285,10 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabDoFAccepted(NULL),
 	m_paiDoFCounter(NULL),
 
-	m_pabDenouncedPlayer(NULL),
 	m_pabUntrustworthyFriend(NULL),
 	m_pabFriendDenouncedUs(NULL),
 	m_pabFriendDeclaredWarOnUs(NULL),
-	m_paiDenouncedPlayerCounter(NULL),
+	m_paiDenouncedPlayerTurn(NULL),
 
 	m_paiNumCiviliansReturnedToMe(NULL),
 	m_paiNumLandmarksBuiltForMe(NULL),
@@ -543,11 +541,10 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabDoFAccepted = &m_pDiploData->m_abDoFAccepted[0];
 	m_paiDoFCounter = &m_pDiploData->m_aiDoFCounter[0];
 
-	m_pabDenouncedPlayer = &m_pDiploData->m_abDenouncedPlayer[0];
 	m_pabUntrustworthyFriend = &m_pDiploData->m_abUntrustworthyFriend[0];
 	m_pabFriendDenouncedUs = &m_pDiploData->m_abFriendDenouncedUs[0];
 	m_pabFriendDeclaredWarOnUs = &m_pDiploData->m_abFriendDeclaredWarOnUs[0];
-	m_paiDenouncedPlayerCounter = &m_pDiploData->m_aiDenouncedPlayerCounter[0];
+	m_paiDenouncedPlayerTurn = &m_pDiploData->m_aiDenouncedPlayerTurn[0];
 
 	m_paiNumCiviliansReturnedToMe = &m_pDiploData->m_aiNumCiviliansReturnedToMe[0];
 	m_paiNumLandmarksBuiltForMe = &m_pDiploData->m_aiNumLandmarksBuiltForMe[0];
@@ -841,11 +838,10 @@ void CvDiplomacyAI::Uninit()
 	m_pabDoFAccepted = NULL;
 	m_paiDoFCounter = NULL;
 
-	m_pabDenouncedPlayer = NULL;
 	m_pabUntrustworthyFriend = NULL;
 	m_pabFriendDenouncedUs = NULL;
 	m_pabFriendDeclaredWarOnUs = NULL;
-	m_paiDenouncedPlayerCounter = NULL;
+	m_paiDenouncedPlayerTurn = NULL;
 
 	m_paiNumCiviliansReturnedToMe = NULL;
 	m_paiNumLandmarksBuiltForMe = NULL;
@@ -1098,11 +1094,10 @@ void CvDiplomacyAI::Reset()
 		m_pabDoFAccepted[iI] = false;
 		m_paiDoFCounter[iI] = -1;
 
-		m_pabDenouncedPlayer[iI] = false;
 		m_pabUntrustworthyFriend[iI] = false;
 		m_pabFriendDenouncedUs[iI] = false;
 		m_pabFriendDeclaredWarOnUs[iI] = false;
-		m_paiDenouncedPlayerCounter[iI] = -1;
+		m_paiDenouncedPlayerTurn[iI] = -1;
 
 		m_paiNumCiviliansReturnedToMe[iI] = 0;
 		m_paiNumLandmarksBuiltForMe[iI] = 0;
@@ -1558,17 +1553,14 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiDoFCounter(MAX_MAJOR_CIVS, m_paiDoFCounter);
 	kStream >> wrapm_paiDoFCounter;
 
-	ArrayWrapper<bool> wrapm_pabDenouncedPlayer(MAX_MAJOR_CIVS, m_pabDenouncedPlayer);
-	kStream >> wrapm_pabDenouncedPlayer;
-
 	ArrayWrapper<bool> wrapm_pabUntrustworthyFriend(MAX_MAJOR_CIVS, m_pabUntrustworthyFriend);
 	kStream >> wrapm_pabUntrustworthyFriend;
 
 	ArrayWrapper<bool> wrapm_pabFriendDenouncedUs(MAX_MAJOR_CIVS, m_pabFriendDenouncedUs);
 	kStream >> wrapm_pabFriendDenouncedUs;
 
-	ArrayWrapper<short> wrapm_paiDenouncedPlayerCounter(MAX_MAJOR_CIVS, m_paiDenouncedPlayerCounter);
-	kStream >> wrapm_paiDenouncedPlayerCounter;
+	ArrayWrapper<short> wrapm_paiDenouncedPlayerTurn(MAX_MAJOR_CIVS, m_paiDenouncedPlayerTurn);
+	kStream >> wrapm_paiDenouncedPlayerTurn;
 
 	ArrayWrapper<bool> wrapm_pabFriendDeclaredWarOnUs(MAX_MAJOR_CIVS, m_pabFriendDeclaredWarOnUs);
 	kStream >> wrapm_pabFriendDeclaredWarOnUs;
@@ -2085,10 +2077,9 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFAccepted);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFCounter);
 
-	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDenouncedPlayer);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabUntrustworthyFriend);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabFriendDenouncedUs);
-	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDenouncedPlayerCounter);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDenouncedPlayerTurn);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabFriendDeclaredWarOnUs);
 
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumCiviliansReturnedToMe);
@@ -4360,14 +4351,21 @@ void CvDiplomacyAI::SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel)
 bool CvDiplomacyAI::IsDenouncedPlayer(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return m_pabDenouncedPlayer[ePlayer];
+	return (m_paiDenouncedPlayerTurn[ePlayer] != -1);
 }
 
 /// Sets whether we've denounced ePlayer
 void CvDiplomacyAI::SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_pabDenouncedPlayer[ePlayer] = bValue;
+	if (bValue)
+	{
+		SetDenouncedPlayerTurn(ePlayer, GC.getGame().getGameTurn());
+	}
+	else
+	{
+		SetDenouncedPlayerTurn(ePlayer, -1);
+	}
+
 	m_pPlayer->recomputeGreatPeopleModifiers();
 }
 
@@ -4377,30 +4375,38 @@ bool CvDiplomacyAI::IsDenouncedByPlayer(PlayerTypes ePlayer) const
 	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID());
 }
 
-/// How many turns has it been since we denounced ePlayer?
-short CvDiplomacyAI::GetDenouncedPlayerCounter(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetDenouncedPlayerTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
-	return m_paiDenouncedPlayerCounter[ePlayer];
+	return m_paiDenouncedPlayerTurn[ePlayer];
 }
 
-/// Sets how many turns it has been since we denounced ePlayer
-void CvDiplomacyAI::SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetDenouncedPlayerTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiDenouncedPlayerCounter[ePlayer] = iValue;
+	m_paiDenouncedPlayerTurn[ePlayer] = max(iTurn, -1);
 }
 
-/// Changes how many turns it has been since we denounced ePlayer
-void CvDiplomacyAI::ChangeDenouncedPlayerCounter(PlayerTypes ePlayer, int iChange)
+int CvDiplomacyAI::GetTurnsSinceDenouncedPlayer(PlayerTypes ePlayer) const
 {
-	SetDenouncedPlayerCounter(ePlayer, GetDenouncedPlayerCounter(ePlayer) + iChange);
+	if (!IsDenouncedPlayer(ePlayer))
+		return -1;
+
+	return (GC.getGame().getGameTurn() - GetDenouncedPlayerTurn(ePlayer));
 }
 
 /// Denouncing this turn?
 bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 {
-	return (IsDenouncedPlayer(ePlayer) && GetDenouncedPlayerCounter(ePlayer) == 1);
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (GetDenouncedPlayerTurn(ePlayer) == iTurn)
+		return true;
+
+	if ((GetDenouncedPlayerTurn(ePlayer) == (iTurn - 1)) && (iTurn > 0))
+		return true;
+
+	return false;
 }
 
 /// How many players have we currently denounced?
@@ -9597,10 +9603,6 @@ void CvDiplomacyAI::DoCounters()
 				if(GetDoFCounter(eLoopPlayer) > -1)
 					ChangeDoFCounter(eLoopPlayer, 1);
 
-				// Denounced?
-				if(GetDenouncedPlayerCounter(eLoopPlayer) > -1)
-					ChangeDenouncedPlayerCounter(eLoopPlayer, 1);
-
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 				if (MOD_DIPLOMACY_CIV4_FEATURES) {
 					// Shared Opinion?
@@ -9637,21 +9639,16 @@ void CvDiplomacyAI::DoCounters()
 				}
 #endif
 				// Are we ready to forget our denunciation?
-				if (IsDenouncedPlayer(eLoopPlayer) && GetDenouncedPlayerCounter(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
+				if (IsDenouncedPlayer(eLoopPlayer) && GetTurnsSinceDenouncedPlayer(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
 				{
 					SetDenouncedPlayer(eLoopPlayer, false);
-					SetDenouncedPlayerCounter(eLoopPlayer, -1);
-					// Let's become open to becoming friends again
-					SetDoFCounter(eLoopPlayer, -1);
 
-					// They no longer hate us either
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
-
-					//Notify the target of the denouncement that it has expired.
+					// Notify the target of the denouncement that it has expired.
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if(pNotifications){
-						CvString							strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
-						Localization::String	strInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED");
+					if (pNotifications)
+					{
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
+						Localization::String strInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED");
 						Localization::String strTemp = strInfo;
 						strTemp << GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_DENUNCIATION_EXPIRED, strTemp.toUTF8(), strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);
@@ -31863,7 +31860,7 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(pTheirDiploAI->GetDenouncedPlayerCounter(eLoopPlayer) > 1)
+				if(pTheirDiploAI->GetTurnsSinceDenouncedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				// Found a match!
@@ -31934,7 +31931,7 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(pTheirDiploAI->GetDenouncedPlayerCounter(eLoopPlayer) > 1)
+				if(pTheirDiploAI->GetTurnsSinceDenouncedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				// Found a match!
@@ -32212,7 +32209,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(GetDenouncedPlayerCounter(eLoopPlayer) > 1)
+				if(GetTurnsSinceDenouncedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				eOpinion = GetMajorCivOpinion(ePlayer);
@@ -32300,7 +32297,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 					continue;
 
 				// Too much time has passed (or maybe we already sent a message recently)
-				if(GetDenouncedPlayerCounter(eLoopPlayer) > 1)
+				if(GetTurnsSinceDenouncedPlayer(eLoopPlayer) > 1)
 					continue;
 
 				eOpinion = GetMajorCivOpinion(ePlayer);
@@ -40121,7 +40118,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
 	SetDenouncedPlayer(ePlayer, true);
-	SetDenouncedPlayerCounter(ePlayer, 0);
 
 	// close both embassies
 	GET_TEAM(eMyTeam).CloseEmbassyAtTeam(eTheirTeam);

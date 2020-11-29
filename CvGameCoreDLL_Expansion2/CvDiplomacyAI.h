@@ -307,9 +307,9 @@ public:
 	void SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue);
 	bool IsDenouncedByPlayer(PlayerTypes ePlayer) const;
 
-	short GetDenouncedPlayerCounter(PlayerTypes ePlayer) const;
-	void SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue);
-	void ChangeDenouncedPlayerCounter(PlayerTypes ePlayer, int iChange);
+	int GetDenouncedPlayerTurn(PlayerTypes ePlayer) const;
+	void SetDenouncedPlayerTurn(PlayerTypes ePlayer, int iTurn);
+	int GetTurnsSinceDenouncedPlayer(PlayerTypes ePlayer) const;
 	bool IsDenouncingPlayer(PlayerTypes ePlayer) const;
 
 	int GetNumDenouncements();
@@ -1886,7 +1886,6 @@ private:
 
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
-		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
 		bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1894,7 +1893,7 @@ private:
 		bool m_abOfferedGift[MAX_MAJOR_CIVS];
 #endif
 		bool m_abFriendDeclaredWarOnUs[MAX_MAJOR_CIVS];
-		short m_aiDenouncedPlayerCounter[MAX_MAJOR_CIVS];
+		short m_aiDenouncedPlayerTurn[MAX_MAJOR_CIVS];
 
 		short m_aiNumCiviliansReturnedToMe[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMe[MAX_MAJOR_CIVS];
@@ -2216,11 +2215,10 @@ private:
 
 	short* m_paiDoFCounter;
 
-	bool* m_pabDenouncedPlayer;
 	bool* m_pabUntrustworthyFriend;
 	bool* m_pabFriendDenouncedUs;
 	bool* m_pabFriendDeclaredWarOnUs;
-	short* m_paiDenouncedPlayerCounter;
+	short* m_paiDenouncedPlayerTurn;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool* m_pabOfferingGift;
 	bool* m_pabOfferedGift;

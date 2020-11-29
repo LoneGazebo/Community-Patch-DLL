@@ -10944,7 +10944,7 @@ int CvLuaPlayer::lGetDenouncedPlayerCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iValue = pkPlayer->GetDiplomacyAI()->GetDenouncedPlayerCounter(eOtherPlayer);
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetTurnsSinceDenouncedPlayer(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
 	return 1;
