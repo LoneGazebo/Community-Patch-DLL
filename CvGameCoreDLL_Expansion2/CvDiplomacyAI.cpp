@@ -3814,22 +3814,6 @@ int CvDiplomacyAI::GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const
 	return iCount;
 }
 
-/// Does this AI want to connect to a minor with a route?
-bool CvDiplomacyAI::IsWantToRouteConnectToMinor(PlayerTypes eMinor)
-{
-	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
-	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return false;
-	return (bool) m_pabWantToRouteToMinor[iArrayIndex];
-}
-
-/// Sets if this AI want to connect to a minor with a route
-void CvDiplomacyAI::SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant)
-{
-	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
-	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return;
-	m_pabWantToRouteToMinor[iArrayIndex] = bWant;
-}
-
 /// Is there a City-State we're targeting for bullying, backed with force?
 PlayerTypes CvDiplomacyAI::GetCSBullyTargetPlayer() const
 {
@@ -3854,6 +3838,22 @@ void CvDiplomacyAI::SetCSWarTargetPlayer(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_eCSWarTarget = ePlayer;
+}
+
+/// Does this AI want to connect to a minor with a route?
+bool CvDiplomacyAI::IsWantToRouteConnectToMinor(PlayerTypes eMinor)
+{
+	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
+	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return false;
+	return (bool) m_pabWantToRouteToMinor[iArrayIndex];
+}
+
+/// Sets if this AI want to connect to a minor with a route
+void CvDiplomacyAI::SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bValue)
+{
+	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
+	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return;
+	m_pabWantToRouteToMinor[iArrayIndex] = bValue;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -6777,6 +6777,18 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 	m_pabPlayerBrokenAttackCityStatePromise[ePlayer] = bValue;
 }
 
+int CvDiplomacyAI::GetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+	return m_paiBrokenAttackCityStatePromiseTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_paiBrokenAttackCityStatePromiseTurn[ePlayer] = iValue;
+}
+
 /// Did this player ignore our request to stop attacking one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer) const
 {
@@ -6789,18 +6801,6 @@ void CvDiplomacyAI::SetPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer, 
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_pabPlayerIgnoredAttackCityStatePromise[ePlayer] = bValue;
-}
-
-int CvDiplomacyAI::GetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
-	return m_paiBrokenAttackCityStatePromiseTurn[ePlayer];
-}
-
-void CvDiplomacyAI::SetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiBrokenAttackCityStatePromiseTurn[ePlayer] = iValue;
 }
 
 // ////////////////////////////////////
@@ -7167,20 +7167,6 @@ void CvDiplomacyAI::SetPlayerForgaveForSpying(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerForgaveForSpying[ePlayer] = bValue;
 }
 
-/// Has ePlayer ever asked about working with us?
-bool CvDiplomacyAI::IsDoFEverAsked(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return m_pabDoFEverAsked[ePlayer];
-}
-
-/// Sets if this player has ever asked to make a DoF with us
-void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_pabDoFEverAsked[ePlayer] = bValue;
-}
-
 /// Returns if ePlayer liberated our capital
 bool CvDiplomacyAI::IsPlayerLiberatedCapital(PlayerTypes ePlayer) const
 {
@@ -7199,6 +7185,20 @@ void CvDiplomacyAI::SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_pabPlayerLiberatedCapital[ePlayer] = bValue;
+}
+
+/// Has ePlayer ever asked about working with us?
+bool CvDiplomacyAI::IsDoFEverAsked(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	return m_pabDoFEverAsked[ePlayer];
+}
+
+/// Sets if this player has ever asked to make a DoF with us
+void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_pabDoFEverAsked[ePlayer] = bValue;
 }
 
 /// Returns if ePlayer captured our capital
@@ -8761,23 +8761,6 @@ void CvDiplomacyAI::SetVassalTaxLowered(PlayerTypes ePlayer, bool bValue)
 	m_pabVassalTaxLowered[ePlayer] = bValue;
 }
 
-int CvDiplomacyAI::GetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
-	return m_paiVassalGoldPerTurnTaxedSinceVassalStarted[ePlayer];
-}
-
-void CvDiplomacyAI::SetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiVassalGoldPerTurnTaxedSinceVassalStarted[ePlayer] = iValue;
-}
-
-void CvDiplomacyAI::ChangeVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iChange)
-{
-	SetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer, GetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer) + iChange);
-}
-
 int CvDiplomacyAI::GetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
@@ -8793,6 +8776,23 @@ void CvDiplomacyAI::SetVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes 
 void CvDiplomacyAI::ChangeVassalGoldPerTurnCollectedSinceVassalStarted(PlayerTypes ePlayer, int iChange)
 {
 	SetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer, GetVassalGoldPerTurnCollectedSinceVassalStarted(ePlayer) + iChange);
+}
+
+int CvDiplomacyAI::GetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	return m_paiVassalGoldPerTurnTaxedSinceVassalStarted[ePlayer];
+}
+
+void CvDiplomacyAI::SetVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_paiVassalGoldPerTurnTaxedSinceVassalStarted[ePlayer] = iValue;
+}
+
+void CvDiplomacyAI::ChangeVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes ePlayer, int iChange)
+{
+	SetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer, GetVassalGoldPerTurnTaxedSinceVassalStarted(ePlayer) + iChange);
 }
 
 //	-----------------------------------------------------------------------------------------------
