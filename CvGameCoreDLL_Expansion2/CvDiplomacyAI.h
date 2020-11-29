@@ -1164,6 +1164,7 @@ public:
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer) const;
 
 	int GetVassalProtectValue(PlayerTypes ePlayer) const;
+	void SetVassalProtectValue(PlayerTypes ePlayer, int iValue);
 	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
 
 	int GetTooManyVassalsScore(PlayerTypes ePlayer) const;
@@ -1177,6 +1178,7 @@ public:
 	
 	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;
+	void SetVassalFailedProtectValue(PlayerTypes ePlayer, int iValue);
 	void ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange);
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar = false);
