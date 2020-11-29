@@ -550,18 +550,6 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	if (!path)
 		return NULL;
 
-	// check if there are obstacles on the way (maybe someone founded a new city?)
-	// do not check the final steps, because that's our actual target city!
-	for (int i = 0; i < path.length()-3; i++)
-	{
-		if (GC.getGame().GetClosestCityDistanceInPlots(path.get(i)) < 3)
-		{
-			CvCity* pCity = GC.getGame().GetClosestCityByPlots(path.get(i));
-			if (pCity && GET_PLAYER(m_eOwner).isMajorCiv() && GET_PLAYER(m_eOwner).IsAtWarWith(pCity->getOwner()))
-				return NULL; //this will abort the operation
-		}
-	}
-
 	int iNodeIndex;
 	if (bForward)
 		iNodeIndex = std::min( path.length()-1, iStep );
@@ -2468,14 +2456,6 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 
 	//this includes the zone we are currently targeting
 	set<int> vTargetZones = GetPossibleDeploymentZones();
-	if (vTargetZones.empty())
-	{
-		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
-		if (!pHomeCity)
-			return AI_ABORT_NO_TARGET;
-
-		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
-	}
 
 	//take the one that is closest to us
 	int iClosestDistance = INT_MAX;
@@ -2495,6 +2475,15 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 			iClosestDistance = iDistance;
 			pNewTarget = pCenterPlot;
 		}
+	}
+
+	if (pNewTarget==NULL)
+	{
+		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
+		if (!pHomeCity)
+			return AI_ABORT_NO_TARGET;
+
+		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
 	}
 
 	//no-op if new target is same as old

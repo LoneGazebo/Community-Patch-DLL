@@ -650,23 +650,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.isMinorCiv())
 				return 0;
 
-			int iSlots = kPlayer.GetMilitaryAI()->GetNumFreeCarrier();
-			//No planes, or a surplus of carriers? No carriers
-			if (iSlots == -1 || (iSlots > 0))
-			{
+			if (kPlayer.GetMilitaryAI()->GetNumFreeCarrier()>0)
 				return 0;
-			}
-			//No slots at all? Let's make one.
-			else if (iSlots == 0)
-			{
-				iBonus += 1000;
-			}
-			//If we have more planes than slots (negative), we need this!
-			else
-			{
-				iBonus += (-10 * iSlots);
-			}
 		}
+
 		//Need Explorers?
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
