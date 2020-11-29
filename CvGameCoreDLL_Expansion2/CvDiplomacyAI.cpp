@@ -4304,7 +4304,7 @@ int CvDiplomacyAI::GetDoFAcceptedTurn(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetDoFAcceptedTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_paiDoFAcceptedTurn[ePlayer] = iTurn;
+	m_paiDoFAcceptedTurn[ePlayer] = max(iTurn, -1);
 }
 
 int CvDiplomacyAI::GetTurnsSinceBefriendedPlayer(PlayerTypes ePlayer) const
@@ -4334,7 +4334,7 @@ void CvDiplomacyAI::SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel)
 bool CvDiplomacyAI::IsDenouncedPlayer(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return (m_paiDenouncedPlayerTurn[ePlayer] != -1);
+	return (GetDenouncedPlayerTurn(ePlayer) != -1);
 }
 
 /// Sets whether we've denounced ePlayer

@@ -9981,19 +9981,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 
-			// Clear certain penalties with third parties
-			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
-			{
-				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-				
-				if (GET_PLAYER(eThirdParty).isMajorCiv())
-				{
-					// forget any denouncing
-					pDiploAI->SetDenouncedPlayer(eThirdParty, false);
-					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
-				}
-			}
-
 			// Update diplo stuff.
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
