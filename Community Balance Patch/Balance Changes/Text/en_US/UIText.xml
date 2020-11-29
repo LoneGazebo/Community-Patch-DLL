@@ -1467,11 +1467,11 @@
 	<Civilization_CityNames>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_ERACLEA</CityName>
+			<CityName>TXT_KEY_CITY_NAME_CATTARO</CityName>
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_CHIOGGIA</CityName>
+			<CityName>TXT_KEY_CITY_NAME_CORFU</CityName>
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
@@ -1479,21 +1479,77 @@
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CANDIA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CHIOGGIA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
 			<CityName>TXT_KEY_CITY_NAME_MODON</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_ERACLEA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_AQUILEA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_SPALATO</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_ZADAR</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_VERONA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_UDINE</CityName>
 		</Row>
 	</Civilization_CityNames>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_CITY_NAME_ERACLEA">
-			<Text>Eraclea</Text>
+		<Row Tag="TXT_KEY_CITY_NAME_CATTARO">
+			<Text>Cattaro</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_NAME_CHIOGGIA">
-			<Text>Chioggia</Text>
+		<Row Tag="TXT_KEY_CITY_NAME_CORFU">
+			<Text>Corfu</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_CORON">
 			<Text>Coron</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CANDIA">
+			<Text>Candia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CHIOGGIA">
+			<Text>Chioggia</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_MODON">
 			<Text>Modon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_ERACLEA">
+			<Text>Eraclea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_AQUILEA">
+			<Text>Aquilea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_SPALATO">
+			<Text>Spalato</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_ZADAR">
+			<Text>Zadar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_VERONA">
+			<Text>Verona</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_UDINE">
+			<Text>Udine</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
