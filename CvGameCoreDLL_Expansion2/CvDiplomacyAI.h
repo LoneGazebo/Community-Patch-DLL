@@ -475,16 +475,16 @@ public:
 	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 
-	// Friend denounced us?
-	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
+	// They denounced us while we were friends!
+	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;
 	void SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue);
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
 	void SetFriendDenouncedUsTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumFriendsDenouncedBy();
 	int GetWeDenouncedFriendCount();
 
-	// Friend declared war on us?
-	bool IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const;	// They declared war on us while we were friends!
+	// They declared war on us while we were friends!
+	bool IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const;
 	void SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue);
 	int GetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer) const;
 	void SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iValue);

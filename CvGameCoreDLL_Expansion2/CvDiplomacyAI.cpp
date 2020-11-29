@@ -3823,7 +3823,7 @@ PlayerTypes CvDiplomacyAI::GetCSBullyTargetPlayer() const
 /// Sets a City-State we're targeting for bullying, backed with force
 void CvDiplomacyAI::SetCSBullyTargetPlayer(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (ePlayer < MAX_MAJOR_CIVS || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_eCSBullyTarget = ePlayer;
 }
 
@@ -3836,7 +3836,7 @@ PlayerTypes CvDiplomacyAI::GetCSWarTargetPlayer() const
 /// Sets a City-State we're targeting for war
 void CvDiplomacyAI::SetCSWarTargetPlayer(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (ePlayer < MAX_MAJOR_CIVS || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_eCSWarTarget = ePlayer;
 }
 
@@ -5158,6 +5158,7 @@ PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToAccept(PlayerTypes ePlayer) co
 void CvDiplomacyAI::SetTreatyWillingToAccept(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (eTreaty < NO_PEACE_TREATY_TYPE || eTreaty >= NUM_PEACE_TREATY_TYPES) return;
 	m_paePeaceTreatyWillingToAccept[ePlayer] = eTreaty;
 }
 
@@ -8539,8 +8540,7 @@ void CvDiplomacyAI::ChangeHelpRequestCounter(PlayerTypes ePlayer, int iChange)
 
 short CvDiplomacyAI::GetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 	return m_paiHelpRequestTooSoonNumTurns[ePlayer];
 }
 
