@@ -220,7 +220,7 @@ public:
 		return m_iNumAirUnits > 0;
 	};
 	CvUnit* FindUselessShip();
-	CvUnit* FindObsoleteUnitToScrap(bool bLand, bool bForcedDisband, int& iScore);
+	CvUnit* FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iScore);
 	bool IsBuildingArmy(ArmyType eType) const;
 	UnitTypes GetUnitTypeForArmy(CvCity* pCity) const;
 	int GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bool bCountFighters, bool bCountBombers) const;

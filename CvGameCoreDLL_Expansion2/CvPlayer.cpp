@@ -36786,28 +36786,23 @@ void CvPlayer::DoDeficit()
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE) {
 		return;
 	}
+	if(isBarbarian())
+	{
+		return;
+	}
 
 	int iNumMilitaryUnits = 0;
 
-	CvUnit* pLoopUnit;
 	int iLoop;
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsCombatUnit())
 			iNumMilitaryUnits++;
 	}
 
 	// If the player has more units than cities, start disbanding things
-#if defined(MOD_BALANCE_CORE)
-	if(isBarbarian())
-	{
-		return;
-	}
 	int iMax = isMinorCiv() ? ((GetCurrentEra() + 4) * getNumCities()) : max(10, getNumCities());
 	if(iNumMilitaryUnits >= iMax)
-#else
-	if(iNumMilitaryUnits > getNumCities())
-#endif
 	{
 		int iRand = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed());
 		if (iRand < 50)
@@ -36818,17 +36813,14 @@ void CvPlayer::DoDeficit()
 			int iNavalScore = MAX_INT;
 
 			// Look for obsolete land units if in deficit or have sufficient units
-			//if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			if (iRand <= 25)
 			{
-				pLandUnit = GetMilitaryAI()->FindObsoleteUnitToScrap(true /*bLand*/, true /*bForcedDisband*/, iLandScore);
+				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
 			}
-
 			// Look for obsolete naval units if in deficit or have sufficient units
-			//if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			else
 			{
-				pNavalUnit = GetMilitaryAI()->FindObsoleteUnitToScrap(false/*bNaval*/, true /*bForcedDisband*/, iNavalScore);
+				pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore);
 			}
 
 			if(iLandScore < MAX_INT && (GetMilitaryAI()->GetLandDefenseState() <= GetMilitaryAI()->GetNavalDefenseState() || iLandScore <= iNavalScore))
