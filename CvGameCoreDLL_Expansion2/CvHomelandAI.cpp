@@ -2210,9 +2210,6 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		{
 			if (m_pPlayer->isMajorCiv() || !pUnit->canFoundCity(pUnit->plot()))
 			{
-				int iInitialPlotValue = 0;
-				int iAdjacentValue = 0;
-				CvPlot* pBestAdjacentPlot = NULL;
 				//Let's check for a river estuary - those are always good
 				if (pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFoundCity(pUnit->plot()))
 				{
@@ -2228,35 +2225,32 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				}
 				else
 				{
-					iInitialPlotValue = pUnit->canFoundCity(pUnit->plot()) ? pUnit->plot()->getFoundValue(m_pPlayer->GetID()) : 0;
+					//can be zero if we not on a local maximum ...
+					int iCurrentValue = pUnit->canFoundCity(pUnit->plot()) ? m_pPlayer->getPlotFoundValue(pUnit->getX(), pUnit->getY()) : 0;
+					CvPlot* pBetterPlot = NULL;
 
-					if (GC.getGame().getElapsedGameTurns()<3 || iInitialPlotValue==0) //first two turns or we're in a bad spot
+					if (GC.getGame().getElapsedGameTurns()<3 || iCurrentValue==0) //first two turns or we're in a bad spot
 					{
-						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
+						for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 						{
-							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-							if (pAdjacentPlot != NULL && pUnit->canFoundCity(pAdjacentPlot) && pUnit->GetDanger(pBestAdjacentPlot)<INT_MAX)
+							CvPlot* pAltPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+							if (pAltPlot != NULL && pUnit->canFoundCity(pAltPlot) && pUnit->GetDanger(pAltPlot)<INT_MAX)
 							{
-								iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());
-								if (iAdjacentValue > iInitialPlotValue*1.1f) //should be at least ten percent better to justify the hassle
+								int iAltValue = m_pPlayer->getPlotFoundValue(pAltPlot->getX(), pAltPlot->getY());
+								if (iAltValue > iCurrentValue*1.1f) //should be at least ten percent better to justify the hassle
 								{
-									if (GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue);
-										LogHomelandMessage(strLogString);
-									}
-									iInitialPlotValue = iAdjacentValue;
-									pBestAdjacentPlot = pAdjacentPlot;
+									iCurrentValue = iAltValue;
+									pBetterPlot = pAltPlot;
 								}
 							}
 						}
 					}
 
-					if (pBestAdjacentPlot != NULL)
+					if (pBetterPlot != NULL)
 					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
-						if (pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBetterPlot->getX(), pBetterPlot->getY());
+						if (pUnit->plot() == pBetterPlot && pUnit->canMove())
 						{
 							pUnit->PushMission(CvTypes::getMISSION_FOUND());
 							UnitProcessed(pUnit->GetID());

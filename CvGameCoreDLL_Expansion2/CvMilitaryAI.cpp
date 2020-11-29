@@ -1697,12 +1697,12 @@ void CvMilitaryAI::UpdateBaseData()
 			else if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
 				if(pLoopUnit->getArmyID() != -1)
-				{
 					m_iNumNavalUnitsInArmies++;
-				}
+
 				m_iNumNavalUnits++;
 
-				if (pLoopUnit->isAircraftCarrier() && pLoopUnit->getCargo() == 0)
+				//a carrier is considered free if it is not in a strike group or empty
+				if (pLoopUnit->isAircraftCarrier() && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
 					m_iNumFreeCarriers++;
 			}
 			else if(pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
@@ -2603,7 +2603,7 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 }
 
 /// Delete older units no longer needed by military AI
-void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
+void CvMilitaryAI::DisbandObsoleteUnits()
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("DisbandObsoleteUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
@@ -2633,15 +2633,6 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	}
 	else
 	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				if (m_pPlayer->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
-					return;
-			}
-		}
 		// Are we running at a deficit?
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
@@ -2660,95 +2651,113 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	int iMaxExcessUnits = bConquestGrandStrategy ? 5 : 3;
 	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply() > iMaxExcessUnits);
 
-	//nothing to do
-	if (!bInDeficit && !bOverSupplyCap)
-		return;
-
-	for (int i=0; i<iMaxUnits; i++)
+	int iLandScore = MAX_INT;
+	CvUnit*	pLandUnit = FindObsoleteUnitToScrap(true /*bLand*/, bInDeficit || bOverSupplyCap /*bForcedDisband*/, iLandScore);
+	if (pLandUnit)
 	{
-		CvUnit* pNavalUnit = NULL;
-		CvUnit* pLandUnit = NULL;
-		int iNavalScore = MAX_INT;
-		int iLandScore = MAX_INT;
-
-		// Look for obsolete land units if in deficit or have sufficient units
-		if (bInDeficit || bOverSupplyCap)
+		// Don't do this if we're a minor civ
+		if (!m_pPlayer->isMinorCiv())
 		{
-			//we may be in deficit, but we're not forced to disband yet
-			pLandUnit = FindBestUnitToScrap(true /*bLand*/, false /*bDeficitForcedDisband*/, iLandScore);
-		}
-
-		// Look for obsolete naval units if in deficit or have sufficient units
-		if (bInDeficit || (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
-		{
-			//we may be in deficit, but we're not forced to disband yet
-			pNavalUnit = FindBestUnitToScrap(false/*bNaval*/, false /*bDeficitForcedDisband*/, iNavalScore);
-		}
-
-		if (iLandScore < MAX_INT && (m_eLandDefenseState <= m_eNavalDefenseState || iLandScore <= iNavalScore))
-		{
-			if (pLandUnit && !pLandUnit->isDelayedDeath())
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			if (eMinor != NO_PLAYER)
 			{
-				bool bGifted = false;
-				// Don't do this if we're a minor civ
-				if (!m_pPlayer->isMinorCiv())
-				{
-					PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-					if (eMinor != NO_PLAYER)
-					{
-						GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
-						bGifted = true;
-					}
-				}
-				if (bGifted)
-				{
-					LogGiftUnit(pLandUnit, bInDeficit, bOverSupplyCap);
-				}
-				else
-				{
-					if (pLandUnit->canScrap())
-						pLandUnit->scrap();
-					else
-						pLandUnit->kill(true);
-
-					LogScrapUnit(pLandUnit, bInDeficit, bOverSupplyCap);
-				}
+				LogGiftUnit(pLandUnit, bInDeficit, bOverSupplyCap);
+				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
+				pLandUnit = NULL;
 			}
 		}
-		else if (iNavalScore < MAX_INT)
+
+		if (pLandUnit)
 		{
-			if (pNavalUnit && !pNavalUnit->isDelayedDeath())
+			LogScrapUnit(pLandUnit, bInDeficit, bOverSupplyCap);
+			if (pLandUnit->canScrap())
+				pLandUnit->scrap();
+			else
+				pLandUnit->kill(true);
+		}
+	}
+
+	int iNavalScore = MAX_INT;
+	CvUnit* pNavalUnit = FindUselessShip();
+	if (!pNavalUnit)
+		pNavalUnit = FindObsoleteUnitToScrap(false/*bNaval*/, bInDeficit || bOverSupplyCap /*bForcedDisband*/, iNavalScore);
+
+	if (pNavalUnit)
+	{
+		// Don't do this if we're a minor civ
+		if (!m_pPlayer->isMinorCiv())
+		{
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			if (eMinor != NO_PLAYER)
 			{
-				bool bGifted = false;
-				// Don't do this if we're a minor civ
-				if (!m_pPlayer->isMinorCiv())
-				{
-					PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-					if (eMinor != NO_PLAYER)
-					{
-						GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
-						bGifted = true;
-					}
-				}
-				if (bGifted)
-				{
-					LogGiftUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
-				}
-				else
-				{
-					if (pNavalUnit->canScrap())
-						pNavalUnit->scrap();
-					else
-						pNavalUnit->kill(true);
-					LogScrapUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
-				}
+				LogGiftUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
+				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
+				pNavalUnit = NULL;
 			}
+		}
+
+		if (pNavalUnit)
+		{
+			LogScrapUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
+			if (pNavalUnit->canScrap())
+				pNavalUnit->scrap();
+			else
+				pNavalUnit->kill(true);
 		}
 	}
 }
 
+CvUnit* CvMilitaryAI::FindUselessShip()
+{
+	int iUnitLoop;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if (!pLoopUnit->IsCombatUnit())
+			continue;
+
+		if (!pLoopUnit->canScrap())
+			continue;
+
+		// Is this a ship on a water body without enemies and without exits?
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
+			//assume it's useless until proven otherwise
+			bool bIsUseless = true;
+
+			//two turns is a good compromise between reliability and performance 
+			SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
+			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
+			set<int> areas;
+
+			for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+				if (pPlot && pPlot->isWater())
+					areas.insert(pPlot->getArea());
+			}
+			for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+			{
+				CvArea* pWaterBody = GC.getMap().getArea(*it);
+				if (pWaterBody)
+				{
+					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
+					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
+
+					if (iForeignCities > 0 || iForeignUnits > 0)
+						bIsUseless = false;
+				}
+			}
+
+			if (bIsUseless)
+				return pLoopUnit;
+		}
+	}
+
+	return NULL;
+}
+
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
-CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iReturnedScore)
+CvUnit* CvMilitaryAI::FindObsoleteUnitToScrap(bool bLand, bool bForcedDisband, int& iReturnedScore)
 {
 	int iUnitLoop;
 	CvUnit* pBestUnit = NULL;
@@ -2758,9 +2767,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 	{
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
-
-		bool bIsUseless = false;
-		bool bStillNeeded = false;
 
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
@@ -2788,12 +2794,15 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED)
 			continue;
 
-		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
-		if(!bDeficitForcedDisband)
+		// We we are in deficit, let's assume we don't need the unit anymore
+		bool bIsObsolete = bForcedDisband;
+
+		// if not we do some more checks
+		if (!bForcedDisband)
 		{
-			if (bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
+			if (bLand && m_eLandDefenseState >= DEFENSE_STATE_NEEDED)
 				continue;
-			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
+			else if(!bLand && m_eNavalDefenseState >= DEFENSE_STATE_NEEDED)
 				continue;
 
 			// Is it in an army?
@@ -2801,78 +2810,39 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				continue;
 
 			// Do we need it to fight?
-			bool bCloseToEnemy = false;
-			for (int i = 1; i < RING3_PLOTS; i++)
-			{
-				CvPlot* pPlot = iterateRingPlots(pLoopUnit->plot(), i);
-				if (!pPlot)
-					continue;
-				
-				if (pPlot->isEnemyUnit(m_pPlayer->GetID(), false, true) || pPlot->isEnemyCity(*pLoopUnit))
-				{
-					bCloseToEnemy = true;
-					break;
-				}
-			}
-			if (bCloseToEnemy)
+			if (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
 				continue;
-
-			// Is this a ship on a water body without enemies?
-			if (!bLand && pLoopUnit->plot()->isWater())
-			{
-				CvArea* pWaterBody = GC.getMap().getArea( pLoopUnit->plot()->getArea() );
-				if (pWaterBody)
-				{
-					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
-					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
-
-					if (iForeignCities == 0 && iForeignUnits == 0)
-						bIsUseless = true;
-				}
-			}
 
 			// Is this a unit who has an obsolete tech that I have researched?
 			if ((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-				bIsUseless = true;
-
-			// Does this unit's upgrade require a resource?
-			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
-			if(eUpgradeUnit != NO_UNIT)
 			{
-				CvUnitEntry* pUpgradeUnitInfo = GC.GetGameUnits()->GetEntry(eUpgradeUnit);
-				if(pUpgradeUnitInfo != NULL)
-				{
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						int iNumResourceTotalNeeded = 0;
-						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-						{
-							iNumResourceTotalNeeded = pUpgradeUnitInfo->GetResourceQuantityTotal(eResource);
-						}
+				bIsObsolete = true;
 
-						// Minor issue: this only works correctly if a unit has only one required resource ...
-						if(iNumResourceNeeded > 0 || (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && iNumResourceTotalNeeded > 0))
-#else
-						if(iNumResourceNeeded > 0)
-#endif
+				UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
+				if (eUpgradeUnit != NO_UNIT)
+				{
+					//ok nice looks like we can upgrade
+					bIsObsolete = false;
+
+					//but does this unit's upgrade require additional resources we don't have?
+					CvUnitEntry* pUpgradeUnitInfo = GC.GetGameUnits()->GetEntry(eUpgradeUnit);
+					if (pUpgradeUnitInfo != NULL)
+					{
+						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 						{
-							if(m_pPlayer->getNumResourceTotal(eResource) > 0)
+							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+							int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
+							int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
+							if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
+								bIsObsolete = true;
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+							if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 							{
-								// We'll wait and try to upgrade this one, our unit count isn't that bad
-								if (bLand && m_eLandDefenseState > DEFENSE_STATE_NEUTRAL)
-								{
-									bStillNeeded = true;
-									break;
-								}
-								else if (!bLand && m_eNavalDefenseState > DEFENSE_STATE_NEUTRAL)
-								{
-									bStillNeeded = true;
-									break;
-								}
+								if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource))
+									bIsObsolete = true;
 							}
+#endif
 						}
 					}
 				}
@@ -2880,9 +2850,9 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		}
 
 		// Can I scrap this unit?
-		if( (!bStillNeeded || bIsUseless))
+		if( bIsObsolete )
 		{
-			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
+			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel();
 			if(iScore < iBestScore)
 			{
 				iBestScore = iScore;

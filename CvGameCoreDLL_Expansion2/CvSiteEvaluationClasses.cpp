@@ -23,20 +23,13 @@
 //=====================================
 // CvCitySiteEvaluator
 //=====================================
-/// Constructor
-CvCitySiteEvaluator::CvCitySiteEvaluator(void)
-{
-	m_iExpansionIndex = 12;
-	m_iGrowthIndex = 13;
-}
-
 /// Destructor
 CvCitySiteEvaluator::~CvCitySiteEvaluator(void)
 {
 }
 
 /// Initialize
-void CvCitySiteEvaluator::Init()
+CvCitySiteEvaluator::CvCitySiteEvaluator()
 {
 	// Set up city ring multipliers
 	m_iRingModifier[0] = 1;   // Items under city get handled separately
@@ -56,15 +49,6 @@ void CvCitySiteEvaluator::Init()
 	m_iExpansionIndex = GC.getInfoTypeForString("FLAVOR_EXPANSION");
 	m_iNavalIndex = GC.getInfoTypeForString("FLAVOR_NAVAL");
 
-	m_iBrazilMultiplier = 1000;	//fertility boost from jungles
-	m_iSpainMultiplier = 55000;	//fertility boost from natural wonders
-	m_iMorrocoMultiplier = 1000; //fertility boost from desert
-#if defined(MOD_BALANCE_CORE)
-	m_iFranceMultiplier = 1000; //fertility boost from resources
-#endif
-	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
-	m_iIncaMultiplier = 500; //fertility boost for hill tiles surrounded my mountains
-
 	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
 		m_iFlavorMultiplier[i]=1;
 }
@@ -75,8 +59,6 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 	CvAssert(pPlot);
 	if(!pPlot)
 		return false;
-
-	bool bValid(false);
 
 	// Used to have a Python hook: CANNOT_FOUND_CITY_CALLBACK
 
@@ -89,6 +71,13 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 				return false;
 			}
 		}
+	}
+
+	// Used to have a Python hook: CAN_FOUND_CITIES_ON_WATER_CALLBACK
+
+	if(pPlot->isWater())
+	{
+		return false;
 	}
 
 	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
@@ -111,11 +100,6 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 
 	if(pPlayer)
 	{
-		if (!pPlot->isRevealed(pPlayer->getTeam()))
-		{
-			return false;
-		}
-
 		if(pPlot->isOwned() && (pPlot->getOwner() != pPlayer->GetID()))
 		{
 			return false;
@@ -140,14 +124,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 	}
 
 	CvTerrainInfo* pTerrainInfo = GC.getTerrainInfo(pPlot->getTerrainType());
-
-	if(!bValid)
-	{
-		if(pTerrainInfo->isFound())
-		{
-			bValid = true;
-		}
-	}
+	bool bValid = pTerrainInfo->isFound();
 
 	if(!bValid)
 	{
@@ -170,13 +147,6 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 				bValid = true;
 			}
 		}
-	}
-
-	// Used to have a Python hook: CAN_FOUND_CITIES_ON_WATER_CALLBACK
-
-	if(pPlot->isWater())
-	{
-		return false;
 	}
 
 	if(!bValid)
@@ -212,7 +182,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 }
 
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
-void CvCitySiteEvaluator::ComputeFlavorMultipliers(const CvPlayer* pPlayer)
+void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer)
 {
 	// Set all to 1 as base value
 	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
@@ -312,19 +282,35 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(const CvPlayer* pPlayer)
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
-int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool /*bCoastOnly*/, CvString* pDebug)
+int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly, CvString* pDebug)
 {
 	CvAssert(pPlot);
 	if(!pPlot)
 		return -1;
 
+	// Is there any reason this site doesn't work for a settler?
+	// First must be on coast if settling a new continent
+	CvArea* pArea = pPlot->area();
+	if(pArea && pPlayer)
+	{
+		bool bIsCoastal = pPlot->isCoastalLand();
+		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
+		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
+		{
+			return 0;
+		}
+	}
+
 	// Make sure this player can even build a city here
+	// This does not check visibility!
 	if(!CanFoundCity(pPlot, pPlayer, false))
 	{
 		if(pDebug)
 			*pDebug = "cannot found";
 		return -1;
 	}
+
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
 	//for debugging
 	std::vector<std::string> vQualifiersPositive;
@@ -342,6 +328,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iNaturalWonderCount = 0;
 	int iDesertCount = 0;
 	int iWetlandsCount = 0;
+	int iIncaHillsCount = 0;
 
 	int iLakeCount = 0;
 	int iResourceLuxuryCount = 0;
@@ -362,48 +349,17 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDefaultPlotValue = -100;
 
 	int iBorderlandRange = 5;
-	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
-	bool bIsInca = false;
-	int iAdjacentMountains = 0;
-	bool bLikesMountains = false;
 
 	std::vector<SPlotWithScore> workablePlots;
 	workablePlots.reserve(49);
-
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	if (pPlayer)
-	{
-		if ( pPlayer->getCapitalCity() )
-		{
-			iCapitalArea = pPlayer->getCapitalCity()->getArea();
-		}
-
-		// Custom code for Inca ideal terrace farm locations
-		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
-		if(eIncaImprovement != NO_IMPROVEMENT)
-		{
-			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
-			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-				if(eCiv == pPlayer->getCivilizationType())
-				{
-					bIsInca = true;
-				}
-			}
-		}
-		if(pPlayer->GetPlayerTraits()->IsMountainPass())
-		{
-			bLikesMountains = true;
-		}
-	}
 
 	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0, nGoodPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
+		//do not check fog of war!
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
 		if (!pLoopPlot)
 			continue;
@@ -541,6 +497,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			++iLakeCount;
 		}
+		if (pLoopPlot->isHills())
+		{
+			++iIncaHillsCount;
+		}
 
 		ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
 		if(eResource != NO_RESOURCE)
@@ -564,30 +524,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			++iDesertCount;
 		}
 
-		if (bIsInca)
+		if (pLoopPlot->isMountain() && pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass())
 		{
-			if (pLoopPlot->isHills())
-			{
-				iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
-				if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
-				{
-					//give the bonus if it's hills, with additional if bordered by mountains
-					iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
-					if (pDebug) vQualifiersPositive.push_back("(C) incan hills");
-				}
-			}
-		}
-		
-		if(bLikesMountains)
-		{
-			if(pLoopPlot->isMountain())
-			{
-				iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
-
-				//give the bonus if it's hills, with additional if bordered by mountains
-				iCivModifier += (iAdjacentMountains + 1) * m_iIncaMultiplier;
-				if (pDebug) vQualifiersPositive.push_back("(C) incan mountains");
-			}
+			int iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
+			//give the bonus if it's hills, with additional if bordered by mountains
+			iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
+			if (pDebug) vQualifiersPositive.push_back("(C) incan mountains");
 		}
 	}
 
@@ -612,23 +554,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	{
 		if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
 		{
-			if (iCelticForestCount >= 3)
-			{
-				iCivModifier += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-				if (pDebug) vQualifiersPositive.push_back("(C) much forest");
-			}
-			else if (iCelticForestCount >= 1)
-			{
-				iCivModifier += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-				if (pDebug) vQualifiersPositive.push_back("(C) some forest");
-			}
+			iCivModifier += iCelticForestCount * m_iCelticMultiplier;
+			if (pDebug) vQualifiersPositive.push_back("(C) forest");
 		}
-		else if (pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
-		{
-			iCivModifier += iIroquoisForestCount * 10;	
-			if (pDebug) vQualifiersPositive.push_back("(C) forested");
-		}
-		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)	//ie: Spain
+		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)
 		{
 			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;	
 			if (pDebug) vQualifiersPositive.push_back("(C) natural wonders");
@@ -694,10 +623,24 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				{
 					iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
 					if(pkEntry->IsAdjacentLake())
-					{
 						iCivModifier += (iLakeCount * m_iNetherlandsMultiplier);
-					}
 					if (pDebug) vQualifiersPositive.push_back("(C) wetlands");
+				}
+			}
+		}
+
+		// Custom code for Inca
+		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
+		if(eIncaImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			{
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					iCivModifier += (iIncaHillsCount * m_iIncaMultiplier);
+					if (pDebug) vQualifiersPositive.push_back("(C) hills");
 				}
 			}
 		}
@@ -898,6 +841,22 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast)
 	if(rtnValue < 0) rtnValue = 0;
 
 	return rtnValue;
+}
+
+vector<int> CvCitySiteEvaluator::GetAllCitySiteValues(const CvPlayer* pPlayer)
+{
+	vector<int> vValues;
+
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iValue = PlotFoundValue(pPlot, pPlayer, vector<int>());
+
+		if (iValue > 0)
+			vValues.push_back(iValue);
+	}
+
+	return vValues;
 }
 
 // PROTECTED METHODS (can be overridden in derived classes)
@@ -1174,6 +1133,13 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity
 /// Constructor
 CvSiteEvaluatorForSettler::CvSiteEvaluatorForSettler(void)
 {
+	m_iBrazilMultiplier = 1000;	//fertility boost from jungles
+	m_iSpainMultiplier = 5000;	//fertility boost from natural wonders
+	m_iCelticMultiplier = 2000;
+	m_iMorrocoMultiplier = 1000; //fertility boost from desert
+	m_iFranceMultiplier = 1000; //fertility boost from resources
+	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
+	m_iIncaMultiplier = 100; //fertility boost for hill tiles surrounded my mountains
 }
 
 /// Destructor
@@ -1181,56 +1147,8 @@ CvSiteEvaluatorForSettler::~CvSiteEvaluatorForSettler(void)
 {
 }
 
-/// Value of this site for a settler
-int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly, CvString* pDebug)
-{
-	CvAssert(pPlot);
-	if(!pPlot)
-	{
-		return 0;
-	}
-
-	// Is there any reason this site doesn't work for a settler?
-	//
-	// First must be on coast if settling a new continent
-	CvArea* pArea = pPlot->area();
-	if(pArea && pPlayer)
-	{
-		bool bIsCoastal = pPlot->isCoastalLand();
-		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
-		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
-		{
-			return 0;
-		}
-	}
-
-	// Seems okay for a settler, use base class to determine exact value
-	// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
-	if (pPlayer && pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
-	{
-		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, ignorePlots, bCoastOnly, pDebug) * 2;
-	}
-	else
-	{
-		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, ignorePlots, bCoastOnly, pDebug);
-	}
-}
-
-//=====================================
-// CvSiteEvaluatorForStart
-//=====================================
-/// Constructor
-CvSiteEvaluatorForStart::CvSiteEvaluatorForStart(void)
-{
-}
-
-/// Destructor
-CvSiteEvaluatorForStart::~CvSiteEvaluatorForStart(void)
-{
-}
-
 /// Overridden - ignore flavors for initial site selection
-void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(const CvPlayer*)
+void CvCitySiteEvaluator::ComputeFlavorMultipliers(const CvPlayer*)
 {
 	// Set all to 1; we assign start position without considering flavors yet
 	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
@@ -1244,7 +1162,7 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(const CvPlayer*)
 // ***** This method gets called pre-game if using a WB map (.civ5map), in which case pPlayer is NULL
 // *****
 /// Value of this site for a civ starting location
-int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std::vector<int>&, bool)
+int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer*, const std::vector<int>&, bool, CvString*)
 {
 	int rtnValue = 0;
 

@@ -2633,11 +2633,23 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	// MOVING TO TARGET
 	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
-		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
-		if (!pOperation->IsShowOfForce() && !m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) &&
-			pOperation->GetEnemy() != NO_PLAYER && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
+		//if this operation has a specific target player
+		if (pOperation->GetEnemy() != NO_PLAYER)
 		{
-			m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
+			//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
+			if (pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam() &&
+				!pOperation->IsShowOfForce() && !m_pPlayer->IsAtWarWith(pOperation->GetEnemy()))
+			{
+				m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
+			}
+
+			//getting too close to another enemy?
+			if (GC.getGame().GetClosestCityDistanceInPlots(pThisTurnTarget) < 3)
+			{
+				PlayerTypes eCityOwner = GC.getGame().GetClosestCityOwnerByPlots(pThisTurnTarget);
+				if (eCityOwner != pOperation->GetEnemy() && m_pPlayer->IsAtWarWith(eCityOwner))
+					pOperation->SetToAbort(AI_ABORT_TOO_DANGEROUS);
+			}
 		}
 
 		//try to arrage the units somewhat closer to the target

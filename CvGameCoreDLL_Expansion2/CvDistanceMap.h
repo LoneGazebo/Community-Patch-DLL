@@ -26,13 +26,15 @@ public:
 	//not const because of deferred updates ...
 	int GetClosestFeatureDistance(const CvPlot& pPlot);
 	int GetClosestFeatureID(const CvPlot& pPlot);
-	int GetClosestFeatureOwner(const CvPlot& pPlot);
+	PlayerTypes GetClosestFeatureOwner(const CvPlot& pPlot);
 
 	void Dump(const char* filename);
 
 protected:
 	struct SContent {
-		SContent(unsigned short _distance) : distance(_distance), owner(0xFFFF), feature(0xFFFF) {}
+		enum { INVALID = 0xFFFF };
+
+		SContent(unsigned short _distance) : distance(_distance), owner(INVALID), feature(INVALID) {}
 		SContent(int _distance, int _owner, int _feature) : distance((unsigned short)_distance), owner((unsigned short)_owner), feature((unsigned short)_feature) {}
 
 		//try and save some memory here
@@ -60,7 +62,7 @@ public:
 
 	int GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
 	int GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
-	int GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+	PlayerTypes GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
 };
 
 class CvDistanceMapByTurns : public CvDistanceMapWrapper

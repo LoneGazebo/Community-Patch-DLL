@@ -59,12 +59,13 @@ int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 }
 
 //	-----------------------------------------------------------------------------------------------
-int CvDistanceMap::GetClosestFeatureOwner(const CvPlot& plot)
+PlayerTypes CvDistanceMap::GetClosestFeatureOwner(const CvPlot& plot)
 {
 	if ((size_t)plot.GetPlotIndex() < m_vData.size())
-		return int( m_vData[ plot.GetPlotIndex() ].owner );
+		if (m_vData[plot.GetPlotIndex()].owner != SContent::INVALID)
+			return (PlayerTypes)m_vData[plot.GetPlotIndex()].owner;
 
-	return -1;
+	return NO_PLAYER;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -136,7 +137,7 @@ int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, Pla
 		return allPlayers.GetClosestFeatureID(plot);
 }
 
-int CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
+PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
 {
 	if (IsDirty())
 		Update();

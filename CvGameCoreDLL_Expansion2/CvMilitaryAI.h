@@ -219,7 +219,8 @@ public:
 	{
 		return m_iNumAirUnits > 0;
 	};
-	CvUnit* FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iScore);
+	CvUnit* FindUselessShip();
+	CvUnit* FindObsoleteUnitToScrap(bool bLand, bool bForcedDisband, int& iScore);
 	bool IsBuildingArmy(ArmyType eType) const;
 	UnitTypes GetUnitTypeForArmy(CvCity* pCity) const;
 	int GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bool bCountFighters, bool bCountBombers) const;
@@ -315,7 +316,7 @@ private:
 	void DoCityAttacks(PlayerTypes ePlayer);
 #endif
 	void MakeEmergencyPurchases();
-	void DisbandObsoleteUnits(int iMaxUnits=2);
+	void DisbandObsoleteUnits();
 
 	// Logging functions
 	void LogStrategy(MilitaryAIStrategyTypes eStrategy, bool bValue);
