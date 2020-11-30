@@ -1832,15 +1832,15 @@ private:
 		char m_aePlayerMilitaryStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerEconomicStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerTargetValue[REALLY_MAX_PLAYERS];
-		char m_aePlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
-		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
-		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
+		char m_aePlayerLandDisputeLevel[MAX_MAJOR_CIVS];
+		char m_aePlayerLastTurnLandDisputeLevel[MAX_MAJOR_CIVS];
+		char m_aePlayerVictoryDisputeLevel[MAX_MAJOR_CIVS];
 
 		char m_aePlayerVictoryBlockLevel[MAX_MAJOR_CIVS];
 		bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
 
-		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
-		char m_aePlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
+		char m_aePlayerWonderDisputeLevel[MAX_MAJOR_CIVS];
+		char m_aePlayerMinorCivDisputeLevel[MAX_MAJOR_CIVS];
 		char m_aeMilitaryAggressivePosture[REALLY_MAX_PLAYERS];
 		char m_aeLastTurnMilitaryAggressivePosture[REALLY_MAX_PLAYERS];
 		char m_aeExpansionAggressivePosture[REALLY_MAX_PLAYERS];
