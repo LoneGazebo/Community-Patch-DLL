@@ -1505,14 +1505,6 @@
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
 			<CityName>TXT_KEY_CITY_NAME_ZADAR</CityName>
 		</Row>
-		<Row>
-			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_VERONA</CityName>
-		</Row>
-		<Row>
-			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_UDINE</CityName>
-		</Row>
 	</Civilization_CityNames>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_CITY_NAME_CATTARO">
@@ -1544,12 +1536,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_ZADAR">
 			<Text>Zadar</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_NAME_VERONA">
-			<Text>Verona</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_NAME_UDINE">
-			<Text>Udine</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
