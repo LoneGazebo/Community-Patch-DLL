@@ -7630,7 +7630,11 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
 			if (pPlotUnit->IsCanDefend() && !pPlotUnit->isEmbarked())
+			{
 				bBlockedByNonSimCombatUnit = true;
+				if (pPlotUnit->TurnProcessed())
+					bFriendlyCombatUnitEndTurn = true;
+			}
 		}
 	}
 
