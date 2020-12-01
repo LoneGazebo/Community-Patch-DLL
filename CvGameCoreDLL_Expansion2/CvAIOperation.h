@@ -352,6 +352,7 @@ public:
 	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsNeverEnding() const { return true; }
+	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 protected:
 	set<int> GetPossibleDeploymentZones() const;
 };

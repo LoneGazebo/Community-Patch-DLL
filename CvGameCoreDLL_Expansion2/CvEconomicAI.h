@@ -326,7 +326,6 @@ bool IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStrategy, CvPlayer* pPl
 bool IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldTypes eYield);
 bool IsTestStrategy_OneOrFewerCoastalCities(CvPlayer* pPlayer);
 bool IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-bool IsTestStrategy_HaltGrowthBuildings(/*CvPlayer* pPlayer*/);
 bool IsTestStrategy_TooManyUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)

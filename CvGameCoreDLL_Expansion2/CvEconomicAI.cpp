@@ -698,8 +698,6 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_LOSING_MONEY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_LosingMoney(eStrategy, m_pPlayer);
-				//else if(strStrategyName == "ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS")
-					//bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings();
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TOO_MANY_UNITS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TooManyUnits(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
@@ -2072,10 +2070,10 @@ void CvEconomicAI::DoPlotPurchases()
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 	int iBestCost = 0;
+	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
 
-	// Let's always invest any money we have in plot purchases
-	//  (LATER -- save up money to spend at newly settled cities)
-	if(iCurrentCost < iBalance && iGoldForHalfCost > iCurrentCost)
+	// Let's not blow all our money on plot purchases
+	if(iCurrentCost*iMultiplier < iBalance && iGoldForHalfCost > iCurrentCost)
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
@@ -4148,30 +4146,24 @@ bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStra
 {
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
 	
-	int iInterval = pStrategy->GetFirstTurnExecuted();
-
 	// Need a certain number of turns of history before we can turn this on
-	if(GC.getGame().getGameTurn() <= iInterval)
-	{
+	if(GC.getGame().getGameTurn() <= pStrategy->GetFirstTurnExecuted())
 		return false;
-	}
-	iInterval = pStrategy->GetMinimumNumTurnsExecuted();
 
-	// Is average income below desired threshold over past X turns?
-	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < (double)pStrategy->GetWeightThreshold() /* 2 */);
-}
+	int iInterval = pStrategy->GetMinimumNumTurnsExecuted();
+	int iIncome100 = pPlayer->GetTreasury()->AverageIncome100(iInterval);
+	if (iIncome100 >= 0)
+		return false;
 
-/// "Halt Growth Buildings" Player Strategy: Stop building granaries if working on a wonder that provides them for free
-bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(/*CvPlayer* pPlayer*/)
-{
-	return false;
+	int iTurnsTillBroke = (pPlayer->GetTreasury()->GetGold() * 100) / abs(iIncome100);
+	return iTurnsTillBroke < 23;
 }
 
 /// Are we paying more in unit maintenance than we are taking in from our cities?
 bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 {
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer->GetTreasury()->AverageIncome(10) <= -5 && pPlayer->GetTreasury()->GetGold() <= 100)
+	if(pPlayer->GetTreasury()->AverageIncome100(10) <= -500 && pPlayer->GetTreasury()->GetGold() <= 100)
 	{
 		return true;
 	}
@@ -4183,7 +4175,7 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 	int iPaidUnits;
 	int iBaseUnitCost;
 	int iExtraCost;
-	if(pPlayer->GetTreasury()->AverageIncome(15) <= -15)
+	if(pPlayer->GetTreasury()->AverageIncome100(15) <= -1500)
 	{
 		if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
 		{

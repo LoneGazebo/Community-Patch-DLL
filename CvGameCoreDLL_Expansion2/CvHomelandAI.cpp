@@ -4229,7 +4229,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			else if (pLoopUnit->plot()->isCity())
 				nAirUnitsInCities++;
 		}
-		else if (pLoopUnit->isAircraftCarrier())
+		else if (pLoopUnit->AI_getUnitAIType()==UNITAI_CARRIER_SEA)
 		{
 			nSlotsInCarriers += pLoopUnit->cargoSpace();
 

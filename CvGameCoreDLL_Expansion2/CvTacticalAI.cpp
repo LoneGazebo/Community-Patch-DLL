@@ -839,9 +839,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotGuardImprovementMoves(1);
 
 	//do this last after the units in need have already moved
-	PlotRepositionMoves(false);
 	PlotNavalEscortMoves();
-	PlotRepositionMoves(true);
 
 	//civilians move out of harms way last, when all potential defenders are set in place
 	PlotMovesToSafety(false);
@@ -1296,36 +1294,6 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		ExecuteMovesToSafestPlot(pUnit);
-	}
-}
-
-/// Move units to a better location
-void CvTacticalAI::PlotRepositionMoves(bool bWater)
-{
-	ClearCurrentMoveUnits(AI_TACTICAL_REPOSITION);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->canUseForTacticalAI()) //important, don't move units which have been processed already even if they have movement left!
-		{
-			// Never use this (default) move for Great Admirals or Generals
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-				continue;
-
-			if (bWater && pUnit->getDomainType() != DOMAIN_SEA)
-				continue;
-			if (!bWater && pUnit->getDomainType() != DOMAIN_LAND)
-				continue;
-
-			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteRepositionMoves();
 	}
 }
 
@@ -2170,7 +2138,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 						continue;
 
 				// Carriers have special moves
-				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA || pUnit->AI_getUnitAIType() == UNITAI_MISSILE_CARRIER_SEA)
+				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 					continue;
 
 				// Proper domain of unit?
@@ -6828,8 +6796,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 		//if we have multiple melee units encircling the city, try to take into account their attacks as well
 		//otherwise nobody will make the first move
-		int iMeleeAttackers = tactPlot.getNumAdjacentFirstlineFriendlies(CvTacticalPlot::TD_BOTH, assumedPlot.getPlotIndex());
-		int iAssumedDamageFromOtherAttacks = iDamageDealt * iMeleeAttackers;
+		int iAssumedOtherAttackers = tactPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, assumedPlot.getPlotIndex());
+		int iAssumedDamageFromOtherAttacks = iDamageDealt * iAssumedOtherAttackers;
 
 		int iRemainingTurnsOnCity = (iPrevHitPoints - iAssumedDamageFromOtherAttacks) / (iDamageDealt + 1) + 1;
 		int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + 1) + 1;
@@ -7119,6 +7087,10 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
 		return INT_MAX;
 
+	//extra careful with carriers
+	if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
+		return INT_MAX;
+
 	//can happen with garrisons, catch this case as it messes up the math
 	if (iDanger == INT_MAX)
 		iDanger = 10 * pUnit->GetMaxHitPoints();
@@ -7156,12 +7128,16 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 			iResult++; //fortification bonus!
 	}
 
-	//try to close the lines (todo: make sure the friendlies intend to stay there ...)
-	if (testPlot.getNumAdjacentFirstlineFriendlies(DomainForUnit(pUnit), movePlot.iPlotIndex) > 0)
-		iResult++;
-	//try to stay together
-	if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),movePlot.iPlotIndex) > 0)
-		iResult++;
+	//try to stay together, in pairs at least
+	int iNumAdjFriendlies = testPlot.getNumAdjacentFriendliesEndTurn(DomainForUnit(pUnit));
+	if (iNumAdjFriendlies > 0)
+	{
+		//carrier really want to be surrounded
+		if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+			iResult += iNumAdjFriendlies;
+		else
+			iResult++;
+	}
 	//when in doubt, stay under air cover
 	if (testPlot.hasAirCover())
 		iResult++;
@@ -7398,19 +7374,20 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	//generals and admirals
 	if (unit.eStrategy == MS_SUPPORT)
 	{
-		//we want one of our own combat units covering us
-		//pass firstline, any combat movement strategy will do
-		STacticalAssignment dummy(0, 0, 0, 0, MS_FIRSTLINE);
-		vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(testPlot.getPlotIndex(), dummy);
 		if (bScoreEndTurn)
 		{
-			if (defenderAssignment.empty() || defenderAssignment.front().iRemainingMoves > 0)
+			//we want one of our own combat units covering us
+			if (!testPlot.isCombatEndTurn(DomainForUnit(pUnit)))
 			{
 				//anything else that could protect the unit?
 				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
 				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed()))
 					return result; //no can do!
 			}
+
+			//surrounding cover is also good
+			int iFriends = testPlot.getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH);
+			iScore += iFriends;
 
 			//when in doubt prefer the high ground - looks cooler
 			if (pTestPlot->isHills() || pTestPlot->isMountain())
@@ -7423,7 +7400,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 
 		//points for supported units (count only the first ring for performance)
 		int iFriends = testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
-		if (!defenderAssignment.empty())
+		if (testPlot.hasFriendlyCombatUnit())
 			iFriends++;
 		iScore += iFriends;
 
@@ -7467,7 +7444,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 
 STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTacticalPlot& assumedUnitPlot, const CvTacticalPlot& enemyPlot, const CvTacticalPosition& assumedPosition)
 {
-	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eStrategy,-1,A_FINISH);
+	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
 	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), newAssignment);
@@ -7502,7 +7479,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTacticalPlot& assumedUnitPlot, const CvTacticalPlot& enemyPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is invalid
-	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, -INT_MAX, A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, -INT_MAX, A_MELEEATTACK);
 
 	//the plot we're checking right now
 	const CvPlot* pEnemyPlot = enemyPlot.getPlot();
@@ -7585,15 +7562,19 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bEnemyCivilianPresent = false;
 	bEdgeOfTheKnownWorld = false;
 	bAdjacentToEnemyCitadel = false;
+
+	//set only once
+	bFriendlyCombatUnitEndTurn = false;
+
 	iDamageDealt = 0;
 
 	//set initial state, update after every move
 	aiFriendlyCombatUnitsAdjacent[TD_BOTH] = 0;
 	aiFriendlyCombatUnitsAdjacent[TD_LAND] = 0;
 	aiFriendlyCombatUnitsAdjacent[TD_SEA] = 0;
-	aiFriendlyFirstlineUnitsAdjacent[TD_BOTH] = 0;
-	aiFriendlyFirstlineUnitsAdjacent[TD_LAND] = 0;
-	aiFriendlyFirstlineUnitsAdjacent[TD_SEA] = 0;
+	aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH] = 0;
+	aiFriendlyCombatUnitsAdjacentEndTurn[TD_LAND] = 0;
+	aiFriendlyCombatUnitsAdjacentEndTurn[TD_SEA] = 0;
 	nSupportUnitsAdjacent = 0;
 
 	aiEnemyDistance[TD_BOTH] = TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
@@ -7719,6 +7700,31 @@ bool CvTacticalPlot::hasSupportBonus(int iIgnoreUnitPlot) const
 	return false;
 }
 
+void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain)
+{
+	//don't do this twice
+	if (!pPlot || bFriendlyCombatUnitEndTurn)
+		return;
+
+	bFriendlyCombatUnitEndTurn = true;
+
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor)
+		{
+			CvTacticalPlot& tactPlot = currentPosition.getTactPlotMutable(pNeighbor->GetPlotIndex());
+			if (tactPlot.isValid())
+			{
+				tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[unitDomain]++;
+				if (unitDomain!=TD_BOTH)
+					tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH]++;
+			}
+		}
+	}
+}
+
 void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const
 {
 	//we don't count embarked units
@@ -7743,12 +7749,6 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 					tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] += iChange;
 					if (unitDomain!=TD_BOTH)
 						tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] += iChange;
-					if (getEnemyDistance() == 1) //hoping that we'll only move appropriate units into frontline positions
-					{
-						tactPlot.aiFriendlyFirstlineUnitsAdjacent[unitDomain] += iChange;
-						if (unitDomain!=TD_BOTH)
-							tactPlot.aiFriendlyFirstlineUnitsAdjacent[TD_BOTH] += iChange;
-					}
 				}
 			}
 		}
@@ -7797,16 +7797,9 @@ int CvTacticalPlot::getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnor
 }
 
 //this is quite unreliable as it does not count non-simulated friendly units!
-int CvTacticalPlot::getNumAdjacentFirstlineFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const 
+int CvTacticalPlot::getNumAdjacentFriendliesEndTurn(eTactPlotDomain eDomain) const 
 { 
-	if (iIgnoreUnitPlot >= 0 && isValid())
-	{
-		CvPlot* pIgnorePlot = GC.getMap().plotByIndexUnchecked(iIgnoreUnitPlot);
-		if (plotDistance(*pIgnorePlot, *pPlot) == 1)
-			return aiFriendlyFirstlineUnitsAdjacent[eDomain] - 1;
-	}
-
-	return aiFriendlyFirstlineUnitsAdjacent[eDomain]; 
+	return aiFriendlyCombatUnitsAdjacentEndTurn[eDomain]; 
 }
 
 bool CvTacticalPlot::removeEnemyUnitIfPresent()
@@ -8052,7 +8045,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 				//sanity check
 				bool bSuicide = false;
-				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL && assumedUnitPlot.getNumAdjacentFirstlineFriendlies(DomainForUnit(pUnit),-1)<1)
+				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
 				{
 					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies());
 					if (iDanger > 2*pUnit->GetCurrHitPoints())
@@ -8072,12 +8065,6 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				}
 			}
 		}
-
-		//optimization: if we added a range attack then the end turn move will be generated automatically and the explicit end turn move is not needed
-		if (!possibleMoves.empty() && (possibleMoves.back().eAssignmentType == A_RANGEATTACK || possibleMoves.back().eAssignmentType == A_RANGEKILL))
-			//end turn should always be first because of the ordering inside reachablePlots
-			if (possibleMoves.front().eAssignmentType == A_FINISH)
-				possibleMoves.erase(possibleMoves.begin());
 	}
 
 	//note: we don't filter out blocked moves. the unit will be considered blocked in this case, even if we have valid but bad moves
@@ -9062,6 +9049,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 			refreshVolatilePlotProperties();
 		break;
 	case A_FINISH:
+		OutputDebugString("this should not happen\n");
 	case A_FINISH_TEMP:
 	case A_BLOCKED:
 		itUnit->iMovesLeft = 0;
@@ -9097,9 +9085,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0)
 	{
-		if (itUnit->eLastAssignment != A_FINISH)
-			notQuiteFinishedUnits.push_back(*itUnit);
-
+		getTactPlotMutable(newAssignment.iToPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
+		notQuiteFinishedUnits.push_back(*itUnit);
 		availableUnits.erase(itUnit);
 	}
 
@@ -9306,7 +9293,7 @@ void CvTacticalPosition::dumpPlotStatus(const char* fname) const
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked( it->getPlotIndex() );
 			out << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getOwner() << "," << (it->isEnemy() ? 1 : 0) << "," << (it->hasFriendlyCombatUnit() ? 1 : 0) << "," 
-				<< it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) << "," << it->getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH,-1) << "," << it->getNumAdjacentFirstlineFriendlies(CvTacticalPlot::TD_BOTH,-1) << "," 
+				<< it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) << "," << it->getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH,-1) << "," << it->getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH) << "," 
 				<< (it->isEdgePlot() ? 1 : 0) << ","<< (it->hasSupportBonus(-1) ? 1 : 0) << "," << (int)(it->getEnemyDistance()) << "\n";
 		}
 	}

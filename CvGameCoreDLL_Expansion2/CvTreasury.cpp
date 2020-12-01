@@ -81,11 +81,9 @@ void CvTreasury::Uninit()
 /// Update treasury for a turn
 void CvTreasury::DoGold()
 {
-	int iGoldChange;
-
-	iGoldChange = m_pPlayer->calculateGoldRateTimes100();
-
+	int iGoldChange = m_pPlayer->calculateGoldRateTimes100();
 	int iGoldAfterThisTurn = iGoldChange + GetGoldTimes100();
+
 	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
 	{
 		SetGold(0);
@@ -888,7 +886,7 @@ void CvTreasury::ChangeBaseImprovementGoldMaintenance(int iChange)
 }
 
 /// Average change in gold balance over N turns
-double CvTreasury::AverageIncome(int iTurns)
+int CvTreasury::AverageIncome100(int iTurns)
 {
 	CvAssertMsg(iTurns > 0, "Invalid number of turns parameter");
 
@@ -905,7 +903,7 @@ double CvTreasury::AverageIncome(int iTurns)
 			iIndex--;
 		}
 
-		return ((double)iTotal / (double)iSamples / 100);
+		return (iTotal / iSamples);
 	}
 
 	return 0;

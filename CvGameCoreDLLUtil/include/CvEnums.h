@@ -1822,7 +1822,7 @@ enum UnitAITypes
 	UNITAI_ASSAULT_SEA,				// naval ranged units
 	UNITAI_SETTLER_SEA,				// UNUSED in Civ 5
 	UNITAI_CARRIER_SEA,				// aircraft carrier
-	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier - UNUSED
+	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier
 	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters

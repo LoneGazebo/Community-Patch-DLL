@@ -454,7 +454,6 @@ private:
 	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
-	void PlotRepositionMoves(bool bWater);
 //--------------------------------
 
 	void PlotAirPatrolMoves();
@@ -758,7 +757,7 @@ public:
 	int getNumAdjacentEnemies(eTactPlotDomain eDomain) const { return aiEnemyCombatUnitsAdjacent[eDomain]; }
 	void setNumAdjacentEnemies(eTactPlotDomain eDomain, int iValue) { aiEnemyCombatUnitsAdjacent[eDomain]=static_cast<unsigned char>(iValue); }
 	int getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
-	int getNumAdjacentFirstlineFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
+	int getNumAdjacentFriendliesEndTurn(eTactPlotDomain eDomain) const;
 	const vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
 
 	bool isEnemy(eTactPlotDomain eDomain = TD_BOTH) const { return aiEnemyDistance[eDomain]==0; }
@@ -790,7 +789,9 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
+	bool isCombatEndTurn(eTactPlotDomain eDomain) const { return aiFriendlyCombatUnitsAdjacentEndTurn[eDomain]; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
+	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 
 protected:
 	const CvPlot* pPlot; //null if invalid
@@ -800,7 +801,7 @@ protected:
 	unsigned char aiEnemyCombatUnitsAdjacent[3]; //recomputed every time an enemy is killed or discovered
 
 	unsigned char aiFriendlyCombatUnitsAdjacent[3]; //for flanking. set initially and updated every time a unit moves
-	unsigned char aiFriendlyFirstlineUnitsAdjacent[3]; //ranged units need cover. updated every time a unit moves
+	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
 
 	//set once and not changed afterwards
@@ -816,6 +817,7 @@ protected:
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
 	bool bAdjacentToEnemyCitadel:1;
+	bool bFriendlyCombatUnitEndTurn:1; 
 
 	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
 };

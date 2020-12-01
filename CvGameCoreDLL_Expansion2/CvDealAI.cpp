@@ -7727,7 +7727,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	// Apply the Modifier
 	iItemValue *= (100 + iTechMod);
-	iItemValue /= 150;
+	iItemValue /= 100;
 
 	PlayerTypes ePlayer;
 	if(bFromMe)
@@ -7841,11 +7841,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		}
 	}
 
-	if(iItemValue <= 1000)
-		return 1000;
-
-
-	return iItemValue;
+	return max(1000,iItemValue);
 }
 
 /// How much is Vassalage worth?

@@ -650,7 +650,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.isMinorCiv())
 				return 0;
 
-			if (kPlayer.GetMilitaryAI()->GetNumFreeCarrier()>0)
+			if (MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(&kPlayer)==false)
 				return 0;
 		}
 
