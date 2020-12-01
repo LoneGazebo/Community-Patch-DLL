@@ -6584,69 +6584,6 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	return bDealAcceptable && pDeal->GetNumItems() > 0;
 }
 
-/// A good time to make an offer to buy a city?
-bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	CvAssert(eOtherPlayer >= 0);
-	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for a city if we're hostile or planning a war
-	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_GUARDED)
-	{
-		return false;
-	}
-
-	int iCityLoop;
-	CvCity* pBestBuyCity = NULL;
-	int iBestBuyCity = 100; //initial value, must be a fair deal for us!
-
-	//check their cities
-	for(CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
-	{
-		if(!pTheirCity)
-			continue;
-
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pTheirCity->getX(), pTheirCity->getY()))
-		{
-			int iMyPrice = GetCityValueForBuyer(pTheirCity, eOtherPlayer, m_pPlayer->GetID());
-			int iTheirPrice = GetCityValueForBuyer(pTheirCity, m_pPlayer->GetID(), eOtherPlayer);
-
-			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
-			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio > iBestBuyCity)
-			{
-				pBestBuyCity = pTheirCity;
-				iBestBuyCity = iBuyRatio;
-			}
-		}
-	}
-
-	if(pBestBuyCity == NULL)
-	{
-		return false;
-	}
-	else
-	{
-		pDeal->AddCityTrade(eOtherPlayer, pBestBuyCity->GetID());
-	}
-
-	bool bDealAcceptable = false;
-
-	// AI evaluation
-	if(!GET_PLAYER(eOtherPlayer).isHuman())
-	{
-		bDealAcceptable = DoEqualizeDealWithAI(pDeal, eOtherPlayer);	// Change the deal as necessary to make it work
-	}
-	else
-	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
-		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-	}
-
-	return bDealAcceptable && pDeal->GetNumItems() > 0;
-}
-
 /// A good time to make an offer to buy or sell a city?
 bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {

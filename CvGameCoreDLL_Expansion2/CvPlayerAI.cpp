@@ -588,61 +588,32 @@ void CvPlayerAI::AI_chooseResearch()
 	}
 }
 
-// sort player numbers
-struct CityAndProduction
-{
-	CvCity* pCity;
-	int iProduction;
-};
-
-struct CityAndProductionEval
-{
-	bool operator()(CityAndProduction const& a, CityAndProduction const& b) const
-	{
-		return (a.iProduction > b.iProduction);
-	}
-};
-
 void CvPlayerAI::AI_considerAnnex()
 {
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
-
-	// if the empire is very unhappy, don't consider annexing
-	if (IsEmpireVeryUnhappy())
-	{
-		return;
-	}
-
-	// if we're going for a culture victory, don't consider annexing
-	if (GetDiplomacyAI()->IsGoingForCultureVictory())
-	{
-		return;
-	}
-
 	// for Venice
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
 		return;
 	}
 
-	// if their capital city is puppeted, annex it
-	CvCity* pCity = getCapitalCity();
-	if (pCity && pCity->IsPuppet())
+	// if our capital city is puppeted, annex it
+	// can happen if we lose our real capital
+	CvCity* pCapital = getCapitalCity();
+	if (pCapital && pCapital->IsPuppet())
 	{
-		// we should only annex one city a turn, and sense this is one, we're done!
-		pCity->DoAnnex();
+		pCapital->DoAnnex();
 		return;
 	}
 
-	//annex holy city for faith use
-	if (GetReligions()->GetCurrentReligion(false) != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetCurrentReligion(false)))
+	// no annexing if the empire is unhappy
+	if (IsEmpireUnhappy())
 	{
-		pCity->DoAnnex();
 		return;
 	}
 
+	//Find the anti-occupation building
 	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
-	// find courthouse
 	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
@@ -663,95 +634,68 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 
 	int iLoop = 0;
-	for (pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//if we're already converting one, stop!
 		if (pCity->IsOccupied() && !pCity->IsNoOccupiedUnhappiness())
 			return;
 	}
 
-	std::vector<CityAndProduction> aCityAndProductions;
-	pCity = NULL;
-	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	//Need this later
+	ReligionTypes eOurReligion = GetReligions()->GetCurrentReligion(false);
+
+	vector<OptionWithScore<CvCity*>> options;
+	for(CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
-		if (pCity->IsRazing() && pCity->HasAnyWonder() && !IsEmpireVeryUnhappy())
+		if (pCity->IsRazing() && pCity->HasAnyWonder())
 			unraze(pCity);
 
 		if (pCity->IsResistance())
 			continue;
 
-		if (!pCity->IsPuppet())
+		if (!pCity->IsPuppet() && !pCity->IsRazing())
 			continue;
 
-		//Original City and puppeted? Stop!
-		if(pCity->getOriginalOwner() == GetID())
-		{
-			pCity->DoAnnex();
-			return;
-		}
+		int iWeight = 1;
 
+		// if our capital city is puppeted, annex it
 		if (pCity->IsOriginalMajorCapital())
-		{
-			pCity->DoAnnex();
-			return;
-		}
+			iWeight += 5;
+	
+		//annex holy city for faith use
+		if (pCity->GetCityReligions()->IsHolyCityForReligion(eOurReligion))
+			iWeight += 3;
+
+		//Original City and puppeted? Stop!
+		if (pCity->getOriginalOwner() == GetID())
+			iWeight += 2;
 
 		if (pCity->isBorderCity() || pCity->isCoastal())
-		{
-			pCity->DoAnnex();
-			return;
-		}
+			iWeight += 1;
 
-		CityAndProduction kEval;
-		kEval.pCity = pCity;
-		kEval.iProduction = pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
-		aCityAndProductions.push_back(kEval);
-	}
-	
-	std::stable_sort(aCityAndProductions.begin(), aCityAndProductions.end(), CityAndProductionEval());
-	
-	CvCity* pTargetCity = NULL;
-	float fCutoffValue = /*0.55*/ GC.getNORMAL_ANNEX();
+		// if we're going for a culture victory, don't consider annexing ordinary cities
+		if (GetDiplomacyAI()->IsGoingForCultureVictory())
+			if (iWeight < 4)
+				continue;
 
-	bool bCourthouseImprovement = false;
-	if (eCourthouseType != NO_BUILDINGCLASS)
-	{
-		if (GetPlayerPolicies()->GetBuildingClassProductionModifier(eCourthouseType) > 0)
-		{
-			bCourthouseImprovement = true;
-		}
+		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
+		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );
 	}
 
-	if (bCourthouseImprovement)
+	if (!options.empty())
 	{
-		fCutoffValue = /*0.8*/ GC.getAGGRESSIVE_ANNEX();
-	}
+		//descending by default
+		sort(options.begin(), options.end());
 
-	uint uiCutOff = (uint)(aCityAndProductions.size() * fCutoffValue);
-	for (uint ui = 0; ui < uiCutOff; ui++)
-	{
-		if (aCityAndProductions[ui].pCity->IsPuppet())
+		CvCity* pTargetCity = options.front().option;
+		if (pTargetCity)
 		{
-			pTargetCity = aCityAndProductions[ui].pCity;
-			break;
+			if (pTargetCity->IsRazing())
+				unraze(pTargetCity);
+			else
+				pTargetCity->DoAnnex();
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(aCityAndProductions[ui].pCity->IsRazing())
-		{
-			pTargetCity = aCityAndProductions[ui].pCity;
-			break;
-		}
-#endif
-	}
-
-	if (pTargetCity)
-	{
-		if (pTargetCity->IsRazing())
-			unraze(pTargetCity);
-
-		if (!pTargetCity->IsResistance())
-			pTargetCity->DoAnnex();
 	}
 }
 #if defined(MOD_BALANCE_CORE_EVENTS)

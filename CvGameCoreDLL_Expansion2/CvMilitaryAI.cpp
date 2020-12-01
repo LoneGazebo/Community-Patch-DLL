@@ -2709,7 +2709,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 			bool bIsUseless = true;
 
 			//two turns is a good compromise between reliability and performance 
-			SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
+			SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
 			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
 			set<int> areas;
 
