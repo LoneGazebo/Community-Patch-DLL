@@ -3898,8 +3898,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			{
 				CvCity* pCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 				if (pCity)
-					ExecuteMoveToTarget(pUnit, pCity->plot(), 0, true);
-				else
+					ExecuteMoveToTarget(pUnit, pCity->plot(), CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
+				if (pUnit->canMove())
 					ExecuteMovesToSafestPlot(pUnit);
 			}
 		}		
@@ -3948,10 +3948,10 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			// GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND (normally handled in tactical AI)
 			// NO_GREAT_PEOPLE_DIRECTIVE_TYPE
 
-			CvCity* pCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
-			if (pCity && pCity->isCoastal())
-				ExecuteMoveToTarget(pUnit, pCity->plot(), 0, true);
-			else
+			CvCity* pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_pPlayer->GetID(), pUnit->plot());
+			if (pCity)
+				ExecuteMoveToTarget(pUnit, pCity->plot(), CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
+			if (pUnit->canMove())
 				ExecuteMovesToSafestPlot(pUnit);
 		}
 	}
