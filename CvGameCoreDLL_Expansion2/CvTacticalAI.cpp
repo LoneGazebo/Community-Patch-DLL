@@ -32,12 +32,17 @@
 #ifdef VPDEBUG
 #define TACTDEBUG 1
 #endif
+
 int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 CvTactPosStorage gTactPosStorage(7000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
+
+int gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
+int gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
+int gAttackCacheHit = 0, gAttackCacheMiss = 0;
 #endif
 
 void CheckDebugTrigger(int iUnitID)
@@ -6771,8 +6776,76 @@ CvTacticalPlot::eTactPlotDomain DomainForUnit(const CvUnit* pUnit)
 	}
 }
 
+void CAttackCache::clear()
+{
+	unitAttacks.clear();
+	cityAttacks.clear();
+}
+
+void CAttackCache::storeCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken)
+{
+	cityAttacks[iAttackerId].push_back(SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
+}
+
+void CAttackCache::storeUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken)
+{
+	unitAttacks[iAttackerId].push_back(SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
+}
+
+bool CAttackCache::findCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const
+{
+	map<int, vector<SAttackStats>>::const_iterator it = cityAttacks.find(iAttackerId);
+	if (it != cityAttacks.end())
+	{
+		const vector<SAttackStats>& data = it->second;
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			if (data[i].iAttackerPlot == iAttackerPlot &&
+				data[i].iDefenderId == iDefenderId &&
+				data[i].iDefenderPrevDamage == iPrevDamage)
+			{
+				iDamageDealt = data[i].iAttackerDamageDealt;
+				iDamageTaken = data[i].iAttackerDamageTaken;
+				gAttackCacheHit++;
+				return true;
+			}
+		}
+	}
+
+	iDamageDealt = 0;
+	iDamageTaken = 0;
+	gAttackCacheMiss++;
+	return false;
+}
+ 
+bool CAttackCache::findUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const
+{
+	map<int, vector<SAttackStats>>::const_iterator it = unitAttacks.find(iAttackerId);
+	if (it != unitAttacks.end())
+	{
+		const vector<SAttackStats>& data = it->second;
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			if (data[i].iAttackerPlot == iAttackerPlot &&
+				data[i].iDefenderId == iDefenderId &&
+				data[i].iDefenderPrevDamage == iPrevDamage)
+			{
+				iDamageDealt = data[i].iAttackerDamageDealt;
+				iDamageTaken = data[i].iAttackerDamageTaken;
+				gAttackCacheHit++;
+				return true;
+			}
+		}
+	}
+
+	iDamageDealt = 0;
+	iDamageTaken = 0;
+	gAttackCacheMiss++;
+	return false;
+}
+
 //note that the score returned from this function is not multiplied by 10 yet
-void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, STacticalAssignment& result)
+void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, CAttackCache& cache, STacticalAssignment& result)
 {
 	int iDamageDealt = 0;
 	int iDamageReceived = 0; //always zero for ranged attack
@@ -6789,8 +6862,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
 		CvCity* pEnemy = pTestPlot->getPlotCity();
-		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(
-			pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
+
+		//first try the cache
+		if (!cache.findCityAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
+		{
+			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
+			cache.storeCityAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
+		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
@@ -6828,15 +6906,18 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true, true); //ignore the official visibility
 		if (!pEnemy)
 		{
-#ifdef VPDEBUG
-			OutputDebugString("expected enemy unit not present!\n");
-#endif // VPDEBUG
 			result.iScore = -INT_MAX;
 			return;
 		}
 
-		//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
-		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
+		//first use the cache
+		if (!cache.findUnitAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
+		{
+			//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
+			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
+			cache.storeUnitAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
+		}
+
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
@@ -7046,7 +7127,7 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 
 				//we don't care for damage here but let's reuse the scoring function
 				STacticalAssignment temp;
-				ScoreAttack(enemyPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), temp);
+				ScoreAttack(enemyPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
 
 				if (temp.iScore > iBestAttackScore)
 				{
@@ -7448,7 +7529,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), newAssignment);
+	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
 	if (newAssignment.iScore < 0)
 		return newAssignment;
 
@@ -7500,7 +7581,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//check how much damage we could do
-	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), result);
+	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), result);
 	if (result.iScore < 0)
 		return result;
 
@@ -8695,9 +8776,6 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	}
 }
 
-int gMoveCacheHit = 0, gMoveCacheMiss = 0;
-int gAttackCacheHit = 0, gAttackCacheMiss = 0;
-
 void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 {
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
@@ -8705,10 +8783,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 
 	TCachedMovePlots::iterator itP = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots));
 	if (itP != gReachablePlotsLookup.end())
-		gMoveCacheHit++;
+		gMovePlotsCacheHit++;
 	else
 	{
-		gMoveCacheMiss++;
+		gMovePlotsCacheMiss++;
 
 		//note: we allow (intermediate) embarkation here but filter out the non-native plots later (useful for denmark and lategame)
 		int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER;
@@ -8768,10 +8846,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	//simply ignore visibility here, later there's a check if there is a valid tactical plot for the targets
 	TCachedRangeAttackPlots::iterator itA = gRangeAttackPlotsLookup.find(make_pair(unit.iUnitID, unit.iPlotIndex));
 	if (itA != gRangeAttackPlotsLookup.end())
-		gAttackCacheHit++;
+		gAttackPlotsCacheHit++;
 	else
 	{
-		gAttackCacheMiss++;
+		gAttackPlotsCacheMiss++;
 		vector<int> rangeAttackPlots = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, true, true);
 		gRangeAttackPlotsLookup[make_pair(unit.iUnitID, unit.iPlotIndex)] = rangeAttackPlots;
 	}

@@ -699,7 +699,7 @@ struct SPathFinderStartPos
 };
 
 // specialized hash function for unordered_map keys
-struct SDealItemValueParamsHash
+struct SPathFinderStartPosHash
 {
 	void hash_combine(size_t& hash, const size_t& extra) const
 	{
@@ -736,7 +736,7 @@ struct SIntPairHash
 	}
 };
 
-typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SDealItemValueParamsHash> TCachedMovePlots;
+typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
 typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
 
 //forward
@@ -822,6 +822,37 @@ protected:
 	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
 };
 
+struct SAttackStats
+{
+	int iAttackerPlot;
+	int iDefenderId;
+	int iDefenderPrevDamage;
+	int iAttackerDamageDealt;
+	int iAttackerDamageTaken;
+
+	SAttackStats(int iAttackerPlot_, int iDefenderId_, int iDefenderPrevDamage_, int iAttackerDamageDealt_, int iAttackerDamageTaken_)
+	{
+		iAttackerPlot = iAttackerPlot_;
+		iDefenderId = iDefenderId_;
+		iDefenderPrevDamage = iDefenderPrevDamage_;
+		iAttackerDamageDealt = iAttackerDamageDealt_;
+		iAttackerDamageTaken = iAttackerDamageTaken_;
+	}
+};
+
+class CAttackCache {
+public:
+	void clear();
+	void storeCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken);
+	void storeUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken);
+	bool findCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
+	bool findUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
+protected:
+	//key is attacker id
+	map<int, vector<SAttackStats>> unitAttacks;
+	map<int, vector<SAttackStats>> cityAttacks;
+};
+
 class CvTacticalPosition
 {
 	typedef tr1::unordered_map<int, int> TTactPlotLookup;
@@ -848,6 +879,9 @@ protected:
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
+
+	//performance optimization, unit strength calculation takes too long
+	CAttackCache attackCache;
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -947,7 +981,7 @@ class CvTactPosStorage
 public:
 	CvTactPosStorage(int iPreallocationSize) : iCount(0), iSize(iPreallocationSize), aPositions(new CvTacticalPosition[iPreallocationSize]) {}
 	~CvTactPosStorage() { delete[] aPositions; }
-	void reset() { iCount = 0; }
+	void reset() { iCount = 0; attackCache.clear(); }
 	int getSizeLimit() const { return iSize; }
 	CvTacticalPosition* getNext()
 	{
@@ -958,10 +992,13 @@ public:
 		else 
 			return NULL;
 	}
+	CAttackCache& getCache() { return attackCache; }
 protected:
 	int iSize; //how many do we have
 	int iCount; //how many are currently in use
 	CvTacticalPosition* aPositions; //preallocated block of N positions
+
+	CAttackCache attackCache; //filled on demand
 };
 
 
