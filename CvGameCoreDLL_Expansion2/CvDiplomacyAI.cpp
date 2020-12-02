@@ -1364,6 +1364,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> wrapm_paeMajorCivApproach;
 
 	ArrayWrapper<char> wrapm_paeMajorCivStrategicApproach(MAX_MAJOR_CIVS, m_paeMajorCivStrategicApproach);
+	kStream >> wrapm_paeMajorCivStrategicApproach;
 
 	ArrayWrapper<char> wrapm_paeMinorCivApproach(MAX_MINOR_CIVS, m_paeMinorCivApproach);
 	kStream >> wrapm_paeMinorCivApproach;
