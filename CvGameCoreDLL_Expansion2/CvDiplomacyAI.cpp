@@ -1188,8 +1188,6 @@ void CvDiplomacyAI::Reset()
 		m_pabWantsDefensivePactWithPlayer[iI] = false;
 		m_pabAggressor[iI] = false;
 		m_pabWantsSneakAttack[iI] = false;
-		m_paePlayerLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
-		m_paePlayerLastTurnLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 		m_paePlayerVictoryDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 		m_paePlayerVictoryBlockLevel[iI] = NO_BLOCK_LEVEL;
 		m_paePlayerWonderDisputeLevel[iI] = NO_DISPUTE_LEVEL;
@@ -1280,6 +1278,9 @@ void CvDiplomacyAI::Reset()
 
 		m_paeWarDamageLevel[iI] = NO_WAR_DAMAGE_LEVEL_VALUE;
 		m_paiWarValueLost[iI] = 0;
+
+		m_paePlayerLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
+		m_paePlayerLastTurnLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 
 		m_paeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 		m_paeLastTurnMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
@@ -1447,10 +1448,10 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> wrapm_paePlayerTargetValue;
 
 
-	ArrayWrapper<char> wrapm_paePlayerLandDisputeLevel(MAX_MAJOR_CIVS, m_paePlayerLandDisputeLevel);
+	ArrayWrapper<char> wrapm_paePlayerLandDisputeLevel(MAX_CIV_PLAYERS, m_paePlayerLandDisputeLevel);
 	kStream >> wrapm_paePlayerLandDisputeLevel;
 
-	ArrayWrapper<char> wrapm_paePlayerLastTurnLandDisputeLevel(MAX_MAJOR_CIVS, m_paePlayerLastTurnLandDisputeLevel);
+	ArrayWrapper<char> wrapm_paePlayerLastTurnLandDisputeLevel(MAX_CIV_PLAYERS, m_paePlayerLastTurnLandDisputeLevel);
 	kStream >> wrapm_paePlayerLastTurnLandDisputeLevel;
 
 	ArrayWrapper<char> wrapm_paePlayerVictoryDisputeLevel(MAX_MAJOR_CIVS, m_paePlayerVictoryDisputeLevel);
@@ -2017,8 +2018,8 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerEconomicStrengthComparedToUs);
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerTargetValue);
 
-	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paePlayerLandDisputeLevel);
-	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paePlayerLastTurnLandDisputeLevel);
+	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerLandDisputeLevel);
+	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerLastTurnLandDisputeLevel);
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paePlayerVictoryDisputeLevel);
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paePlayerVictoryBlockLevel);
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paePlayerWonderDisputeLevel);
@@ -5879,14 +5880,14 @@ void CvDiplomacyAI::SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, Aggressi
 /// What is our level of Dispute with a player over Land?
 DisputeLevelTypes CvDiplomacyAI::GetLandDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_DISPUTE_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_DISPUTE_LEVEL;
 	return (DisputeLevelTypes) m_paePlayerLandDisputeLevel[ePlayer];
 }
 
 /// Sets what our level of Dispute is with a player over Land
 void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	if (eDisputeLevel < 0 || eDisputeLevel >= NUM_DISPUTE_LEVELS) return;
 	m_paePlayerLandDisputeLevel[ePlayer] = eDisputeLevel;
 }
@@ -5896,7 +5897,7 @@ int CvDiplomacyAI::GetTotalLandDisputeLevel()
 {
 	int iRtnValue = 0; // slewis added, to fix a compile error. I'm guessing zero is correct.
 
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
@@ -21525,7 +21526,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 {
 	// Loop through all (known) Players
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
@@ -43690,7 +43691,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 		break;
 
 	case THEFT_TYPE_SPY:
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(ePlayer) || IsPlayerStopSpyingRequestAccepted(ePlayer))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(GetPlayer()->GetID()) || IsPlayerStopSpyingRequestAccepted(ePlayer))
 			return true;
 
 		if (IsVassal(ePlayer) && GetVassalTreatmentLevel(ePlayer) == VASSAL_TREATMENT_CONTENT)

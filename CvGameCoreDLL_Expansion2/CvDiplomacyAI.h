@@ -1832,8 +1832,8 @@ private:
 		char m_aePlayerMilitaryStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerEconomicStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerTargetValue[REALLY_MAX_PLAYERS];
-		char m_aePlayerLandDisputeLevel[MAX_MAJOR_CIVS];
-		char m_aePlayerLastTurnLandDisputeLevel[MAX_MAJOR_CIVS];
+		char m_aePlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
+		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerVictoryDisputeLevel[MAX_MAJOR_CIVS];
 
 		char m_aePlayerVictoryBlockLevel[MAX_MAJOR_CIVS];
