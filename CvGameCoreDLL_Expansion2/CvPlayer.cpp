@@ -9928,7 +9928,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesRobbedBy(eMePlayer, 0);
 			
 			// Reset all promises
-			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMilitaryPromiseState(eMePlayer, NO_PROMISE_STATE);
 			pDiploAI->SetPlayerMadeExpansionPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeBorderPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeAttackCityStatePromise(eMePlayer, false);
@@ -9936,8 +9936,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerMadeNoConvertPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeNoDiggingPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
-			
-			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
+
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetIgnoredBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetBrokenExpansionPromiseValue(eMePlayer, 0);

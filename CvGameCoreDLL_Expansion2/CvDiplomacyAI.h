@@ -599,16 +599,14 @@ public:
 	// ------------------------------------
 
 	// Military Promise
+	PromiseStates GetPlayerMilitaryPromiseState(PlayerTypes ePlayer) const;
+	void SetPlayerMilitaryPromiseState(PlayerTypes ePlayer, PromiseStates ePromiseState);
+	int GetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer) const;
+	void SetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValue);
 	int GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer);
-	short GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer) const;
-	void SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iChange);
 	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
-	void SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bValue);
-	int GetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer) const;
-	void SetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer, int iValue);
 
 	// Expansion Promise
 	bool IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const;
@@ -1872,7 +1870,6 @@ private:
 
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
-		short m_aiBrokenMilitaryPromiseTurn[MAX_MAJOR_CIVS];
 		short m_aiBrokenAttackCityStatePromiseTurn[MAX_MAJOR_CIVS];
 		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
 		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
@@ -1942,9 +1939,8 @@ private:
 		short m_aiAssistValue[MAX_MAJOR_CIVS];
 
 		// Player's response to AI statements
-		bool m_abPlayerMadeMilitaryPromise[MAX_MAJOR_CIVS];
-		bool m_abPlayerBrokenMilitaryPromise[MAX_MAJOR_CIVS];
-		short m_aiPlayerMilitaryPromiseCounter[MAX_MAJOR_CIVS];
+		char m_aePlayerMilitaryPromiseState[MAX_MAJOR_CIVS];
+		short m_aiPlayerMilitaryPromiseTurn[MAX_MAJOR_CIVS];
 
 		short m_aiPlayerMadeExpansionPromiseTurn[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenExpansionPromise[MAX_MAJOR_CIVS];
@@ -2199,7 +2195,6 @@ private:
 
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
-	short* m_paiBrokenMilitaryPromiseTurn;
 	short* m_paiBrokenAttackCityStatePromiseTurn;
 	short* m_paiDoFBrokenTurn;
 	bool* m_pabEverBackstabbedBy;
@@ -2261,9 +2256,8 @@ private:
 	short** m_ppaaiCoopWarStateChangeTurn;
 
 	// Player's response to AI statements
-	bool* m_pabPlayerMadeMilitaryPromise;
-	bool* m_pabPlayerBrokenMilitaryPromise;
-	short* m_paiPlayerMilitaryPromiseCounter;
+	char* m_paePlayerMilitaryPromiseState;
+	short* m_paiPlayerMilitaryPromiseTurn;
 
 	short* m_paiPlayerMadeExpansionPromiseTurn;
 	bool* m_pabPlayerBrokenExpansionPromise;
