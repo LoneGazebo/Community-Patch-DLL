@@ -1465,7 +1465,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		return FALSE;
 #endif
 
-	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || kToNodeCacheData.bIsVisibleEnemyCombatUnit;
+	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || (kToNodeCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES));
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
 	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the _parent_ plot
