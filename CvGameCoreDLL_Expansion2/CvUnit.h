@@ -596,7 +596,6 @@ public:
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
-	void ClearStrengthCache() const;
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
@@ -2352,8 +2351,6 @@ protected:
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
 	mutable uint m_uiLastPathTurnSlice;
-
-	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

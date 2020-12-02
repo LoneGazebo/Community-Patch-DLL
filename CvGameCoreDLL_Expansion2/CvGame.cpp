@@ -14232,9 +14232,6 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 		return NO_COMBAT_PREDICTION;
 	}
 
-	pAttackingUnit->ClearStrengthCache();
-	pDefendingUnit->ClearStrengthCache();
-
 	CombatPredictionTypes ePrediction = NO_COMBAT_PREDICTION;
 
 	if(pAttackingUnit->isRanged())
