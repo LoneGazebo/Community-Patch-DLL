@@ -25207,13 +25207,16 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					SetPlayerBackstabCounter(ePlayer, 0);
 					SetPlayerMilitaryPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 				}
-				else
+				else if (!IsPlayerBrokenMilitaryPromise(ePlayer))
 				{
 					SetPlayerMilitaryPromiseState(ePlayer, NO_PROMISE_STATE);
 				}
 
 				// Cancel any military promises
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(eMyPlayer))
+				{
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(eMyPlayer, NO_PROMISE_STATE);
+				}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
