@@ -3084,10 +3084,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iCityValue *= 150;
 				iCityValue /= 100;
 			}
-			// A City-State's capital, or another major's Holy City
-			else if (pOldCity->IsOriginalMinorCapital() || pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+			// A City-State's capital
+			else if (pOldCity->IsOriginalMinorCapital())
 			{
-				iCityValue *= 125;
+				iCityValue *= 115;
 				iCityValue /= 100;
 			}
 
@@ -9928,7 +9928,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesRobbedBy(eMePlayer, 0);
 			
 			// Reset all promises
-			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMilitaryPromiseState(eMePlayer, NO_PROMISE_STATE);
 			pDiploAI->SetPlayerMadeExpansionPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeBorderPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeAttackCityStatePromise(eMePlayer, false);
@@ -9936,9 +9936,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerMadeNoConvertPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeNoDiggingPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
-			
-			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
-			pDiploAI->SetPlayerIgnoredMilitaryPromise(eMePlayer, false);
+
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetIgnoredBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetBrokenExpansionPromiseValue(eMePlayer, 0);
@@ -9981,19 +9979,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Clear backstabbing mark
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
-
-			// Clear certain penalties with third parties
-			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
-			{
-				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-				
-				if (GET_PLAYER(eThirdParty).isMajorCiv())
-				{
-					// forget any denouncing
-					pDiploAI->SetDenouncedPlayer(eThirdParty, false);
-					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
-				}
-			}
 
 			// Update diplo stuff.
 			if (!GET_PLAYER(ePlayer).isHuman())
@@ -13006,8 +12991,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 
-		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnit->IsGainsXPFromScouting())
+		if (MOD_BALANCE_CORE && pUnit->IsGainsXPFromScouting())
+		{
 			return false;
+		}
 	}
 
 	// Unit Healing
@@ -13022,7 +13009,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Early pantheon
 	if(kGoodyInfo.isPantheonFaith())
 	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return false;
+
+		if (GC.getGame().getElapsedGameTurns() < 20)
 		{
 			return false;
 		}
@@ -13035,7 +13025,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Faith toward Great Prophet
 	if(kGoodyInfo.getProphetPercent() > 0)
 	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return false;
+
+		if (GC.getGame().getElapsedGameTurns() < 20)
 		{
 			return false;
 		}
@@ -13048,51 +13041,36 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Population
 	if(kGoodyInfo.getPopulation() > 0)
 	{
-		if(getNumCities() == 0)
-		{
+		if (getNumCities() == 0)
 			return false;
-		}
 
-		// Don't give more Population if we're already over our Pop limit
-		if(IsEmpireUnhappy())
-		{
+		// Don't give more Population if we're already unhappy
+		if (IsEmpireUnhappy())
 			return false;
-		}
 	}
+
+	// Production
+	if (kGoodyInfo.getProduction() > 0)
+	{
+		if (getNumCities() == 0)
+			return false;
+	}
+
 #if defined(MOD_BALANCE_CORE)
 	//Golden Age
 	if(kGoodyInfo.getGoldenAge() > 0)
 	{
-		if(GetNumGoldenAges() <= 0)
-		{
+		if (GetNumGoldenAges() > 0)
 			return false;
-		}
 	}
 	//Free Tiles
-	if(kGoodyInfo.getFreeTiles() > 0 && pPlot != NULL)
+	if (kGoodyInfo.getFreeTiles() > 0)
 	{
-		int iDistance;
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		CvCity* pLoopCity;
-		int iLoop;
-		// Find the closest City to us to add a Pop point to
-		for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-		{
-			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		if(pBestCity == NULL)
-		{
+		if (pPlot == NULL)
 			return false;
-		}
+
+		if (getNumCities() == 0)
+			return false;
 	}
 	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
@@ -13242,10 +13220,12 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Tech
 	if(kGoodyInfo.isTech())
 	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+
 		bTechFound = false;
 
-		int iNumTechInfos = GC.getNumTechInfos();
-		for(iI = 0; iI < iNumTechInfos; iI++)
+		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTech = GC.getTechInfo(eTech);
@@ -13253,17 +13233,15 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			{
 				if(GetPlayerTechs()->CanResearch(eTech))
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GetPlayerTechs()->GetCurrentResearch() != eTech)
+					if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
 					{
-#endif
-					bool bUseTech = true;
-					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if (pkScriptSystem) 
-					{
-						CvLuaArgsHandle args;
-						args->Push(GetID());
-						args->Push(eTech);
+						bool bUseTech = true;
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem) 
+						{
+							CvLuaArgsHandle args;
+							args->Push(GetID());
+							args->Push(eTech);
 
 						// Attempt to execute the game events.
 						// Will return false if there are no registered listeners.
@@ -13274,14 +13252,12 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 						}
 					}
 
-					if(bUseTech)
-					{
-						bTechFound = true;
+						if(bUseTech)
+						{
+							bTechFound = true;
+						}
+						break;
 					}
-					break;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
 				}
 			}
 		}
@@ -25169,6 +25145,9 @@ void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
 /// Changes what is our progress towards the next GA
 void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+		return;
+
 	if (MOD_BALANCE_NO_GAP_DURING_GA && isGoldenAge())
 	{
 		return;
@@ -30725,6 +30704,9 @@ void CvPlayer::setOverflowResearchTimes100(int iNewValue)
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeOverflowResearchTimes100(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+		return;
+
 	setOverflowResearchTimes100(getOverflowResearchTimes100() + iChange);
 }
 
@@ -33141,7 +33123,7 @@ void CvPlayer::ChangeMilitaryRating(int iChange)
 
 void CvPlayer::updateMightStatistics()
 {
-	m_iTurnSliceMightRecomputed = GC.getGame().getTurnSlice();
+	m_iTurnSliceMightRecomputed = GC.getGame().getGameTurn();
 	m_iMilitaryMight = calculateMilitaryMight();
 	m_iEconomicMight = calculateEconomicMight();
 	m_iProductionMight = calculateProductionMight();
@@ -33160,7 +33142,7 @@ void CvPlayer::updateMightStatistics()
 int CvPlayer::getPower() const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iMilitaryMight + m_iEconomicMight;
@@ -33170,7 +33152,7 @@ int CvPlayer::getPower() const
 int CvPlayer::GetMilitaryMight(bool bForMinor) const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	if (bForMinor && GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
@@ -33187,7 +33169,7 @@ int CvPlayer::GetMilitaryMight(bool bForMinor) const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitarySeaMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33196,7 +33178,7 @@ int CvPlayer::GetMilitarySeaMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryAirMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33205,7 +33187,7 @@ int CvPlayer::GetMilitaryAirMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryLandMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33216,7 +33198,7 @@ int CvPlayer::GetMilitaryLandMight() const
 int CvPlayer::GetEconomicMight() const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iEconomicMight;
@@ -33226,10 +33208,15 @@ int CvPlayer::GetEconomicMight() const
 int CvPlayer::GetProductionMight() const
 {
 	// more lazy evaluation
-	if(m_iTurnSliceMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iProductionMight;
+}
+
+void CvPlayer::ResetMightCalcTurn()
+{
+	m_iTurnSliceMightRecomputed = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36817,6 +36804,7 @@ void CvPlayer::DoDeficit()
 			{
 				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
 			}
+
 			// Look for obsolete naval units if in deficit or have sufficient units
 			else
 			{
@@ -41412,6 +41400,7 @@ void CvPlayer::deleteArmyAI(int iID)
 	DEBUG_VARIABLE(bRemoved);
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
+
 
 //	--------------------------------------------------------------------------------
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
@@ -50344,7 +50333,7 @@ void CvPlayer::updatePlotFoundValues()
 	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE)==0)
 		return;
 
-	//important preparation
+	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 	//these are the plots whose yield we ignore
 	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
@@ -50363,7 +50352,7 @@ void CvPlayer::updatePlotFoundValues()
 		}
 	}
 
-	//calculate new values and apply our threshold
+	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{

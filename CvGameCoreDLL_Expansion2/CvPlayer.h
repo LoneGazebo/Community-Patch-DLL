@@ -1727,6 +1727,7 @@ public:
 	int GetMilitaryMight(bool bForMinor = false) const;
 	int GetEconomicMight() const;
 	int GetProductionMight() const;
+	void ResetMightCalcTurn();
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 	int getCombatExperienceTimes100() const;

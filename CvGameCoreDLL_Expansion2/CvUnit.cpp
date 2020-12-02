@@ -15911,6 +15911,10 @@ const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs)
 			m_iOurDamage == rhs.m_iOurDamage && m_iTheirDamage == rhs.m_iTheirDamage);
 }
 
+void CvUnit::ClearStrengthCache() const
+{
+	m_lastStrengthModifiers.clear();
+}
 #define STRENGTH_MOD_MAX_CACHE_SIZE 5
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
@@ -16056,13 +16060,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetResistancePower(pOtherUnit);
 	}
 
-	// Open Ground
-	if (pFromPlot->isOpenGround())
-		iModifier += getExtraOpenFromPercent();
-	// Rough Ground
-	else if (pFromPlot->isRoughGround())
-		iModifier += getExtraRoughFromPercent();
-
 #endif
 	////////////////////////
 	// KNOWN BATTLE PLOT
@@ -16070,6 +16067,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 
 	if(pBattlePlot != NULL)
 	{
+		// Open Ground
+		if (pBattlePlot->isOpenGround())
+			iModifier += getExtraOpenFromPercent();
+		// Rough Ground
+		else if (pBattlePlot->isRoughGround())
+			iModifier += getExtraRoughFromPercent();
+
 		// Bonuses for fighting in one's lands
 		if(pBattlePlot->IsFriendlyTerritory(getOwner()))
 		{
@@ -16983,10 +16987,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Open Ground
-	if (plot()->isOpenGround())
+	if (pMyPlot->isOpenGround())
 		iModifier += getExtraOpenFromPercent();
 	// Rough Ground
-	else if (plot()->isRoughGround())
+	else if (pMyPlot->isRoughGround())
 		iModifier += getExtraRoughFromPercent();
 
 	////////////////////////
@@ -31013,19 +31017,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetInterceptionCombatModifier();
 	// aF: +33 Ace Pilot (Interception) 2 - 3, +34 Ace Pilot 4.
-	if(iTemp != 0 && canAirPatrol(NULL))		// not sure about this
+	if (iTemp != 0 && canAirPatrol(NULL) || getInterceptChance() > 0)		// not sure about this
 	{
-		iExtra = getInterceptChance();
-		iExtra = (iTemp + iExtra) * (iFlavorDefense + 2 * iFlavorAntiAir);
+		iExtra = getInterceptChance() * 5;
+		iExtra += (iTemp + iExtra) * (iFlavorDefense + 2 * iFlavorAntiAir);
 		iExtra *= 0.2;
 		iValue += iExtra;
 	}
 
 	iTemp = pkPromotionInfo->GetInterceptChanceChange();
 	// AA + aF + nM + C: +25 Interceptor (interception) I - IV, +25 Ace Pilot (interception) 1 - 3.
-	if (iTemp != 0 && GetAirInterceptRange() > 0)
+	if (iTemp != 0 && GetAirInterceptRange() > 0 || getInterceptChance() > 0)
 	{
-		iExtra = iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
+		iExtra = getInterceptChance() * 5;
+		iExtra += iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
 		iExtra *= 0.1;
 		iExtra *= GetAirInterceptRange();
 		iValue += iExtra;

@@ -14232,6 +14232,9 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 		return NO_COMBAT_PREDICTION;
 	}
 
+	pAttackingUnit->ClearStrengthCache();
+	pDefendingUnit->ClearStrengthCache();
+
 	CombatPredictionTypes ePrediction = NO_COMBAT_PREDICTION;
 
 	if(pAttackingUnit->isRanged())
@@ -14242,13 +14245,23 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	CvPlot* pFromPlot = pAttackingUnit->plot();
 	CvPlot* pToPlot = pDefendingUnit->plot();
 
-	int iAttackingStrength = pAttackingUnit->GetMaxAttackStrength(pFromPlot, pToPlot, pDefendingUnit);
+	CvUnit* pTest = GET_PLAYER(pAttackingUnit->getOwner()).getUnit(pAttackingUnit->GetID());
+
+	if (pTest->GeneratePath(pToPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+	{
+		//this  must be the same moveflags as above so we can reuse the path next turn
+		CvPlot* pEnd = pTest->GetPathLastPlot();
+		if (pEnd)
+			pFromPlot = pEnd;
+	}
+
+	int iAttackingStrength = pAttackingUnit->GetMaxAttackStrength(pFromPlot, pToPlot, pDefendingUnit, false, false);
 	if(iAttackingStrength == 0)
 	{
 		return NO_COMBAT_PREDICTION;
 	}
 
-	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false);
+	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false);
 
 	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
 	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, false, false, false);

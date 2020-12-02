@@ -12198,7 +12198,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		if (getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->IsFound() || GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0))
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = getHappinessDelta(!toolTipSink) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -16585,7 +16585,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if (MOD_BALANCE_CORE_HAPPINESS)
 		{
-			int iHappiness = getHappinessDelta(true);
+			int iHappiness = getHappinessDelta(!toolTipSink);
 				
 			if(iHappiness > 0)
 				iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();

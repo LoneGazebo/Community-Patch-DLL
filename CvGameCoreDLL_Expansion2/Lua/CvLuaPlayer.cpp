@@ -10349,7 +10349,8 @@ int CvLuaPlayer::lIsDoFMessageTooSoon(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFMessageTooSoon(eWithPlayer);
+	// Removed IsDoFMessageTooSoon()...human should always be able to ask for DoF unless they already have one
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
@@ -10372,9 +10373,9 @@ int CvLuaPlayer::lGetDoFCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iTurnsLeft = pkPlayer->GetDiplomacyAI()->GetDoFCounter(eWithPlayer);
+	const int iCounter = pkPlayer->GetDiplomacyAI()->GetTurnsSinceBefriendedPlayer(eWithPlayer);
 
-	lua_pushinteger(L, iTurnsLeft);
+	lua_pushinteger(L, iCounter);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10691,14 +10692,17 @@ int CvLuaPlayer::lIsPlayerBrokenMilitaryPromise(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// Removed code but kept function for compatibility
 int CvLuaPlayer::lIsPlayerIgnoredMilitaryPromise(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredMilitaryPromise(eOtherPlayer);
+	if (eOtherPlayer != pkPlayer->GetID())
+	{
+	}
 
-	lua_pushboolean(L, bValue);
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10941,7 +10945,7 @@ int CvLuaPlayer::lGetDenouncedPlayerCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iValue = pkPlayer->GetDiplomacyAI()->GetDenouncedPlayerCounter(eOtherPlayer);
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetTurnsSinceDenouncedPlayer(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -11106,9 +11110,7 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	pkPlayer->GetDiplomacyAI()->SetDoFCounter(eOtherPlayer, 0);
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
-	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFCounter(pkPlayer->GetID(), 0);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
 
 	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
@@ -14226,15 +14228,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiplo->GetIgnoredMilitaryPromiseScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 			aOpinions.push_back(kOpinion);
 		}
 
