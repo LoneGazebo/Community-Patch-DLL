@@ -199,6 +199,17 @@ enum BlockLevelTypes
 	NUM_BLOCK_LEVELS,
 };
 
+enum PromiseStates
+{
+	NO_PROMISE_STATE = -1,
+
+	PROMISE_STATE_MADE,
+	PROMISE_STATE_IGNORED,
+	PROMISE_STATE_BROKEN,
+
+	NUM_PROMISE_STATES,
+};
+
 enum DoFLevelTypes
 {
 	NO_DOF_TYPE = -1,

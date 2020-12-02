@@ -140,7 +140,6 @@ public:
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
