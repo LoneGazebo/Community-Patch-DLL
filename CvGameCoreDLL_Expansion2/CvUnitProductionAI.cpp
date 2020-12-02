@@ -271,7 +271,6 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 #if defined(MOD_BALANCE_CORE)
 int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree, bool bInterruptBuildings)
 {
-	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
 
@@ -488,11 +487,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
 		//Are we mustering a naval attack here?
-		if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
-		{
-			bOperationalOverride = true;
-		}
-		if (!bFree && !bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther == 0 && iNumCitiesOther == 0))))
+		bool bOperationalOverride = (bForOperation && kPlayer.IsMusterCityForOperation(m_pCity, true));
+		bool bTooManyUnits = (iNumUnitsofMine * iFactor > iWaterTiles);
+		bool bNoEnemies = (iNumUnitsOther == 0 && iNumCitiesOther == 0);
+
+		if (!bFree && !bOperationalOverride && (bTooManyUnits || bNoEnemies))
 		{
 			return 0;
 		}
@@ -651,23 +650,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.isMinorCiv())
 				return 0;
 
-			int iSlots = kPlayer.GetMilitaryAI()->GetNumFreeCarrier();
-			//No planes, or a surplus of carriers? No carriers
-			if (iSlots == -1 || (iSlots > 0))
-			{
+			if (MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(&kPlayer)==false)
 				return 0;
-			}
-			//No slots at all? Let's make one.
-			else if (iSlots == 0)
-			{
-				iBonus += 1000;
-			}
-			//If we have more planes than slots (negative), we need this!
-			else
-			{
-				iBonus += (-10 * iSlots);
-			}
 		}
+
 		//Need Explorers?
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
@@ -1614,21 +1600,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (bAtWar)
 		{
-			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
+			if (bCombat)
 			{
-				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 50;
-				if (iThreat > 0)
-				{
-					if (bCombat)
-					{
-						iBonus += iThreat;
-					}
-					else
-					{
-						iBonus -= iThreat;
-					}
-				}
+				iBonus += m_pCity->getThreatValue();
+			}
+			else
+			{
+				iBonus -= m_pCity->getThreatValue();
 			}
 		}
 		if (bCombat && bForOperation)

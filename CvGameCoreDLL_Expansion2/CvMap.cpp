@@ -907,12 +907,6 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 //	--------------------------------------------------------------------------------
 CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith, DirectionTypes eDirection, const CvCity* pSkipCity)
 {
-	CvCity* pLoopCity;
-	CvCity* pBestCity;
-	int iValue;
-	int iBestValue;
-	int iLoop;
-	int iI;
 	CvPlot* pCheckPlot = plot(iX, iY);
 
 	CvAssertMsg(pCheckPlot != NULL, "Passed in an invalid plot to findCity");
@@ -921,10 +915,10 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 
 	// XXX look for barbarian cities???
 
-	iBestValue = MAXINT;
-	pBestCity = NULL;
+	int iBestValue = MAXINT;
+	CvCity* pBestCity = NULL;
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(thisPlayer.isAlive())
@@ -933,7 +927,8 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 			{
 				if((eTeam == NO_TEAM) || (thisPlayer.getTeam() == eTeam))
 				{
-					for(pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
+					int iLoop;
+					for(CvCity* pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
 					{
 						if(!bSameArea || pLoopCity->isMatchingArea(pCheckPlot))
 						{
@@ -945,7 +940,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 									{
 										if((pSkipCity == NULL) || (pLoopCity != pSkipCity))
 										{
-											iValue = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+											int iValue = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
 
 											if(iValue < iBestValue)
 											{
@@ -970,30 +965,24 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 //	--------------------------------------------------------------------------------
 CvUnit* CvMap::findUnit(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect, bool bWorkers)
 {
-	CvUnit* pLoopUnit;
-	CvUnit* pBestUnit;
-	int iValue;
-	int iBestValue;
-	int iLoop;
-	int iI;
+	int iBestValue = INT_MAX;
+	CvUnit* pBestUnit = NULL;
 
-	iBestValue = INT_MAX;
-	pBestUnit = NULL;
-
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(thisPlayer.isAlive())
 		{
 			if((eOwner == NO_PLAYER) || (iI == eOwner))
 			{
-				for(pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
+				int iLoop;
+				for(CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 				{
 					if(!bReadyToSelect || pLoopUnit->ReadyToSelect())
 					{
 						if(!bWorkers || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA)
 						{
-							iValue = plotDistance(iX, iY, pLoopUnit->getX(), pLoopUnit->getY());
+							int iValue = plotDistance(iX, iY, pLoopUnit->getX(), pLoopUnit->getY());
 
 							if(iValue < iBestValue)
 							{
@@ -1015,10 +1004,8 @@ CvUnit* CvMap::findUnit(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect,
 CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 {
 	eOwner = NO_PLAYER;
-	int iBestValue;
 	CvPlot* pBestStartPlot = 0;
-
-	iBestValue = INT_MAX;
+	int iBestValue = INT_MAX;
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -1045,20 +1032,14 @@ CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::findBiggestArea(bool bWater)
 {
-	CvArea* pLoopArea;
-	CvArea* pBestArea;
-	int iValue;
-	int iBestValue;
+	CvArea* pBestArea = NULL;
+	int iBestValue = 0;
 	int iLoop;
-
-	iBestValue = 0;
-	pBestArea = NULL;
-
-	for(pLoopArea = firstArea(&iLoop); pLoopArea != NULL; pLoopArea = nextArea(&iLoop))
+	for(CvArea* pLoopArea = firstArea(&iLoop); pLoopArea != NULL; pLoopArea = nextArea(&iLoop))
 	{
 		if(pLoopArea->isWater() == bWater)
 		{
-			iValue = pLoopArea->getNumTiles();
+			int iValue = pLoopArea->getNumTiles();
 
 			if(iValue > iBestValue)
 			{

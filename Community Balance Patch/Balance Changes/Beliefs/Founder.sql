@@ -93,8 +93,8 @@ VALUES
 INSERT INTO Belief_YieldFromForeignSpread
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_TITHE', 'YIELD_TOURISM', 15),
-	('BELIEF_TITHE', 'YIELD_CULTURE', 15);
+	('BELIEF_TITHE', 'YIELD_TOURISM', 10),
+	('BELIEF_TITHE', 'YIELD_CULTURE', 10);
 
 INSERT INTO Belief_YieldFromConquest
 	(BeliefType, YieldType, Yield)

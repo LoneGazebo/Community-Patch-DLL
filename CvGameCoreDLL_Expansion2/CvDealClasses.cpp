@@ -469,7 +469,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if (pRenewDeal)
 			{
-				OutputDebugString("Renewal failed because of GPT \n");
+//				OutputDebugString("Renewal failed because of GPT \n");
 			}
 			return false;
 		}
@@ -526,18 +526,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
 		ResourceTypes eResource = (ResourceTypes) iData1;
-		if(eResource != NO_RESOURCE)
+		if (eResource != NO_RESOURCE)
 		{
 			int iResourceQuantity = iData2;
 
-			// Can't trade a negative amount of something!
-			if(iResourceQuantity < 0)
+			// Can't trade nothing
+			if (iResourceQuantity < 1)
 				return false;
 
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
-			{
 				return false;
-			}
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo)
@@ -557,14 +555,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					iNumAvailable += iResourcesAlreadyInDeal;
 			}
 			else
+			{
 				iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+			}
 			
 			// Offering up more of a Resource than we have available
 			if (iNumAvailable < iResourceQuantity)
 			{
 				if (pRenewDeal)
 				{
-					OutputDebugString("Renewal failed because of missing resources \n");
+//					OutputDebugString("Renewal failed because of missing resources \n");
 				}
 				return false;
 			}
@@ -594,7 +594,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				{
 					if (pRenewDeal)
 					{
-						OutputDebugString("Renewal failed because player got another copy \n");
+//						OutputDebugString("Renewal failed because player got another copy \n");
 					}
 					return false;
 				}
@@ -1447,14 +1447,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	return true;
 }
 
-/// Get the number of resources available according to the deal being renewed and what's not on the table
-int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
+/// Get the number of resources available according to the deal being renewed and what's on the table
+int CvDeal::GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource)
 {
-	int iNumAvailable = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, false);
 	int iNumInExistingDeal = 0;
 
 	TradedItemList::iterator it;
-	// remove any that are in this deal
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
@@ -1463,7 +1461,7 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 		}
 	}
 
-	return iNumAvailable - iNumInExistingDeal;
+	return iNumInExistingDeal;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -2992,9 +2990,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			// Declaration of friendship always goes both ways.  We will most likely have two entries in the deal for this
 			// but just in case, set both anyway.
 			GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eAcceptedToPlayer, true);
-			GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->SetDoFCounter(eAcceptedToPlayer, 0);
 			GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->SetDoFAccepted(eAcceptedFromPlayer, true);
-			GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->SetDoFCounter(eAcceptedFromPlayer, 0);
 		}
 		// Vote Commitment
 		else if(it->m_eItemType == TRADE_ITEM_VOTE_COMMITMENT)
@@ -3148,8 +3144,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
 								}
 
 								//If human attacked, send notification with info.
@@ -3669,9 +3664,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					// Declaration of friendship always goes both ways.  We will most likely have two entries in the deal for this
 					// but just in case, set both anyway.
 					GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eAcceptedToPlayer, true);
-					GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->SetDoFCounter(eAcceptedToPlayer, 0);
 					GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->SetDoFAccepted(eAcceptedFromPlayer, true);
-					GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->SetDoFCounter(eAcceptedFromPlayer, 0);
 				}
 				// Vote Commitment
 				else if(it->m_eItemType == TRADE_ITEM_VOTE_COMMITMENT)
@@ -3831,8 +3824,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
 								}
 
 								//If human attacked, send notification with info.
@@ -4892,7 +4884,7 @@ void CvGameDeals::PrepareRenewDeal(CvDeal* pOldDeal, CvDeal* pNewDeal)
 		}
 	}
 
-	OutputDebugString("Renewal deal ready.\n");
+	//OutputDebugString("Renewal deal ready.\n");
 	pNewDeal->m_bCheckedForRenewal = true;
 	pOldDeal->m_bCheckedForRenewal = true;
 

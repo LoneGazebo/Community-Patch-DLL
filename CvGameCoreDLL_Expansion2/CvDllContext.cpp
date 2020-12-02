@@ -1045,9 +1045,7 @@ void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
@@ -1066,9 +1064,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_ATTACK,1);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);

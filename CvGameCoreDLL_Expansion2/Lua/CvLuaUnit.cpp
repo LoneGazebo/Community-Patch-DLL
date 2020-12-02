@@ -1673,7 +1673,7 @@ int CvLuaUnit::lCanFound(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	const bool bTestVisible = luaL_optint(L, 3, 0);
-	const bool bResult = pkUnit->canFound(pkPlot, bTestVisible);
+	const bool bResult = pkUnit->canFoundCity(pkPlot, bTestVisible);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1685,7 +1685,7 @@ int CvLuaUnit::lCanJoin(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 3);
-	const bool bResult = pkUnit->canJoin(pkPlot, eSpecialist);
+	const bool bResult = pkUnit->canJoinCity(pkPlot, eSpecialist);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2786,6 +2786,17 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 4, false);
 	bool bFromRangedAttack = luaL_optbool(L, 5, false);
 
+	pkUnit->ClearStrengthCache();
+	pkAttacker->ClearStrengthCache(); 
+
+	if (pkAttacker->GeneratePath(pInPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+	{
+		//this  must be the same moveflags as above so we can reuse the path next turn
+		CvPlot* pEnd = pkAttacker->GetPathLastPlot();
+		if (pEnd)
+			pFromPlot = pEnd;
+	}
+
 	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -2939,6 +2950,8 @@ int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bAttacking = lua_toboolean(L, 4);
 
+	pkUnit->ClearStrengthCache();
+	pkOther->ClearStrengthCache();
 	const int iResult = pkUnit->GetMaxRangedCombatStrength(pkOther, pkCity, bAttacking, NULL, NULL, false, false);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -2968,7 +2981,7 @@ int CvLuaUnit::lGetRangedCombatLimit(lua_State* L)
 int CvLuaUnit::lCanAirAttack(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->canAirAttack();
+	const bool bResult = pkUnit->IsCanAttackRanged();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -5428,16 +5441,23 @@ int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
 int CvLuaUnit::lGetGiveCombatModToUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	const int bResult = pkUnit->GetGiveCombatModToUnit();
 	lua_pushinteger(L, bResult);
-
+#else
+	lua_pushinteger(L, 0);
+#endif
 	return 1;
 }
 int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	const int bResult = pkUnit->GetNearbyCityBonusCombatMod();
 	lua_pushinteger(L, bResult);
+#else
+	lua_pushinteger(L, 0);
+#endif
 
 	return 1;
 }

@@ -4825,6 +4825,9 @@ bool CvCityReligions::IsReligionInCity()
 /// Is this the holy city for a specific religion?
 bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 {
+	if (eReligion == NO_RELIGION)
+		return false;
+
 	ReligionInCityList::iterator religionIt;
 
 	// Find the religion in the list
@@ -7114,7 +7117,6 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
-	int iMaxCityDistance = 13;
 	std::vector<SPlotWithScore> vTargets;
 
 	// Loop through all the players
@@ -7136,8 +7138,8 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
-				//ignore far-flung cities
-				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistance)
+				//ignore far-flung cities - little chance we can establish our religion there
+				if (m_pPlayer->GetCityDistancePathLength(pLoopCity->plot()) > 37)
 					continue;
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
@@ -7159,7 +7161,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	{
 		//cache the path, we're about to reuse it
 		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1| CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns,true) )
+		if (pUnit->GeneratePath(it->pPlot,iFlags,INT_MAX,piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -7216,7 +7218,6 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	if (piTurns)
 		*piTurns = INT_MAX;
 
-	int iMaxCityDistanceTurns = 17; // Don't go too far away, no chance for our religion to get a hold there?
 	int iDistanceBias = 7; //score drops linearly with distance from holy city
 	int iMinScore = 500;  //equivalent to converting 10 heretics at a distance of 13 plots to our holy city
 	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
@@ -7310,7 +7311,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 #endif
 
 				//ignore far-flung cities
-				if (m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) > iMaxCityDistanceTurns)
+				if (m_pPlayer->GetCityDistancePathLength(pLoopCity->plot()) > 23)
 					continue;
 
 				CvCityReligions* pCR = pLoopCity->GetCityReligions();
@@ -7576,7 +7577,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 					if (pUnitEntry)
 					{
-						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitForArmy(pCity))
+						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitTypeForArmy(pCity))
 						{
 							pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 							if (GC.getLogging())
@@ -8226,26 +8227,22 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iScoreCity = 0;
 	int iScorePlayer = 0;
 
-	int iDistanceToCheck = pEntry->IsPantheonBelief() ? 2 : 1;
-
 	// Loop through each plot on map
 	int iPlotLoop;
-	CvPlot* pPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		// Skip if not revealed or in enemy territory
 		PlayerTypes ePlotOwner = pPlot->getOwner();
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
-			// Also skip if closest city of ours is not within 2-3 turn (pantheon check further because early game)
-			if (m_pPlayer->GetCityDistanceInEstimatedTurns(pPlot)>iDistanceToCheck)
+			// Skip if closest city of ours has no chance to work the plot
+			if (m_pPlayer->GetCityDistancePathLength(pPlot)>3)
 				continue;
 
 			// Score it
 			int iScoreAtPlot = ScoreBeliefAtPlot(pEntry, pPlot);
-
 			if (iScoreAtPlot <= 0)
 				continue;
 		
@@ -11220,9 +11217,6 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 
 					if (GetReligionToSpread() > RELIGION_PANTHEON)
 					{
-						if (ChooseProphetConversionCity())
-							iScore += 200;
-
 						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 						if (pMyReligion && !pMyReligion->m_bEnhanced)
 							iScore *= 2;

@@ -66,18 +66,21 @@ WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='
 
 -- Spain
 
-UPDATE Traits
-Set Reconquista = '1'
-WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+--UPDATE Traits
+--Set Reconquista = '1'
+--WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+--UPDATE Traits
+--Set NoSpread = '1'
+--WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-Set NoSpread = '1'
+SET FreeUnitOnConquest = 'UNIT_SPAIN_INQUISITOR' 
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 Set CanPurchaseNavalUnitsFaith = '1'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 
 UPDATE Traits
 Set NaturalWonderFirstFinderGold = '0'
@@ -94,6 +97,126 @@ WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 UPDATE Traits
 Set NaturalWonderHappinessModifier = '0'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+-- Spain Inquisitor
+INSERT INTO Civilization_UnitClassOverrides 
+			(CivilizationType, 		UnitClassType, 				UnitType)
+VALUES		('CIVILIZATION_SPAIN',	'UNITCLASS_INQUISITOR', 	'UNIT_SPAIN_INQUISITOR');
+
+INSERT INTO Units 	
+			(Type,						RequiresEnhancedReligion, 	ReligiousStrength, 		ShowInPedia, 	NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown)
+SELECT		'UNIT_SPAIN_INQUISITOR',	0, 							ReligiousStrength*2, 	0, 				NoMaintenance, 	ProhibitsSpread, RemoveHeresy, Class, BaseSightRange, Combat, Cost, FaithCost,	RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, DefaultUnitAI, ObsoleteTech, GoodyHutUpgradeUnitClass, XPValueAttack,	Description, Civilopedia, Strategy,	Help, Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, CivilianAttackPriority, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, UnitFlagIconOffset, UnitFlagAtlas, PortraitIndex, IconAtlas, MoveRate, PurchaseCooldown
+FROM Units WHERE Type = 'UNIT_INQUISITOR';
+
+INSERT INTO UnitGameplay2DScripts 	
+			(UnitType, 					SelectionSound, FirstSelectionSound)
+SELECT		'UNIT_SPAIN_INQUISITOR',	SelectionSound, FirstSelectionSound
+FROM UnitGameplay2DScripts WHERE UnitType = 'UNIT_INQUISITOR';	
+
+INSERT INTO Unit_AITypes 	
+			(UnitType, 					UnitAIType)
+SELECT		'UNIT_SPAIN_INQUISITOR',	UnitAIType
+FROM Unit_AITypes WHERE UnitType = 'UNIT_INQUISITOR';
+
+INSERT INTO Unit_Flavors 	
+			(UnitType, 					FlavorType,	Flavor)
+SELECT		'UNIT_SPAIN_INQUISITOR',	FlavorType, Flavor
+FROM Unit_Flavors WHERE UnitType = 'UNIT_INQUISITOR';
+
+INSERT INTO Unit_FreePromotions 	
+			(UnitType, 					PromotionType)
+SELECT		'UNIT_SPAIN_INQUISITOR',	PromotionType
+FROM Unit_FreePromotions WHERE UnitType = 'UNIT_INQUISITOR';
+
+-- Hacienda
+INSERT INTO ArtDefine_LandmarkTypes
+			(Type, 									LandmarkType, 	FriendlyName)
+VALUES 		('ART_DEF_IMPROVEMENT_SPAIN_HACIENDA', 	'Improvement', 	'SPAIN_HACIENDA');
+
+INSERT INTO ArtDefine_Landmarks
+			(Era, 	State, 					Scale, 	ImprovementType, 						LayoutHandler, 	ResourceType, 			Model, 					TerrainContour)
+VALUES 		('Any', 'UnderConstruction', 	0.8,	'ART_DEF_IMPROVEMENT_SPAIN_HACIENDA', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'hacienda_hb.fxsxml',	1),
+			('Any', 'Constructed', 			0.8,	'ART_DEF_IMPROVEMENT_SPAIN_HACIENDA', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'hacienda.fxsxml',		1),
+			('Any', 'Pillaged', 			0.8,	'ART_DEF_IMPROVEMENT_SPAIN_HACIENDA', 	'SNAPSHOT', 	'ART_DEF_RESOURCE_ALL', 'hacienda_pl.fxsxml',	1);
+
+INSERT INTO ArtDefine_StrategicView
+			(StrategicViewType, 					TileType, 		Asset)
+VALUES 		('ART_DEF_IMPROVEMENT_SPAIN_HACIENDA', 	'Improvement', 	'HaciendaIcon_128.dds');
+
+INSERT INTO IconTextureAtlases 
+		(Atlas, 								IconSize, 	Filename, 							IconsPerRow, 	IconsPerColumn)
+VALUES	('IMPROVEMENT_SPAIN_ATLAS', 			256, 		'HaciendaIcons_256.dds',			2, 				1),
+		('IMPROVEMENT_SPAIN_ATLAS', 			64, 		'HaciendaIcons_064.dds',			2, 				1),
+		('IMPROVEMENT_SPAIN_ATLAS', 			45, 		'HaciendaIcons_045.dds',			2, 				1);
+
+INSERT INTO Improvements
+			(Type, 							Description, 							Civilopedia, 								ArtDefineTag, 							Help, 										SpecificCivRequired, 	CivilizationType, 		PillageGold,	CreatedByGreatPerson,	BuildableOnResources,	DestroyedWhenPillaged, 	PortraitIndex, 	IconAtlas, 					NoTwoAdjacent,	DefenseModifier,	AdjacentLuxury)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA',	'TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_TEXT',	'ART_DEF_IMPROVEMENT_SPAIN_HACIENDA',	'TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_HELP',	1,						'CIVILIZATION_SPAIN',	20,				0,						0,						0,						0,				'IMPROVEMENT_SPAIN_ATLAS',	1,				0,					0);
+		
+INSERT INTO Improvement_Flavors	
+			(ImprovementType, 				FlavorType,				Flavor)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'FLAVOR_GOLD',			80),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'FLAVOR_PRODUCTION',	70),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'FLAVOR_RELIGION',		5),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'FLAVOR_GROWTH',		15);
+	
+INSERT INTO Improvement_ValidTerrains 	
+			(ImprovementType, 				TerrainType)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_PLAINS'),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_GRASS'),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_TUNDRA'),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_DESERT'),			
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_SNOW');
+	
+INSERT INTO Improvement_Yields 	
+			(ImprovementType, 				YieldType,					Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',				1),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE_LOCAL',		1);
+	
+INSERT INTO Improvement_AdjacentCityYields 	
+			(ImprovementType, 				YieldType,				Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE_LOCAL',	2);
+	
+INSERT INTO Improvement_AdjacentResourceYieldChanges	
+			(ImprovementType,				ResourceType,	YieldType,		Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_LUXURY';
+
+INSERT INTO Improvement_AdjacentResourceYieldChanges	
+			(ImprovementType,				ResourceType,	YieldType,		Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
+
+INSERT INTO Improvement_AdjacentResourceYieldChanges	
+			(ImprovementType,				ResourceType,	YieldType,			Yield)
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	2
+FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_MODERN';
+
+INSERT INTO Improvement_AdjacentResourceYieldChanges	
+			(ImprovementType, 				ResourceType,			YieldType,				Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		2),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		2);
+
+INSERT INTO Improvement_TechYieldChanges
+			(ImprovementType,				TechType,					YieldType,			Yield)
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TECH_ARCHITECTURE',		'YIELD_FOOD',		1),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TECH_ARCHITECTURE',		'YIELD_PRODUCTION',	1),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TECH_FERTILIZER',			'YIELD_FOOD',		1),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TECH_FERTILIZER',			'YIELD_PRODUCTION',	1),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'TECH_FERTILIZER',			'YIELD_GOLD',		1);
+	
+INSERT INTO Builds
+			(Type,						PrereqTech,		ImprovementType, 				Description, 					Help, 									Recommendation, 					EntityEvent, 			Time,	OrderPriority, 	Kill, 	IconIndex, 	IconAtlas)
+VALUES		('BUILD_SPAIN_HACIENDA',	'TECH_COMPASS',	'IMPROVEMENT_SPAIN_HACIENDA',	'TXT_KEY_BUILD_SPAIN_HACIENDA',	'TXT_KEY_BUILD_SPAIN_HACIENDA_HELP',	'TXT_KEY_BUILD_SPAIN_HACIENDA_REC',	'ENTITY_EVENT_BUILD',	800,	95,				0,		1,			'IMPROVEMENT_SPAIN_ATLAS');
+	
+INSERT INTO Unit_Builds	
+			(UnitType, 			BuildType)
+VALUES		('UNIT_WORKER',		'BUILD_SPAIN_HACIENDA');
+
+INSERT INTO BuildFeatures	
+			(BuildType, 			FeatureType, PrereqTech, Time, Production, Remove)
+SELECT		'BUILD_SPAIN_HACIENDA',	FeatureType, PrereqTech, Time, Production, Remove
+FROM BuildFeatures WHERE BuildType = 'BUILD_CHATEAU';
 
 -- Inca
 UPDATE Traits
@@ -185,17 +308,38 @@ VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 2),
 	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Trait_YieldFromConquest
-	(TraitType, YieldType, Yield)
-VALUES
-	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 150),
-	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 75);
+--INSERT INTO Trait_YieldFromConquest
+--	(TraitType, YieldType, Yield)
+--VALUES
+--	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 150),
+--	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 75);
 
-INSERT INTO Trait_YieldFromSettle
+--INSERT INTO Trait_YieldFromSettle
+--	(TraitType, YieldType, Yield)
+--VALUES
+--	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 40),
+--	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 40);
+
+INSERT INTO Trait_YieldFromTilePurchase
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 40),
-	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 40);
+	('TRAIT_SEVEN_CITIES', 'YIELD_GOLD', 	10),
+	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 	4);
+
+INSERT INTO Trait_YieldFromTileEarn
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_SEVEN_CITIES', 'YIELD_GOLD', 	10),
+	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 	4);
+
+INSERT INTO Trait_YieldFromTileConquest		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
+INSERT INTO Trait_YieldFromTileConquest		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
+
+INSERT INTO Trait_YieldFromTileCultureBomb 	(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
+INSERT INTO Trait_YieldFromTileCultureBomb 	(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
+
+INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
+INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
 
 -- NEW DLC Leader Data and Yields
 
@@ -247,7 +391,7 @@ VALUES
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_SPAIN', 'BUILDINGCLASS_CASTLE', 'BUILDING_MISSION'),
+--	('CIVILIZATION_SPAIN', 'BUILDINGCLASS_CASTLE', 'BUILDING_MISSION'),
 	('CIVILIZATION_DENMARK', 'BUILDINGCLASS_LIGHTHOUSE', 'BUILDING_JELLING_STONES'),
 	('CIVILIZATION_KOREA', 'BUILDINGCLASS_UNIVERSITY', 'BUILDING_SEOWON'),
 	('CIVILIZATION_MONGOL', 'BUILDINGCLASS_GRANARY', 'BUILDING_YURT');

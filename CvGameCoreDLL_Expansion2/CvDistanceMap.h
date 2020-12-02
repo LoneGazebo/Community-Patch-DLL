@@ -20,19 +20,30 @@ public:
 	CvDistanceMap(void);
 	~CvDistanceMap(void);
 
-	void Reset(int nPlots, int iDefaultDistance);
+	void Reset(int nPlots, unsigned short iDefaultDistance);
 	bool UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, int iDistance, const STiebreakGenerator& tiebreaker);
 
 	//not const because of deferred updates ...
 	int GetClosestFeatureDistance(const CvPlot& pPlot);
 	int GetClosestFeatureID(const CvPlot& pPlot);
-	int GetClosestFeatureOwner(const CvPlot& pPlot);
+	PlayerTypes GetClosestFeatureOwner(const CvPlot& pPlot);
 
 	void Dump(const char* filename);
 
 protected:
-	std::vector<int> m_vClosestFeature; //plot index to feature
-	std::vector<int> m_vDistance;		//plot index to distance
+	struct SContent {
+		enum { INVALID = 0xFFFF };
+
+		SContent(unsigned short _distance) : distance(_distance), owner(INVALID), feature(INVALID) {}
+		SContent(int _distance, int _owner, int _feature) : distance((unsigned short)_distance), owner((unsigned short)_owner), feature((unsigned short)_feature) {}
+
+		//try and save some memory here
+		unsigned short distance;
+		unsigned short owner;
+		unsigned short feature;
+	};
+
+	std::vector<SContent> m_vData;
 };
 
 class CvDistanceMapWrapper
@@ -51,13 +62,16 @@ public:
 
 	int GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
 	int GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
-	int GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+	PlayerTypes GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
 };
 
 class CvDistanceMapByTurns : public CvDistanceMapWrapper
 {
+public:
+	CvDistanceMapByTurns(DomainTypes eDomain) : m_domain(eDomain) {}
 protected:
 	virtual void Update();
+	DomainTypes m_domain;
 };
 
 class CvDistanceMapByPlots : public CvDistanceMapWrapper

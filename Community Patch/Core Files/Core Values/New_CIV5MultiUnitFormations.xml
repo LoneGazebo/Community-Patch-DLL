@@ -12,6 +12,11 @@
 			<Type>MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE</Type>
 			<Description>MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE</Description>
 		</Row>
+		<Row>
+			<Name>Carrier Strike Group</Name>
+			<Type>MUFORMATION_CARRIER_ESCORT</Type>
+			<Description>MUFORMATION_CARRIER_ESCORT</Description>
+		</Row>
 	</MultiUnitFormations>
 	<MultiUnitFormation_SlotEntries>
 		<Delete MultiUnitFormationType="MUFORMATION_EARLY_RUSH"/>
@@ -856,7 +861,7 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_LATE_GAME_INVASION_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
@@ -935,7 +940,7 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
@@ -953,6 +958,53 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ADMIRAL</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ADMIRAL</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
+		<!-- Carrier Strike Group -->
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_CARRIER_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>		
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>		
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>		
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CARRIER_ESCORT</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ADMIRAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ADMIRAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>

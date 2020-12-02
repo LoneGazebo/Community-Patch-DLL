@@ -132,7 +132,7 @@ public:
 		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
-		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
+		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use deep water even if we could
 		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
 		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
@@ -271,10 +271,6 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-#if defined(MOD_BALANCE_CORE)
-	bool isAircraftCarrier() const;
-#endif
-
 	bool canHold(const CvPlot* pPlot) const; // skip turn
 	bool canSleep(const CvPlot* pPlot) const;
 	bool canFortify(const CvPlot* pPlot) const;
@@ -395,15 +391,15 @@ public:
 	bool canRebaseAt(int iXDest, int iYDest, bool bForced = false) const;
 	bool rebase(int iX, int iY, bool bForced = false);
 
-	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
-	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, int iMovesOverride = 0) const;
+	bool canPillage(const CvPlot* pPlot) const;
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
 	bool pillage();
 
-	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
-	bool found();
+	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
+	bool foundCity();
 
-	bool canJoin(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
-	bool join(SpecialistTypes eSpecialist);
+	bool canJoinCity(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
+	bool joinCity(SpecialistTypes eSpecialist);
 
 	bool canConstruct(const CvPlot* pPlot, BuildingTypes eBuilding) const;
 	bool construct(BuildingTypes eBuilding);
@@ -600,6 +596,7 @@ public:
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
+	void ClearStrengthCache() const;
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
@@ -625,7 +622,6 @@ public:
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
 	bool canSiege(TeamTypes eTeam) const;
-	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
@@ -1300,7 +1296,7 @@ public:
 	int getNumAttacksMadeThisTurn() const;
 	void changeExtraAttacks(int iChange);
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
@@ -1309,11 +1305,12 @@ public:
 	int GetHealNeutralTerritoryFromNearbyUnit() const;
 	int GetHealFriendlyTerritoryFromNearbyUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
-	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
 #endif
+	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
+
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1796,7 +1793,7 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL, bool bCacheResult = false);
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);
 
 	// you must call GeneratePath with caching before using these methods!
 	CvPlot* GetPathFirstPlot() const;
@@ -1804,6 +1801,7 @@ public:
 	CvPlot* GetPathEndFirstTurnPlot() const;
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
+	const CvPathNodeArray& GetLastPath() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -1906,14 +1904,12 @@ public:
 	bool IsOnTerrain(TerrainTypes iTerrainType) const;
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
-	static CvUnit* CaptureUnit(CvUnit* pUnit);
 #endif
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
 	void ClearPathCache();
-	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
@@ -2310,7 +2306,7 @@ protected:
 	IDInfo m_missionAIUnit;
 	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
 	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
-	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType;
+	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType; //current AI type, might be different from default
 	FAutoVariable<int, CvUnit> m_eCombatType;
 
 	//not serialized
@@ -2349,11 +2345,6 @@ protected:
 #endif
 	GreatWorkType m_eGreatWork;
 
-	mutable ReachablePlots m_lastReachablePlots;
-	mutable uint m_lastReachablePlotsFlags;
-	mutable uint m_lastReachablePlotsStart;
-	mutable uint m_lastReachablePlotsMoves;
-
 	//this is always stored with the zero-counting convention
 	//ie every plot we can reach this turn has turn count 0, even if there are no moves left
 	mutable CvPathNodeArray m_kLastPath;
@@ -2361,7 +2352,6 @@ protected:
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
 	mutable uint m_uiLastPathTurnSlice;
-	mutable uint m_uiLastPathLength;
 
 	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;
 

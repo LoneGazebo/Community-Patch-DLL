@@ -698,8 +698,6 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_LOSING_MONEY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_LosingMoney(eStrategy, m_pPlayer);
-				//else if(strStrategyName == "ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS")
-					//bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings();
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TOO_MANY_UNITS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TooManyUnits(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
@@ -1877,7 +1875,8 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
+	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
 	CvCityBuildable bestSelection;
 	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
@@ -2071,10 +2070,10 @@ void CvEconomicAI::DoPlotPurchases()
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 	int iBestCost = 0;
+	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
 
-	// Let's always invest any money we have in plot purchases
-	//  (LATER -- save up money to spend at newly settled cities)
-	if(iCurrentCost < iBalance && iGoldForHalfCost > iCurrentCost)
+	// Let's not blow all our money on plot purchases
+	if(iCurrentCost*iMultiplier < iBalance && iGoldForHalfCost > iCurrentCost)
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
@@ -2889,7 +2888,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
 
 			// close coast is also interesting for embarked scouting
-			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInEstimatedTurns(pPlot)<8)
+			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistancePathLength(pPlot)<12)
 				landTargets.push_back(SPlotWithScore(pPlot, iScore));
 		}
 	}
@@ -3826,7 +3825,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 		if (pLoopUnit->getArmyID() != -1)
 			continue;
 
-		if(pLoopUnit->canFound(NULL,true,true))
+		if(pLoopUnit->canFoundCity(NULL,true,true))
 			vSettlers.push_back(pLoopUnit);
 	}
 
@@ -3835,52 +3834,33 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 
 	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	bool bIsEarlyExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY) && pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-
-	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
-	vector<int> vSearchAreas = pPlayer->GetBestSettleAreas();
-	//try the available areas one after another, but global search first
-	vSearchAreas.insert(vSearchAreas.begin(), -1);
-
 	bool bStartedOp = false;
+
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];
-		for (size_t i = 0; i < vSearchAreas.size(); i++)
+		//this ignores all existing operations' targets by default so we won't pick the same plot twice
+		CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit);
+		if (!pBestSettle)
+			continue;
+
+		//we need good plots for our core cities, so hold off for a while if the plot is not good enough
+		//there's a chance we just haven't explored enough yet
+		int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
+		if (bIsEarlyExpansion && pPlayer->getCapitalCity())
 		{
-			bool bIsSafe = false;
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, vSearchAreas[i], bIsSafe);
-			if (!pBestSettle)
+			int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
+			if (iFoundValue < iCapitalFoundValue / 2)
+			{
+				CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - value %d - because it is not good enough", 
+					pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), iFoundValue);
+				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 				continue;
-
-			//we need good plots for our core cities, so hold off for a while if the plot is not good enough
-			//there's a chance we just haven't explored enough yet
-			int iFoundValue = pBestSettle->getFoundValue(pPlayer->GetID());
-			if (bIsEarlyExpansion && pPlayer->getCapitalCity())
-			{
-				int iCapitalFoundValue = pPlayer->getCapitalCity()->plot()->getFoundValue(pPlayer->GetID());
-				if (iFoundValue < iCapitalFoundValue / 2)
-				{
-					CvString msg = CvString::format("Passing on settle plot for unit %d at %d,%d - area %d, value %d - because it is not good enough", 
-						pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), vSearchAreas[i], iFoundValue);
-					pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-					continue;
-				}
-			}
-
-			CvString msg = CvString::format("Trying settle plot for unit %d at %d,%d - area %d, value %d", 
-				pLoopUnit->GetID(), pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getArea(), iFoundValue);
-			pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
-
-			//could be a conquistador ...
-			AIOperationTypes opType = (bIsSafe || pLoopUnit->IsCombatUnit()) ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY;
-			if (pPlayer->addAIOperation(opType, NO_PLAYER, pBestSettle->getArea()))
-			{
-				//may fail if there is no path ...
-				pPlayer->GetHomelandAI()->LogHomelandMessage("Success!");
-				bStartedOp = true;
-				break;
 			}
 		}
+
+		if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, NULL, NULL)!=NULL)
+			bStartedOp = true;
 	}
 
 	return bStartedOp;
@@ -3919,9 +3899,7 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	if(iStrategyWeight >= iWeightThreshold)
 	{
 		// Launch an operation.
-		if (pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION))
-			// Set this strategy active
-			return true;
+		return pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION, 1) != NULL;
 	}
 
 	return false;
@@ -3962,10 +3940,7 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION,1)!=NULL;
 		}
 	}
 
@@ -4007,10 +3982,7 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 		if(iStrategyWeight >= iWeightThreshold)
 		{
 			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_CONCERT_TOUR);
-
-			// Set this strategy active
-			return true;
+			return pPlayer->addAIOperation(AI_OPERATION_MUSICIAN_CONCERT_TOUR,1)!=NULL;
 		}
 	}
 
@@ -4174,30 +4146,24 @@ bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStra
 {
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
 	
-	int iInterval = pStrategy->GetFirstTurnExecuted();
-
 	// Need a certain number of turns of history before we can turn this on
-	if(GC.getGame().getGameTurn() <= iInterval)
-	{
+	if(GC.getGame().getGameTurn() <= pStrategy->GetFirstTurnExecuted())
 		return false;
-	}
-	iInterval = pStrategy->GetMinimumNumTurnsExecuted();
 
-	// Is average income below desired threshold over past X turns?
-	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < (double)pStrategy->GetWeightThreshold() /* 2 */);
-}
+	int iInterval = pStrategy->GetMinimumNumTurnsExecuted();
+	int iIncome100 = pPlayer->GetTreasury()->AverageIncome100(iInterval);
+	if (iIncome100 >= 0)
+		return false;
 
-/// "Halt Growth Buildings" Player Strategy: Stop building granaries if working on a wonder that provides them for free
-bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(/*CvPlayer* pPlayer*/)
-{
-	return false;
+	int iTurnsTillBroke = (pPlayer->GetTreasury()->GetGold() * 100) / abs(iIncome100);
+	return iTurnsTillBroke < 23;
 }
 
 /// Are we paying more in unit maintenance than we are taking in from our cities?
 bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 {
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer->GetTreasury()->AverageIncome(10) <= -5 && pPlayer->GetTreasury()->GetGold() <= 100)
+	if(pPlayer->GetTreasury()->AverageIncome100(10) <= -500 && pPlayer->GetTreasury()->GetGold() <= 100)
 	{
 		return true;
 	}
@@ -4209,7 +4175,7 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 	int iPaidUnits;
 	int iBaseUnitCost;
 	int iExtraCost;
-	if(pPlayer->GetTreasury()->AverageIncome(15) <= -15)
+	if(pPlayer->GetTreasury()->AverageIncome100(15) <= -1500)
 	{
 		if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
 		{

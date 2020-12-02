@@ -2228,7 +2228,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTransportUnit() == pUnit)
@@ -2317,13 +2317,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 	*/
 
-
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-	//important - zoc has probably changed
-	if (ePlayer != NO_PLAYER && IsCombatUnit())
-		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
-#endif
-
 	auto_ptr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
 
 	if(IsSelected() && !bDelay)
@@ -2332,6 +2325,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	GET_PLAYER(getOwner()).removeFromArmy(m_iArmyId, GetID());
+	ClearMissionQueue();
 
 	pPlot = plot();
 	CvAssertMsg(pPlot != NULL, "Plot is not assigned a valid value");
@@ -2355,7 +2349,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 		for(uint i = 0; i < uiOldUnitCount; i++)
 		{
-			pLoopUnit = ::getUnit(pkOldUnits[i]);
+			pLoopUnit = ::GetPlayerUnit(pkOldUnits[i]);
 
 			if(pLoopUnit != NULL)
 			{
@@ -3403,7 +3397,7 @@ bool CvUnit::isActionRecommended(int iAction)
 
 	if(GC.getActionInfo(iAction)->getMissionType() == CvTypes::getMISSION_FOUND())
 	{
-		if(canFound(pPlot))
+		if(canFoundCity(pPlot))
 		{
 			if(pPlot->isBestAdjacentFoundValue(getOwner()))
 			{
@@ -4782,7 +4776,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory())
 		return true;
 
-	// Minors can't intrude into one another's territory
+		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
@@ -5274,7 +5268,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				bool bPlotContainsCombat = false;
 				while(pUnitNode != NULL)
 				{
-					pLoopUnit = ::getUnit(*pUnitNode);
+					pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					CvAssertMsg(pLoopUnit, "pUnitNode data should lead to a unit");
 
 					pUnitNode = plot.nextUnitNode(pUnitNode);
@@ -5539,7 +5533,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		int iLoop;
 		for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
 		{
-			if (!pLoopUnit->isAircraftCarrier())
+			if (pLoopUnit->AI_getUnitAIType()!=UNITAI_CARRIER_SEA)
 				continue;
 
 			if (canRebaseAt(pLoopUnit->getX(), pLoopUnit->getY(), true) && HomelandAIHelpers::ScoreAirBase(pLoopUnit->plot(), getOwner(), true, GetRange()) > 0)
@@ -5555,13 +5549,12 @@ bool CvUnit::jumpToNearestValidPlot()
 		return false;
 	}
 
-	//remember we're calling this because the unit is trapped, so use the stepfinder
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 12);
-	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
+	//ignore all sorts of restrictions
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
 
 	CvPlot* pBestPlot = NULL;
 	vector<SPlotWithScore> candidates;
-	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -5576,9 +5569,9 @@ bool CvUnit::jumpToNearestValidPlot()
 				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
 					iValue += 20000;
 
-			//avoid embarkation
-			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-				iValue += 10000;
+			//avoid embarkation but not all all cost
+			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
+				iValue += 3000;
 
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
@@ -5593,8 +5586,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		// check to make sure this is not a dead end
 		// alternatively we could verify against all plots reachable from owner's capital?
-		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
 		//want to sort by ascending area size
@@ -5932,6 +5924,9 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	if(plot()->isUnitFighting())
 		return false;
 
+	if (isDelayedDeath())
+		return false;
+
 	if(!canMove())
 		return false;
 
@@ -6014,7 +6009,7 @@ int CvUnit::GetScrapGold() const
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
 		while(pUnitNode)
 		{
-			const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
 			if(pLoopUnit != NULL)
 			{
@@ -6165,7 +6160,7 @@ void CvUnit::gift(bool bTestTransport)
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
 		{
@@ -6240,7 +6235,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			return false;
 
 		// No non-combat units
-		if(!IsCombatUnit() && !canAirAttack())
+		if(!IsCanAttack())
 		{
 			CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
@@ -6468,7 +6463,7 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 	const IDInfo* pUnitNode = targetPlot.headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = targetPlot.nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot))
@@ -6504,7 +6499,7 @@ void CvUnit::load()
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 			if(pLoopUnit && canLoadUnit(*pLoopUnit, *pPlot))
@@ -6589,7 +6584,7 @@ void CvUnit::unloadAll()
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
@@ -7319,6 +7314,9 @@ bool CvUnit::canUseForTacticalAI() const
 	if (IsGarrisoned() && GetGarrisonedCity()->isBorderCity())
 		return false;
 
+	if (IsCivilianUnit() && !(IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral()))
+		return false;
+
 	return true;
 }
 
@@ -7669,9 +7667,16 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	CvPlot* pLoopPlot;
 
 	int iExtraHeal = 0;
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	int iExtraFriendlyHeal = getExtraFriendlyHeal() + GetHealFriendlyTerritoryFromNearbyUnit();
 	int iExtraNeutralHeal = getExtraNeutralHeal() + GetHealNeutralTerritoryFromNearbyUnit();
 	int iExtraEnemyHeal = getExtraEnemyHeal() + GetHealEnemyTerritoryFromNearbyUnit();
+#else
+	int iExtraFriendlyHeal = getExtraFriendlyHeal();
+	int iExtraNeutralHeal = getExtraNeutralHeal();
+	int iExtraEnemyHeal = getExtraEnemyHeal();
+#endif
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int iReligionMod = 0;
 	if(MOD_BALANCE_CORE_BELIEFS)
@@ -7739,7 +7744,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
@@ -7762,7 +7767,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				if(pLoopUnit && pLoopUnit->getTeam() == getTeam() && pLoopUnit->getDomainType() == getDomainType())
@@ -9804,7 +9809,7 @@ bool CvUnit::sellExoticGoods()
 							pUnitNode = pBestPlot->headUnitNode();
 							while (pUnitNode != NULL)
 							{
-								pLoopUnit = ::getUnit(*pUnitNode);
+								pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 								pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
 								if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
 								{
@@ -9938,7 +9943,7 @@ bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
 		pUnitNode = pToPlot->headUnitNode();
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pToPlot->nextUnitNode(pUnitNode);
 
 			// Can this Unit hold us?
@@ -10106,18 +10111,15 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
+bool CvUnit::canPillage(const CvPlot* pPlot) const
 {
-	if (!pPlot)
+	if (!pPlot || !canMove())
 		return false;
 
 	if(isEmbarked())
 		return false;
 
 	if(!(getUnitInfo().IsPillage()))
-		return false;
-
-	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
 		return false;
 
 	if(pPlot->isOwned() && !isEnemy(pPlot->getTeam(), pPlot))
@@ -10237,9 +10239,9 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	return true;
 }
 
-bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOverride) const
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 {
-	if (!canPillage(pPlot, iMovesOverride))
+	if (!canPillage(pPlot))
 		return false;
 
 	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
@@ -10247,9 +10249,15 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 
 	if (pPlot->getOwningCity() != NULL)
 	{
-		CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pPlot->getOwningCity(), getDomainType() == DOMAIN_SEA);
-		if (pZone && pZone->IsPillageZone())
-			return true;
+		if (GET_PLAYER(m_eOwner).GetTacticalAI()->IsInFocusArea(pPlot))
+		{
+			ResourceTypes eResource = pPlot->getResourceType(getTeam());
+			if (eResource != NO_RESOURCE)
+			{
+				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC || GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					return true;
+			}
+		}
 
 		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 		{
@@ -10577,14 +10585,14 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
+bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	if (pPlot)
 	{
 		if (!canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			return false;
 
-		if (!GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness))
+		if (!GET_PLAYER(getOwner()).canFoundCityExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness))
 			return false;
 	}
 
@@ -10613,7 +10621,7 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::found()
+bool CvUnit::foundCity()
 {
 	VALIDATE_OBJECT
 
@@ -10625,7 +10633,7 @@ bool CvUnit::found()
 	}
 #endif	
 
-	if(!canFound(pPlot))
+	if(!canFoundCity(pPlot))
 	{
 		return false;
 	}
@@ -10646,23 +10654,23 @@ bool CvUnit::found()
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
 	{
-		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
+		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
 	} 
 	else 
 	{
-		kPlayer.found(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
+		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
 	{
-		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
+		kPlayer.foundCity(getX(), getY(), GetReligionData()->GetReligion());
 	}
 	else
 	{
-		kPlayer.found(getX(), getY(), NO_RELIGION, true);
+		kPlayer.foundCity(getX(), getY(), NO_RELIGION, true);
 #elif defined(MOD_BALANCE_CORE)
-		kPlayer.found(getX(), getY(), m_pUnitInfo);
+		kPlayer.foundCity(getX(), getY(), m_pUnitInfo);
 #else
-		kPlayer.found(getX(), getY());
+		kPlayer.foundCity(getX(), getY());
 #endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	}
@@ -10715,7 +10723,7 @@ bool CvUnit::found()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canJoin(const CvPlot* /*pPlot*/, SpecialistTypes /*eSpecialist*/) const
+bool CvUnit::canJoinCity(const CvPlot* /*pPlot*/, SpecialistTypes /*eSpecialist*/) const
 {
 	VALIDATE_OBJECT
 
@@ -10725,11 +10733,11 @@ bool CvUnit::canJoin(const CvPlot* /*pPlot*/, SpecialistTypes /*eSpecialist*/) c
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::join(SpecialistTypes eSpecialist)
+bool CvUnit::joinCity(SpecialistTypes eSpecialist)
 {
 	VALIDATE_OBJECT
 
-	if(!canJoin(plot(), eSpecialist))
+	if(!canJoinCity(plot(), eSpecialist))
 	{
 		return false;
 	}
@@ -13563,7 +13571,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 			if(pLoopUnit && pLoopUnit != this)
@@ -14309,7 +14317,7 @@ int CvUnit::canLead(const CvPlot* pPlot, int iUnitId) const
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
 		while(pUnitNode != NULL)
 		{
-			const CvUnit* pUnit = ::getUnit(*pUnitNode);
+			const CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 			if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canPromote((PromotionTypes)kUnitInfo.GetLeaderPromotion(), GetID()))
@@ -14341,7 +14349,7 @@ int CvUnit::canGiveExperience(const CvPlot* pPlot) const
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
 		while(pUnitNode != NULL)
 		{
-			const CvUnit* pUnit = ::getUnit(*pUnitNode);
+			const CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 			if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canAcquirePromotionAny())
@@ -14374,7 +14382,7 @@ bool CvUnit::giveExperience()
 			int i = 0;
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pUnit = ::getUnit(*pUnitNode);
+				CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 				if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canAcquirePromotionAny())
@@ -14501,7 +14509,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 				while (pUnitNode != NULL)
 				{
-					pLoopUnit = ::getUnit(*pUnitNode);
+					pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 					if (pLoopUnit && pLoopUnit->getTransportUnit() == this)
@@ -15903,6 +15911,10 @@ const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs)
 			m_iOurDamage == rhs.m_iOurDamage && m_iTheirDamage == rhs.m_iTheirDamage);
 }
 
+void CvUnit::ClearStrengthCache() const
+{
+	m_lastStrengthModifiers.clear();
+}
 #define STRENGTH_MOD_MAX_CACHE_SIZE 5
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
@@ -15941,10 +15953,12 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	if (GetNearbyCityBonusCombatMod(pBattlePlot) != 0)
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
 	}
+#endif
 
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
@@ -16009,12 +16023,15 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		{
 			iModifier += iNearbyUnitClassModifier;
 		}
+
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 		// NearbyUnit gives a Combat Modifier?
 		int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
 		if (iGetGiveCombatModifier != 0)
 		{
 			iModifier += iGetGiveCombatModifier;
 		}
+#endif
 		// Adjacent Friendly military Unit?
 		if (!bIgnoreUnitAdjacencyBoni && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
@@ -16043,13 +16060,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetResistancePower(pOtherUnit);
 	}
 
-	// Open Ground
-	if (pFromPlot->isOpenGround())
-		iModifier += getExtraOpenFromPercent();
-	// Rough Ground
-	else if (pFromPlot->isRoughGround())
-		iModifier += getExtraRoughFromPercent();
-
 #endif
 	////////////////////////
 	// KNOWN BATTLE PLOT
@@ -16057,6 +16067,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 
 	if(pBattlePlot != NULL)
 	{
+		// Open Ground
+		if (pBattlePlot->isOpenGround())
+			iModifier += getExtraOpenFromPercent();
+		// Rough Ground
+		else if (pBattlePlot->isRoughGround())
+			iModifier += getExtraRoughFromPercent();
+
 		// Bonuses for fighting in one's lands
 		if(pBattlePlot->IsFriendlyTerritory(getOwner()))
 		{
@@ -16725,10 +16742,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	if (GetNearbyCityBonusCombatMod(pMyPlot) != 0)
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
 	}
+#endif
 
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
@@ -16968,10 +16987,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Open Ground
-	if (plot()->isOpenGround())
+	if (pMyPlot->isOpenGround())
 		iModifier += getExtraOpenFromPercent();
 	// Rough Ground
-	else if (plot()->isRoughGround())
+	else if (pMyPlot->isRoughGround())
 		iModifier += getExtraRoughFromPercent();
 
 	////////////////////////
@@ -17050,14 +17069,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	return std::max(1, iBaseStrength * (iModifier + 100));
 }
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::canAirAttack() const
-{
-	VALIDATE_OBJECT
-	return (GetBaseRangedCombatStrength() > 0);
-}
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canAirDefend(const CvPlot* pPlot) const
@@ -18544,7 +18555,11 @@ int CvUnit::getHealOnPillageCount() const
 int CvUnit::getHPHealedIfDefeatEnemy() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	return m_iHPHealedIfDefeatEnemy + GetGiveHPIfEnemyKilledToUnit();
+#else
+	return m_iHPHealedIfDefeatEnemy;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -18956,7 +18971,11 @@ void CvUnit::changeAttackModifier(int iValue)
 int CvUnit::getDefenseModifier() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	return m_iDefenseModifier + GetGiveDefenseModToUnit();
+#else
+	return m_iDefenseModifier;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -19374,7 +19393,7 @@ bool CvUnit::canCargoAllMove() const
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
@@ -19410,7 +19429,7 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
@@ -19424,24 +19443,6 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 
 	return iCount;
 }
-
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-bool CvUnit::isAircraftCarrier() const
-{
-	if(cargoSpace() > 0 && getDomainType()==DOMAIN_SEA && domainCargo() == DOMAIN_AIR)
-	{
-		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-		SpecialUnitTypes eSpecialUnitMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
-		if(specialCargo() == eSpecialUnitPlane || specialCargo() == eSpecialUnitMissile)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getIndex() const
@@ -19585,7 +19586,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			int iUnitListSize = (int) oldUnitList.size();
 			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
 			{
-				pLoopUnit = ::getUnit(oldUnitList[iVectorLoop]);
+				pLoopUnit = ::GetPlayerUnit(oldUnitList[iVectorLoop]);
 				{
 					if(pLoopUnit && !pLoopUnit->isDelayedDeath())
 					{
@@ -19759,7 +19760,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
-			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
+			if (isNativeDomain(pOldPlot))
+				pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 			setLastMoveTurn(GC.getGame().getGameTurn());
 			pOldCity = pOldPlot->getPlotCity();
 		}
@@ -19822,7 +19824,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
 			pNewPlot->addUnit(this, bUpdate);
-			pNewPlot->area()->changeUnitsPerPlayer(getOwner(), 1);
+			if (isNativeDomain(pNewPlot))
+				pNewPlot->area()->changeUnitsPerPlayer(getOwner(), +1);
 			pNewCity = pNewPlot->getPlotCity();
 		}
 		else
@@ -19883,7 +19886,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			pUnitNode = pNewPlot->headUnitNode();
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
@@ -20027,7 +20030,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				pUnitNode = pNewPlot->headUnitNode();
 				while(pUnitNode != NULL)
 				{
-					pLoopUnit = ::getUnit(*pUnitNode);
+					pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 					if (pLoopUnit != NULL)
 					{				
@@ -20317,7 +20320,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pOldPlot->nextUnitNode(pUnitNode);
 
 				if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
@@ -20335,7 +20338,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			pUnitNode = pOldPlot->headUnitNode();
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pOldPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
@@ -20382,8 +20385,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			{
 				if(pNewPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 				{
-					// See if we need to remove a temporary dominance zone
-					kPlayer.GetTacticalAI()->DeleteTemporaryZone(pNewPlot);
+					// See if we need to remove a temporary focus of attention
+					kPlayer.GetTacticalAI()->DeleteFocusArea(pNewPlot);
 
 					// Is there a camp guard that will convert to our side here, if so have special routine to handle it
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
@@ -23001,7 +23004,11 @@ void CvUnit::changeExtraRoughFromPercent(int iChange)
 int CvUnit::getNumAttacks() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	return m_iNumAttacks + GetGiveExtraAttacksToUnit();
+#else
+	return m_iNumAttacks;
+#endif
 }
 int CvUnit::getNumAttacksMadeThisTurn() const
 {
@@ -23021,7 +23028,7 @@ void CvUnit::changeExtraAttacks(int iChange)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 //	--------------------------------------------------------------------------------
 // Golden Age? And have a general near us that gives us additional Exp?
 int CvUnit::GetGoldenAgeGeneralExpPercent() const
@@ -23427,6 +23434,11 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 	}
 	return iHP;
 }
+#else
+bool CvUnit::IsHiddenByNearbyUnit(const CvPlot*) const
+{
+	return false;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
@@ -23481,7 +23493,7 @@ bool CvUnit::IsStackedGreatGeneral(const CvPlot* pLoopPlot, const CvUnit* pIgnor
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 			if (pLoopUnit && pLoopUnit != pIgnoreThisGeneral)
@@ -23522,7 +23534,7 @@ int CvUnit::GetGreatGeneralStackMovement(const CvPlot* pLoopPlot) const
 
 		while(pUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 			if(pLoopUnit)
@@ -23568,15 +23580,17 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 		const std::vector<std::pair<int,int>>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
 		for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
-			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			int iDistance = plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnitPlot->getX(), pUnitPlot->getY());
-
-			//first quick check with a large, fixed distance
-			if (iDistance>5 )
-				continue;
+			//performance: very rough distance check first without looking up the unit pointer ...
+			//do not reuse the plot below
+			{
+				CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+				if (plotDistance(*pUnitPlot, *pAtPlot) > 8)
+					continue;
+			}
 
 			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
-			if (!pUnit)
+			//catch weird problems
+			if (pUnit == NULL || pUnit->isDelayedDeath() || pUnit->plot() == NULL)
 				continue;
 
 			// Unit with a combat modifier against the enemy
@@ -23587,6 +23601,7 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 				if(((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_LAND) && !pUnit->isEmbarked()) || ((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_SEA)))
 				{
 					// Within range?
+					int iDistance = plotDistance(*pAtPlot, *pUnit->plot());
 					if(iDistance <= pUnit->getNearbyEnemyCombatRange())
 					{
 						// Don't assume the first one found is the worst!
@@ -24533,7 +24548,11 @@ void CvUnit::changeFriendlyLandsAttackModifier(int iChange)
 int CvUnit::getOutsideFriendlyLandsModifier() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	return m_iOutsideFriendlyLandsModifier + GetGiveOutsideFriendlyLandsModifierToUnit();
+#else
+	return m_iOutsideFriendlyLandsModifier;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -24588,7 +24607,11 @@ void CvUnit::changeUpgradeDiscount(int iChange)
 int CvUnit::getExperiencePercent() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	return m_iExperiencePercent + GetGoldenAgeGeneralExpPercent() + GetGiveExperiencePercentToUnit();
+#else
+	return m_iExperiencePercent;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -25075,14 +25098,14 @@ void CvUnit::setSeeInvisibleType(InvisibleTypes InvisibleType)
 const CvUnit* CvUnit::getCombatUnit() const
 {
 	VALIDATE_OBJECT
-	return getUnit(m_combatUnit);
+	return GetPlayerUnit(m_combatUnit);
 }
 
 //	--------------------------------------------------------------------------------
 CvUnit* CvUnit::getCombatUnit()
 {
 	VALIDATE_OBJECT
-	return getUnit(m_combatUnit);
+	return GetPlayerUnit(m_combatUnit);
 }
 
 
@@ -25129,14 +25152,14 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 const CvCity* CvUnit::getCombatCity() const
 {
 	VALIDATE_OBJECT
-	return getCity(m_combatCity);
+	return ::GetPlayerCity(m_combatCity);
 }
 
 //	---------------------------------------------------------------------------
 CvCity* CvUnit::getCombatCity()
 {
 	VALIDATE_OBJECT
-	return getCity(m_combatCity);
+	return ::GetPlayerCity(m_combatCity);
 }
 
 //	---------------------------------------------------------------------------
@@ -25203,14 +25226,14 @@ void CvUnit::clearCombat()
 const CvUnit* CvUnit::getTransportUnit() const
 {
 	VALIDATE_OBJECT
-	return getUnit(m_transportUnit);
+	return GetPlayerUnit(m_transportUnit);
 }
 
 //	--------------------------------------------------------------------------------
 CvUnit* CvUnit::getTransportUnit()
 {
 	VALIDATE_OBJECT
-	return getUnit(m_transportUnit);
+	return GetPlayerUnit(m_transportUnit);
 }
 
 
@@ -27197,7 +27220,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
 	pUnitNode = pushPlot.headUnitNode();
 	while (pUnitNode != NULL)
 	{
-		pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
+		pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pushPlot.nextUnitNode(pUnitNode);
 
 		//this should be the blocking unit
@@ -27280,7 +27303,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 						pUnitNode = swapPlot.headUnitNode();
 						while (pUnitNode != NULL)
 						{
-							pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
+							pLoopUnit = (CvUnit*)::GetPlayerUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
 							// A unit can't swap with itself (slewis)
@@ -27752,7 +27775,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pTargetPlot->nextUnitNode(pUnitNode);
 
 				if (!pLoopUnit)
@@ -28140,8 +28163,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	if (pZone)
 	{
 		const char* dominance[] = { "no units", "friendly", "hostile", "contested" };
-		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], postureNames[posture]);
+		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], postureNames[pZone->GetPosture()]);
 	}
 
 	return CvString("no tactical zone");
@@ -28354,7 +28376,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 				IDInfo* pUnitNode = pPlot->headUnitNode();
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pCargoUnit = ::getUnit(*pUnitNode);
+					CvUnit* pCargoUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 					CvUnit* pTransportUnit = pCargoUnit->getTransportUnit();
@@ -28592,28 +28614,30 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	{
 		ClearPathCache();
 
-		for (size_t i = 0; i < newPath.vPlots.size(); i++)
+		// This helps in preventing us from trying to re-path to the same unreachable location.
+		if (!!newPath)
 		{
-			CvPathNode nextNode( newPath.vPlots[i] );
+			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+			m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
+			m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
+			m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
+
+			for (size_t i = 0; i < newPath.vPlots.size(); i++)
+			{
+				CvPathNode nextNode( newPath.vPlots[i] );
 
 			//skip the first node (if it's not a stop node), it's the current unit plot
 			//important: this means that an empty m_kLastPath is valid!
 			if (i == 0 && nextNode.m_iMoves > 0)
 				continue;
 
-			m_kLastPath.push_back(nextNode);
+				m_kLastPath.push_back(nextNode);
+			}
 		}
-
-		// This helps in preventing us from trying to re-path to the same unreachable location.
-		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
-		m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
-		m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
-		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
 
 	if (!newPath)
-		return -1;
+		return INT_MAX;
 	else
 	{
 		if ( (iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && newPath.vPlots.back().moves == 0 )
@@ -28631,7 +28655,7 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
-		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
+		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) != INT_MAX;
 
 	return IsCachedPathValid();
 }
@@ -28947,7 +28971,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 			//keep the cache in sync
 			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-			m_uiLastPathLength = m_kLastPath.size();
 
 			//have we used up all plots or at least for this turn?
 			if (m_kLastPath.empty())
@@ -29361,7 +29384,6 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//any mission resets the cache
- 	ClearReachablePlots();
 	m_lastStrengthModifiers.clear();
 
 	//safety check - air units should not use ranged attack missions (for unknown reasons)
@@ -29576,7 +29598,7 @@ void CvUnit::SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit
 CvUnit* CvUnit::GetMissionAIUnit()
 {
 	VALIDATE_OBJECT
-	return getUnit(m_missionAIUnit);
+	return GetPlayerUnit(m_missionAIUnit);
 }
 
 // COMBAT ELIGIBILITY ROUTINES
@@ -29658,23 +29680,7 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 	if (!bAllowEmbark)
 		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
-	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
-	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags && 
-		plot()->GetPlotIndex()==m_lastReachablePlotsStart && getMoves()==m_lastReachablePlotsMoves)
-		return m_lastReachablePlots;
-
-	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);
-
-	m_lastReachablePlots = result;
-	m_lastReachablePlotsFlags = iFlags;
-	m_lastReachablePlotsStart = plot()->GetPlotIndex();
-	m_lastReachablePlotsMoves = getMoves();
-	return result;
-#else
 	return TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -29718,7 +29724,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 // PATH-FINDING ROUTINES
 bool CvUnit::IsCachedPathValid() const
 {
-	return m_uiLastPathLength != 0xFFFFFFFF;
+	return m_uiLastPathCacheOrigin != -1;
 }
 
 bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
@@ -29727,20 +29733,19 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
 		m_uiLastPathFlags == (iFlags & PATHFINDER_FLAG_MASK) &&
-		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice() && 
-		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
+		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice()
 		);
 }
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path (protected, allows caching)
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns, bool bCacheResult)
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns)
 {
 	if(pToPlot == NULL)
 		return false;
 
 	//can we re-use the old path?
-	if (HaveCachedPathTo(pToPlot, iFlags) && IsCachedPathValid())
+	if (HaveCachedPathTo(pToPlot, iFlags))
 	{
 		if (piPathTurns == NULL)
 			return true;
@@ -29761,19 +29766,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	}
 	else
 	{
-		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult);
-		if (iTurns < 0)
-		{
-			if (piPathTurns)
-				*piPathTurns = INT_MAX;
-			return false;
-		}
-		else
-		{
-			if (piPathTurns)
-				*piPathTurns = iTurns;
-			return true;
-		}
+		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, true);
+		if (piPathTurns)
+			*piPathTurns = iTurns;
+		return iTurns!=INT_MAX;
 	}
 }
 
@@ -29782,19 +29778,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
-	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
-	m_uiLastPathCacheDestination = 0xFFFFFFFF;
+	m_uiLastPathCacheOrigin = -1;
+	m_uiLastPathCacheDestination = -1;
 	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathTurnSlice = 0xFFFFFFFF;
-	m_uiLastPathLength = 0xFFFFFFFF;
-}
-
-void CvUnit::ClearReachablePlots()
-{
-	m_lastReachablePlots.clear();
-	m_lastReachablePlotsFlags = 0xFFFFFFFF;
-	m_lastReachablePlotsStart = 0xFFFFFFFF;
-	m_lastReachablePlotsMoves = 0xFFFFFFFF;
+	m_uiLastPathTurnSlice = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29849,6 +29836,12 @@ CvPlot * CvUnit::GetLastValidDestinationPlotInCachedPath() const
 	return NULL;
 }
 
+const CvPathNodeArray& CvUnit::GetLastPath() const
+{
+	return m_kLastPath;
+}
+
+
 // PRIVATE METHODS
 
 //	--------------------------------------------------------------------------------
@@ -29882,7 +29875,7 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 	// All defaults, except test for war, and allow noncombat units
 	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);
 
-	if(pDefender && !pDefender->IsDead())
+	if(pDefender && !pDefender->IsDead() && !pDefender->isDelayedDeath())
 		return pDefender;
 
 	return NULL;
@@ -30347,7 +30340,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
-	// R: +10 Accuracy 1-3, +5 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
+	// R: +10 Accuracy 1-3, +10 Barrage 1-3. 	nR: +10 Bombardment 1-3. 	S: +10 Siege 1-3, Field 1-3. 
 	// R + S: -10 Indirect Fire, -20 Range. 	R + mR +nR +S: -30 Logistics.
 	if(iTemp != 0)
 	{
@@ -31024,19 +31017,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetInterceptionCombatModifier();
 	// aF: +33 Ace Pilot (Interception) 2 - 3, +34 Ace Pilot 4.
-	if(iTemp != 0 && canAirPatrol(NULL))		// not sure about this
+	if (iTemp != 0 && canAirPatrol(NULL) || getInterceptChance() > 0)		// not sure about this
 	{
-		iExtra = getInterceptChance();
-		iExtra = (iTemp + iExtra) * (iFlavorDefense + 2 * iFlavorAntiAir);
+		iExtra = getInterceptChance() * 5;
+		iExtra += (iTemp + iExtra) * (iFlavorDefense + 2 * iFlavorAntiAir);
 		iExtra *= 0.2;
 		iValue += iExtra;
 	}
 
 	iTemp = pkPromotionInfo->GetInterceptChanceChange();
 	// AA + aF + nM + C: +25 Interceptor (interception) I - IV, +25 Ace Pilot (interception) 1 - 3.
-	if (iTemp != 0 && GetAirInterceptRange() > 0)
+	if (iTemp != 0 && GetAirInterceptRange() > 0 || getInterceptChance() > 0)
 	{
-		iExtra = iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
+		iExtra = getInterceptChance() * 5;
+		iExtra += iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
 		iExtra *= 0.1;
 		iExtra *= GetAirInterceptRange();
 		iValue += iExtra;
@@ -31900,15 +31894,11 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 			return INT_MAX;
 	}
 
-	int rtnValue = MAX_INT;
 	if(pTarget == plot())
 		return 0;
 
 	//don't cache the result here
-	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue, false) )
-		return INT_MAX;
-
-	return rtnValue;
+	return ComputePath(pTarget, iFlags, iTargetTurns, false);
 }
 
 //	--------------------------------------------------------------------------------
