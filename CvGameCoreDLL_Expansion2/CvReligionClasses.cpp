@@ -4825,6 +4825,9 @@ bool CvCityReligions::IsReligionInCity()
 /// Is this the holy city for a specific religion?
 bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 {
+	if (eReligion == NO_RELIGION)
+		return false;
+
 	ReligionInCityList::iterator religionIt;
 
 	// Find the religion in the list

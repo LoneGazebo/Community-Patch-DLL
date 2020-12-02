@@ -320,10 +320,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 	}
 
 	// Liberate a city?
-	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
+	if (eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
 	{
 		// minor civ
-		if(GET_PLAYER(eOriginalOwner).isMinorCiv())
+		if (GET_PLAYER(eOriginalOwner).isMinorCiv())
 		{
 			// If we're a major civ, decision is made by diplo AI (minors don't liberate other minors)
 			if (isMajorCiv())
@@ -392,21 +392,25 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 		}
 	}
 
+	// If this is our only city, always annex if we can
+	if (getNumCities() == 1 && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	{
+		pCity->DoAnnex();
+		return;
+	}
 	// Puppet the city
-	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	else if (pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
 	//Let's make sure we annex.
-	else if(pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
+	else if (pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
 		pCity->ChangeNoOccupiedUnhappinessCount(1);
 		return;
 	}
-#endif
 }
 
 void CvPlayerAI::AI_chooseFreeGreatPerson()
@@ -590,7 +594,11 @@ void CvPlayerAI::AI_chooseResearch()
 
 void CvPlayerAI::AI_considerAnnex()
 {
+	if (isHuman())
+		return;
+
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
+
 	// for Venice
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -645,7 +653,7 @@ void CvPlayerAI::AI_considerAnnex()
 	ReligionTypes eOurReligion = GetReligions()->GetCurrentReligion(false);
 
 	vector<OptionWithScore<CvCity*>> options;
-	for(CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
 		if (pCity->IsRazing() && pCity->HasAnyWonder())
@@ -659,25 +667,48 @@ void CvPlayerAI::AI_considerAnnex()
 
 		int iWeight = 1;
 
-		// if our capital city is puppeted, annex it
+		// Original City and puppeted? Stop!
+		if (pCity->getOriginalOwner() == GetID())
+			iWeight += 4;
+
+		// if a capital city is puppeted, annex it
 		if (pCity->IsOriginalMajorCapital())
 			iWeight += 5;
 	
-		//annex holy city for faith use
+		// annex the holy city for our religion
 		if (pCity->GetCityReligions()->IsHolyCityForReligion(eOurReligion))
-			iWeight += 3;
+			iWeight += 4;
 
-		//Original City and puppeted? Stop!
-		if (pCity->getOriginalOwner() == GetID())
-			iWeight += 2;
+		// if we don't have a religion, but we have a Holy City, let's grab it
+		if (eOurReligion == NO_RELIGION && pCity->GetCityReligions()->IsHolyCityAnyReligion())
+		{
+			int iBonus = 4 - (int)GetCurrentEra();
+			iWeight += (iBonus > 0) ? iBonus : 0;
+		}
 
 		if (pCity->isBorderCity() || pCity->isCoastal())
 			iWeight += 1;
+
+		// Add weight for each World Wonder in the city - cities with Wonders should be annexed quickly so we can benefit from their bonuses
+		iWeight += pCity->getNumWorldWonders();
 
 		// if we're going for a culture victory, don't consider annexing ordinary cities
 		if (GetDiplomacyAI()->IsGoingForCultureVictory())
 			if (iWeight < 4)
 				continue;
+
+		// higher bar if close to winning
+		if (GetDiplomacyAI()->IsCloseToCultureVictory())
+			if (iWeight < 5)
+				continue;
+
+		// if we're willing to consider annexing, annex cities that are in danger more quickly, so we can produce defenses
+		// ... but don't bother if the city's about to fall
+		if (!pCity->isInDangerOfFalling())
+		{
+			if (pCity->isUnderSiege() || pCity->IsBlockadedWaterAndLand())
+				iWeight += 3;
+		}
 
 		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
 		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );
@@ -698,6 +729,7 @@ void CvPlayerAI::AI_considerAnnex()
 		}
 	}
 }
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 {
