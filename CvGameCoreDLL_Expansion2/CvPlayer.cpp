@@ -12978,36 +12978,41 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 #endif
 
-	if(!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
+	if (!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
 	{
 		return false;
 	}
 
 	// No XP in first 10 turns
-	if(kGoodyInfo.getExperience() > 0)
+	if (kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
 			return false;
 		}
 
-		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnit->IsGainsXPFromScouting())
+		if (MOD_BALANCE_CORE && pUnit->IsGainsXPFromScouting())
+		{
 			return false;
+		}
 	}
 
 	// Unit Healing
-	if(kGoodyInfo.getDamagePrereq() > 0)
+	if (kGoodyInfo.getDamagePrereq() > 0)
 	{
-		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
+		if ((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
 			return false;
 		}
 	}
 
 	// Early pantheon
-	if(kGoodyInfo.isPantheonFaith())
+	if (kGoodyInfo.isPantheonFaith())
 	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return false;
+
+		if (GC.getGame().getElapsedGameTurns() < 20)
 		{
 			return false;
 		}
@@ -13018,9 +13023,12 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Faith toward Great Prophet
-	if(kGoodyInfo.getProphetPercent() > 0)
+	if (kGoodyInfo.getProphetPercent() > 0)
 	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return false;
+
+		if (GC.getGame().getElapsedGameTurns() < 20)
 		{
 			return false;
 		}
@@ -13031,53 +13039,38 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Population
-	if(kGoodyInfo.getPopulation() > 0)
+	if (kGoodyInfo.getPopulation() > 0)
 	{
-		if(getNumCities() == 0)
-		{
+		if (getNumCities() == 0)
 			return false;
-		}
 
-		// Don't give more Population if we're already over our Pop limit
-		if(IsEmpireUnhappy())
-		{
+		// Don't give more Population if we're already unhappy
+		if (IsEmpireUnhappy())
 			return false;
-		}
 	}
+
+	// Production
+	if (kGoodyInfo.getProduction() > 0)
+	{
+		if (getNumCities() == 0)
+			return false;
+	}
+
 #if defined(MOD_BALANCE_CORE)
 	//Golden Age
-	if(kGoodyInfo.getGoldenAge() > 0)
+	if (kGoodyInfo.getGoldenAge() > 0)
 	{
-		if(GetNumGoldenAges() <= 0)
-		{
+		if (GetNumGoldenAges() > 0)
 			return false;
-		}
 	}
 	//Free Tiles
-	if(kGoodyInfo.getFreeTiles() > 0 && pPlot != NULL)
+	if (kGoodyInfo.getFreeTiles() > 0)
 	{
-		int iDistance;
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		CvCity* pLoopCity;
-		int iLoop;
-		// Find the closest City to us to add a Pop point to
-		for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-		{
-			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		if(pBestCity == NULL)
-		{
+		if (pPlot == NULL)
 			return false;
-		}
+
+		if (getNumCities() == 0)
+			return false;
 	}
 	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
@@ -13225,53 +13218,51 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Tech
-	if(kGoodyInfo.isTech())
+	if (kGoodyInfo.isTech())
 	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+
 		bTechFound = false;
 
-		int iNumTechInfos = GC.getNumTechInfos();
-		for(iI = 0; iI < iNumTechInfos; iI++)
+		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTech = GC.getTechInfo(eTech);
-			if(pkTech != NULL && pkTech->IsGoodyTech())
+			if (pkTech != NULL && pkTech->IsGoodyTech())
 			{
-				if(GetPlayerTechs()->CanResearch(eTech))
+				if (GetPlayerTechs()->CanResearch(eTech))
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GetPlayerTechs()->GetCurrentResearch() != eTech)
+					if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
 					{
-#endif
-					bool bUseTech = true;
-					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if (pkScriptSystem) 
-					{
-						CvLuaArgsHandle args;
-						args->Push(GetID());
-						args->Push(eTech);
-
-						// Attempt to execute the game events.
-						// Will return false if there are no registered listeners.
-						bool bScriptResult = false;
-						if (LuaSupport::CallTestAll(pkScriptSystem, "GoodyHutCanResearch", args.get(), bScriptResult)) 
+						bool bUseTech = true;
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem) 
 						{
-							bUseTech = bResult;
-						}
-					}
+							CvLuaArgsHandle args;
+							args->Push(GetID());
+							args->Push(eTech);
 
-					if(bUseTech)
-					{
-						bTechFound = true;
+							// Attempt to execute the game events.
+							// Will return false if there are no registered listeners.
+							bool bScriptResult = false;
+							if (LuaSupport::CallTestAll(pkScriptSystem, "GoodyHutCanResearch", args.get(), bScriptResult)) 
+							{
+								bUseTech = bResult;
+							}
+						}
+
+						if(bUseTech)
+						{
+							bTechFound = true;
+						}
+						break;
 					}
-					break;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
 				}
 			}
 		}
 
-		if(!bTechFound)
+		if (!bTechFound)
 		{
 			return false;
 		}
@@ -25154,6 +25145,9 @@ void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
 /// Changes what is our progress towards the next GA
 void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+		return;
+
 	if (MOD_BALANCE_NO_GAP_DURING_GA && isGoldenAge())
 	{
 		return;
@@ -30710,6 +30704,9 @@ void CvPlayer::setOverflowResearchTimes100(int iNewValue)
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeOverflowResearchTimes100(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+		return;
+
 	setOverflowResearchTimes100(getOverflowResearchTimes100() + iChange);
 }
 

@@ -2730,6 +2730,9 @@ void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, 
 void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
 #endif
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+		return;
+
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer, iPlayerOverflow, iPlayerOverflowDivisorTimes100);
 #else
