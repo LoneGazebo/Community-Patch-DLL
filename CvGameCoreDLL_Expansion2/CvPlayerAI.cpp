@@ -1555,7 +1555,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iGreatAdmiralCount = 0;
-
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -1564,11 +1563,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			iGreatAdmiralCount++;
 		}
 	}
-	if(iGreatAdmiralCount > 1 && pGreatAdmiral->canGetFreeLuxury())
-	{
-		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-	else if (iGreatAdmiralCount > 0 && IsEmpireUnhappy() && pGreatAdmiral->canGetFreeLuxury())
+
+	int iThreshold = IsEmpireUnhappy() ? 0 : 1;
+	if(iGreatAdmiralCount > iThreshold && pGreatAdmiral->canGetFreeLuxury())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}

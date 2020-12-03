@@ -12978,13 +12978,13 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 #endif
 
-	if (!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
+	if(!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
 	{
 		return false;
 	}
 
 	// No XP in first 10 turns
-	if (kGoodyInfo.getExperience() > 0)
+	if(kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
@@ -12998,16 +12998,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Unit Healing
-	if (kGoodyInfo.getDamagePrereq() > 0)
+	if(kGoodyInfo.getDamagePrereq() > 0)
 	{
-		if ((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
+		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
 			return false;
 		}
 	}
 
 	// Early pantheon
-	if (kGoodyInfo.isPantheonFaith())
+	if(kGoodyInfo.isPantheonFaith())
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
@@ -13023,7 +13023,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Faith toward Great Prophet
-	if (kGoodyInfo.getProphetPercent() > 0)
+	if(kGoodyInfo.getProphetPercent() > 0)
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
@@ -13039,7 +13039,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Population
-	if (kGoodyInfo.getPopulation() > 0)
+	if(kGoodyInfo.getPopulation() > 0)
 	{
 		if (getNumCities() == 0)
 			return false;
@@ -13058,7 +13058,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 
 #if defined(MOD_BALANCE_CORE)
 	//Golden Age
-	if (kGoodyInfo.getGoldenAge() > 0)
+	if(kGoodyInfo.getGoldenAge() > 0)
 	{
 		if (GetNumGoldenAges() > 0)
 			return false;
@@ -13218,7 +13218,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Tech
-	if (kGoodyInfo.isTech())
+	if(kGoodyInfo.isTech())
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
@@ -13229,9 +13229,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTech = GC.getTechInfo(eTech);
-			if (pkTech != NULL && pkTech->IsGoodyTech())
+			if(pkTech != NULL && pkTech->IsGoodyTech())
 			{
-				if (GetPlayerTechs()->CanResearch(eTech))
+				if(GetPlayerTechs()->CanResearch(eTech))
 				{
 					if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
 					{
@@ -13243,14 +13243,14 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 							args->Push(GetID());
 							args->Push(eTech);
 
-							// Attempt to execute the game events.
-							// Will return false if there are no registered listeners.
-							bool bScriptResult = false;
-							if (LuaSupport::CallTestAll(pkScriptSystem, "GoodyHutCanResearch", args.get(), bScriptResult)) 
-							{
-								bUseTech = bResult;
-							}
+						// Attempt to execute the game events.
+						// Will return false if there are no registered listeners.
+						bool bScriptResult = false;
+						if (LuaSupport::CallTestAll(pkScriptSystem, "GoodyHutCanResearch", args.get(), bScriptResult)) 
+						{
+							bUseTech = bResult;
 						}
+					}
 
 						if(bUseTech)
 						{
@@ -13262,7 +13262,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			}
 		}
 
-		if (!bTechFound)
+		if(!bTechFound)
 		{
 			return false;
 		}
@@ -36804,6 +36804,7 @@ void CvPlayer::DoDeficit()
 			{
 				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
 			}
+
 			// Look for obsolete naval units if in deficit or have sufficient units
 			else
 			{
@@ -41399,6 +41400,7 @@ void CvPlayer::deleteArmyAI(int iID)
 	DEBUG_VARIABLE(bRemoved);
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
+
 
 //	--------------------------------------------------------------------------------
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
@@ -50331,7 +50333,7 @@ void CvPlayer::updatePlotFoundValues()
 	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE)==0)
 		return;
 
-	//important preparation
+	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 	//these are the plots whose yield we ignore
 	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
@@ -50350,7 +50352,7 @@ void CvPlayer::updatePlotFoundValues()
 		}
 	}
 
-	//calculate new values and apply our threshold
+	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{

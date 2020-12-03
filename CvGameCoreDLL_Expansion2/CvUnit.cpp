@@ -3195,9 +3195,6 @@ void CvUnit::doTurn()
 	VALIDATE_OBJECT
 	CvAssertMsg(!IsDead(), "isDead did not return false as expected");
 
-	// reset cache
-	m_lastStrengthModifiers.clear();
-
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
@@ -15893,41 +15890,12 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	return iRtnValue;
 }
 
-SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty, int iOurDamage)
-{
-	m_iOtherUnitID = pOtherUnit ? pOtherUnit->GetID() : 0;
-	m_iBattlePlot = pBattlePlot ? pBattlePlot->GetPlotIndex() : 0;
-	m_iFromPlot = pFromPlot ? pFromPlot->GetPlotIndex() : 0;
-	m_bIgnoreUnitAdjacencyBoni = bIgnoreUnitAdjacencyBoni;
-	m_bQuickAndDirty = bQuickAndDirty;
-	m_iOurDamage = iOurDamage;
-	m_iTheirDamage = pOtherUnit ? pOtherUnit->getDamage() : 0;
-}
-
-const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs) const
-{
-	return (m_iOtherUnitID == rhs.m_iOtherUnitID && m_iBattlePlot == rhs.m_iBattlePlot && m_iFromPlot == rhs.m_iFromPlot && 
-			m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni && m_bQuickAndDirty == rhs.m_bQuickAndDirty &&
-			m_iOurDamage == rhs.m_iOurDamage && m_iTheirDamage == rhs.m_iTheirDamage);
-}
-
-void CvUnit::ClearStrengthCache() const
-{
-	m_lastStrengthModifiers.clear();
-}
-#define STRENGTH_MOD_MAX_CACHE_SIZE 5
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
 int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
-
-	//simple caching for speedup
-	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty, getDamage());
-	for (size_t i = 0; i<m_lastStrengthModifiers.size(); i++)
-	if (input == m_lastStrengthModifiers[i].first)
-		return m_lastStrengthModifiers[i].second;
 
 	if (pFromPlot == NULL)
 		pFromPlot = plot();
@@ -16280,11 +16248,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
 		}
 	}
-
-	//update cache
-	m_lastStrengthModifiers.push_back(std::make_pair(input, iModifier));
-	if (m_lastStrengthModifiers.size() == STRENGTH_MOD_MAX_CACHE_SIZE)
-		m_lastStrengthModifiers.erase(m_lastStrengthModifiers.begin());
 
 	return iModifier;
 }
@@ -27160,7 +27123,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #endif
 
 		//promotion changes may invalidate some caches
-		m_lastStrengthModifiers.clear();
 		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
 	}
 }
@@ -29382,9 +29344,6 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//comfort feature for humans
 	if (eMission == CvTypes::getMISSION_MOVE_TO() && isHuman())
 		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-
-	//any mission resets the cache
-	m_lastStrengthModifiers.clear();
 
 	//safety check - air units should not use ranged attack missions (for unknown reasons)
 	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
