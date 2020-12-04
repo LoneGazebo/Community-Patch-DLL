@@ -2015,7 +2015,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	{
 		kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_ppaaeOtherPlayerWarDamageLevel[iI]);
 		kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_ppaaiOtherPlayerWarValueLost[iI]);
-
 		kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_ppaaeOtherPlayerMilitaryThreat[iI]);
 	}
 
@@ -9603,10 +9602,11 @@ void CvDiplomacyAI::DoCounters()
 				{
 					SetDenouncedPlayer(eLoopPlayer, false);
 
-					//Notify the target of the denouncement that it has expired.
+					// Notify the target of the denouncement that it has expired.
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if(pNotifications){
-						CvString							strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
+					if (pNotifications)
+					{
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
 						Localization::String	strInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED");
 						Localization::String strTemp = strInfo;
 						strTemp << GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey();
@@ -9620,16 +9620,18 @@ void CvDiplomacyAI::DoCounters()
 					SetDoFAccepted(eLoopPlayer, false);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 
-					//Notify both parties that our friendship has expired.
+					// Notify both parties that our friendship has expired.
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotifications){
+					if (pNotifications)
+					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
 						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);				
 					}
 
 					pNotifications = GET_PLAYER(GetPlayer()->GetID()).GetNotifications();
-					if (pNotifications){
+					if (pNotifications)
+					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
 						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, eLoopPlayer, GetPlayer()->GetID());				
@@ -15416,7 +15418,6 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 	}
 }
 
-
 /// What is the best Diplomatic Approach to take towards a minor civilization (City-State)?
 MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog)
 {
@@ -16230,7 +16231,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 
 
 // ************************************
-// Demands and CS Targets
+// Demands
 // ************************************
 
 /// Updates our desire to make a demand from a player
@@ -21505,7 +21506,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 {
 	// Loop through all (known) Players
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
@@ -29909,7 +29910,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		bool bSendStatement = false;
 
@@ -29918,7 +29919,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 			return;
 
 		// They must be able to declare war on us
-		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
 			return;
 
 		// If we're a vassal and the other player is an AI, don't send the statement
@@ -29930,15 +29931,15 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 			return;
 
 		// They're HIGH this turn and weren't last turn
-		if(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH && GetLastTurnMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
+		if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH && GetLastTurnMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
 			bSendStatement = true;
 
 		// They're MEDIUM this turn and were NONE last turn
-		else if(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE)
+		else if (GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE)
 			bSendStatement = true;
 
 		// We're working together, so don't worry about it
-		if(IsDoFAccepted(ePlayer))
+		if (IsDoFAccepted(ePlayer))
 			return;
 
 		//We're allowing them Open Borders? We shouldn't care.
@@ -29951,20 +29952,20 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
 			// Are we at war with the same player?
-			if(IsAtWar(eThirdParty) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
+			if (IsAtWar(eThirdParty) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
 				return;
 
 			// Are they at war with anyone we're neighbors with?
-			if(GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
+			if (GetPlayer()->GetProximityToPlayer(eThirdParty) == PLAYER_PROXIMITY_NEIGHBORS && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eThirdParty).getTeam()))
 				return;
 		}
 
-		if(bSendStatement)
+		if (bSendStatement)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_AGGRESSIVE_MILITARY_WARNING;
 			int iTurnsBetweenStatements = 20;
 
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				eStatement = eTempStatement;
 		}
 	}
@@ -35044,7 +35045,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US:
 	{
 		// AI hasn't known the human for long enough yet
-		if(IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+		if (IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 		{
 			if (bActivePlayer)
 			{
@@ -35055,7 +35056,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Already have a DoF? This should never happen, but just in case...
 		else if (IsDoFAccepted(eFromPlayer))
 		{
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
@@ -35065,7 +35066,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else
 		{
 			bool bAcceptable = IsDoFAcceptable(eFromPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests();
-			if(bAcceptable)
+			if (bAcceptable)
 			{
 				SetDoFAccepted(eFromPlayer, true);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
@@ -35281,7 +35282,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
 
 		// Human says he means no harm
-		if(iArg1 == 1)
+		if (iArg1 == 1)
 		{
 			SetPlayerMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
@@ -35296,7 +35297,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 		}
 		// Human told the AI to die
-		else if(iArg1 == 2)
+		else if (iArg1 == 2)
 		{
 			if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 			{
@@ -35660,27 +35661,27 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
 		// Human agrees
-		if(iArg1 == 1)
+		if (iArg1 == 1)
 		{
 			SetDoFAccepted(eFromPlayer, true);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
 
-			if(GetDoFType(eFromPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_ALLIES)
+			if (GetDoFType(eFromPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_ALLIES)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_BATTLE_BROTHERS);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_BATTLE_BROTHERS);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_FRIENDS)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_FRIENDS)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_ALLIES);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_ALLIES);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_NEW || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_NEW)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_NEW || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_NEW)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_FRIENDS);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_FRIENDS);
 			}
-			else if(GetDoFType(eFromPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_UNTRUSTWORTHY)
+			else if (GetDoFType(eFromPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDoFType(GetPlayer()->GetID()) == DOF_TYPE_UNTRUSTWORTHY)
 			{
 				SetDoFType(eFromPlayer, DOF_TYPE_NEW);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_NEW);
@@ -35698,9 +35699,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 		}
 		// Human says sorry, no
-		else if(iArg1 == 2)
+		else if (iArg1 == 2)
 		{
-			if(bActivePlayer)
+			if (bActivePlayer)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
@@ -40900,7 +40901,7 @@ void CvDiplomacyAI::DoTestPromises()
 		if(IsPlayerValid(eLoopPlayer))
 		{
 			// Military Promise
-			if(IsPlayerMadeMilitaryPromise(eLoopPlayer))
+			if (IsPlayerMadeMilitaryPromise(eLoopPlayer))
 			{
 				int iTurnDifference = GC.getGame().getGameTurn() - GetPlayerMilitaryPromiseTurn(eLoopPlayer);
 

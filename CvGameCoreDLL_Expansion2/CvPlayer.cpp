@@ -12986,13 +12986,13 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 #endif
 
-	if(!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
+	if (!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
 	{
 		return false;
 	}
 
 	// No XP in first 10 turns
-	if(kGoodyInfo.getExperience() > 0)
+	if (kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
@@ -13006,7 +13006,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Unit Healing
-	if(kGoodyInfo.getDamagePrereq() > 0)
+	if (kGoodyInfo.getDamagePrereq() > 0)
 	{
 		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
@@ -13014,36 +13014,19 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		}
 	}
 
-	// Early pantheon
-	if(kGoodyInfo.isPantheonFaith())
+	// Faith towards pantheon or Great Prophet
+	if (kGoodyInfo.isPantheonFaith() || kGoodyInfo.getProphetPercent() > 0)
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
 
 		if (GC.getGame().getElapsedGameTurns() < 20)
-		{
-			return false;
-		}
-		else
-		{
-			return (!GetReligions()->HasCreatedPantheon() && !GetReligions()->HasCreatedReligion());
-		}
-	}
-
-	// Faith toward Great Prophet
-	if(kGoodyInfo.getProphetPercent() > 0)
-	{
-		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
 
-		if (GC.getGame().getElapsedGameTurns() < 20)
-		{
+		if (!GetReligions()->HasCreatedReligion())
 			return false;
-		}
-		else
-		{
-			return (GetReligions()->HasCreatedPantheon() && !GetReligions()->HasCreatedReligion());
-		}
+
+		return kGoodyInfo.isPantheonFaith() ? !GetReligions()->HasCreatedPantheon() : GetReligions()->HasCreatedPantheon();
 	}
 
 	// Population
@@ -13066,7 +13049,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 
 #if defined(MOD_BALANCE_CORE)
 	//Golden Age
-	if(kGoodyInfo.getGoldenAge() > 0)
+	if (kGoodyInfo.getGoldenAge() > 0)
 	{
 		if (GetNumGoldenAges() > 0)
 			return false;
@@ -13088,12 +13071,11 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pUnit->IsGainsXPFromScouting())
 			return false;
 	}
-	if(pPlot == NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
-		return false;
-	}
-	if (pPlot != NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
-	{
+		if (pPlot == NULL)
+			return false;
+
 		bool bGood = false;
 		int iOffset = kGoodyInfo.getMapOffset();
 		int iDX, iDY;
@@ -13226,7 +13208,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Tech
-	if(kGoodyInfo.isTech())
+	if (kGoodyInfo.isTech())
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
@@ -13237,19 +13219,17 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTech = GC.getTechInfo(eTech);
-			if(pkTech != NULL && pkTech->IsGoodyTech())
+			if (pkTech != NULL && pkTech->IsGoodyTech() && GetPlayerTechs()->CanResearch(eTech))
 			{
-				if(GetPlayerTechs()->CanResearch(eTech))
+				if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
 				{
-					if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
+					bool bUseTech = true;
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem) 
 					{
-						bool bUseTech = true;
-						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-						if (pkScriptSystem) 
-						{
-							CvLuaArgsHandle args;
-							args->Push(GetID());
-							args->Push(eTech);
+						CvLuaArgsHandle args;
+						args->Push(GetID());
+						args->Push(eTech);
 
 						// Attempt to execute the game events.
 						// Will return false if there are no registered listeners.
@@ -13260,17 +13240,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 						}
 					}
 
-						if(bUseTech)
-						{
-							bTechFound = true;
-						}
-						break;
+					if (bUseTech)
+					{
+						bTechFound = true;
 					}
+					break;
 				}
 			}
 		}
 
-		if(!bTechFound)
+		if (!bTechFound)
 		{
 			return false;
 		}
@@ -36812,7 +36791,6 @@ void CvPlayer::DoDeficit()
 			{
 				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
 			}
-
 			// Look for obsolete naval units if in deficit or have sufficient units
 			else
 			{
@@ -41408,7 +41386,6 @@ void CvPlayer::deleteArmyAI(int iID)
 	DEBUG_VARIABLE(bRemoved);
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
-
 
 //	--------------------------------------------------------------------------------
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
@@ -50360,7 +50337,7 @@ void CvPlayer::updatePlotFoundValues()
 		}
 	}
 
-	// first pass: precalculate found values
+	//calculate new values and apply our threshold
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
