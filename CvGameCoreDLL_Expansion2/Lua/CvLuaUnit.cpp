@@ -2786,9 +2786,6 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 4, false);
 	bool bFromRangedAttack = luaL_optbool(L, 5, false);
 
-	pkUnit->ClearStrengthCache();
-	pkAttacker->ClearStrengthCache(); 
-
 	if (pkAttacker->GeneratePath(pInPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 	{
 		//this  must be the same moveflags as above so we can reuse the path next turn
@@ -2950,8 +2947,6 @@ int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bAttacking = lua_toboolean(L, 4);
 
-	pkUnit->ClearStrengthCache();
-	pkOther->ClearStrengthCache();
 	const int iResult = pkUnit->GetMaxRangedCombatStrength(pkOther, pkCity, bAttacking, NULL, NULL, false, false);
 	lua_pushinteger(L, iResult);
 	return 1;

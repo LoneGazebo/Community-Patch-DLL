@@ -2579,8 +2579,6 @@ int CvLuaGame::lGetCombatPrediction(lua_State* L)
 {
 	const CvUnit* pAttackingUnit = CvLuaUnit::GetInstance(L, 1);
 	const CvUnit* pDefendingUnit = CvLuaUnit::GetInstance(L, 2);
-	pAttackingUnit->ClearStrengthCache();
-	pDefendingUnit->ClearStrengthCache();
 	CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(pAttackingUnit, pDefendingUnit);
 	lua_pushinteger(L, ePrediction);
 	return 1;
