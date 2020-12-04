@@ -9761,25 +9761,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
 			pDiploAI->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 		}
-		else if (GET_PLAYER(ePlayer).isMinorCiv())
-		{
-			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);		
-		}
-
-		// Reduce this player's warmongering penalties (if any)
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
-			{
-				// Only with players who have met us
-				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
-				{
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
-				}
-			}
-		}
 	}
 
 	// Now verify that the player is alive
@@ -10018,18 +9999,38 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
-	// If a City-State was liberated, give their city a basic but state-of-the-art garrison
+	// If a City-State was liberated, adjust Influence levels and give the City-State a basic but state-of-the-art garrison
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
+		if (!bForced)
+			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+		else
+			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+
 		UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
 		if (eUnit != NO_UNIT)
-			GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+			GET_PLAYER(ePlayer).initUnit(eUnit, pCity->getX(), pCity->getY());
 	}
 
-	// Reduce our war weariness for liberating a city
 	if (!bForced)
 	{
+		// Reduce our war weariness for liberating a city
 		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
+
+		// Reduce this player's warmongering penalties (if any)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
+			{
+				// Only with players who have met us
+				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				{
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
+					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+				}
+			}
+		}
 	}
 
 	// Meet the team, if we haven't already
