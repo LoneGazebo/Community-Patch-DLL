@@ -3411,7 +3411,7 @@ bool CvUnit::isActionRecommended(int iAction)
 
 		//fake this, we're really only interested in one plot
 		ReachablePlots plots;
-		plots.insert(SMovePlot(plot()->GetPlotIndex()));
+		plots.insertWithIndex(SMovePlot(plot()->GetPlotIndex()));
 		map<CvUnit*, ReachablePlots> allplots;
 		allplots[this] = plots;
 
@@ -7276,19 +7276,44 @@ AITacticalMove CvUnit::getTacticalMove(int* pTurnSet) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRecruitFromTacticalAI() const
+bool CvUnit::canUseForAIOperation() const
 {
+	//already in an army?
+	if (getArmyID() != -1)
+		return false;
+
+	//don't forget ordinary civilians! they are always fair game
+	if (IsCivilianUnit() && !canUseForTacticalAI())
+		return true;
+
 	//Is it a garrison we can spare?
 	if (IsGarrisoned())
 	{
-		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore(NO_DOMAIN)>7)
+		CvCity* pCity = GetGarrisonedCity();
+		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+		if (pLandZone && (pLandZone->GetTotalEnemyUnitCount()>0 || pLandZone->GetBorderScore(NO_DOMAIN)>5))
+			return false;
+		if (pWaterZone && (pWaterZone->GetTotalEnemyUnitCount()>0 || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
 			return false;
 	}
+	else
+	{
+		//check if it's a city zone! don't care about no-mans land.
+		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetTotalEnemyUnitCount() > 0)
+			return false;
 
-	//Other targets around?
-	if (TacticalAIHelpers::GetFirstTargetInRange(this, false, true) != NULL)
-		return false;
+		//do not call FirstTargetInRange, it's too expensive ...
+		//instead look at our immediate neighbor plots only
+		for (int i = 0; i < RING3_PLOTS; i++)
+		{
+			CvPlot* pTestPlot = iterateRingPlots(plot(),i);
+			if (pTestPlot && pTestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true) != NULL)
+				return false;
+		}
+	}
+
 
 	return true;
 }
@@ -7299,20 +7324,29 @@ bool CvUnit::canUseForTacticalAI() const
 	if (isDelayedDeath())
 		return false;
 
-	if (getArmyID() != -1)
-		return false;
-
 	if (!canMove() || TurnProcessed())
 		return false;
 
-	if (AI_getUnitAIType() == UNITAI_EXPLORE)
+	//handled by homeland AI for stupid reasons
+	if (AI_getUnitAIType() == UNITAI_EXPLORE || AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 		return false;
 
-	if (IsGarrisoned() && GetGarrisonedCity()->isBorderCity())
+	//these are only used for operations
+	if (AI_getUnitAIType() == UNITAI_CARRIER_SEA || AI_getUnitAIType() == UNITAI_ICBM)
 		return false;
 
-	if (IsCivilianUnit() && !(IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral()))
+	//we want all barbarians ...
+	if (IsCivilianUnit() && !isBarbarian())
+	{
+		if (IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral())
+		{
+			GreatPeopleDirectiveTypes eDirective = GetGreatPeopleDirective();
+			if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+				return false;
+		}
+
 		return false;
+	}
 
 	return true;
 }
@@ -27189,7 +27223,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
 		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
 		{
 			//is it idle right now?
-			if (pLoopUnit->canMove() && TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit) == NULL)
+			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0)
 			{
 				//does it have a free plot
 				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(&pushPlot);

@@ -1229,7 +1229,7 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 			continue;
 
 		//correct area?
-		if (!pTargetCity->isMatchingArea(pLoopPlot))
+		if (!pTargetCity || !pTargetCity->isMatchingArea(pLoopPlot))
 			continue;
 
 		if (eArmyType==ARMY_TYPE_LAND)
@@ -2777,12 +2777,8 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED)
 			continue;
 
-		// Is it in an army?
-		if(pLoopUnit->getArmyID() != -1)
-			continue;
-
 		// Do we need it to fight?
-		if (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
+		if (!pLoopUnit->canUseForAIOperation())
 			continue;
 
 		bool bIsObsolete = (TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech()));

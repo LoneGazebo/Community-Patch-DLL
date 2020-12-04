@@ -381,15 +381,16 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 		// Default for this zone
 		m_ePosture = TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 
-		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
-		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		//try to grab it ...
+		CvCity *pClosestCity = GetZoneCity();
+		if (pClosestCity && pClosestCity->isInDangerOfFalling())
 		{
-			//try to grab it ...
-			CvCity *pClosestCity = GetZoneCity();
-			if (pClosestCity && pClosestCity->isInDangerOfFalling())
-				m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-			else
-				m_ePosture = TACTICAL_POSTURE_WITHDRAW;
+			m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+		}
+		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
+		else if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		{
+			m_ePosture = TACTICAL_POSTURE_WITHDRAW;
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{

@@ -1710,7 +1710,7 @@ public:
 
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
-	bool canRecruitFromTacticalAI() const;
+	bool canUseForAIOperation() const;
 	bool canUseForTacticalAI() const;
 
 	void SetTacticalAIPlot(CvPlot* pPlot);

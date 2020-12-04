@@ -20,7 +20,6 @@
 #pragma		once
 
 #include <vector>
-#include <unordered_map>
 
 typedef std::vector<int> PlotIndexContainer; //no good place to put this
 
@@ -246,14 +245,16 @@ public:
 
 	iterator find(int iPlotIndex);
 	const_iterator find(int iPlotIndex) const;
-	void insert(const SMovePlot& plot);
+	void insertWithIndex(const SMovePlot& plot);
+	void insertNoIndex(const SMovePlot& plot);
+	void createIndex();
 
 	bool operator==(const ReachablePlots& rhs) const { return storage == rhs.storage && lookup == rhs.lookup; }
 	bool operator!=(const ReachablePlots& rhs) const { return storage != rhs.storage || lookup != rhs.lookup; }
 
 protected:
-	std::tr1::unordered_map<int,size_t> lookup;
-	std::vector<SMovePlot> storage;
+	vector<pair<int,size_t>> lookup;
+	vector<SMovePlot> storage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

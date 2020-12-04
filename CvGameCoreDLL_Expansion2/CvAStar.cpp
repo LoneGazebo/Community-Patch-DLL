@@ -2707,12 +2707,14 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		if (bValid)
 		{
 			int iNormalizedDistanceRaw = (temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
-			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
+			plots.insertNoIndex( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
 		}
 	}
 
 	if(!bHadLock)
 		gDLL->ReleaseGameCoreLock();
+
+	plots.createIndex();
 	return plots;
 }
 
@@ -3472,26 +3474,58 @@ int SPath::getNormalizedDistanceBase()
 	return 100;
 }
 
+struct PairCompareFirst
+{
+    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const
+    {
+        return l.first < r.first;
+    }
+};
+
+void ReachablePlots::createIndex()
+{
+	lookup.clear();
+	lookup.reserve(storage.size());
+	for (size_t i = 0; i < storage.size(); i++)
+		lookup.push_back( make_pair(storage[i].iPlotIndex,i) );
+	sort(lookup.begin(), lookup.end(), PairCompareFirst());
+}
+
+struct EqualRangeComparison
+{
+    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
+    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
+};
+
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
-	std::tr1::unordered_map<int,size_t>::iterator it = lookup.find(iPlotIndex);
-	if (it!=lookup.end())
-		return storage.begin() + it->second;
+	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != lookup.end() && it2.first != it2.second)
+		return storage.begin() + it2.first->second;
 
 	return storage.end();
 }
 
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
-	std::tr1::unordered_map<int,size_t>::const_iterator it = lookup.find(iPlotIndex);
-	if (it!=lookup.end())
-		return storage.begin() + it->second;
+	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != lookup.end() && it2.first != it2.second)
+		return storage.begin() + it2.first->second;
 
 	return storage.end();
 }
 
-void ReachablePlots::insert(const SMovePlot& plot)
+void ReachablePlots::insertNoIndex(const SMovePlot& plot)
 {
-	lookup[plot.iPlotIndex] = storage.size();
+	//must call createIndex later!
 	storage.push_back(plot);
+}
+
+void ReachablePlots::insertWithIndex(const SMovePlot& plot)
+{
+	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
+	storage.push_back(plot);
+	sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }

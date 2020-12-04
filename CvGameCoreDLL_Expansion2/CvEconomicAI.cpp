@@ -2205,7 +2205,7 @@ void CvEconomicAI::DoReconState()
 			if(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE) 
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
-				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->canUseForAIOperation())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
@@ -2300,7 +2300,7 @@ void CvEconomicAI::DoReconState()
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA))
 				{
-					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+					if(pLoopUnit->canUseForAIOperation())
 					{
 						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 

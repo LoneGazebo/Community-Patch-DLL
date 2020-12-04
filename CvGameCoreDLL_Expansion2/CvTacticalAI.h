@@ -556,11 +556,7 @@ private:
 
 	CvTacticalAnalysisMap m_tacticalMap;
 	std::list<int> m_CurrentTurnUnits;
-
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
-#endif
-
 	CTacticalUnitArray m_CurrentMoveUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 
@@ -843,19 +839,15 @@ struct SAttackStats
 class CAttackCache {
 public:
 	void clear();
-	void storeCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken);
-	void storeUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken);
-	bool findCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
-	bool findUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
+	void storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken);
+	bool findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
 protected:
 	//key is attacker id
-	map<int, vector<SAttackStats>> unitAttacks;
-	map<int, vector<SAttackStats>> cityAttacks;
+	vector<pair<int, vector<SAttackStats>>> attackStats;
 };
 
 class CvTacticalPosition
 {
-	typedef tr1::unordered_map<int, int> TTactPlotLookup;
 
 protected:
 	//for final sorting (does not include intermediate moves)
@@ -875,7 +867,7 @@ protected:
 	vector<SUnitStats> availableUnits; //units which still need an assignment
 	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	TTactPlotLookup tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
+	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
@@ -911,6 +903,8 @@ protected:
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 	bool canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
+	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
+	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -935,7 +929,7 @@ public:
 	void addInitialAssignments();
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
 	void updateMovePlotsIfRequired();
-	bool haveTacticalPlot(const CvPlot* pPlot) const;
+	bool haveTacticalPlot(int iPlotIndex) const;
 	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;

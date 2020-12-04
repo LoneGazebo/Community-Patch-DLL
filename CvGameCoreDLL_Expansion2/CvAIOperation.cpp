@@ -3327,11 +3327,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots)
 {
 	//otherwise engaged?
-	if (!pLoopUnit->canRecruitFromTacticalAI())
-		return -1;
-
-	//In an army?
-	if (pLoopUnit->getArmyID() != -1)
+	if (!pLoopUnit->canUseForAIOperation())
 		return -1;
 
 	//don't recruit if currently healing

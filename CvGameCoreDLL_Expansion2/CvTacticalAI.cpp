@@ -257,68 +257,23 @@ void CvTacticalAI::RecruitUnits()
 		pLoopUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
 		pLoopUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 
-		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
-		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
+		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
+		if(!pLoopUnit->canUseForTacticalAI())
+			continue;
 
 		// reset mission AI so we don't see stale information (debugging only)
-		// careful with explorers though, for performance reasons their mission is persistent
-		if (pLoopUnit->GetMissionAIType()!=MISSIONAI_EXPLORE)
-			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
-
-		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || pLoopUnit->isHuman() )
-			continue;
+		pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
 
 		// we want all combat ready air units, except nukes (those go through operational AI)
 		if (pLoopUnit->getDomainType() == DOMAIN_AIR)
 		{
-			//we want all missiles.
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
-			{
-				if (!ShouldRebase(pLoopUnit))
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-
-				continue;
-			}
-			else if (pLoopUnit->getDamage() > 50 || ShouldRebase(pLoopUnit) || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
-				continue;
-
-			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-		}
-		// we want ALL the barbarians
-		else if (pLoopUnit->isBarbarian()) 
-		{
-			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-		}
-		// explorers should be handled by homeland AI
-		else if ( pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || 
-					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
-					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA )
-		{
-			continue;
+			//rebasing is done in homeland AI
+			if (!ShouldRebase(pLoopUnit))
+				m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 		// Now down to land and sea units
 		else
 		{
-			//no civilians with a few exceptions
-			if (!pLoopUnit->IsCombatUnit())
-			{
-				 //if it's a general or admiral and not a field commander, we don't want it
-				if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
-				{
-					GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
-					if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
-						continue;
-				}
-				else
-					continue;
-			}
-
-			//special handling for carriers: tactical AI will not use them except if they are part of an operation
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-				continue;
-
-			//finally, these are our combat units
 			if (pLoopUnit->getArmyID() != -1)
 				//army units will be moved as part of the army moves
 				pLoopUnit->setTacticalMove(AI_TACTICAL_OPERATION);
@@ -6778,62 +6733,44 @@ CvTacticalPlot::eTactPlotDomain DomainForUnit(const CvUnit* pUnit)
 
 void CAttackCache::clear()
 {
-	unitAttacks.clear();
-	cityAttacks.clear();
+	attackStats.clear();
 }
 
-void CAttackCache::storeCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken)
+void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken)
 {
-	cityAttacks[iAttackerId].push_back(SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
-}
-
-void CAttackCache::storeUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int iDamageDealt, int iDamageTaken)
-{
-	unitAttacks[iAttackerId].push_back(SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
-}
-
-bool CAttackCache::findCityAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const
-{
-	map<int, vector<SAttackStats>>::const_iterator it = cityAttacks.find(iAttackerId);
-	if (it != cityAttacks.end())
+	//known attacker
+	for (size_t i = 0; i < attackStats.size(); i++)
 	{
-		const vector<SAttackStats>& data = it->second;
-		for (size_t i = 0; i < data.size(); i++)
+		if (attackStats[i].first == iAttackerId)
 		{
-			if (data[i].iAttackerPlot == iAttackerPlot &&
-				data[i].iDefenderId == iDefenderId &&
-				data[i].iDefenderPrevDamage == iPrevDamage)
-			{
-				iDamageDealt = data[i].iAttackerDamageDealt;
-				iDamageTaken = data[i].iAttackerDamageTaken;
-				gAttackCacheHit++;
-				return true;
-			}
+			attackStats[i].second.push_back(SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
+			return;
 		}
 	}
 
-	iDamageDealt = 0;
-	iDamageTaken = 0;
-	gAttackCacheMiss++;
-	return false;
+	//unknown attacker? add a new entry
+	vector<SAttackStats> data(1, SAttackStats(iAttackerPlot, iDefenderId, iPrevDamage, iDamageDealt, iDamageTaken));
+	attackStats.push_back( make_pair(iAttackerId,data) );
 }
- 
-bool CAttackCache::findUnitAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const
+
+bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const
 {
-	map<int, vector<SAttackStats>>::const_iterator it = unitAttacks.find(iAttackerId);
-	if (it != unitAttacks.end())
+	for (size_t i = 0; i < attackStats.size(); i++)
 	{
-		const vector<SAttackStats>& data = it->second;
-		for (size_t i = 0; i < data.size(); i++)
+		if (attackStats[i].first == iAttackerId)
 		{
-			if (data[i].iAttackerPlot == iAttackerPlot &&
-				data[i].iDefenderId == iDefenderId &&
-				data[i].iDefenderPrevDamage == iPrevDamage)
+			const vector<SAttackStats>& data = attackStats[i].second;
+			for (size_t i = 0; i < data.size(); i++)
 			{
-				iDamageDealt = data[i].iAttackerDamageDealt;
-				iDamageTaken = data[i].iAttackerDamageTaken;
-				gAttackCacheHit++;
-				return true;
+				if (data[i].iAttackerPlot == iAttackerPlot &&
+					data[i].iDefenderId == iDefenderId &&
+					data[i].iDefenderPrevDamage == iPrevDamage)
+				{
+					iDamageDealt = data[i].iAttackerDamageDealt;
+					iDamageTaken = data[i].iAttackerDamageTaken;
+					gAttackCacheHit++;
+					return true;
+				}
 			}
 		}
 	}
@@ -6864,10 +6801,10 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		CvCity* pEnemy = pTestPlot->getPlotCity();
 
 		//first try the cache
-		if (!cache.findCityAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
+		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
 		{
 			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-			cache.storeCityAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
+			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
@@ -6911,11 +6848,11 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 
 		//first use the cache
-		if (!cache.findUnitAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
+		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
 		{
 			//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
 			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-			cache.storeUnitAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
+			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
@@ -8685,7 +8622,7 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	movePlotUpdateFlag = 0;
 
 	childPositions.clear();
-	tacticalPlotLookup.clear();
+	tactPlotLookup.clear();
 	tactPlots.clear();
 	availableUnits.clear();
 	notQuiteFinishedUnits.clear();
@@ -8720,7 +8657,7 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	childPositions.clear();
 
 	//these are cached locally
-	tacticalPlotLookup.clear();
+	tactPlotLookup.clear();
 	tactPlots.clear();
 
 	//copied from parent, modified when addAssignment is called
@@ -8837,9 +8774,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				}
 			}
 
-			reachablePlotsPruned.insert(*it);
+			reachablePlotsPruned.insertNoIndex(*it);
 		}
 
+		reachablePlotsPruned.createIndex();
 		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots)] = reachablePlotsPruned;
 	}
 
@@ -9184,15 +9122,46 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	return true;
 }
 
-bool CvTacticalPosition::haveTacticalPlot(const CvPlot* pPlot) const
+struct PairCompareFirst
 {
-	if (!pPlot)
-		return true; //this is a matter of definition ...
+    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const
+    {
+        return l.first < r.first;
+    }
+};
 
-	if (tacticalPlotLookup.find(pPlot->GetPlotIndex()) != tacticalPlotLookup.end())
+struct EqualRangeComparison
+{
+    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
+    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
+};
+
+vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex)
+{
+	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
+		return tactPlots.begin() + it2.first->second;
+
+	return tactPlots.end();
+}
+
+vector<CvTacticalPlot>::const_iterator CvTacticalPosition::findTactPlot(int iPlotIndex) const
+{
+	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
+		return tactPlots.begin() + it2.first->second;
+
+	return tactPlots.end();
+}
+
+bool CvTacticalPosition::haveTacticalPlot(int iPlotIndex) const
+{
+	if (findTactPlot(iPlotIndex) != tactPlots.end())
 		return true;
 
-	if (parentPosition && parentPosition->haveTacticalPlot(pPlot))
+	if (parentPosition && parentPosition->haveTacticalPlot(iPlotIndex))
 		return true;
 
 	return false;
@@ -9204,17 +9173,14 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 	if (!pPlot)
 		return;
 
-	TTactPlotLookup::iterator it = tacticalPlotLookup.find(pPlot->GetPlotIndex());
-	if (it != tacticalPlotLookup.end())
-		return; //nothing to do
-
-	if (parentPosition && parentPosition->haveTacticalPlot(pPlot))
+	if (haveTacticalPlot(pPlot->GetPlotIndex()))
 		return; //nothing to do
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
 	if (newPlot.isValid())
 	{
-		tacticalPlotLookup[pPlot->GetPlotIndex()] = (int)tactPlots.size();
+		pair<int, size_t> newEntry(pPlot->GetPlotIndex(), tactPlots.size());
+		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
 	}
 }
@@ -9400,9 +9366,9 @@ void CvTacticalPosition::exportToDotFile(const char* fname) const
 //it may get invalidated by additional calls to this function!
 CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 {
-	TTactPlotLookup::const_iterator it = tacticalPlotLookup.find(plotindex);
-	if (it!=tacticalPlotLookup.end())
-		return tactPlots[it->second];
+	vector<CvTacticalPlot>::iterator it = findTactPlot(plotindex);
+	if (it != tactPlots.end())
+		return *it;
 
 	if (parentPosition)
 	{
@@ -9410,7 +9376,8 @@ CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 		if (parentResult.isValid())
 		{
 			//now cache it locally so that we can modify it
-			tacticalPlotLookup[plotindex] = (int)tactPlots.size();
+			tactPlotLookup.push_back( make_pair(plotindex, tactPlots.size()) );
+			sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
 			//this is dangerous, may invalidate references if the vector is reallocated
 			//we should really be storing pointers to plots, not the plots themselves ...
 			tactPlots.push_back(parentResult);
@@ -9427,12 +9394,16 @@ void CvTacticalPosition::cacheAllTactPlotsLocally()
 	const CvTacticalPosition* current = parentPosition;
 	while (current != NULL)
 	{
-		for (TTactPlotLookup::const_iterator it = current->tacticalPlotLookup.begin(); it != current->tacticalPlotLookup.end(); ++it)
-			if (tacticalPlotLookup.find(it->first) == tacticalPlotLookup.end())
+		for (vector<CvTacticalPlot>::const_iterator it = current->tactPlots.begin(); it != current->tactPlots.end(); ++it)
+		{
+			int iIndex = it->getPlotIndex();
+			if (!haveTacticalPlot(iIndex))
 			{
-				tacticalPlotLookup[it->first] = (int)tactPlots.size();
-				tactPlots.push_back( current->tactPlots[it->second] );
+				pair<int, size_t> newEntry(iIndex, tactPlots.size());
+				tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
+				tactPlots.push_back(*it);
 			}
+		}
 
 		current = current->parentPosition;
 	}
@@ -9440,9 +9411,9 @@ void CvTacticalPosition::cacheAllTactPlotsLocally()
 
 const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 {
-	TTactPlotLookup::const_iterator it = tacticalPlotLookup.find(plotindex);
-	if (it!=tacticalPlotLookup.end())
-		return tactPlots[it->second];
+	vector<CvTacticalPlot>::const_iterator it = findTactPlot(plotindex);
+	if (it != tactPlots.end())
+		return *it;
 
 	if (parentPosition)
 		return parentPosition->getTactPlot(plotindex);
@@ -9542,7 +9513,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
 				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
-					initialPosition->addTacticalPlot(pPlot, ourUnits);
+					initialPosition->addTacticalPlot(pPlot,ourUnits);
 			}
 		}
 	}
@@ -9796,7 +9767,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget, i);
 		if (pPlot && pPlot->isVisible(ourTeam))
-			initialPosition->addTacticalPlot(pPlot,ourUnits);
+			initialPosition->addTacticalPlot(pPlot, ourUnits);
 	}
 
 	//find out which plot is frontline, second line etc

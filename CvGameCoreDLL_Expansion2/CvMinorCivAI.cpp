@@ -15051,11 +15051,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-#if defined(MOD_BALANCE_CORE)
-	int iGoldGrowthFactor = 400; //antonjs: todo: XML
-#else
-	int iGoldGrowthFactor = 350; //antonjs: todo: XML
-#endif
+	int iGoldGrowthFactor = 400;
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());

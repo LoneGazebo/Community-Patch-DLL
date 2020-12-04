@@ -924,7 +924,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		{
 			//fake this, the distance check is irrelevant here
 			ReachablePlots turnsFromMuster;
-			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex()) );
+			turnsFromMuster.insertWithIndex( SMovePlot(pUnit->plot()->GetPlotIndex()) );
 
 			vector<pair<size_t,CvFormationSlotEntry>> availableSlots(1,make_pair(0,CvFormationSlotEntry()));
 			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,turnsFromMuster,false,false,availableSlots)>=0)
@@ -2707,7 +2707,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		{
 			//make sure no other worker tries to target the same plot
 			it->second.clear();
-			it->second.insert( SMovePlot(pTarget->GetPlotIndex(),-1,0,0) );
+			it->second.insertWithIndex( SMovePlot(pTarget->GetPlotIndex(),-1,0,0) );
 			UnitProcessed(pUnit->GetID());
 		}
 	}
