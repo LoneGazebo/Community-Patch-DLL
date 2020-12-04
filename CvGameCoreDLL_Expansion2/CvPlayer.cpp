@@ -9690,6 +9690,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 	}
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced)
@@ -9702,11 +9703,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
-	if (ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 	{
 		ePlayer = pCity->getOriginalOwner();
 	}
-	if (ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 	{
 		return;
 	}
@@ -9718,11 +9719,18 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Who originally took out this team?
 	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
 
-	if (!GET_PLAYER(ePlayer).isAlive())
+	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
+	bool bAlive = GET_PLAYER(ePlayer).isAlive();
+
+	// If they aren't alive, start the resurrection process
+	if (!bAlive)
 	{
 		GET_PLAYER(ePlayer).setBeingResurrected(true);
+
+		// Mark the liberators
 		if (!bForced)
 		{
+			pDiploAI->SetResurrectedBy(GetID(), true);
 			GET_TEAM(eLiberatedTeam).SetLiberatedByTeam(eTeam);
 		}
 
@@ -9734,78 +9742,57 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes)iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true, GetID());
 			}
 		}
+	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	// Give the city back to the liberated player
+	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
+
+	// Diplo bonus for returning the city
+	if (!bForced)
+	{
+		if (GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+			// Liberated the capital - big diplo bonus!
+			if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
 			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+				pDiploAI->SetPlayerLiberatedCapital(m_eID, true);
 			}
+
+			pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
+			pDiploAI->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 		}
-#endif
-	
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
+		else if (GET_PLAYER(ePlayer).isMinorCiv())
 		{
-			// add notification
-			Localization::String strMessage;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
-			{
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
-			}
-			else
-			{
-#endif
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			}
-#endif
-			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
-			strMessage << pCity->getNameKey(); // CITY NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_SHORT");
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-			{
-				strSummary << GET_PLAYER(ePlayer).getNickName();
-			}
-			else
-			{
-				strSummary << GET_PLAYER(ePlayer).getNameKey();
-			}
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_eID).isHuman())
-			{
-				strSummary << GET_PLAYER(m_eID).getNickName();
-			}
-			else
-			{
-				strSummary << GET_PLAYER(m_eID).getNameKey();
-			}			
+			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);		
+		}
 
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+		// Reduce this player's warmongering penalties (if any)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
 			{
-				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
+				// Only with players who have met us
+				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 				{
-					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
+					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 				}
 			}
-
-			CvString temp = strMessage.toUTF8();
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
 		}
 	}
-	else
+
+	// Now verify that the player is alive
+	GET_PLAYER(ePlayer).verifyAlive();
+
+	// Process other diplomatic consequences if a major was liberated
+	if (!bForced && GET_PLAYER(ePlayer).isMajorCiv())
 	{
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
+		// Player was alive? Just notify that a city was liberated.
+		if (bAlive)
 		{
-			// add notification
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LIBERATED");
-			if(GC.getGame().isGameMultiPlayer() && isHuman())
+			if (GC.getGame().isGameMultiPlayer() && isHuman())
 			{
 				strMessage << getNickName();
 			}
@@ -9815,9 +9802,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 			strMessage << pCity->getNameKey(); // CITY NAME
 			strMessage << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();// RESTORED CIV NAME
+
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_LIBERATED_SHORT");
 			strSummary << pCity->getNameKey();
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
 			{
 				strSummary << GET_PLAYER(ePlayer).getNickName();
 			}
@@ -9826,49 +9814,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				strSummary << GET_PLAYER(ePlayer).getNameKey();
 			}
 
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
+				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
 				{
 					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_LIBERATED_MAJOR_CITY, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 				}
 			}
 		}
-	}
 
-	// Give the city back to the liberated player
-#if defined(MOD_API_EXTENSIONS)
-	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-#else
-	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-#endif
-
-	// Diplo bonus for returning the city
-	if (!bForced)
-	{
-		// Liberated the capital - big diplo bonus!
-		if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
+		// Player was dead? Huge diplo bonuses!
+		else
 		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
-		}
-				
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberatedBy(m_eID, 1);
-#if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
-#endif
-	}
-
-	if (!GET_PLAYER(ePlayer).isMinorCiv() && !bForced)
-	{
-		// slewis - if the player we're liberating the city for is dead, give the liberating player a resurrection mark in the once-defeated player's book
-		if (!GET_PLAYER(ePlayer).isAlive())
-		{
-			CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 			PlayerTypes eMePlayer = GetID();
-
-			pDiploAI->SetResurrectedBy(eMePlayer, true);
 			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9879,7 +9838,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
-#if defined(MOD_BALANCE_CORE)
 			pDiploAI->SetVictoryBlockLevel(eMePlayer, BLOCK_LEVEL_NONE);
 			
 			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
@@ -9920,7 +9878,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesTheyPlottedAgainstUs(eMePlayer, 0);
 			pDiploAI->SetNumTimesTheyLoweredOurInfluence(eMePlayer, 0);
 			pDiploAI->SetNumTimesPerformedCoupAgainstUs(eMePlayer, 0);
-#endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->SetNumTimesCultureBombed(eMePlayer, 0);
 			pDiploAI->SetNegativeReligiousConversionPoints(eMePlayer, 0);
@@ -9980,77 +9937,78 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 
-			// Update diplo stuff.
-			if (!GET_PLAYER(ePlayer).isHuman())
+			// Resurrected civ becomes a vassal of the resurrector, if possible
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
 			{
-				vector<PlayerTypes> v = pDiploAI->GetAllValidMajorCivs();
-				pDiploAI->DoUpdateOpinions();
-				pDiploAI->DoUpdateMajorCivApproaches(v);
-			}
-			if (!isHuman())
-			{
-				vector<PlayerTypes> v;
-				GetDiplomacyAI()->DoUpdateOpinions();
-				GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
-			}
-		}
-	}
-
-	// Now verify the player is alive
-	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-	{
-		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
-	}
-	GET_PLAYER(ePlayer).verifyAlive();
-	GET_PLAYER(ePlayer).setBeingResurrected(false);
-
-	if (!bForced)
-	{
-		// Is this a Minor we have liberated?
-		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
-		{
-			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
-
-			//give them a basic but state-of-the-art garrison
-			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
-			if (eUnit != NO_UNIT)
-				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
-		}
-	}
-
-	// slewis
-	// negate warmonger
-	if (!bForced)
-	{
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
-			{
-				// Have I met the player who conquered the city?
-				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 				}
 			}
-		}
 
-		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
+			// Add resurrection notification
+			Localization::String strMessage;
+
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
+			}
+			else
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
+			}
+
+			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
+			strMessage << pCity->getNameKey(); // CITY NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_SHORT");
+
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+			{
+				strSummary << GET_PLAYER(ePlayer).getNickName();
+			}
+			else
+			{
+				strSummary << GET_PLAYER(ePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_eID).isHuman())
+			{
+				strSummary << GET_PLAYER(m_eID).getNickName();
+			}
+			else
+			{
+				strSummary << GET_PLAYER(m_eID).getNameKey();
+			}			
+
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			{
+				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
+				{
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				}
+			}
+
+			CvString temp = strMessage.toUTF8();
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
+		}
 	}
 
-	// Move Units from player that don't belong here
-	if(pPlot->getNumUnits() > 0)
+	// Kick out all other players' units from the city plot
+	if (pPlot->getNumUnits() > 0)
 	{
 		// Get the current list of units because we will possibly be moving them out of the plot's list
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
-			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if(pLoopUnit && pLoopUnit->getOwner() == eOldOwner)
+				if (pLoopUnit && pLoopUnit->getOwner() != ePlayer)
 				{
 					pLoopUnit->finishMoves();
 					if (!pLoopUnit->jumpToNearestValidPlot())
@@ -10060,20 +10018,69 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
+	// If a City-State was liberated, give their city a basic but state-of-the-art garrison
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+		if (eUnit != NO_UNIT)
+			GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+	}
+
+	// Reduce our war weariness for liberating a city
+	if (!bForced)
+	{
+		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
+	}
+
+	// Meet the team, if we haven't already
+	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+	{
+		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
+	}
+
+	// Update diplo stuff
+	if (!GET_PLAYER(ePlayer).isHuman())
+	{
+		pDiploAI->DoUpdateOpinions();
+
+		if (bAlive)
+		{
+			vector<PlayerTypes> v;
+			v.push_back((PlayerTypes)GetID());
+			pDiploAI->DoUpdateMajorCivApproaches(v);
+		}
+		else
+		{
+			vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+			pDiploAI->DoUpdateMajorCivApproaches(v);
+		}
+	}
+	if (!isHuman())
+	{
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		GetDiplomacyAI()->DoUpdateOpinions();
+		GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+	}
+
+	// Mark the resurrection process as complete
+	GET_PLAYER(ePlayer).setBeingResurrected(false);
+
 #if defined(MOD_EVENTS_LIBERATION)
-	if (MOD_EVENTS_LIBERATION) {
+	if (MOD_EVENTS_LIBERATION) 
+	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerLiberated, GetID(), ePlayer, pNewCity->GetID());
 	}
 #endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
-	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
+	if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			ePlayer = (PlayerTypes) iPlayerLoop;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
+			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
 			{
 				int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
 				GET_PLAYER(ePlayer).ChangeImprovementLeagueVotes(-iEmbassyVotes);
