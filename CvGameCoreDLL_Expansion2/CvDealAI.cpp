@@ -1703,13 +1703,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	}
 }
 
+//Ratio between 50 and 200.
 int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource, int iNumInTrade)
 {
 	bool bImSelling = ePlayer == GetPlayer()->GetID();
-	int iBase = bImSelling ? 2 : 1;
-	//Ratio between 0 and 100.
-	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, true);
-	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, true);
+	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceTotal(eResource, true);
+	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceTotal(eResource, true);
 
 	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eOtherPlayer);
 	if (pRenewDeal)
@@ -1733,15 +1732,14 @@ int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, Re
 	else
 		iPlayer2 -= iNumInTrade;
 
-	int iValue = (iPlayer1 * 100) / max(1, iPlayer2);
-	iValue = range(iValue, 0, 200);
-
+	int iRatio = 100;
 	if (bImSelling)
-		iBase *= (200 - iValue);
+		iRatio = (iPlayer2 * 100) / max(1, iPlayer1);
 	else
-		iBase *= iValue;
-		
-	return max(0, iBase);
+		iRatio = (iPlayer1 * 100) / max(1, iPlayer2);
+
+	//min half, max double
+	return range(iRatio, 50, 200);
 }
 
 /// How much is a Resource worth?
@@ -1786,7 +1784,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	}
 	//Get the average multiplier from the number of Flavors being considered.
 	if ((iFlavorResult > 0) && (iFlavors > 0))
-		iItemValue += (iFlavorResult / iFlavors)*10;
+		iItemValue += (iFlavorResult / iFlavors)*(iValueScale/2);
 
 	if (bFromMe)
 	{
