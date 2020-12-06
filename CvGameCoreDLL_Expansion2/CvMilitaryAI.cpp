@@ -1203,7 +1203,8 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 	int iScale = (eArmyType == ARMY_TYPE_COMBINED ? 54 : 45);
 
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
-	CvCity* pMusterCity = pMusterPlot->getPlotCity();
+	if (!pTargetCity)
+		return 0;
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
@@ -1229,7 +1230,7 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 			continue;
 
 		//correct area?
-		if (!pTargetCity || !pTargetCity->isMatchingArea(pLoopPlot))
+		if (!pTargetCity->isMatchingArea(pLoopPlot))
 			continue;
 
 		if (eArmyType==ARMY_TYPE_LAND)
@@ -1272,8 +1273,10 @@ int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType 
 
 	if (gDebugOutput)
 	{
+		CvCity* pMusterCity = pMusterPlot->getPlotCity();
+
 		OutputDebugString(CvString::format("%s attack approach on %s from %s is %d. staging at (%d:%d), good %d, ok %d\n", 
-			ArmyTypeToString(eArmyType), pTargetCity->getNameKey(), pMusterCity->getNameKey(), iResult, pStagingPlot->getX(), pStagingPlot->getY(), nGoodPlots, nUsablePlots).c_str());
+			ArmyTypeToString(eArmyType), pTargetCity->getNameKey(), pMusterCity ? pMusterCity->getNameKey() : "unknown", iResult, pStagingPlot->getX(), pStagingPlot->getY(), nGoodPlots, nUsablePlots).c_str());
 	}
 
 	return iResult;

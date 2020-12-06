@@ -15034,12 +15034,21 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 {
 	if (m_iBullyPlotsBuilt != GC.getGame().getGameTurn())
 	{
-		if (GetPlayer()->getCapitalCity())
+		CvCity* pCapital = GetPlayer()->getCapitalCity();
+		if (pCapital)
 		{
 			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
+
+			//make sure we include all adjacent plots even if they are impassable for us ... but they might be passable for the bully (inca!)
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pPlot = iterateRingPlots(pCapital->plot(), i);
+				if (pPlot && m_bullyRelevantPlots.find(pPlot->GetPlotIndex()) == m_bullyRelevantPlots.end())
+					m_bullyRelevantPlots.insertWithIndex( SMovePlot(pPlot->GetPlotIndex(),1,0,500) );
+			}
 		}
 		else
 			m_bullyRelevantPlots.clear();
