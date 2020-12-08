@@ -651,6 +651,7 @@ public:
 private:
 #if defined(MOD_BALANCE_CORE)
 	bool DoFaithPurchasesInCities(CvCity* pCity);
+	bool DoReligionDefenseInCities();
 #endif
 	int GetSpreadScore() const;
 	bool DoFaithPurchases();

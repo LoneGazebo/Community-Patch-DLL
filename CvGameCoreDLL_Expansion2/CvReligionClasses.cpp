@@ -6749,6 +6749,8 @@ void CvReligionAI::DoTurn()
 	AI_PERF_FORMAT("AI-perf.csv", ("Religion AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 #if defined(MOD_BALANCE_CORE)
+	//buy inquisitors in unprotected cities if an enemy prophet is near
+	DoReligionDefenseInCities();
 
 	//If we have leftover faith, let's look at city purchases.
 	if (!DoFaithPurchases())
@@ -7608,6 +7610,61 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 	}
 
 	return false;
+}
+
+bool CvReligionAI::DoReligionDefenseInCities()
+{
+	ReligionTypes eDesired = m_pPlayer->GetReligionAI()->GetReligionToSpread();
+	UnitTypes eInquisitor = m_pPlayer->GetSpecificUnitType("UNITCLASS_INQUISITOR");
+	bool bResult = false;
+
+	//Sort by faith production
+	int iLoop;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		//ignore cities which have the wrong religion to begin with
+		if (pLoopCity->GetCityReligions()->GetReligiousMajority() != eDesired)
+			continue;
+		
+		//do we have enough faith
+		int iCost = pLoopCity->GetFaithPurchaseCost(eInquisitor, true /*bIncludeBeliefDiscounts*/);
+		if (iCost > m_pPlayer->GetFaith())
+			continue;
+
+		//already have an inquisitor around
+		if (pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(eDesired))
+			continue;
+
+		for (int i=RING0_PLOTS; i<RING4_PLOTS; i++)
+		{
+			CvPlot* pPlot = iterateRingPlots(pLoopCity->plot(), i);
+			if (!pPlot)
+				continue;
+
+			for (int i = 0; i < pPlot->getNumUnits(); i++)
+			{
+				CvUnit* pUnit = pPlot->getUnitByIndex(i);
+				//if it's a foreign prophet with the wrong religion ...
+				if (pUnit->getTeam() != m_pPlayer->getTeam() && pUnit->AI_getUnitAIType() == UNITAI_PROPHET && pUnit->GetReligionData()->GetReligion() != eDesired)
+				{
+					if (pUnit->TurnsToReachTarget(pLoopCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 1)==0)
+					{
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Buying an emergency inquisitor in %s", pLoopCity->getName().c_str());
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+						pLoopCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
+						bResult = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return bResult;
 }
 #endif
 
