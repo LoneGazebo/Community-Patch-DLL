@@ -13517,7 +13517,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 	// Golden Age Points
 	int iGoldenAge = kGoodyInfo.getGoldenAge();
-	if(iGoldenAge > 0 && GetNumGoldenAges() > 0)
+	if (iGoldenAge > 0 && GetNumGoldenAges() <= 0)
 	{
 		// Game Speed Mod
 		iGoldenAge *= GC.getGame().getGameSpeedInfo().getCulturePercent();
