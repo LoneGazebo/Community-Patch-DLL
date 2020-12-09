@@ -471,7 +471,7 @@ public:
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 #if defined(MOD_BALANCE_CORE)
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip = false);
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate = false);
 #else
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 #endif

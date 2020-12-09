@@ -8823,7 +8823,7 @@ const SAssignmentSummary& CvTacticalPosition::updateSummary(const STacticalAssig
 	case A_MOVE_FORCED:
 	case A_MOVE_SWAP:
 	case A_MOVE_SWAP_REVERSE:
-		summary.unitPlots[newAssignment.iUnitID] = newAssignment.iToPlotIndex;
+		summary.setUnitPlot(newAssignment.iUnitID, newAssignment.iToPlotIndex);
 		break;
 
 	//ignore those, they don't change the plot
@@ -8840,13 +8840,13 @@ const SAssignmentSummary& CvTacticalPosition::updateSummary(const STacticalAssig
 	case A_RANGEKILL:
 	case A_MELEEKILL_NO_ADVANCE:
 		//note: the ordering between moves and attack is important for flanking bonuses. so we look at the damage here
-		summary.attackedPlots[newAssignment.iToPlotIndex].push_back(newAssignment.iDamage);
+		summary.addAttack(newAssignment.iToPlotIndex, newAssignment.iDamage);
 		break;
 
 	//attack with plot change
 	case A_MELEEKILL:
-		summary.attackedPlots[newAssignment.iToPlotIndex].push_back(newAssignment.iDamage);
-		summary.unitPlots[newAssignment.iUnitID] = newAssignment.iToPlotIndex;
+		summary.addAttack(newAssignment.iToPlotIndex, newAssignment.iDamage);
+		summary.setUnitPlot(newAssignment.iUnitID, newAssignment.iToPlotIndex);
 		break;
 	}
 
@@ -9124,16 +9124,16 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 
 struct PairCompareFirst
 {
-    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const
-    {
-        return l.first < r.first;
-    }
+    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const { return l.first < r.first; }
+    bool operator() (const std::pair<int,int>& l, const std::pair<int,int>& r) const { return l.first < r.first; }
 };
 
 struct EqualRangeComparison
 {
     bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
     bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
+    bool operator() ( const pair<int,int> a, int b ) const { return a.first < b; }
+    bool operator() ( int a, const pair<int,int> b ) const { return a < b.first; }
 };
 
 vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex)
@@ -10143,3 +10143,27 @@ const char* assignmentTypeNames[] =
 	"SWAP",
 	"SWAPREVERSE"
 };
+
+void SAssignmentSummary::addAttack(int iPlotIndex, int iDamage)
+{
+	typedef pair<vector<pair<int, int>>::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(attackedPlots.begin(), attackedPlots.end(), iPlotIndex, EqualRangeComparison());
+
+	//if we have it already
+	if (it2.first != attackedPlots.end() && it2.first != it2.second)
+		it2.first->second += iDamage;
+	else
+		attackedPlots.insert(upper_bound(attackedPlots.begin(), attackedPlots.end(), iPlotIndex, EqualRangeComparison()), make_pair(iPlotIndex, iDamage));
+}
+
+void SAssignmentSummary::setUnitPlot(int iUnitId, int iPlotIndex)
+{
+	typedef pair<vector<pair<int, int>>::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(unitPlots.begin(), unitPlots.end(), iUnitId, EqualRangeComparison());
+
+	//if we have it already
+	if (it2.first != unitPlots.end() && it2.first != it2.second)
+		it2.first->second = iPlotIndex;
+	else
+		unitPlots.insert(upper_bound(unitPlots.begin(), unitPlots.end(), iUnitId, EqualRangeComparison()), make_pair(iUnitId, iPlotIndex));
+}

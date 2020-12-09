@@ -6861,8 +6861,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	case TASK_REMOVE_SPECIALIST:
 	{
 		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, true);
-		std::map<SpecialistTypes, int> specialistValueCache;
-		GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+		GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 		break;
 	}
 	case TASK_CHANGE_WORKING_PLOT:
@@ -15312,7 +15311,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip)
+void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate)
 #else
 void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 #endif
@@ -15354,7 +15353,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 		}
 	}
 
-	if(!bSkip)
+	if(!bSkipUpdate)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
@@ -17673,8 +17672,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Add Citizens
 				for(int iNewPopLoop = 0; iNewPopLoop < iPopChange; iNewPopLoop++)
 				{
-					std::map<SpecialistTypes, int> specialistValueCache;
-					GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+					GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 				}
 			}
 		}
@@ -17755,7 +17753,8 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
  	if (iChange != 0) {
 		if (bReassignPop && iChange < 0) {
 			// If we are reducing automatons, remove the workers first
-			for (int iNewPopLoop = -iChange; iNewPopLoop--;) {
+			for (int iNewPopLoop = -iChange; iNewPopLoop--;)
+			{
 				GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue + getPopulation());
 			}
  			// Fixup the unassigned workers
@@ -17769,9 +17768,9 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
 			// Give new automatons something to do in the City
 			GetCityCitizens()->ChangeNumUnassignedCitizens(iChange);
  			// Need to Add Citizens
-			std::map<SpecialistTypes, int> specialistValueCache;
-			for (int iNewPopLoop = 0; iNewPopLoop < iChange; iNewPopLoop++) {
-				GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+			for (int iNewPopLoop = 0; iNewPopLoop < iChange; iNewPopLoop++)
+			{
+				GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 			}
 		}
  		setLayoutDirty(true);

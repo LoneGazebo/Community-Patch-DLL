@@ -611,14 +611,13 @@ struct STacticalAssignment
 
 struct SAssignmentSummary
 {
-	//todo: use sorted vectors instead of maps for performance?
-	//todo: do we care about the order of attacks?
-	map<int, vector<int>> attackedPlots; 
-	map<int, int> unitPlots; 
+	vector<pair<int,int>> attackedPlots; //plot and damage done 
+	vector<pair<int,int>> unitPlots; //unitid and plot
 
 	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
-
 	void clear() { attackedPlots.clear(); unitPlots.clear(); }
+	void addAttack(int iPlotIndex, int iDamage);
+	void setUnitPlot(int iUnitId, int iPlotIndex);
 };
 
 struct SUnitStats

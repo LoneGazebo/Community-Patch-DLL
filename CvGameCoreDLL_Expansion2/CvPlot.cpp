@@ -9224,8 +9224,7 @@ void CvPlot::updateOwningCity()
 			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
 			SetResourceLinkedCity(NULL);
 			// Re-add citizen somewhere else
-			std::map<SpecialistTypes, int> specialistValueCache;
-			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 		}
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)
