@@ -542,9 +542,9 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (nFoodPlots < 4)
+	if (nFoodPlots < 5)
 		return 0;
-	if (nHammerPlots < 3)
+	if (nHammerPlots < 4)
 		return 0;
 	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && nGoodPlots < 2)
 		return 0;
