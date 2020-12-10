@@ -2900,7 +2900,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	{
 		kCaptureDef.eReligion = GetReligionData()->GetReligion();
 		kCaptureDef.iReligiousStrength = GetReligionData()->GetReligiousStrength();
-		kCaptureDef.iSpreadsLeft = GetReligionData()->GetSpreadsLeft();
+		kCaptureDef.iSpreadsUsed = GetReligionData()->GetSpreadsUsed();
 	}
 
 	// Captured as is?
@@ -2969,7 +2969,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 	pkCapturedUnit->GetReligionData()->SetReligion(kCaptureDef.eReligion);
 	pkCapturedUnit->GetReligionData()->SetReligiousStrength(kCaptureDef.iReligiousStrength);
-	pkCapturedUnit->GetReligionData()->SetSpreadsLeft(kCaptureDef.iSpreadsLeft);
+	pkCapturedUnit->GetReligionData()->SetSpreadsUsed(kCaptureDef.iSpreadsUsed);
 
 	pkCapturedUnit->SetOriginalOwner(kCaptureDef.eOriginalOwner);
 
@@ -6184,7 +6184,7 @@ void CvUnit::gift(bool bTestTransport)
 
 		pGiftUnit->GetReligionData()->SetReligion(GetReligionData()->GetReligion());
 		pGiftUnit->GetReligionData()->SetReligiousStrength(GetReligionData()->GetReligiousStrength());
-		pGiftUnit->GetReligionData()->SetSpreadsLeft(GetReligionData()->GetSpreadsLeft());
+		pGiftUnit->GetReligionData()->SetSpreadsUsed(GetReligionData()->GetSpreadsUsed());
 
 		if(pGiftUnit->getOwner() == GC.getGame().getActivePlayer())
 		{
@@ -11060,12 +11060,9 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 	}
 
 	// If prophet has started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion())
+	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
-		if(GetReligionData()->GetSpreadsLeft() < m_pUnitInfo->GetReligionSpreads())
-		{
-			return false;
-		}
+		return false;
 	}
 
 	if(pCity == NULL)
@@ -11330,7 +11327,7 @@ bool CvUnit::DoSpreadReligion()
 				pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iConversionStrength, getOwner());
 			}
 
-			GetReligionData()->SetSpreadsLeft(GetReligionData()->GetSpreadsLeft() - 1);
+			GetReligionData()->IncrementSpreadsUsed();
 
 			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 			
@@ -11397,7 +11394,7 @@ bool CvUnit::DoSpreadReligion()
 				gDLL->GameplayUnitActivate(pDllUnit.get());
 			}
 
-			if(GetReligionData()->GetSpreadsLeft() <= 0)
+			if(GetReligionData()->GetSpreadsLeft(this) <= 0)
 			{
 				if(IsGreatPerson())
 				{
@@ -13063,12 +13060,9 @@ bool CvUnit::canGoldenAge(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion())
+	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
-		if(GetReligionData()->GetSpreadsLeft() < m_pUnitInfo->GetReligionSpreads())
-		{
-			return false;
-		}
+		return false;
 	}
 
 	// Things we test ONLY when we're going to try to perform this action RIGHT NOW
@@ -13223,12 +13217,9 @@ bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) con
 	}
 
 	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion())
+	if(m_pUnitInfo->IsSpreadReligion() && GetReligionData()->GetSpreadsUsed()>0)
 	{
-		if(GetReligionData()->GetSpreadsLeft() < m_pUnitInfo->GetReligionSpreads())
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return true;
@@ -13558,7 +13549,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	// If prophet has  started spreading religion, can't do other functions
 	if(m_pUnitInfo->IsSpreadReligion())
 	{
-		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsLeft() < m_pUnitInfo->GetReligionSpreads())
+		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed()>0)
 		{
 			return false;
 		}

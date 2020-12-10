@@ -6602,7 +6602,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 CvUnitReligion::CvUnitReligion(void):
 	m_eReligion(NO_RELIGION),
 	m_iStrength(0),
-	m_iSpreadsLeft(0)
+	m_iSpreadsUsed(0),
+	m_iMaxStrength(0)
 {
 }
 
@@ -6611,38 +6612,45 @@ void CvUnitReligion::Init()
 {
 	m_eReligion = NO_RELIGION;
 	m_iStrength = 0;
-	m_iSpreadsLeft = 0;
+	m_iSpreadsUsed = 0;
+	m_iMaxStrength = 0;
 }
 
-void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity * pOriginCity)
+int CvUnitReligion::GetMaxSpreads(const CvUnit* pUnit) const
+{
+	if (!pUnit)
+		return 0;
+
+	//missionary spreads can be buffed but not prophets
+	int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
+	if (!pUnit->getUnitInfo().IsFoundReligion())
+	{
+		CvCity* pOriginCity = pUnit->getOriginCity();
+		iReligionSpreads += pOriginCity ? pOriginCity->GetCityBuildings()->GetMissionaryExtraSpreads() : 0;
+		iReligionSpreads += GET_PLAYER(pUnit->getOwner()).GetNumMissionarySpreads();
+	}
+
+	return iReligionSpreads;
+}
+
+void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity * /*pOriginCity*/)
 {
 	if (eOwner == NO_PLAYER || eReligion <= RELIGION_PANTHEON)
 		return;
 
-	unsigned short iReligionSpreads = kUnitInfo.GetReligionSpreads();
-	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength();
-
 	//strength can be buffed
-	int iExtraStrength = iReligiousStrength * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
-	iReligiousStrength += iExtraStrength / 100;
-
-	//missionary spreads can be buffed but not prophets
-	if (!kUnitInfo.IsFoundReligion())
-	{
-		iReligionSpreads += pOriginCity ? pOriginCity->GetCityBuildings()->GetMissionaryExtraSpreads() : 0;
-		iReligionSpreads += GET_PLAYER(eOwner).GetNumMissionarySpreads();
-	}
+	int iExtraStrength = kUnitInfo.GetReligiousStrength() * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
+	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength() + unsigned short(iExtraStrength / 100);
 
 	m_eReligion = eReligion;
-	m_iSpreadsLeft = iReligionSpreads;
+	m_iSpreadsUsed = 0;
 	m_iStrength = iReligiousStrength;
-	m_iMaxSpreads = iReligionSpreads;
 	m_iMaxStrength = iReligiousStrength;
 }
 
 bool CvUnitReligion::IsFullStrength() const
 {
-	return m_iSpreadsLeft == m_iMaxSpreads && m_iStrength == m_iMaxStrength;
+	return m_iSpreadsUsed == 0 && m_iStrength == m_iMaxStrength;
 }
 
 /// Serialization read
@@ -6658,10 +6666,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnitReligion& writeTo)
 	writeTo.SetReligion((ReligionTypes)temp);
 	loadFrom >> writeTo.m_iStrength;
 	loadFrom >> writeTo.m_iMaxStrength;
-
-	loadFrom >> writeTo.m_iSpreadsLeft;
-	loadFrom >> writeTo.m_iMaxSpreads;
-
+	loadFrom >> writeTo.m_iSpreadsUsed;
 	return loadFrom;
 }
 
@@ -6676,10 +6681,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 	saveTo << readFrom.m_eReligion;
 	saveTo << readFrom.m_iStrength;
 	saveTo << readFrom.m_iMaxStrength;
-
-	saveTo << readFrom.m_iSpreadsLeft;
-	saveTo << readFrom.m_iMaxSpreads;
-
+	saveTo << readFrom.m_iSpreadsUsed;
 	return saveTo;
 }
 
@@ -7751,7 +7753,7 @@ bool CvReligionAI::DoFaithPurchases()
 	int iLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0)
+		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
 			if ( pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
 				iNumMissionaries++;
 	}

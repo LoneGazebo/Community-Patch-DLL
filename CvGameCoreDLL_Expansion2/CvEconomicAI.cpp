@@ -2424,22 +2424,20 @@ void CvEconomicAI::DoAntiquitySites()
 #endif
 	m_iVisibleAntiquitySites = iNumSites;
 }
+
 #if defined(MOD_BALANCE_CORE)
 void CvEconomicAI::DisbandMiscUnits()
 {
 	if (m_pPlayer->isMinorCiv())
 	{
-		CvUnit* pLoopUnit = NULL;
 		int iUnitLoop = 0;
-
-		// Look at map for loose workers
-		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
 			if (!pLoopUnit)
-			{
 				continue;
-			}
-			if (pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0)
+
+			//disband missionaries, however we got them
+			if (pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
 			{
 				pLoopUnit->scrap();
 				LogScrapUnit(pLoopUnit, 0, 0, -1, 0);
@@ -2447,6 +2445,7 @@ void CvEconomicAI::DisbandMiscUnits()
 		}
 	}
 }
+
 void CvEconomicAI::DisbandUselessSettlers()
 {
 	//If we want settlers, don't disband.

@@ -5845,8 +5845,8 @@ int CvLuaUnit::lGetConversionStrength(lua_State* L)
 int CvLuaUnit::lGetSpreadsLeft(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	int iReligiousStrength = pkUnit->GetReligionData()->GetSpreadsLeft();
-	lua_pushinteger(L, iReligiousStrength);
+	int iResult = pkUnit->GetReligionData()->GetSpreadsLeft(pkUnit);
+	lua_pushinteger(L, iResult);
 
 	return 1;
 }
@@ -5905,9 +5905,12 @@ int CvLuaUnit::lSetConversionStrength(lua_State* L)
 int CvLuaUnit::lSetSpreadsLeft(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const int iSpreads = lua_tointeger(L, 2);
+	const int iSpreadsLeft = lua_tointeger(L, 2);
 
-	pkUnit->GetReligionData()->SetSpreadsLeft(iSpreads);
+	//need to do some gymnastics here
+	int iSpreadsUsed = pkUnit->GetReligionData()->GetMaxSpreads(pkUnit) - iSpreadsLeft;
+
+	pkUnit->GetReligionData()->SetSpreadsUsed(iSpreadsUsed);
 	return 0;
 }
 #endif

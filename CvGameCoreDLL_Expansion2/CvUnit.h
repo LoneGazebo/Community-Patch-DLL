@@ -57,7 +57,7 @@ struct CvUnitCaptureDefinition
 #endif
 	ReligionTypes eReligion;
 	int iReligiousStrength;
-	int iSpreadsLeft;
+	int iSpreadsUsed;
 
 	CvUnitCaptureDefinition()
 		: eOriginalOwner(NO_PLAYER)
@@ -75,7 +75,7 @@ struct CvUnitCaptureDefinition
 #endif
 		, eReligion(NO_RELIGION)
 		, iReligiousStrength(0)
-		, iSpreadsLeft(0) { }
+		, iSpreadsUsed(0) { }
 
 	inline bool IsValid() const
 	{
