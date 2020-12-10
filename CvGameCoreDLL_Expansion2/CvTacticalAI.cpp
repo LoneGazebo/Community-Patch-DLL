@@ -2674,7 +2674,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_MEDIUM, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_MEDIUM, gTactPosStorage, iCount==0);
 		if (vAssignments.empty())
 			break;
 
@@ -3532,7 +3532,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, gTactPosStorage, iCount==0);
 		if (vAssignments.empty())
 			break;
 		
@@ -5955,7 +5955,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		}
 
 		//no loop needed, there is only one unit anyway
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage, true);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
@@ -9670,7 +9670,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 //try to find a combination of unit actions (move, attack etc) which does maximal damage to the enemy while exposing us to limited risk
 vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
-	const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage)
+	const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, bool bFirstRun)
 {
 	/*
 	abstract:
@@ -9814,7 +9814,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 				CvTacticalPosition* newPos = *it;
 				if (newPos->isComplete())
 				{
-					if (newPos->hasOffensiveAssignments() && newPos->addFinishMovesIfAcceptable())
+					//if this is a followup, don't enforce attacks
+					if ( (!bFirstRun || newPos->hasOffensiveAssignments()) && newPos->addFinishMovesIfAcceptable())
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -9833,7 +9834,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		else
 		{
 			//apparently we're blocked from making further assignments, but maybe this position is still useful
-			if (current->hasOffensiveAssignments() && current->addFinishMovesIfAcceptable())
+			if ( (!bFirstRun || current->hasOffensiveAssignments()) && current->addFinishMovesIfAcceptable())
 			{
 				blockedPositions.push_back(current);
 				iTopScore = max(iTopScore, current->getScore());

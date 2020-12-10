@@ -2570,15 +2570,15 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	if (!pBestPlot && pUnit->movesLeft() > 0)
 	{
 		//check at least 5 candidates
-		pBestPlot = GetBestExploreTarget(pUnit, 5, 8);
+		pBestPlot = GetBestExploreTarget(pUnit, 5, 5);
 
-			//if nothing found, retry with larger distance - but this is slow
-			if (!pBestPlot)
-				pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
+		//if nothing found, retry with larger distance - but this is slow
+		if (!pBestPlot)
+			pBestPlot = GetBestExploreTarget(pUnit, 5, 12);
 
-			//if still nothing found, retry with even larger distance - but this is sloooooow
-			if (!pBestPlot)
-				pBestPlot = GetBestExploreTarget(pUnit, 5, 42);
+		//if still nothing found, retry with even larger distance - but this is sloooooow
+		if (!pBestPlot)
+			pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
 
 		//verify that we don't move into danger ...
 		if (pBestPlot)
