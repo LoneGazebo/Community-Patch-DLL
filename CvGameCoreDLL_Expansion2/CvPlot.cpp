@@ -2072,7 +2072,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 #if defined(MOD_BALANCE_CORE)
 				//hack: don't do this during map generation
 				if (bRecalculate && GC.getGame().getGameTurn()>0)
-					GC.getMap().ClearPlotsAtRange(pLoopPlot);
+					GC.getMap().LineOfSightChanged(pLoopPlot);
 #endif
 			}
 		}

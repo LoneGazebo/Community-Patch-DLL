@@ -17727,7 +17727,9 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 	CvPlayer* pkPlayer = GetPlayer();
 	if(pkPlayer)
 	{
-		CvCity* pkCity = pkPlayer->getCapitalCity();
+		//don't use the capital, this is faster and mostly equivalent for a minor
+		int dummy;
+		const CvCity* pkCity = pkPlayer->firstCity(&dummy);
 		if(pkCity)
 		{
 			ReligionTypes eMinorReligion = pkCity->GetCityReligions()->GetReligiousMajority();

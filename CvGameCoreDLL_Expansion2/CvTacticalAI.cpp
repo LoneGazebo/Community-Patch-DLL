@@ -6323,7 +6323,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
 
-	std::vector<CvPlot*> vCandidates = GC.getMap().GetPlotsAtRange(pTarget, iRange, false, !bIgnoreLOS);
+	const vector<CvPlot*>& vCandidates = GC.getMap().GetPlotsAtRangeX(pTarget, iRange, false, !bIgnoreLOS);
 
 	//filter and take only the half closer to origin
 	CvPlot* pRefPlot = pUnit->plot();
@@ -6511,8 +6511,8 @@ bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemy
 			{
 				//need to move and shoot
 				bool bIgnoreLOS = pOurUnit->IsRangeAttackIgnoreLOS();
-				std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pEnemyUnit->plot(), pOurUnit->GetRange(), false, !bIgnoreLOS);
-				for (std::vector<CvPlot*>::iterator it = vAttackPlots.begin(); it != vAttackPlots.end(); ++it)
+				const vector<CvPlot*>& vAttackPlots = GC.getMap().GetPlotsAtRangeX(pEnemyUnit->plot(), pOurUnit->GetRange(), false, !bIgnoreLOS);
+				for (std::vector<CvPlot*>::const_iterator it = vAttackPlots.begin(); it != vAttackPlots.end(); ++it)
 				{
 					if (pOurUnit->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pOurUnit->canEverRangeStrikeAt(pEnemyUnit->getX(), pEnemyUnit->getY(), *it, false))
 					{
@@ -6692,9 +6692,9 @@ int TacticalAIHelpers::CountAdditionallyVisiblePlots(CvUnit * pUnit, CvPlot * pT
 	int iCount = 0;
 	for (int iRange = 2; iRange <= pUnit->visibilityRange(); iRange++)
 	{
-		const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, true);
+		const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRangeX(pTestPlot, iRange, true, true);
 		for (size_t i = 0; i < vPlots.size(); i++)
-			if (!vPlots[i]->isVisible(pUnit->getTeam())) //we already know that would have line of sight
+			if (vPlots[i] && !vPlots[i]->isVisible(pUnit->getTeam())) //we already know that would have line of sight
 				iCount++;
 	}
 	
@@ -7048,13 +7048,21 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 	int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
 	for (int iRange = testPlot.getEnemyDistance(eRelevantDomain); iRange <= iMaxRange; iRange++)
 	{
-		std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(testPlot.getPlot(), iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
+		const vector<CvPlot*>& vAttackPlots = GC.getMap().GetPlotsAtRangeX(testPlot.getPlot(), iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
 		for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
 		{
 			CvPlot* pLoopPlot = vAttackPlots[iCount];
 			if (!pLoopPlot)
 				continue;
 
+			//performance optimization. before looking up the tactical plot, check if there is an enemy here
+			if (pLoopPlot->getNumUnits() == 0 && !pLoopPlot->isCity())
+				continue;
+			//if there was one of our units there initially, it cannot be an enemy (not a 100% check but good enough)
+			else if (pLoopPlot->getNumUnits() > 0 && pLoopPlot->headUnitNode()->eOwner == assumedPosition.getPlayer())
+				continue;
+
+			//now look up the plot and see if the enemy is still there
 			const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
 			if (enemyPlot.isValid() && enemyPlot.isEnemy())
 			{

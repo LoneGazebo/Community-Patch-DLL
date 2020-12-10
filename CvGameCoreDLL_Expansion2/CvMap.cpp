@@ -750,7 +750,12 @@ void CvMap::updateYield()
 //	Update the adjacency cache values
 void CvMap::updateAdjacency()
 {
-	GC.getMap().ClearPlotsAtRange(NULL);
+	m_vPlotsWithLineOfSightFromPlot2.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsWithLineOfSightFromPlot3.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsWithLineOfSightToPlot2.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsWithLineOfSightToPlot3.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsAtRange2.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsAtRange3.resize(numPlots(), vector<CvPlot*>());
 }
 
 //	--------------------------------------------------------------------------------
@@ -2362,126 +2367,134 @@ void CvMap::DoKillCountDecay(float fDecayFactor)
 }
 #endif
 
-void CvMap::ClearPlotsAtRange(const CvPlot* pPlot)
+void CvMap::LineOfSightChanged(const CvPlot* pPlot)
 {
-	if (pPlot == NULL)
+	if (pPlot)
 	{
-		m_vPlotsWithLineOfSightFromPlot2.clear();
-		m_vPlotsWithLineOfSightFromPlot3.clear();
-		m_vPlotsWithLineOfSightToPlot2.clear();
-		m_vPlotsWithLineOfSightToPlot3.clear();
-	}
-	else
-	{
-		m_vPlotsWithLineOfSightFromPlot2.erase(pPlot->GetPlotIndex());
-		m_vPlotsWithLineOfSightFromPlot3.erase(pPlot->GetPlotIndex());
-		m_vPlotsWithLineOfSightToPlot2.erase(pPlot->GetPlotIndex());
-		m_vPlotsWithLineOfSightToPlot3.erase(pPlot->GetPlotIndex());
+		m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].clear();
+		m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].clear();
+		m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].clear();
+		m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].clear();
 	}
 }
 
-std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLOS)
+//may contain null pointers!
+const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS)
 {
+	m_vPlotsShared.clear();
+
 	if (!pPlot)
-		return vector<CvPlot*>();
+		return m_vPlotsShared;
 
 	//for now, we can only do up to range 5
 	if (iRange<1 || iRange>5)
 		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 
-	iRange = max(1, iRange);
-	iRange = min(5, iRange);
+	iRange = range(iRange, 1, 5);
 
-	if (bWithLOS)
+	//if the range is one LoS doesn't make a difference
+	if (iRange == 1)
+	{
+		//just take all direct neighbors
+		CvPlot** aDirectNeighbors = getNeighborsUnchecked(pPlot);
+		m_vPlotsShared.assign(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
+		return m_vPlotsShared;
+	}
+
+	if (bWithLoS)
 	{
 		switch (iRange)
 		{
-		case 1:
-			{
-				//just take all direct neighbors
-				CvPlot** aDirectNeighbors = getNeighborsUnchecked(pPlot);
-				return vector<CvPlot*>(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
-			}
 		case 2:
 			if (bFromPlot)
 			{
-				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightFromPlot2.find(pPlot->GetPlotIndex());
-				if (it != m_vPlotsWithLineOfSightFromPlot2.end())
-					return it->second;
-
-				//not found? update cache
-				m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()] = vector<CvPlot*>();
-				for (int i = RING1_PLOTS; i<RING2_PLOTS; i++)
+				if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].empty())
 				{
-					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-					if (!pLoopPlot)
-						continue;
+					//not found? update cache
+					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+						if (!pLoopPlot)
+							continue;
 
-					if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
+							m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+					}
+
+					//put a sentinel value in case there is nothing to look at
+					if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].empty())
+						m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(NULL);
 				}
+				return m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
 			}
 			else
 			{
-				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightToPlot2.find(pPlot->GetPlotIndex());
-				if (it != m_vPlotsWithLineOfSightToPlot2.end())
-					return it->second;
-
-				//not found? update cache
-				m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()] = vector<CvPlot*>();
-				for (int i = RING1_PLOTS; i<RING2_PLOTS; i++)
+				if (m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].empty())
 				{
-					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-					if (!pLoopPlot)
-						continue;
+					//not found? update cache
+					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+						if (!pLoopPlot)
+							continue;
 
-					if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
+							m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+					}
+
+					//put a sentinel value in case there is nothing to look at
+					if (m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].empty())
+						m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(NULL);
 				}
+				return m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()];
 			}
 		case 3:
 			if (bFromPlot)
 			{
-				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightFromPlot3.find(pPlot->GetPlotIndex());
-				if (it != m_vPlotsWithLineOfSightFromPlot3.end())
-					return it->second;
-
-				//not found? update cache
-				m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()] = vector<CvPlot*>();
-				for (int i = RING2_PLOTS; i<RING3_PLOTS; i++)
+				if (m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].empty())
 				{
-					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-					if (!pLoopPlot)
-						continue;
+					//not found? update cache
+					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+						if (!pLoopPlot)
+							continue;
 
-					if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
+							m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+					}
+
+					//put a sentinel value in case there is nothing to look at
+					if (m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].empty())
+						m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(NULL);
 				}
+				return m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()];
 			}
 			else
 			{
-				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightToPlot3.find(pPlot->GetPlotIndex());
-				if (it != m_vPlotsWithLineOfSightToPlot3.end())
-					return it->second;
-
-				//not found? update cache
-				m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()] = vector<CvPlot*>();
-				for (int i = RING2_PLOTS; i<RING3_PLOTS; i++)
+				if (m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].empty())
 				{
-					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-					if (!pLoopPlot)
-						continue;
+					//not found? update cache
+					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+						if (!pLoopPlot)
+							continue;
 
-					if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
+							m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+					}
+
+					//put a sentinel value in case there is nothing to look at
+					if (m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].empty())
+						m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(NULL);
 				}
+				return m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()];
 			}
 		case 4:
 		case 5:
 		{
 			//no caching here
-			vector<CvPlot*> vResult;
-			vResult.reserve( RING_PLOTS[iRange] - RING_PLOTS[iRange-1]);
 			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
 			{
 				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
@@ -2491,15 +2504,15 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 				if (bFromPlot)
 				{
 					if (pPlot->canSeePlot(pCandidate, NO_TEAM, 2, NO_DIRECTION))
-						vResult.push_back(pCandidate);
+						m_vPlotsShared.push_back(pCandidate);
 				}
 				else
 				{
 					if (pCandidate->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
-						vResult.push_back(pCandidate);
+						m_vPlotsShared.push_back(pCandidate);
 				}
 			}
-			return vResult;
+			return m_vPlotsShared;
 		}
 
 		}
@@ -2508,31 +2521,51 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 	{
 		switch (iRange)
 		{
-		case 1:
-		{
-			//just take all direct neighbors
-			CvPlot** aDirectNeighbors = getNeighborsUnchecked(pPlot);
-			return vector<CvPlot*>(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
-		}
 		case 2:
+		{
+			if (m_vPlotsAtRange2[pPlot->GetPlotIndex()].empty())
+			{
+				//not found? update cache
+				for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (pLoopPlot)
+						m_vPlotsAtRange2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+
+			return m_vPlotsAtRange2[pPlot->GetPlotIndex()];
+		}
 		case 3:
+		{
+			if (m_vPlotsAtRange3[pPlot->GetPlotIndex()].empty())
+			{
+				//not found? update cache
+				for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (pLoopPlot)
+						m_vPlotsAtRange3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+
+			return m_vPlotsAtRange3[pPlot->GetPlotIndex()];
+		}
 		case 4:
 		case 5:
 		{
-			vector<CvPlot*> vResult;
-			vResult.reserve( RING_PLOTS[iRange] - RING_PLOTS[iRange-1]);
 			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
 			{
 				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
 				if (pCandidate)
-					vResult.push_back(pCandidate);
+					m_vPlotsShared.push_back(pCandidate);
 			}
-			return vResult;
+			return m_vPlotsShared;
 		}
 		}
 	}
 
-	return vector<CvPlot*>();
+	return m_vPlotsShared;
 }
 
 int CvMap::GetPopupCount(int iPlotIndex)
