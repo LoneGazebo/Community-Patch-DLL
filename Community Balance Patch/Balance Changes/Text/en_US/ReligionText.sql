@@ -98,7 +98,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS_SHORT' AND EXISTS (SELECT * FR
 
 -- God of Festivals
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_PEACE] Faith for every unique Luxury Resource owned or imported, and +1 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
+SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_PEACE] Faith for every unique Luxury Resource owned or imported, and +1 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital/Holy City'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition (Now Goddess of Springtime)
@@ -140,7 +140,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Monument to the Gods (Now Goddess of Beauty)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Palace and World Wonders, +1 [ICON_PEACE] Faith from [ICON_GREAT_WORK] Great Works. +2 [ICON_GREAT_ARTIST] Great Artist and [ICON_GREAT_ENGINEER] Great Engineer Points in your [ICON_CAPITAL] Capital'
+SET Text = '+2 [ICON_PEACE] Faith from Palace and World Wonders, +1 [ICON_PEACE] Faith from [ICON_GREAT_WORK] Great Works. +2 [ICON_GREAT_ARTIST] Great Artist and [ICON_GREAT_ENGINEER] Great Engineer Points in your [ICON_CAPITAL] Capital/Holy City'
 WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -158,7 +158,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 --  Tears of the Gods (Now God of All Creation)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Monuments and +1 [ICON_CULTURE] in [ICON_CAPITAL] Capital. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every two Pantheons ever founded (caps at 8 Pantheons total)'
+SET Text = '+1 [ICON_PEACE] Faith from Monuments and +1 [ICON_CULTURE] in [ICON_CAPITAL] Capital/Holy City. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital/Holy City for every two Pantheons ever founded (caps at 8 Pantheons total)'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -172,7 +172,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- God-King
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital. +1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every 5 Followers of your Pantheon in owned Cities'
+SET Text = '+1 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital/Holy City. +1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital/Holy City for every 5 Followers of your Pantheon in owned Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sun God
