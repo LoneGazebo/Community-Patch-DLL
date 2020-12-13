@@ -15166,16 +15166,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-							iBadAdjacent++;
-						}
+					iBadAdjacent++;
+			}
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-							iBadAdjacent++;
-						}
-					}
-				}
+					iBadAdjacent++;
+			}
+		}
+	}
 
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
 	if(iAdjacentUnowned + iAdjacentOwnedOther > 2 || iBadAdjacent > 0)
@@ -15197,22 +15197,22 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-								iBadNearby++;
-							}
+							iBadNearby++;
+					}
 					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-								iBadNearby++;
-							}
-						}
+							iBadNearby++;
+					}
+				}
 
 					//Let's check for owned nearby forts as well
 				if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
 					if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
-							iNearbyForts++;
-						}
-					}
+						iNearbyForts++;
+			}
+		}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
 		if (iBadNearby == 0 || iNearbyForts > 2)

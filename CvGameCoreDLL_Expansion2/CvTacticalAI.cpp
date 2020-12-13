@@ -473,9 +473,18 @@ void CvTacticalAI::FindTacticalTargets()
 				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
 					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
 				{
-					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
+					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 100 : 50;
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-					newTarget.SetAuxIntData(iBaseScore);
+					newTarget.SetAuxIntData(iBaseScore - m_pPlayer->GetCityDistancePathLength(pLoopPlot));
+					m_AllTargets.push_back(newTarget);
+				}
+
+				// ... unpopped goody hut? (ancient ruins)
+				if(!m_pPlayer->isMinorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
+				{
+					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 100 : 50;
+					newTarget.SetTargetType(AI_TACTICAL_TARGET_GOODY);
+					newTarget.SetAuxIntData(iBaseScore - m_pPlayer->GetCityDistancePathLength(pLoopPlot));
 					m_AllTargets.push_back(newTarget);
 				}
 
@@ -767,7 +776,7 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	PlotAirPatrolMoves();
 
 	//score some goodies
-	PlotCaptureBarbCamp();
+	PlotGrabGoodyMoves();
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -945,7 +954,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 }
 
 /// Assign a unit to capture an undefended barbarian camp
-void CvTacticalAI::PlotCaptureBarbCamp()
+void CvTacticalAI::PlotGrabGoodyMoves()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GOODY);
 
@@ -953,6 +962,28 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 	//note the barbarians are excluded from that check
 	int iRange = m_pPlayer->IsAtWarAnyMajor() ? 4 : 11;
 
+	//ruins first
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
+	{
+		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+		CvUnit* pUnit =	FindUnitForThisMove(AI_TACTICAL_GOODY,pPlot,iRange);
+		if (pUnit)
+		{
+			ExecuteMoveToPlot(pUnit, pPlot, false);
+
+			if (!pUnit->canMove())
+				UnitProcessed(pUnit->GetID());
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Moving %s %d to grab a goody, X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTarget->GetTargetX(), pTarget->GetTargetY());
+				LogTacticalMessage(strLogString);
+			}
+		}
+	}
+
+	//then barb camps, occupied or not
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());

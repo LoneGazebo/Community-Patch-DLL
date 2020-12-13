@@ -338,7 +338,6 @@ void CvHomelandAI::FindHomelandTargets()
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
 	m_TargetedNavalResources.clear();
-	m_TargetedAncientRuins.clear();
 	m_TargetedAntiquitySites.clear();
 	m_TargetedNavalSentryPoints.clear();
 
@@ -402,14 +401,6 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
-			// ... unpopped goody hut?
-			if(!m_pPlayer->isMinorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
-			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-				newTarget.SetTargetX(pLoopPlot->getX());
-				newTarget.SetTargetY(pLoopPlot->getY());
-				m_TargetedAncientRuins.push_back(newTarget);
-			}
 			// ... antiquity site?
 			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
 			{
@@ -423,15 +414,15 @@ void CvHomelandAI::FindHomelandTargets()
 					m_TargetedAntiquitySites.push_back(newTarget);
 				}
 			}
-			// ... possible sentry point?
-			if( !pLoopPlot->isWater() && 
+			// ... a border fortification?
+			if (!pLoopPlot->isWater() &&
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && 
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
 				pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 			{
 				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
 				{
-					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(),false,false);
+					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
 
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_FORT);
 					newTarget.SetTargetX(pLoopPlot->getX());
@@ -439,30 +430,20 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetAuxIntData(iWeight);
 					m_TargetedSentryPoints.push_back(newTarget);
 				}
-				else
+			}
+			// ... possible sentry point? just inside or outside our borders
+			if (!pLoopPlot->isWater() &&
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
+			{
+				if ((pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isAdjacentTeam(m_pPlayer->getTeam(), true)) ||
+					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true)))
 				{
-					//todo: shouldn't we be looking at visibility here?
-					int iWeight = pLoopPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-					if(iWeight > 0)
-					{
-						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							iWeight += 10;
-						if(pLoopPlot->isHills())
-							iWeight += 25;
-
-						if(pLoopPlot->getNumUnits() > 0)
-						{
-							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-							if(pUnit && pUnit->IsCivilianUnit())
-								iWeight += 100;
-							}
-
-						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
-						newTarget.SetTargetX(pLoopPlot->getX());
-						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxIntData(iWeight);
-						m_TargetedSentryPoints.push_back(newTarget);
-					}
+					int iScore = GC.getMap().GetPlotsAtRangeX(pLoopPlot, 2, true, true).size() * 54 + pLoopPlot->defenseModifier(eTeam, false, false);
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxIntData(iScore);
+					m_TargetedSentryPoints.push_back(newTarget);
 				}
 			}
 			// ... possible naval sentry point?
@@ -535,7 +516,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	//civilian and military
 	PlotHealMoves();
 	PlotMovesToSafety();
-	PlotAncientRuinMoves();
 
 	//military again
 	PlotAircraftRebase();
@@ -1556,38 +1536,6 @@ void CvHomelandAI::PlotUpgradeMoves()
 	}
 
 	return;
-}
-
-/// Pop goody huts nearby
-void CvHomelandAI::PlotAncientRuinMoves()
-{
-	FindUnitsForThisMove(AI_HOMELAND_MOVE_ANCIENT_RUINS);
-
-	// Do we have any targets of this type?
-	if(!m_TargetedAncientRuins.empty())
-	{
-		// See how many moves of this type we can execute
-		for(unsigned int iI = 0; iI < m_TargetedAncientRuins.size(); iI++)
-		{
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedAncientRuins[iI].GetTargetX(), m_TargetedAncientRuins[iI].GetTargetY());
-			CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
-			if(pIndy)
-			{
-				ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
-				if (pIndy->canMove())
-					pIndy->PushMission(CvTypes::getMISSION_SKIP());
-
-				UnitProcessed(pIndy->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Moving %s %d to goody hut (non-explorer), X: %d, Y: %d", pIndy->getName().c_str(), pIndy->GetID(), m_TargetedAncientRuins[iI].GetTargetX(), m_TargetedAncientRuins[iI].GetTargetY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
-	}
 }
 
 /// Find moves for great writers
@@ -4976,12 +4924,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					bSuitableUnit = true;
 				}
 				break;
-			case AI_HOMELAND_MOVE_ANCIENT_RUINS:
-				// Fast movers are top priority
-				if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					bSuitableUnit = true;
-					break;
-				}
+			}
 
 			// If unit was suitable, add it to the proper list
 			if(bSuitableUnit)
@@ -5617,7 +5560,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_WORKER_SEA",
 	"H_MOVE_PATROL",
 	"H_MOVE_UPGRADE",
-	"H_MOVE_ANCIENT_RUINS",
 	"H_MOVE_WRITER",
 	"H_MOVE_ARTIST_GOLDEN_AGE",
 	"H_MOVE_MUSICIAN",

@@ -963,6 +963,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		if (iMyStrength > 0) then
 			
 			-- Start with logic of combat estimation
+			local iTheirStrength = 0;
 			local iMyDamageInflicted = 0;
 			local iTheirDamageInflicted = 0;
 			local iTheirFireSupportCombatDamage = 0;
@@ -974,7 +975,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				if (pTheirUnit:IsEmbarked()) then
 					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
-				else (pTheirUnit:GetRange() > 0)
+				elseif (pTheirUnit:GetRange() > 0) then
 					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
 				else
 					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
