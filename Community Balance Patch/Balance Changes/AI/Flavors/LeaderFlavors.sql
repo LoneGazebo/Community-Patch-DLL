@@ -264,6 +264,7 @@ UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_RELIGION'				 
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_RELIGION'				     AND LeaderType = 'LEADER_ISABELLA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_EXPANSION'				     AND LeaderType = 'LEADER_ISABELLA';
+UPDATE Leader_Flavors SET Flavor =   7 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT'				     AND LeaderType = 'LEADER_ISABELLA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_EXPANSION'					     AND LeaderType = 'LEADER_KAMEHAMEHA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CULTURE'					     AND LeaderType = 'LEADER_KAMEHAMEHA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GOLD'					     AND LeaderType = 'LEADER_MARIA_I';
