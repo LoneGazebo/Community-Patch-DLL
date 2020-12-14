@@ -8465,6 +8465,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 	while (!notQuiteFinishedUnits.empty())
 	{
 		SUnitStats unit = notQuiteFinishedUnits.back();
+		notQuiteFinishedUnits.pop_back();
+
 		const STacticalAssignment* pInitial = getInitialAssignment(unit.iUnitID);
 		if (!pInitial)
 			continue;
@@ -8489,8 +8491,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
 			iTotalScore += (iNextTurnScore - pInitial->iScore);
 		}
-
-		notQuiteFinishedUnits.pop_back();
 	}
 
 	//also check units we didn't move but which might be important to block the enemy
@@ -8981,12 +8981,12 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		return false;
 
 	//tactical plots are only touched for "real" moves. blocked units may be on invalid plots.
-	if (newAssignment.eAssignmentType != A_BLOCKED)
+	//a unit may also start out on an invalid plot (eg. too far away)
+	if (newAssignment.eAssignmentType != A_BLOCKED && itUnit->eLastAssignment != A_INITIAL)
 	{
 		if (!getTactPlotMutable(newAssignment.iToPlotIndex).isValid())
 			return false;
-		//a unit may start out on an invalid plot (eg. too far away)
-		if (!getTactPlotMutable(newAssignment.iFromPlotIndex).isValid() && itUnit->eLastAssignment!=A_INITIAL)
+		if (!getTactPlotMutable(newAssignment.iFromPlotIndex).isValid())
 			return false;
 	}
 

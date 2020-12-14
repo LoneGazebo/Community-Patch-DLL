@@ -351,6 +351,14 @@ void CvMap::InitPlots()
 	PrecalcNeighbors();
 
 	m_vVisibilityScratchpad = vector<int>(iNumPlots, 0);
+
+	OutputDebugString("realloc map\n");
+	m_vPlotsAtRange2.clear();
+	m_vPlotsAtRange3.clear();
+	m_vPlotsWithLineOfSightFromPlot2.clear();
+	m_vPlotsWithLineOfSightFromPlot3.clear();
+	m_vPlotsWithLineOfSightToPlot2.clear();
+	m_vPlotsWithLineOfSightToPlot3.clear();
 #endif
 }
 
@@ -382,7 +390,7 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 
 	int iW = getGridWidth();
 	int iH = getGridHeight();
-#if defined(MOD_BALANCE_CORE)
+
 	for(int iY = 0; iY < iH; iY++)
 	{
 		for(int iX = 0; iX < iW; iX++)
@@ -428,16 +436,6 @@ void CvMap::PrecalcNeighbors()
 		}
 	}
 }
-#else
-	for(iX = 0; iX < iW; iX++)
-	{
-		for(iY = 0; iY < iH; iY++)
-		{
-			plotUnchecked(iX, iY)->init(iX, iY);
-		}
-	}
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
@@ -2424,6 +2422,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					//put a sentinel value in case there is nothing to look at
 					if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].empty())
 						m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(NULL);
+
+					if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].front()!=NULL && m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].front()->getX()==0)
+						OutputDebugString(CvString::format("invalid cache for %d\n",pPlot->GetPlotIndex()).c_str());
 				}
 				return m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
 			}
