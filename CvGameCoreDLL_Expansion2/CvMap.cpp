@@ -2406,7 +2406,8 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 		case 2:
 			if (bFromPlot)
 			{
-				if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].empty())
+				vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
+				if (current.empty())
 				{
 					//not found? update cache
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
@@ -2416,21 +2417,22 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 							continue;
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
-							m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+							current.push_back(pLoopPlot);
 					}
 
 					//put a sentinel value in case there is nothing to look at
-					if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].empty())
-						m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(NULL);
+					if (current.empty())
+						current.push_back(NULL);
 
-					if (m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].front()!=NULL && m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].front()->getX()==0)
+					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6)
 						OutputDebugString(CvString::format("invalid cache for %d\n",pPlot->GetPlotIndex()).c_str());
 				}
-				return m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
+				return current;
 			}
 			else
 			{
-				if (m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].empty())
+				vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()];
+				if (current.empty())
 				{
 					//not found? update cache
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
@@ -2440,19 +2442,23 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 							continue;
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
-							m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+							current.push_back(pLoopPlot);
 					}
 
 					//put a sentinel value in case there is nothing to look at
-					if (m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].empty())
-						m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(NULL);
+					if (current.empty())
+						current.push_back(NULL);
+
+					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6)
+						OutputDebugString(CvString::format("invalid cache for %d\n",pPlot->GetPlotIndex()).c_str());
 				}
-				return m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()];
+				return current;
 			}
 		case 3:
 			if (bFromPlot)
 			{
-				if (m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].empty())
+				vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()];
+				if (current.empty())
 				{
 					//not found? update cache
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
@@ -2462,18 +2468,19 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 							continue;
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
-							m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+							current.push_back(pLoopPlot);
 					}
 
 					//put a sentinel value in case there is nothing to look at
-					if (m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].empty())
-						m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(NULL);
+					if (current.empty())
+						current.push_back(NULL);
 				}
-				return m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()];
+				return current;
 			}
 			else
 			{
-				if (m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].empty())
+				vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()];
+				if (current.empty())
 				{
 					//not found? update cache
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
@@ -2483,14 +2490,14 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 							continue;
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
-							m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+							current.push_back(pLoopPlot);
 					}
 
 					//put a sentinel value in case there is nothing to look at
-					if (m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].empty())
-						m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(NULL);
+					if (current.empty())
+						current.push_back(NULL);
 				}
-				return m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()];
+				return current;
 			}
 		case 4:
 		case 5:
