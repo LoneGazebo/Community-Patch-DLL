@@ -10,6 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - shell: bash
-        run: autoinstaller.sh
+        run: ./autoinstaller.sh
       - shell: cmd
         run: iscc
