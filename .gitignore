@@ -32,7 +32,7 @@
 !*.dds
 !*.gr2
 !*.mp3
-!.github
+!.github/workflows/*
 
 BuildOutput/
 BuildTemp/
