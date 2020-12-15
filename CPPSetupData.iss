@@ -47,25 +47,26 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 FinishedLabel=Setup has finished installing [name] on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, and click 'Next.' Have fun!
 
 [Files]
-Source: "..\Documents\Community Patch Project Installer Files\(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "..\Documents\Community Patch Project Installer Files\(2) Community Balance Overhaul\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(3) CSD for CBP\*"; DestDir: "{app}\(3) CSD for CBP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6a) Community Balance Overhaul - Compatibility Files (EUI)\*"; DestDir: "{app}\(6a) Community Balance Overhaul - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)\*"; DestDir: "{app}\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
-Source: "..\Documents\Community Patch Project Installer Files\CP LUA\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core
-Source: "..\Documents\Community Patch Project Installer Files\CBO LUA\LUA\*"; DestDir: "{app}\(2) Community Balance Overhaul\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic
-Source: "..\Documents\Community Patch Project Installer Files\UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\*"; DestDir: "{app}\(6c) 43 Civs CP\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
-Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
-Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: ".\Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: ".\Community Balance Patch\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: ".\(3) CSD for CBP\*"; DestDir: "{app}\(3) CSD for CBP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: ".\(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: ".\(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: ".\EUI Compatibility Files\EUI Compatibility Files\*"; DestDir: "{app}\(6a) Community Balance Overhaul - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
+Source: ".\NoEUI Compatibility Files\*"; DestDir: "{app}\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
+Source: ".\CP LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core
+Source: ".\CBO LUA\*"; DestDir: "{app}\(2) Community Balance Overhaul\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic
+Source: ".\UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: ".\43 Civs CP\43 Civs CP\CP Only\*"; DestDir: "{app}\(6c) 43 Civs CP\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: ".\43 Civs CP\43 Civs CP\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
+Source: ".\43 Civs CP\43 Civs CP\EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
+Source: ".\43 Civs CP\43 Civs CP\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+; not included
+; Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
+Source: ".\43 Civs CP\43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: ".\43 Civs CP\43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
+Source: ".\(7a) Promotion Icons for VP\*"; DestDir: "{app}\(7a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: ".\(7b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(7b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"

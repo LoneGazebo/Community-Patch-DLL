@@ -7,8 +7,13 @@ echo "Hello World"
 # 4. Test the installer locally.
 # 5. Push changes to "github actions".
 # 6. What about "UI_bc1" folder?
-
+# 7. Use env variables in "CPPSetupData.iss"
 
 # 1. EUI license says we are not allowed to host it's files anywhere, so download it from official website.
 curl https://forums.civfanatics.com/resources/24303/download?version=22637 --output ./eui.zip
 unzip ./eui.zip -d ./UI_bc1
+
+# 2. Move LUA folders.
+mv "./Community Patch/LUA" "./CP LUA"
+mv "./Community Balance Patch/LUA" "./CBO LUA"
+
