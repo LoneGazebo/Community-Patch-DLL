@@ -33,6 +33,7 @@
 !*.gr2
 !*.mp3
 !.github/workflows/*
+!autoinstaller.sh
 
 BuildOutput/
 BuildTemp/
