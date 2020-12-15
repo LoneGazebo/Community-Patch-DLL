@@ -24,6 +24,7 @@
 !*.iss
 !*.md
 !*.txt
+!*.rtf
 
 !*.py
 !*.inl
