@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<Context ID="LeagueOverviewPopup" Font="TwCenMT14" FontStyle="Base" ColorSet="Beige_Black_Alpha">
+	<Instance Name="ProposedResolutionInstance">
+		<Button Anchor="L,C" Size="538,64" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="ResolutionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim ID="BounceAnim" Anchor="L,T" Size="538,69" Offset="0,-3" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid ID="BounceGrid" Size="538,69" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Box Anchor="L,T" Size="538,64" Color="19,32,46,120" Hidden="1" ID="Box"/>
+			<Image ID="IconFrame" Anchor="L,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+				<Image ID="Icon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+				<Image ID="SubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+					<Image ID="SubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+					<Image ID="SubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="SubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+					<Image ID="SubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+				</Image>
+			</Image>
+			<Box ID="VoteBox" Size="80,64" Anchor="R,C" Offset="60,0" Color="0,0,0,0">
+				<Grid Size="34,28" Anchor="L,C" Offset="0,0" Style="Grid9Frame27SquareBlack">
+					<Label ID="VoteCount" Anchor="C,C" Offset="0,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="[COLOR_GREEN]7[ENDCOLOR]"/>
+				</Grid>
+				<Box Color="0,0,0,0" Size="32,57" Anchor="L,C" Offset="34,0">
+					<Button ID="VoteUpButton" Anchor="L,T" Size="32,32" Offset="0,0" Texture="SelectedUp32.dds"/>
+					<Button ID="VoteDownButton" Anchor="L,T" Size="32,32" Offset="0,32" Texture="SelectedDown32.dds"/>
+				</Box>
+				<Label ID="VoteStatus" Anchor="L,C" Offset="70,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="FLIBBY"/>
+			</Box>
+			<Image ID="AltIconFrame" Anchor="R,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+				<Image ID="AltIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+				<Image ID="AltSubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+					<Image ID="AltSubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+					<Image ID="AltSubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="AltSubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+					<Image ID="AltSubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+				</Image>
+			</Image>
+			<Label ID="ResolutionName" WrapWidth="320" Anchor="L,C" Offset="70,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Image Anchor="L,B" Offset="0,0" Texture="bar500x2.dds" Size="538,1"/>
+		</Button>
+	</Instance>
+	<Instance Name="ResolutionChoiceInstance">
+		<Button Anchor="L,C" Size="342,64" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="ResolutionChoiceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim ID="BounceAnim" Anchor="L,T" Size="342,69" Offset="0,-3" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid ID="BounceGrid" Size="342,69" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Box Anchor="L,T" Size="342,64" Color="19,32,46,120" ID="Box"/>
+			<Stack StackGrowth="Right" ID="ResolutionChoiceStack" Size="342,64">
+				<Image ID="IconFrame" Anchor="L,C" Size="64,64" Offset="0,0" Texture="IconFrame64.dds">
+					<Image ID="Icon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image ID="SubIconFrame" Anchor="R,B" Offset="-5,6" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="SubIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="SubIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="SubIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="SubIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+				</Image>
+				<Box Size="20,64" Color="0,0,0,0">
+					<Label ID="ResolutionChoiceName" Anchor="L,C" Offset="5,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</Box>
+			</Stack>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="342,1"/>
+		</Button>
+	</Instance>
+	<Instance Name="ResolutionInstance">
+		<Button Anchor="L,C" Size="342,48" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="ResolutionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim ID="BounceAnim" Anchor="L,T" Size="342,69" Offset="0,-3" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid ID="BounceGrid" Size="342,53" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Box Anchor="L,T" Size="342,48" Color="19,32,46,120" ID="Box"/>
+			<Label ID="ResolutionName" Anchor="L,C" Offset="5,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="342,1"/>
+		</Button>
+	</Instance>
+	<Instance Name="ViewAllResolutionsEntry">
+		<Button Anchor="L,C" Size="342,59" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="Button">
+			<ShowOnMouseOver>
+				<AlphaAnim ID="BounceAnim" Anchor="L,T" Size="342,63" Offset="0,-3" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid ID="BounceGrid" Size="342,63" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Box Anchor="L,T" Size="342,59" Color="19,32,46,120" ID="Box"/>
+			<Label Anchor="L,C" Offset="5,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="877" ID="ResolutionName"/>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="342,1"/>
+		</Button>
+	</Instance>
+	<Instance Name="ActiveEffectSummaryEntry">
+		<Stack StackGrowth="Right" ID="EffectStack">
+			<Label String="[ICON_BULLET]" Font="TwCenMT18" ColorSet="Beige_Black_Alpha"/>
+			<Label ID="EffectLabel" WrapWidth="355" Font="TwCenMT18" ColorSet="Beige_Black_Alpha"/>
+		</Stack>
+	</Instance>
+	<Box Style="BGBlock_ClearTopBar" ID="BGBlock"/>
+	<!-- Main Screen-->
+	<Grid Size="987,700" Anchor="C,C" Offset="0,0" Style="Grid9DetailFive140" Hidden="0" ID="MainFrame">
+		<!-- Decoration -->
+		<!-- Top -->
+		<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+			<Image ID="TitleIcon" Anchor="C,C" Offset="-1,-1" Texture="assets/UI/Art/Icons/WorldCongressVote64.dds" Size="64,64"/>
+		</Image>
+		<!-- Side treatments -->
+		<Box Style="MenuLeftSideTreatment"/>
+		<Box Style="MenuRightSideTreatment"/>
+		<Image ID="LeagueImage" Texture="WorldCongress.dds" Size="951,614" Color="255,255,255,80" Offset="18,44"/>
+		<Label ID="TitleLabel" Anchor="C,T" Offset="0,15" Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW">
+			<TextButton Offset="10,0" Anchor="R,B" AnchorSide="O.I" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_RENAME" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_RENAME_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="RenameButton"/>
+		</Label>
+		<Box Color="0,0,0,0" Size="952,612" Offset="18,45" ID="WorldCongressContent" Hidden="1">
+			<!-- Header -->
+			<Box Color="0,0,0,0" Size="952,330" Offset="0,0">
+				<ScrollPanel Disabled="1" Anchor="L,T" Offset="0,0" Size="952,563" FullClip="1" Hidden="0">
+					<Label ID="VictorySessionLabel" Size="300,36" String="Turns until World Leader session" ToolTip="Turns until World Leader session" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" Offset="12,6" Anchor="R,T"/>
+					<Label ID="VictoryVotesLabel" Size="300,36" String="Delegates to win Victory" ToolTip="Delegates to win Victory" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" Offset="12,26" Anchor="R,T"/>
+					<GridButton Anchor="C,T" Offset="0,-10" Size="160,36" Style="SmallButton" Disabled="0" ID="TurnsUntilVoteFrame">
+						<Label ID="TurnsUntilVote" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" Offset="0,3" Anchor="C,C"/>
+					</GridButton>
+				</ScrollPanel>
+				<!-- Leader Icon -->
+				<Button ID="LeaderButton" Anchor="C,T" Size="170,100" Offset="0,44">
+					<Image ID="LeaderFrame" Anchor="C,T" Size="170,100" Texture="WorldCongressHost_Frame.dds"/>
+					<Image ID="LeaderIcon" Size="128,128" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits1024.dds"/>
+					<Image Anchor="L,B" Offset="30,-10" Size="45,45" Texture="45x45FrameButton.dds">
+            <Image Anchor="C,C" Offset="0,0" Size="45,45" TextureOffset="270,90" Texture="CivSymbolsColor360.dds" />
+              <Label ID="LeaderVotes" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="LeaderSubIconFrame" Anchor="R,B" Offset="30,-10" Size="45,45" Texture="45x45FrameButton.dds">
+						<Image ID="LeaderSubIconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="LeaderSubIconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="LeaderSubIcon" Size="32,32" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="LeaderSubIconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="LeaderScroll" Size="64,16" Offset="0,-13" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="LeaderSpy" Anchor="C,B" Offset="0,-13" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<!-- Member Icons -->
+				<Button ID="MemberButton1"  Anchor="L,T" Size="64,64" Offset="446,155">
+					<Image ID="MemberFrame1" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon1" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes1" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame1" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG1" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow1" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon1" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight1" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll1" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy1" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton2"  Anchor="L,T" Size="64,64" Offset="366,145">
+					<Image ID="MemberFrame2" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon2" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes2" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame2" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG2" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow2" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon2" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight2" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll2" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy2" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton3"  Anchor="L,T" Size="64,64" Offset="522,145">
+					<Image ID="MemberFrame3" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon3" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes3" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame3" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG3" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow3" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon3" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight3" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll3" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy3" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton4"  Anchor="L,T" Size="64,64" Offset="396,227">
+					<Image ID="MemberFrame4" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon4" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes4" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame4" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG4" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow4" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon4" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight4" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll4" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy4" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton5"  Anchor="L,T" Size="64,64" Offset="492,227">
+					<Image ID="MemberFrame5" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon5" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes5" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame5" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG5" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow5" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon5" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight5" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll5" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy5" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton6"  Anchor="L,T" Size="64,64" Offset="288,145">
+					<Image ID="MemberFrame6" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon6" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes6" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame6" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG6" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow6" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon6" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight6" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll6" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy6" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton7"  Anchor="L,T" Size="64,64" Offset="600,145">
+					<Image ID="MemberFrame7" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon7" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes7" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame7" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG7" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow7" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon7" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight7" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll7" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy7" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton8"  Anchor="L,T" Size="64,64" Offset="318,227">
+					<Image ID="MemberFrame8" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon8" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes8" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame8" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG8" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow8" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon8" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight8" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll8" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy8" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton9"  Anchor="L,T" Size="64,64" Offset="570,227">
+					<Image ID="MemberFrame9" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon9" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes9" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame9" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG9" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow9" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon9" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight9" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll9" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy9" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton10" Anchor="L,T" Size="64,64" Offset="210,145">
+					<Image ID="MemberFrame10" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon10" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes10" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame10" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG10" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow10" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon10" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight10" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll10" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy10" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton11" Anchor="L,T" Size="64,64" Offset="678,145">
+					<Image ID="MemberFrame11" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon11" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes11" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame11" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG11" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow11" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon11" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight11" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll11" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy11" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton12" Anchor="L,T" Size="64,64" Offset="240,227">
+					<Image ID="MemberFrame12" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon12" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes12" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame12" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG12" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow12" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon12" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight12" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll12" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy12" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton13" Anchor="L,T" Size="64,64" Offset="648,227">
+					<Image ID="MemberFrame13" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon13" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes13" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame13" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG13" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow13" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon13" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight13" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll13" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy13" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton14" Anchor="L,T" Size="64,64" Offset="132,145">
+					<Image ID="MemberFrame14" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon14" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes14" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame14" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG14" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow14" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon14" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight14" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll14" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy14" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton15" Anchor="L,T" Size="64,64" Offset="756,145">
+					<Image ID="MemberFrame15" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon15" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes15" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame15" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG15" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow15" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon15" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight15" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll15" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy15" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton16" Anchor="L,T" Size="64,64" Offset="162,227">
+					<Image ID="MemberFrame16" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon16" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes16" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame16" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG16" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow16" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon16" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight16" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll16" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy16" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton17" Anchor="L,T" Size="64,64" Offset="726,227">
+					<Image ID="MemberFrame17" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon17" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes17" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame17" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG17" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow17" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon17" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight17" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll17" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy17" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton18" Anchor="L,T" Size="64,64" Offset="84,227">
+					<Image ID="MemberFrame18" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon18" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes18" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame18" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG18" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow18" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon18" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight18" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll18" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy18" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton19" Anchor="L,T" Size="64,64" Offset="804,227">
+					<Image ID="MemberFrame19" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon19" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes19" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame19" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG19" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow19" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon19" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight19" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll19" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy19" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton20" Anchor="L,T" Size="64,64" Offset="54,145">
+					<Image ID="MemberFrame20" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon20" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes20" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame20" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG20" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow20" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon20" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight20" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll20" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy20" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton21" Anchor="L,T" Size="64,64" Offset="834,145">
+					<Image ID="MemberFrame21" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon21" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes21" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame21" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG21" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow21" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon21" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight21" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll21" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy21" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton22" Anchor="L,T" Size="64,64" Offset="240,65">
+					<Image ID="MemberFrame22" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon22" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes22" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame22" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG22" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow22" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon22" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight22" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll22" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy22" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton23" Anchor="L,T" Size="64,64" Offset="648,65">
+					<Image ID="MemberFrame23" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon23" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes23" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame23" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG23" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow23" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon23" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight23" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll23" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy23" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton24" Anchor="L,T" Size="64,64" Offset="162,65">
+					<Image ID="MemberFrame24" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon24" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes24" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame24" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG24" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow24" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon24" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight24" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll24" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy24" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton25" Anchor="L,T" Size="64,64" Offset="726,65">
+					<Image ID="MemberFrame25" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon25" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes25" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame25" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG25" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow25" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon25" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight25" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll25" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy25" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton26" Anchor="L,T" Size="64,64" Offset="84,65">
+					<Image ID="MemberFrame26" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon26" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes26" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame26" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG26" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow26" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon26" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight26" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll26" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy26" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton27" Anchor="L,T" Size="64,64" Offset="804,65">
+					<Image ID="MemberFrame27" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon27" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes27" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame27" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG27" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow27" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon27" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight27" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll27" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy27" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton28" Anchor="L,T" Size="64,64" Offset="318,65">
+					<Image ID="MemberFrame28" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon28" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes28" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame28" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG28" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow28" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon28" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight28" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll28" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy28" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton29" Anchor="L,T" Size="64,64" Offset="570,65">
+					<Image ID="MemberFrame29" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon29" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes29" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame29" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG29" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow29" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon29" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight29" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll29" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy29" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton30" Anchor="L,T" Size="64,64" Offset="882,227">
+					<Image ID="MemberFrame30" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon30" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes30" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame30" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG30" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow30" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon30" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight30" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll30" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy30" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton31" Anchor="L,T" Size="64,64" Offset="6,227">
+					<Image ID="MemberFrame31" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon31" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes31" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame31" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG31" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow31" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon31" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight31" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll31" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy31" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton32" Anchor="L,T" Size="64,64" Offset="882,65">
+					<Image ID="MemberFrame32" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon32" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes32" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame32" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG32" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow32" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon32" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight32" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll32" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy32" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Button ID="MemberButton33" Anchor="L,T" Size="64,64" Offset="6,65">
+					<Image ID="MemberFrame33" Anchor="L,T" Size="64,64" Texture="IconFrame64.dds"/>
+					<Image ID="MemberIcon33" Size="64,64" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits512.dds"/>
+					<Image Anchor="L,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Label ID="MemberVotes33" Anchor="C,C" Offset="0,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" String="3"/>
+					</Image>
+					<Image ID="MemberSubIconFrame33" Anchor="R,B" Offset="-4,-4" Size="32,32" Texture="IconFrame_32.dds">
+						<Image ID="MemberSubIconBG33" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="MemberSubIconShadow33" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="MemberSubIcon33" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="MemberSubIconHighlight33" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+					<Image ID="MemberScroll33" Size="64,16" TextureOffset="0,16" Offset="0,-5" Anchor="C,T" Texture="WorldCongress_Scrolls16x64.dds"/>
+					<Label ID="MemberSpy33" Anchor="C,B" Offset="0,-8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="[ICON_DIPLOMAT]"/>
+				</Button>
+				<Stack StackGrowth="Right" ID="MemberStack" Padding="0" Anchor="C,B" Offset="0,3">
+					<Button ID="MemberButton34" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame34" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG34" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow34" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon34" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight34" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton35" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame35" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG35" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow35" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon35" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight35" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton36" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame36" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG36" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow36" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon36" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight36" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton37" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame37" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG37" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow37" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon37" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight37" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton38" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame38" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG38" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow38" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon38" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight38" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton39" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame39" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG39" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow39" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon39" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight39" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton40" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame40" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG40" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow40" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon40" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight40" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton41" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame41" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG41" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow41" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon41" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight41" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton42" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame42" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG42" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow42" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon42" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight42" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton43" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame43" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG43" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow43" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon43" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight43" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton44" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame44" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG44" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow44" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon44" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight44" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton45" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame45" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG45" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow45" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon45" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight45" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton46" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame46" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG46" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow46" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon46" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight46" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton47" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame47" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG47" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow47" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon47" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight47" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton48" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame48" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG48" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow48" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon48" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight48" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton49" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame49" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG49" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow49" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon49" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight49" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton50" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame50" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG50" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow50" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon50" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight50" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton51" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame51" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG51" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow51" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon51" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight51" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton52" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame52" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG52" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow52" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon52" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight52" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton53" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame53" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG53" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow53" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon53" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight53" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton54" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame54" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG54" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow54" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon54" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight54" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton55" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame55" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG55" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow55" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon55" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight55" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton56" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame56" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG56" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow56" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon56" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight56" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton57" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame57" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG57" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow57" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon57" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight57" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton58" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame58" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG58" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow58" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon58" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight58" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton59" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame59" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG59" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow59" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon59" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight59" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton60" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame60" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG60" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow60" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon60" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight60" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+					<Button ID="MemberButton61" Anchor="L,T" Size="32,32">
+						<Image ID="MemberSubIconFrame61" Anchor="C,C" Size="32,32" Texture="IconFrame_32.dds">
+							<Image ID="MemberSubIconBG61" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="MemberSubIconShadow61" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="MemberSubIcon61" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="MemberSubIconHighlight61" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Image>
+					</Button>
+				</Stack>
+				<Image Anchor="L,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="952,5"/>
+			</Box>
+			<!-- Left/Right Columns -->
+			<Box Color="0,0,0,0" Size="556,222" Offset="0,331">
+				<Label String="TXT_KEY_LEAGUE_OVERVIEW_CURRENT_PROPOSALS" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_CURRENT_PROPOSALS_TT" Anchor="L,T" Offset="22,4" ColorSet="Beige_Black_Alpha" Font="TwCenMT20"/>
+				<Label ID="VotesRemainingLabel" Anchor="R,T" Offset="110,4" ColorSet="Beige_Black_Alpha" Font="TwCenMT20"/>
+				<Grid Style="Grid9Bar" Padding="0,0" Anchor="C,T" Size="526,2" Offset="-14,26"/>
+				<ScrollPanel Anchor="L,T" Offset="18,28" Size="538,194" Vertical="1" AutoScrollBar="1" ID="ProposalScrollPanel2">
+					<ScrollBar Style="VertSlider" Length="160" Anchor="L,C" AnchorSide="O,I"/>
+					<UpButton Style="ScrollBarUp" Anchor="L,T" AnchorSide="O,I"/>
+					<DownButton Style="ScrollBarDown" Anchor="L,B" AnchorSide="O,I"/>
+					<Stack StackGrowth="Bottom" Offset="0,0" Padding="0" ID="ProposalStack2"/>
+				</ScrollPanel>
+			</Box>
+			<Box Color="0,0,0,0" Size="395,222" Offset="557,331">
+				<Label String="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TITLE" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TT" Anchor="C,T" Offset="-18,4" ColorSet="Beige_Black_Alpha" Font="TwCenMT20"/>
+				<Grid Style="Grid9Bar" Padding="0,0" Anchor="C,T" Size="350,2" Offset="-18,26"/>
+				<ScrollPanel Anchor="L,T" Offset="0,30" Size="377,190" Vertical="1" AutoScrollBar="1" ID="ActiveEffectsScrollPanel">
+					<ScrollBar Style="VertSlider" Length="156" Anchor="R,C" AnchorSide="O,I"/>
+					<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+					<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+          <Stack StackGrowth="Bottom" Padding="0">
+            <Stack StackGrowth="Bottom" Padding="15" ID="ActiveEffectsStack"/>
+            <Box Size="377,10" Color="255,255,255,0" />
+          </Stack>
+        </ScrollPanel>
+			</Box>
+			<!-- Footer -->
+			<Box Color="0,0,0,0" Size="952,60" Offset="0,553">
+				<Image Anchor="L,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="952,5"/>
+				<GridButton ID="ResetButton" Size="175,40" Offset="98,12" Anchor="L,T" Style="BaseButton"/>
+				<GridButton ID="CommitButton" Size="175,40" Offset="302,12" Anchor="L,T" Style="BaseButton"/>
+				<GridButton ID="ViewAllResolutionsButton" String="TXT_KEY_LEAGUE_OVERVIEW_VIEW_ALL_RESOLUTIONS" Size="175,40" Offset="688,12" Anchor="L,T" Style="BaseButton"/>
+			</Box>
+		</Box>
+		<Box Color="0,0,0,0" Size="952,612" Offset="18,45" ID="WorldCongressNotStartedContent">
+			<Label Anchor="C,C" Font="TwCenMT24" WrapWidth="600" ColorSet="Beige_Black_Alpha" ID="LeagueNotFoundedString"/>
+		</Box>
+		<!-- Internal Space-->
+		<TextButton ID="CloseButton" Offset="0,24" Anchor="C,B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" Hidden="0"/>
+	</Grid>
+	<!-- All Resolutions Popup-->
+	<Box Color="Black.200" Size="Full.Full" ID="ViewAllResolutionsPopup" Hidden="1" ConsumeMouseOver="1" ConsumeMouseButton="1">
+		<Grid Size="394,650" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="-1,-1" Texture="assets/UI/Art/Icons/WorldCongressVote64.dds" Size="64,64"/>
+			</Image>
+			<ScrollPanel Vertical="1" Size="342,510" Offset="17,44" AutoScrollBar="0" ID="ViewAllResolutionsScrollPanel">
+				<!-- Scroll Controls -->
+				<ScrollBar Style="VertSlider" Length="474" Anchor="R,C" AnchorSide="O,I"/>
+				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+				<Stack StackGrowth="Bottom" ID="ViewAllResolutionsStack">
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_ACTIVE_RESOLUTIONS_TT" ID="ActiveResolutionsHeader2">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_ACTIVE_RESOLUTIONS" ID="ActiveResolutionsHeaderLabel2"/>
+					</Button>
+					<Stack ID="ActiveResolutionStack2" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_INACTIVE_RESOLUTIONS_TT" ID="PossibleResolutionsHeader2">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_INACTIVE_RESOLUTIONS" ID="PossibleResolutionsHeaderLabel2"/>
+					</Button>
+					<Stack ID="InactiveResolutionStack2" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_OTHER_RESOLUTIONS_TT" ID="DisabledResolutionsHeader2">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_OTHER_RESOLUTIONS" ID="DisabledResolutionsHeaderLabel2"/>
+					</Button>
+					<Stack ID="DisabledResolutionStack2" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+				</Stack>
+			</ScrollPanel>
+			<Image Anchor="L,B" Offset="17,90" Texture="HorizontalTrim.dds" Size="360,5"/>
+			<!-- Cancel Button  -->
+			<GridButton Anchor="C,B" Style="SmallButton" Size="150,32" Offset="0,50" StateOffsetIncrement="0,0" ID="ViewAllResolutionsCloseButton">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</GridButton>
+		</Grid>
+	</Box>
+	<!-- Select Proposal Popup-->
+	<Box Color="Black.200" Size="Full.Full" ID="ChooseProposalPopup" Hidden="1" ConsumeMouseOver="1" ConsumeMouseButton="1">
+		<Grid Size="394,650" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<Label Style="MenuTitleCaption" String="TXT_KEY_LEAGUE_OVERVIEW_PROPOSE_RESOLUTION"/>
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="-1,-1" Texture="assets/UI/Art/Icons/WorldCongressVote64.dds" Size="64,64"/>
+			</Image>
+			<ScrollPanel Vertical="1" Size="342,510" Offset="17,44" AutoScrollBar="0" ID="ChooseProposalScrollPanel">
+				<!-- Scroll Controls -->
+				<ScrollBar Style="VertSlider" Length="474" Anchor="R,C" AnchorSide="O,I"/>
+				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+				<Stack StackGrowth="Bottom" ID="ChooseProposalStack">
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_ACTIVE_RESOLUTIONS_TT" ID="ActiveResolutionsHeader">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_ACTIVE_RESOLUTIONS" ID="ActiveResolutionsHeaderLabel"/>
+					</Button>
+					<Stack ID="ActiveResolutionStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_INACTIVE_RESOLUTIONS_TT" ID="PossibleResolutionsHeader">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_INACTIVE_RESOLUTIONS" ID="PossibleResolutionsHeaderLabel"/>
+					</Button>
+					<Stack ID="InactiveResolutionStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+					<Button Anchor="L,T" Size="342,27" Offset="0,0" Texture="CivilopediaButtons272x27.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW_OTHER_RESOLUTIONS_TT" ID="DisabledResolutionsHeader">
+						<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_LEAGUE_OVERVIEW_OTHER_RESOLUTIONS" ID="DisabledResolutionsHeaderLabel"/>
+					</Button>
+					<Stack ID="DisabledResolutionStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
+				</Stack>
+			</ScrollPanel>
+			<Image Anchor="L,B" Offset="17,90" Texture="HorizontalTrim.dds" Size="360,5"/>
+			<!-- Cancel Button  -->
+			<GridButton Anchor="C,B" Style="SmallButton" Size="150,32" Offset="0,50" StateOffsetIncrement="0,0" ID="ChooseProposalCloseButton">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</GridButton>
+		</Grid>
+	</Box>
+	<!-- Resolution Choice Popup-->
+	<Box ID="ResolutionChoicePopup" Color="Black.200" Size="Full.Full" Hidden="1" ConsumeMouseOver="1" ConsumeMouseButton="1">
+		<Grid Size="394,310" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="-1,-1" Texture="WorldCongressVote64.dds" Size="64,64"/>
+			</Image>
+			<ScrollPanel Anchor="L,T" ID="ChoiceScrollPanel" Vertical="1" Size="342,225" Offset="17,44" AutoScrollBar="0">
+				<!-- Scroll Controls -->
+				<ScrollBar Anchor="R,T" Offset="0.18" AnchorSide="O,I" Length="188" Style="VertSlider"/>
+				<UpButton Anchor="R,T" AnchorSide="O,I" Style="ScrollBarUp"/>
+				<DownButton Anchor="R,T" Offset="0.206" AnchorSide="O,I" Style="ScrollBarDown"/>
+				<Stack ID="ResolutionChoiceStack" Anchor="C,T" Offset="0,0" Padding="0" StackGrowth="Bottom"/>
+			</ScrollPanel>
+			<TextButton ID="CloseChoicePopupButton" Offset="0,24" Anchor="C,B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" Hidden="0"/>
+		</Grid>
+	</Box>
+	<!-- Change Name Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="ChangeNamePopup" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="500,260" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,-6" Size="80,80" Texture="NotificationFrameBase.dds">
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="80,80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
+				</Image>
+			</Image>
+			<Label Style="MenuTitleCaption" String="TXT_KEY_LEAGUE_OVERVIEW_CHANGE_NAME"/>
+			<Label Anchor="C,T" Offset="0,64" WrapWidth="440" String="TXT_KEY_LEAGUE_OVERVIEW_ENTER_NAME" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Label Anchor="C,T" Offset="0,84" ID="ChangeNameError" String="TXT_KEY_LEAGUE_OVERVIEW_ERROR_NAME_EMPTY" Font="TwCenMT18" ColorSet="Red_Black" FontStyle="Shadow" Hidden="1"/>
+			<Box Anchor="C,T" Offset="0,100" Size="400,26" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+				<Box Anchor="C,C" Offset="0,0" Size="398,22" Color="0,0,0,255">
+					<EditBox EditMode="1" Size="396,20" Anchor="C,C" Font="TwCenMT20" MaxLength="48" ID="NewName"/>
+				</Box>
+			</Box>
+			<Stack Anchor="R,B" Offset="30,60" Padding="16" StackGrowth="Left" ID="ChangeNameButtonStack">
+				<!-- Cancel Button  -->
+				<GridButton Style="BaseButton" ID="ChangeNameCancelButton" Size="120,42" Anchor="L,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CANCEL_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+				<!-- OK Button  -->
+				<GridButton Style="BaseButton" ID="ChangeNameOKButton" Size="120,42" Anchor="L,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OK_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+	<!-- Confirmation Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="ChooseConfirm" Hidden="1" ConsumeMouse="1">
+		<Grid Size="500,310" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="-1,-1" Texture="WorldCongressVote64.dds" Size="64,64"/>
+			</Image>
+			<Label Anchor="C,T" ID="ConfirmText" Offset="0,74" WrapWidth="440" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_LEAGUE_OVERVIEW_CONFIRM"/>
+			<Stack Anchor="C,B" Offset="0,72" Padding="16" StackGrowth="Bottom" ID="ButtonStack">
+				<!-- Yes Button  -->
+				<GridButton Style="BaseButton" ID="ConfirmYes" Size="400,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_YES_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+				<!-- No Button  -->
+				<GridButton Style="BaseButton" ID="ConfirmNo" Size="400,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_NO_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+</Context>
