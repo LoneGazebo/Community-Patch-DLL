@@ -20,14 +20,16 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\License.rtf
-InfoBeforeFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\Opener.rtf
+
+; LicenseFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\License.rtf
+; InfoBeforeFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\Opener.rtf
+; SetupIconFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\installer.ico
+
 OutputBaseFilename=Vox Populi
 Compression=lzma
 SolidCompression=yes
 Uninstallable=no
 DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
-SetupIconFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
 VersionInfoVersion=5.8.16
