@@ -13,3 +13,7 @@ jobs:
         run: ./autoinstaller.sh
       - shell: cmd
         run: iscc ./CPPSetupData.iss
+      - uses: actions/upload-artifact@v2
+        with:
+          name: installer.exe
+          path: ./Output/Vox Populi.exe
