@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black_Alpha" >
+
+	<!--AlphaAnim ID="FlagFader" AlphaStart="1" AlphaEnd="0" Speed="2" Cycle="Once" Stopped="1" -->
+	<Container ID="AirCraftFlags" Hidden="1" />
+	<Container ID="CivilianFlags" />
+	<Container ID="MilitaryFlags" />
+	<Container ID="GarrisonFlags" />
+	<Container ID="AirbaseFlags" />
+	<Container ID="SelectedFlags" />
+	<!--/AlphaAnim-->
+
+	<!-- Promotion Instance -->
+	<Instance Name="Promotion">
+		<Image ID="Promotion" Size="32,32" Texture="Promotions256.dds"/>
+	</Instance>
+
+	<Instance Name="AirbaseFlag" >
+		<WorldAnchor ID="Anchor" >
+			<Grid BranchAlpha="1.0" Anchor="C,C" Offset="0,-50" Size="50,22" Style="Grid9FrameTurns">
+				<GridButton ID="Button" Size="50,22" Style="Grid9FrameTurnsButton" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" />
+			</Grid>
+		</WorldAnchor>
+	</Instance>
+
+	<Instance Name="UnitFlag">
+		<WorldAnchor ID="Anchor">
+			<Container ID="Container" Anchor="C,C" Size="64.64" >
+
+				<!-- Cargo Button for Carriers -->
+				<Grid ID="CargoBG" BranchAlpha="1.2" Anchor="C,C" Offset="30,0" Size="35,22" Style="Grid9FrameTurns">
+					<GridButton ID="Cargo" Size="35,22" Style="Grid9FrameTurnsButton" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" />
+				</Grid>
+
+				<!-- Flag Button & Mouse Over Highlight -->
+				<Button ID="Button" Anchor="C,C" Size="40.40" ConsumeMouseOver="1" NoDefaultSound="1" ToolTipType="EUI_UnitTooltip">
+					<ShowOnMouseOver>
+						<AlphaAnim ID="AlphaAnim" Anchor="C,C" Size="64,64" TextureOffset="0,64" Texture="UnitFlagBase.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".01" />
+						<ScrollAnim ID="ScrollAnim" Anchor="C,C" Size="64,64" Speed=".5" Texture="UnitFlagShine.dds" MaskTexture="UnitFlagMask.dds" />
+					</ShowOnMouseOver>
+				</Button>
+
+				<!-- Flag Shadow (really useless)-->
+				<Image ID="FlagShadow" Size="64.64" TextureOffset="192,64" Texture="UnitFlagBase.dds" >
+
+					<!-- Health Bar backing -->
+					<Image ID="HealthBarBG" TextureOffset="64,0" Texture="UnitFlagBase.dds" Size="64.64" Hidden="1" />
+
+					<!-- Outline & Background -->
+					<Image ID="FlagBaseOutline" Texture="UnitFlagBase.dds" Size="64.64" />
+					<Image ID="FlagBase" TextureOffset="192,0" Texture="UnitFlagBase.dds" Color="255,255,255,255" Size="64.64" />
+
+					<!-- Lighting Effect (kinda useless) -->
+					<Image ID="LightEffect" TextureOffset="128,0" Texture="UnitFlagBase.dds" Size="64.64" />
+
+					<!-- Unit Icon -->
+					<Image ID="UnitIconShadow" Anchor="C,C" Size="32,32" Texture="UnitFlagAtlasWhite.dds" Color="0,0,0,128" >
+						<Image ID="UnitIcon" Anchor="C,C" Size="32,32" Offset="1,-1" Texture="UnitFlagAtlasWhite.dds" Color="240,199,0,255" />
+					</Image>
+
+				</Image>
+
+				<!-- Selection or War Highlight -->
+				<Image ID="FlagHighlight" Size="64,64" TextureOffset="0,64" Texture="UnitFlagBase.dds" Hidden="1" />
+
+				<!-- Health Bar -->
+				<Bar ID="HealthBar" Offset="52,16" Size="2,32" Direction="Up" FGColor="0,255,255,255" BGColor="0,0,0,255" Hidden="1" />
+
+			</Container>
+		</WorldAnchor>
+	</Instance>
+
+</Context>

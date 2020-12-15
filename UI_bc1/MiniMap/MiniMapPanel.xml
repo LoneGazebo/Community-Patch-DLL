@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" >
+
+
+    <Instance Name="LegendKey">
+        <Stack ID="Item" StackGrowth="Right" >
+            <Box Size="14,14" Color="255.255.200.255" >
+                <Box ID="KeyColor" Anchor="C,C" Size="12,12" Color="200,200,200,255" />
+            </Box>
+	        <Label ID="KeyName" Anchor="L,T" Offset="5.0" WrapWidth="300" ColorSet="Beige_Black" LeadingOffset="-8" Font="TwCenMT18" FontStyle="Shadow"  String="TXT_KEY_STRAT_ICON_MODE"/>
+        </Stack>
+    </Instance>
+
+	<Stack Anchor="R,B" Offset="-8,0" Padding="-8" StackGrowth="Right" ID="OuterStack" >
+
+		<Image Anchor="R,B" Texture="assets\UI\Art\WorldView\BottomRight128x224.dds" Size="128.224" >
+			<Stack ID="SideStack" Padding="-20" Anchor="R,B" Offset="40,-39" StackGrowth="Right" >
+
+				<Grid ID="LegendFrame" Anchor="R,B" Padding="30,54" Offset="0,0" Style="Grid9DetailSix140" Hidden="1" ConsumeMouse="1" >
+					<Stack ID="LegendStack" Anchor="C,C" Padding="5" Offset="0,0" StackGrowth="Bottom" >
+						<Label ID="OverlayTitle" Anchor="C,T" Offset="0,0" ColorSet="Beige_Black" Font="TwCenMT18" FontStyle="Shadow"  String="TXT_KEY_STRAT_ICON_MODE"/>
+						<Box Size="200,1" Color="0,0,0,0" />
+						<Image Anchor="C,T" Offset="0,0" Texture="bar300x2.dds" TextureOffset="100,0" Size="140.1" />
+					</Stack>
+				</Grid>
+
+
+				<Grid ID="OptionsPanel" Anchor="R,B" Size="300,300" Color="White.256" Style="Grid9DetailSix140" Padding="30,46" Hidden="true" ConsumeMouse="1" >
+					<Stack Anchor="C,C" Padding="0" Offset="0,5" StackGrowth="Bottom" ID="MainStack" >
+						<Stack Anchor="C,T" Offset="0,0" Padding="0" StackGrowth="Bottom" ID="StrategicStack" >
+							<Label Anchor="L,T" ColorSet="Beige_Black" Font="TwCenMT18" Offset="0,5" FontStyle="Shadow" ID="OverlayName" String="TXT_KEY_STRAT_OVERLAY"/>
+							<PullDown Style="GenericPullDown" ScrollThreshold="256" Offset="0,5" Size="210,27" SpaceForScroll="0" ID="OverlayDropDown"/>
+							<Label Anchor="L,T" ColorSet="Beige_Black" Font="TwCenMT18" Offset="0,5" FontStyle="Shadow" ID="IconName" String="TXT_KEY_STRAT_ICON_MODE"/>
+							<PullDown Style="GenericPullDown" ScrollThreshold="256" Offset="0,5" Size="210,27" SpaceForScroll="0" ID="IconDropDown"/>
+
+							<CheckBox Anchor="L,T" TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="1" ID="ShowFeatures" String="TXT_KEY_STRAT_FEATURES" />
+							<CheckBox Anchor="L,T" TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="1" ID="ShowFogOfWar" String="TXT_KEY_STRAT_FOW" />
+							<Box Anchor="C,T" Offset="0,5" Size="175,1" Color="Beige,120" />
+						</Stack>
+
+						<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="HideRecommendation" String="TXT_KEY_MAP_OPTIONS_RECOMMENDATIONS" />
+						<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowResources" String="TXT_KEY_MAP_OPTIONS_RESOURCE_ICONS" />
+						<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowYield" String="TXT_KEY_MAP_OPTIONS_YIELD_ICONS" />
+						<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowGrid" String="TXT_KEY_MAP_OPTIONS_HEX_GRID" />
+						<CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="ShowTrade" String="TXT_KEY_MAP_OPTIONS_TRADE_ROUTES" />
+						<Box Anchor="C,T" Size="210,1" Color="0,0,0,0" />
+					</Stack>
+				</Grid>
+			</Stack>
+
+			<Stack Anchor="R,B" Offset="9,1" Padding="0" StackGrowth="Top" >
+
+				<Button ConsumeMouse="1" Anchor="C,T" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicViewButton" Hidden="0" ToolTip="TXT_KEY_POP_STRATEGIC_VIEW_TT" >
+					<ShowOnMouseOver>
+						<Image Anchor="C,C" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicMO" />
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="45.45"  TextureOffset="0.0" Texture="assets\UI\Art\Icons\MainStrategicButtonHL.dds" ID="StrategicHL"  Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+					</ShowOnMouseOver>
+				</Button>
+
+				<Button ConsumeConsumeMouse="1" Anchor="C,T" Size="45.45" Texture="assets\UI\Art\Notification\NotificationNotes.dds" ID="MapOptionsButton" ToolTip="TXT_KEY_STRAT_MAP_OPTIONS_TT" Hidden="0" >
+					<ShowOnMouseOver>
+						<Image Anchor="R,T" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Notification\NotificationNotes.dds" />
+						<AlphaAnim Anchor="R,T" Offset="0,0" Size="45.45"  TextureOffset="0.0" Texture="assets\UI\Art\Notification\NotificationNotesHL.dds"  Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+					</ShowOnMouseOver>
+				</Button>
+
+			</Stack>
+		</Image>
+		<Grid Size="200,200" Anchor="R,B" Offset="0,-39" Color="White.255" Style="Grid9DetailSix140" Padding="0,0" ID="MinimapPanel" ConsumeMouse="1" >
+
+			<Image Anchor="R,T" AnchorSide="I.O" Offset="3,-33" Texture="assets/DLC/Expansion/UI/Art/Controls/LowerRightCorner_MiniMap.dds" Size="101.72" />
+
+
+			<Button Anchor="R,B" Offset="17,43" Size="320,190" ID="Minimap" NoStateChange="1" ConsumeMouse="1" />
+
+
+		</Grid>
+	</Stack>
+
+</Context>
