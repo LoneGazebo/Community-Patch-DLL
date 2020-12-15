@@ -1,0 +1,12 @@
+on:
+  # change to release
+  push:
+
+jobs:
+
+  release:
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: iscc
