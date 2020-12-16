@@ -4883,7 +4883,7 @@ bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 			if (bCorrectOwner)
 			{
 				//exclude civilians
-				if(pkUnit->IsCombatUnit())
+				if(pkUnit->IsCanAttack())
 				{
 					//exclude embarked units, ships in port etc
 					if (pkUnit->isNativeDomain(this))
@@ -12349,7 +12349,7 @@ int CvPlot::GetNumCombatUnits()
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->IsCombatUnit())
+		if(pLoopUnit && pLoopUnit->IsCanAttack())
 		{
 			iCount++;
 		}
@@ -14846,7 +14846,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 				if(pLoopUnit)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
 					{
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
@@ -14932,9 +14932,9 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->isRanged() && !bCountRanged)
+						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
 							continue;
 
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
@@ -14979,9 +14979,9 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->isRanged() && !bCountRanged)
+						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
 							continue;
 
 						// Same team?
@@ -15025,7 +15025,7 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
 						// Same team?
 						if(pLoopUnit->getTeam() == eMyTeam)
@@ -15067,7 +15067,7 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
 					{
 						// Combat Unit?
-						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
+						if(!bCombatUnit || pLoopUnit->IsCanAttack())
 						{
 							return true;
 						}
@@ -15100,7 +15100,7 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
 				{
 					// Must be a combat Unit
-					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
+					if(!bCombatOnly || pLoopUnit->IsCanAttack())
 					{
 						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
 						{

@@ -900,7 +900,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->IsCombatUnit() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
+		if (pUnit && pUnit->IsCanAttack() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
 		{
 			//fake this, the distance check is irrelevant here
 			ReachablePlots turnsFromMuster;
@@ -1190,7 +1190,7 @@ void CvHomelandAI::PlotPatrolMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
+		if(pUnit && pUnit->IsCanAttack() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 		{
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
@@ -1209,7 +1209,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
-		if (pUnit && pUnit->IsCombatUnit())
+		if (pUnit && pUnit->IsCanAttack())
 		{
 			if (pUnit->getDomainType()==DOMAIN_SEA)
 				iUnitsSea++;
@@ -1280,7 +1280,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		if (pBestCity)
 		{
 			//try not to create a unit carpet without any space to move
-			int iMaxDistance = pUnit->isRanged() ? 3 : 4;
+			int iMaxDistance = pUnit->IsCanAttackRanged() ? 3 : 4;
 			for (int iJ = RING1_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pBestCity, iJ);
@@ -2622,7 +2622,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
-		if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCombatUnit())
+		if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCanAttack())
 			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
 #endif
 
@@ -3267,7 +3267,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 						}
 #if defined(MOD_BALANCE_CORE)
 					}
-					else if(pUnit->IsCombatUnit())
+					else if(pUnit->IsCanAttack())
 					{
 						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 						if(pEng)
@@ -3349,7 +3349,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							}
 #if defined(MOD_BALANCE_CORE)
 						}
-						else if(pUnit->IsCombatUnit())
+						else if(pUnit->IsCanAttack())
 						{
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
@@ -4888,7 +4888,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 		if(pLoopUnit && !pLoopUnit->isHuman())
 		{
 			// Civilians or units in armies aren't useful for any of these moves
-			if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)
+			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || pLoopUnit->getArmyID() != -1)
 				continue;
 
 			bool bSuitableUnit = false;
@@ -4904,7 +4904,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack
-				if(pLoopUnit->isRanged())
+				if(pLoopUnit->IsCanAttackRanged())
 					bSuitableUnit = true;
 
 				break;
@@ -4919,7 +4919,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				break;
 			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 				// No ranged units as sentries (that would be assault_sea)
-				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
+				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCanAttack() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
 				{
 					bSuitableUnit = true;
 				}

@@ -981,7 +981,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
-			if (pUnit->isRanged())
+			if (pUnit->IsCanAttackRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
 				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
@@ -1105,7 +1105,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
-			if (pUnit->isRanged())
+			if (pUnit->IsCanAttackRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
 				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
@@ -1139,7 +1139,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if ( (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) || !pUnit->CanEverEmbark()) && pToPlot->needsEmbarkation(pUnit))
 			return FALSE;
 
-		if(pUnit->IsCombatUnit())
+		if(pUnit->IsCanAttack())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
 			if(pCity)
@@ -1186,7 +1186,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
-	if(pUnit->IsCombatUnit())
+	if(pUnit->IsCanAttack())
 	{
 		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
@@ -1259,7 +1259,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 
-		if (pUnit->IsCombatUnit())
+		if (pUnit->IsCanAttack())
 		{
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
@@ -1542,7 +1542,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+				if ( pCacheData->isAIControl() && pUnit->IsCanAttack() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
 					return FALSE;
 			}
 

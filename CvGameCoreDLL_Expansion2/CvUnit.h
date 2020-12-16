@@ -645,7 +645,6 @@ public:
 	int firstStrikes() const;
 	int chanceFirstStrikes() const;
 	int maxFirstStrikes() const;
-	bool isRanged() const;
 
 	bool immuneToFirstStrikes() const;
 	bool ignoreBuildingDefense() const;
@@ -1769,17 +1768,6 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-	inline bool IsCivilianUnit() const
-	{
-		return !(IsCombatUnit() || isRanged());
-	}
-
-	// Combat eligibility routines
-	inline bool IsCombatUnit() const
-	{
-		return (m_iBaseCombat > 0);
-	}
-
 	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 	bool IsCanAttackWithMove() const;
@@ -1787,6 +1775,7 @@ public:
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend() const;
+	bool IsCivilianUnit() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);

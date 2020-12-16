@@ -2699,7 +2699,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit->IsCombatUnit())
+		if (!pLoopUnit->IsCanAttack())
 			continue;
 
 		if (!pLoopUnit->canScrap())
@@ -2757,7 +2757,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
 
-		if(!pLoopUnit->IsCombatUnit())
+		if(!pLoopUnit->IsCanAttack())
 			continue;
 
 		if (!pLoopUnit->canScrap())
@@ -3177,7 +3177,7 @@ void CvMilitaryAI::LogAvailableForces()
 			}
 
 			// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general/admiral
-			else if(!pLoopUnit->IsCombatUnit() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
+			else if(!pLoopUnit->IsCanAttack() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
 			{
 				continue;
 			}
@@ -3460,11 +3460,11 @@ void CvMilitaryAI::UpdateWarType()
 
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+		if (pLoopUnit != NULL && pLoopUnit->IsCanAttack())
 		{
 			if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
-				if (pLoopUnit->isRanged())
+				if (pLoopUnit->IsCanAttackRanged())
 				{
 					iFriendlySea += pLoopUnit->GetBaseRangedCombatStrength();
 				}
@@ -3475,7 +3475,7 @@ void CvMilitaryAI::UpdateWarType()
 			}
 			else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
-				if (pLoopUnit->isRanged())
+				if (pLoopUnit->IsCanAttackRanged())
 				{
 					iFriendlyLand += pLoopUnit->GetBaseRangedCombatStrength();
 				}
@@ -3533,13 +3533,13 @@ void CvMilitaryAI::UpdateWarType()
 			{
 				for(CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
 				{
-					if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit != NULL && pLoopUnit->IsCanAttack())
 					{
 						if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
 							if (pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
 							{
-								if (pLoopUnit->isRanged())
+								if (pLoopUnit->IsCanAttackRanged())
 								{
 									iEnemyWater += pLoopUnit->GetBaseRangedCombatStrength() * 2;
 								}
@@ -3550,7 +3550,7 @@ void CvMilitaryAI::UpdateWarType()
 							}
 							else
 							{
-								if (pLoopUnit->isRanged())
+								if (pLoopUnit->IsCanAttackRanged())
 								{
 									iEnemyWater += pLoopUnit->GetBaseRangedCombatStrength();
 								}
@@ -3564,7 +3564,7 @@ void CvMilitaryAI::UpdateWarType()
 						{
 							if (pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
 							{
-								if (pLoopUnit->isRanged())
+								if (pLoopUnit->IsCanAttackRanged())
 								{
 									iEnemyLand += pLoopUnit->GetBaseRangedCombatStrength() * 2;
 								}
@@ -3575,7 +3575,7 @@ void CvMilitaryAI::UpdateWarType()
 							}
 							else
 							{
-								if (pLoopUnit->isRanged())
+								if (pLoopUnit->IsCanAttackRanged())
 								{
 									iEnemyLand += pLoopUnit->GetBaseRangedCombatStrength();
 								}

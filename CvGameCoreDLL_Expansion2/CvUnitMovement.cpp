@@ -377,7 +377,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCanAttack())
 				continue;
 
 			// Embarked units don't have ZOC
@@ -474,7 +474,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCanAttack())
 				continue;
 
 			// Embarked units don't have ZOC

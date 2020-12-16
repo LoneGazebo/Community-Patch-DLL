@@ -735,7 +735,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
-				if (!bZoneTypeMatch && !pLoopUnit->isRanged())
+				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
 					continue;
 
 				//a little cheating for AI - invisible units still count with reduced strength

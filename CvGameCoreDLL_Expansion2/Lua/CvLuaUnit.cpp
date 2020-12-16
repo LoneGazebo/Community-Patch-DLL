@@ -2706,7 +2706,7 @@ int CvLuaUnit::lGetBaseCombatStrength(lua_State* L)
 int CvLuaUnit::lIsCombatUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->IsCombatUnit();
+	const bool bResult = pkUnit->IsCanAttack();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3229,11 +3229,11 @@ int CvLuaUnit::lMaxFirstStrikes(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool isRanged();
+//bool IsCanAttackRanged();
 int CvLuaUnit::lIsRanged(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isRanged();
+	const bool bResult = pkUnit->IsCanAttackRanged();
 
 	lua_pushboolean(L, bResult);
 	return 1;

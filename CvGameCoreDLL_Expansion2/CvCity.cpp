@@ -2605,7 +2605,7 @@ void CvCity::doTurn()
 			pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
 
 			//Only get land combat units
-			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pLoopUnit->getDamage() > 0)
 				{
@@ -14082,7 +14082,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iLoop = 0;
 				for(pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCanAttack())
 					{
 						UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
 						UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
@@ -30158,7 +30158,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		if(pLoopUnit != NULL)
 		{
 			// check stacking
-			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCombatUnit())
+			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCanAttack())
 				return false;
 		}
 
@@ -32910,7 +32910,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 	// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
 #if defined(MOD_BALANCE_CORE)
 	//Correction - make this apply to all ranged units, naval too.
-	else if (!pDefender->isRangedSupportFire() && pDefender->isRanged())
+	else if (!pDefender->isRangedSupportFire() && pDefender->IsCanAttackRanged())
 #else
 	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
 #endif
@@ -33081,7 +33081,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCombatUnit())
+			if (pUnit->IsCanAttack())
 			{
 				if (pUnit->getTeam() == getTeam())
 					iFriendlyPower += pUnit->GetPower();

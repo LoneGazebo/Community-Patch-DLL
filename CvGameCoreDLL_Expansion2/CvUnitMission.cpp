@@ -76,7 +76,7 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 				}
 			}
 
-			bool bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert();
+			bool bAbortMission = !hUnit->IsCanAttack() && !bEscortedBuilder && hUnit->SentryAlert();
 			if(bAbortMission)
 			{
 				hUnit->ClearMissionQueue();
@@ -581,7 +581,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
 
 						//only combat units need to swap
-						if(!pUnit2->IsCombatUnit() || pUnit2->getDomainType() != hUnit->getDomainType())
+						if(!pUnit2->IsCanAttack() || pUnit2->getDomainType() != hUnit->getDomainType())
 							continue;
 
 						if(pUnit2->ReadyToSwap())

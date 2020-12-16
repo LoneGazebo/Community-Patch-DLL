@@ -9320,7 +9320,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		CvAssert(pstartUnit);
 		if (pstartUnit)
 		{
-			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCombatUnit())
+			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCanAttack())
 			{
 				pstartUnit->kill(false);		// Could not find a spot!
 			}
@@ -9347,7 +9347,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				CvAssert(pmUnit);
 				if (pmUnit)
 				{
-					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCombatUnit())
+					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCanAttack())
 					{
 						pmUnit->kill(false);		// Could not find a spot!
 					}
@@ -9369,7 +9369,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					CvAssert(pUnit);
 					if (pUnit)
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCombatUnit())
+						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCanAttack())
 						{
 							pUnit->kill(false);		// Could not find a spot!
 						}
@@ -14234,7 +14234,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	CombatPredictionTypes ePrediction = NO_COMBAT_PREDICTION;
 
-	if(pAttackingUnit->isRanged())
+	if(pAttackingUnit->IsCanAttackRanged())
 	{
 		return COMBAT_PREDICTION_RANGED;
 	}
