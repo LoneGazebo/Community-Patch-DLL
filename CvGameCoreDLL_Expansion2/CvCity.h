@@ -976,7 +976,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	void SetBorderObstacleCity(int iValue);
 
 	void ChangeBorderObstacleWater(int iNewValue);

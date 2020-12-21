@@ -1066,7 +1066,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
 		int iTargetIndex = -1;
-		int iTargetMoves = MAX_INT;
+		int iBestTurns = MAX_INT;
 
 		// See how many moves of this type we can execute
 		for (unsigned int iI = 0; iI < m_TargetedNavalResources.size(); iI++)
@@ -1078,6 +1078,10 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			if (!pTarget->shareAdjacentArea(pUnit->plot()))
 				continue;
 
+			//allow some fog danger
+			if (pUnit->GetDanger(pTarget)>20)
+				continue;
+
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			if(MOD_AI_SECONDARY_WORKERS && bSecondary)
 			{
@@ -1085,9 +1089,6 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 					(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
 				{
 					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-						continue;
-
-					if (pUnit->GetDanger(pTarget)>20)
 						continue;
 				}
 				else if(MOD_AI_SECONDARY_WORKERS && !pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
@@ -1115,21 +1116,26 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			}
 			else
 			{
-#endif
 				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 					continue;
-
-				if (pUnit->GetDanger(pTarget)>20)
-					continue;
-#if defined(MOD_AI_SECONDARY_WORKERS)
 			}
+#else
+			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+				continue;
 #endif
 
-			int iMoves = pUnit->TurnsToReachTarget(pTarget, false, false, iTargetMoves);
-			if (iMoves < iTargetMoves)
+			int iTurns = INT_MAX;
+			if (pUnit->GeneratePath(pTarget, 0, iBestTurns, &iTurns))
 			{
-				iTargetMoves = iMoves;
-				iTargetIndex = iI;
+				if (iTurns < iBestTurns)
+				{
+					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
+					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints())
+						continue;
+
+					iBestTurns = iTurns;
+					iTargetIndex = iI;
+				}
 			}
 		}
 

@@ -413,7 +413,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestPotential();
+	SetHighestSpyPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -1196,7 +1196,7 @@ void CvGame::uninit()
 	m_iLastTurnCSSurrendered = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	m_iLargestBasePotential = 0;
+	m_iHighestSpyPotential = 0;
 #endif
 
 	m_strScriptData = "";
@@ -8692,7 +8692,7 @@ void CvGame::doTurn()
 	updateEconomicTotal();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestPotential();
+	SetHighestSpyPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -11551,9 +11551,9 @@ void CvGame::DoGlobalAvgLogging()
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-void CvGame::SetHighestPotential()
+void CvGame::SetHighestSpyPotential()
 {
-	m_iLargestBasePotential = 0;
+	m_iHighestSpyPotential = 0;
 
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -11573,15 +11573,15 @@ void CvGame::SetHighestPotential()
 			{				
 				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
 
-				if (iPotential > m_iLargestBasePotential)
+				if (iPotential > m_iHighestSpyPotential)
 				{
-					m_iLargestBasePotential = iPotential;
+					m_iHighestSpyPotential = iPotential;
 				}
 			}
 		}
 	}
 	// second pass to set the base potential for each city
-	if(m_iLargestBasePotential > 0)
+	if(m_iHighestSpyPotential > 0)
 	{
 		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
 		{
@@ -11805,7 +11805,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> wrapm_aiGreatestMonopolyPlayer;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_READ(66, kStream, m_iLargestBasePotential, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iHighestSpyPotential, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -12086,7 +12086,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_WRITE(kStream, m_iLargestBasePotential);
+	MOD_SERIALIZE_WRITE(kStream, m_iHighestSpyPotential);
 #endif
 
 

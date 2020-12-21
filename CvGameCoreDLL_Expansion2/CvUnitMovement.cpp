@@ -272,7 +272,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 					{
 						if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
 						{
-							bSlowDown = (pCity->GetBorderObstacleCity() > 0);
+							bSlowDown = (pCity->GetBorderObstacleLand() > 0);
 						}
 						if (pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
 						{

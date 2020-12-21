@@ -16584,9 +16584,9 @@ int CvUnit::GetEmbarkedUnitDefense() const
 
 	//except for one
 	int iModifier = GetEmbarkDefensiveModifier();
-	if(iModifier > 0)
+	if(iModifier != 0)
 	{
-		iRtnValue = iRtnValue * (100 + iModifier);
+		iRtnValue = iRtnValue * (100+iModifier);
 		iRtnValue /= 100;
 	}
 
@@ -25483,6 +25483,9 @@ int CvUnit::getGAPBlast()
 	{
 		// Beakers boost based on previous turns
 		int iPreviousTurnsToCount = m_pUnitInfo->GetBaseTurnsForGAPToCount();
+		if (iPreviousTurnsToCount == 0)
+			return 0;
+
 		iValue = pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		iValue += pPlayer->GetGAPYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 

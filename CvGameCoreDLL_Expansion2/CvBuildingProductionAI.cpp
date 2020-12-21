@@ -728,7 +728,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	else
 	{
-		if (pkBuildingInfo->GetBorderObstacleCity() > 0)
+		if (pkBuildingInfo->GetBorderObstacleLand() > 0)
 		{
 			iDefense += 25;
 		}

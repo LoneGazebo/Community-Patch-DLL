@@ -7175,9 +7175,9 @@ void CvCity::SetEspionageRanking(int iPotential, bool bNotify)
 	int iRank = 0;
 
 	//Don't want to divide by zero!
-	if(GC.getGame().GetLargestSpyPotential() > 0)
+	if(GC.getGame().GetHighestSpyPotential() > 0)
 	{
-		iRank = ((iPotential * 100) / GC.getGame().GetLargestSpyPotential());
+		iRank = ((iPotential * 100) / GC.getGame().GetHighestSpyPotential());
 		//Rank time - 10 is worst, 1 is best
 		iRank /= 10;
 		if (iRank <= 0)
@@ -14437,9 +14437,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeCityAirStrikeDefense(pBuildingInfo->GetCityAirStrikeDefense() * iChange);
 		}
-		if((pBuildingInfo->GetBorderObstacleCity() > 0))
+		if((pBuildingInfo->GetBorderObstacleLand() > 0))
 		{
-			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
+			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleLand() * iChange);
 		}
 		if((pBuildingInfo->GetBorderObstacleWater() > 0))
 		{
@@ -23200,7 +23200,7 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetBorderObstacleCity() const
+int CvCity::GetBorderObstacleLand() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleCity;
@@ -23210,7 +23210,7 @@ int CvCity::GetBorderObstacleCity() const
 void CvCity::ChangeBorderObstacleCity(int iChange)
 {
 	VALIDATE_OBJECT
-	SetBorderObstacleCity(GetBorderObstacleCity() + iChange);
+	SetBorderObstacleCity(GetBorderObstacleLand() + iChange);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetBorderObstacleCity(int iValue)
@@ -33526,13 +33526,10 @@ void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 	}
 	else
 	{
-		OutputDebugString("\nNo stat for selected unit type.\n");
+		//OutputDebugString("No stat for selected unit type.\n");
 	}
 
-	bool bAllUnitsUnlocked;
-
-	bAllUnitsUnlocked = AreAllUnitsBuilt();
-	if(bAllUnitsUnlocked)
+	if(AreAllUnitsBuilt())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_UNITS);
 	}
