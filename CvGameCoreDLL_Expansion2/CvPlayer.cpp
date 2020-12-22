@@ -17953,7 +17953,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 	for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
 		CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
-		if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
+		if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv() && kLoopTeam.GetID() != getTeam())
 		{
 #if defined(MOD_DIPLOMACY_TECH_BONUSES)
 			bool bCouldBorrowTech;
