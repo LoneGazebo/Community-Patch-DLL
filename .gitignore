@@ -22,6 +22,10 @@
 !*.dll
 !*.sln
 !*.iss
+!*.md
+!*.txt
+!*.rtf
+!*.ico
 
 !*.py
 !*.inl

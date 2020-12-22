@@ -15,6 +15,17 @@ enum eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
+enum ArmyType
+{
+    ARMY_TYPE_ANY = -1,
+    ARMY_TYPE_LAND,
+	ARMY_TYPE_NAVAL,
+    ARMY_TYPE_COMBINED, //land and sea
+    ARMY_TYPE_AIR,
+    ARMY_TYPE_ESCORT_LAND, //not out to fight
+    ARMY_TYPE_ESCORT_SEA, //not out to fight
+};
+
 //! An enumeration for indexing units within a CvBattleDefinition
 enum BattleUnitTypes
 {
@@ -1811,7 +1822,7 @@ enum UnitAITypes
 	UNITAI_ASSAULT_SEA,				// naval ranged units
 	UNITAI_SETTLER_SEA,				// UNUSED in Civ 5
 	UNITAI_CARRIER_SEA,				// aircraft carrier
-	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier - UNUSED
+	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier
 	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters
@@ -2525,6 +2536,7 @@ enum MultiunitFormationTypes
 #if defined(MOD_BALANCE_CORE)
 	MUFORMATION_LATE_GAME_INVASION_FORCE,
 	MUFORMATION_LATE_GAME_PURE_NAVAL_FORCE,
+	MUFORMATION_CARRIER_ESCORT,
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	MUFORMATION_DIPLOMAT_ESCORT,

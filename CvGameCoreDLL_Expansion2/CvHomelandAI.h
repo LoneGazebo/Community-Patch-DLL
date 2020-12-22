@@ -227,8 +227,7 @@ private:
 	void AssignHomelandMoves();
 
 	// Routines to manage identifying and implementing homeland moves
-	void PlotExplorerMoves(bool bSecondPass);
-	void PlotExplorerSeaMoves(bool bSecondPass);
+	void PlotExplorerMoves();
 	void PlotFirstTurnSettlerMoves();
 	void PlotHealMoves();
 	void PlotMovesToSafety();
@@ -289,10 +288,10 @@ private:
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
-	void ExecuteExplorerMoves();
+	bool ExecuteExplorerMoves(CvUnit* pUnit);
 
 	void ExecuteWorkerMoves();
-	void ExecuteMovesToSafestPlot();
+	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	bool ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn = false);
 
 	void ExecuteHeals();

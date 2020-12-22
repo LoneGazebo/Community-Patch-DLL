@@ -1418,26 +1418,20 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						{
 							if (GET_PLAYER(eLoopTarget).isMajorCiv())
 							{
-								CvAIOperation* pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetSneakAttackOperation(eLoopTarget);
-								if (!pOurOperation)
-								{
-									pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetShowOfForceOperation(eLoopTarget);
-								}
-
+								bool bHaveOffensiveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
 								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMajorCivApproach(eLoopTarget) == MAJOR_CIV_APPROACH_WAR;
 
-								if (pOurOperation != NULL || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopTarget) || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
+								if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopTarget) || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
 								{
 									pDiplo->SetAggressor(eLoopTarget, true);
 								}
 							}
 							else if (GET_PLAYER(eLoopTarget).isMinorCiv())
 							{
-								CvAIOperation* pOurOperation = GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetCityStateAttackOperation(eLoopTarget);
-
+								bool bHaveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
 								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMinorCivApproach(eLoopTarget) == MINOR_CIV_APPROACH_CONQUEST;
 
-								if (pOurOperation != NULL || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget))
+								if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget))
 								{
 									pDiplo->SetAggressor(eLoopTarget, true);
 								}
@@ -1451,26 +1445,20 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 
 						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{
-							CvAIOperation* pTheirOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer);
-							if (!pTheirOperation)
-							{
-								pTheirOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetShowOfForceOperation(eLoopPlayer);
-							}
-
+							bool bHaveOffensiveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
 							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR;
 
-							if (pTheirOperation != NULL || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopPlayer) || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+							if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopPlayer) || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
 						}
 						else if (GET_PLAYER(eLoopPlayer).isMinorCiv() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST)
 						{
-							CvAIOperation* pOurOperation = GET_PLAYER(eLoopTarget).GetMilitaryAI()->GetCityStateAttackOperation(eLoopPlayer);
-
+							bool bHaveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
 							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST;
 
-							if (pOurOperation != NULL || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer))
+							if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer))
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
@@ -1679,11 +1667,11 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					//Setup our defenses!
 					if(!kAttackingPlayer.isHuman())
 					{
-						kAttackingPlayer.GetMilitaryAI()->SetupDefenses(eDefendingPlayer);
+						kAttackingPlayer.GetMilitaryAI()->SetupInstantDefenses(eDefendingPlayer);
 					}
 					if(!kDefendingPlayer.isHuman())
 					{
-						kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
+						kDefendingPlayer.GetMilitaryAI()->SetupInstantDefenses(eAttackingPlayer);
 					}
 
 					// Update Diplo.

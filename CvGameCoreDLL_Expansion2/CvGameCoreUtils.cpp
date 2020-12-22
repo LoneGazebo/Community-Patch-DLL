@@ -390,7 +390,7 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 	return GET_TEAM(eTeamA).isAtWar(eTeamB);
 }
 
-CvCity* getCity(IDInfo city)
+CvCity* GetPlayerCity(IDInfo city)
 {
 	if((city.eOwner >= 0) && city.eOwner < MAX_PLAYERS)
 	{
@@ -400,7 +400,7 @@ CvCity* getCity(IDInfo city)
 	return NULL;
 }
 
-CvUnit* getUnit(const IDInfo& unit)
+CvUnit* GetPlayerUnit(const IDInfo& unit)
 {
 	if((unit.eOwner >= 0) && unit.eOwner < MAX_PLAYERS)
 	{

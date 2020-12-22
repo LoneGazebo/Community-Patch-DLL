@@ -563,7 +563,7 @@ CvCity* CvArea::getTargetCity(PlayerTypes eIndex) const
 	CvAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be < MAX_PLAYERS");
 	if(eIndex < 0 || eIndex >= MAX_PLAYERS) return 0;
 
-	return getCity(m_aTargetCities[eIndex]);
+	return ::GetPlayerCity(m_aTargetCities[eIndex]);
 }
 
 //	--------------------------------------------------------------------------------

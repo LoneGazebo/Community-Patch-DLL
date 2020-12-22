@@ -91,9 +91,6 @@ public:
 	int getFreeSpecialist(PlayerTypes eIndex) const;
 	void changeFreeSpecialist(PlayerTypes eIndex, int iChange);
 
-	int getPower(PlayerTypes eIndex) const;
-	void changePower(PlayerTypes eIndex, int iChange);
-
 	int getTotalFoundValue() const;
 	void setTotalFoundValue(int iNewValue);
 

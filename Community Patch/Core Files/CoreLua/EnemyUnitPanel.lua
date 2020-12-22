@@ -311,15 +311,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		
 		local pFromPlot = pMyUnit:GetPlot();
 		local pToPlot = pCity:Plot();
-		
-		--JFD begins
-		--Find actual attacking plot (pathfinding will fail for ranged units)
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
-			local pPlot = Map.GetPlot(v.X,v.Y)
-			if pPlot ~= pToPlot then 
-				pFromPlot = pPlot
-			end
-		end
+	
 		local hexID = ToHexFromGrid( Vector2( pFromPlot:GetX(), pFromPlot:GetY()) );
 		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
 		
@@ -331,6 +323,17 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
 			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(nil, pCity, true);
 			bRanged = true;
+
+		--JFD begins
+		if not(bRanged) then
+			--Find actual attacking plot (pathfinding will fail for ranged units)
+			for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
+				local pPlot = Map.GetPlot(v.X,v.Y)
+				if pPlot ~= pToPlot then 
+					pFromPlot = pPlot
+				end
+			end
+		end
 			
 		-- Melee Unit
 		else
@@ -929,21 +932,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local pFromPlot = pMyUnit:GetPlot();
 		local pToPlot = pTheirUnit:GetPlot();
 		
-		--JFD begins
-		--Find actual attacking plot (pathfinding will fail for ranged units) 
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
-			local pPlot = Map.GetPlot(v.X,v.Y)
-			if pPlot ~= pToPlot then 
-				pFromPlot = pPlot
-			end
-		end
-		local hexID = ToHexFromGrid( Vector2( pFromPlot:GetX(), pFromPlot:GetY()) );
-		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
-		
-		local hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
-		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
-		--JFD ends
-		
 		-- Ranged Unit
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
 			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
@@ -953,6 +941,24 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		else
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, pTheirUnit);
 		end
+
+		if not(bRanged) then
+			--JFD begins
+			--Find actual attacking plot (pathfinding will fail for ranged units) 
+			for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
+				local pPlot = Map.GetPlot(v.X,v.Y)
+				if pPlot ~= pToPlot then 
+					pFromPlot = pPlot
+				end
+			end
+		end
+
+		local hexID = ToHexFromGrid( Vector2( pFromPlot:GetX(), pFromPlot:GetY()) );
+		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
+		
+		local hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
+		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
+		--JFD ends
 		
 		if (iMyStrength > 0) then
 			

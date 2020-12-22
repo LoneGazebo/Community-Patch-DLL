@@ -61,18 +61,11 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_iOperationID = iOperationID;
-	m_iCurrentX = INVALID_PLOT_COORD;
-	m_iCurrentY = INVALID_PLOT_COORD;
 	m_iGoalX = INVALID_PLOT_COORD;
 	m_iGoalY = INVALID_PLOT_COORD;
-	m_eDomainType = DOMAIN_LAND;
-	m_iFormationIndex = NO_MUFORMATION;
+	m_eType = ARMY_TYPE_ANY;
+	m_eFormation = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
-#if defined(MOD_BALANCE_CORE)
-	m_bOceanMoves = false;
-#endif
-
-	m_FormationEntries.clear();
 }
 
 /// Delete the army
@@ -87,6 +80,7 @@ void CvArmyAI::Kill()
 	if (pOperation)
 		pOperation->DeleteArmyAI(m_iID);
 
+	//this calls the destructor
 	GET_PLAYER(GetOwner()).deleteArmyAI(m_iID);
 }
 
@@ -103,26 +97,15 @@ void CvArmyAI::Read(FDataStream& kStream)
 
 	kStream >> m_iID;
 	kStream >> m_eOwner;
-	kStream >> m_iCurrentX;
-	kStream >> m_iCurrentY;
+	kStream >> uiVersion; //dummy
+	kStream >> uiVersion; //dummy
 	kStream >> m_iGoalX;
 	kStream >> m_iGoalY;
-	kStream >> m_eDomainType;
-	kStream >> m_iFormationIndex;
+	kStream >> m_eType;
+	kStream >> m_eFormation;
 	kStream >> m_eAIState;
 	kStream >> m_iOperationID;
-#if defined(MOD_BALANCE_CORE)
-	kStream >> m_bOceanMoves;
-#endif
-
-	int iEntriesToRead;
-	kStream >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		CvArmyFormationSlot slot;
-		kStream >> slot;
-		m_FormationEntries.push_back(slot);
-	}
+	kStream >> m_FormationEntries;
 }
 
 /// Write to binary data store
@@ -135,23 +118,15 @@ void CvArmyAI::Write(FDataStream& kStream) const
 
 	kStream << m_iID;
 	kStream << m_eOwner;
-	kStream << m_iCurrentX;
-	kStream << m_iCurrentY;
+	kStream << 0u;
+	kStream << 0u;
 	kStream << m_iGoalX;
 	kStream << m_iGoalY;
-	kStream << m_eDomainType;
-	kStream << m_iFormationIndex;
+	kStream << m_eType;
+	kStream << m_eFormation;
 	kStream << m_eAIState;
 	kStream << m_iOperationID;
-#if defined(MOD_BALANCE_CORE)
-	kStream << m_bOceanMoves;
-#endif
-
-	kStream << (int)m_FormationEntries.size();
-	for(uint ui = 0; ui < m_FormationEntries.size(); ui++)
-	{
-		kStream << m_FormationEntries[ui];
-	}
+	kStream << m_FormationEntries;
 }
 
 // ACCESSORS
@@ -182,13 +157,13 @@ TeamTypes CvArmyAI::GetTeam() const
 /// Retrieve current army state
 ArmyAIState CvArmyAI::GetArmyAIState() const
 {
-	return (ArmyAIState) m_eAIState;
+	return m_eAIState;
 }
 
 /// Set current army state
 void CvArmyAI::SetArmyAIState(ArmyAIState eNewArmyAIState)
 {
-	m_eAIState = (int) eNewArmyAIState;
+	m_eAIState = eNewArmyAIState;
 }
 
 /// Find average speed of units in army
@@ -266,12 +241,8 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		pUnit = GetNextUnit(pUnit);
 	}
 
-	//this is for debugging
-	float fNUnits = (float)iNumUnits;
-	float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
-	float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
-
 	//finally, compute average
+	float fNUnits = (float)iNumUnits;
 	float fAvgX = (iTotalX/fNUnits) + iRefX;
 	float fAvgY = (iTotalY/fNUnits) + iRefY;
 
@@ -279,31 +250,32 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	int iAvgX = fAvgX > 0 ? int(fAvgX + 0.5f) : int(fAvgX - 0.5f);
 	int iAvgY = fAvgY > 0 ? int(fAvgY + 0.5f) : int(fAvgY - 0.5f);
 
-	if (fVarX > 64 || fVarY > 64)
-	{
-		CvString msg = CvString::format("Warning: Army %d with %d units Center of Mass (%d,%d) has a large variance (%.2f,%.2f)\n", GetID(), iNumUnits, iAvgX, iAvgY, fVarX, fVarY);
-		OutputDebugString( msg.c_str() );
-	}
-
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
 	if (!pCOM)
 		return NULL;
 
 	if (pfVarX)
+	{
+		float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
 		*pfVarX = fVarX;
+	}
 	if (pfVarY)
+	{
+		float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
 		*pfVarY = fVarY;
+	}
 
 	if (bClampToUnit)
 	{
 		//don't return it directly but use the plot of the closest unit
 		pUnit = GetFirstUnit();
 		std::vector<SPlotWithScore> vPlots;
+		CvPlot* pGoal = GetGoalPlot();
 		while (pUnit)
 		{
 			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
-			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+			int iDistToTarget = pGoal ? plotDistance(*pUnit->plot(),*pGoal) : 0;
 			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
 
 			pUnit = GetNextUnit(pUnit);
@@ -323,6 +295,9 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 /// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 {
+	if (!pPlot)
+		return INT_MAX;
+
 	int iLargestDistance = 0;
 	CvUnit* pUnit = GetFirstUnit();
 
@@ -341,62 +316,43 @@ int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 // FORMATION ACCESSORS
 
 /// Retrieve index of the formation used by this army
-int CvArmyAI::GetFormationIndex() const
+CvMultiUnitFormationInfo* CvArmyAI::GetFormation() const
 {
-	return m_iFormationIndex;
+	return m_eFormation != NO_MUFORMATION ? GC.getMultiUnitFormationInfo(m_eFormation) : NULL;
 }
 
 /// Set index of the formation used by this army
-void CvArmyAI::SetFormationIndex(int iFormationIndex)
+void CvArmyAI::SetFormation(MultiunitFormationTypes eFormation)
 {
-	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);
-	if(m_iFormationIndex != iFormationIndex && thisFormation)
+	if(m_eFormation != eFormation)
 	{
 		ReleaseAllUnits();
 
-		m_iFormationIndex = iFormationIndex;
-		m_FormationEntries = vector<CvArmyFormationSlot>(thisFormation->getNumFormationSlotEntries());
+		m_eFormation = eFormation;
+		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(eFormation);
+		for (size_t i=0; i<thisFormation->getNumFormationSlotEntries(); i++)
+			m_FormationEntries.push_back( CvArmyFormationSlot(-1,thisFormation->getFormationSlotEntry(i).m_requiredSlot) );
 	}
 }
 
 /// How many slots are there in this formation if filled
-int CvArmyAI::GetNumFormationEntries() const
+size_t CvArmyAI::GetNumFormationEntries() const
 {
 	return m_FormationEntries.size();
 }
 
 /// How many slots do we currently have filled?
-int CvArmyAI::GetNumSlotsFilled() const
+size_t CvArmyAI::GetNumSlotsFilled() const
 {
-	int iRtnValue = 0;
+	size_t iRtnValue = 0;
 
-	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
+	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
 		if(m_FormationEntries[iI].IsUsed())
 		{
 			iRtnValue++;
 		}
 	}
-	return iRtnValue;
-}
-
-
-/// What turn will the army as a whole arrive on target?
-int CvArmyAI::GetTurnOfLastUnitAtNextCheckpoint() const
-{
-	int iRtnValue = INT_MAX;
-
-	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
-	{
-		if (!m_FormationEntries[iI].IsUsed())
-			continue;
-
-		if(m_FormationEntries[iI].GetTurnsToCheckpoint() < 0)
-			return INT_MAX;
-		
-		iRtnValue = MAX(iRtnValue, m_FormationEntries[iI].GetTurnsToCheckpoint());
-	}
-
 	return iRtnValue;
 }
 
@@ -407,8 +363,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 	if (!pOperation)
 		return;
 
-	//should be updated before calling this ...
-	CvPlot* pCurrentArmyPlot = GC.getMap().plot(GetX(), GetY());
+	CvPlot* pCurrentArmyPlot = GetCurrentPlot();
 
 	//kick out damaged units, but if we're defending or escorting, no point in running away
 	if (pOperation->IsOffensive())
@@ -418,7 +373,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 			if (!m_FormationEntries[iI].IsUsed())
 				continue;
 
-			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
+			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].GetUnitID());
 			if (pUnit == NULL)
 				continue;
 
@@ -443,53 +398,28 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 		{
 			if(plotDistance(*pUnit->plot(),*pCurrentArmyPlot)<iGatherTolerance)
 			{
-				m_FormationEntries[iI].SetTurnsToCheckpoint(0);
+				m_FormationEntries[iI].SetCurrentTurnsToCheckpoint(0);
 			}
 			else
 			{
 				//be generous with the flags here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
 				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
+				m_FormationEntries[iI].SetCurrentTurnsToCheckpoint(iTurnsToReachCheckpoint);
 
 				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
-				if ( iTurnsToReachCheckpoint==INT_MAX ||
-					 (GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint)) )
+				if (!m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint())
 				{
 					CvString strMsg;
-					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d, previously %d.", 
+					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d, prev %d, prev %d", 
 						pUnit->getName().c_str(), m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
-						iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
+						m_FormationEntries[iI].GetTurnsToCheckpoint(0), m_FormationEntries[iI].GetTurnsToCheckpoint(1), m_FormationEntries[iI].GetTurnsToCheckpoint(2));
 					pOperation->LogOperationSpecialMessage(strMsg);
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());
 				}
-				else
-					m_FormationEntries[iI].SetTurnsToCheckpoint(iTurnsToReachCheckpoint);
 			}
 		}
 	}
-}
-
-/// How many units of this type are in army?
-int CvArmyAI::GetUnitsOfType(MultiunitPositionTypes ePosition) const
-{
-	int iRtnValue = 0;
-
-	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
-	{
-		if (m_FormationEntries[iI].IsUsed())
-		{
-			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(m_iFormationIndex);
-			if(thisFormation)
-			{
-				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-				if(thisSlotEntry.m_ePositionType == ePosition)
-				{
-					iRtnValue++;
-				}
-			}
-		}
-	}
-	return iRtnValue;
 }
 
 /// Can all units in this army move on ocean?
@@ -498,9 +428,10 @@ bool CvArmyAI::IsAllOceanGoing()
 	CvUnit* pUnit = GetFirstUnit();
 	while(pUnit)
 	{
-		if(pUnit->getDomainType() != DOMAIN_SEA && !pUnit->IsHasEmbarkAbility())
+		if(pUnit->getDomainType() != DOMAIN_SEA)
 		{
-			return false;
+			if (!pUnit->IsHasEmbarkAbility() || !GET_PLAYER(pUnit->getOwner()).CanCrossOcean())
+				return false;
 		}
 
 		// If can move over ocean, not a coastal vessel
@@ -536,57 +467,66 @@ int CvArmyAI::GetTotalPower()
 
 // POSITION ACCESSORS
 
-/// Army's current X position
-int CvArmyAI::GetX() const
+CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
-	return m_iCurrentX;
+	CvMultiUnitFormationInfo* thisFormation = GetFormation();
+	if (thisFormation && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
+		return thisFormation->getFormationSlotEntry(iSlotID);
+
+	return CvFormationSlotEntry();
 }
 
-/// Army's current Y position
-int CvArmyAI::GetY() const
+vector<size_t> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
 {
-	return m_iCurrentY;
+	vector<size_t> result;
+	for (size_t i = 0; i<m_FormationEntries.size(); i++)
+		if (m_FormationEntries[i].IsFree())
+			if (!bRequiredOnly || m_FormationEntries[i].IsRequired())
+				result.push_back(i);
+
+	return result;
 }
 
-/// Set current army position, passing in X and Y
-void CvArmyAI::SetXY(int iX, int iY)
+CvPlot* CvArmyAI::GetCurrentPlot()
 {
-	m_iCurrentX = iX;
-	m_iCurrentY = iY;
-}
-
-/// Retrieve the army's current plot
-CvPlot* CvArmyAI::GetCurrentPlot() const
-{
-	return GC.getMap().plotCheckInvalid(m_iCurrentX, m_iCurrentY);
-}
-
-/// Retrieve the army's current area
-int CvArmyAI::GetArea() const
-{
-	// try to find what plot we are in
-	CvPlot* pPlot = GC.getMap().plotCheckInvalid(m_iCurrentX, m_iCurrentY);
-	if(pPlot != NULL)
+	switch (m_eAIState)
 	{
-		return pPlot->getArea();
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
+		//stupid but true
+		return GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->GetMusterPlot();
+	case ARMYAISTATE_MOVING_TO_DESTINATION:
+		return GetCenterOfMass(true);
+	case ARMYAISTATE_AT_DESTINATION:
+		return GetGoalPlot();
 	}
-	else
-	{
-		// since there is no plot return the invalid index
-		return -1;
-	}
+
+	return NULL;
 }
 
 /// Land or sea army?
 DomainTypes CvArmyAI::GetDomainType() const
 {
-	return (DomainTypes) m_eDomainType;
+	switch (m_eType)
+	{
+	case ARMY_TYPE_LAND:
+		return DOMAIN_LAND;
+	case ARMY_TYPE_NAVAL:
+	case ARMY_TYPE_COMBINED:
+		return DOMAIN_SEA;
+	default:
+		return NO_DOMAIN;
+	}
 }
 
-/// Set whether a land or sea army
-void CvArmyAI::SetDomainType(DomainTypes domainType)
+void CvArmyAI::SetType(ArmyType eType)
 {
-	m_eDomainType = domainType;
+	m_eType = eType;
+}
+
+ArmyType CvArmyAI::GetType() const
+{
+	return m_eType;
 }
 
 // GOAL ACCESSORS
@@ -614,50 +554,27 @@ void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 	}
 }
 
-/// Retrieve target plot X coordinate
-int CvArmyAI::GetGoalX() const
-{
-	return m_iGoalX;
-}
-
-/// Retrieve target plot Y coordinate
-int CvArmyAI::GetGoalY() const
-{
-	return m_iGoalY;
-}
-
-#if defined(MOD_BALANCE_CORE)
-//Water parameters
-void CvArmyAI::SetOceanMoves(bool bValue)
-{
-	if (bValue != m_bOceanMoves)
-	{
-		m_bOceanMoves = bValue;
-	}
-}
-
-/// Retrieve target plot X coordinate
-bool CvArmyAI::NeedOceanMoves() const
-{
-	return m_bOceanMoves;
-}
-#endif
 // UNIT HANDLING
-
 /// Add a unit to our army (and we know which slot)
-void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
+void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	CvUnit* pThisUnit = thisPlayer.getUnit(iUnitID);
 	if (!pThisUnit)
 		return;
 
+	// uh, slot already used?
+	if (GetSlotStatus(iSlotNum)->IsUsed())
+	{
+		OutputDebugString("warning, trying to assign unit to non-free slot\n");
+		return;
+	}
+
 	// remove this unit from an army if it is already in one
 	thisPlayer.removeFromArmy(pThisUnit->getArmyID(), GetID());
 
 	// add it to this army
-	m_FormationEntries[iSlotNum] = CvArmyFormationSlot(); //reset
-	m_FormationEntries[iSlotNum].SetUnitID(iUnitID);
+	m_FormationEntries[iSlotNum] = CvArmyFormationSlot(iUnitID, bIsRequired); //reset
 	pThisUnit->setArmyID(GetID());
 
 	//do this in two steps to avoid triggering the sanity check
@@ -665,15 +582,12 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	pThisUnit->setTacticalMove(AI_TACTICAL_OPERATION);
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint
-	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
+	CvPlot* pMusterPlot = GetCurrentPlot();
 	if(pMusterPlot)
 	{
 		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
-		if(iTurnsToReachCheckpoint < MAX_INT)
-		{
-			m_FormationEntries[iSlotNum].SetTurnsToCheckpoint(iTurnsToReachCheckpoint);
-		}
+		m_FormationEntries[iSlotNum].SetCurrentTurnsToCheckpoint(iTurnsToReachCheckpoint);
 
 		if (GC.getLogging() && GC.getAILogging())
 		{
@@ -700,7 +614,7 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 		CvArmyFormationSlot& slot = m_FormationEntries[iI];
 		if(slot.GetUnitID() == iUnitToRemoveID)
 		{
-			slot.SetUnitID(-1);
+			slot.Clear();
 
 			CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitToRemoveID);
 			if(pThisUnit)
@@ -743,7 +657,7 @@ CvUnit* CvArmyAI::GetFirstUnit()
 		else
 		{
 			//bad case
-			m_FormationEntries[i].SetUnitID(-1);
+			m_FormationEntries[i].Clear();
 			continue;
 		}
 	}
@@ -809,25 +723,75 @@ FDataStream& operator>>(FDataStream& loadFrom, CvArmyAI& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyFormationSlot& readFrom)
 {
 	saveTo << readFrom.m_iUnitID;
-	saveTo << readFrom.m_iEstimatedTurnsToCheckpoint;
-	saveTo << readFrom.m_iPrevEstimatedTurnsToCheckpoint;
+	saveTo << readFrom.m_estTurnsToCheckpoint;
+	saveTo << readFrom.m_bIsRequired;
 	return saveTo;
 }
 
 FDataStream& operator>>(FDataStream& loadFrom, CvArmyFormationSlot& writeTo)
 {
 	loadFrom >> writeTo.m_iUnitID;
-	loadFrom >> writeTo.m_iEstimatedTurnsToCheckpoint;
-	loadFrom >> writeTo.m_iPrevEstimatedTurnsToCheckpoint;
+	loadFrom >> writeTo.m_estTurnsToCheckpoint;
+	loadFrom >> writeTo.m_bIsRequired;
 	return loadFrom;
 }
 
-bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint(int iNextValue)
+//----------------------------------------------
+
+FDataStream& operator<<(FDataStream& saveTo, const MultiunitFormationTypes& readFrom)
 {
-	//no progress in the last two turns?
-	//stagnating is ok if we're close already
-	if (m_iPrevEstimatedTurnsToCheckpoint >= 2 && iNextValue >= m_iPrevEstimatedTurnsToCheckpoint)
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, MultiunitFormationTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<MultiunitFormationTypes>(v);
+	return loadFrom;
+}
+
+void CvArmyFormationSlot::ResetTurnsToCheckpoint()
+{
+	//useful if eg the muster point was updated
+	m_estTurnsToCheckpoint.clear();
+}
+
+bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
+{
+	//sometimes we get into a fight or there is a temporary block so we need some history
+	if (m_estTurnsToCheckpoint.size() < 3)
+		return true;
+
+	// can't get much better than this
+	if (m_estTurnsToCheckpoint.front() < 2)
+		return true;
+
+	// regular case, see if we made progress over several turns
+	if (m_estTurnsToCheckpoint.front() >= m_estTurnsToCheckpoint.back())
 		return false;
 
 	return true;
+}
+
+bool OperationalAIHelpers::HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits)
+{
+	int iFreeRequired = 0;
+	int iPresentRequired = 0;
+	int iPresentOptional = 0;
+
+	for (vector<CvArmyFormationSlot>::const_iterator it = slotStatus.begin(); it != slotStatus.end(); ++it)
+	{
+		if (it->IsFree() && it->IsRequired())
+			iFreeRequired++;
+		else if (it->IsUsed() && it->IsRequired())
+			iPresentRequired++;
+		else if (it->IsUsed() && !it->IsRequired())
+			iPresentOptional++;
+	}
+
+	// make up for missing required units with additional optional units
+	return iPresentRequired > 0 && iFreeRequired <= iPresentOptional/2 + iMaxMissingUnits;
 }

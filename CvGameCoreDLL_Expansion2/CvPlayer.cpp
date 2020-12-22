@@ -1224,11 +1224,9 @@ void CvPlayer::uninit()
 	m_cityNames.clear();
 
 	// loop through all entries freeing them up
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		delete(iter->second);
-	}
+	for(size_t i=0; i<m_AIOperations.size(); i++)
+		delete( m_AIOperations[i].second );
+
 	m_AIOperations.clear();
 
 	m_aiPlots.clear();
@@ -1965,9 +1963,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_armyAIs.RemoveAll();
 
 		// loop through all entries freeing them up
-		std::map<int , CvAIOperation*>::iterator iter;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-			delete(iter->second);
+		for(size_t i=0; i<m_AIOperations.size(); i++)
+			delete(m_AIOperations[i].second);
 		m_AIOperations.clear();
 
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
@@ -3007,7 +3004,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = ::getUnit(*pUnitNode);
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = oldUnits.next(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTeam() != getTeam())
@@ -3087,10 +3084,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iCityValue *= 150;
 				iCityValue /= 100;
 			}
-			// A City-State's capital, or another major's Holy City
-			else if (pOldCity->IsOriginalMinorCapital() || pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+			// A City-State's capital
+			else if (pOldCity->IsOriginalMinorCapital())
 			{
-				iCityValue *= 125;
+				iCityValue *= 115;
 				iCityValue /= 100;
 			}
 
@@ -4808,11 +4805,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// AI decides what to do with a City
 			if(!isHuman())
 			{
-#if defined(MOD_BALANCE_CORE)
 				AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
-#else
-				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
-#endif
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
 				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
@@ -5408,48 +5401,99 @@ void CvPlayer::SetCenterOfMassEmpire()
 
 void CvPlayer::UpdateCityThreatCriteria()
 {
-	//What are you doing here? Get out!
-	if(isMinorCiv() || isBarbarian() || isHuman())
-		return;
+	CvTacticalAnalysisMap* pTactMap = GetTacticalAI()->GetTacticalAnalysisMap();
 
-	if(getNumCities() <= 1)
-		return;
-
-	//Reset the criteria.
-	int iLoop;
-	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	int iLoopCity = 0;
+	for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 	{
-		pLoopCity->SetThreatRank(-1);
-		pLoopCity->SetCoastalThreatRank(-1);
+		//ignore danger - it's too volatile or rather it's too late then
+		int iThreatValue = 0;
+
+		if (pTactMap)
+		{
+			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
+
+			//todo: scale dominance contribution by exposure score?
+			if (pLandZone)
+			{
+				iThreatValue += pLandZone->GetBorderScore(DOMAIN_LAND);
+				if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
+			if (pWaterZone)
+			{
+				iThreatValue += pWaterZone->GetBorderScore(DOMAIN_SEA);
+				if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					iThreatValue += 50;
+				else if (pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+					iThreatValue += 23;
+			}
+		}
+
+		// Is this a focused city? If so, we need to support it ASAP.
+		if (GetTacticalAI()->IsInFocusArea(pLoopCity->plot()))
+			iThreatValue += GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL();
+		
+		//check the wider area for enemy tiles. may also be on another landmass
+		for(int i=RING2_PLOTS; i<RING5_PLOTS; i++)
+		{
+			CvPlot* pLoopNearbyPlot = iterateRingPlots(pLoopCity->plot(), i);
+
+			//Don't want them adjacent to cities, but we do want to check for plot ownership.
+			if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(getTeam()))
+			{
+				if((pLoopNearbyPlot->getOwner() != GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+				{
+					PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
+					if(pNeighborNearby != NULL)
+					{
+						if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 3 : 1;
+						}
+						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 5 : 2;
+						}
+						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
+						{
+							iThreatValue += (i<RING3_PLOTS) ? 7 : 3;
+						}
+					}
+				}
+			}
+		}
+
+		//note: we don't consider a cities size or economic importance here
+		//after all, small border cities are especially vulnerable
+
+		pLoopCity->setThreatValue(iThreatValue);
 	}
-
-	//
-	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
-	for(int i = 0; i < (int)threatenedCities.size(); i++)
-		threatenedCities[i]->SetThreatRank(i);
-
-	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(true, true);
-	for (int i = 0; i < (int)threatenedCoastalCities.size(); i++)
-		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool bCoastalOnly)
+//sorted by threat level, descending
+vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
 {
+	vector<CvCity*> result;
+	struct SortByThreatLevel
+	{
+		bool operator()(const CvCity* lhs, const CvCity* rhs) const { return lhs->getThreatValue() > rhs->getThreatValue(); }
+	};
+
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (bCoastalOnly)
-		{
-			if (pLoopCity->GetCoastalThreatRank() == iRank)
-				return pLoopCity;
-		}
-		else if (pLoopCity->GetThreatRank() == iRank)
-		{
-			return pLoopCity;
-		}
+		if (bCoastalOnly && !pLoopCity->isCoastal())
+			continue;
+
+		result.push_back(pLoopCity);
 	}
 
-	return NULL;
+	sort(result.begin(), result.end(), SortByThreatLevel());
+	return result;
 }
 
 void CvPlayer::UpdateBestMilitaryCities()
@@ -9646,6 +9690,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 	}
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced)
@@ -9658,11 +9703,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
-	if (ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 	{
 		ePlayer = pCity->getOriginalOwner();
 	}
-	if (ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
 	{
 		return;
 	}
@@ -9674,11 +9719,18 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Who originally took out this team?
 	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
 
-	if (!GET_PLAYER(ePlayer).isAlive())
+	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
+	bool bAlive = GET_PLAYER(ePlayer).isAlive();
+
+	// If they aren't alive, start the resurrection process
+	if (!bAlive)
 	{
 		GET_PLAYER(ePlayer).setBeingResurrected(true);
+
+		// Mark the liberators
 		if (!bForced)
 		{
+			pDiploAI->SetResurrectedBy(GetID(), true);
 			GET_TEAM(eLiberatedTeam).SetLiberatedByTeam(eTeam);
 		}
 
@@ -9690,78 +9742,38 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes)iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true, GetID());
 			}
 		}
+	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	// Give the city back to the liberated player
+	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
+
+	// Diplo bonus for returning the city
+	if (!bForced)
+	{
+		if (GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+			// Liberated the capital - big diplo bonus!
+			if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
 			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
-			}
-		}
-#endif
-	
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
-		{
-			// add notification
-			Localization::String strMessage;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
-			{
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
-			}
-			else
-			{
-#endif
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			}
-#endif
-			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
-			strMessage << pCity->getNameKey(); // CITY NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_SHORT");
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-			{
-				strSummary << GET_PLAYER(ePlayer).getNickName();
-			}
-			else
-			{
-				strSummary << GET_PLAYER(ePlayer).getNameKey();
-			}
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_eID).isHuman())
-			{
-				strSummary << GET_PLAYER(m_eID).getNickName();
-			}
-			else
-			{
-				strSummary << GET_PLAYER(m_eID).getNameKey();
-			}			
-
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
-			{
-				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
-				{
-					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
-				}
+				pDiploAI->SetPlayerLiberatedCapital(m_eID, true);
 			}
 
-			CvString temp = strMessage.toUTF8();
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
+			pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
+			pDiploAI->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 		}
 	}
-	else
+
+	// Now verify that the player is alive
+	GET_PLAYER(ePlayer).verifyAlive();
+
+	// Process other diplomatic consequences if a major was liberated
+	if (!bForced && GET_PLAYER(ePlayer).isMajorCiv())
 	{
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
+		// Player was alive? Just notify that a city was liberated.
+		if (bAlive)
 		{
-			// add notification
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LIBERATED");
-			if(GC.getGame().isGameMultiPlayer() && isHuman())
+			if (GC.getGame().isGameMultiPlayer() && isHuman())
 			{
 				strMessage << getNickName();
 			}
@@ -9771,9 +9783,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 			strMessage << pCity->getNameKey(); // CITY NAME
 			strMessage << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();// RESTORED CIV NAME
+
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_LIBERATED_SHORT");
 			strSummary << pCity->getNameKey();
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
 			{
 				strSummary << GET_PLAYER(ePlayer).getNickName();
 			}
@@ -9782,49 +9795,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				strSummary << GET_PLAYER(ePlayer).getNameKey();
 			}
 
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
+				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
 				{
 					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_LIBERATED_MAJOR_CITY, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 				}
 			}
 		}
-	}
 
-	// Give the city back to the liberated player
-#if defined(MOD_API_EXTENSIONS)
-	CvCity* pNewCity = GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-#else
-	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-#endif
-
-	// Diplo bonus for returning the city
-	if (!bForced)
-	{
-		// Liberated the capital - big diplo bonus!
-		if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
+		// Player was dead? Huge diplo bonuses!
+		else
 		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
-		}
-				
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberatedBy(m_eID, 1);
-#if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
-#endif
-	}
-
-	if (!GET_PLAYER(ePlayer).isMinorCiv() && !bForced)
-	{
-		// slewis - if the player we're liberating the city for is dead, give the liberating player a resurrection mark in the once-defeated player's book
-		if (!GET_PLAYER(ePlayer).isAlive())
-		{
-			CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 			PlayerTypes eMePlayer = GetID();
-
-			pDiploAI->SetResurrectedBy(eMePlayer, true);
 			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9835,7 +9819,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
-#if defined(MOD_BALANCE_CORE)
 			pDiploAI->SetVictoryBlockLevel(eMePlayer, BLOCK_LEVEL_NONE);
 			
 			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
@@ -9876,7 +9859,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesTheyPlottedAgainstUs(eMePlayer, 0);
 			pDiploAI->SetNumTimesTheyLoweredOurInfluence(eMePlayer, 0);
 			pDiploAI->SetNumTimesPerformedCoupAgainstUs(eMePlayer, 0);
-#endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->SetNumTimesCultureBombed(eMePlayer, 0);
 			pDiploAI->SetNegativeReligiousConversionPoints(eMePlayer, 0);
@@ -9884,7 +9866,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesRobbedBy(eMePlayer, 0);
 			
 			// Reset all promises
-			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMilitaryPromiseState(eMePlayer, NO_PROMISE_STATE);
 			pDiploAI->SetPlayerMadeExpansionPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeBorderPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeAttackCityStatePromise(eMePlayer, false);
@@ -9892,9 +9874,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerMadeNoConvertPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeNoDiggingPromise(eMePlayer, false);
 			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
-			
-			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
-			pDiploAI->SetPlayerIgnoredMilitaryPromise(eMePlayer, false);
+
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetIgnoredBorderPromiseValue(eMePlayer, 0);
 			pDiploAI->SetBrokenExpansionPromiseValue(eMePlayer, 0);
@@ -9938,90 +9918,78 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 
-			// Clear certain penalties with third parties
-			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+			// Resurrected civ becomes a vassal of the resurrector, if possible
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
 			{
-				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
-				
-				if (GET_PLAYER(eThirdParty).isMajorCiv())
+				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
-					// forget any denouncing
-					pDiploAI->SetDenouncedPlayer(eThirdParty, false);
-					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 				}
 			}
 
-			// Update diplo stuff.
-			if (!GET_PLAYER(ePlayer).isHuman())
+			// Add resurrection notification
+			Localization::String strMessage;
+
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
 			{
-				vector<PlayerTypes> v = pDiploAI->GetAllValidMajorCivs();
-				pDiploAI->DoUpdateOpinions();
-				pDiploAI->DoUpdateMajorCivApproaches(v);
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
 			}
-			if (!isHuman())
+			else
 			{
-				vector<PlayerTypes> v;
-				GetDiplomacyAI()->DoUpdateOpinions();
-				GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
 			}
-		}
-	}
 
-	// Now verify the player is alive
-	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-	{
-		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
-	}
-	GET_PLAYER(ePlayer).verifyAlive();
-	GET_PLAYER(ePlayer).setBeingResurrected(false);
+			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
+			strMessage << pCity->getNameKey(); // CITY NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_SHORT");
 
-	if (!bForced)
-	{
-		// Is this a Minor we have liberated?
-		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
-		{
-			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
-
-			//give them a basic but state-of-the-art garrison
-			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
-			if (eUnit != NO_UNIT)
-				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
-		}
-	}
-
-	// slewis
-	// negate warmonger
-	if (!bForced)
-	{
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
 			{
-				// Have I met the player who conquered the city?
-				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				strSummary << GET_PLAYER(ePlayer).getNickName();
+			}
+			else
+			{
+				strSummary << GET_PLAYER(ePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_eID).isHuman())
+			{
+				strSummary << GET_PLAYER(m_eID).getNickName();
+			}
+			else
+			{
+				strSummary << GET_PLAYER(m_eID).getNameKey();
+			}			
+
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			{
+				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications() && iI != m_eID)
 				{
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 				}
 			}
-		}
 
-		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
+			CvString temp = strMessage.toUTF8();
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
+		}
 	}
 
-	// Move Units from player that don't belong here
-	if(pPlot->getNumUnits() > 0)
+	// Kick out all other players' units from the city plot
+	if (pPlot->getNumUnits() > 0)
 	{
 		// Get the current list of units because we will possibly be moving them out of the plot's list
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
-			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if(pLoopUnit && pLoopUnit->getOwner() == eOldOwner)
+				if (pLoopUnit && pLoopUnit->getOwner() != ePlayer)
 				{
 					pLoopUnit->finishMoves();
 					if (!pLoopUnit->jumpToNearestValidPlot())
@@ -10031,20 +9999,89 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
+	// If a City-State was liberated, adjust Influence levels and give the City-State a basic but state-of-the-art garrison
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (!bForced)
+			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+		else
+			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), GC.getMINOR_FRIENDSHIP_AT_WAR());
+
+		UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+		if (eUnit != NO_UNIT)
+			GET_PLAYER(ePlayer).initUnit(eUnit, pCity->getX(), pCity->getY());
+	}
+
+	if (!bForced)
+	{
+		// Reduce our war weariness for liberating a city
+		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
+
+		// Reduce this player's warmongering penalties (if any)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
+			{
+				// Only with players who have met us
+				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				{
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
+					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+				}
+			}
+		}
+	}
+
+	// Meet the team, if we haven't already
+	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+	{
+		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
+	}
+
+	// Update diplo stuff
+	if (!GET_PLAYER(ePlayer).isHuman())
+	{
+		pDiploAI->DoUpdateOpinions();
+
+		if (bAlive)
+		{
+			vector<PlayerTypes> v;
+			v.push_back((PlayerTypes)GetID());
+			pDiploAI->DoUpdateMajorCivApproaches(v);
+		}
+		else
+		{
+			vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+			pDiploAI->DoUpdateMajorCivApproaches(v);
+		}
+	}
+	if (!isHuman())
+	{
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		GetDiplomacyAI()->DoUpdateOpinions();
+		GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+	}
+
+	// Mark the resurrection process as complete
+	GET_PLAYER(ePlayer).setBeingResurrected(false);
+
 #if defined(MOD_EVENTS_LIBERATION)
-	if (MOD_EVENTS_LIBERATION) {
+	if (MOD_EVENTS_LIBERATION) 
+	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerLiberated, GetID(), ePlayer, pNewCity->GetID());
 	}
 #endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
-	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
+	if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			ePlayer = (PlayerTypes) iPlayerLoop;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
+			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
 			{
 				int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
 				GET_PLAYER(ePlayer).ChangeImprovementLeagueVotes(-iEmbassyVotes);
@@ -10610,13 +10647,10 @@ void CvPlayer::ChangeMaxNumBuilders(int iChange)
 int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bIncludeWater)
 {
 	int iNumUnits = 0;
-
-	CvUnit* pLoopUnit;
-	CvCity* pLoopCity;
 	int iLoop;
 
 	// Current Units
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// Don't include Water Units if we don't want them
 		if(pLoopUnit->getDomainType() != DOMAIN_SEA || bIncludeWater)
@@ -10631,7 +10665,7 @@ int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingT
 	// Units being trained now
 	if(bIncludeBeingTrained)
 	{
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if(pLoopCity->isProductionUnit())
 			{
@@ -11224,7 +11258,6 @@ void CvPlayer::doTurn()
 			if(!isMinorCiv())
 			{
 				GetTrade()->DoTurn();
-				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
 				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
@@ -11357,11 +11390,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
+			UpdateAreaEffectUnits();
+			UpdateAreaEffectPlots();
 			UpdateDangerPlots(false);
 			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 			UpdateMilitaryStats();
-			UpdateAreaEffectUnits();
-			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 		}
@@ -11654,10 +11687,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-		pLoopUnit->ClearReachablePlots();
-#endif
-
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pLoopUnit->flipDamageReceivedPerTurn();
 #endif
@@ -11741,14 +11770,6 @@ void CvPlayer::DoUnitReset()
 		}
 	}
 }
-
-void CvPlayer::ResetReachablePlotsForAllUnits()
-{
-	int iLoop;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-		pLoopUnit->ClearReachablePlots();
-}
-
 
 //	--------------------------------------------------------------------------------
 /// Damage units from attrition (start of turn so we can get notifications)
@@ -12927,7 +12948,7 @@ void CvPlayer::disband(CvCity* pCity)
 		{
 			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				CvUnit* pUnit = ::getUnit(*itr);
+				CvUnit* pUnit = ::GetPlayerUnit(*itr);
 
 				if(pUnit && !pUnit->canEndTurnAtPlot(pPlot))
 				{
@@ -12965,25 +12986,27 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 #endif
 
-	if(!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
+	if (!CvGoodyHuts::IsCanPlayerReceiveGoody(GetID(), eGoody))
 	{
 		return false;
 	}
 
 	// No XP in first 10 turns
-	if(kGoodyInfo.getExperience() > 0)
+	if (kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
 			return false;
 		}
 
-		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnit->IsGainsXPFromScouting())
+		if (MOD_BALANCE_CORE && pUnit->IsGainsXPFromScouting())
+		{
 			return false;
+		}
 	}
 
 	// Unit Healing
-	if(kGoodyInfo.getDamagePrereq() > 0)
+	if (kGoodyInfo.getDamagePrereq() > 0)
 	{
 		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
@@ -12991,80 +13014,54 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		}
 	}
 
-	// Early pantheon
-	if(kGoodyInfo.isPantheonFaith())
+	// Faith towards pantheon or Great Prophet
+	if (kGoodyInfo.isPantheonFaith() || kGoodyInfo.getProphetPercent() > 0)
 	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
-		{
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
-		}
-		else
-		{
-			return (!GetReligions()->HasCreatedPantheon() && !GetReligions()->HasCreatedReligion());
-		}
-	}
 
-	// Faith toward Great Prophet
-	if(kGoodyInfo.getProphetPercent() > 0)
-	{
-		if(GC.getGame().getElapsedGameTurns() < 20)
-		{
+		if (GC.getGame().getElapsedGameTurns() < 20)
 			return false;
-		}
-		else
-		{
-			return (GetReligions()->HasCreatedPantheon() && !GetReligions()->HasCreatedReligion());
-		}
+
+		if (!GetReligions()->HasCreatedReligion())
+			return false;
+
+		return kGoodyInfo.isPantheonFaith() ? !GetReligions()->HasCreatedPantheon() : GetReligions()->HasCreatedPantheon();
 	}
 
 	// Population
 	if(kGoodyInfo.getPopulation() > 0)
 	{
-		if(getNumCities() == 0)
-		{
+		if (getNumCities() == 0)
 			return false;
-		}
 
-		// Don't give more Population if we're already over our Pop limit
-		if(IsEmpireUnhappy())
-		{
+		// Don't give more Population if we're already unhappy
+		if (IsEmpireUnhappy())
 			return false;
-		}
 	}
+
+	// Production
+	if (kGoodyInfo.getProduction() > 0)
+	{
+		if (getNumCities() == 0)
+			return false;
+	}
+
 #if defined(MOD_BALANCE_CORE)
 	//Golden Age
-	if(kGoodyInfo.getGoldenAge() > 0)
+	if (kGoodyInfo.getGoldenAge() > 0)
 	{
-		if(GetNumGoldenAges() <= 0)
-		{
+		if (GetNumGoldenAges() > 0)
 			return false;
-		}
 	}
 	//Free Tiles
-	if(kGoodyInfo.getFreeTiles() > 0 && pPlot != NULL)
+	if (kGoodyInfo.getFreeTiles() > 0)
 	{
-		int iDistance;
-		int iBestCityDistance = -1;
-		CvCity* pBestCity = NULL;
-
-		CvCity* pLoopCity;
-		int iLoop;
-		// Find the closest City to us to add a Pop point to
-		for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-		{
-			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-			{
-				iBestCityDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		if(pBestCity == NULL)
-		{
+		if (pPlot == NULL)
 			return false;
-		}
+
+		if (getNumCities() == 0)
+			return false;
 	}
 	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
@@ -13074,12 +13071,11 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pUnit->IsGainsXPFromScouting())
 			return false;
 	}
-	if(pPlot == NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
-		return false;
-	}
-	if (pPlot != NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
-	{
+		if (pPlot == NULL)
+			return false;
+
 		bool bGood = false;
 		int iOffset = kGoodyInfo.getMapOffset();
 		int iDX, iDY;
@@ -13212,23 +13208,21 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Tech
-	if(kGoodyInfo.isTech())
+	if (kGoodyInfo.isTech())
 	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+
 		bTechFound = false;
 
-		int iNumTechInfos = GC.getNumTechInfos();
-		for(iI = 0; iI < iNumTechInfos; iI++)
+		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTech = GC.getTechInfo(eTech);
-			if(pkTech != NULL && pkTech->IsGoodyTech())
+			if (pkTech != NULL && pkTech->IsGoodyTech() && GetPlayerTechs()->CanResearch(eTech))
 			{
-				if(GetPlayerTechs()->CanResearch(eTech))
+				if (!MOD_BALANCE_CORE || GetPlayerTechs()->GetCurrentResearch() != eTech)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GetPlayerTechs()->GetCurrentResearch() != eTech)
-					{
-#endif
 					bool bUseTech = true;
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					if (pkScriptSystem) 
@@ -13246,19 +13240,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 						}
 					}
 
-					if(bUseTech)
+					if (bUseTech)
 					{
 						bTechFound = true;
 					}
 					break;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
 				}
 			}
 		}
 
-		if(!bTechFound)
+		if (!bTechFound)
 		{
 			return false;
 		}
@@ -14460,12 +14451,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::canFound(int iX, int iY) const
+bool CvPlayer::canFoundCity(int iX, int iY) const
 {
-	return canFoundExt(iX,iY,false,false);
+	return canFoundCityExt(iX,iY,false,false);
 }
 
-bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
+bool CvPlayer::canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -14484,26 +14475,29 @@ bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities,
 		}
 	}
 #endif
-	
+
+	if (!pPlot->isRevealed(getTeam()))
+		return false;
+
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFoundCity(pPlot, this, bIgnoreDistanceToExistingCities);
 }
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
-void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
+void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
+void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce)
 #elif defined(MOD_BALANCE_CORE)
-void CvPlayer::found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
+void CvPlayer::foundCity(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
 #else
-void CvPlayer::found(int iX, int iY)
+void CvPlayer::foundCity(int iX, int iY)
 #endif
 {
-	if(!bForce && !canFound(iX, iY))
+	if(!bForce && !canFoundCity(iX, iY))
 	{
 		return;
 	}
@@ -14615,11 +14609,11 @@ void CvPlayer::found(int iX, int iY)
 		// And if the very first turn, we haven't even run player strategies once yet, so do that too.
 		if(GC.getGame().getGameTurn() == 0)
 		{
-			this->GetEconomicAI()->DoTurn();
-			this->GetMilitaryAI()->DoTurn();
-			this->GetReligionAI()->DoTurn();
-			this->GetEspionageAI()->DoTurn();
-			this->GetTradeAI()->DoTurn();
+			GetEconomicAI()->DoTurn();
+			GetMilitaryAI()->DoTurn();
+			GetReligionAI()->DoTurn();
+			GetEspionageAI()->DoTurn();
+			GetTradeAI()->DoTurn();
 		}
 		pCity->GetCityStrategyAI()->DoTurn();
 
@@ -25138,6 +25132,9 @@ void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
 /// Changes what is our progress towards the next GA
 void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+		return;
+
 	if (MOD_BALANCE_NO_GAP_DURING_GA && isGoldenAge())
 	{
 		return;
@@ -29167,7 +29164,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	}
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
-	CvCity* pMajorCity = GetClosestCityByEstimatedTurns(pMinorPlot);
+	CvCity* pMajorCity = GetClosestCityByPathLength(pMinorPlot);
 	if (pMajorCity == NULL && getCapitalCity() != NULL)
 	{
 		pMajorCity = getCapitalCity();
@@ -30694,6 +30691,9 @@ void CvPlayer::setOverflowResearchTimes100(int iNewValue)
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeOverflowResearchTimes100(int iChange)
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+		return;
+
 	setOverflowResearchTimes100(getOverflowResearchTimes100() + iChange);
 }
 
@@ -33110,7 +33110,7 @@ void CvPlayer::ChangeMilitaryRating(int iChange)
 
 void CvPlayer::updateMightStatistics()
 {
-	m_iTurnSliceMightRecomputed = GC.getGame().getTurnSlice();
+	m_iTurnSliceMightRecomputed = GC.getGame().getGameTurn();
 	m_iMilitaryMight = calculateMilitaryMight();
 	m_iEconomicMight = calculateEconomicMight();
 	m_iProductionMight = calculateProductionMight();
@@ -33129,7 +33129,7 @@ void CvPlayer::updateMightStatistics()
 int CvPlayer::getPower() const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iMilitaryMight + m_iEconomicMight;
@@ -33139,7 +33139,7 @@ int CvPlayer::getPower() const
 int CvPlayer::GetMilitaryMight(bool bForMinor) const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	if (bForMinor && GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
@@ -33156,7 +33156,7 @@ int CvPlayer::GetMilitaryMight(bool bForMinor) const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitarySeaMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33165,7 +33165,7 @@ int CvPlayer::GetMilitarySeaMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryAirMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33174,7 +33174,7 @@ int CvPlayer::GetMilitaryAirMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryLandMight() const
 {
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
@@ -33185,7 +33185,7 @@ int CvPlayer::GetMilitaryLandMight() const
 int CvPlayer::GetEconomicMight() const
 {
 	// more lazy evaluation
-	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iEconomicMight;
@@ -33195,10 +33195,15 @@ int CvPlayer::GetEconomicMight() const
 int CvPlayer::GetProductionMight() const
 {
 	// more lazy evaluation
-	if(m_iTurnSliceMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iProductionMight;
+}
+
+void CvPlayer::ResetMightCalcTurn()
+{
+	m_iTurnSliceMightRecomputed = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36755,28 +36760,23 @@ void CvPlayer::DoDeficit()
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE) {
 		return;
 	}
+	if(isBarbarian())
+	{
+		return;
+	}
 
 	int iNumMilitaryUnits = 0;
 
-	CvUnit* pLoopUnit;
 	int iLoop;
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsCombatUnit())
 			iNumMilitaryUnits++;
 	}
 
 	// If the player has more units than cities, start disbanding things
-#if defined(MOD_BALANCE_CORE)
-	if(isBarbarian())
-	{
-		return;
-	}
 	int iMax = isMinorCiv() ? ((GetCurrentEra() + 4) * getNumCities()) : max(10, getNumCities());
 	if(iNumMilitaryUnits >= iMax)
-#else
-	if(iNumMilitaryUnits > getNumCities())
-#endif
 	{
 		int iRand = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed());
 		if (iRand < 50)
@@ -36787,17 +36787,14 @@ void CvPlayer::DoDeficit()
 			int iNavalScore = MAX_INT;
 
 			// Look for obsolete land units if in deficit or have sufficient units
-			//if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			if (iRand <= 25)
 			{
-				pLandUnit = GetMilitaryAI()->FindBestUnitToScrap(true /*bLand*/, true /*bDeficitForcedDisband*/, iLandScore);
+				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
 			}
-
 			// Look for obsolete naval units if in deficit or have sufficient units
-			//if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
 			else
 			{
-				pNavalUnit = GetMilitaryAI()->FindBestUnitToScrap(false/*bNaval*/, true /*bDeficitForcedDisband*/, iNavalScore);
+				pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore);
 			}
 
 			if(iLandScore < MAX_INT && (GetMilitaryAI()->GetLandDefenseState() <= GetMilitaryAI()->GetNavalDefenseState() || iLandScore <= iNavalScore))
@@ -37130,7 +37127,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit->getTransportUnit() == pUnit)
@@ -37456,7 +37453,7 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit->getTransportUnit() == pUnit)
@@ -41086,10 +41083,10 @@ void CvPlayer::deleteCity(int iID)
 #endif
 }
 
-int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistancePathLength( const CvPlot* pPlot ) const
 {
 	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityDistancePathLength( pPlot, GetID() );
 
 	//for minors we fake it
 	CvCity* pCapital = getCapitalCity();
@@ -41099,11 +41096,11 @@ int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 	return INT_MAX;
 }
 
-CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
+CvCity* CvPlayer::GetClosestCityByPathLength( const CvPlot* pPlot ) const
 {
 	//careful, player-specific GetClosestCity only works for majors (because of performance)
 	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityByPathLength( pPlot, GetID() );
 
 	//for minors just assume they have only one city (99% correct)
 	return getCapitalCity();
@@ -41154,12 +41151,36 @@ CvCity* CvPlayer::GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const
 	return pTheirClosestCity;
 }
 
+CvCity* CvPlayer::GetClosestCityToCity(const CvCity * pRefCity)
+{
+	if (!pRefCity)
+		return NULL;
+
+	CvCity* pNeighborCity = NULL;
+	int iRefDist = INT_MAX;
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		//important ...
+		if (pLoopCity == pRefCity)
+			continue;
+
+		int iDist = plotDistance(*pLoopCity->plot(),*pRefCity->plot());
+		if (iDist < iRefDist)
+		{
+			iRefDist = iDist;
+			pNeighborCity = pLoopCity;
+		}
+	}
+
+	return pNeighborCity;
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {
-	CvCity *pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)eBuildingClass);
@@ -41366,74 +41387,64 @@ void CvPlayer::deleteArmyAI(int iID)
 	CvAssertMsg(bRemoved, "could not find army, delete failed");
 }
 
-
 //	--------------------------------------------------------------------------------
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
 {
-	std::map<int, CvAIOperation*>::const_iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
-	{
-		return it->second;
-	}
-	return 0;
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
+		if (m_AIOperations[i].first == iID)
+			return m_AIOperations[i].second;
+
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::getFirstAIOperation()
+size_t CvPlayer::getNumAIOperations() const
 {
-	CvAIOperation* rtnValue = NULL;
-
-	m_CurrentOperation = m_AIOperations.begin();
-	if(m_CurrentOperation != m_AIOperations.end())
-	{
-		rtnValue = m_CurrentOperation->second;
-	}
-	return rtnValue;
+	return m_AIOperations.size();
 }
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::getNextAIOperation()
+CvAIOperation* CvPlayer::getAIOperationByIndex(size_t iIndex) const
 {
-	CvAIOperation* rtnValue = NULL;
+	if (iIndex<m_AIOperations.size())
+		return m_AIOperations[iIndex].second;
 
-	if(m_CurrentOperation != m_AIOperations.end())
-	{
-		++m_CurrentOperation;
-		if(m_CurrentOperation != m_AIOperations.end())
-		{
-			rtnValue = m_CurrentOperation->second;
-		}
-	}
-	return rtnValue;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::getAIOperation(int iID)
 {
-	std::map<int, CvAIOperation*>::iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
-	{
-		return it->second;
-	}
-	return 0;
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
+		if (m_AIOperations[i].first == iID)
+			return m_AIOperations[i].second;
+
+	return NULL;
 }
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
+CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
+	CvAIOperation* pNewOperation = CreateAIOperation(eOperationType,GC.getGame().GetNextGlobalID(),GetID(),eEnemy);
 	if (!pNewOperation)
 		return NULL;
 
-	int m_iNextOperationID = GC.getGame().GetNextGlobalID();
+	//bail if impossible (just to avoid spamming the logs)
+	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, pTarget ? pTarget->plot() : NULL, iMaxMissingUnits))
+	{
+		delete pNewOperation;
+		return NULL;
+	}
 
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.insert(std::make_pair(m_iNextOperationID, pNewOperation));
+	m_AIOperations.push_back(std::make_pair(pNewOperation->GetID(), pNewOperation));
 
 	//check if initialization works out
-	pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
-	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
+	pNewOperation->Init(pTarget, pMuster);
+
+	//undo if necessary
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID )
 	{
 		pNewOperation->LogOperationEnd();
 		deleteAIOperation(pNewOperation->GetID());
@@ -41446,69 +41457,59 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteAIOperation(int iID)
 {
-	std::map<int, CvAIOperation*>::iterator it = m_AIOperations.find(iID);
-	if(it != m_AIOperations.end())
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		delete(it->second);
-		m_AIOperations.erase(it);
-	}
-	else
-	{
-		CvAssertMsg(false, "could not find operation, delete failed");
+		if (m_AIOperations[i].first == iID)
+		{
+			delete(m_AIOperations[i].second);
+			m_AIOperations.erase(m_AIOperations.begin() + i);
+			return;
+		}
 	}
 }
 
-bool CvPlayer::HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps)
+CvAIOperation* CvPlayer::getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
-
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); iter++)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && pThisOperation->GetEnemy() == ePlayer)
-		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				return true;
-			}
-		}
+		if (pThisOperation->IsOffensive() && (pThisOperation->GetEnemy() == eTargetPlayer || eTargetPlayer == NO_PLAYER))
+			return pThisOperation;
 	}
 
-	return false;
+	return NULL;
 }
 
-bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+bool CvPlayer::HasAnyOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
+	return getFirstOffensiveAIOperation(ePlayer) != NULL;
+}
 
+bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+{
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				bFoundOne = true;
-				pThisOperation->SetToAbort(eReason);
-			}
+			bFoundOne = true;
+			pThisOperation->SetToAbort(eReason);
 		}
 	}
 
@@ -41519,11 +41520,13 @@ int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
 {
 	int iNum = 0;
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
-		if (!pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
+
+		if (pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if (eDomain == DOMAIN_SEA && pThisOperation->IsNavalOperation())
 				iNum++;
@@ -41537,21 +41540,19 @@ int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
 
 bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	if (ePlayer == NO_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsDefensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (!pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
 			bFoundOne = true;
 			pThisOperation->SetToAbort(eReason);
@@ -41561,30 +41562,24 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	return bFoundOne;
 }
 
-bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	// Ignore Barbarians
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
-			if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
-			{
-				bFoundOne = true;
-				pThisOperation->SetToAbort(eReason);
-			}
+			bFoundOne = true;
+			pThisOperation->SetToAbort(eReason);
 		}
 	}
 
@@ -41593,21 +41588,19 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, b
 
 bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
-	if (ePlayer == NO_PLAYER)
-		return false;
-
 	bool bFoundOne = false;
 
 	// loop through all entries looking for match
-	std::map<int, CvAIOperation*>::iterator iter;
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (pThisOperation->IsCivilianOperation())
+			continue;
 
 		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH || pThisOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED)
 			continue;
 
-		if (pThisOperation->IsDefensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetEnemy() == ePlayer)
+		if (!pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && (ePlayer==NO_PLAYER || pThisOperation->GetEnemy() == ePlayer))
 		{
 			bFoundOne = true;
 			pThisOperation->SetToAbort(eReason);
@@ -41618,266 +41611,65 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional return argument */, PlayerTypes eTargetPlayer /* optional additional match criteria */, CvPlot* pTarget /* optional additional match criteria */)
+CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer /* optional */, CvPlot* pTarget /* optional */)
 {
 	// loop through all entries looking for match
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if(pThisOperation->GetOperationType() == eOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
-				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot() || pTarget == pThisOperation->GetMusterPlot())
+				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot())
 				{
-					// Fill in optional parameter (ID) if passed in
-					if(piID != NULL)
-					{
-						*piID = pThisOperation->GetID();
-					}
-					return true;
+					return pThisOperation;
 				}
 			}
 		}
 	}
-	// Fill in optional parameter (ID) if passed in
-	if(piID != NULL)
-	{
-		*piID = -1;
-	}
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::numOperationsOfType(int iOperationType)
-{
-	int iRtnValue = 0;
-
-	std::map<int , CvAIOperation*>::iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
-		{
-			iRtnValue++;
-		}
-	}
-
-	return iRtnValue;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is an existing operation already going after this city?
-bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
+bool CvPlayer::IsTargetCityForOperation(CvCity* pCity, bool bNaval) const
 {
-	if (pCity == NULL)
-		return false;	
+	if (!pCity)
+		return false;
 
-	CvAIOperation* pOperation;
-	std::map<int , CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
-	if (iPercentToTarget <= 50)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
-	}
-	else
-	{
-		eOperationState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-	}
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		pOperation = iter->second;
-
-		if(pOperation)
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		CvPlot* pTarget = pThisOperation->GetTargetPlot();
+		if (pTarget && plotDistance(*pTarget,*pCity->plot())<3)
 		{
-			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if(pOperation->GetTargetPlot() != NULL)
-					{
-						if(pOperation->GetTargetPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if(pOperation->GetTargetPlot()->getOwningCity() != NULL)
-						{
-							if(pOperation->GetTargetPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if (pOperation->GetTargetPlot() != NULL)
-					{
-						if (pOperation->GetTargetPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if (pOperation->GetTargetPlot()->getOwningCity() != NULL)
-						{
-							if (pOperation->GetTargetPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
+			return (bNaval == pThisOperation->IsNavalOperation());
 		}
 	}
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 //	--------------------------------------------------------------------------------
 /// Is an existing operation already starting from this city?
-bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
+bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 {
-	CvAIOperation* pOperation;
-	std::map<int, CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
-	if (iPercentToTarget <= 50)
-	{
-		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
-	}
-	else
-	{
-		eOperationState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-	}
-	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		pOperation = iter->second;
+	if (!pCity)
+		return false;
 
-		if (pOperation)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
+	{
+		CvAIOperation* pThisOperation = m_AIOperations[i].second;
+		if (plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot())<3)
 		{
-			if (iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if(pOperation->GetMusterPlot() != NULL)
-					{
-						if(pOperation->GetMusterPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if(pOperation->GetMusterPlot()->getOwningCity() != NULL)
-						{
-							if(pOperation->GetMusterPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
-			{
-				if (pOperation->GetOperationState() <= eOperationState)
-				{
-					if (pOperation->GetMusterPlot() != NULL)
-					{
-						if (pOperation->GetMusterPlot() == pCity->plot())
-						{
-							// Naval attacks are mixed land/naval operations
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-
-							if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-							{
-								return true;
-							}
-						}
-						else if (pOperation->GetMusterPlot()->getOwningCity() != NULL)
-						{
-							if (pOperation->GetMusterPlot()->getOwningCity() == pCity)
-							{
-								// Naval attacks are mixed land/naval operations
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-
-								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_LAND) && !pOperation->IsNavalOperation())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
+			return (bNaval == pThisOperation->IsNavalOperation());
 		}
 	}
 
 	return false;
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
 {
 	if (!pPlot)
@@ -41899,28 +41691,22 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 	}
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Are we already sending a settler to this plot (or any plot within 3)
 bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const
 {
-	std::map<int , CvAIOperation*>::const_iterator iter;
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
-		CvAIOperation* pOperation = iter->second;
+		CvAIOperation* pOperation = m_AIOperations[i].second;
 		if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 		{
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_FOUND_CITY_OVERSEAS:
-			case AI_OPERATION_FOUND_CITY_QUICK:
+				if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
 				{
-					if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
@@ -42377,7 +42163,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				IDInfo* pUnitNode = pPlot->headUnitNode();
 				while(pUnitNode != NULL)
 				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 					if(NULL != pLoopUnit && pLoopUnit->getUnitType() == eUnit)
@@ -42393,7 +42179,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			IDInfo* pUnitNode = pPlot->headUnitNode();
 			if(pUnitNode != NULL)
 			{
-				CvUnit* pUnit = ::getUnit(*pUnitNode);
+				CvUnit* pUnit = ::GetPlayerUnit(*pUnitNode);
 
 				iCost = getAdvancedStartUnitCost(pUnit->getUnitType(), false);
 				CvAssertMsg(iCost != -1, "If this is -1 then that means it's going to try to delete a unit which shouldn't exist");
@@ -42457,7 +42243,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			}
 			if(getAdvancedStartPoints() >= iCost || 0 == getNumCities())
 			{
-				found(iX, iY);
+				foundCity(iX, iY);
 				changeAdvancedStartPoints(-iCost);
 				CvCity* pCity = pPlot->getPlotCity();
 				if(pCity != NULL)
@@ -42880,7 +42666,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 			IDInfo* pUnitNode = pPlot->headUnitNode();
 			while(pUnitNode != NULL)
 			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
 				if(NULL != pLoopUnit && pLoopUnit->getUnitType() == eUnit)
@@ -42920,7 +42706,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot)
 		// Need valid plot to found on if adding
 		if(bAdd)
 		{
-			if(!canFound(pPlot->getX(), pPlot->getY()))
+			if(!canFoundCity(pPlot->getX(), pPlot->getY()))
 			{
 				return -1;
 			}
@@ -45946,25 +45732,16 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		m_AIOperations.clear();
 		uint iSize;
-		int iID;
 		int iOperationType;
 		kStream >> iSize;
 		for(uint i = 0; i < iSize; i++)
 		{
-			kStream >> iID;
 			kStream >> iOperationType;
-			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType);
+			//ok to pass dummy parameters, they will be overwritten ... only the type must be right
+			CvAIOperation* pThisOperation = CreateAIOperation((AIOperationTypes)iOperationType,0,NO_PLAYER,NO_PLAYER);
 			pThisOperation->Read(kStream);
-			m_AIOperations.insert(std::make_pair(pThisOperation->GetID(), pThisOperation));
+			m_AIOperations.push_back(std::make_pair(pThisOperation->GetID(), pThisOperation));
 		}
-	}
-
-	if (uiVersion <= 10)
-	{
-		// Unused popup queue
-		int iSize;
-		kStream >> iSize;
-		CvAssert(iSize == 0);
 	}
 
 	kStream >> m_ReplayDataSets;
@@ -46170,11 +45947,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	{
 		uint iSize = m_AIOperations.size();
 		kStream << iSize;
-		std::map<int, CvAIOperation*>::const_iterator it;
-		for(it = m_AIOperations.begin(); it != m_AIOperations.end(); ++it)
+		for (size_t i = 0; i < m_AIOperations.size(); i++)
 		{
-			kStream << it->first;
-			CvAIOperation* pThisOperation = it->second;
+			CvAIOperation* pThisOperation = m_AIOperations[i].second;
 			kStream << pThisOperation->GetOperationType();
 			pThisOperation->Write(kStream);
 		}
@@ -46760,7 +46535,7 @@ bool CvPlayer::canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const
 
 	while(pUnitNode != NULL)
 	{
-		CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = kUnit.plot()->nextUnitNode(pUnitNode);
 
 		if(NULL != pLoopUnit && pLoopUnit != &kUnit)
@@ -47679,15 +47454,17 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 	const std::vector<std::pair<int, int>>& possibleUnits = GetAreaEffectPositiveUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-
 		//performance: very rough distance check first without looking up the unit pointer ...
-		if (plotDistance(*pUnitPlot,*pTestPlot) > 5)
-			continue;
+		//do not reuse the plot below
+		{
+			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if (plotDistance(*pUnitPlot, *pTestPlot) > 8)
+				continue;
+		}
 
-		//exclude this unit!
 		CvUnit* pUnit = getUnit(it->first);
-		if (pUnit == NULL || pUnit == pIgnoreThisUnit)
+		//catch all sorts of weird problems (this may be called while a general is being killed!)
+		if (pUnit == NULL || pUnit->isDelayedDeath() || pUnit->plot()==NULL || pUnit == pIgnoreThisUnit)
 			continue;
 
 		//domain check
@@ -47701,7 +47478,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 #endif
 
 		//actual distance check
-		int iDistance = plotDistance(*pUnitPlot,*pTestPlot);
+		int iDistance = plotDistance(*pUnit->plot(),*pTestPlot);
 		if (iDistance > iEffectRange)
 			continue;
 
@@ -47770,7 +47547,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 			bool bWarMayBeComing = false;
 
 			//do we want to start a war?
-			if(GetDiplomacyAI()->IsArmyInPlaceForAttack(eLoopPlayer) || GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+			if(GetDiplomacyAI()->IsArmyInPlaceForAttack(eLoopPlayer) || HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 				bWarMayBeComing = true;
 
 			//do they want to start a war?
@@ -47919,7 +47696,7 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 #if defined(MOD_BALANCE_CORE)
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
-	UpdatePlotFoundValues();
+	updatePlotFoundValues();
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -47959,65 +47736,6 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-vector<int> CvPlayer::GetBestSettleAreas()
-{
-	//lazy update
-	UpdatePlotFoundValues();
-
-	//find best city site for each area
-	map<int,CvPlot*> bestSitePerArea;
-	map<int,int> bestScorePerArea;
-
-	//far away sites get a penalty
-	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
-	int iMaxSettleDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset;
-
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue > 0)
-		{
-			//same scaling as in GetBestSettlePlot!
-			int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
-			int iDistanceScaler = max(20,MapToPercent( iCityDistance, iMaxSettleDistance, 0 ));
-			int iValue = (iCurrentValue*iDistanceScaler) / 100;
-
-			if (bestScorePerArea.find(pPlot->getArea()) == bestScorePerArea.end())
-			{
-				bestScorePerArea[pPlot->getArea()] = iValue;
-				bestSitePerArea[pPlot->getArea()] = pPlot;
-			}
-			else if (iValue > bestScorePerArea[pPlot->getArea()])
-			{
-				bestScorePerArea[pPlot->getArea()] = iCityDistance;
-				bestSitePerArea[pPlot->getArea()] = pPlot;
-			}
-
-		}
-	}
-
-	vector<int> result;
-	vector<OptionWithScore<CvPlot*>> sites;
-
-	for (map<int, int>::iterator it = bestScorePerArea.begin(); it != bestScorePerArea.end(); ++it)
-		sites.push_back( OptionWithScore<CvPlot*>(bestSitePerArea[it->first],it->second) );
-
-	if (!sites.empty())
-	{
-		//sort descending!
-		std::sort(sites.begin(), sites.end());
-
-		//take the better half
-		for (size_t i = 0; i < sites.size(); i++)
-			if (sites[i].score > sites[0].score / 2)
-				result.push_back(sites[i].option->getArea());
-	}
-
-	return result;
-}
-
-//	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
 ostream& operator<<(ostream& os, const CvPlot* pPlot)
 {
@@ -48027,9 +47745,8 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
-	bIsSafe = false; //set a sane default
 	std::vector<SPlotWithScore> vSettlePlots;
 
 	//--------
@@ -48091,7 +47808,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
-		if(!pPlot->isRevealed(getTeam()))
+		if(!pPlot->isRevealed(eTeam))
 		{
 			//--------------
 			if (bLogging) 
@@ -48100,25 +47817,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			continue;
 		}
 
-		if(iTargetArea != -1 && pPlot->getArea() != iTargetArea)
-		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
-			//--------------
-			continue;
-		}
-
-		if ((pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner) || (pPlot->getImprovementType() == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
-		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
-			//--------------
-			continue;
-		}
-
-		if(pPlot->IsAdjacentOwnedByTeamOtherThan(eTeam))
+		if ((pPlot->isOwned() && pPlot->getOwner() != eOwner) || (pPlot->getRevealedImprovementType(eTeam) == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 
@@ -48142,7 +47841,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			}
 		}
 
-		if(pUnit && (!pUnit->canFound(pPlot) || !pUnit->canMoveInto(*pPlot)))
+		if(pUnit && (!pUnit->canFoundCity(pPlot) || !pUnit->canMoveInto(*pPlot)))
 		{
 			//--------------
 			if (bLogging) 
@@ -48242,26 +47941,19 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	if (vSettlePlots.empty())
 		return 0;
 
-	//see where our settler can go
-	ReachablePlots reachablePlots;
-	int iMaxSafeTurns = 3;
-	if (pUnit)
-	{
-		//worst case in jungle one turn equals one plot ...
-		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-	}
-
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
 	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
 
 	CvPlot* pTestPlot = vSettlePlots[0].pPlot;
 	//look at the best two and see if maybe the second one is much closer ...
-	if (vSettlePlots.size() > 1)
+	if (pUnit && vSettlePlots.size() > 1)
 	{
+		//see where our settler can go
+		//worst case in jungle one turn equals one plot ...
+		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
+		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+
 		CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
 		CvPlot* pTestPlotB = vSettlePlots[1].pPlot;
 		int iScoreA = vSettlePlots[0].score;
@@ -48269,59 +47961,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
 		ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
 
-		//if B is at least 80% as good but less than 80% of the distance
-		if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
-			pTestPlot = pTestPlotB;
-	}
-
-	ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
-	bool bCanReachThisTurn = false;
-	if (it != reachablePlots.end())
-	{
-		//a ranged attack or some fog danger is ok
-		bIsSafe = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))<30); 
-		bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
-	}
-
-	//if it's too far from our existing cities, it's still dangerous
-	if (bIsSafe && !bCanReachThisTurn)
-	{
-		int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
-		//also consider distance to settler here in case of re-targeting an operation
-		if (iDistanceToCity>iMaxSafeTurns && pTestPlot->getOwner()!=m_eID)
-			bIsSafe = false;
-	}
-
-	//check if it's too close to an enemy
-	if (bIsSafe && !bCanReachThisTurn)
-	{
-		//check if a settler would likely be captured
-		std::vector<CvPlot*> vBadPlots;
-		for(int iI = 0; iI < iNumPlots; iI++)
+		if (itA != reachablePlots.end() && itB != reachablePlots.end())
 		{
-			CvPlot *pPlot = kMap.plotByIndexUnchecked(iI);
-			if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
-				continue;
-
-			//careful with barbarians
-			if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-				vBadPlots.push_back(pPlot);
-			//careful with humans as well!
-			else if (pPlot->isCity() && GET_PLAYER(pPlot->getOwner()).isHuman())
-				vBadPlots.push_back(pPlot);
-		}
-
-		for (size_t j = 0; j < vBadPlots.size(); j++)
-		{
-			if (pTestPlot->getArea() != vBadPlots[j]->getArea())
-				continue;
-
-			int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
-			if (iDistanceToDanger <= iMaxSafeTurns)
-			{
-				bIsSafe = false;
-				break;
-			}
+			//if B is at least 80% as good but less than 80% of the distance
+			if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
+				pTestPlot = pTestPlotB;
 		}
 	}
 
@@ -50117,7 +49761,7 @@ bool CvPlayer::HasProject(ProjectTypes iProjectType) const
 
 bool CvPlayer::IsAtPeace() const
 {
-	return !IsAtWar();
+	return GetPlayersAtWarWith().empty();
 }
 
 bool CvPlayer::IsAtPeaceAllMajors() const
@@ -50137,43 +49781,23 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 
 bool CvPlayer::IsAtWar() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	//ignore the barbarian team here!
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && kTeam.isAtWar((TeamTypes)iTeam)) {
-			return true;
-		}
-	}
-
-	return false;
+	return !IsAtPeace();
 }
 
 bool CvPlayer::IsAtWarAnyMajor() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
+	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+		if (GET_PLAYER(*it).isMajorCiv())
 			return true;
-		}
-	}
 
 	return false;
 }
 
 bool CvPlayer::IsAtWarAnyMinor() const
 {
-	//reference is important! otherwise the destructor will be called
-	CvTeam& kTeam = GET_TEAM(getTeam());
-
-	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
-		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
+	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+		if (GET_PLAYER(*it).isMinorCiv())
 			return true;
-		}
-	}
 
 	return false;
 }
@@ -50643,37 +50267,25 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::computeAveragePlotFoundValue()
+void CvPlayer::computeFoundValueThreshold()
 {
+	m_iReferenceFoundValue = 0;
+
 	//minors are not so discriminating ...
 	//should they ever have a settler, just take the best available spot
 	if (!isMajorCiv())
-	{
-		m_iReferenceFoundValue = 0;
 		return;
-	}
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+	vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
+	if (vValues.empty())
+		return;
 
-	unsigned int iSum = 0, iValidPlots = 0;
+	std::sort(vValues.begin(), vValues.end());
 
-	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = pCalc->PlotFoundValue(pPlot, this, vector<int>());
-
-		if (iValue > 0)
-		{
-			iSum += iValue / 1000;
-			iValidPlots++;
-		}
-	}
-
-	//assuming a normal distribution, this should allow all but the worst plots
-	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
-	m_iReferenceFoundValue = iAvg - iAvg / 3;
+	//set our threshold halfway between the worst plot and the median
+	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
@@ -50681,10 +50293,16 @@ void CvPlayer::computeAveragePlotFoundValue()
 	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
-	OutputDebugString(CvString::format("Average city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), iAvg, m_iReferenceFoundValue.get()).c_str());
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), vValues[vValues.size()/2], m_iReferenceFoundValue.get());
+		GetHomelandAI()->LogHomelandMessage(strMsg);
+	}
 }
 
-void CvPlayer::UpdatePlotFoundValues()
+
+void CvPlayer::updatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
@@ -50719,7 +50337,7 @@ void CvPlayer::UpdatePlotFoundValues()
 		}
 	}
 
-	// first pass: precalculate found values
+	//calculate new values and apply our threshold
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -50731,36 +50349,13 @@ void CvPlayer::UpdatePlotFoundValues()
 		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots) - m_iReferenceFoundValue;
 	}
 
-	// second pass: thresholding and non-maxima suppression
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue < 0)
-			continue;
-
-		for (int iCount = RING0_PLOTS; iCount < RING2_PLOTS; iCount++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pPlot, iCount);
-			if (pLoopPlot == NULL)
-				continue;
-
-			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iCurrentValue)
-			{
-				//this is not a local maximum
-				m_viPlotFoundValues[iI] = 0;
-				break;
-			}
-		}
-	}
-
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();
 }
 
 int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
 	//lazy update
-	UpdatePlotFoundValues();
+	updatePlotFoundValues();
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 

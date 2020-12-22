@@ -21,6 +21,25 @@
 		<Row Tag="TXT_KEY_BUILD_EKI_REC">
 			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA">
+			<Text>Hacienda</Text>
+			<Gender>neuter:a</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_TEXT">
+			<Text>Haciendas are colonial estates constructed by the Spanish for the administration and extraction of resources from their native subjects. Haciendas were based on grants of property and enterprise, rather than the strict grant of indigenous labor as described by the older Encomienda system. Haciendas were generally large estates, but the nature of the work varied from plantations, to mining, to factories.[NEWLINE][NEWLINE]The owner of a Hacienda was called a Hacendado, but the wealthy landowners rarely visited their holdings and preferred to live in nearby cities. Day-to-day operations of a Hacienda were the responsibility of hired managers. Some unusually large and profitable Haciendas were the property of the Roman Catholic Church, exacerbating tension between native laborers and their Christian taskmasters.[NEWLINE][NEWLINE]The Hacienda system was abolished in most countries after the dissolution of the Spanish Empire, but with mixed results. Efforts to break apart the large estates into individual holdings for subsistence farmers led to crushing poverty in some South American nations. In contrast, Latin American and Filipino Haciendas were mostly left intact, but without the same legal standing or permissions of their colonial past.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA_HELP">
+			<Text>Cannot be built next to another Hacienda. Provides [ICON_GOLD] Gold, and [ICON_CULTURE_LOCAL] Border Growth. Grants additional bonuses for every adjacent map component:[NEWLINE]+2 [ICON_FOOD] - Bonus Resource,[NEWLINE]+2 [ICON_PRODUCTION] - Strategic Resource,[NEWLINE]+2 [ICON_GOLD] - Luxury Resource,[NEWLINE]+2 [ICON_CULTURE_LOCAL] - City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA">
+			<Text>Construct a [LINK=IMPROVEMENT_SPAIN_HACIENDA]Hacienda[\LINK]'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_HELP">
+			<Text>Constructs a Hacienda, which yields [ICON_GOLD] Gold and [ICON_CULTURE_LOCAL] Border Growth.[NEWLINE]Gains [ICON_FOOD] Food for adjacent Bonus Resource, [ICON_PRODUCTION] Production for adjacent Strategic Resources, [ICON_GOLD] Gold for adjacent Luxury Resources, and [ICON_CULTURE_LOCAL] Border Growth from adjacent Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_REC">
+			<Text>It will increase [ICON_GOLD] Gold, and [ICON_CULTURE_LOCAL] Border Growth.[NEWLINE]Gains [ICON_CULTURE_LOCAL] Border Growth from adjacent Cities and [ICON_FOOD] Food, [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from adjacent resources.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA">
 			<Text>Kuna</Text>
 		</Row>

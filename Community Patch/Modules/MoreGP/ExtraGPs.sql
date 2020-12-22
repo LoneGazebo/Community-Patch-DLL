@@ -1,9 +1,20 @@
 
--- 50 Great Musicians
--- 40 Great Artists
+--  Extra Great Peoples for VP
+--  Version 2 rev 0
+--  by Asterix Rage . 2020-11
+--  Historical expertise, advices, Great Writers selection and recording quotes by:
+--            adan_eslavo, Catan, Bearded Lady, Hinin and pineappledan.
 
--- by Asterix Rage . 2020-08-14
--- Rev.3
+
+-- 50 Great Musicians   _M__
+-- 66 Great Artists     _A__
+-- 34 Great Writers     _W__
+-- 91 Great Generals    _G__
+-- 61 Great Admirals    _B__
+-- 61 Great Merchants   _N__
+-- 61 Great Engineers   _E__
+-- 83 Great Scientists  _S__
+
 
 -- Temporal Definition Used:
 -- ERA_ANCIENT        Before -800
@@ -20,174 +31,250 @@ INSERT INTO Audio_Sounds
 	(SoundID, FileName, LoadType)
 VALUES
 --
---          GM
+--          G.Musicians
 --
-	('SND_GREAT_MUSICIAN_MANUEL_DE_SUMAYA',               'ManuelDeSumaya_HieremiaeProphetaeLamentationes',         'DynamicResident'),
-	('SND_GREAT_MUSICIAN_AGBANI_NGURU_IKORODO_GROUP',     'AgbaniNguruIkorodoGroup_IjeNwayo',                       'DynamicResident'),
-	('SND_GREAT_MUSICIAN_HAMMAMIZADE_ISMAIL_DEDE_EFENDI', 'HammamizadeIsmailDedeEfendi_EyButINevEdaOlmusumMuptela', 'DynamicResident'),
-	('SND_GREAT_MUSICIAN_ROBERT_HERRICK',                 'RobertHerrick_CherryRipe',                               'DynamicResident'),
-	('SND_GREAT_MUSICIAN_GAETANO_DONIZETTI',              'GaetanoDonizetti_ LuciaDiLammermoor',                    'DynamicResident'),
-	('SND_GREAT_MUSICIAN_GEORGE_LINLEY',                  'GeorgeLinley_IveLeftTheSnowCladHills',                   'DynamicResident'),
-	('SND_GREAT_MUSICIAN_STEPHEN_FOSTER',                 'StephenFoster_GwineToRunAllNight',                       'DynamicResident'),
-	('SND_GREAT_MUSICIAN_WILLIAM_VINCENT_WALLACE',        'WilliamVincentWallace_Lurline',                          'DynamicResident'),
-	('SND_GREAT_MUSICIAN_GABRIEL_FAURE',                  'GabrielFaure_Requiem',                                   'DynamicResident'),
-	('SND_GREAT_MUSICIAN_JOSEPHINE_BAKER',                'JosephineBaker_BlueSkies',                               'DynamicResident'),
-	('SND_GREAT_MUSICIAN_MOHAMED_EL_QASABGI',             'MohamedElQasabgi_Zikrayati',                             'DynamicResident'),
-	('SND_GREAT_MUSICIAN_CARL_ORFF',                      'CarlOrff_CarminaBurana',                                 'DynamicResident'),
-	('SND_GREAT_MUSICIAN_DJANGO_REINHARDT',               'DjangoReinhardt_MySerenade',                             'DynamicResident'),
-	('SND_GREAT_MUSICIAN_MAHMOUD_ZOLFONOUN',              'MahmoudZolfonoun_RoohAfza',                              'DynamicResident'),
-	('SND_GREAT_MUSICIAN_EDITH_PIAF',                     'EdithPiaf_LaVieEnRose',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_LUIS_ALBERTI',                   'LuisAlberti_DameElSi',                                   'DynamicResident'),
-	('SND_GREAT_MUSICIAN_GLENN_MILLER',                   'GlennMiller_InTheMood',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_THELONIOUS_MONK',                'TheloniousMonk_Misterioso',                              'DynamicResident'),
-	('SND_GREAT_MUSICIAN_AJIM_KRAJKA',                    'AgimKrajka_Fantazi',                                     'DynamicResident'),
-	('SND_GREAT_MUSICIAN_RAY_BARRETTO',                   'RayBarretto_GuajiraYTambo',                              'DynamicResident'),
-	('SND_GREAT_MUSICIAN_THE_BEATTLES',                   'TheBeatles_Help',                                        'DynamicResident'),
-	('SND_GREAT_MUSICIAN_DR_M_BALAMURALIKRISHNA',         'DrMBalamuralikrishna_EndaroMahanubhavulu',               'DynamicResident'),
-	('SND_GREAT_MUSICIAN_JANIS_JOPLIN',                   'JanisJoplin_Summertime',                                 'DynamicResident'),
-	('SND_GREAT_MUSICIAN_DAVID_BOWIE',                    'DavidBowie_LifeOnMars',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_THE_TEMPTATIONS',                'TheTemptations_PapaWasARollingStone',                    'DynamicResident'),
-	('SND_GREAT_MUSICIAN_FELA_ANIKULAPO_KUTI',            'FelaAnikulapoKuti_WaterNoGetEnemy',                      'DynamicResident'),
-	('SND_GREAT_MUSICIAN_FRANCO_DU_CONGO',                'FrancoDuCongo_Liberte',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_RAM_JAM',                        'RamJam_BlackBetty',                                      'DynamicResident'),
-	('SND_GREAT_MUSICIAN_RICKY_LEE_JONES',                'RickyLeeJones_ChuckEsInLove',                            'DynamicResident'),
-	('SND_GREAT_MUSICIAN_HORACE_ANDY',                    'HoraceAndy_ItSGonnaBeDread',                             'DynamicResident'),
-	('SND_GREAT_MUSICIAN_WOMACK_AND_WOMACK',              'WomackAndWomack_Teardrops',                              'DynamicResident'),
-	('SND_GREAT_MUSICIAN_ERNST_REIJSEGER',                'ErnstReijseger_Shadow',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_SINEAD_O_CONNOR',                'SineadOConnor_DontCryForMeArgentina',                    'DynamicResident'),
-	('SND_GREAT_MUSICIAN_THE_SUGAR_HILL_GANG',            'TheSugarHillGang_RappersDelight',                        'DynamicResident'),
-	('SND_GREAT_MUSICIAN_KARL_JENKINS',                   'KarlJenkins_Palladio',                                   'DynamicResident'),
-	('SND_GREAT_MUSICIAN_RUBEN_GONZALEZ',                 'RubenGonzalez_Almendra',                                 'DynamicResident'),
-	('SND_GREAT_MUSICIAN_UFO',                            'UFO_LoudMinority',                                       'DynamicResident'),
-	('SND_GREAT_MUSICIAN_SHIGERU_UMEBAYASHI',             'ShigeruUmebayashi_InTheMoodForLove',                     'DynamicResident'),
-	('SND_GREAT_MUSICIAN_DEGUNG_SUNDA',                   'DegungSunda_MenyejukkanHati',                            'DynamicResident'),
-	('SND_GREAT_MUSICIAN_SAWAI_HIKARU',                   'SawaiHikaru_Esoragoto',                                  'DynamicResident'),
-	('SND_GREAT_MUSICIAN_PEACHES_AND_IGGY_POP',           'PeachesAndIggyPop_KickIt',                               'DynamicResident'),
-	('SND_GREAT_MUSICIAN_ROBERTO_FONSECA',                'RobertoFonseca_DrumeNegrita',                            'DynamicResident'),
-	('SND_GREAT_MUSICIAN_NILS_FRAHM',                     'NilsFrahm_Me',                                           'DynamicResident'),
-	('SND_GREAT_MUSICIAN_CHAD_LAWSON',                    'ChadLawson_NocturneInFMinor',                            'DynamicResident'),
-	('SND_GREAT_MUSICIAN_BALTI',                          'balti_YaLili',                                           'DynamicResident'),
-	('SND_GREAT_MUSICIAN_LUIS_FONSI',                     'LuisFonsi_Despacito',                                    'DynamicResident'),
-	('SND_GREAT_MUSICIAN_MANNAT_NOOR',                    'MannatNoor_LaungLaachi',                                 'DynamicResident'),
-	('SND_GREAT_MUSICIAN_CHILLY_GONZALES',                'ChillyGonzales_Nimbus',                                  'DynamicResident'), 
-	('SND_GREAT_MUSICIAN_THE_WEEKND',                     'TheWeeknd_BlindingLights',                               'DynamicResident'),
-	('SND_GREAT_MUSICIAN_GABRIEL_GARZON_MONTANO',         'GabrielGarzonMontano_Bloom',                             'DynamicResident');
+	('SND_GREAT_MUSICIAN_M__010', 'M__010', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__020', 'M__020', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__030', 'M__030', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__040', 'M__040', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__050', 'M__050', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__060', 'M__060', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__070', 'M__070', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__080', 'M__080', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__090', 'M__090', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__100', 'M__100', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__110', 'M__110', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__120', 'M__120', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__130', 'M__130', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__140', 'M__140', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__150', 'M__150', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__160', 'M__160', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__170', 'M__170', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__180', 'M__180', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__190', 'M__190', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__200', 'M__200', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__210', 'M__210', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__220', 'M__220', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__230', 'M__230', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__240', 'M__240', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__250', 'M__250', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__260', 'M__260', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__270', 'M__270', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__280', 'M__280', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__290', 'M__290', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__300', 'M__300', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__310', 'M__310', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__320', 'M__320', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__330', 'M__330', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__340', 'M__340', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__350', 'M__350', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__360', 'M__360', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__370', 'M__370', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__380', 'M__380', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__390', 'M__390', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__400', 'M__400', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__410', 'M__410', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__420', 'M__420', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__430', 'M__430', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__440', 'M__440', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__450', 'M__450', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__460', 'M__460', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__470', 'M__470', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__480', 'M__480', 'DynamicResident'), 
+	('SND_GREAT_MUSICIAN_M__490', 'M__490', 'DynamicResident'),
+	('SND_GREAT_MUSICIAN_M__500', 'M__500', 'DynamicResident'),
+--
+--          G.Writers
+--
+	('SND_GREAT_WRITER_W__010', 'W__010', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__020', 'W__020', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__030', 'W__030', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__040', 'W__040', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__050', 'W__050', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__060', 'W__060', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__070', 'W__070', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__090', 'W__090', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__100', 'W__100', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__110', 'W__110', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__120', 'W__120', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__130', 'W__130', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__140', 'W__140', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__150', 'W__150', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__160', 'W__160', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__170', 'W__170', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__190', 'W__190', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__200', 'W__200', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__210', 'W__210', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__220', 'W__220', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__230', 'W__230', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__240', 'W__240', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__250', 'W__250', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__260', 'W__260', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__270', 'W__270', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__280', 'W__280', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__290', 'W__290', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__300', 'W__300', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__310', 'W__310', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__320', 'W__320', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__330', 'W__330', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__340', 'W__340', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__350', 'W__350', 'DynamicResident'),
+	('SND_GREAT_WRITER_W__360', 'W__360', 'DynamicResident');
+
 
 INSERT INTO Audio_2DSounds
 	(ScriptID, SoundID, SoundType, TaperSoundtrackVolume)
 VALUES
 --
---          GM
+--          G.Musicians
 --
-	('AS2D_GREAT_MUSICIAN_MANUEL_DE_SUMAYA',                'SND_GREAT_MUSICIAN_MANUEL_DE_SUMAYA',                'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_AGBANI_NGURU_IKORODO_GROUP',      'SND_GREAT_MUSICIAN_AGBANI_NGURU_IKORODO_GROUP',      'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_HAMMAMIZADE_ISMAIL_DEDE_EFENDI',  'SND_GREAT_MUSICIAN_HAMMAMIZADE_ISMAIL_DEDE_EFENDI',  'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_ROBERT_HERRICK',                  'SND_GREAT_MUSICIAN_ROBERT_HERRICK',                  'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_GAETANO_DONIZETTI',               'SND_GREAT_MUSICIAN_GAETANO_DONIZETTI',               'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_GEORGE_LINLEY',                   'SND_GREAT_MUSICIAN_GEORGE_LINLEY',                   'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_STEPHEN_FOSTER',                  'SND_GREAT_MUSICIAN_STEPHEN_FOSTER',                  'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_WILLIAM_VINCENT_WALLACE',         'SND_GREAT_MUSICIAN_WILLIAM_VINCENT_WALLACE',         'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_GABRIEL_FAURE',                   'SND_GREAT_MUSICIAN_GABRIEL_FAURE',                   'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_JOSEPHINE_BAKER',                 'SND_GREAT_MUSICIAN_JOSEPHINE_BAKER',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_MOHAMED_EL_QASABGI',              'SND_GREAT_MUSICIAN_MOHAMED_EL_QASABGI',              'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_CARL_ORFF',                       'SND_GREAT_MUSICIAN_CARL_ORFF',                       'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_DJANGO_REINHARDT',                'SND_GREAT_MUSICIAN_DJANGO_REINHARDT',                'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_MAHMOUD_ZOLFONOUN',               'SND_GREAT_MUSICIAN_MAHMOUD_ZOLFONOUN',               'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_EDITH_PIAF',                      'SND_GREAT_MUSICIAN_EDITH_PIAF',                      'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_LUIS_ALBERTI',                    'SND_GREAT_MUSICIAN_LUIS_ALBERTI',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_GLENN_MILLER',                    'SND_GREAT_MUSICIAN_GLENN_MILLER',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_THELONIOUS_MONK',                 'SND_GREAT_MUSICIAN_THELONIOUS_MONK',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_AJIM_KRAJKA',                     'SND_GREAT_MUSICIAN_AJIM_KRAJKA',                     'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_RAY_BARRETTO',                    'SND_GREAT_MUSICIAN_RAY_BARRETTO',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_THE_BEATTLES',                    'SND_GREAT_MUSICIAN_THE_BEATTLES',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_DR_M_BALAMURALIKRISHNA',          'SND_GREAT_MUSICIAN_DR_M_BALAMURALIKRISHNA',          'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_JANIS_JOPLIN',                    'SND_GREAT_MUSICIAN_JANIS_JOPLIN',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_DAVID_BOWIE',                     'SND_GREAT_MUSICIAN_DAVID_BOWIE',                     'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_THE_TEMPTATIONS',                 'SND_GREAT_MUSICIAN_THE_TEMPTATIONS',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_FELA_ANIKULAPO_KUTI',             'SND_GREAT_MUSICIAN_FELA_ANIKULAPO_KUTI',             'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_FRANCO_DU_CONGO',                 'SND_GREAT_MUSICIAN_FRANCO_DU_CONGO',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_RAM_JAM',                         'SND_GREAT_MUSICIAN_RAM_JAM',                         'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_RICKY_LEE_JONES',                 'SND_GREAT_MUSICIAN_RICKY_LEE_JONES',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_HORACE_ANDY',                     'SND_GREAT_MUSICIAN_HORACE_ANDY',                     'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_WOMACK_AND_WOMACK',               'SND_GREAT_MUSICIAN_WOMACK_AND_WOMACK',               'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_ERNST_REIJSEGER',                 'SND_GREAT_MUSICIAN_ERNST_REIJSEGER',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_SINEAD_O_CONNOR',                 'SND_GREAT_MUSICIAN_SINEAD_O_CONNOR',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_THE_SUGAR_HILL_GANG',             'SND_GREAT_MUSICIAN_THE_SUGAR_HILL_GANG',             'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_KARL_JENKINS',                    'SND_GREAT_MUSICIAN_KARL_JENKINS',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_RUBEN_GONZALEZ',                  'SND_GREAT_MUSICIAN_RUBEN_GONZALEZ',                  'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_UFO',                             'SND_GREAT_MUSICIAN_UFO',                             'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_SHIGERU_UMEBAYASHI',              'SND_GREAT_MUSICIAN_SHIGERU_UMEBAYASHI',              'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_DEGUNG_SUNDA',                    'SND_GREAT_MUSICIAN_DEGUNG_SUNDA',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_SAWAI_HIKARU',                    'SND_GREAT_MUSICIAN_SAWAI_HIKARU',                    'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_PEACHES_AND_IGGY_POP',            'SND_GREAT_MUSICIAN_PEACHES_AND_IGGY_POP',            'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_ROBERTO_FONSECA',                 'SND_GREAT_MUSICIAN_ROBERTO_FONSECA',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_NILS_FRAHM',                      'SND_GREAT_MUSICIAN_NILS_FRAHM',                      'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_CHAD_LAWSON',                     'SND_GREAT_MUSICIAN_CHAD_LAWSON',                     'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_BALTI',                           'SND_GREAT_MUSICIAN_BALTI',                           'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_LUIS_FONSI',                      'SND_GREAT_MUSICIAN_LUIS_FONSI',                      'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_MANNAT_NOOR',                     'SND_GREAT_MUSICIAN_MANNAT_NOOR',                     'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_CHILLY_GONZALES',                 'SND_GREAT_MUSICIAN_CHILLY_GONZALES',                 'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_THE_WEEKND',                      'SND_GREAT_MUSICIAN_THE_WEEKND',                      'GAME_MUSIC_STINGS', '0.0'),
-	('AS2D_GREAT_MUSICIAN_GABRIEL_GARZON_MONTANO',          'SND_GREAT_MUSICIAN_GABRIEL_GARZON_MONTANO',          'GAME_MUSIC_STINGS', '0.0');
+	('AS2D_GREAT_MUSICIAN_M__010', 'SND_GREAT_MUSICIAN_M__010', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__020', 'SND_GREAT_MUSICIAN_M__020', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__030', 'SND_GREAT_MUSICIAN_M__030', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__040', 'SND_GREAT_MUSICIAN_M__040', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__050', 'SND_GREAT_MUSICIAN_M__050', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__060', 'SND_GREAT_MUSICIAN_M__060', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__070', 'SND_GREAT_MUSICIAN_M__070', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__080', 'SND_GREAT_MUSICIAN_M__080', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__090', 'SND_GREAT_MUSICIAN_M__090', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__100', 'SND_GREAT_MUSICIAN_M__100', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__110', 'SND_GREAT_MUSICIAN_M__110', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__120', 'SND_GREAT_MUSICIAN_M__120', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__130', 'SND_GREAT_MUSICIAN_M__130', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__140', 'SND_GREAT_MUSICIAN_M__140', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__150', 'SND_GREAT_MUSICIAN_M__150', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__160', 'SND_GREAT_MUSICIAN_M__160', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__170', 'SND_GREAT_MUSICIAN_M__170', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__180', 'SND_GREAT_MUSICIAN_M__180', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__190', 'SND_GREAT_MUSICIAN_M__190', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__200', 'SND_GREAT_MUSICIAN_M__200', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__210', 'SND_GREAT_MUSICIAN_M__210', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__220', 'SND_GREAT_MUSICIAN_M__220', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__230', 'SND_GREAT_MUSICIAN_M__230', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__240', 'SND_GREAT_MUSICIAN_M__240', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__250', 'SND_GREAT_MUSICIAN_M__250', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__260', 'SND_GREAT_MUSICIAN_M__260', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__270', 'SND_GREAT_MUSICIAN_M__270', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__280', 'SND_GREAT_MUSICIAN_M__280', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__290', 'SND_GREAT_MUSICIAN_M__290', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__300', 'SND_GREAT_MUSICIAN_M__300', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__310', 'SND_GREAT_MUSICIAN_M__310', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__320', 'SND_GREAT_MUSICIAN_M__320', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__330', 'SND_GREAT_MUSICIAN_M__330', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__340', 'SND_GREAT_MUSICIAN_M__340', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__350', 'SND_GREAT_MUSICIAN_M__350', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__360', 'SND_GREAT_MUSICIAN_M__360', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__370', 'SND_GREAT_MUSICIAN_M__370', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__380', 'SND_GREAT_MUSICIAN_M__380', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__390', 'SND_GREAT_MUSICIAN_M__390', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__400', 'SND_GREAT_MUSICIAN_M__400', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__410', 'SND_GREAT_MUSICIAN_M__410', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__420', 'SND_GREAT_MUSICIAN_M__420', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__430', 'SND_GREAT_MUSICIAN_M__430', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__440', 'SND_GREAT_MUSICIAN_M__440', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__450', 'SND_GREAT_MUSICIAN_M__450', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__460', 'SND_GREAT_MUSICIAN_M__460', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__470', 'SND_GREAT_MUSICIAN_M__470', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__480', 'SND_GREAT_MUSICIAN_M__480', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__490', 'SND_GREAT_MUSICIAN_M__490', 'GAME_MUSIC_STINGS', '0.0'),
+	('AS2D_GREAT_MUSICIAN_M__500', 'SND_GREAT_MUSICIAN_M__500', 'GAME_MUSIC_STINGS', '0.0'),
+--
+--          G.Writers
+--
+	('AS2D_GREAT_WRITER_W__010', 'SND_GREAT_WRITER_W__010', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__020', 'SND_GREAT_WRITER_W__020', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__030', 'SND_GREAT_WRITER_W__030', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__040', 'SND_GREAT_WRITER_W__040', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__050', 'SND_GREAT_WRITER_W__050', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__060', 'SND_GREAT_WRITER_W__060', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__070', 'SND_GREAT_WRITER_W__070', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__090', 'SND_GREAT_WRITER_W__090', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__100', 'SND_GREAT_WRITER_W__100', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__110', 'SND_GREAT_WRITER_W__110', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__120', 'SND_GREAT_WRITER_W__120', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__130', 'SND_GREAT_WRITER_W__130', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__140', 'SND_GREAT_WRITER_W__140', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__150', 'SND_GREAT_WRITER_W__150', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__160', 'SND_GREAT_WRITER_W__160', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__170', 'SND_GREAT_WRITER_W__170', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__190', 'SND_GREAT_WRITER_W__190', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__200', 'SND_GREAT_WRITER_W__200', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__210', 'SND_GREAT_WRITER_W__210', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__220', 'SND_GREAT_WRITER_W__220', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__230', 'SND_GREAT_WRITER_W__230', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__240', 'SND_GREAT_WRITER_W__240', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__250', 'SND_GREAT_WRITER_W__250', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__260', 'SND_GREAT_WRITER_W__260', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__270', 'SND_GREAT_WRITER_W__270', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__280', 'SND_GREAT_WRITER_W__280', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__290', 'SND_GREAT_WRITER_W__290', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__300', 'SND_GREAT_WRITER_W__300', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__310', 'SND_GREAT_WRITER_W__310', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__320', 'SND_GREAT_WRITER_W__320', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__330', 'SND_GREAT_WRITER_W__330', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__340', 'SND_GREAT_WRITER_W__340', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__350', 'SND_GREAT_WRITER_W__350', 'GAME_SPEECH', '0.0'),
+	('AS2D_GREAT_WRITER_W__360', 'SND_GREAT_WRITER_W__360', 'GAME_SPEECH', '0.0');
+
 
 INSERT INTO Unit_UniqueNames
 	(UnitType, UniqueName, GreatWorkType, EraType)
 VALUES
 --
---          GM
+--          G.Musicians
 --
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_MANUEL_DE_SUMAYA',                'GREAT_WORK_HIEREMIAE_PROPHETAE_LAMENTATIONES',   'ERA_RENAISSANCE'), -- 1717
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_AGBANI_NGURU_IKORODO_GROUP',      'GREAT_WORK_IJE_NWAYO',                           'ERA_RENAISSANCE'), -- 1800-
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_HAMMAMIZADE_ISMAIL_DEDE_EFENDI',  'GREAT_WORK_EY_BUT_I_NEV_EDA_OLMUSUM_MUPTELA',    'ERA_RENAISSANCE'), -- 1810+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_ROBERT_HERRICK',                  'GREAT_WORK_CHERRY_RIPE',                         'ERA_INDUSTRIAL'), -- 1825.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_GAETANO_DONIZETTI',               'GREAT_WORK_LUCIA_DI_LAMMERMOOR',                 'ERA_INDUSTRIAL'), -- 1839.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_GEORGE_LINLEY',                   'GREAT_WORK_I_VE_LEFT_THE_SNOW_CLAD_HILLS',       'ERA_INDUSTRIAL'), -- 1847.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_STEPHEN_FOSTER',                  'GREAT_WORK_GWINE_TO_RUN_ALL_NIGHT',              'ERA_INDUSTRIAL'), -- 1852.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_WILLIAM_VINCENT_WALLACE',         'GREAT_WORK_LURLINE',                             'ERA_INDUSTRIAL'), -- 1860.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_GABRIEL_FAURE',                   'GREAT_WORK_REQUIEM',                             'ERA_INDUSTRIAL'), -- 1888.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_JOSEPHINE_BAKER',                 'GREAT_WORK_BLUE_SKIES',                          'ERA_MODERN'), -- 1927.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_MOHAMED_EL_QASABGI',              'GREAT_WORK_ZIBRAYATI',                           'ERA_MODERN'), -- 1930
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_CARL_ORFF',                       'GREAT_WORK_CARMINA_BURANA',                      'ERA_MODERN'), -- 1936.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_DJANGO_REINHARDT',                'GREAT_WORK_MY_SERENADE',                         'ERA_MODERN'), -- 1937.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_MAHMOUD_ZOLFONOUN',               'GREAT_WORK_ROOH_AFZA',                           'ERA_MODERN'), -- 1940+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_EDITH_PIAF',                      'GREAT_WORK_LA_VIE_EN_ROSE',                      'ERA_MODERN'), -- 1941.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_LUIS_ALBERTI',                    'GREAT_WORK_DAME_EL_SI',                          'ERA_POSTMODERN'), -- 1950+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_GLENN_MILLER',                    'GREAT_WORK_IN_THE_MOOD',                         'ERA_POSTMODERN'), -- 1953.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_THELONIOUS_MONK',                 'GREAT_WORK_MISTERIOSO',                          'ERA_POSTMODERN'), -- 1958.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_AJIM_KRAJKA',                     'GREAT_WORK_FANTAZI',                             'ERA_POSTMODERN'), -- 1960+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_RAY_BARRETTO',                    'GREAT_WORK_GUAJIRA_Y_TAMBO',                     'ERA_POSTMODERN'), -- 1962.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_THE_BEATTLES',                    'GREAT_WORK_HELP',                                'ERA_POSTMODERN'), -- 1965.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_DR_M_BALAMURALIKRISHNA',          'GREAT_WORK_ENDARO_MAHANUBHAVULU',                'ERA_POSTMODERN'), -- 1966.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_JANIS_JOPLIN',                    'GREAT_WORK_SUMMERTIME',                          'ERA_POSTMODERN'), -- 1968.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_DAVID_BOWIE',                     'GREAT_WORK_LIFE_ON_MARS',                        'ERA_POSTMODERN'), -- 1971.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_THE_TEMPTATIONS',                 'GREAT_WORK_PAPA_WAS_A_ROLLING_STONE',            'ERA_POSTMODERN'), -- 1972.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_FELA_ANIKULAPO_KUTI',             'GREAT_WORK_WATER_NO_GET_ENEMY',                  'ERA_POSTMODERN'), -- 1975.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_FRANCO_DU_CONGO',                 'GREAT_WORK_LIBERTE',                             'ERA_POSTMODERN'), -- 1976.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_RAM_JAM',                         'GREAT_WORK_BLACK_BETTY',                         'ERA_POSTMODERN'), -- 1977.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_RICKY_LEE_JONES',                 'GREAT_WORK_CHUCK_ES_IN_LOVE',                    'ERA_POSTMODERN'), -- 1979.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_HORACE_ANDY',                     'GREAT_WORK_IT_S_GONNA_BE_DREAD',                 'ERA_POSTMODERN'), -- 1980
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_WOMACK_AND_WOMACK',               'GREAT_WORK_TEARDROPS',                           'ERA_POSTMODERN'), -- 1988.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_ERNST_REIJSEGER',                 'GREAT_WORK_SHADOW',                              'ERA_FUTURE'), -- 1990+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_SINEAD_O_CONNOR',                 'GREAT_WORK_DONT_CRY_FOR_ME_ARGENTINA',           'ERA_FUTURE'), -- 1992
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_THE_SUGAR_HILL_GANG',             'GREAT_WORK_RAPPERS_DELIGHT',                     'ERA_FUTURE'), -- 1993.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_KARL_JENKINS',                    'GREAT_WORK_PALLADIO',                            'ERA_FUTURE'), -- 1995.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_RUBEN_GONZALEZ',                  'GREAT_WORK_ALMENDRA',                            'ERA_FUTURE'), -- 1997
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_UFO',                             'GREAT_WORK_LOUD_MINORITY',                       'ERA_FUTURE'), -- 1997.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_SHIGERU_UMEBAYASHI',              'GREAT_WORK_IN_THE_MOOD_FOR_LOVE',                'ERA_FUTURE'), -- 2000.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_DEGUNG_SUNDA',                    'GREAT_WORK_MENYEJUKKAN_HATI',                    'ERA_FUTURE'), -- 2000+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_SAWAI_HIKARU',                    'GREAT_WORK_ESORAGOTO',                           'ERA_FUTURE'), -- 2000+
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_PEACHES_AND_IGGY_POP',            'GREAT_WORK_KICK_IT',                             'ERA_FUTURE'), -- 2003
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_ROBERTO_FONSECA',                 'GREAT_WORK_DRUME_NEGRITA',                       'ERA_FUTURE'), -- 2009.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_NILS_FRAHM',                      'GREAT_WORK_ME',                                  'ERA_FUTURE'), -- 2012
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_CHAD_LAWSON',                     'GREAT_WORK_NOCTURNE_IN_F_MINOR',                 'ERA_FUTURE'), -- 2014.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_BALTI',                           'GREAT_WORK_YA_LILI',                             'ERA_FUTURE'), -- 2017.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_LUIS_FONSI',                      'GREAT_WORK_DESPACITO',                           'ERA_FUTURE'), -- 2017.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_MANNAT_NOOR',                     'GREAT_WORK_LAUNG_LAACHI',                        'ERA_FUTURE'), -- 2018.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_CHILLY_GONZALES',                 'GREAT_WORK_NIMBUS',                              'ERA_FUTURE'), -- 2018.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_THE_WEEKND',                      'GREAT_WORK_BLINDING_LIGHTS',                     'ERA_FUTURE'), -- 2019.
-	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_GABRIEL_GARZON_MONTANO',          'GREAT_WORK_BLOOM',                               'ERA_FUTURE'), -- 2020.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__010', 'GREAT_WORK_MW_010', 'ERA_RENAISSANCE'), -- 1717
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__020', 'GREAT_WORK_MW_020', 'ERA_RENAISSANCE'), -- 1800-
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__030', 'GREAT_WORK_MW_030', 'ERA_RENAISSANCE'), -- 1810+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__040', 'GREAT_WORK_MW_040', 'ERA_INDUSTRIAL'), -- 1825.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__050', 'GREAT_WORK_MW_050', 'ERA_INDUSTRIAL'), -- 1835.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__060', 'GREAT_WORK_MW_060', 'ERA_INDUSTRIAL'), -- 1847.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__070', 'GREAT_WORK_MW_070', 'ERA_INDUSTRIAL'), -- 1852.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__080', 'GREAT_WORK_MW_080', 'ERA_INDUSTRIAL'), -- 1860.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__090', 'GREAT_WORK_MW_090', 'ERA_INDUSTRIAL'), -- 1888.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__100', 'GREAT_WORK_MW_100', 'ERA_MODERN'), -- 1927.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__110', 'GREAT_WORK_MW_110', 'ERA_MODERN'), -- 1930
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__120', 'GREAT_WORK_MW_120', 'ERA_MODERN'), -- 1936.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__130', 'GREAT_WORK_MW_130', 'ERA_MODERN'), -- 1937.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__140', 'GREAT_WORK_MW_140', 'ERA_MODERN'), -- 1940+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__150', 'GREAT_WORK_MW_150', 'ERA_MODERN'), -- 1941.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__160', 'GREAT_WORK_MW_160', 'ERA_POSTMODERN'), -- 1950+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__170', 'GREAT_WORK_MW_170', 'ERA_POSTMODERN'), -- 1953.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__180', 'GREAT_WORK_MW_180', 'ERA_POSTMODERN'), -- 1958.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__190', 'GREAT_WORK_MW_190', 'ERA_POSTMODERN'), -- 1960+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__200', 'GREAT_WORK_MW_200', 'ERA_POSTMODERN'), -- 1962.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__210', 'GREAT_WORK_MW_210', 'ERA_POSTMODERN'), -- 1965.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__220', 'GREAT_WORK_MW_220', 'ERA_POSTMODERN'), -- 1966.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__230', 'GREAT_WORK_MW_230', 'ERA_POSTMODERN'), -- 1968.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__240', 'GREAT_WORK_MW_240', 'ERA_POSTMODERN'), -- 1971.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__250', 'GREAT_WORK_MW_250', 'ERA_POSTMODERN'), -- 1972.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__260', 'GREAT_WORK_MW_260', 'ERA_POSTMODERN'), -- 1975.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__270', 'GREAT_WORK_MW_270', 'ERA_POSTMODERN'), -- 1976.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__280', 'GREAT_WORK_MW_280', 'ERA_POSTMODERN'), -- 1977.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__290', 'GREAT_WORK_MW_290', 'ERA_POSTMODERN'), -- 1979.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__300', 'GREAT_WORK_MW_300', 'ERA_POSTMODERN'), -- 1980
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__310', 'GREAT_WORK_MW_310', 'ERA_POSTMODERN'), -- 1988.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__320', 'GREAT_WORK_MW_320', 'ERA_FUTURE'), -- 1990+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__330', 'GREAT_WORK_MW_330', 'ERA_FUTURE'), -- 1992
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__340', 'GREAT_WORK_MW_340', 'ERA_FUTURE'), -- 1993.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__350', 'GREAT_WORK_MW_350', 'ERA_FUTURE'), -- 1995.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__360', 'GREAT_WORK_MW_360', 'ERA_FUTURE'), -- 1997
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__370', 'GREAT_WORK_MW_370', 'ERA_FUTURE'), -- 1997.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__380', 'GREAT_WORK_MW_380', 'ERA_FUTURE'), -- 2000.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__390', 'GREAT_WORK_MW_390', 'ERA_FUTURE'), -- 2000+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__400', 'GREAT_WORK_MW_400', 'ERA_FUTURE'), -- 2000+
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__410', 'GREAT_WORK_MW_410', 'ERA_FUTURE'), -- 2003
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__420', 'GREAT_WORK_MW_420', 'ERA_FUTURE'), -- 2009.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__430', 'GREAT_WORK_MW_430', 'ERA_FUTURE'), -- 2012
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__440', 'GREAT_WORK_MW_440', 'ERA_FUTURE'), -- 2014.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__450', 'GREAT_WORK_MW_450', 'ERA_FUTURE'), -- 2017.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__460', 'GREAT_WORK_MW_460', 'ERA_FUTURE'), -- 2017.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__470', 'GREAT_WORK_MW_470', 'ERA_FUTURE'), -- 2018.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__480', 'GREAT_WORK_MW_480', 'ERA_FUTURE'), -- 2018.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__490', 'GREAT_WORK_MW_490', 'ERA_FUTURE'), -- 2019.
+	('UNIT_MUSICIAN', 'TXT_KEY_GREAT_PERSON_M__500', 'GREAT_WORK_MW_500', 'ERA_FUTURE'), -- 2020.
 --
---          GA
+--          G.Artists
 --
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__010', 'GREAT_WORK_AW_010', 'ERA_MEDIEVAL'), -- 0650
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__020', 'GREAT_WORK_AW_020', 'ERA_MEDIEVAL'), -- 1150
@@ -198,96 +285,541 @@ VALUES
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__070', 'GREAT_WORK_AW_070', 'ERA_RENAISSANCE'), -- 1734
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__080', 'GREAT_WORK_AW_080', 'ERA_RENAISSANCE'), -- 1778
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__090', 'GREAT_WORK_AW_090', 'ERA_RENAISSANCE'), -- 1805
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__092', 'GREAT_WORK_AW_092', 'ERA_RENAISSANCE'), -- 1838
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__095', 'GREAT_WORK_AW_095', 'ERA_RENAISSANCE'), -- 1839
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__100', 'GREAT_WORK_AW_100', 'ERA_INDUSTRIAL'), -- 1846
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__110', 'GREAT_WORK_AW_110', 'ERA_INDUSTRIAL'), -- 1862
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__115', 'GREAT_WORK_AW_115', 'ERA_INDUSTRIAL'), -- 1862
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__120', 'GREAT_WORK_AW_120', 'ERA_INDUSTRIAL'), -- 1871
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__130', 'GREAT_WORK_AW_130', 'ERA_INDUSTRIAL'), -- 1874
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__135', 'GREAT_WORK_AW_135', 'ERA_INDUSTRIAL'), -- 1876
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__140', 'GREAT_WORK_AW_140', 'ERA_INDUSTRIAL'), -- 1879
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__150', 'GREAT_WORK_AW_150', 'ERA_INDUSTRIAL'), -- 1880
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__155', 'GREAT_WORK_AW_155', 'ERA_INDUSTRIAL'), -- 1889
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__160', 'GREAT_WORK_AW_160', 'ERA_INDUSTRIAL'), -- 1890
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__170', 'GREAT_WORK_AW_170', 'ERA_INDUSTRIAL'), -- 1896
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__178', 'GREAT_WORK_AW_178', 'ERA_MODERN'), -- 1911
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__180', 'GREAT_WORK_AW_180', 'ERA_MODERN'), -- 1911
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__185', 'GREAT_WORK_AW_185', 'ERA_MODERN'), -- 1913
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__187', 'GREAT_WORK_AW_187', 'ERA_MODERN'), -- 1914
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__190', 'GREAT_WORK_AW_190', 'ERA_MODERN'), -- 1917
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__193', 'GREAT_WORK_AW_193', 'ERA_MODERN'), -- 1920
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__194', 'GREAT_WORK_AW_194', 'ERA_MODERN'), -- 1920
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__195', 'GREAT_WORK_AW_195', 'ERA_MODERN'), -- 1921
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__197', 'GREAT_WORK_AW_197', 'ERA_MODERN'), -- 1924
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__200', 'GREAT_WORK_AW_200', 'ERA_MODERN'), -- 1928
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__205', 'GREAT_WORK_AW_205', 'ERA_MODERN'), -- 1930
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__207', 'GREAT_WORK_AW_207', 'ERA_MODERN'), -- 1932
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__210', 'GREAT_WORK_AW_210', 'ERA_MODERN'), -- 1935
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__215', 'GREAT_WORK_AW_215', 'ERA_MODERN'), -- 1937
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__220', 'GREAT_WORK_AW_220', 'ERA_MODERN'), -- 1943
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__225', 'GREAT_WORK_AW_225', 'ERA_POSTMODERN'), -- 1946
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__230', 'GREAT_WORK_AW_230', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__235', 'GREAT_WORK_AW_235', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__236', 'GREAT_WORK_AW_236', 'ERA_POSTMODERN'), -- 1955
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__237', 'GREAT_WORK_AW_237', 'ERA_POSTMODERN'), -- 1958
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__238', 'GREAT_WORK_AW_238', 'ERA_POSTMODERN'), -- 1961
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__239', 'GREAT_WORK_AW_239', 'ERA_POSTMODERN'), -- 1962
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__240', 'GREAT_WORK_AW_240', 'ERA_POSTMODERN'), -- 1970
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__250', 'GREAT_WORK_AW_250', 'ERA_POSTMODERN'), -- 1970
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__260', 'GREAT_WORK_AW_260', 'ERA_POSTMODERN'), -- 1971
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__270', 'GREAT_WORK_AW_270', 'ERA_POSTMODERN'), -- 1974
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__280', 'GREAT_WORK_AW_280', 'ERA_POSTMODERN'), -- 1981
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__290', 'GREAT_WORK_AW_290', 'ERA_POSTMODERN'), -- 1982
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__295', 'GREAT_WORK_AW_295', 'ERA_POSTMODERN'), -- 1982
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__300', 'GREAT_WORK_AW_300', 'ERA_POSTMODERN'), -- 1987
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__310', 'GREAT_WORK_AW_310', 'ERA_FUTURE'), -- 1994
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__315', 'GREAT_WORK_AW_315', 'ERA_FUTURE'), -- 1997
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__320', 'GREAT_WORK_AW_320', 'ERA_FUTURE'), -- 2000
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__330', 'GREAT_WORK_AW_330', 'ERA_FUTURE'), -- 2002
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__340', 'GREAT_WORK_AW_340', 'ERA_FUTURE'), -- 2006
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__350', 'GREAT_WORK_AW_350', 'ERA_FUTURE'), -- 2007
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__360', 'GREAT_WORK_AW_360', 'ERA_FUTURE'), -- 2007
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__370', 'GREAT_WORK_AW_370', 'ERA_FUTURE'), -- 2009
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__375', 'GREAT_WORK_AW_375', 'ERA_FUTURE'), -- 2010
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__380', 'GREAT_WORK_AW_380', 'ERA_FUTURE'), -- 2011
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__385', 'GREAT_WORK_AW_385', 'ERA_FUTURE'), -- 2011
 	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__390', 'GREAT_WORK_AW_390', 'ERA_FUTURE'), -- 2018
-	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__400', 'GREAT_WORK_AW_400', 'ERA_FUTURE'); -- 2018
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__400', 'GREAT_WORK_AW_400', 'ERA_FUTURE'), -- 2018
+	('UNIT_ARTIST', 'TXT_KEY_GREAT_PERSON_A__420', 'GREAT_WORK_AW_420', 'ERA_FUTURE'), -- 2019
+--
+--          G.Writers
+--
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__010', 'GREAT_WORK_WW_010', 'ERA_ANCIENT'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__020', 'GREAT_WORK_WW_020', 'ERA_CLASSICAL'), --
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__030', 'GREAT_WORK_WW_030', 'ERA_MEDIEVAL'), --
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__040', 'GREAT_WORK_WW_040', 'ERA_MEDIEVAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__050', 'GREAT_WORK_WW_050', 'ERA_MEDIEVAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__060', 'GREAT_WORK_WW_060', 'ERA_MEDIEVAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__070', 'GREAT_WORK_WW_070', 'ERA_MEDIEVAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__090', 'GREAT_WORK_WW_090', 'ERA_RENAISSANCE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__100', 'GREAT_WORK_WW_100', 'ERA_RENAISSANCE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__110', 'GREAT_WORK_WW_110', 'ERA_RENAISSANCE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__120', 'GREAT_WORK_WW_120', 'ERA_RENAISSANCE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__130', 'GREAT_WORK_WW_130', 'ERA_RENAISSANCE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__140', 'GREAT_WORK_WW_140', 'ERA_INDUSTRIAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__150', 'GREAT_WORK_WW_150', 'ERA_INDUSTRIAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__160', 'GREAT_WORK_WW_160', 'ERA_INDUSTRIAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__170', 'GREAT_WORK_WW_170', 'ERA_INDUSTRIAL'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__190', 'GREAT_WORK_WW_190', 'ERA_MODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__200', 'GREAT_WORK_WW_200', 'ERA_MODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__210', 'GREAT_WORK_WW_210', 'ERA_MODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__220', 'GREAT_WORK_WW_220', 'ERA_MODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__230', 'GREAT_WORK_WW_230', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__240', 'GREAT_WORK_WW_240', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__250', 'GREAT_WORK_WW_250', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__260', 'GREAT_WORK_WW_260', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__270', 'GREAT_WORK_WW_270', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__280', 'GREAT_WORK_WW_280', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__290', 'GREAT_WORK_WW_290', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__300', 'GREAT_WORK_WW_300', 'ERA_POSTMODERN'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__310', 'GREAT_WORK_WW_310', 'ERA_FUTURE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__320', 'GREAT_WORK_WW_320', 'ERA_FUTURE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__330', 'GREAT_WORK_WW_330', 'ERA_FUTURE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__340', 'GREAT_WORK_WW_340', 'ERA_FUTURE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__350', 'GREAT_WORK_WW_350', 'ERA_FUTURE'), -- 
+	('UNIT_WRITER', 'TXT_KEY_GREAT_PERSON_W__360', 'GREAT_WORK_WW_360', 'ERA_FUTURE'); --
+
+
+INSERT INTO Unit_UniqueNames
+	(UnitType, UniqueName, EraType)
+VALUES
+--
+--          G.Generals
+--
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__010', 'ERA_CLASSICAL'), -- -600
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__015', 'ERA_CLASSICAL'), -- -100
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__020', 'ERA_CLASSICAL'), -- 0014
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__030', 'ERA_CLASSICAL'), -- 0080
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__040', 'ERA_CLASSICAL'), -- 0226
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__050', 'ERA_CLASSICAL'), -- 0310
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__055', 'ERA_CLASSICAL'), -- 0313
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__060', 'ERA_CLASSICAL'), -- 0335
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__070', 'ERA_CLASSICAL'), -- 0374
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__075', 'ERA_MEDIEVAL'), -- 0478
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__080', 'ERA_MEDIEVAL'), -- 0500
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__085', 'ERA_MEDIEVAL'), -- 0573
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__087', 'ERA_MEDIEVAL'), -- 0575
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__090', 'ERA_MEDIEVAL'), -- 0650
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__100', 'ERA_MEDIEVAL'), -- 0912
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__110', 'ERA_MEDIEVAL'), -- 0925
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__120', 'ERA_MEDIEVAL'), -- 0971
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__130', 'ERA_MEDIEVAL'), -- 1015
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__140', 'ERA_MEDIEVAL'), -- 1029
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__150', 'ERA_MEDIEVAL'), -- 1073
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__160', 'ERA_MEDIEVAL'), -- 1138
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__170', 'ERA_MEDIEVAL'), -- 1190
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__175', 'ERA_MEDIEVAL'), -- 1223
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__180', 'ERA_MEDIEVAL'), -- 1228
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__190', 'ERA_MEDIEVAL'), -- 1282
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__195', 'ERA_MEDIEVAL'), -- 1320
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__200', 'ERA_MEDIEVAL'), -- 1332
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__210', 'ERA_MEDIEVAL'), -- 1334
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__220', 'ERA_MEDIEVAL'), -- 1370
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__230', 'ERA_MEDIEVAL'), -- 1405
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__240', 'ERA_MEDIEVAL'), -- 1407
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__250', 'ERA_RENAISSANCE'), -- 1467
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__260', 'ERA_RENAISSANCE'), -- 1521
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__270', 'ERA_RENAISSANCE'), -- 1533
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__280', 'ERA_RENAISSANCE'), -- 1535
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__290', 'ERA_RENAISSANCE'), -- 1543
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__300', 'ERA_RENAISSANCE'), -- 1548
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__310', 'ERA_RENAISSANCE'), -- 1686
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__320', 'ERA_RENAISSANCE'), -- 1558
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__330', 'ERA_RENAISSANCE'), -- 1559
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__340', 'ERA_RENAISSANCE'), -- 1560
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__350', 'ERA_RENAISSANCE'), -- 1583
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__360', 'ERA_RENAISSANCE'), -- 1590
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__370', 'ERA_RENAISSANCE'), -- 1629
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__380', 'ERA_RENAISSANCE'), -- 1630
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__385', 'ERA_RENAISSANCE'), -- 1700
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__390', 'ERA_RENAISSANCE'), -- 1722
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__395', 'ERA_RENAISSANCE'), -- 1727
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__397', 'ERA_RENAISSANCE'), -- 1730
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__400', 'ERA_RENAISSANCE'), -- 1743
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__410', 'ERA_RENAISSANCE'), -- 1745
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__420', 'ERA_RENAISSANCE'), -- 1753
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__425', 'ERA_RENAISSANCE'), -- 1764
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__430', 'ERA_RENAISSANCE'), -- 1765
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__440', 'ERA_RENAISSANCE'), -- 1780
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__450', 'ERA_RENAISSANCE'), -- 1783
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__455', 'ERA_RENAISSANCE'), -- 1799
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__460', 'ERA_RENAISSANCE'), -- 1812
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__465', 'ERA_RENAISSANCE'), -- 1822
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__470', 'ERA_INDUSTRIAL'), -- 1840
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__475', 'ERA_INDUSTRIAL'), -- 1841
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__480', 'ERA_INDUSTRIAL'), -- 1850
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__481', 'ERA_INDUSTRIAL'), -- 1852
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__482', 'ERA_INDUSTRIAL'), -- 1860
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__483', 'ERA_INDUSTRIAL'), -- 1875
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__485', 'ERA_INDUSTRIAL'), -- 1880
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__487', 'ERA_INDUSTRIAL'), -- 1887
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__48A', 'ERA_INDUSTRIAL'), -- 1890
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__489', 'ERA_INDUSTRIAL'), -- 1892
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__490', 'ERA_INDUSTRIAL'), -- 1892
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__491', 'ERA_INDUSTRIAL'), -- 1895
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__492', 'ERA_INDUSTRIAL'), -- 1898
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__49A', 'ERA_INDUSTRIAL'), -- 1902
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__49C', 'ERA_INDUSTRIAL'), -- 1902
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__493', 'ERA_INDUSTRIAL'), -- 1904
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__494', 'ERA_MODERN'), -- 1911
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__495', 'ERA_MODERN'), -- 1915
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__49B', 'ERA_MODERN'), -- 1916
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__496', 'ERA_MODERN'), -- 1917
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__497', 'ERA_MODERN'), -- 1922
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__498', 'ERA_MODERN'), -- 1930
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__500', 'ERA_MODERN'), -- 1934
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__505', 'ERA_MODERN'), -- 1941
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__506', 'ERA_MODERN'), -- 1941
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__50A', 'ERA_MODERN'), -- 1943
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__507', 'ERA_MODERN'), -- 1944
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__510', 'ERA_POSTMODERN'), -- 1952
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__515', 'ERA_POSTMODERN'), -- 1954
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__520', 'ERA_POSTMODERN'), -- 1960
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__530', 'ERA_POSTMODERN'), -- 1971
+	('UNIT_GREAT_GENERAL', 'TXT_KEY_GREAT_PERSON_G__540', 'ERA_POSTMODERN'), -- 1975
+--
+--          G.Admirals
+--
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__010', 'ERA_ANCIENT'), -- -2000
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__020', 'ERA_CLASSICAL'), -- -350
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__030', 'ERA_CLASSICAL'), -- -255
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__040', 'ERA_CLASSICAL'), -- -164
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__045', 'ERA_CLASSICAL'), -- -479
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__047', 'ERA_MEDIEVAL'), -- 0850
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__050', 'ERA_MEDIEVAL'), -- 0897
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__060', 'ERA_MEDIEVAL'), -- 1100
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__063', 'ERA_MEDIEVAL'), -- 1242
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__065', 'ERA_MEDIEVAL'), -- 1290
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__067', 'ERA_MEDIEVAL'), -- 1300
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__070', 'ERA_MEDIEVAL'), -- 1311
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__072', 'ERA_MEDIEVAL'), -- 1400
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__073', 'ERA_RENAISSANCE'), -- 1469
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__074', 'ERA_RENAISSANCE'), -- 1540
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__075', 'ERA_RENAISSANCE'), -- 1545
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__080', 'ERA_RENAISSANCE'), -- 1550
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__085', 'ERA_RENAISSANCE'), -- 1560
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__090', 'ERA_RENAISSANCE'), -- 1592
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__100', 'ERA_RENAISSANCE'), -- 1629
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__103', 'ERA_RENAISSANCE'), -- 1638
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__104', 'ERA_RENAISSANCE'), -- 1650
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__105', 'ERA_RENAISSANCE'), -- 1661
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__107', 'ERA_RENAISSANCE'), -- 1663
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__110', 'ERA_RENAISSANCE'), -- 1669
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__120', 'ERA_RENAISSANCE'), -- 1690
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__128', 'ERA_RENAISSANCE'), -- 1773
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__130', 'ERA_RENAISSANCE'), -- 1775
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__135', 'ERA_RENAISSANCE'), -- 1797
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__150', 'ERA_RENAISSANCE'), -- 1834
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__160', 'ERA_INDUSTRIAL'), -- 1844
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__170', 'ERA_INDUSTRIAL'), -- 1846
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__172', 'ERA_INDUSTRIAL'), -- 1846
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__175', 'ERA_INDUSTRIAL'), -- 1851
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__180', 'ERA_INDUSTRIAL'), -- 1852
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__190', 'ERA_INDUSTRIAL'), -- 1859
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__195', 'ERA_INDUSTRIAL'), -- 1859
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__200', 'ERA_INDUSTRIAL'), -- 1884
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__203', 'ERA_INDUSTRIAL'), -- 1885
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__205', 'ERA_INDUSTRIAL'), -- 1885
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__206', 'ERA_INDUSTRIAL'), -- 1886
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__210', 'ERA_INDUSTRIAL'), -- 1910
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__212', 'ERA_MODERN'), -- 1911
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__215', 'ERA_MODERN'), -- 1915
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__220', 'ERA_MODERN'), -- 1916
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__230', 'ERA_MODERN'), -- 1926
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__235', 'ERA_MODERN'), -- 1926
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__240', 'ERA_MODERN'), -- 1928
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__245', 'ERA_MODERN'), -- 1929	
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__250', 'ERA_MODERN'), -- 1931
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__251', 'ERA_MODERN'), -- 1931
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__252', 'ERA_MODERN'), -- 1931
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__270', 'ERA_POSTMODERN'), -- 1949
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__300', 'ERA_POSTMODERN'), -- 1952
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__325', 'ERA_POSTMODERN'), -- 1953
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__350', 'ERA_POSTMODERN'), -- 1954
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__355', 'ERA_POSTMODERN'), -- 1955
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__357', 'ERA_POSTMODERN'), -- 1962
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__360', 'ERA_POSTMODERN'), -- 1964
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__370', 'ERA_POSTMODERN'), -- 1969
+	('UNIT_GREAT_ADMIRAL', 'TXT_KEY_GREAT_PERSON_B__390', 'ERA_POSTMODERN'); -- 1975
+
+INSERT INTO Unit_UniqueNames
+	(UnitType, UniqueName, EraType)
+VALUES
+--
+--          G.Merchants
+--
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__002', 'ERA_CLASSICAL'), -- -600
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__004', 'ERA_CLASSICAL'), -- -115
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__010', 'ERA_MEDIEVAL'), -- 1010
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__020', 'ERA_MEDIEVAL'), -- 1029
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__030', 'ERA_MEDIEVAL'), -- 1094
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__035', 'ERA_MEDIEVAL'), -- 1254
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__040', 'ERA_MEDIEVAL'), -- 1280
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__050', 'ERA_MEDIEVAL'), -- 1332
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__060', 'ERA_MEDIEVAL'), -- 1389
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__070', 'ERA_MEDIEVAL'), -- 1400
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__075', 'ERA_RENAISSANCE'), -- 1459
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__077', 'ERA_RENAISSANCE'), -- 1517
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__080', 'ERA_RENAISSANCE'), -- 1519
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__090', 'ERA_RENAISSANCE'), -- 1571
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__100', 'ERA_RENAISSANCE'), -- 1575
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__105', 'ERA_RENAISSANCE'), -- 1579
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__110', 'ERA_RENAISSANCE'), -- 1660
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__115', 'ERA_RENAISSANCE'), -- 1761
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__120', 'ERA_RENAISSANCE'), -- 1769
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__130', 'ERA_RENAISSANCE'), -- 1777
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__140', 'ERA_RENAISSANCE'), -- 1778
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__145', 'ERA_RENAISSANCE'), -- 1814
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__150', 'ERA_RENAISSANCE'), -- 1832
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__155', 'ERA_RENAISSANCE'), -- 1839
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__160', 'ERA_INDUSTRIAL'), -- 1850
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__170', 'ERA_INDUSTRIAL'), -- 1853
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__180', 'ERA_INDUSTRIAL'), -- 1860
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__185', 'ERA_INDUSTRIAL'), -- 1864
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__187', 'ERA_INDUSTRIAL'), -- 1867
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__188', 'ERA_INDUSTRIAL'), -- 1872
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__18A', 'ERA_INDUSTRIAL'), -- 1872
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__189', 'ERA_INDUSTRIAL'), -- 1873
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__18B', 'ERA_INDUSTRIAL'), -- 1875
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__190', 'ERA_INDUSTRIAL'), -- 1886
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__195', 'ERA_INDUSTRIAL'), -- 1891
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__197', 'ERA_INDUSTRIAL'), -- 1892
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__200', 'ERA_INDUSTRIAL'), -- 1894
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__210', 'ERA_INDUSTRIAL'), -- 1894
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__215', 'ERA_INDUSTRIAL'), -- 1908
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__217', 'ERA_INDUSTRIAL'), -- 1908
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__219', 'ERA_MODERN'), -- 1911
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__220', 'ERA_MODERN'), -- 1912
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__225', 'ERA_MODERN'), -- 1918
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__227', 'ERA_MODERN'), -- 1920
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__230', 'ERA_MODERN'), -- 1926
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__240', 'ERA_MODERN'), -- 1928
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__242', 'ERA_MODERN'), -- 1928
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__245', 'ERA_MODERN'), -- 1936
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__250', 'ERA_MODERN'), -- 1940
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__260', 'ERA_MODERN'), -- 1940
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__270', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__280', 'ERA_POSTMODERN'), -- 1947
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__285', 'ERA_POSTMODERN'), -- 1949
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__290', 'ERA_POSTMODERN'), -- 1957
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__292', 'ERA_POSTMODERN'), -- 1957
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__293', 'ERA_POSTMODERN'), -- 1957
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__295', 'ERA_POSTMODERN'), -- 1964
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__297', 'ERA_POSTMODERN'), -- 1964
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__298', 'ERA_POSTMODERN'), -- 1965
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__300', 'ERA_POSTMODERN'), -- 1968
+	('UNIT_MERCHANT', 'TXT_KEY_GREAT_PERSON_N__400', 'ERA_POSTMODERN'), -- 1980
+--
+--          G.Engineers
+--
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__010', 'ERA_ANCIENT'), -- -1250
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__015', 'ERA_CLASSICAL'), -- -650
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__020', 'ERA_CLASSICAL'), -- -450
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__023', 'ERA_CLASSICAL'), -- -090
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__024', 'ERA_CLASSICAL'), -- 0055
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__025', 'ERA_MEDIEVAL'), -- 0442
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__030', 'ERA_MEDIEVAL'), -- 0474
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__040', 'ERA_MEDIEVAL'), -- 0897
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__050', 'ERA_MEDIEVAL'), -- 0950
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__060', 'ERA_MEDIEVAL'), -- 0950
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__070', 'ERA_MEDIEVAL'), -- 1020
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__075', 'ERA_MEDIEVAL'), -- 1031
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__080', 'ERA_MEDIEVAL'), -- 1136
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__090', 'ERA_MEDIEVAL'), -- 1400
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__100', 'ERA_RENAISSANCE'), -- 1490
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__110', 'ERA_RENAISSANCE'), -- 1500
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__115', 'ERA_RENAISSANCE'), -- 1501
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__120', 'ERA_RENAISSANCE'), -- 1526
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__130', 'ERA_RENAISSANCE'), -- 1570
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__131', 'ERA_RENAISSANCE'), -- 1571
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__133', 'ERA_RENAISSANCE'), -- 1724
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__135', 'ERA_RENAISSANCE'), -- 1739
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__140', 'ERA_RENAISSANCE'), -- 1764
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__142', 'ERA_RENAISSANCE'), -- 1771
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__144', 'ERA_RENAISSANCE'), -- 1781
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__145', 'ERA_RENAISSANCE'), -- 1791
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14C', 'ERA_RENAISSANCE'), -- 1801
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14A', 'ERA_RENAISSANCE'), -- 1803
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14D', 'ERA_RENAISSANCE'), -- 1827
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__146', 'ERA_RENAISSANCE'), -- 1834
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14E', 'ERA_INDUSTRIAL'), -- 1844
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14F', 'ERA_INDUSTRIAL'), -- 1847
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__147', 'ERA_INDUSTRIAL'), -- 1862
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__148', 'ERA_INDUSTRIAL'), -- 1863
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__149', 'ERA_INDUSTRIAL'), -- 1873
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14G', 'ERA_INDUSTRIAL'), -- 1874
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14H', 'ERA_INDUSTRIAL'), -- 1878
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14I', 'ERA_INDUSTRIAL'), -- 1878
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__14B', 'ERA_INDUSTRIAL'), -- 1887
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__150', 'ERA_INDUSTRIAL'), -- 1897
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__153', 'ERA_INDUSTRIAL'), -- 1905
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__154', 'ERA_INDUSTRIAL'), -- 1906
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__15A', 'ERA_INDUSTRIAL'), -- 1906
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__15C', 'ERA_INDUSTRIAL'), -- 1906
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__15B', 'ERA_INDUSTRIAL'), -- 1910
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__155', 'ERA_MODERN'), -- 1914
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__160', 'ERA_MODERN'), -- 1917
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__170', 'ERA_MODERN'), -- 1923
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__175', 'ERA_MODERN'), -- 1923
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__177', 'ERA_MODERN'), -- 1924
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__180', 'ERA_MODERN'), -- 1926
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__182', 'ERA_MODERN'), -- 1927
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__185', 'ERA_MODERN'), -- 1929
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__186', 'ERA_MODERN'), -- 1931
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__190', 'ERA_MODERN'), -- 1942
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__195', 'ERA_MODERN'), -- 1943
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__200', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__205', 'ERA_POSTMODERN'), -- 1950
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__210', 'ERA_POSTMODERN'), -- 1952
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__220', 'ERA_POSTMODERN'), -- 1959
+	('UNIT_ENGINEER', 'TXT_KEY_GREAT_PERSON_E__290', 'ERA_POSTMODERN'), -- 1971
+--
+--          G.Scientists
+--
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__010', 'ERA_ANCIENT'), -- -2700
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__020', 'ERA_ANCIENT'), -- -1660
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__023', 'ERA_CLASSICAL'), -- -610
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__025', 'ERA_CLASSICAL'), -- -276
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__027', 'ERA_CLASSICAL'), -- -190
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__030', 'ERA_CLASSICAL'), -- 0100
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__035', 'ERA_CLASSICAL'), -- 0129
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__040', 'ERA_CLASSICAL'), -- 0224
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__050', 'ERA_MEDIEVAL'), -- 0400
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__055', 'ERA_MEDIEVAL'), -- 0490
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__060', 'ERA_MEDIEVAL'), -- 0598
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__066', 'ERA_MEDIEVAL'), -- 0626
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__070', 'ERA_MEDIEVAL'), -- 0770
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__080', 'ERA_MEDIEVAL'), -- 0800
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__090', 'ERA_MEDIEVAL'), -- 0858
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__095', 'ERA_MEDIEVAL'), -- 0936
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__098', 'ERA_MEDIEVAL'), -- 0940
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__100', 'ERA_MEDIEVAL'), -- 0965
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__110', 'ERA_MEDIEVAL'), -- 0973
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__120', 'ERA_MEDIEVAL'), -- 1048
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__130', 'ERA_MEDIEVAL'), -- 1208
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__140', 'ERA_MEDIEVAL'), -- 1236
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__150', 'ERA_MEDIEVAL'), -- 1340
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__160', 'ERA_MEDIEVAL'), -- 1394
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__165', 'ERA_RENAISSANCE'), -- 1578
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__170', 'ERA_RENAISSANCE'), -- 1587
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__175', 'ERA_RENAISSANCE'), -- 1635
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__180', 'ERA_RENAISSANCE'), -- 1642
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__183', 'ERA_RENAISSANCE'), -- 1700
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__185', 'ERA_RENAISSANCE'), -- 1706
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__187', 'ERA_RENAISSANCE'), -- 1707
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__190', 'ERA_RENAISSANCE'), -- 1740
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__195', 'ERA_RENAISSANCE'), -- 1745
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__196', 'ERA_RENAISSANCE'), -- 1746
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__200', 'ERA_RENAISSANCE'), -- 1768
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__210', 'ERA_RENAISSANCE'), -- 1802
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__215', 'ERA_RENAISSANCE'), -- 1811
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__217', 'ERA_RENAISSANCE'), -- 1815
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__220', 'ERA_RENAISSANCE'), -- 1820
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__222', 'ERA_RENAISSANCE'), -- 1822
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__225', 'ERA_RENAISSANCE'), -- 1834
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__230', 'ERA_INDUSTRIAL'), -- 1850
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__231', 'ERA_INDUSTRIAL'), -- 1852
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__232', 'ERA_INDUSTRIAL'), -- 1852
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__233', 'ERA_INDUSTRIAL'), -- 1858
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__234', 'ERA_INDUSTRIAL'), -- 1884
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__235', 'ERA_INDUSTRIAL'), -- 1885
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__240', 'ERA_INDUSTRIAL'), -- 1887
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__245', 'ERA_INDUSTRIAL'), -- 1887
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__246', 'ERA_INDUSTRIAL'), -- 1889
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__247', 'ERA_INDUSTRIAL'), -- 1897
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__250', 'ERA_INDUSTRIAL'), -- 1892
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__260', 'ERA_INDUSTRIAL'), -- 1898
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__262', 'ERA_INDUSTRIAL'), -- 1901
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__263', 'ERA_INDUSTRIAL'), -- 1901
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__265', 'ERA_INDUSTRIAL'), -- 1908
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__270', 'ERA_INDUSTRIAL'), -- 1910
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__280', 'ERA_MODERN'), -- 1911
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__290', 'ERA_MODERN'), -- 1912
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__295', 'ERA_MODERN'), -- 1912
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__296', 'ERA_MODERN'), -- 1913
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__298', 'ERA_MODERN'), -- 1923
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__300', 'ERA_MODERN'), -- 1924
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__310', 'ERA_MODERN'), -- 1925
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__312', 'ERA_MODERN'), -- 1926
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__313', 'ERA_MODERN'), -- 1928
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__31A', 'ERA_MODERN'), -- 1928
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__314', 'ERA_MODERN'), -- 1930
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__315', 'ERA_MODERN'), -- 1934
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__316', 'ERA_MODERN'), -- 1934
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__31C', 'ERA_MODERN'), -- 1934
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__31B', 'ERA_MODERN'), -- 1938
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__317', 'ERA_MODERN'), -- 1942
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__320', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__330', 'ERA_POSTMODERN'), -- 1946
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__335', 'ERA_POSTMODERN'), -- 1947
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__337', 'ERA_POSTMODERN'), -- 1947
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__340', 'ERA_POSTMODERN'), -- 1951
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__345', 'ERA_POSTMODERN'), -- 1952
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__350', 'ERA_POSTMODERN'), -- 1955
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__355', 'ERA_POSTMODERN'), -- 1956
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__360', 'ERA_POSTMODERN'), -- 1958
+	('UNIT_SCIENTIST', 'TXT_KEY_GREAT_PERSON_S__370', 'ERA_POSTMODERN'); -- 1959
+
 
 INSERT INTO GreatWorks
 	(Type, GreatWorkClassType, Description, Audio, Image)
 VALUES
 --
---          GM
+--          G.Musicians
 --
-	('GREAT_WORK_HIEREMIAE_PROPHETAE_LAMENTATIONES',        'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_HIEREMIAE_PROPHETAE_LAMENTATIONES', 'AS2D_GREAT_MUSICIAN_MANUEL_DE_SUMAYA',               'GreatMusician_Background.dds'),
-	('GREAT_WORK_IJE_NWAYO',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_IJE_NWAYO',                         'AS2D_GREAT_MUSICIAN_AGBANI_NGURU_IKORODO_GROUP',     'GreatMusician_Background.dds'),
-	('GREAT_WORK_EY_BUT_I_NEV_EDA_OLMUSUM_MUPTELA',         'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_EY_BUT_I_NEV_EDA_OLMUSUM_MUPTELA',  'AS2D_GREAT_MUSICIAN_HAMMAMIZADE_ISMAIL_DEDE_EFENDI', 'GreatMusician_Background.dds'),
-	('GREAT_WORK_CHERRY_RIPE',                              'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_CHERRY_RIPE',                       'AS2D_GREAT_MUSICIAN_ROBERT_HERRICK',                 'GreatMusician_Background.dds'),
-	('GREAT_WORK_LUCIA_DI_LAMMERMOOR',                      'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LUCIA_DI_LAMMERMOOR',               'AS2D_GREAT_MUSICIAN_GAETANO_DONIZETTI',              'GreatMusician_Background.dds'),
-	('GREAT_WORK_I_VE_LEFT_THE_SNOW_CLAD_HILLS',            'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_I_VE_LEFT_THE_SNOW_CLAD_HILLS',     'AS2D_GREAT_MUSICIAN_GEORGE_LINLEY',                  'GreatMusician_Background.dds'),
-	('GREAT_WORK_GWINE_TO_RUN_ALL_NIGHT',                   'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_GWINE_TO_RUN_ALL_NIGHT',            'AS2D_GREAT_MUSICIAN_STEPHEN_FOSTER',                 'GreatMusician_Background.dds'),
-	('GREAT_WORK_LURLINE',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LURLINE',                           'AS2D_GREAT_MUSICIAN_WILLIAM_VINCENT_WALLACE',        'GreatMusician_Background.dds'),
-	('GREAT_WORK_REQUIEM',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_REQUIEM',                           'AS2D_GREAT_MUSICIAN_GABRIEL_FAURE',                  'GreatMusician_Background.dds'),
-	('GREAT_WORK_BLUE_SKIES',                               'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_BLUE_SKIES',                        'AS2D_GREAT_MUSICIAN_JOSEPHINE_BAKER',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_ZIBRAYATI',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ZIBRAYATI',                         'AS2D_GREAT_MUSICIAN_MOHAMED_EL_QASABGI',             'GreatMusician_Background.dds'),
-	('GREAT_WORK_CARMINA_BURANA',                           'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_CARMINA_BURANA',                    'AS2D_GREAT_MUSICIAN_CARL_ORFF',                      'GreatMusician_Background.dds'),
-	('GREAT_WORK_MY_SERENADE',                              'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MY_SERENADE',                       'AS2D_GREAT_MUSICIAN_DJANGO_REINHARDT',               'GreatMusician_Background.dds'),
-	('GREAT_WORK_ROOH_AFZA',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ROOH_AFZA',                         'AS2D_GREAT_MUSICIAN_MAHMOUD_ZOLFONOUN',              'GreatMusician_Background.dds'),
-	('GREAT_WORK_LA_VIE_EN_ROSE',                           'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LA_VIE_EN_ROSE',                    'AS2D_GREAT_MUSICIAN_EDITH_PIAF',                     'GreatMusician_Background.dds'),
-	('GREAT_WORK_DAME_EL_SI',                               'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_DAME_EL_SI',                        'AS2D_GREAT_MUSICIAN_LUIS_ALBERTI',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_IN_THE_MOOD',                              'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_IN_THE_MOOD',                       'AS2D_GREAT_MUSICIAN_GLENN_MILLER',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_MISTERIOSO',                               'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MISTERIOSO',                        'AS2D_GREAT_MUSICIAN_THELONIOUS_MONK',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_FANTAZI',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_FANTAZI',                           'AS2D_GREAT_MUSICIAN_AJIM_KRAJKA',                    'GreatMusician_Background.dds'),
-	('GREAT_WORK_GUAJIRA_Y_TAMBO',                          'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_GUAJIRA_Y_TAMBO',                   'AS2D_GREAT_MUSICIAN_RAY_BARRETTO',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_HELP',                                     'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_HELP',                              'AS2D_GREAT_MUSICIAN_THE_BEATTLES',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_ENDARO_MAHANUBHAVULU',                     'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ENDARO_MAHANUBHAVULU',              'AS2D_GREAT_MUSICIAN_DR_M_BALAMURALIKRISHNA',         'GreatMusician_Background.dds'),
-	('GREAT_WORK_SUMMERTIME',                               'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_SUMMERTIME',                        'AS2D_GREAT_MUSICIAN_JANIS_JOPLIN',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_LIFE_ON_MARS',                             'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LIFE_ON_MARS',                      'AS2D_GREAT_MUSICIAN_DAVID_BOWIE',                    'GreatMusician_Background.dds'),
-	('GREAT_WORK_PAPA_WAS_A_ROLLING_STONE',                 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_PAPA_WAS_A_ROLLING_STONE',          'AS2D_GREAT_MUSICIAN_THE_TEMPTATIONS',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_WATER_NO_GET_ENEMY',                       'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_WATER_NO_GET_ENEMY',                'AS2D_GREAT_MUSICIAN_FELA_ANIKULAPO_KUTI',            'GreatMusician_Background.dds'),
-	('GREAT_WORK_LIBERTE',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LIBERTE',                           'AS2D_GREAT_MUSICIAN_FRANCO_DU_CONGO',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_BLACK_BETTY',                              'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_BLACK_BETTY',                       'AS2D_GREAT_MUSICIAN_RAM_JAM',                        'GreatMusician_Background.dds'),
-	('GREAT_WORK_CHUCK_ES_IN_LOVE',                         'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_CHUCK_ES_IN_LOVE',                  'AS2D_GREAT_MUSICIAN_RICKY_LEE_JONES',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_IT_S_GONNA_BE_DREAD',                      'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_IT_S_GONNA_BE_DREAD',               'AS2D_GREAT_MUSICIAN_HORACE_ANDY',                    'GreatMusician_Background.dds'),
-	('GREAT_WORK_TEARDROPS',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_TEARDROPS',                         'AS2D_GREAT_MUSICIAN_WOMACK_AND_WOMACK',              'GreatMusician_Background.dds'),
-	('GREAT_WORK_SHADOW',                                   'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_SHADOW',                            'AS2D_GREAT_MUSICIAN_ERNST_REIJSEGER',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_DONT_CRY_FOR_ME_ARGENTINA',                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_DONT_CRY_FOR_ME_ARGENTINA',         'AS2D_GREAT_MUSICIAN_SINEAD_O_CONNOR',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_RAPPERS_DELIGHT',                          'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_RAPPERS_DELIGHT',                   'AS2D_GREAT_MUSICIAN_THE_SUGAR_HILL_GANG',            'GreatMusician_Background.dds'),
-	('GREAT_WORK_PALLADIO',                                 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_PALLADIO',                          'AS2D_GREAT_MUSICIAN_KARL_JENKINS',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_ALMENDRA',                                 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ALMENDRA',                          'AS2D_GREAT_MUSICIAN_RUBEN_GONZALEZ',                 'GreatMusician_Background.dds'),
-	('GREAT_WORK_LOUD_MINORITY',                            'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LOUD_MINORITY',                     'AS2D_GREAT_MUSICIAN_UFO',                            'GreatMusician_Background.dds'),
-	('GREAT_WORK_IN_THE_MOOD_FOR_LOVE',                     'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_IN_THE_MOOD_FOR_LOVE',              'AS2D_GREAT_MUSICIAN_SHIGERU_UMEBAYASHI',             'GreatMusician_Background.dds'),
-	('GREAT_WORK_MENYEJUKKAN_HATI',                         'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MENYEJUKKAN_HATI',                  'AS2D_GREAT_MUSICIAN_DEGUNG_SUNDA',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_ESORAGOTO',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ESORAGOTO',                         'AS2D_GREAT_MUSICIAN_SAWAI_HIKARU',                   'GreatMusician_Background.dds'),
-	('GREAT_WORK_KICK_IT',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_KICK_IT',                           'AS2D_GREAT_MUSICIAN_PEACHES_AND_IGGY_POP',           'GreatMusician_Background.dds'),
-	('GREAT_WORK_DRUME_NEGRITA',                            'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_DRUME_NEGRITA',                     'AS2D_GREAT_MUSICIAN_ROBERTO_FONSECA',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_ME',                                       'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_ME',                                'AS2D_GREAT_MUSICIAN_NILS_FRAHM',                     'GreatMusician_Background.dds'),
-	('GREAT_WORK_NOCTURNE_IN_F_MINOR',                      'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_NOCTURNE_IN_F_MINOR',               'AS2D_GREAT_MUSICIAN_CHAD_LAWSON',                    'GreatMusician_Background.dds'),
-	('GREAT_WORK_YA_LILI',                                  'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_YA_LILI',                           'AS2D_GREAT_MUSICIAN_BALTI',                          'GreatMusician_Background.dds'),
-	('GREAT_WORK_DESPACITO',                                'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_DESPACITO',                         'AS2D_GREAT_MUSICIAN_LUIS_FONSI',                     'GreatMusician_Background.dds'),
-	('GREAT_WORK_LAUNG_LAACHI',                             'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_LAUNG_LAACHI',                      'AS2D_GREAT_MUSICIAN_MANNAT_NOOR',                    'GreatMusician_Background.dds'),
-	('GREAT_WORK_NIMBUS',                                   'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_NIMBUS',                            'AS2D_GREAT_MUSICIAN_CHILLY_GONZALES',                'GreatMusician_Background.dds'),
-	('GREAT_WORK_BLINDING_LIGHTS',                          'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_BLINDING_LIGHTS',                   'AS2D_GREAT_MUSICIAN_THE_WEEKND',                     'GreatMusician_Background.dds'),
-	('GREAT_WORK_BLOOM',                                    'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_BLOOM',                             'AS2D_GREAT_MUSICIAN_GABRIEL_GARZON_MONTANO',         'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_010', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_010', 'AS2D_GREAT_MUSICIAN_M__010', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_020', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_020', 'AS2D_GREAT_MUSICIAN_M__020', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_030', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_030', 'AS2D_GREAT_MUSICIAN_M__030', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_040', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_040', 'AS2D_GREAT_MUSICIAN_M__040', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_050', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_050', 'AS2D_GREAT_MUSICIAN_M__050', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_060', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_060', 'AS2D_GREAT_MUSICIAN_M__060', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_070', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_070', 'AS2D_GREAT_MUSICIAN_M__070', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_080', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_080', 'AS2D_GREAT_MUSICIAN_M__080', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_090', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_090', 'AS2D_GREAT_MUSICIAN_M__090', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_100', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_100', 'AS2D_GREAT_MUSICIAN_M__100', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_110', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_110', 'AS2D_GREAT_MUSICIAN_M__110', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_120', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_120', 'AS2D_GREAT_MUSICIAN_M__120', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_130', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_130', 'AS2D_GREAT_MUSICIAN_M__130', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_140', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_140', 'AS2D_GREAT_MUSICIAN_M__140', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_150', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_150', 'AS2D_GREAT_MUSICIAN_M__150', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_160', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_160', 'AS2D_GREAT_MUSICIAN_M__160', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_170', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_170', 'AS2D_GREAT_MUSICIAN_M__170', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_180', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_180', 'AS2D_GREAT_MUSICIAN_M__180', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_190', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_190', 'AS2D_GREAT_MUSICIAN_M__190', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_200', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_200', 'AS2D_GREAT_MUSICIAN_M__200', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_210', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_210', 'AS2D_GREAT_MUSICIAN_M__210', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_220', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_220', 'AS2D_GREAT_MUSICIAN_M__220', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_230', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_230', 'AS2D_GREAT_MUSICIAN_M__230', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_240', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_240', 'AS2D_GREAT_MUSICIAN_M__240', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_250', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_250', 'AS2D_GREAT_MUSICIAN_M__250', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_260', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_260', 'AS2D_GREAT_MUSICIAN_M__260', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_270', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_270', 'AS2D_GREAT_MUSICIAN_M__270', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_280', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_280', 'AS2D_GREAT_MUSICIAN_M__280', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_290', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_290', 'AS2D_GREAT_MUSICIAN_M__290', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_300', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_300', 'AS2D_GREAT_MUSICIAN_M__300', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_310', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_310', 'AS2D_GREAT_MUSICIAN_M__310', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_320', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_320', 'AS2D_GREAT_MUSICIAN_M__320', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_330', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_330', 'AS2D_GREAT_MUSICIAN_M__330', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_340', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_340', 'AS2D_GREAT_MUSICIAN_M__340', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_350', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_350', 'AS2D_GREAT_MUSICIAN_M__350', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_360', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_360', 'AS2D_GREAT_MUSICIAN_M__360', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_370', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_370', 'AS2D_GREAT_MUSICIAN_M__370', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_380', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_380', 'AS2D_GREAT_MUSICIAN_M__380', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_390', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_390', 'AS2D_GREAT_MUSICIAN_M__390', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_400', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_400', 'AS2D_GREAT_MUSICIAN_M__400', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_410', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_410', 'AS2D_GREAT_MUSICIAN_M__410', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_420', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_420', 'AS2D_GREAT_MUSICIAN_M__420', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_430', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_430', 'AS2D_GREAT_MUSICIAN_M__430', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_440', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_440', 'AS2D_GREAT_MUSICIAN_M__440', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_450', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_450', 'AS2D_GREAT_MUSICIAN_M__450', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_460', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_460', 'AS2D_GREAT_MUSICIAN_M__460', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_470', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_470', 'AS2D_GREAT_MUSICIAN_M__470', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_480', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_480', 'AS2D_GREAT_MUSICIAN_M__480', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_490', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_490', 'AS2D_GREAT_MUSICIAN_M__490', 'GreatMusician_Background.dds'),
+	('GREAT_WORK_MW_500', 'GREAT_WORK_MUSIC', 'TXT_KEY_GREAT_WORK_MW_500', 'AS2D_GREAT_MUSICIAN_M__500', 'GreatMusician_Background.dds'),
 --
---          GA
+--          G.Artists
 --
 	('GREAT_WORK_AW_010', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_010', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__010.dds'),
 	('GREAT_WORK_AW_020', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_020', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__020.dds'),
@@ -298,147 +830,220 @@ VALUES
 	('GREAT_WORK_AW_070', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_070', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__070.dds'),
 	('GREAT_WORK_AW_080', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_080', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__080.dds'),
 	('GREAT_WORK_AW_090', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_090', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__090.dds'),
+	('GREAT_WORK_AW_092', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_092', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__092.dds'),
+	('GREAT_WORK_AW_095', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_095', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__095.dds'),
 	('GREAT_WORK_AW_100', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_100', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__100.dds'),
 	('GREAT_WORK_AW_110', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_110', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__110.dds'),
+	('GREAT_WORK_AW_115', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_115', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__115.dds'),
 	('GREAT_WORK_AW_120', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_120', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__120.dds'),
 	('GREAT_WORK_AW_130', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_130', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__130.dds'),
+	('GREAT_WORK_AW_135', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_135', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__135.dds'),
 	('GREAT_WORK_AW_140', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_140', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__140.dds'),
 	('GREAT_WORK_AW_150', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_150', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__150.dds'),
+	('GREAT_WORK_AW_155', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_155', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__155.dds'),
 	('GREAT_WORK_AW_160', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_160', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__160.dds'),
 	('GREAT_WORK_AW_170', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_170', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__170.dds'),
+	('GREAT_WORK_AW_178', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_178', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__178.dds'),
 	('GREAT_WORK_AW_180', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_180', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__180.dds'),
+	('GREAT_WORK_AW_185', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_185', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__185.dds'),
+	('GREAT_WORK_AW_187', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_187', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__187.dds'),
 	('GREAT_WORK_AW_190', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_190', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__190.dds'),
+	('GREAT_WORK_AW_193', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_193', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__193.dds'),
+	('GREAT_WORK_AW_194', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_194', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__194.dds'),
+	('GREAT_WORK_AW_195', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_195', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__195.dds'),
+	('GREAT_WORK_AW_197', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_197', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__197.dds'),
 	('GREAT_WORK_AW_200', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_200', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__200.dds'),
+	('GREAT_WORK_AW_205', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_205', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__205.dds'),
+	('GREAT_WORK_AW_207', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_207', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__207.dds'),
 	('GREAT_WORK_AW_210', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_210', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__210.dds'),
+	('GREAT_WORK_AW_215', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_215', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__215.dds'),
 	('GREAT_WORK_AW_220', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_220', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__220.dds'),
+	('GREAT_WORK_AW_225', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_225', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__225.dds'),
 	('GREAT_WORK_AW_230', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_230', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__230.dds'),
+	('GREAT_WORK_AW_235', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_235', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__235.dds'),
+	('GREAT_WORK_AW_236', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_236', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__236.dds'),
+	('GREAT_WORK_AW_237', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_237', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__237.dds'),
+	('GREAT_WORK_AW_238', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_238', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__238.dds'),
+	('GREAT_WORK_AW_239', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_239', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__239.dds'),
 	('GREAT_WORK_AW_240', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_240', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__240.dds'),
 	('GREAT_WORK_AW_250', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_250', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__250.dds'),
 	('GREAT_WORK_AW_260', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_260', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__260.dds'),
 	('GREAT_WORK_AW_270', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_270', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__270.dds'),
 	('GREAT_WORK_AW_280', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_280', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__280.dds'),
 	('GREAT_WORK_AW_290', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_290', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__290.dds'),
+	('GREAT_WORK_AW_295', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_295', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__295.dds'),
 	('GREAT_WORK_AW_300', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_300', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__300.dds'),
 	('GREAT_WORK_AW_310', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_310', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__310.dds'),
+	('GREAT_WORK_AW_315', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_315', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__315.dds'),
 	('GREAT_WORK_AW_320', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_320', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__320.dds'),
 	('GREAT_WORK_AW_330', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_330', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__330.dds'),
 	('GREAT_WORK_AW_340', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_340', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__340.dds'),
 	('GREAT_WORK_AW_350', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_350', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__350.dds'),
 	('GREAT_WORK_AW_360', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_360', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__360.dds'),
 	('GREAT_WORK_AW_370', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_370', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__370.dds'),
+	('GREAT_WORK_AW_375', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_375', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__375.dds'),
 	('GREAT_WORK_AW_380', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_380', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__380.dds'),
+	('GREAT_WORK_AW_385', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_385', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__385.dds'),
 	('GREAT_WORK_AW_390', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_390', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__390.dds'),
-	('GREAT_WORK_AW_400', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_400', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__400.dds');
+	('GREAT_WORK_AW_400', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_400', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__400.dds'),
+	('GREAT_WORK_AW_420', 'GREAT_WORK_ART', 'TXT_KEY_GREAT_WORK_AW_420', 'AS2D_GREAT_ARTIST_ARTWORK', 'A__420.dds');
+
+
+INSERT INTO GreatWorks
+	(Type, GreatWorkClassType, Description, Quote, Audio, Image)
+VALUES
+--
+--          G.Writers
+--
+	('GREAT_WORK_WW_010', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_010', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_010', 'AS2D_GREAT_WRITER_W__010', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_020', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_020', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_020', 'AS2D_GREAT_WRITER_W__020', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_030', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_030', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_030', 'AS2D_GREAT_WRITER_W__030', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_040', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_040', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_040', 'AS2D_GREAT_WRITER_W__040', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_050', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_050', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_050', 'AS2D_GREAT_WRITER_W__050', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_060', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_060', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_060', 'AS2D_GREAT_WRITER_W__060', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_070', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_070', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_070', 'AS2D_GREAT_WRITER_W__070', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_090', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_090', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_090', 'AS2D_GREAT_WRITER_W__090', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_100', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_100', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_100', 'AS2D_GREAT_WRITER_W__100', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_110', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_110', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_110', 'AS2D_GREAT_WRITER_W__110', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_120', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_120', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_120', 'AS2D_GREAT_WRITER_W__120', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_130', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_130', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_130', 'AS2D_GREAT_WRITER_W__130', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_140', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_140', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_140', 'AS2D_GREAT_WRITER_W__140', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_150', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_150', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_150', 'AS2D_GREAT_WRITER_W__150', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_160', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_160', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_160', 'AS2D_GREAT_WRITER_W__160', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_170', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_170', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_170', 'AS2D_GREAT_WRITER_W__170', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_190', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_190', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_190', 'AS2D_GREAT_WRITER_W__190', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_200', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_200', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_200', 'AS2D_GREAT_WRITER_W__200', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_210', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_210', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_210', 'AS2D_GREAT_WRITER_W__210', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_220', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_220', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_220', 'AS2D_GREAT_WRITER_W__220', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_230', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_230', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_230', 'AS2D_GREAT_WRITER_W__230', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_240', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_240', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_240', 'AS2D_GREAT_WRITER_W__240', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_250', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_250', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_250', 'AS2D_GREAT_WRITER_W__250', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_260', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_260', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_260', 'AS2D_GREAT_WRITER_W__260', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_270', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_270', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_270', 'AS2D_GREAT_WRITER_W__270', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_280', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_280', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_280', 'AS2D_GREAT_WRITER_W__280', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_290', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_290', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_290', 'AS2D_GREAT_WRITER_W__290', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_300', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_300', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_300', 'AS2D_GREAT_WRITER_W__300', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_310', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_310', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_310', 'AS2D_GREAT_WRITER_W__310', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_320', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_320', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_320', 'AS2D_GREAT_WRITER_W__320', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_330', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_330', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_330', 'AS2D_GREAT_WRITER_W__330', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_340', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_340', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_340', 'AS2D_GREAT_WRITER_W__340', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_350', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_350', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_350', 'AS2D_GREAT_WRITER_W__350', 'GreatWriter_Background.dds'),
+	('GREAT_WORK_WW_360', 'GREAT_WORK_LITERATURE', 'TXT_KEY_GREAT_WORK_WW_360', 'TXT_KEY_GREAT_WORK_QUOTE_WQ_360', 'AS2D_GREAT_WRITER_W__360', 'GreatWriter_Background.dds');
+
 
 INSERT INTO Language_en_US
 	(Tag, Text)
 VALUES
 --
---          GM
+--          G.Musicians
 --
-	('TXT_KEY_GREAT_PERSON_MANUEL_DE_SUMAYA',                 'Manuel De Sumaya'),
-	('TXT_KEY_GREAT_PERSON_AGBANI_NGURU_IKORODO_GROUP',       'Agbani Nguru Ikorodo Group'),
-	('TXT_KEY_GREAT_PERSON_HAMMAMIZADE_ISMAIL_DEDE_EFENDI',   'Hammamizade Ismail Dede Efendi'),
-	('TXT_KEY_GREAT_PERSON_ROBERT_HERRICK',                   'Robert Herrick'),
-	('TXT_KEY_GREAT_PERSON_GAETANO_DONIZETTI',                'Gaetano Donizetti'),
-	('TXT_KEY_GREAT_PERSON_GEORGE_LINLEY',                    'George Linley'),
-	('TXT_KEY_GREAT_PERSON_STEPHEN_FOSTER',                   'Stephen Foster'),
-	('TXT_KEY_GREAT_PERSON_WILLIAM_VINCENT_WALLACE',          'William Vincent Wallace'),
-	('TXT_KEY_GREAT_PERSON_GABRIEL_FAURE',                    'Gabriel Faure'),
-	('TXT_KEY_GREAT_PERSON_JOSEPHINE_BAKER',                  'Josephine Baker'),
-	('TXT_KEY_GREAT_PERSON_MOHAMED_EL_QASABGI',               'Mohamed El Qasabgi'),
-	('TXT_KEY_GREAT_PERSON_CARL_ORFF',                        'Carl Orff'),
-	('TXT_KEY_GREAT_PERSON_DJANGO_REINHARDT',                 'Django Reinhardt'),
-	('TXT_KEY_GREAT_PERSON_MAHMOUD_ZOLFONOUN',                'Mahmoud Zolfonoun'),
-	('TXT_KEY_GREAT_PERSON_EDITH_PIAF',                       'Edith Piaf'),
-	('TXT_KEY_GREAT_PERSON_LUIS_ALBERTI',                     'Luis Alberti'),
-	('TXT_KEY_GREAT_PERSON_GLENN_MILLER',                     'Glenn Miller'),
-	('TXT_KEY_GREAT_PERSON_THELONIOUS_MONK',                  'Thelonious Monk'),
-	('TXT_KEY_GREAT_PERSON_AJIM_KRAJKA',                      'Ajim Krajka'),
-	('TXT_KEY_GREAT_PERSON_RAY_BARRETTO',                     'Ray Barretto'),
-	('TXT_KEY_GREAT_PERSON_THE_BEATTLES',                     'The Beattles'),
-	('TXT_KEY_GREAT_PERSON_DR_M_BALAMURALIKRISHNA',           'Dr. M. Balamuralikrishna'),
-	('TXT_KEY_GREAT_PERSON_JANIS_JOPLIN',                     'Janis Joplin'),
-	('TXT_KEY_GREAT_PERSON_DAVID_BOWIE',                      'David Bowie'),
-	('TXT_KEY_GREAT_PERSON_THE_TEMPTATIONS',                  'The Temprtations'),
-	('TXT_KEY_GREAT_PERSON_FELA_ANIKULAPO_KUTI',              'Fela Anikylapo Kuti'),
-	('TXT_KEY_GREAT_PERSON_FRANCO_DU_CONGO',                  'Franco Du Congo'),
-	('TXT_KEY_GREAT_PERSON_RAM_JAM',                          'Ram Jam'),
-	('TXT_KEY_GREAT_PERSON_RICKY_LEE_JONES',                  'Ricky Lee Jones'),
-	('TXT_KEY_GREAT_PERSON_HORACE_ANDY',                      'Horace Andy'),
-	('TXT_KEY_GREAT_PERSON_WOMACK_AND_WOMACK',                'Womack and Womack'),
-	('TXT_KEY_GREAT_PERSON_ERNST_REIJSEGER',                  'Ernst Reijseger'),
-	('TXT_KEY_GREAT_PERSON_SINEAD_O_CONNOR',                  'Sinead O Connor'),
-	('TXT_KEY_GREAT_PERSON_THE_SUGAR_HILL_GANG',              'The Sugar Hill Gang'),
-	('TXT_KEY_GREAT_PERSON_KARL_JENKINS',                     'Karl Jenkins'),
-	('TXT_KEY_GREAT_PERSON_RUBEN_GONZALEZ',                   'Ruben Gonzalez'),
-	('TXT_KEY_GREAT_PERSON_UFO',                              'UFO'),
-	('TXT_KEY_GREAT_PERSON_SHIGERU_UMEBAYASHI',               'Shigeru Umebayashi'),
-	('TXT_KEY_GREAT_PERSON_DEGUNG_SUNDA',                     'Degung Sunda'),
-	('TXT_KEY_GREAT_PERSON_SAWAI_HIKARU',                     'Sawai Hikaru'),
-	('TXT_KEY_GREAT_PERSON_PEACHES_AND_IGGY_POP',             'Peaches and Iggy Pop'),
-	('TXT_KEY_GREAT_PERSON_ROBERTO_FONSECA',                  'Roberto Fonseca'),
-	('TXT_KEY_GREAT_PERSON_NILS_FRAHM',                       'Nils Frahm'),
-	('TXT_KEY_GREAT_PERSON_CHAD_LAWSON',                      'Chad Lawson'),
-	('TXT_KEY_GREAT_PERSON_BALTI',                            'Balti'),
-	('TXT_KEY_GREAT_PERSON_LUIS_FONSI',                       'Luis Fonsi'),
-	('TXT_KEY_GREAT_PERSON_MANNAT_NOOR',                      'Mannat Noor'),
-	('TXT_KEY_GREAT_PERSON_CHILLY_GONZALES',                  'Chilly Gonzales'),
-	('TXT_KEY_GREAT_PERSON_THE_WEEKND',                       'The Weeknd'),
-	('TXT_KEY_GREAT_PERSON_GABRIEL_GARZON_MONTANO',           'Gabriel Garzon Montano'),
+	('TXT_KEY_GREAT_PERSON_M__010', 'Manuel De Sumaya'),
+	('TXT_KEY_GREAT_PERSON_M__020', 'Agbani Nguru Ikorodo Group'),
+	('TXT_KEY_GREAT_PERSON_M__030', 'Hammamizade Ismail Dede Efendi'),
+	('TXT_KEY_GREAT_PERSON_M__040', 'Robert Herrick'),
+	('TXT_KEY_GREAT_PERSON_M__050', 'Gaetano Donizetti'),
+	('TXT_KEY_GREAT_PERSON_M__060', 'George Linley'),
+	('TXT_KEY_GREAT_PERSON_M__070', 'Stephen Foster'),
+	('TXT_KEY_GREAT_PERSON_M__080', 'William Vincent Wallace'),
+	('TXT_KEY_GREAT_PERSON_M__090', 'Gabriel Faure'),
+	('TXT_KEY_GREAT_PERSON_M__100', 'Josephine Baker'),
+	('TXT_KEY_GREAT_PERSON_M__110', 'Mohamed El Qasabgi'),
+	('TXT_KEY_GREAT_PERSON_M__120', 'Carl Orff'),
+	('TXT_KEY_GREAT_PERSON_M__130', 'Django Reinhardt'),
+	('TXT_KEY_GREAT_PERSON_M__140', 'Mahmoud Zolfonoun'),
+	('TXT_KEY_GREAT_PERSON_M__150', 'Edith Piaf'),
+	('TXT_KEY_GREAT_PERSON_M__160', 'Luis Alberti'),
+	('TXT_KEY_GREAT_PERSON_M__170', 'Glenn Miller'),
+	('TXT_KEY_GREAT_PERSON_M__180', 'Thelonious Monk'),
+	('TXT_KEY_GREAT_PERSON_M__190', 'Ajim Krajka'),
+	('TXT_KEY_GREAT_PERSON_M__200', 'Ray Barretto'),
+	('TXT_KEY_GREAT_PERSON_M__210', 'The Beattles'),
+	('TXT_KEY_GREAT_PERSON_M__220', 'Dr. M. Balamuralikrishna'),
+	('TXT_KEY_GREAT_PERSON_M__230', 'Janis Joplin'),
+	('TXT_KEY_GREAT_PERSON_M__240', 'David Bowie'),
+	('TXT_KEY_GREAT_PERSON_M__250', 'The Temprtations'),
+	('TXT_KEY_GREAT_PERSON_M__260', 'Fela Anikylapo Kuti'),
+	('TXT_KEY_GREAT_PERSON_M__270', 'Franco Du Congo'),
+	('TXT_KEY_GREAT_PERSON_M__280', 'Ram Jam'),
+	('TXT_KEY_GREAT_PERSON_M__290', 'Ricky Lee Jones'),
+	('TXT_KEY_GREAT_PERSON_M__300', 'Horace Andy'),
+	('TXT_KEY_GREAT_PERSON_M__310', 'Womack and Womack'),
+	('TXT_KEY_GREAT_PERSON_M__320', 'Ernst Reijseger'),
+	('TXT_KEY_GREAT_PERSON_M__330', 'Sinead O Connor'),
+	('TXT_KEY_GREAT_PERSON_M__340', 'The Sugar Hill Gang'),
+	('TXT_KEY_GREAT_PERSON_M__350', 'Karl Jenkins'),
+	('TXT_KEY_GREAT_PERSON_M__360', 'Ruben Gonzalez'),
+	('TXT_KEY_GREAT_PERSON_M__370', 'UFO'),
+	('TXT_KEY_GREAT_PERSON_M__380', 'Shigeru Umebayashi'),
+	('TXT_KEY_GREAT_PERSON_M__390', 'Degung Sunda'),
+	('TXT_KEY_GREAT_PERSON_M__400', 'Sawai Hikaru'),
+	('TXT_KEY_GREAT_PERSON_M__410', 'Peaches and Iggy Pop'),
+	('TXT_KEY_GREAT_PERSON_M__420', 'Roberto Fonseca'),
+	('TXT_KEY_GREAT_PERSON_M__430', 'Nils Frahm'),
+	('TXT_KEY_GREAT_PERSON_M__440', 'Chad Lawson'),
+	('TXT_KEY_GREAT_PERSON_M__450', 'Balti'),
+	('TXT_KEY_GREAT_PERSON_M__460', 'Luis Fonsi'),
+	('TXT_KEY_GREAT_PERSON_M__470', 'Mannat Noor'),
+	('TXT_KEY_GREAT_PERSON_M__480', 'Chilly Gonzales'),
+	('TXT_KEY_GREAT_PERSON_M__490', 'The Weeknd'),
+	('TXT_KEY_GREAT_PERSON_M__500', 'Gabriel Garzon Montano'),
 --	
-	('TXT_KEY_GREAT_WORK_HIEREMIAE_PROPHETAE_LAMENTATIONES',  'Hieremiae Prophetae Lamentationes'),
-	('TXT_KEY_GREAT_WORK_IJE_NWAYO',                          'Ije Nwayo'),
-	('TXT_KEY_GREAT_WORK_EY_BUT_I_NEV_EDA_OLMUSUM_MUPTELA',   'Ey But I Nev Eda Olmusum_Muptela'),
-	('TXT_KEY_GREAT_WORK_CHERRY_RIPE',                        'Cherry Ripe'),
-	('TXT_KEY_GREAT_WORK_LUCIA_DI_LAMMERMOOR',                'Lucia Di Lammermoor'),
-	('TXT_KEY_GREAT_WORK_I_VE_LEFT_THE_SNOW_CLAD_HILLS',      'I''ve Left The Snow Clad Hills'),
-	('TXT_KEY_GREAT_WORK_GWINE_TO_RUN_ALL_NIGHT',             'Gwine To Run All Night'),
-	('TXT_KEY_GREAT_WORK_LURLINE',                            'Lurline'),
-	('TXT_KEY_GREAT_WORK_REQUIEM',                            'Requiem'),
-	('TXT_KEY_GREAT_WORK_BLUE_SKIES',                         'Blue Skies'),
-	('TXT_KEY_GREAT_WORK_ZIBRAYATI',                          'Zibrayati'),
-	('TXT_KEY_GREAT_WORK_CARMINA_BURANA',                     'Carmina Burana'),
-	('TXT_KEY_GREAT_WORK_MY_SERENADE',                        'My Serenade'),
-	('TXT_KEY_GREAT_WORK_ROOH_AFZA',                          'Rooh Afza'),
-	('TXT_KEY_GREAT_WORK_LA_VIE_EN_ROSE',                     'La Vie En Rose'),
-	('TXT_KEY_GREAT_WORK_DAME_EL_SI',                         'Dame El Si'),
-	('TXT_KEY_GREAT_WORK_IN_THE_MOOD',                        'In The Mood'),
-	('TXT_KEY_GREAT_WORK_MISTERIOSO',                         'Misterioso'),
-	('TXT_KEY_GREAT_WORK_FANTAZI',                            'Fantazi'),
-	('TXT_KEY_GREAT_WORK_GUAJIRA_Y_TAMBO',                    'Guajira y Tambo'),
-	('TXT_KEY_GREAT_WORK_HELP',                               'Help'),
-	('TXT_KEY_GREAT_WORK_ENDARO_MAHANUBHAVULU',               'Endaro Mahanubhavulu'),
-	('TXT_KEY_GREAT_WORK_SUMMERTIME',                         'Summertime'),
-	('TXT_KEY_GREAT_WORK_LIFE_ON_MARS',                       'Life On Mars'),
-	('TXT_KEY_GREAT_WORK_PAPA_WAS_A_ROLLING_STONE',           'Papa was a Rolling Stone'),
-	('TXT_KEY_GREAT_WORK_WATER_NO_GET_ENEMY',                 'Water No Get Enemy'),
-	('TXT_KEY_GREAT_WORK_LIBERTE',                            'Liberte'),
-	('TXT_KEY_GREAT_WORK_BLACK_BETTY',                        'Black Betty'),
-	('TXT_KEY_GREAT_WORK_CHUCK_ES_IN_LOVE',                   'Chuck Es In Love'),
-	('TXT_KEY_GREAT_WORK_IT_S_GONNA_BE_DREAD',                'It''s gonna be dread'),
-	('TXT_KEY_GREAT_WORK_TEARDROPS',                          'Teardrops'),
-	('TXT_KEY_GREAT_WORK_SHADOW',                             'Shadow'),
-	('TXT_KEY_GREAT_WORK_DONT_CRY_FOR_ME_ARGENTINA',          'Dont''t cry for me Argentina'),
-	('TXT_KEY_GREAT_WORK_RAPPERS_DELIGHT',                    'Rapper''s Delight'),
-	('TXT_KEY_GREAT_WORK_PALLADIO',                           'Palladio'),
-	('TXT_KEY_GREAT_WORK_ALMENDRA',                           'Almendra'),
-	('TXT_KEY_GREAT_WORK_LOUD_MINORITY',                      'Loud Minority'),
-	('TXT_KEY_GREAT_WORK_IN_THE_MOOD_FOR_LOVE',               'In The Mood For Love'),
-	('TXT_KEY_GREAT_WORK_MENYEJUKKAN_HATI',                   'Menyejukkan Hati'),
-	('TXT_KEY_GREAT_WORK_ESORAGOTO',                          'Esoragoto'),
-	('TXT_KEY_GREAT_WORK_KICK_IT',                            'Kick it'),
-	('TXT_KEY_GREAT_WORK_DRUME_NEGRITA',                      'Drume Negrita'),
-	('TXT_KEY_GREAT_WORK_ME',                                 'me'),
-	('TXT_KEY_GREAT_WORK_NOCTURNE_IN_F_MINOR',                'Nocturne in F minor'),
-	('TXT_KEY_GREAT_WORK_YA_LILI',                            'Ya Lili'),
-	('TXT_KEY_GREAT_WORK_DESPACITO',                          'Despacito'),
-	('TXT_KEY_GREAT_WORK_LAUNG_LAACHI',                       'Laung Laachi'),
-	('TXT_KEY_GREAT_WORK_NIMBUS',                             'Nimbus'),
-	('TXT_KEY_GREAT_WORK_BLINDING_LIGHTS',                    'Blinding Lights'),
-	('TXT_KEY_GREAT_WORK_BLOOM',                              'Bloom'),
+	('TXT_KEY_GREAT_WORK_MW_010', 'Hieremiae Prophetae Lamentationes'),
+	('TXT_KEY_GREAT_WORK_MW_020', 'Ije Nwayo'),
+	('TXT_KEY_GREAT_WORK_MW_030', 'Ey But I Nev Eda Olmusum_Muptela'),
+	('TXT_KEY_GREAT_WORK_MW_040', 'Cherry Ripe'),
+	('TXT_KEY_GREAT_WORK_MW_050', 'Lucia Di Lammermoor'),
+	('TXT_KEY_GREAT_WORK_MW_060', 'I''ve Left The Snow Clad Hills'),
+	('TXT_KEY_GREAT_WORK_MW_070', 'Gwine To Run All Night'),
+	('TXT_KEY_GREAT_WORK_MW_080', 'Lurline'),
+	('TXT_KEY_GREAT_WORK_MW_090', 'Requiem'),
+	('TXT_KEY_GREAT_WORK_MW_100', 'Blue Skies'),
+	('TXT_KEY_GREAT_WORK_MW_110', 'Zibrayati'),
+	('TXT_KEY_GREAT_WORK_MW_120', 'Carmina Burana'),
+	('TXT_KEY_GREAT_WORK_MW_130', 'My Serenade'),
+	('TXT_KEY_GREAT_WORK_MW_140', 'Rooh Afza'),
+	('TXT_KEY_GREAT_WORK_MW_150', 'La Vie En Rose'),
+	('TXT_KEY_GREAT_WORK_MW_160', 'Dame El Si'),
+	('TXT_KEY_GREAT_WORK_MW_170', 'In The Mood'),
+	('TXT_KEY_GREAT_WORK_MW_180', 'Misterioso'),
+	('TXT_KEY_GREAT_WORK_MW_190', 'Fantazi'),
+	('TXT_KEY_GREAT_WORK_MW_200', 'Guajira y Tambo'),
+	('TXT_KEY_GREAT_WORK_MW_210', 'Help'),
+	('TXT_KEY_GREAT_WORK_MW_220', 'Endaro Mahanubhavulu'),
+	('TXT_KEY_GREAT_WORK_MW_230', 'Summertime'),
+	('TXT_KEY_GREAT_WORK_MW_240', 'Life On Mars'),
+	('TXT_KEY_GREAT_WORK_MW_250', 'Papa was a Rolling Stone'),
+	('TXT_KEY_GREAT_WORK_MW_260', 'Water No Get Enemy'),
+	('TXT_KEY_GREAT_WORK_MW_270', 'Liberte'),
+	('TXT_KEY_GREAT_WORK_MW_280', 'Black Betty'),
+	('TXT_KEY_GREAT_WORK_MW_290', 'Chuck Es In Love'),
+	('TXT_KEY_GREAT_WORK_MW_300', 'It''s gonna be dread'),
+	('TXT_KEY_GREAT_WORK_MW_310', 'Teardrops'),
+	('TXT_KEY_GREAT_WORK_MW_320', 'Shadow'),
+	('TXT_KEY_GREAT_WORK_MW_330', 'Dont''t cry for me Argentina'),
+	('TXT_KEY_GREAT_WORK_MW_340', 'Rapper''s Delight'),
+	('TXT_KEY_GREAT_WORK_MW_350', 'Palladio'),
+	('TXT_KEY_GREAT_WORK_MW_360', 'Almendra'),
+	('TXT_KEY_GREAT_WORK_MW_370', 'Loud Minority'),
+	('TXT_KEY_GREAT_WORK_MW_380', 'In The Mood For Love'),
+	('TXT_KEY_GREAT_WORK_MW_390', 'Menyejukkan Hati'),
+	('TXT_KEY_GREAT_WORK_MW_400', 'Esoragoto'),
+	('TXT_KEY_GREAT_WORK_MW_410', 'Kick it'),
+	('TXT_KEY_GREAT_WORK_MW_420', 'Drume Negrita'),
+	('TXT_KEY_GREAT_WORK_MW_430', 'me'),
+	('TXT_KEY_GREAT_WORK_MW_440', 'Nocturne in F minor'),
+	('TXT_KEY_GREAT_WORK_MW_450', 'Ya Lili'),
+	('TXT_KEY_GREAT_WORK_MW_460', 'Despacito'),
+	('TXT_KEY_GREAT_WORK_MW_470', 'Laung Laachi'),
+	('TXT_KEY_GREAT_WORK_MW_480', 'Nimbus'),
+	('TXT_KEY_GREAT_WORK_MW_490', 'Blinding Lights'),
+	('TXT_KEY_GREAT_WORK_MW_500', 'Bloom');
+
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
 --
---          GA
+--          G.Artists
 --
 	('TXT_KEY_GREAT_PERSON_A__010', 'Yan Liben'),
 	('TXT_KEY_GREAT_PERSON_A__020', 'Tepantitla'),
@@ -449,37 +1054,63 @@ VALUES
 	('TXT_KEY_GREAT_PERSON_A__070', 'Jeong Seon'),
 	('TXT_KEY_GREAT_PERSON_A__080', 'Samuel Felsted'),
 	('TXT_KEY_GREAT_PERSON_A__090', 'Hyewon'),
+	('TXT_KEY_GREAT_PERSON_A__092', 'Thomas Cole'),
+	('TXT_KEY_GREAT_PERSON_A__095', 'Johan Christian Dahl'),
 	('TXT_KEY_GREAT_PERSON_A__100', 'Raden Saleh'),
-	('TXT_KEY_GREAT_PERSON_A__110', 'Stanczyk'),
+	('TXT_KEY_GREAT_PERSON_A__110', 'Jan Matejko'),
+	('TXT_KEY_GREAT_PERSON_A__115', 'Albert Bierstadt'),
 	('TXT_KEY_GREAT_PERSON_A__120', 'Edouard Detaille'),
 	('TXT_KEY_GREAT_PERSON_A__130', 'Berthold Woltze'),
+	('TXT_KEY_GREAT_PERSON_A__135', 'Ivan Aivazovsky'),
 	('TXT_KEY_GREAT_PERSON_A__140', 'John Atkinson Grimshaw'),
 	('TXT_KEY_GREAT_PERSON_A__150', 'Black Hawk'),
+	('TXT_KEY_GREAT_PERSON_A__155', 'Albert Lynch'),
 	('TXT_KEY_GREAT_PERSON_A__160', 'Princess Ka''iulani'),
 	('TXT_KEY_GREAT_PERSON_A__170', 'Akseli Gallen Kallela'),
+	('TXT_KEY_GREAT_PERSON_A__178', 'Vladimir Baranov-Rossine'),
 	('TXT_KEY_GREAT_PERSON_A__180', 'Frantisek Kupka'),
+	('TXT_KEY_GREAT_PERSON_A__185', 'Ludwig Meidner'),
+	('TXT_KEY_GREAT_PERSON_A__187', 'Alexander Yuriyevich'),
 	('TXT_KEY_GREAT_PERSON_A__190', 'Wojciech Kossak'),
+	('TXT_KEY_GREAT_PERSON_A__193', 'Alphonse Mucha'),
+	('TXT_KEY_GREAT_PERSON_A__194', 'William Paxton'),
+	('TXT_KEY_GREAT_PERSON_A__195', 'Piet Mondrian'),
+	('TXT_KEY_GREAT_PERSON_A__197', 'Stanislaw Ignacy Witkiewicz'),
 	('TXT_KEY_GREAT_PERSON_A__200', 'Tarsila do Amaral'),
+	('TXT_KEY_GREAT_PERSON_A__205', 'Evelyn Dunbar'),
+	('TXT_KEY_GREAT_PERSON_A__207', 'Milan Konjovic'),
 	('TXT_KEY_GREAT_PERSON_A__210', 'Nguyen Nam Son'),
+	('TXT_KEY_GREAT_PERSON_A__215', 'Gao Jianfu'),
 	('TXT_KEY_GREAT_PERSON_A__220', 'Willem Gerard Hofker'),
+	('TXT_KEY_GREAT_PERSON_A__225', 'Montague Dawson'),
 	('TXT_KEY_GREAT_PERSON_A__230', 'Sawlaram Lakshman Haldankar'),
+	('TXT_KEY_GREAT_PERSON_A__235', 'Thomas Hart Benton'),
+	('TXT_KEY_GREAT_PERSON_A__236', 'Jasper Johns'),
+	('TXT_KEY_GREAT_PERSON_A__237', 'Zao Wou-Ki'),
+	('TXT_KEY_GREAT_PERSON_A__238', 'Betye Saar'),
+	('TXT_KEY_GREAT_PERSON_A__239', 'Andy Warhol'),
 	('TXT_KEY_GREAT_PERSON_A__240', 'Norval Morrisseau'),
 	('TXT_KEY_GREAT_PERSON_A__250', 'Uki'),
 	('TXT_KEY_GREAT_PERSON_A__260', 'Yunizar'),
 	('TXT_KEY_GREAT_PERSON_A__270', 'Mode Muntu'),
 	('TXT_KEY_GREAT_PERSON_A__280', 'Fahrelnissa Zeid'),
 	('TXT_KEY_GREAT_PERSON_A__290', 'Louisa Matthiasdottir'),
+	('TXT_KEY_GREAT_PERSON_A__295', 'Jean-Michel Basquiat'),
 	('TXT_KEY_GREAT_PERSON_A__300', 'Georges Mathieu'),
 	('TXT_KEY_GREAT_PERSON_A__310', 'Kacimi'),
+	('TXT_KEY_GREAT_PERSON_A__315', 'Alan Fearnley'),
 	('TXT_KEY_GREAT_PERSON_A__320', 'Babak Roshani Nejad'),
 	('TXT_KEY_GREAT_PERSON_A__330', 'Xue Mo'),
 	('TXT_KEY_GREAT_PERSON_A__340', 'Naza'),
 	('TXT_KEY_GREAT_PERSON_A__350', 'Mario Murua'),
 	('TXT_KEY_GREAT_PERSON_A__360', 'Syed Thajudeen'),
 	('TXT_KEY_GREAT_PERSON_A__370', 'Wang Yan Cheng'),
+	('TXT_KEY_GREAT_PERSON_A__375', 'Joseph McGurl'),
 	('TXT_KEY_GREAT_PERSON_A__380', 'Rachid Hanbali'),
+	('TXT_KEY_GREAT_PERSON_A__385', 'Mickalene Thomas'),
 	('TXT_KEY_GREAT_PERSON_A__390', 'Andre Kohn'),
 	('TXT_KEY_GREAT_PERSON_A__400', 'Jean Andrianaivo Ravelona'),
+	('TXT_KEY_GREAT_PERSON_A__420', 'Alex Pardee'),
 --
 	('TXT_KEY_GREAT_WORK_AW_010', 'Emperor Wen of Sui'),
 	('TXT_KEY_GREAT_WORK_AW_020', 'Great Goddess of Teotihuacan'),
@@ -490,34 +1121,553 @@ VALUES
 	('TXT_KEY_GREAT_WORK_AW_070', 'Geumgang Jeondo'),
 	('TXT_KEY_GREAT_WORK_AW_080', 'A North-East View of the House of Mr Emanuel Lousada Kingston Jamaica'),
 	('TXT_KEY_GREAT_WORK_AW_090', 'Sangchun'),
+	('TXT_KEY_GREAT_WORK_AW_092', 'Dream of Arcadia'),
+	('TXT_KEY_GREAT_WORK_AW_095', 'View of Dresden by Moonlight'),
 	('TXT_KEY_GREAT_WORK_AW_100', 'Hunt'),
-	('TXT_KEY_GREAT_WORK_AW_110', 'Jan Matejko'),
+	('TXT_KEY_GREAT_WORK_AW_110', 'Stanczyk'),
+	('TXT_KEY_GREAT_WORK_AW_115', 'Indians spear fishing'),
 	('TXT_KEY_GREAT_WORK_AW_120', 'Surprise près d''un pont au petit jour'),
 	('TXT_KEY_GREAT_WORK_AW_130', 'The Irritating Gentleman'),
+	('TXT_KEY_GREAT_WORK_AW_135', 'Winter Landscape'),
 	('TXT_KEY_GREAT_WORK_AW_140', 'November'),
 	('TXT_KEY_GREAT_WORK_AW_150', 'Haokah'),
+	('TXT_KEY_GREAT_WORK_AW_155', 'Fresh from the Garden '),
 	('TXT_KEY_GREAT_WORK_AW_160', 'Poppies'),
 	('TXT_KEY_GREAT_WORK_AW_170', 'Sammon puolustus'),
+	('TXT_KEY_GREAT_WORK_AW_178', 'The Forge'),
 	('TXT_KEY_GREAT_WORK_AW_180', 'Mme Kupka parmi Verticaux'),
+	('TXT_KEY_GREAT_WORK_AW_185', 'Apocalyptic Landscape'),
+	('TXT_KEY_GREAT_WORK_AW_187', 'Russian Cavalry on the Attack in East Prussia'),
 	('TXT_KEY_GREAT_WORK_AW_190', 'Charge of Rokitna'),
+	('TXT_KEY_GREAT_WORK_AW_193', 'Winter Night'),
+	('TXT_KEY_GREAT_WORK_AW_194', 'Boy with Blue Eyes'),
+	('TXT_KEY_GREAT_WORK_AW_195', 'Composition with Red, Yellow, Blue, and Black'),
+	('TXT_KEY_GREAT_WORK_AW_197', 'Portret Marii Nawrockiej'),
 	('TXT_KEY_GREAT_WORK_AW_200', 'Abaporu'),
+	('TXT_KEY_GREAT_WORK_AW_205', 'Self portrait'),
+	('TXT_KEY_GREAT_WORK_AW_207', 'Still Life'),
 	('TXT_KEY_GREAT_WORK_AW_210', 'Peasant women from Tonkin'),
+	('TXT_KEY_GREAT_WORK_AW_215', 'Solitary Temple in Autumn Mountains '),
 	('TXT_KEY_GREAT_WORK_AW_220', 'Portrait of Made Toei'),
+	('TXT_KEY_GREAT_WORK_AW_225', 'Days Of Old'),
 	('TXT_KEY_GREAT_WORK_AW_230', 'Glow of Hope'),
+	('TXT_KEY_GREAT_WORK_AW_235', 'Poker Night (from A Streetcar Named Desire)'),
+	('TXT_KEY_GREAT_WORK_AW_236', 'Target with Four Faces'),
+	('TXT_KEY_GREAT_WORK_AW_237', 'Untitled'),
+	('TXT_KEY_GREAT_WORK_AW_238', 'Anticipation'),
+	('TXT_KEY_GREAT_WORK_AW_239', 'Marilyn Diptych'),
 	('TXT_KEY_GREAT_WORK_AW_240', 'Thunderbird'),
 	('TXT_KEY_GREAT_WORK_AW_250', 'Quamrul Hassan'),
 	('TXT_KEY_GREAT_WORK_AW_260', 'Patatt ranting'),
 	('TXT_KEY_GREAT_WORK_AW_270', 'Fabian'),
 	('TXT_KEY_GREAT_WORK_AW_280', 'Femininity'),
 	('TXT_KEY_GREAT_WORK_AW_290', 'Sjalfsmynd'),
+	('TXT_KEY_GREAT_WORK_AW_295', 'Dustheads'),
 	('TXT_KEY_GREAT_WORK_AW_300', 'Depart Alarme II'),
 	('TXT_KEY_GREAT_WORK_AW_310', 'The time of storytellers'),
+	('TXT_KEY_GREAT_WORK_AW_315', 'Untitled'),
 	('TXT_KEY_GREAT_WORK_AW_320', 'No 3 from the Personae series'),
 	('TXT_KEY_GREAT_WORK_AW_330', 'Flower'),
 	('TXT_KEY_GREAT_WORK_AW_340', 'Red Macaw'),
 	('TXT_KEY_GREAT_WORK_AW_350', 'violencia rara y diosas blancas'),
 	('TXT_KEY_GREAT_WORK_AW_360', 'Springmood I'),
 	('TXT_KEY_GREAT_WORK_AW_370', 'Untitled'),
+	('TXT_KEY_GREAT_WORK_AW_375', 'Creation in Time and Space'),
 	('TXT_KEY_GREAT_WORK_AW_380', 'Asilah at Dawn'),
+	('TXT_KEY_GREAT_WORK_AW_385', 'Din, Une Tres Belle Négresse 1'),
 	('TXT_KEY_GREAT_WORK_AW_390', 'Morning on the Beach'),
-	('TXT_KEY_GREAT_WORK_AW_400', 'Vers le Centre de l''Univers');
+	('TXT_KEY_GREAT_WORK_AW_400', 'Vers le Centre de l''Univers'),
+	('TXT_KEY_GREAT_WORK_AW_420', 'Ank Shus');
+
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+--
+--          G.Writers
+--
+	('TXT_KEY_GREAT_PERSON_W__010', 'Sin-Leqi-Unninni'),
+	('TXT_KEY_GREAT_PERSON_W__020', 'Sappho'),
+	('TXT_KEY_GREAT_PERSON_W__030', 'Nestor the Chronicler'),
+	('TXT_KEY_GREAT_PERSON_W__040', 'Snorri Sturluson'),
+	('TXT_KEY_GREAT_PERSON_W__050', 'Is''haq Nebura-Id'),
+	('TXT_KEY_GREAT_PERSON_W__060', 'Šigi Qutuqu'),
+	('TXT_KEY_GREAT_PERSON_W__070', 'Margery Kempe'),
+	('TXT_KEY_GREAT_PERSON_W__090', 'Miyamoto Musashi'),
+	('TXT_KEY_GREAT_PERSON_W__100', 'Hanna Diyab'),
+	('TXT_KEY_GREAT_PERSON_W__110', 'Christine de Pizan'),
+	('TXT_KEY_GREAT_PERSON_W__120', 'Margaret Cavendish'),
+	('TXT_KEY_GREAT_PERSON_W__130', 'Wu Cheng''en'),
+	('TXT_KEY_GREAT_PERSON_W__140', 'Beatrix Potter'),
+	('TXT_KEY_GREAT_PERSON_W__150', 'John Keats'),
+	('TXT_KEY_GREAT_PERSON_W__160', 'Hans Christian Andersen'),
+	('TXT_KEY_GREAT_PERSON_W__170', 'Khurdishbanu Natavan'),
+	('TXT_KEY_GREAT_PERSON_W__190', 'Howard Philips Lovecraft'),
+	('TXT_KEY_GREAT_PERSON_W__200', 'J.R.R. Tolkein'),
+	('TXT_KEY_GREAT_PERSON_W__210', 'Lucy Maud Montgomery'),
+	('TXT_KEY_GREAT_PERSON_W__220', 'René Goscinny and Albert Uderzo'),
+	('TXT_KEY_GREAT_PERSON_W__230', 'Stanislaw Lem'),
+	('TXT_KEY_GREAT_PERSON_W__240', 'Leopold Sedar Senghor'),
+	('TXT_KEY_GREAT_PERSON_W__250', 'Vasily Grossman'),
+	('TXT_KEY_GREAT_PERSON_W__260', 'Witi Ihimaera'),
+	('TXT_KEY_GREAT_PERSON_W__270', 'Isaac Asimov'),
+	('TXT_KEY_GREAT_PERSON_W__280', 'Chinua Achebe'),
+	('TXT_KEY_GREAT_PERSON_W__290', 'Sylvia Plath'),
+	('TXT_KEY_GREAT_PERSON_W__300', 'Toni Morrison'),
+	('TXT_KEY_GREAT_PERSON_W__310', 'Andrzej Sapkowski'),
+	('TXT_KEY_GREAT_PERSON_W__320', 'J.K. Rowling'),
+	('TXT_KEY_GREAT_PERSON_W__330', 'Margaret Atwood'),
+	('TXT_KEY_GREAT_PERSON_W__340', 'Arundhati Roy'),
+	('TXT_KEY_GREAT_PERSON_W__350', 'Eden Robinson'),
+	('TXT_KEY_GREAT_PERSON_W__360', 'François Cheng (Chéng Bàoyi)'),
+--	
+	('TXT_KEY_GREAT_WORK_WW_010', 'Epic of Gilgamesh'),
+	('TXT_KEY_GREAT_WORK_WW_020', 'Ode to Aphrodite'),
+	('TXT_KEY_GREAT_WORK_WW_030', 'Tale of Bygone Years'),
+	('TXT_KEY_GREAT_WORK_WW_040', 'The Prose Edda'),
+	('TXT_KEY_GREAT_WORK_WW_050', 'Kebra Nagast (Books of Kings)'),
+	('TXT_KEY_GREAT_WORK_WW_060', 'The Secret History of the Mongols'),
+	('TXT_KEY_GREAT_WORK_WW_070', 'The Book of Margery Kemp'),
+	('TXT_KEY_GREAT_WORK_WW_090', 'Go Rin no Sho (The Book of Five Rings)'),
+	('TXT_KEY_GREAT_WORK_WW_100', 'Aladdin''s Wonderful Lamp'),
+	('TXT_KEY_GREAT_WORK_WW_110', 'The Book of the City of Ladies'),
+	('TXT_KEY_GREAT_WORK_WW_120', 'The Blazing World'),
+	('TXT_KEY_GREAT_WORK_WW_130', 'Xi Yóu Jì (Journey to the West)'),
+	('TXT_KEY_GREAT_WORK_WW_140', 'The Tale of Peter Rabbit'),
+	('TXT_KEY_GREAT_WORK_WW_150', 'Ode to a Nightingale'),
+	('TXT_KEY_GREAT_WORK_WW_160', 'The Snow Queen'),
+	('TXT_KEY_GREAT_WORK_WW_170', 'Lilac'),
+	('TXT_KEY_GREAT_WORK_WW_190', 'The Call of Cthulhu'),
+	('TXT_KEY_GREAT_WORK_WW_200', 'The Hobbit'),
+	('TXT_KEY_GREAT_WORK_WW_210', 'Anne of Green Gables'),
+	('TXT_KEY_GREAT_WORK_WW_220', 'Astérix chez les Bretons (Asterix in Britain)'),
+	('TXT_KEY_GREAT_WORK_WW_230', 'Solaris'),
+	('TXT_KEY_GREAT_WORK_WW_240', 'Nocturnes'),
+	('TXT_KEY_GREAT_WORK_WW_250', 'Life and Fate'),
+	('TXT_KEY_GREAT_WORK_WW_260', 'Pounamu, Pounamu'),
+	('TXT_KEY_GREAT_WORK_WW_270', 'Runaround'),
+	('TXT_KEY_GREAT_WORK_WW_280', 'Things Fall Apart'),
+	('TXT_KEY_GREAT_WORK_WW_290', 'Mushrooms'),
+	('TXT_KEY_GREAT_WORK_WW_300', 'Song of Solomon'),
+	('TXT_KEY_GREAT_WORK_WW_310', 'Wiedzmin (The Witcher)'),
+	('TXT_KEY_GREAT_WORK_WW_320', 'Harry Potter and the Philosopher''s Stone'),
+	('TXT_KEY_GREAT_WORK_WW_330', 'The Handmaid''s Tale'),
+	('TXT_KEY_GREAT_WORK_WW_340', 'The God of Small Things'),
+	('TXT_KEY_GREAT_WORK_WW_350', 'Monkey Beach'),
+	('TXT_KEY_GREAT_WORK_WW_360', 'La vraie gloire est ici (Genuine glory is here)'),
+--	
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_010', 'Even the gods took fright at the Deluge,[NEWLINE]they left and went up to the heaven of Anu,[NEWLINE]lying like dogs curled up in the open.[NEWLINE]The goddess cried out like a woman in childbirth,[NEWLINE]Belet-ili wailed, whose voice is so sweet:[NEWLINE]''It is I who give birth, these people are mine![NEWLINE]And now, like fish, they fill the ocean!'''),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_020', 'Aphrodite, subtle of soul and deathless,[NEWLINE]Daughter of God, weaver of wiles, I pray thee[NEWLINE]Neither with care, dread Mistress, nor with anguish,[NEWLINE]Slay thou my spirit!'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_030', 'As long as love reign between you, God will be with you, will make your enemies submit, and you will live in peace. But if you live in hatred, strife and divisions, you will perish; you will lose the lands of your fathers and ancestors, which they acquired with much suffering. So live in peace and understanding, listen to one another.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_040', 'Of Ymer''s flesh[NEWLINE]The earth was made,[NEWLINE]And of his sweat the seas;[NEWLINE]Rocks of his bones,[NEWLINE]Trees of his hair,[NEWLINE]And the sky of his skull;[NEWLINE]But of his eyebrows[NEWLINE]The blithe powers[NEWLINE]Made Midgard for the sons of men.[NEWLINE]Of his brains[NEWLINE]All the melancholy[NEWLINE]Clouds were made.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_050', 'He who heaps up gold and silver does so to no profit without wisdom; but he who heaps up wisdom, no man can snatch it from his heart.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_060', 'At the beginning there was a blue-grey wolf, born with his destiny ordained by Heaven Above. His wife was a fallow doe. They came crossing the Tenggis. After they had settled at the source of the Onan River on Mount Burqan Qaldun, Bataciqan was born to them.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_070', 'She many times met with men of that district who said to her, ''woman, give up this life that you lead and go and spin, and card wool, as other women do, and do not suffer so much shame and so much unhappiness. We would not suffer so much for any money on earth'''),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_080', 'Evil and good meet with their due reward. Good fortune and ill luck walk side by side. But he who never walks the wrong path, need have no fear when comes the summons in the night'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_090', 'You will come to think of things in a wide sense, and taking the void as the Way, you will see the Way as void. In the void is virtue, and no evil. Wisdom has existence, principle has existence, the Way has existence, spirit is nothingness.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_100', 'In this action of joining his hands, he happened, without at all thinking of it, to rub the ring which the African magician had put upon his finger, and of the virtue of which he was as yet ignorant. Upon its being thus rubbed, a Genie of a most enormous figure and most horrid countenance, instantly rose, as it were, out of the earth before him'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_110', 'The man or the woman in whom resides greater virtue is the higher; neither the loftiness nor the lowliness of a person lies in the body according to the sex, but in the perfection of conduct and virtues.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_120', 'If you will but direct me, said the Duchess to the Spirits, which World is easiest to be conquered, her Majesty will assist me with Means, and I will trust to Fate and Fortune; for I had rather die in the adventure of noble achievements, then live in obscure and sluggish security; since by the one, I may live in a glorious Fame; and by the other I am buried in oblivion.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_130', 'One wish born in the heart of man[NEWLINE]Is known throughout Heaven and Earth.[NEWLINE]If vice or virtue lacks reward,[NEWLINE]Unjust must be the universe.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_140', 'Flopsy, Mopsy, and Cottontail - who were good little bunnies - went down the lane to gather blackberries, but Peter - who was very naughty - ran straight away to Mr. McGregor''s garden and squeezed under the gate.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_150', 'Thou wast not born for death, immortal Bird![NEWLINE]No hungry generations tread thee down;[NEWLINE]The voice I hear this passing night was heard[NEWLINE]In ancient days by emperor and clown.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_160', 'Strength lies in her heart, because she is such a sweet, innocent child. If she herself cannot reach the Snow Queen and rid little Kay of those pieces of glass, then there''s no help that we can give her.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_170', 'O poppy-cheeked, was it a skilful gardener drew you?[NEWLINE]In this flowerbed world there were all too many plain faces;[NEWLINE]Was that the reason why the almighty keeper drew you?[NEWLINE]The flowers take their colours and fragrance from you.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_190', 'Ph''nglui mglw''nafh Cthulhu R''lyeh wgah''nagl fhtagn.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_200', 'In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole, filled with the ends of worms and an oozy smell, nor yet a dry, bare, sandy hole with nothing in it to sit down on or to eat: It was a hobbit-hole, and that means comfort.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_210', 'I''m so glad I live in a world where there are Octobers. It would be terrible if we just skipped from September to November, wouldn''t it? Look at these maple branches. Don''t they give you a thrill—several thrills? I''m going to decorate my room with them. ''Messy things'', said Marilla, whose aesthetic sense was not noticeably developed.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_220', 'You''re not too strong.[NEWLINE]- We need a strong guy only who?[NEWLINE]- Who can carry a whole barrel of magic potion.[NEWLINE]- Like somebody who fell into the potion when he was just a little baby![NEWLINE]- Ah? Oh, me![NEWLINE]- Ahaha[NEWLINE]- Let''s smash the Romans, let''s smash the Romans, let''s smash the Romans!'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_230', 'So... you think it''s the ocean? That the ocean is responsible for it all? But why? I''m not asking how, I''m simply asking why? Do you seriously think that it wants to toy with us - a sort of elementary demonomania? A planet dominated by a huge devil, who satisfies the demands of his satanic humour by sending succubi to haunt the members of a scientific expedition...? Snow, you can''t believe anything so absurd!"[NEWLINE]He muttered under his breath.[NEWLINE]"The devil isn''t such a fool as all of that...'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_240', 'The splendor of honors is like a Sahara,[NEWLINE]A huge void without dune or stony plateau without grasses, without flutter of eyelid, without thump of the heart'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_250', 'Human history is not the battle of good struggling to overcome evil. It is a battle fought by a great evil, struggling to crush a small kernel of human kindness. But if what is human in human beings has not been destroyed even now, then evil will never conquer.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_260', 'This room was the whanau; the whanau was this room. If ever you wanted to know the whanau''s accomplishments, here were  all the sports trophies, shields, photographs of the old people who''d died long ago, whakapapa or genealogy sheets, carved feather boxes, panels, figures, feather cloaks, piupius - all spilling a riot of colour and shadow throughout the sunlit room.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_270', 'The Three Laws of Robotics:[NEWLINE]1 : A robot may not injure a human being or, through inaction, allow a human being to come to harm;[NEWLINE]2 : A robot must obey the orders given it by human beings except where such orders would conflict with the First Law;[NEWLINE]3 : A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_280', 'A man who calls his kinsmen to a feast does not do so to save them from starving. They all have food in their own homes. When we gather together in the moonlit village ground it is not because of the moon. Every man can see it in his own compound. We come together because it is good for kinsmen to do so.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_290', 'We Diet on water[NEWLINE]On crumbs of shadow[NEWLINE]Bland-mannered, asking[NEWLINE]Little or nothing[NEWLINE]So many of us!'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_300', 'Perhaps that''s what all human relationships boil down to: Would you save my life? or would you take it?'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_310', '''Evil is evil, Stregobor,'' said the witcher seriously as he got up. ''Lesser, greater, middling, it''s all the same. Proportions are negotiated, boundaries blurred. I''m not a pious hermit. I haven''t done only good in my life. But if I''m to choose between one evil and another, then I prefer not to choose at all.'''),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_320', 'What happened down in the dungeons between you and Professor Quirrell is a complete secret, so, naturally the whole school knows.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_330', 'But remember that forgiveness too is a power. To beg for it is a power, and to withhold or bestow it is a power, perhaps the greatest.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_340', 'When you hurt people they begin to love you less. That''s what careless words do, they make people love you a little less.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_350', 'Names have power. This is the fundamental principle of magic everywhere. Call out the name of a supernatural being, and you will have its instant and undivided attention in the same way that your lost toddler will have yours the second it calls your name.'),
+	('TXT_KEY_GREAT_WORK_QUOTE_WQ_360', 'Thirst and hunger,[NEWLINE]Laughs and tears,[NEWLINE]Sweetness, injuries,[NEWLINE]Fury, regrets,[NEWLINE]We will discard none,[NEWLINE]We will carry them all,[NEWLINE]Everlasting viatica,[NEWLINE]For a long journey.');
+
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+--
+--          G.Generals
+--
+	('TXT_KEY_GREAT_PERSON_G__010', 'Cyrus the Great'),
+	('TXT_KEY_GREAT_PERSON_G__015', 'Dumnorix'),
+	('TXT_KEY_GREAT_PERSON_G__020', 'Trung Vuong'),
+	('TXT_KEY_GREAT_PERSON_G__030', 'Kanishka I'),
+	('TXT_KEY_GREAT_PERSON_G__040', 'Lady Trieu'),
+	('TXT_KEY_GREAT_PERSON_G__050', 'Ran Min'),
+	('TXT_KEY_GREAT_PERSON_G__055', 'Balamber'),
+	('TXT_KEY_GREAT_PERSON_G__060', 'Sarvarâjochheda'),
+	('TXT_KEY_GREAT_PERSON_G__070', 'Gwanggaeto the Great'),
+	('TXT_KEY_GREAT_PERSON_G__075', 'Narses'),
+	('TXT_KEY_GREAT_PERSON_G__080', 'Belisarius'),
+	('TXT_KEY_GREAT_PERSON_G__085', 'Abou Bakr As-Siddiq'),
+	('TXT_KEY_GREAT_PERSON_G__087', 'Heraclius'),
+	('TXT_KEY_GREAT_PERSON_G__090', 'Maya Queen Lady K''abel'),
+	('TXT_KEY_GREAT_PERSON_G__100', 'Nikephoros II Phokas'),
+	('TXT_KEY_GREAT_PERSON_G__110', 'John I Tzimiskes'),
+	('TXT_KEY_GREAT_PERSON_G__120', 'Mahmud of Ghazni'),
+	('TXT_KEY_GREAT_PERSON_G__130', 'Robert Guiscard'),
+	('TXT_KEY_GREAT_PERSON_G__140', 'Alp Arslan'),
+	('TXT_KEY_GREAT_PERSON_G__150', 'David IV of Georgia'),
+	('TXT_KEY_GREAT_PERSON_G__160', 'Saladin'),
+	('TXT_KEY_GREAT_PERSON_G__170', 'Sundiata'),
+	('TXT_KEY_GREAT_PERSON_G__175', 'Baibars'),
+	('TXT_KEY_GREAT_PERSON_G__180', 'Tran Hung Dao'),
+	('TXT_KEY_GREAT_PERSON_G__190', 'Oz Beg Khan'),
+	('TXT_KEY_GREAT_PERSON_G__195', 'Bertrand du Guesclin'),
+	('TXT_KEY_GREAT_PERSON_G__200', 'Xu Da'),
+	('TXT_KEY_GREAT_PERSON_G__210', 'Hayam Wuruk'),
+	('TXT_KEY_GREAT_PERSON_G__220', 'Jan Žižka'),
+	('TXT_KEY_GREAT_PERSON_G__230', 'Skandenberg'),
+	('TXT_KEY_GREAT_PERSON_G__240', 'Janos Hunyadi'),
+	('TXT_KEY_GREAT_PERSON_G__250', 'Huyana Capac'),
+	('TXT_KEY_GREAT_PERSON_G__260', 'Asnäf Sägäd I'),
+	('TXT_KEY_GREAT_PERSON_G__270', 'Aminatu'),
+	('TXT_KEY_GREAT_PERSON_G__280', 'Levtraru'),
+	('TXT_KEY_GREAT_PERSON_G__290', 'Tokugawa Ieyasu'),
+	('TXT_KEY_GREAT_PERSON_G__300', 'Malik Ambar'),
+	('TXT_KEY_GREAT_PERSON_G__310', 'Queen Nanny'),
+	('TXT_KEY_GREAT_PERSON_G__320', 'Mihai Viteazu'),
+	('TXT_KEY_GREAT_PERSON_G__330', 'Nurhaci'),
+	('TXT_KEY_GREAT_PERSON_G__340', 'Jan Karol Chodkiewicz'),
+	('TXT_KEY_GREAT_PERSON_G__350', 'Nzingha Mbande'),
+	('TXT_KEY_GREAT_PERSON_G__360', 'Stanislaw Koniecpolski'),
+	('TXT_KEY_GREAT_PERSON_G__370', 'Jan Sobieski'),
+	('TXT_KEY_GREAT_PERSON_G__380', 'Shivaji Bosle'),
+	('TXT_KEY_GREAT_PERSON_G__385', 'Baji Rao I'),
+	('TXT_KEY_GREAT_PERSON_G__390', 'Ahmad Khan Abdali'),
+	('TXT_KEY_GREAT_PERSON_G__395', 'James Wolfe'),	
+	('TXT_KEY_GREAT_PERSON_G__397', 'Alexander Suvorov'),	
+	('TXT_KEY_GREAT_PERSON_G__400', 'Toussaint L’Ouverture'),
+	('TXT_KEY_GREAT_PERSON_G__410', 'Mikhail Kutuzov'),
+	('TXT_KEY_GREAT_PERSON_G__420', 'Nguyen Hue'),
+	('TXT_KEY_GREAT_PERSON_G__425', 'José Gervasio Artigas'),
+	('TXT_KEY_GREAT_PERSON_G__430', 'Piotr Ivanovitch Bagration'),
+	('TXT_KEY_GREAT_PERSON_G__440', 'Ranjît Singh'),
+	('TXT_KEY_GREAT_PERSON_G__445', 'Kazimierz Pulaski'),
+	('TXT_KEY_GREAT_PERSON_G__450', 'Simon Bolivar'),
+	('TXT_KEY_GREAT_PERSON_G__455', 'Ignacy Kruszewski'),
+	('TXT_KEY_GREAT_PERSON_G__460', 'Cochise'),
+	('TXT_KEY_GREAT_PERSON_G__465', 'Seh-Dong-Hong-Beh'),
+	('TXT_KEY_GREAT_PERSON_G__470', 'Crazy Horse'),
+	('TXT_KEY_GREAT_PERSON_G__475', 'Richard Hebden O''Grady Haly'),
+	('TXT_KEY_GREAT_PERSON_G__480', 'Kumu Eseko Elombe'),
+	('TXT_KEY_GREAT_PERSON_G__481', 'Mekonnen Welde Mikael'),
+	('TXT_KEY_GREAT_PERSON_G__482', 'John Pershing'),
+	('TXT_KEY_GREAT_PERSON_G__483', 'Sir Arthur William Currie'),
+	('TXT_KEY_GREAT_PERSON_G__485', 'Douglas MacArthur'),
+	('TXT_KEY_GREAT_PERSON_G__487', 'Edward Rydz-Smigly'),
+	('TXT_KEY_GREAT_PERSON_G__48A', 'Edward Puttick'),
+	('TXT_KEY_GREAT_PERSON_G__489', 'Kiyotake Kawaguchi'),
+	('TXT_KEY_GREAT_PERSON_G__490', 'Josip Broz Tito'),
+	('TXT_KEY_GREAT_PERSON_G__491', 'Matthew Bunker Ridgway'),
+	('TXT_KEY_GREAT_PERSON_G__492', 'Lewis Burwell'),
+	('TXT_KEY_GREAT_PERSON_G__49A', 'Simon Spoor'),
+	('TXT_KEY_GREAT_PERSON_G__49C', 'Philippe Leclerc'),
+	('TXT_KEY_GREAT_PERSON_G__493', 'Juan José Valle'),
+	('TXT_KEY_GREAT_PERSON_G__494', 'Vo Nguyen Giap'),
+	('TXT_KEY_GREAT_PERSON_G__495', 'Moshe Dayan'),
+	('TXT_KEY_GREAT_PERSON_G__49B', 'Marcel Bigeard'),
+	('TXT_KEY_GREAT_PERSON_G__496', 'Chung Il-kwon'),
+	('TXT_KEY_GREAT_PERSON_G__497', 'Hal Moore'),
+	('TXT_KEY_GREAT_PERSON_G__498', 'Mario Menéndez'),
+	('TXT_KEY_GREAT_PERSON_G__500', 'Norman Schwarzkopf'),
+	('TXT_KEY_GREAT_PERSON_G__505', 'Liamine Zéroual'),
+	('TXT_KEY_GREAT_PERSON_G__506', 'Jehangir Karamat'),
+	('TXT_KEY_GREAT_PERSON_G__50A', 'Fernando Tapias Stahelin'),
+	('TXT_KEY_GREAT_PERSON_G__507', 'Abdul Fatah Younis'),
+	('TXT_KEY_GREAT_PERSON_G__510', 'David Petraeus'),
+	('TXT_KEY_GREAT_PERSON_G__515', 'Yasar Güler'),
+	('TXT_KEY_GREAT_PERSON_G__520', 'César Astudillo Salcedo'),
+	('TXT_KEY_GREAT_PERSON_G__530', 'Vladimer Chachibaia'),
+	('TXT_KEY_GREAT_PERSON_G__540', 'Melvyn Ong'),
+--
+--          G.Admirals
+--	
+	('TXT_KEY_GREAT_PERSON_B__010', 'Hannu'),
+	('TXT_KEY_GREAT_PERSON_B__020', 'Pytheas'),
+	('TXT_KEY_GREAT_PERSON_B__030', 'Xu Fu'),
+	('TXT_KEY_GREAT_PERSON_B__040', 'Zhang Quian'),
+	('TXT_KEY_GREAT_PERSON_B__045', 'Lacedaimonius'),
+	('TXT_KEY_GREAT_PERSON_B__047', 'Himerios'),
+	('TXT_KEY_GREAT_PERSON_B__050', 'Ngô Quyen'),
+	('TXT_KEY_GREAT_PERSON_B__060', 'George of Antioch'),
+	('TXT_KEY_GREAT_PERSON_B__063', 'Lamba Doria'),
+	('TXT_KEY_GREAT_PERSON_B__065', 'Hugues Quieret'),
+	('TXT_KEY_GREAT_PERSON_B__067', 'Jeanne de Belleville'),
+	('TXT_KEY_GREAT_PERSON_B__070', 'Wang Dayuan'),
+	('TXT_KEY_GREAT_PERSON_B__072', 'Hamza Bey'),
+	('TXT_KEY_GREAT_PERSON_B__073', 'Vincenzo Cappello'),
+	('TXT_KEY_GREAT_PERSON_B__074', 'Juan Martinez de Recalde'),
+	('TXT_KEY_GREAT_PERSON_B__075', 'Yi Sun-sin'),
+	('TXT_KEY_GREAT_PERSON_B__080', 'Keumalahayati'),
+	('TXT_KEY_GREAT_PERSON_B__085', 'Martim Afonso de Castro'),
+	('TXT_KEY_GREAT_PERSON_B__090', 'Gustav Horn'),
+	('TXT_KEY_GREAT_PERSON_B__100', 'Cornelis Tromp'),
+	('TXT_KEY_GREAT_PERSON_B__103', 'Jan van Brakel'),
+	('TXT_KEY_GREAT_PERSON_B__104', 'Jean Bart'),
+	('TXT_KEY_GREAT_PERSON_B__105', 'Fiodor Apraxine'),
+	('TXT_KEY_GREAT_PERSON_B__107', 'George Byng'),
+	('TXT_KEY_GREAT_PERSON_B__110', 'Kanhoji Angre'),
+	('TXT_KEY_GREAT_PERSON_B__120', 'Peter Tordenskjold'),
+	('TXT_KEY_GREAT_PERSON_B__128', 'Robert Surcouf'),
+	('TXT_KEY_GREAT_PERSON_B__130', 'Ching Shih'),
+	('TXT_KEY_GREAT_PERSON_B__135', 'Steen Andersen Bille'),
+	('TXT_KEY_GREAT_PERSON_B__150', 'Miguel Grau Seminario'),
+	('TXT_KEY_GREAT_PERSON_B__160', 'Hans von Koester'),
+	('TXT_KEY_GREAT_PERSON_B__170', 'August von Thomsen'),
+	('TXT_KEY_GREAT_PERSON_B__172', 'Abraham George Ellis'),
+	('TXT_KEY_GREAT_PERSON_B__175', 'Anton Haus'),
+	('TXT_KEY_GREAT_PERSON_B__180', 'Ijuin Goro'),
+	('TXT_KEY_GREAT_PERSON_B__190', 'Paolo Thaon'),
+	('TXT_KEY_GREAT_PERSON_B__195', 'Sir William Clarkson'),
+	('TXT_KEY_GREAT_PERSON_B__200', 'Józef Unrug'),
+	('TXT_KEY_GREAT_PERSON_B__205', 'Mineichi Koga'),
+	('TXT_KEY_GREAT_PERSON_B__203', 'Frank Jack Fletcher'),
+	('TXT_KEY_GREAT_PERSON_B__206', 'Conrad Helfrich'),
+	('TXT_KEY_GREAT_PERSON_B__210', 'Vladimir Kasatonov'),
+	('TXT_KEY_GREAT_PERSON_B__212', 'Ram Dass Katari'),
+	('TXT_KEY_GREAT_PERSON_B__215', 'Bengt Lundvall'),
+	('TXT_KEY_GREAT_PERSON_B__220', 'Jerzy Tumaniszwili'),
+	('TXT_KEY_GREAT_PERSON_B__230', 'Sveto Letica'),
+	('TXT_KEY_GREAT_PERSON_B__235', 'Theodoros Degiannis'),
+	('TXT_KEY_GREAT_PERSON_B__240', 'Lâm Nguon Tánh'),
+	('TXT_KEY_GREAT_PERSON_B__245', 'Pávlos Koundouriótis'),
+	('TXT_KEY_GREAT_PERSON_B__250', 'Konstantin Makarov'),
+	('TXT_KEY_GREAT_PERSON_B__251', 'Jan Klenberg'),
+	('TXT_KEY_GREAT_PERSON_B__252', 'Gulab Mohanlal Hiranandani'),
+	('TXT_KEY_GREAT_PERSON_B__270', 'Lillian Elaine Fishburne'),
+	('TXT_KEY_GREAT_PERSON_B__300', 'Wasantha Karannagoda'),
+	('TXT_KEY_GREAT_PERSON_B__325', 'Édouard Guillaud'),
+	('TXT_KEY_GREAT_PERSON_B__350', 'Ahmed Khaled'),
+	('TXT_KEY_GREAT_PERSON_B__355', 'Lee Hsi-ming'),
+	('TXT_KEY_GREAT_PERSON_B__357', 'Alireza Tangsiri'),
+	('TXT_KEY_GREAT_PERSON_B__360', 'Louise Kathrine Dedichen'),
+	('TXT_KEY_GREAT_PERSON_B__370', 'Bob Auchterlonie'),
+	('TXT_KEY_GREAT_PERSON_B__390', 'Gladys Mbulaheni'),
+--
+--          G.Merchants
+--
+	('TXT_KEY_GREAT_PERSON_N__002', 'Colaeus'),
+	('TXT_KEY_GREAT_PERSON_N__004', 'Marcus Licinius Crassus'),
+	('TXT_KEY_GREAT_PERSON_N__010', 'Tunka Manin'),
+	('TXT_KEY_GREAT_PERSON_N__020', 'al-Mustansir'),
+	('TXT_KEY_GREAT_PERSON_N__030', 'Suryavarman'),
+	('TXT_KEY_GREAT_PERSON_N__035', 'Marco Polo'),
+	('TXT_KEY_GREAT_PERSON_N__040', 'Musa of Mali'),
+	('TXT_KEY_GREAT_PERSON_N__050', 'Ibn Khaldoun'),
+	('TXT_KEY_GREAT_PERSON_N__060', 'Cosimo de Medici'),
+	('TXT_KEY_GREAT_PERSON_N__070', 'Nyatsimba-Mutota'),
+	('TXT_KEY_GREAT_PERSON_N__075', 'Jacob Fugger'),
+	('TXT_KEY_GREAT_PERSON_N__077', 'Konstanty Korniakt'),
+	('TXT_KEY_GREAT_PERSON_N__080', 'Thomas Gresham'),
+	('TXT_KEY_GREAT_PERSON_N__090', 'Shah Abbas'),
+	('TXT_KEY_GREAT_PERSON_N__100', 'Tanaka Shosuke'),
+	('TXT_KEY_GREAT_PERSON_N__105', 'Piero de'' Bardi'),
+	('TXT_KEY_GREAT_PERSON_N__110', 'Osei Tutu'),
+	('TXT_KEY_GREAT_PERSON_N__115', 'Sava Tekelija'),
+	('TXT_KEY_GREAT_PERSON_N__120', 'Howqua'),
+	('TXT_KEY_GREAT_PERSON_N__130', 'Nathan Rotschild'),
+	('TXT_KEY_GREAT_PERSON_N__140', 'Adrian van der Hoop'),
+	('TXT_KEY_GREAT_PERSON_N__145', 'Heinrich Nestle'),
+	('TXT_KEY_GREAT_PERSON_N__150', 'Tippu Tip'),
+	('TXT_KEY_GREAT_PERSON_N__155', 'Jamsetji Nusserwanji Tata'),
+	('TXT_KEY_GREAT_PERSON_N__160', 'Rumaliza'),
+	('TXT_KEY_GREAT_PERSON_N__170', 'Cecil Rhodes'),
+	('TXT_KEY_GREAT_PERSON_N__180', 'Simon Iturri Patino'),
+	('TXT_KEY_GREAT_PERSON_N__185', 'John Jacob Astor IV'),
+	('TXT_KEY_GREAT_PERSON_N__187', 'Madam C.J. Walker'),
+	('TXT_KEY_GREAT_PERSON_N__188', 'Helena Rubinstein'),
+	('TXT_KEY_GREAT_PERSON_N__18A', 'Tomé de Barros Queirós'),
+	('TXT_KEY_GREAT_PERSON_N__189', 'Melitta Bentz'),
+	('TXT_KEY_GREAT_PERSON_N__18B', 'François Blais'),
+	('TXT_KEY_GREAT_PERSON_N__190', 'Osman Ali Khan'),
+	('TXT_KEY_GREAT_PERSON_N__195', 'David Sarnoff'),
+	('TXT_KEY_GREAT_PERSON_N__197', 'Raymond Rubicam'),
+	('TXT_KEY_GREAT_PERSON_N__200', 'T.V.Soong'),
+	('TXT_KEY_GREAT_PERSON_N__210', 'Yoyoda Tatsugoro'),
+	('TXT_KEY_GREAT_PERSON_N__215', 'Estée Lauder'),
+	('TXT_KEY_GREAT_PERSON_N__217', 'Masaru Ibuka'),
+	('TXT_KEY_GREAT_PERSON_N__219', 'David Ogilvy'),
+	('TXT_KEY_GREAT_PERSON_N__220', 'Taiichi Ohno'),
+	('TXT_KEY_GREAT_PERSON_N__225', 'Sam Walton'),
+	('TXT_KEY_GREAT_PERSON_N__227', 'Karl Albrecht'),
+	('TXT_KEY_GREAT_PERSON_N__230', 'Ingvar Kamprad'),
+	('TXT_KEY_GREAT_PERSON_N__240', 'Li Ka-Shing'),
+	('TXT_KEY_GREAT_PERSON_N__242', 'Lee Shau-kee'),
+	('TXT_KEY_GREAT_PERSON_N__245', 'Carl Icahn'),
+	('TXT_KEY_GREAT_PERSON_N__250', 'Carlos Slim'),
+	('TXT_KEY_GREAT_PERSON_N__260', 'Muhammad Yunus'),
+	('TXT_KEY_GREAT_PERSON_N__270', 'Haji Bolkiah'),
+	('TXT_KEY_GREAT_PERSON_N__280', 'Scrooge McDuck'),
+	('TXT_KEY_GREAT_PERSON_N__285', 'Bernard Arnault'),
+	('TXT_KEY_GREAT_PERSON_N__290', 'Mukesh Ambani'),
+	('TXT_KEY_GREAT_PERSON_N__292', 'Aliko Dangote'),
+	('TXT_KEY_GREAT_PERSON_N__293', 'Masayoshi Son'),
+	('TXT_KEY_GREAT_PERSON_N__295', 'Jeff Bezos'),
+	('TXT_KEY_GREAT_PERSON_N__297', 'Jack Ma'),
+	('TXT_KEY_GREAT_PERSON_N__298', 'Michael Dell'),
+	('TXT_KEY_GREAT_PERSON_N__300', 'Jerry Jang'),
+	('TXT_KEY_GREAT_PERSON_N__400', 'Colin Huang Zheng');
+
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+--
+--          G.Engineers
+--
+	('TXT_KEY_GREAT_PERSON_E__010', 'Tapputi'),
+	('TXT_KEY_GREAT_PERSON_E__015', 'Eupalinos'),
+	('TXT_KEY_GREAT_PERSON_E__020', 'Ximen Bao'),
+	('TXT_KEY_GREAT_PERSON_E__023', 'Marcus Vitruvius Pollio'),
+	('TXT_KEY_GREAT_PERSON_E__024', 'Apollodorus of Damascus'),
+	('TXT_KEY_GREAT_PERSON_E__025', 'Isidore of Miletus'),
+	('TXT_KEY_GREAT_PERSON_E__030', 'Anthemius of Tralles'),
+	('TXT_KEY_GREAT_PERSON_E__040', 'Al-Ishafani'),
+	('TXT_KEY_GREAT_PERSON_E__050', 'Yu Hao'),
+	('TXT_KEY_GREAT_PERSON_E__060', 'Maslama am-Majriti'),
+	('TXT_KEY_GREAT_PERSON_E__070', 'Su Song'),
+	('TXT_KEY_GREAT_PERSON_E__075', 'Shen Kuo'),
+	('TXT_KEY_GREAT_PERSON_E__080', 'Al-Jazari'),
+	('TXT_KEY_GREAT_PERSON_E__090', 'Senenmut'),
+	('TXT_KEY_GREAT_PERSON_E__100', 'Mimar Sinan'),
+	('TXT_KEY_GREAT_PERSON_E__110', 'Gunadharma'),
+	('TXT_KEY_GREAT_PERSON_E__115', 'Juanelo Turriano'),
+	('TXT_KEY_GREAT_PERSON_E__120', 'Taqi al-Din'),
+	('TXT_KEY_GREAT_PERSON_E__130', 'Koca Kasim Aga'),
+	('TXT_KEY_GREAT_PERSON_E__131', 'Giovanni Branca'),
+	('TXT_KEY_GREAT_PERSON_E__133', 'John Smeaton'),
+	('TXT_KEY_GREAT_PERSON_E__135', 'John Spilsbury'),
+	('TXT_KEY_GREAT_PERSON_E__140', 'Krikor Balyan'),
+	('TXT_KEY_GREAT_PERSON_E__144', 'George Stephenson'),
+	('TXT_KEY_GREAT_PERSON_E__142', 'Richard Trevithick'),
+	('TXT_KEY_GREAT_PERSON_E__145', 'Charles Babbage'),
+	('TXT_KEY_GREAT_PERSON_E__14C', 'Jacques Triger'),
+	('TXT_KEY_GREAT_PERSON_E__14A', 'Joseph Whitworth'),
+	('TXT_KEY_GREAT_PERSON_E__14D', 'Sandford Fleming'),
+	('TXT_KEY_GREAT_PERSON_E__146', 'Gottlieb Daimler'),
+	('TXT_KEY_GREAT_PERSON_E__14E', 'Elijah McCoy'),
+	('TXT_KEY_GREAT_PERSON_E__14F', 'Nikolaï Joukovski'),
+	('TXT_KEY_GREAT_PERSON_E__147', 'Visvesvaraya'),
+	('TXT_KEY_GREAT_PERSON_E__148', 'Henry Ford'),
+	('TXT_KEY_GREAT_PERSON_E__149', 'Lee De Forest'),
+	('TXT_KEY_GREAT_PERSON_E__14G', 'Pedro Paulet'),
+	('TXT_KEY_GREAT_PERSON_E__14H', 'Stephen Timoshenko'),
+	('TXT_KEY_GREAT_PERSON_E__14I', 'Ryoichi Yazu'),
+	('TXT_KEY_GREAT_PERSON_E__14B', 'Barnes Wallis'),
+	('TXT_KEY_GREAT_PERSON_E__150', 'Kálmán Tihanyi'),
+	('TXT_KEY_GREAT_PERSON_E__153', 'Tommy Flowers'),
+	('TXT_KEY_GREAT_PERSON_E__154', 'Sergueï Korolev'),
+	('TXT_KEY_GREAT_PERSON_E__15A', 'Soichiro Honda'),
+	('TXT_KEY_GREAT_PERSON_E__15C', 'Oleg Antonov'),
+	('TXT_KEY_GREAT_PERSON_E__15B', 'Pierre Bézier'),
+	('TXT_KEY_GREAT_PERSON_E__155', 'Hedy Lamarr'),
+	('TXT_KEY_GREAT_PERSON_E__160', 'Ilya Prigogine'),
+	('TXT_KEY_GREAT_PERSON_E__170', 'Muzharul Islam'),
+	('TXT_KEY_GREAT_PERSON_E__175', 'Jack Kilby'),
+	('TXT_KEY_GREAT_PERSON_E__177', 'Giulio Alfieri'),
+	('TXT_KEY_GREAT_PERSON_E__180', 'Abdus Salam'),
+	('TXT_KEY_GREAT_PERSON_E__182', 'Jacek Karpinski'),
+	('TXT_KEY_GREAT_PERSON_E__185', 'Fazlur Khan'),
+	('TXT_KEY_GREAT_PERSON_E__186', 'James West'),
+	('TXT_KEY_GREAT_PERSON_E__190', 'Patricia Bath'),
+	('TXT_KEY_GREAT_PERSON_E__195', 'Burt Rutan'),
+	('TXT_KEY_GREAT_PERSON_E__200', 'Ken Yeang'),
+	('TXT_KEY_GREAT_PERSON_E__205', 'Steve Wozniak'),
+	('TXT_KEY_GREAT_PERSON_E__210', 'Carlos paz de Araujo'),
+	('TXT_KEY_GREAT_PERSON_E__220', 'Reza Ghadiri'),
+	('TXT_KEY_GREAT_PERSON_E__290', 'Elon Musk'),
+--
+--          G.Scientists
+--
+	('TXT_KEY_GREAT_PERSON_S__010', 'Méryt-Ptah'),
+	('TXT_KEY_GREAT_PERSON_S__020', 'Ahmes'),
+	('TXT_KEY_GREAT_PERSON_S__023', 'Anaximander'),
+	('TXT_KEY_GREAT_PERSON_S__025', 'Eratosthenes'),
+	('TXT_KEY_GREAT_PERSON_S__027', 'Hipparque'),
+	('TXT_KEY_GREAT_PERSON_S__030', 'Yajnavalkya'),
+	('TXT_KEY_GREAT_PERSON_S__035', 'Claudius Galenus'),
+	('TXT_KEY_GREAT_PERSON_S__040', 'Pei Xiu'),
+	('TXT_KEY_GREAT_PERSON_S__050', 'Panini'),
+	('TXT_KEY_GREAT_PERSON_S__055', 'John Philoponus'),
+	('TXT_KEY_GREAT_PERSON_S__060', 'Brahmagupta'),
+	('TXT_KEY_GREAT_PERSON_S__066', 'Thales of Miletus'),
+	('TXT_KEY_GREAT_PERSON_S__070', 'Abdallah al-Marwazi Habash al-Hasib'),
+	('TXT_KEY_GREAT_PERSON_S__080', 'Baudhayan'),
+	('TXT_KEY_GREAT_PERSON_S__090', 'Al Battani'),
+	('TXT_KEY_GREAT_PERSON_S__095', 'Abu Al-Qasim'),
+	('TXT_KEY_GREAT_PERSON_S__098', 'Ibn Sahl'),
+	('TXT_KEY_GREAT_PERSON_S__100', 'Al-Haytham'),
+	('TXT_KEY_GREAT_PERSON_S__110', 'Al-Biruni'),
+	('TXT_KEY_GREAT_PERSON_S__120', 'Omar Khayyam'),
+	('TXT_KEY_GREAT_PERSON_S__130', 'Qin Jiushao'),
+	('TXT_KEY_GREAT_PERSON_S__140', 'Qotb al-Din Chirazi'),
+	('TXT_KEY_GREAT_PERSON_S__150', 'Madhawa'),
+	('TXT_KEY_GREAT_PERSON_S__160', 'Ulugh Beg'),
+	('TXT_KEY_GREAT_PERSON_S__165', 'William Harvey'),
+	('TXT_KEY_GREAT_PERSON_S__170', 'Xu Xiake'),
+	('TXT_KEY_GREAT_PERSON_S__175', 'Robert Hooke'),
+	('TXT_KEY_GREAT_PERSON_S__180', 'Seki Takakazu'),
+	('TXT_KEY_GREAT_PERSON_S__183', 'Daniel Bernoulli'),
+	('TXT_KEY_GREAT_PERSON_S__185', 'Émilie du Châtelet'),
+	('TXT_KEY_GREAT_PERSON_S__187', 'Carl von Linné'),
+	('TXT_KEY_GREAT_PERSON_S__190', 'Juan Ignacio Molina'),
+	('TXT_KEY_GREAT_PERSON_S__195', 'Alessandro Volta'),
+	('TXT_KEY_GREAT_PERSON_S__196', 'Giovanni Battista Venturi'),
+	('TXT_KEY_GREAT_PERSON_S__200', 'Wang Zhenyi'),
+	('TXT_KEY_GREAT_PERSON_S__210', 'János Bolyai'),
+	('TXT_KEY_GREAT_PERSON_S__215', 'James Young'),
+	('TXT_KEY_GREAT_PERSON_S__217', 'Ada Lovelace'),
+	('TXT_KEY_GREAT_PERSON_S__220', 'Florence Nightingale'),
+	('TXT_KEY_GREAT_PERSON_S__222', 'Gregor Mendel'),
+	('TXT_KEY_GREAT_PERSON_S__225', 'Dmitri Mendeleïev'),
+	('TXT_KEY_GREAT_PERSON_S__230', 'Sofia Vasilyevna'),
+	('TXT_KEY_GREAT_PERSON_S__231', 'Henri Becquerel'),
+	('TXT_KEY_GREAT_PERSON_S__232', 'Santiago Ramón y Cajal'),
+	('TXT_KEY_GREAT_PERSON_S__233', 'Max Planck'),
+	('TXT_KEY_GREAT_PERSON_S__234', 'Kazimierz Funk'),
+	('TXT_KEY_GREAT_PERSON_S__235', 'Jan Czochralski'),
+	('TXT_KEY_GREAT_PERSON_S__240', 'Ramanujan'),
+	('TXT_KEY_GREAT_PERSON_S__245', 'Erwin Schrödinger'),
+	('TXT_KEY_GREAT_PERSON_S__246', 'Edwin Hubble'),
+	('TXT_KEY_GREAT_PERSON_S__247', 'Janaki Ammal'),
+	('TXT_KEY_GREAT_PERSON_S__250', 'Stefan Banach'),
+	('TXT_KEY_GREAT_PERSON_S__260', 'Leo Szilard'),
+	('TXT_KEY_GREAT_PERSON_S__262', 'Linus Pauling'),
+	('TXT_KEY_GREAT_PERSON_S__263', 'Werner Heisenberg'),
+	('TXT_KEY_GREAT_PERSON_S__265', 'Claude Lévi-Strauss'),
+	('TXT_KEY_GREAT_PERSON_S__270', 'Chandrasekhar'),
+	('TXT_KEY_GREAT_PERSON_S__280', 'Shiing-Shen Chern'),
+	('TXT_KEY_GREAT_PERSON_S__290', 'Chieng-Shiung Wu'),
+	('TXT_KEY_GREAT_PERSON_S__295', 'Alan Turing'),
+	('TXT_KEY_GREAT_PERSON_S__296', 'Mary Leakey'),
+	('TXT_KEY_GREAT_PERSON_S__298', 'Stephanie Kwolek'),
+	('TXT_KEY_GREAT_PERSON_S__300', 'Aziz Ab''Sáber'),
+	('TXT_KEY_GREAT_PERSON_S__310', 'Zofia Kielan-Jaworowska'),
+	('TXT_KEY_GREAT_PERSON_S__312', 'Abdus Salam'),
+	('TXT_KEY_GREAT_PERSON_S__313', 'James Dewey Watson'),
+	('TXT_KEY_GREAT_PERSON_S__31A', 'Noam Chomsky'),
+	('TXT_KEY_GREAT_PERSON_S__314', 'Tu Youyou'),
+	('TXT_KEY_GREAT_PERSON_S__315', 'Carl Sagan'),
+	('TXT_KEY_GREAT_PERSON_S__316', 'Jane Goodall'),
+	('TXT_KEY_GREAT_PERSON_S__31C', 'Seiji Ogawa'),
+	('TXT_KEY_GREAT_PERSON_S__31B', 'David Baltimore'),
+	('TXT_KEY_GREAT_PERSON_S__317', 'Stephen Hawking'),
+	('TXT_KEY_GREAT_PERSON_S__320', 'Ahmed Zewail'),
+	('TXT_KEY_GREAT_PERSON_S__330', 'Shirley Jackson'),
+	('TXT_KEY_GREAT_PERSON_S__335', 'Alan Guth'),
+	('TXT_KEY_GREAT_PERSON_S__337', 'Alain Aspect'),
+	('TXT_KEY_GREAT_PERSON_S__340', 'Ahmed Zewail'),
+	('TXT_KEY_GREAT_PERSON_S__345', 'Jack Szostak'),
+	('TXT_KEY_GREAT_PERSON_S__350', 'Tim Berners-Lee'),
+	('TXT_KEY_GREAT_PERSON_S__355', 'Ashoke Sen'),
+	('TXT_KEY_GREAT_PERSON_S__360', 'Neil deGrasse Tyson'),
+	('TXT_KEY_GREAT_PERSON_S__370', 'Lene Hau');

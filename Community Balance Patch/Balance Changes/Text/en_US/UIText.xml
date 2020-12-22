@@ -945,7 +945,7 @@
 			<Text>{1_Num} from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
-			<Text>{1_Num} from [ICON_FOOD]/[ICON_PRODUCTION] Distress.</Text>
+			<Text>{1_Num} from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_GOLD">
 			<Text>{1_Num} from [ICON_GOLD] Poverty.</Text>
@@ -1000,7 +1000,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CULTURE] Boredom[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num} [ICON_CULTURE][ENDCOLOR][NEWLINE]          Increase [ICON_CULTURE] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_FOOD]/[ICON_PRODUCTION] Distress[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION][NEWLINE]          Increase [ICON_FOOD]/[ICON_PRODUCTION] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_FOOD] and [ICON_PRODUCTION] Distress[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION][NEWLINE]          Increase [ICON_FOOD]/[ICON_PRODUCTION] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_GOLD] Poverty[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num} [ICON_GOLD][ENDCOLOR][NEWLINE]          Increase [ICON_GOLD] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
@@ -1054,7 +1054,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_FOOD]/[ICON_PRODUCTION] distressed!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_FOOD] and [ICON_PRODUCTION] distressed!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "The city is [ICON_GOLD] impoverished!"</Text>
@@ -1467,11 +1467,11 @@
 	<Civilization_CityNames>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_ERACLEA</CityName>
+			<CityName>TXT_KEY_CITY_NAME_CATTARO</CityName>
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
-			<CityName>TXT_KEY_CITY_NAME_CHIOGGIA</CityName>
+			<CityName>TXT_KEY_CITY_NAME_CORFU</CityName>
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
@@ -1479,21 +1479,63 @@
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CANDIA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CHIOGGIA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
 			<CityName>TXT_KEY_CITY_NAME_MODON</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_ERACLEA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_AQUILEA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_SPALATO</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_ZADAR</CityName>
 		</Row>
 	</Civilization_CityNames>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_CITY_NAME_ERACLEA">
-			<Text>Eraclea</Text>
+		<Row Tag="TXT_KEY_CITY_NAME_CATTARO">
+			<Text>Cattaro</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_NAME_CHIOGGIA">
-			<Text>Chioggia</Text>
+		<Row Tag="TXT_KEY_CITY_NAME_CORFU">
+			<Text>Corfu</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_CORON">
 			<Text>Coron</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CANDIA">
+			<Text>Candia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CHIOGGIA">
+			<Text>Chioggia</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_NAME_MODON">
 			<Text>Modon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_ERACLEA">
+			<Text>Eraclea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_AQUILEA">
+			<Text>Aquilea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_SPALATO">
+			<Text>Spalato</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_ZADAR">
+			<Text>Zadar</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Name="LeaderHeadRoot" ColorSet="Beige_Black" FontStyle="Shadow" Font="TwCenMT20">
+
+	<!-- Leader Button Instance -->
+	<Instance Name="Leader Button">
+		<GridButton ID="Button" Size="252,24" Anchor="C,T" Font="TwCenMT18">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="256,28" Style="Grid9Frame"/>
+		</GridButton>
+		<!-- <Button ID="Button" Anchor="C,T" Style="Button_256L" String="Some Leader's Name" /> -->
+	</Instance>
+	<!-- Trade Buttons Instances -->
+	<Instance Name="OtherPlayerEntry">
+		<Button Anchor="C,C" Style="TradeItemButton" ID="Button" TextOffset="32,0">
+			<Label Offset="32,0" Anchor="L,C" ID="Name"/>
+			<Box ID="ButtonSize" Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
+			<Box Color="255,255,255,0" Size="32,32" Anchor="L,C" AnchorSide="i,i">
+				<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+				<Image ID="CivSymbol" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+			</Box>
+		</Button>
+	</Instance>
+	<Instance Name="CityInstance">
+		<Button Style="TradeItemButton" ID="Button">
+			<Label Offset="5,0" Anchor="L,C" ID="CityName"/>
+			<Label Offset="5,0" Anchor="R,C" ID="CityPop"/>
+		</Button>
+	</Instance>
+	<Instance Name="PocketResource">
+		<Button Style="TradeItemButton" Anchor="L,C" String="[ICON_RES_IRON] IRON" ID="Button"/>
+	</Instance>
+	<Instance Name="PocketVote">
+		<Button Style="TradeItemButton" Anchor="L,C" ID="Button">
+			<Label Offset="5,0" Anchor="L,C" ID="ProposalLabel" TruncateWidth="150"/>
+			<Label Offset="5,0" Anchor="R,C" ID="VoteLabel"/>
+		</Button>
+	</Instance>
+	<Instance Name="TableStrategic">
+		<Container Size="195,44" ID="Container">
+			<Button Style="TradeItemButtonSmall" Anchor="L,T" String="[ICON_RES_IRON] IRON" ID="Button"/>
+			<Box Anchor="R,T" Offset="0,0" Size="34,24" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+				<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255">
+					<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="AmountEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3"/>
+				</Box>
+			</Box>
+			<Label String="" Offset="10,5" Anchor="L,B" ID="DurationEdit"/>
+		</Container>
+	</Instance>
+	<Instance Name="TableLuxury">
+		<Container Size="195,24" ID="Container">
+			<Button Style="TradeItemButton" Anchor="L,T" String="[ICON_RES_IRON] IRON" ID="Button"/>
+			<Label String="" Offset="10,0" Anchor="R,C" ID="DurationEdit"/>
+		</Container>
+	</Instance>
+	<Instance Name="TableVote">
+		<Container Size="195,24" ID="Container">
+			<Button Style="TradeItemButton" Anchor="L,T" ID="Button">
+				<Label Offset="5,0" Anchor="L,C" ID="ProposalLabel" TruncateWidth="150"/>
+				<Label Offset="5,0" Anchor="R,C" ID="VoteLabel"/>
+			</Button>
+			<Label String="" Offset="10,0" Anchor="R,C" ID="DurationEdit"/>
+		</Container>
+	</Instance>
+
+<Container ID="RootOptions" Size="Full,Full">
+
+	<Stack ID="PrimaryStack" Anchor="C,B" Padding="10" StackGrowth="Top">
+		<!-- Button Stack -->
+		<Stack ID="ButtonStack" Anchor="C,C" StackGrowth="Right" Padding="10" Hidden="1">
+			<GridButton ID="DiscussButton" Style="FrameButton200" String="TXT_KEY_DIPLO_DISCUSS_BUTTON"/>
+			<GridButton ID="TradeButton" Style="FrameButton200" String="TXT_KEY_DIPLO_TRADE_BUTTON" Font="TwCenMT22"/>
+			<GridButton ID="GoodByeButton" Style="FrameButton200" String="TXT_KEY_GOODBYE_BUTTON" Font="TwCenMT22"/>
+			<GridButton ID="DemandButton" Style="FrameButton200" String="TXT_KEY_DIPLO_DEMAND_BUTTON" Font="TwCenMT22"/>
+			<GridButton ID="WarButton" Size="200,32" TextOffset="0,-2" String="TXT_KEY_DIPLO_DECLARE_WAR" Hidden="0" Font="TwCenMT22">
+				<GridData Style="Grid9DarkBlue8Button" />
+				<Grid Anchor="C,C" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+				<ShowOnMouseOver>
+					<AlphaAnim  Anchor="R,C"  AnchorSide="O.O" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+					<AlphaAnim  Anchor="L,C"  AnchorSide="O.O" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+					<Image Anchor="R,C" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+					<Image Anchor="L,C" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+					<AlphaAnim Anchor="C,C" Size="320,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="0">
+					<Grid  Size="200,32" Anchor="C,C" Style="Grid9Red8" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+			</GridButton>
+		</Stack>
+		<!-- Back Button -->
+		<GridButton ID="BackButton" Size="128,24" Anchor="C,T" String="TXT_KEY_BACK_BUTTON" Hidden="1" Font="TwCenMT18">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="132,28" Style="Grid9Frame"/>
+		</GridButton>
+		<!-- Leader Stack -->
+		<Stack ID="LeaderStack" Anchor="C,C" StackGrowth="Right" Padding="10" WrapGrowth="Bottom" WrapPadding="10" WrapWidth="650" Hidden="1"/>
+		<!-- Response Buttons -->
+		<GridButton ID="Button1" Size="550,24" Anchor="C,T" Void1="1" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button2" Size="550,24" Anchor="C,T" Void1="2" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button3" Size="550,24" Anchor="C,T" Void1="3" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button4" Size="550,24" Anchor="C,T" Void1="4" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button5" Size="550,24" Anchor="C,T" Void1="5" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button6" Size="550,24" Anchor="C,T" Void1="6" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button7" Size="550,24" Anchor="C,T" Void1="7" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+		<GridButton ID="Button8" Size="550,24" Anchor="C,T" Void1="8" Font="TwCenMT18" Hidden="1">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Size="554,28" Style="Grid9Frame"/>
+		</GridButton>
+
+		<!-- Leader Dialogue -->
+		<Grid ID="LeaderSpeechFrame" Size="650,120" Anchor="C,T" Style="GridBlackIndent8">
+			<Grid ID="LeaderSpeechBorderFrame" Anchor="C,C" Size="654,124" Style="Grid9Frame" Hidden="0"/>
+			<Label ID="TitleText" Anchor="L,T" Offset="32,8" String="Bismarck - Germany" Font="TwCenMT22" FontStyle="SoftShadow"/>
+			<Label ID="MoodText" Anchor="R,T" Offset="10,8" String="Hostile" Font="TwCenMT22" FontStyle="SoftShadow"/>
+			<Label ID="LeaderSpeech" Anchor="L,T" Offset="32,32" WrapWidth="580" LeadingOffset="-8" Font="TwCenMT20" String="Message Area For AI"/>
+			<!-- Them Symbol CivIconFrame64 -->
+			<Image Size="64,64" Offset="-30,-16" Anchor="L,T" Texture="IconFrame64.dds">
+				<Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+				<Image ID="ThemSymbolShadow" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+			</Image>
+		</Grid>
+	</Stack>
+	<!-- Denounce Confirmation Popup -->
+	<Box ID="DenounceConfirm" Color="Black.100" Size="Full.Full" Hidden="1" ConsumeMouse="1">
+		<Grid Size="500,310" Anchor="C,C" Padding="0,20" Style="Grid9DetailFive140">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Size="80,80" Texture="NotificationFrameBase.dds">
+					<AlphaAnim Anchor="C,C" Size="80.80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
+				</Image>
+			</Image>
+			<Label ID="DenounceLabel" Anchor="C,T" Offset="0,64" WrapWidth="440" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Stack ID="DenounceButtonStack" Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom">
+				<!-- Yes Button  -->
+				<GridButton ID="DenounceConfirmYes" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_YES_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				<!-- No Button  -->
+				<GridButton ID="DenounceConfirmNo" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_NO_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+			</Stack>
+		</Grid>
+	</Box>
+	<!-- War Confirmation Popup -->
+	<Box ID="WarConfirm" Color="Black.100" Size="Full.Full" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="500,310" Anchor="C,C" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Size="80,80" Texture="NotificationFrameBase.dds">
+					<AlphaAnim Anchor="C,C" Size="80.80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
+				</Image>
+			</Image>
+			<Label Anchor="C,T" Offset="0,74" WrapWidth="440" String="TXT_KEY_CONFIRM_WAR" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Stack ID="WarButtonStack" Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom">
+				<GridButton ID="WarConfirmYes" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_YES_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				<GridButton ID="WarConfirmNo" Style="BaseButton" Size="400,42" Anchor="C,T" String="TXT_KEY_NO_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+			</Stack>
+		</Grid>
+	</Box>
+</Container>
+<Container ID="DiscussionDialog" Size="Full,Full"/>
+<LuaContext FileName="DiploTrade" ID="DiploTrade" Hidden="True" />
+</Context>

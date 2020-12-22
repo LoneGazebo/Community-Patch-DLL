@@ -89,12 +89,12 @@ void CvGameTrade::DoTurn (void)
 }
 
 // helper function
-bool HaveTradePathInCache(const TradePathLookup& cache, int iCityA, int iCityB)
+bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
 {
-	TradePathLookup::const_iterator itA = cache.find(iCityA);
+	TradePathLookup::const_iterator itA = cache.find(iCityPlotA);
 	if (itA!=cache.end())
 	{
-		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityB);
+		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityPlotB);
 		return (itB!=itA->second.end());
 	}
 	
@@ -102,22 +102,22 @@ bool HaveTradePathInCache(const TradePathLookup& cache, int iCityA, int iCityB)
 }
 
 // helper function
-bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const SPath& path)
+bool AddTradePathToCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB, const SPath& path)
 {
-	TradePathLookup::const_iterator itA = cache.find(iCityA);
+	TradePathLookup::const_iterator itA = cache.find(iCityPlotA);
 	if (itA!=cache.end())
 	{
-		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityB);
+		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityPlotB);
 		if (itB!=itA->second.end())
-			cache[iCityA][iCityB] = path;
+			cache[iCityPlotA][iCityPlotB] = path;
 		else
-			cache[iCityA].insert( std::make_pair(iCityB,path) );
+			cache[iCityPlotA].insert( std::make_pair(iCityPlotB,path) );
 	}
 	else
 	{
 		TradePathLookup::value_type::second_type newDestinations;
-		newDestinations.insert( std::make_pair(iCityB,path) );
-		cache.insert( std::make_pair(iCityA,newDestinations) );
+		newDestinations.insert( std::make_pair(iCityPlotB,path) );
+		cache.insert( std::make_pair(iCityPlotA,newDestinations) );
 	}
 	
 	return false;
@@ -132,7 +132,7 @@ const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCi
 	UpdateTradePathCache(pOriginCity->getOwner());
 
 	const TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
-	TradePathLookup::const_iterator it = cache.find(pOriginCity->GetID());
+	TradePathLookup::const_iterator it = cache.find(pOriginCity->plot()->GetPlotIndex());
 	if (it != cache.end())
 		return it->second;
 	else
@@ -151,12 +151,12 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	//can't use const here, otherwise the [] operator does not work ...
 	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
 
-	int iCityA = pOriginCity->GetID();
-	int iCityB = pDestCity->GetID();
-	if (HaveTradePathInCache(cache, iCityA, iCityB))
+	int iCityPlotA = pOriginCity->plot()->GetPlotIndex();
+	int iCityPlotB = pDestCity->plot()->GetPlotIndex();
+	if (HaveTradePathInCache(cache, iCityPlotA, iCityPlotB))
 	{
 		if (pPathOut)
-			*pPathOut = cache[iCityA][iCityB];
+			*pPathOut = cache[iCityPlotA][iCityPlotB];
 		return true;
 	}
 
@@ -213,7 +213,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				continue;
 
 			CvCity* pDestCity = it->first->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),it->second);
+			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 		//now for land routes
@@ -230,7 +230,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				continue;
 
 			CvCity* pDestCity = it->first->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),it->second);
+			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 	}
@@ -533,7 +533,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CopyPathIntoTradeConnection(path, &(m_aTradeConnections[iNewTradeRouteIndex]));
 
 	// try to make the trade units move faster on "faster" routes
-	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / path.iNormalizedDistanceRaw;
+	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
 
 	// reveal all plots to the player who created the trade route
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
@@ -1173,7 +1173,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 
 	// calculate turns per circuit
 	int iRawSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / path.iNormalizedDistanceRaw;
+	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;
@@ -6359,23 +6359,16 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	std::vector<int> ValuesVector;
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
-	{
 		return ValuesVector;
-	}
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
-	{
 		return ValuesVector;
-	}
 
-#ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	bool bIsToMinor = false;
-	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
-	{
-		bIsToMinor = true;
-	}
-#endif
+	// don't send trade routes if we're about to declare war?
+	// todo: should we consider diplomatic stance as well?
+	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
+		return ValuesVector;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -6493,8 +6486,10 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 #endif
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	if (bIsToMinor)
+	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+	{
 		iOtherGoldAmount = 0;
+	}
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 
 	//If we are friends with the player, let's not care about how much gold they make.

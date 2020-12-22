@@ -3256,37 +3256,33 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	}
 
 	// go through to determine any intrigue
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer);
-#endif
-	// sending out a sneak attack
+	int iSpyRank = 0;
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes)aiMajorCivIndex[ui];
 		// a player shouldn't target themselves for a sneak attack. That's strange.
 		if(eTargetPlayer == eCityOwner)
-		{
 			continue;
-		}
 
 		// Don't tell other civs about what the shadow ai is thinking because that's incorrect information!
 		if(GET_PLAYER(eCityOwner).isHuman())
-		{
 			continue;
-		}
 
-		CvAIOperation* pSneakAttackOperation = GET_PLAYER(eCityOwner).GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
-		if(!pSneakAttackOperation)
-		{
+		// Should maybe randomize the order?
+		CvAIOperation* pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_COMBINED);
+		if (!pSneakAttackOperation)
+			pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_NAVAL);
+		if (!pSneakAttackOperation)
+			pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_LAND);
+		if (!pSneakAttackOperation)
 			continue;
-		}
 
 		CvCity* pTargetCity = NULL;
 #if defined(MOD_BALANCE_CORE_SPIES)
+		iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer) + m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 #else
-		int iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer);
+		iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer);
 #endif
-		iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 
 		if(iSpyRank >= SPY_RANK_AGENT)
 		{
@@ -3302,63 +3298,24 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		{
 			eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
 		}
-		else
+		else if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
-			if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
-			{
-				eRevealedTargetPlayer = eTargetPlayer;
-			}
+			eRevealedTargetPlayer = eTargetPlayer;
 		}
 
-		switch(pSneakAttackOperation->GetOperationType())
-		{
-		case AI_OPERATION_CITY_SNEAK_ATTACK:
-		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
+		CvIntrigueType eType = pSneakAttackOperation->GetOperationType()==AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
+		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
+
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			if (MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
-			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-				if(iNewResult >= 80)
-				{
-					LevelUpSpy(uiSpyIndex);
-				}
-			}
-#endif
-		}
-		break;
-		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
+		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+			int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
+			if(iNewResult >= 80)
 			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-				if(iNewResult >= 80)
-				{
-					LevelUpSpy(uiSpyIndex);
-				}
+				LevelUpSpy(uiSpyIndex);
 			}
-#endif
-		}
-#if defined(MOD_BALANCE_CORE)
-		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
-		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
-			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-				if(iNewResult >= 80)
-				{
-					LevelUpSpy(uiSpyIndex);
-				}
-			}
-#endif
 		}
 #endif
-		break;
-		}
 
 		// If a sneak attack is reported, bust out of the loop
 		break;
@@ -3367,38 +3324,33 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	// building up an army
 	if(!GET_PLAYER(eCityOwner).isHuman())
 	{
-		ArmyType eArmyType = GET_PLAYER(eCityOwner).GetMilitaryAI()->GetArmyBeingBuilt();
-		if(eArmyType != NO_ARMY_TYPE)
+		if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 		{
-			switch(eArmyType)
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-			case ARMY_TYPE_LAND:
-				AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
+				if (iNewResult >= 85)
 				{
-					int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-					if(iNewResult >= 85)
-					{
-						LevelUpSpy(uiSpyIndex);
-					}
+					LevelUpSpy(uiSpyIndex);
 				}
-#endif
-				break;
-			case ARMY_TYPE_NAVAL_INVASION:
-				AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
-				{
-					int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-					if(iNewResult >= 85)
-					{
-						LevelUpSpy(uiSpyIndex);
-					}
-				}
-#endif
-				break;
 			}
+#endif
+		}
+		else if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED)))
+		{
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+			{
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
+				if(iNewResult >= 85)
+				{
+					LevelUpSpy(uiSpyIndex);
+				}
+			}
+#endif
 		}
 	}
 
@@ -3550,52 +3502,30 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 		PlayerTypes eTargetPlayer = (PlayerTypes)aiMajorCivIndex[ui];
 		// a player shouldn't target themselves for a sneak attack. That's strange.
 		if(eTargetPlayer == eOtherPlayer)
-		{
 			continue;
-		}
 
 		// Don't tell other civs about what the shadow ai is thinking because that's incorrect information!
 		if(GET_PLAYER(eOtherPlayer).isHuman())
-		{
 			continue;
-		}
 
-		CvAIOperation* pSneakAttackOperation = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
-		if(!pSneakAttackOperation)
-		{
+		// Should maybe randomize the order?
+		CvAIOperation* pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_COMBINED);
+		if (!pSneakAttackOperation)
+			pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_NAVAL);
+		if (!pSneakAttackOperation)
+			pSneakAttackOperation = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_ATTACK_LAND);
+		if (!pSneakAttackOperation)
 			continue;
-		}
 
-		CvCity* pTargetCity = NULL;
-
-		CvPlot* pPlot = pSneakAttackOperation->GetTargetPlot();
-		if(pPlot)
-		{
-			pTargetCity = pPlot->getPlotCity();
-		}
-
-		PlayerTypes eRevealedTargetPlayer = NO_PLAYER;
-		eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
-
+		CvCity* pTargetCity = pSneakAttackOperation->GetTargetPlot()->getPlotCity();
+		PlayerTypes eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
 		if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
 			eRevealedTargetPlayer = eTargetPlayer;
 		}
 
-		switch(pSneakAttackOperation->GetOperationType())
-		{
-		case AI_OPERATION_CITY_SNEAK_ATTACK:
-		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
-		}
-		break;
-		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
-		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
-		}
-		break;
-		}
-
+		CvIntrigueType eType = pSneakAttackOperation->GetOperationType() == AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
+		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
 		// If a sneak attack is reported, bust out of the loop
 		break;
 	}
@@ -3603,19 +3533,10 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	// building up an army
 	if(!GET_PLAYER(eOtherPlayer).isHuman())
 	{
-		ArmyType eArmyType = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetArmyBeingBuilt();
-		if(eArmyType != NO_ARMY_TYPE)
-		{
-			switch(eArmyType)
-			{
-			case ARMY_TYPE_LAND:
-				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-				break;
-			case ARMY_TYPE_NAVAL_INVASION:
-				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
-				break;
-			}
-		}
+		if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
+		else if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED))
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
 	}
 
 	// deception!

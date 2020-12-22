@@ -2119,7 +2119,7 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFound);
+	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFoundCity);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);
@@ -2129,7 +2129,7 @@ int CvLuaPlayer::lFound(lua_State* L)
 	const int iX = lua_tointeger(L, 2);
 	const int iY = lua_tointeger(L, 3);
 
-	pkPlayer->found(iX, iY);
+	pkPlayer->foundCity(iX, iY);
 
 	return 0;
 }
@@ -10023,7 +10023,7 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 //void AI_updateFoundValues(bool bStartingLoc);
 int CvLuaPlayer::lAI_updateFoundValues(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::UpdatePlotFoundValues);
+	return BasicLuaMethod(L, &CvPlayer::updatePlotFoundValues);
 }
 //------------------------------------------------------------------------------
 //int AI_foundValue(int iX, int iY, int iMinUnitRange/* = -1*/, bool bStartingLoc/* = false*/);
@@ -10349,7 +10349,8 @@ int CvLuaPlayer::lIsDoFMessageTooSoon(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFMessageTooSoon(eWithPlayer);
+	// Removed IsDoFMessageTooSoon()...human should always be able to ask for DoF unless they already have one
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
@@ -10372,9 +10373,9 @@ int CvLuaPlayer::lGetDoFCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iTurnsLeft = pkPlayer->GetDiplomacyAI()->GetDoFCounter(eWithPlayer);
+	const int iCounter = pkPlayer->GetDiplomacyAI()->GetTurnsSinceBefriendedPlayer(eWithPlayer);
 
-	lua_pushinteger(L, iTurnsLeft);
+	lua_pushinteger(L, iCounter);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10691,14 +10692,17 @@ int CvLuaPlayer::lIsPlayerBrokenMilitaryPromise(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// Removed code but kept function for compatibility
 int CvLuaPlayer::lIsPlayerIgnoredMilitaryPromise(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredMilitaryPromise(eOtherPlayer);
+	if (eOtherPlayer != pkPlayer->GetID())
+	{
+	}
 
-	lua_pushboolean(L, bValue);
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10941,7 +10945,7 @@ int CvLuaPlayer::lGetDenouncedPlayerCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iValue = pkPlayer->GetDiplomacyAI()->GetDenouncedPlayerCounter(eOtherPlayer);
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetTurnsSinceDenouncedPlayer(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -11106,9 +11110,7 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	pkPlayer->GetDiplomacyAI()->SetDoFCounter(eOtherPlayer, 0);
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
-	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFCounter(pkPlayer->GetID(), 0);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
 
 	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
@@ -11361,7 +11363,6 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	//fake the reachable plots, ignore all other workers
 	map<CvUnit*, ReachablePlots> allplots;
 	SPathFinderUserData data(pWorkerUnit, 0, 3);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
 	BuilderDirective aDirective = pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit,allplots);
@@ -11468,7 +11469,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			}
 
 			// Can't actually found here!
-			if(!pkPlayer->canFound(iPlotX, iPlotY))
+			if(!pkPlayer->canFoundCity(iPlotX, iPlotY))
 			{
 				continue;
 			}
@@ -12365,7 +12366,7 @@ int CvLuaPlayer::lAddTemporaryDominanceZone(lua_State* L)
 	const int iY = lua_tointeger(L, 3);
 
 	// Notify tactical AI to focus on this area
-	pkPlayer->GetTacticalAI()->AddTemporaryZone( GC.getMap().plot(iX,iY), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+	pkPlayer->GetTacticalAI()->AddFocusArea( GC.getMap().plot(iX,iY), 2, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -14227,15 +14228,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiplo->GetIgnoredMilitaryPromiseScore(ePlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 			aOpinions.push_back(kOpinion);
 		}
 

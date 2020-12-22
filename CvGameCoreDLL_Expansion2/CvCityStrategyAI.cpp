@@ -883,7 +883,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 	// Next units for sneak attack armies
-	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 	if(eUnitForArmy != NO_UNIT)
 	{
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
@@ -1038,7 +1038,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			selection = m_BuildablesPrecheck.GetElement(iI);
 			switch(selection.m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
@@ -1047,33 +1047,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					{
 						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 
-						if(pThisArmy)
-						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
-							if (iNewWeight > 0)
-							{
-								selection.m_iValue = iNewWeight;
-								m_Buildables.push_back(selection, iNewWeight);
-							}
-							else
-								LogInvalidItem(selection, iNewWeight);
-						}
-						else
-						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
-							if(iNewWeight > 0)
-							{
-								selection.m_iValue = iNewWeight;
-								m_Buildables.push_back(selection, iNewWeight);
-							}
-							else
-								LogInvalidItem(selection, iNewWeight);
-						}
-					}
-					else
-					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
-						if(iNewWeight > 0)
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
+						if (iNewWeight > 0)
 						{
 							selection.m_iValue = iNewWeight;
 							m_Buildables.push_back(selection, iNewWeight);
@@ -1083,10 +1058,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
@@ -1096,7 +1071,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_UNIT:
+				case CITY_BUILDABLE_UNIT: //any unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes, false, false, bInterruptBuildings);
@@ -1331,7 +1306,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		}
 		// Next units for sneak attack armies
-		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitTypeForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
@@ -1467,7 +1442,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			selection = m_BuildablesPrecheck.GetElement(iI);
 			switch(selection.m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
@@ -1476,28 +1451,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					{
 						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 
-						if(pThisArmy)
-						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
-							if(iNewWeight > 0)
-							{
-								selection.m_iValue = iNewWeight;
-								m_Buildables.push_back(selection, iNewWeight);
-							}
-						}
-						else
-						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
-							if(iNewWeight > 0)
-							{
-								selection.m_iValue = iNewWeight;
-								m_Buildables.push_back(selection, iNewWeight);
-							}
-						}
-					}
-					else
-					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 						if(iNewWeight > 0)
 						{
 							selection.m_iValue = iNewWeight;
@@ -1506,10 +1460,10 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
@@ -3754,16 +3708,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 	{
 		CvPlayer &kPlayer = GET_PLAYER(pCity->getOwner());
 
-		bool bAtPeace = GET_TEAM(kPlayer.getTeam()).getAtWarCount(false) == 0;
-
-		if (!bAtPeace && !kPlayer.isMinorCiv())
+		if (!kPlayer.isMinorCiv())
 		{
-			CvCity *pMostThreatened = kPlayer.GetThreatenedCityByRank();
-			//threat value is now calculated differently
-			if (pMostThreatened == pCity && pMostThreatened->getThreatValue() > GC.getCITY_HIT_POINTS_HEALED_PER_TURN()*2)
-			{
+			CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),false);
+			CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
+
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 				return true;
-			}
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+				return true;
 		}
 	}
 

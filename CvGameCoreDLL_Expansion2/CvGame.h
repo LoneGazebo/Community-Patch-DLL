@@ -25,7 +25,7 @@ class CvCity;
 class CvReplayMessage;
 class CvReplayInfo;
 class CvSiteEvaluatorForSettler;
-class CvSiteEvaluatorForStart;
+class CvCitySiteEvaluator;
 class IStartPositioner;
 class CvGameReligions;
 class CvGameCulture;
@@ -586,7 +586,7 @@ public:
 	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
-	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
+	CvCitySiteEvaluator* GetStartSiteEvaluator();
 	IStartPositioner* GetStartPositioner();
 	CvGameDeals& GetGameDeals();
 	CvGameReligions* GetGameReligions();
@@ -662,7 +662,6 @@ public:
 
 	bool allUnitAIProcessed() const;
 
-	void updateTurnTimer();
 	bool hasTurnTimerExpired(PlayerTypes playerID);
 	void TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
 	void GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
@@ -727,16 +726,18 @@ public:
 #endif
 
 	void SetClosestCityMapDirty();
-	//assuming a typical unit with baseMoves==2
-	int GetClosestCityDistanceInTurns(  const CvPlot* pPlot, bool bMajorsOnly=false );
-	CvCity* GetClosestCityByEstimatedTurns(  const CvPlot* pPlot, bool bMajorsOnly=false );
-	int GetClosestCityDistanceInTurns(  const CvPlot* pPlot, PlayerTypes ePlayer );
-	CvCity* GetClosestCityByEstimatedTurns(  const CvPlot* pPlot, PlayerTypes ePlayer );
+	//assuming a typical unit
+	int GetClosestCityDistancePathLength(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	CvCity* GetClosestCityByPathLength(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	int GetClosestCityDistancePathLength(  const CvPlot* pPlot, PlayerTypes ePlayer );
+	CvCity* GetClosestCityByPathLength(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
 	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
 	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
 	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
+
+	PlayerTypes GetClosestCityOwnerByPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
 
 	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
@@ -902,7 +903,7 @@ protected:
 	int m_iEarliestBarbarianReleaseTurn;
 
 	CvSiteEvaluatorForSettler* m_pSettlerSiteEvaluator;
-	CvSiteEvaluatorForStart*   m_pStartSiteEvaluator;
+	CvCitySiteEvaluator*	   m_pStartSiteEvaluator;
 	IStartPositioner*          m_pStartPositioner;
 	CvGameReligions*           m_pGameReligions;
 	CvGameCulture*             m_pGameCulture;
@@ -937,7 +938,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int		m_iLargestBasePotential;
 #endif
-	CvDistanceMapByTurns m_cityDistanceTurns;
+	CvDistanceMapByTurns m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 
 	//----------------------------------------------------------------

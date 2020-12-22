@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "5.8.16"
+#define MyAppVersion "5.12.1"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -30,12 +30,12 @@ DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
 SetupIconFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=5.8.16
+VersionInfoVersion=5.12.1
 VersionInfoCompany=Community Patch Project Team
 VersionInfoDescription=Vox Populi
-VersionInfoCopyright=2019
+VersionInfoCopyright=2020
 VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=5.8.16
+VersionInfoProductVersion=5.12.1
 WizardImageStretch=False
 
 [Languages]
