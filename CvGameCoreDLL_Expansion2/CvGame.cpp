@@ -1195,9 +1195,6 @@ void CvGame::uninit()
 	m_iGlobalPopulation = 0;
 	m_iLastTurnCSSurrendered = 0;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	m_iHighestSpyPotential = 0;
-#endif
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -11553,7 +11550,8 @@ void CvGame::DoGlobalAvgLogging()
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestSpyPotential()
 {
-	m_iHighestSpyPotential = 0;
+	//no divide by zero ...
+	int iHighestEspionagePotential = 1;
 
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -11573,58 +11571,57 @@ void CvGame::SetHighestSpyPotential()
 			{				
 				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
 
-				if (iPotential > m_iHighestSpyPotential)
-				{
-					m_iHighestSpyPotential = iPotential;
-				}
+				iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
 			}
 		}
 	}
-	// second pass to set the base potential for each city
-	if(m_iHighestSpyPotential > 0)
+
+	for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
 	{
-		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+		if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
 		{
-			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			continue;
+		}
 
-			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+		//Check for spies - this determines if we need to do any updates or anything.
+		bool bNotify = false;
+		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+			if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
 			{
-				continue;
-			}
+				CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
 
-			//Check for spies - this determines if we need to do any updates or anything.
-			bool bNotify = false;
-			for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-			{
-				PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-				if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
+				if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
 				{
-					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
-
-					if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+					continue;
+				}
+				if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
+				{
+					if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
 					{
-						continue;
-					}
-					if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
-					{
-						if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
-						{
-							bNotify = true;
-							break;
-						}
+						bNotify = true;
+						break;
 					}
 				}
 			}
+		}
 
-			int iLoop = 0;
-			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-			{				
-				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
-				pLoopCity->SetEspionageRanking(iPotential, bNotify);
-			}
+		int iLoop = 0;
+		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+		{				
+			int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
+
+			//We want a value between 1 and 10
+			int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
+
+			pLoopCity->SetEspionageRanking(iRank, bNotify);
 		}
 	}
 }
+
 void CvGame::DoBarbCountdown()
 {
 	int iOtherMinorLoop;
@@ -11803,9 +11800,6 @@ void CvGame::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> wrapm_aiGreatestMonopolyPlayer(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 	kStream >> wrapm_aiGreatestMonopolyPlayer;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_READ(66, kStream, m_iHighestSpyPotential, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -12085,11 +12079,6 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
 	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_WRITE(kStream, m_iHighestSpyPotential);
-#endif
-
-
 
 	kStream << m_strScriptData;
 

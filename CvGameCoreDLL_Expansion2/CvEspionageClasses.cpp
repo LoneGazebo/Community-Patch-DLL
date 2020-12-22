@@ -1868,7 +1868,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 		{
 			eCityOwner = pCity->getOwner();
 			pCityEspionage = pCity->GetCityEspionage();
-			iRank += pCity->GetRank();
+			iRank += pCity->GetEspionageRanking();
 			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
 
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
@@ -3005,7 +3005,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
-		int iRank = pCity->GetRank();
+		int iRank = pCity->GetEspionageRanking();
 
 		if (!bNoBasic)
 		{
@@ -3076,7 +3076,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	}
 	else
 	{
-		int iRank = pCity->GetRank();
+		int iRank = pCity->GetEspionageRanking();
 
 		int iSpy = GetSpyIndexInCity(pCity);
 		CvEspionageSpy* pSpy = &(m_aSpyList[iSpy]);
@@ -4266,12 +4266,13 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 		{
 			//careful with overflow
 			PlayerTypes eCityOwner = pCity->getOwner();
-			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
-			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
+			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false); //science is key
+			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false) / 2; //gold is less important
 			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
 			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
+
 			int iCityEspionageModifier = pCity->GetEspionageModifier();
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
 			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
@@ -4311,12 +4312,13 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 		{
 			//careful with overflow
 			PlayerTypes eCityOwner = pCity->getOwner();
-			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_CULTURE, false);
-			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
+			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_CULTURE, false); //culture is key
+			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false) / 2; //gold is less important
 			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
 			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
+
 			int iCityEspionageModifier = pCity->GetEspionageModifier();
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
 			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_GW_SLOWER_MODIFIER);
@@ -9645,7 +9647,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				continue;
 			}
 
-			int iValue = pLoopCity->GetRank() * 10;
+			int iValue = pLoopCity->GetEspionageRanking() * 10;
 			if(iValue <= 0)
 				continue;
 
@@ -9816,7 +9818,7 @@ void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 	{
 		ScoreCityEntry kEntry;
 		kEntry.m_pCity = pLoopCity;
-		kEntry.m_iScore = pLoopCity->GetRank();
+		kEntry.m_iScore = pLoopCity->GetEspionageRanking();
 		if(pLoopCity->isCapital())
 		{
 			kEntry.m_iScore += 1;

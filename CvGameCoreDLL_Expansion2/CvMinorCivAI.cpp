@@ -10260,7 +10260,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				int iValue = pLoopCity->getPopulation();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-				iValue *= pLoopCity->GetRank();
+				iValue *= pLoopCity->GetEspionageRanking();
 
 				if(iValue > iBestValue)
 				{

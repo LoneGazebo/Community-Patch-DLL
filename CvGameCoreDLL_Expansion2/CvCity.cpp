@@ -455,7 +455,7 @@ CvCity::CvCity() :
 	, m_iBlockGold("CvCity::m_iBlockGold", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_iCityRank("CvCity::m_iCityRank", m_syncArchive)
+	, m_iCitySpyRank("CvCity::m_iCitySpyRank", m_syncArchive)
 	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1573,7 +1573,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	m_iCityRank = 0;
+	m_iCitySpyRank = 0;
 	m_iTurnsSinceRankAnnouncement = 0;
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -7143,16 +7143,10 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 #endif
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-void CvCity::SetRank(int iRank)
+int CvCity::GetEspionageRanking() const
 {
 	VALIDATE_OBJECT
-	m_iCityRank = iRank;
-	CvAssert(GetRank() >= 0);
-}
-int CvCity::GetRank() const
-{
-	VALIDATE_OBJECT
-	return m_iCityRank;
+	return m_iCitySpyRank;
 }
 void CvCity::SetTurnsSinceLastRankMessage(int iTurns)
 {
@@ -7170,31 +7164,13 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 	VALIDATE_OBJECT
 	SetTurnsSinceLastRankMessage(GetTurnsSinceLastRankMessage() + iTurns);
 }
-void CvCity::SetEspionageRanking(int iPotential, bool bNotify)
-{
-	int iRank = 0;
-
-	//Don't want to divide by zero!
-	if(GC.getGame().GetHighestSpyPotential() > 0)
-	{
-		iRank = ((iPotential * 100) / GC.getGame().GetHighestSpyPotential());
-		//Rank time - 10 is worst, 1 is best
-		iRank /= 10;
-		if (iRank <= 0)
-		{
-			iRank = 1;
-		}
-	}
-	//Seed rank warning and update rank.
-	DoRankIncreaseWarning(iRank, bNotify);
-}
-void CvCity::DoRankIncreaseWarning(int iRank, bool bNotify)
+void CvCity::SetEspionageRanking(int iRank, bool bNotify)
 {
 	if(bNotify)
 	{
 		if(GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
 		{
-			if((iRank > GetRank()) && (GetRank() > 4))
+			if(iRank > GetEspionageRanking() && GetEspionageRanking() > 4)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
@@ -7228,7 +7204,8 @@ void CvCity::DoRankIncreaseWarning(int iRank, bool bNotify)
 			ChangeTurnsSinceLastRankMessage(1);
 		}
 	}
-	SetRank(iRank);
+
+	m_iCitySpyRank = iRank;
 }
 #endif
 

@@ -716,10 +716,6 @@ public:
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int GetHighestSpyPotential() { return m_iHighestSpyPotential; }
-#endif
-
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
 	void RollOverAssetCounter() { m_iGlobalAssetCounterAllPreviousTurns += m_iGlobalAssetCounterCurrentTurn; m_iGlobalAssetCounterCurrentTurn = 0; }
@@ -935,9 +931,6 @@ protected:
 	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int		m_iHighestSpyPotential;
-#endif
 	CvDistanceMapByTurns m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 

@@ -1074,15 +1074,12 @@ public:
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetRank(int iRank);
-	int GetRank() const;
+	int GetEspionageRanking() const;
+	void SetEspionageRanking(int iRank, bool bNotify);
 
 	void SetTurnsSinceLastRankMessage(int iTurns);
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
 	int GetTurnsSinceLastRankMessage() const;
-
-	void DoRankIncreaseWarning(int iRank, bool bNotify);
-	void SetEspionageRanking(int iPotential, bool bNotify);
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
@@ -1990,7 +1987,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBlockUnrest;
 	FAutoVariable<int, CvCity> m_iBlockScience;
 	FAutoVariable<int, CvCity> m_iBlockGold;
-	FAutoVariable<int, CvCity> m_iCityRank;
+	FAutoVariable<int, CvCity> m_iCitySpyRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
 	FAutoVariable<int, CvCity> m_iEmpireNeedsModifier;
