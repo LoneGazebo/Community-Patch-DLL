@@ -16161,10 +16161,12 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
 
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
+	iProductionNeeded += getUnitExtraCost(eUnitClass);
+
 	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
 	iProductionNeeded /= 100;
 
-	iProductionNeeded += getUnitExtraCost(eUnitClass);
+
 
 	if (pkUnitEntry->GetProductionCostPerEra() != 0)
 	{
