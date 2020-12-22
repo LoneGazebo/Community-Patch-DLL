@@ -212,7 +212,7 @@ public:
 	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
-	bool SentryAlert() const;
+	bool SentryAlert(bool bAllowAttacks) const;
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 

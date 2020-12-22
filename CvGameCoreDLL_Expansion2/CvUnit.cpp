@@ -3202,10 +3202,10 @@ void CvUnit::doTurn()
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
 		// Healing units will awaken if they can see an enemy unit
-		bHealCheck = bHealCheck || (eActivityType == ACTIVITY_HEAL && SentryAlert());
+		bHealCheck = bHealCheck || (eActivityType == ACTIVITY_HEAL && SentryAlert(false));
 	}
 #endif
-	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert();
+	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true);
 	bool bInterceptCheck = eActivityType == ACTIVITY_INTERCEPT && !isHuman();
 
 	if (bHoldCheck || bHealCheck || bSentryCheck || bInterceptCheck)	
@@ -28463,31 +28463,26 @@ bool CvUnit::IsBusy() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::SentryAlert() const
+bool CvUnit::SentryAlert(bool bAllowAttacks) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if (getDomainType() == DOMAIN_AIR)
+	if (bAllowAttacks)
 	{
-		int iRange = GetRange();
-			for(int iX = -iRange; iX <= iRange; ++iX)
+		int iRange = visibilityRange();
+		if (getDomainType() == DOMAIN_AIR)
+			iRange = GetRange();
+
+		for(int iX = -iRange; iX <= iRange; ++iX)
+		{
+			for(int iY = -iRange; iY <= iRange; ++iY)
 			{
-				for(int iY = -iRange; iY <= iRange; ++iY)
+				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+				if(pPlot && pPlot->isEnemyUnit(getOwner(),false,true))
 				{
-					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
-					if(NULL != pPlot)
-					{
-						if(pPlot->isVisible(getTeam()))
-						{
-							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
-							{
-								return true;
-							}
-						}
-					}
+					return true;
 				}
 			}
 		}
-#endif
+	}
 
 	//combat units should wake as soon as enemies are around
 	//civilians ignore non-lethal danger like fallout
@@ -28495,7 +28490,7 @@ bool CvUnit::SentryAlert() const
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
-								{
+	{
 		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
@@ -29607,7 +29602,7 @@ bool CvUnit::IsCanAttack() const
 bool CvUnit::IsCanAttackWithMoveNow() const
 {
 	VALIDATE_OBJECT
-	return IsCanAttackWithMove() && canEndTurnAtPlot(plot());
+	return canMove() && IsCanAttackWithMove() && canEndTurnAtPlot(plot());
 }
 
 //	--------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 				}
 			}
 
-			bool bAbortMission = !hUnit->IsCanAttack() && !bEscortedBuilder && hUnit->SentryAlert();
+			bool bAbortMission = !hUnit->IsCanAttack() && !bEscortedBuilder && hUnit->SentryAlert(false);
 			if(bAbortMission)
 			{
 				hUnit->ClearMissionQueue();
