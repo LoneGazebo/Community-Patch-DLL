@@ -1801,7 +1801,7 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow,
 					if((iI == m_pPlayer->GetID()) || kPlayer.GetPlayerTechs()->GetCurrentResearch() == eTech)
 					{
 						iResearchRate += kPlayer.GetScienceTimes100();
-						iOverflow += (kPlayer.getOverflowResearch() * m_pPlayer->calculateResearchModifier(eTech)) / 100;
+						iOverflow += kPlayer.getOverflowResearch();
 					}
 				}
 			}
@@ -1868,7 +1868,8 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	int iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 	
 	// Adjust to the player's research modifier
-	int iResearchMod = std::max(0, m_pPlayer->calculateResearchModifier(eTech) - 100);
+	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech));
+	iResearchCost = (iResearchCost * 100) / iResearchMod;
 
 	// Mod for City Count
 	int iCityCountMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
@@ -1889,10 +1890,9 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 #endif
 
 	//apply the modifiers
-	if (iResearchCost<10000)
-		return iResearchCost + (iResearchCost * (iCityCountMod - iResearchMod))/100;
-	else
-	return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
+	iResearchCost = iResearchCost * (100 + iCityCountMod) / 100;
+
+	return iResearchCost;
 }
 
 //	----------------------------------------------------------------------------

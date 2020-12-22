@@ -16164,6 +16164,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
 	iProductionNeeded /= 100;
 
+	iProductionNeeded += getUnitExtraCost(eUnitClass);
+
 	if (pkUnitEntry->GetProductionCostPerEra() != 0)
 	{
 		int iEra = GetCurrentEra() - 1;
@@ -16226,7 +16228,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 		iProductionNeeded /= 100;
 	}
 
-	iProductionNeeded += getUnitExtraCost(eUnitClass);
+
 
 	return std::max(1, iProductionNeeded);
 }
@@ -17983,8 +17985,9 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 				{
 					iKnownCount++;
 				}
+				iPossibleKnownCount++;
 			}
-			iPossibleKnownCount++;
+
 		}
 	}
 	if(iPossibleKnownCount > 0)
@@ -38419,8 +38422,9 @@ void CvPlayer::UpdateMonopolyCache()
 		if (!pInfo)
 			continue;
 
+		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus();
 		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-		m_iCombatAttackBonusFromMonopolies += GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+		//m_iCombatAttackBonusFromMonopolies += GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
 		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
 		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
 	}
@@ -40425,6 +40429,7 @@ int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eG
 	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iMod = 0;
+	int iTemp = 0;
 	if (eGreatPerson != NO_GREATPERSON)
 	{
 		for (int iI = 0; iI < NUM_MONOPOLY_TYPES; iI++)
@@ -40432,11 +40437,12 @@ int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eG
 			MonopolyTypes eMonopoly = (MonopolyTypes)iI;
 			if (eMonopoly != NO_MONOPOLY)
 			{
-				iMod += getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, eMonopoly);
-				if (eMonopoly == MONOPOLY_GLOBAL)
+				iTemp = getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, eMonopoly);
+				if (eMonopoly == MONOPOLY_GLOBAL && iTemp > 0)
 				{
-					iMod += GetMonopolyModPercent();
+					iTemp += GetMonopolyModPercent();
 				}
+				iMod += iTemp;
 			}
 		}
 	}
@@ -40493,6 +40499,7 @@ int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGre
 	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iChange = 0;
+	int iTemp = 0;
 	if (eGreatPerson != NO_GREATPERSON)
 	{
 		for (int iI = 0; iI < NUM_MONOPOLY_TYPES; iI++)
@@ -40500,11 +40507,12 @@ int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGre
 			MonopolyTypes eMonopoly = (MonopolyTypes)iI;
 			if (eMonopoly != NO_MONOPOLY)
 			{
-				iChange += getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, eMonopoly);
-				if (eMonopoly == MONOPOLY_GLOBAL)
+				iTemp = getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, eMonopoly);
+				if (eMonopoly == MONOPOLY_GLOBAL && iTemp > 0)
 				{
-					iChange += GetMonopolyModFlat();
+					iTemp += GetMonopolyModFlat();
 				}
+				iChange += iTemp;
 			}
 		}
 	}
@@ -42038,18 +42046,18 @@ void CvPlayer::doResearch()
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			int iOverflow = (GetScienceTimes100()) / std::max(1, calculateResearchModifier(eCurrentTech));
+			int iOverflow = (GetScienceTimes100()) / 100;
 			changeOverflowResearchTimes100(iOverflow);
 		}
 		else
 		{
-			iOverflowResearch = (getOverflowResearchTimes100() * calculateResearchModifier(eCurrentTech)) / 100;
+			iOverflowResearch = getOverflowResearchTimes100();
 			setOverflowResearch(0);
 			if(GET_TEAM(getTeam()).GetTeamTechs())
 			{
 				int iBeakersTowardsTechTimes100 = GetScienceTimes100() + iOverflowResearch;
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID(), iOverflowResearch, calculateResearchModifier(eCurrentTech));
+				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID(), iOverflowResearch, 100);
 #else
 				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID());
 #endif
