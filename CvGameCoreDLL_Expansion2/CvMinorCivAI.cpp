@@ -15074,13 +15074,6 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
 	iGold /= 100;
 
-	// Rounding
-	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR(); //antonjs: consider: separate XML
-	iGold /= iVisibleDivisor;
-	iGold *= iVisibleDivisor;
-
-	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
-	iGold /= 100;
 
 	if (!bIgnoreScaling)
 	{
@@ -15089,7 +15082,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 		iGold /= 100;
 	}
 	if (iGold <= 0)
-		iGold = -1;
+		iGold = 0;
 
 	return iGold;
 }
@@ -15147,6 +15140,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 
 	int iMilitaryMightPercent = (100 * GET_PLAYER(eBullyPlayer).GetMilitaryMight(true)) / max(1, iTotalMilitaryMight);
 	int	iGlobalMilitaryScore = (iMilitaryMightPercent * iGlobalMilitaryScoreMax)/100; 
+	iScore += iGlobalMilitaryScore;
 
 	if (sTooltipSink)
 	{
@@ -15656,7 +15650,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
 		if (pCapital != NULL)
 		{
-			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pCapital);
+			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pCapital);
 			//do we get a lump some of yields from this?
 			if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 			{
@@ -15773,25 +15767,17 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	iGold *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
 	iGold /= 100;
 
-	// Rounding
-	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR(); //antonjs: consider: separate XML
-	iGold /= iVisibleDivisor;
-	iGold *= iVisibleDivisor;
-
-	iGold *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
-	iGold /= 100;
 
 	if (!bIgnoreScaling)
 	{
-		int iFactor = CalculateBullyScore(eBully, false);
+		int iFactor = CalculateBullyScore(eBully, true);
 		iGold *= iFactor;
 		iGold /= 100;
 	}
-	if (iGold <= 0)
-		iGold = -1;
 
 	if (iGold <= 0)
-		return 0;
+		iGold = 0;
+
 
 	return iGold;
 }
@@ -16163,7 +16149,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pBullyCapital);
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
 
 						pBullyCapital->changeFood(iValue);
 						if (GC.getGame().getActivePlayer() != NULL)
