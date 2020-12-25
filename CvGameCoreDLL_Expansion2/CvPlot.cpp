@@ -7077,6 +7077,34 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			}
 		}
 
+#if defined(MOD_PLOTS_EXTENSIONS)
+		if (MOD_PLOTS_EXTENSIONS)
+		{
+			// update adjacent tiles if there is a change for adjacent plot yields
+			for (int iI = 0; iI < GC.getNumPlotInfos(); iI++)\
+			{
+				PlotTypes ePlot = (PlotTypes)iI;
+
+				if (ePlot == NO_PLOT)
+				{
+					continue;
+				}
+
+				if (GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eOldFeature) || GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eNewValue))
+				{
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+						if (pAdjacentPlot && pAdjacentPlot->getPlotType() == ePlot)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+#endif
+
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileFeatureChanged, getX(), getY(), getOwner(), eOldFeature, eNewValue);
@@ -9421,6 +9449,29 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
 	}
+
+#if defined(MOD_PLOTS_EXTENSIONS)
+	if (MOD_PLOTS_EXTENSIONS)
+	{
+		PlotTypes ePlot = getPlotType();
+		if (ePlot != NO_PLOT && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange())
+		{
+			// yield from adjacent features
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot == NULL)
+					continue;
+
+				if (pAdjacentPlot->getFeatureType() != NO_FEATURE)
+				{
+					iYield += GC.getPlotInfo(ePlot)->GetAdjacentFeatureYieldChange(pAdjacentPlot->getFeatureType(), eYield);
+				}
+			}
+		}
+	}
+#endif
 
 	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
 	{

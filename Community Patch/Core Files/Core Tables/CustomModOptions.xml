@@ -226,6 +226,12 @@
 		- Column 'RemoveWhenComplete' in 'Improvements'.
 	-->
     <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+	
+    <!-- 
+	Various new tables and logics for plots. Currently, this is required to activate:
+		- Table 'Plot_AdjacentFeatureYieldChanges'. Columns are 'PlotType', 'FeatureType', 'YieldType', 'Yield'.
+	-->
+    <Row Class="4" Name="PLOTS_EXTENSIONS" Value="0"/>
 
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
