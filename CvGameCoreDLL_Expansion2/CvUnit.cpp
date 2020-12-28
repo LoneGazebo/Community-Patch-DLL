@@ -18162,7 +18162,7 @@ void CvUnit::SetSpottedEnemy(bool bValue)
 bool CvUnit::IsGainsYieldFromScouting() const
 {
 	VALIDATE_OBJECT
-	for (int iI = 0; iI < YIELD_TOURISM; iI++)
+	for (int iI = 0; iI < YIELD_GREAT_ADMIRAL_POINTS; iI++)
 	{
 		if (getYieldFromScouting((YieldTypes)iI) > 0)
 		{
