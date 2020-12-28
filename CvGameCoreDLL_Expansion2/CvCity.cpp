@@ -26886,6 +26886,7 @@ const CvString CvCity::getNameNoSpace() const
 {
 	CvString ret = getName();
 	ret.Replace(' ', '_');
+	ret.Replace('\'', '_');
 	return ret;
 }
 

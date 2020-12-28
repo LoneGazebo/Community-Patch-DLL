@@ -3468,6 +3468,11 @@ CvPlot * SPath::get(int i) const
 	return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 }
 
+void SPath::invert()
+{
+	reverse(vPlots.begin(), vPlots.end());
+}
+
 //use a fixed point format for normalized distance to avoid ties (123 is 1.23)
 int SPath::getNormalizedDistanceBase()
 {

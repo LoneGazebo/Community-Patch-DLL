@@ -329,7 +329,7 @@ void CvMilitaryAI::Uninit()
 void CvMilitaryAI::Reset()
 {
 	m_iTotalThreatWeight = 1;  // Don't ever assume there is no threat at all
-	m_cachedTargets.clear();
+	m_potentialAttackTargets.clear();
 
 	m_iNumLandUnits = 0;
 	m_iNumRangedLandUnits = 0;
@@ -386,7 +386,8 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	kStream >> m_iRecommendedMilitarySize;
 	kStream >> m_iRecNavySize;
 	kStream >> m_iNumFreeCarriers;
-	kStream >> m_cachedTargets;
+	kStream >> m_potentialAttackTargets;
+	kStream >> m_exposedCities;
 #endif
 
 	int iNumStrategies;
@@ -440,7 +441,8 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << m_iRecommendedMilitarySize;
 	kStream << m_iRecNavySize;
 	kStream << m_iNumFreeCarriers;
-	kStream << m_cachedTargets;
+	kStream << m_potentialAttackTargets;
+	kStream << m_exposedCities;
 #endif
 
 	kStream << GC.getNumMilitaryAIStrategyInfos();
@@ -520,7 +522,7 @@ void CvMilitaryAI::DoTurn()
 
 	if(!m_pPlayer->isHuman())
 	{
-		UpdateAttackTargets(GC.getGame().getCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2);
+		UpdateAttackTargets();
 		UpdateOperations();
 		MakeEmergencyPurchases();
 		DisbandObsoleteUnits();
@@ -739,8 +741,8 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 	return false;
 }
 
-// FINDING BEST CITIES TO TARGET
-bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
+// check if the army path makes sense
+bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy)
 {
 	//define short paths as safe (start and dest plot are included in count)
 	if (path.vPlots.size() < 4)
@@ -774,7 +776,7 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 			}
 		}
 		//maybe we have a better muster plot?
-		else if (pCity->getOwner() == m_pPlayer->GetID())
+		else if (pCity->getOwner() == eAttacker)
 		{
 			if (path.get(0)->getOwningCityID() != pCity->GetID())
 			{
@@ -783,11 +785,11 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 			}
 		}
 		//passing through a different warzone? not good
-		else if (m_pPlayer->IsAtWarWith(pCity->getOwner()))
+		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner()))
 			return false;
 
 		//the trade path may lead through third-party territory
-		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(m_pPlayer->GetID()))
+		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
 			iThirdPartyPlots++;
 	}
 
@@ -796,29 +798,60 @@ bool CvMilitaryAI::PathIsGood(const SPath & path, PlayerTypes eIntendedEnemy)
 	return (iThirdPartyPlots<3);
 }
 
-bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
+bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
 
-	for (size_t i = 0; i < m_cachedTargets.size(); i++)
-		if (m_cachedTargets[i].GetTargetPlot() == pCity->plot())
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot())
 			return true;
 
 	return false;
 }
 
-bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
+bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
 {
-	for (size_t i = 0; i < m_cachedTargets.size(); i++)
-		if (m_cachedTargets[i].GetTargetPlot()->getOwner() == eEnemy)
+	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
+		return false;
+
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot() && m_potentialAttackTargets[i].IsPreferred())
+			return true;
+
+	return false;
+}
+
+bool CvMilitaryAI::IsExposedToEnemy(CvCity * pCity, PlayerTypes eOtherPlayer) const
+{
+	for (size_t i = 0; i < m_exposedCities.size(); i++)
+		if (eOtherPlayer==NO_PLAYER || m_exposedCities[i].first == eOtherPlayer)
+			if (pCity == NULL || m_exposedCities[i].second == pCity->GetID())
+				return true;
+
+	return false;
+}
+
+bool CvMilitaryAI::HavePreferredAttackTarget(PlayerTypes eEnemy) const
+{
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		if (m_potentialAttackTargets[i].GetTargetPlot()->getOwner() == eEnemy && m_potentialAttackTargets[i].IsPreferred())
+			return true;
+
+	return false;
+}
+
+bool CvMilitaryAI::HavePossibleAttackTarget(PlayerTypes eEnemy) const
+{
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		if (m_potentialAttackTargets[i].GetTargetPlot()->getOwner() == eEnemy)
 			return true;
 
 	return false;
 }
 
 //override the diplo AI method so that it returns a sensible result for barbarians
-bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer)
+bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer) const
 {
 	if (eOtherPlayer == BARBARIAN_PLAYER)
 		return true;
@@ -834,11 +867,14 @@ bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer)
 	return m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eOtherPlayer);
 }
 
-size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
+size_t CvMilitaryAI::UpdateAttackTargets()
 {
-	m_cachedTargets.clear();
+	m_potentialAttackTargets.clear();
+	m_exposedCities.clear();
 
-	vector<OptionWithScore<CvAttackTarget>> vOptions;
+	vector<OptionWithScore<CvAttackTarget>> vAttackOptions;
+	vector<OptionWithScore<CvAttackTarget>> vDefenseOptions;
+
 	int iCityLoop = 0;
 	for (CvCity* pMusterCity = m_pPlayer->firstCity(&iCityLoop); pMusterCity != NULL; pMusterCity = m_pPlayer->nextCity(&iCityLoop))
 	{
@@ -848,78 +884,156 @@ size_t CvMilitaryAI::UpdateAttackTargets(size_t nMaxTargets)
 		//first filter land targets
 		for (map<int, SPath>::iterator it = landpaths.begin(); it != landpaths.end(); ++it)
 		{
-			PlayerTypes eTargetPlayer = it->second.get(-1)->getOwner();
+			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
 
-			if (!IsPlayerValid(eTargetPlayer))
+			if (!IsPlayerValid(eOtherPlayer))
 				continue;
-			if (!PathIsGood(it->second,eTargetPlayer))
+			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
-			SelectBestTargetApproach(target);
+			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
 			if (target.m_iApproachScore == 0)
 				continue;
 
-			vOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+
+			//and now the other way around
+			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
+			{
+				it->second.invert();
+				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+				{
+					CvAttackTarget reverseTarget;
+					reverseTarget.SetWaypoints(it->second);
+					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+					if (target.m_iApproachScore > 0)
+					{
+						//do not try any advanced scoring, just use a basic approach/distance score
+						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
+					}
+				}
+			}
 		}
 
 		//then water targets
 		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
-			PlayerTypes eTargetPlayer = it->second.get(-1)->getOwner();
+			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
 
-			if (!IsPlayerValid(eTargetPlayer))
+			if (!IsPlayerValid(eOtherPlayer))
 				continue;
-			if (!PathIsGood(it->second,eTargetPlayer))
+			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
-			SelectBestTargetApproach(target);
+			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
 			if (target.m_iApproachScore == 0)
 				continue;
 
-			vOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+
+			//and now the other way around
+			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
+			{
+				it->second.invert();
+				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+				{
+					CvAttackTarget reverseTarget;
+					reverseTarget.SetWaypoints(it->second);
+					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+					if (target.m_iApproachScore > 0)
+					{
+						//do not try any advanced scoring, just use a basic approach/distance score
+						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
+					}
+				}
+			}
 		}
 	}
 
-	//some might be present twice but we sort that out below
-	std::sort(vOptions.begin(), vOptions.end());
-
-	for (size_t i = 0; i < nMaxTargets && i < vOptions.size(); i++)
+	if (!vAttackOptions.empty())
 	{
-		//ignore bad targets unless we are at war
-		if (vOptions[i].score < vOptions[0].score / 3 && m_pPlayer->IsAtPeaceWith(vOptions[i].option.GetTargetPlot()->getOwner()))
-			continue;
+		//some might be present twice but we sort that out below
+		std::sort(vAttackOptions.begin(), vAttackOptions.end());
 
-		//don't target a city twice, only keep the best approach
-		if (IsCurrentAttackTarget(vOptions[i].option.GetTargetPlot()->getPlotCity()))
-			continue;
-
-		m_cachedTargets.push_back(vOptions[i].option);
-
-		if (GC.getLogging() && GC.getAILogging())
+		int iBestScore = vAttackOptions.front().score;
+		for (size_t i = 0; i < vAttackOptions.size(); i++)
 		{
-			CvCity* pMuster = vOptions[i].option.GetMusterPlot()->getPlotCity();
-			CvCity* pTarget = vOptions[i].option.GetTargetPlot()->getPlotCity();
-			CvString msg = CvString::format("%03d, %s, attack target: %s, muster: %s, army type: %s, score: %d",
-				GC.getGame().getElapsedGameTurns(), m_pPlayer->getName(),
-				pTarget->getNameNoSpace().c_str(), pMuster->getNameNoSpace().c_str(), ArmyTypeToString(vOptions[i].option.m_armyType), vOptions[i].score);
-			CvString playerName = GetPlayer()->getCivilizationShortDescription();
-			FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-			if (pLog)
-				pLog->Msg(msg.c_str());
+			CvAttackTarget target = vAttackOptions[i].option;
+			int iScore = vAttackOptions[i].score;
+			if (iScore == 0)
+				continue;
+
+			//mark the best targets
+			target.m_bPreferred = (iScore > iBestScore / 3);
+
+			//don't target a city twice with different army types, only keep the best approach
+			if (IsPossibleAttackTarget(target.GetTargetPlot()->getPlotCity()))
+				continue;
+
+			m_potentialAttackTargets.push_back(target);
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvCity* pMuster = target.GetMusterPlot()->getPlotCity();
+				CvCity* pTarget = target.GetTargetPlot()->getPlotCity();
+				CvString msg = CvString::format("%03d, %s, %sattack target: %s, muster: %s, army type: %s, score: %d",
+					GC.getGame().getElapsedGameTurns(), m_pPlayer->getName(), target.IsPreferred() ? "preferred " : "",
+					pTarget->getNameNoSpace().c_str(), pMuster->getNameNoSpace().c_str(), ArmyTypeToString(target.m_armyType), iScore);
+				CvString playerName = GetPlayer()->getCivilizationShortDescription();
+				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+				if (pLog)
+					pLog->Msg(msg.c_str());
+			}
 		}
 	}
 
+	if (!vDefenseOptions.empty())
+	{
+		std::sort(vDefenseOptions.begin(), vDefenseOptions.end());
 
-	return m_cachedTargets.size();
+		int iBestScore = vDefenseOptions.front().score;
+		for (size_t i = 0; i < vDefenseOptions.size(); i++)
+		{
+			CvAttackTarget target = vDefenseOptions[i].option;
+			int iScore = vDefenseOptions[i].score;
+
+			if (iScore > iBestScore / 3)
+			{
+				CvCity* pMuster = target.GetMusterPlot()->getPlotCity();
+				CvCity* pTarget = target.GetTargetPlot()->getPlotCity();
+
+				//store it only once (for one army type)
+				if (!IsExposedToEnemy(pTarget, pMuster->getOwner()))
+				{
+					m_exposedCities.push_back(make_pair(pMuster->getOwner(), pTarget->GetID()));
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString msg = CvString::format("%03d, %s, exposed city: %s, muster: %s, army type: %s, score: %d",
+							GC.getGame().getElapsedGameTurns(), m_pPlayer->getName(),
+							pTarget->getNameNoSpace().c_str(), pMuster->getNameNoSpace().c_str(), ArmyTypeToString(target.m_armyType), iScore);
+						CvString playerName = GetPlayer()->getCivilizationShortDescription();
+						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+						if (pLog)
+							pLog->Msg(msg.c_str());
+					}
+				}
+			}
+		}
+	}
+
+	return m_potentialAttackTargets.size();
 }
 
 const vector<CvAttackTarget>& CvMilitaryAI::GetBestTargetsGlobal() const
 {
-	return m_cachedTargets;
+	return m_potentialAttackTargets;
 }
 
 bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild)
@@ -960,16 +1074,16 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 	return false;
 }
 
-void CvMilitaryAI::SelectBestTargetApproach(CvAttackTarget& target)
+void MilitaryAIHelpers::SetBestTargetApproach(CvAttackTarget& target, PlayerTypes ePlayer)
 {
 	//default
 	target.m_iApproachScore = 0;
 	target.m_armyType = ARMY_TYPE_ANY;
 
 	//compare
-	int iLandScore = EvaluateTargetApproach(target,ARMY_TYPE_LAND);
-	int iNavalScore = EvaluateTargetApproach(target,ARMY_TYPE_NAVAL);
-	int iCombinedScore = EvaluateTargetApproach(target,ARMY_TYPE_COMBINED);
+	int iLandScore = EvaluateTargetApproach(target,ePlayer,ARMY_TYPE_LAND);
+	int iNavalScore = EvaluateTargetApproach(target,ePlayer,ARMY_TYPE_NAVAL);
+	int iCombinedScore = EvaluateTargetApproach(target,ePlayer,ARMY_TYPE_COMBINED);
 
 	//we want a minimum score of 30!
 	if (iLandScore >= iNavalScore && iLandScore >= iCombinedScore && iLandScore>30)
@@ -1045,7 +1159,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 				fDesirability /= max(1, GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL());
 			}
 		}
-		else if (m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+		else if (m_pPlayer->IsAtWarAnyMajor() && !m_pPlayer->IsAtWarWith(pTargetCity->getOwner()))
 		{
 			//don't target minors at all while at war with an unrelated major
 			return 0;
@@ -1176,12 +1290,11 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 }
 
 // score 100: optimal terrain, score 0 worst terrain 
-int CvMilitaryAI::EvaluateTargetApproach(const CvAttackTarget& target, ArmyType eArmyType)
+int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, PlayerTypes ePlayer, ArmyType eArmyType)
 {
 	CvPlot* pMusterPlot = target.GetMusterPlot();
 	CvPlot* pStagingPlot = target.GetStagingPlot();
 	CvPlot* pTargetPlot = target.GetTargetPlot();
-	PlayerTypes ePlayer = m_pPlayer->GetID();
 
 	//basic sanity check
 	if (eArmyType == ARMY_TYPE_LAND)
@@ -4504,3 +4617,7 @@ bool CvAttackTarget::IsValid() const
 		m_iTargetPlotIndex >= 0;
 }
 
+bool CvAttackTarget::IsPreferred() const
+{
+	return m_bPreferred;
+}

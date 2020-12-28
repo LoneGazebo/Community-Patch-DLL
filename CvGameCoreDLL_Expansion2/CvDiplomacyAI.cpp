@@ -14308,7 +14308,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	// Target capacity should matter! If we can't get to them, let's not try to war on them!
-	bool bValidAttackTarget = GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(ePlayer);
+	bool bValidAttackTarget = GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(ePlayer);
 	bool bCanCrossOcean = m_pPlayer->CanCrossOcean();
 	bool bCanAttackUs = false;
 	bool bWantsConquest = false;
@@ -36979,7 +36979,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman, bool bIgnoreCur
 		return false;
 
 	// If we can't reach them, there's no point in being hostile.
-	if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eHuman))
+	if (!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eHuman))
 		return false;
 
 	// Different ideology
@@ -38311,7 +38311,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	bool bBadness = false;
 
 	// No target? Pass!
-	if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eTargetPlayer))
+	if (!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eTargetPlayer))
 		return 0;
 
 	// If we're in bad shape for war, we're not interested.

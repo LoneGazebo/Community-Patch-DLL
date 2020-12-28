@@ -198,6 +198,10 @@ struct SPath
 	//convenience
 	inline int length() const { return vPlots.size(); }
 	CvPlot* get(int i) const;
+
+	//flip the order of the plots
+	void invert();
+
 	static int getNormalizedDistanceBase();
 
 	bool operator==(const SPath& other)

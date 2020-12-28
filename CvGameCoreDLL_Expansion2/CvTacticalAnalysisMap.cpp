@@ -876,7 +876,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 			if (GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,false) ||
 				GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,true) ||
-				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pZoneCity))
+				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsPreferredAttackTarget(pZoneCity))
 			{
 				iBaseValue *= 2;
 			}

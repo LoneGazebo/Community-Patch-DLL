@@ -3559,7 +3559,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 
 			//No target? Abort!
-			if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
+			if(!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eWithPlayer))
 			{
 				return INT_MAX;
 			}
@@ -3785,7 +3785,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			if (!GET_PLAYER(eOtherPlayer).isHuman())
 			{
 				//No target? Abort!
-				if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
+				if (!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eWithPlayer))
 				{
 					return INT_MAX;
 				}

@@ -114,13 +114,14 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvAttackTarget
 {
-	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0), m_iApproachScore(0) {}
+	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0), m_iApproachScore(0), m_bPreferred(false) {}
 	ArmyType m_armyType;
 	int m_iMusterPlotIndex;
 	int m_iStagingPlotIndex;
 	int m_iTargetPlotIndex;
 	int m_iPathLength;
 	int m_iApproachScore;
+	bool m_bPreferred;
 
 	void SetWaypoints(const SPath&);
 	CvPlot* GetMusterPlot() const;
@@ -128,6 +129,7 @@ struct CvAttackTarget
 	CvPlot* GetTargetPlot() const;
 	int GetPathLength() const;
 	bool IsValid() const;
+	bool IsPreferred() const;
 };
 
 FDataStream& operator<<(FDataStream&, const CvAttackTarget&);
@@ -182,17 +184,17 @@ public:
 	bool BuyEmergencyBuilding(CvCity* pCity);
 
 	// Finding best cities to target
-	bool HaveValidAttackTarget(PlayerTypes eEnemy);
-	bool IsCurrentAttackTarget(CvCity* pCity);
+	bool HavePossibleAttackTarget(PlayerTypes eEnemy) const;
+	bool HavePreferredAttackTarget(PlayerTypes eEnemy) const;
+	bool IsPossibleAttackTarget(CvCity* pCity) const;
+	bool IsPreferredAttackTarget(CvCity* pCity) const;
+	bool IsExposedToEnemy(CvCity* pCity, PlayerTypes eOtherPlayer) const;
 
-	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
-	bool IsPlayerValid(PlayerTypes eOtherPlayer);
+	bool IsPlayerValid(PlayerTypes eOtherPlayer) const;
 
-	size_t UpdateAttackTargets(size_t nMaxTargets);
+	size_t UpdateAttackTargets();
 	const vector<CvAttackTarget>& GetBestTargetsGlobal() const;
-	void SelectBestTargetApproach(CvAttackTarget& target);
 	int ScoreAttackTarget(const CvAttackTarget& target);
-	int EvaluateTargetApproach(const CvAttackTarget& target, ArmyType eArmyType);
 
 	// Accessors to provide military data to other AI subsystems
 	ThreatTypes GetHighestThreat();
@@ -347,7 +349,8 @@ private:
 	int m_iNumberOfTimesSettlerBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	vector<CvAttackTarget> m_cachedTargets;
+	vector<CvAttackTarget> m_potentialAttackTargets; //enemy cities we might want to attack
+	vector<pair<PlayerTypes,int>> m_exposedCities; //those of our cities which might be tempting to the enemies
 #endif
 
 	// Data recomputed each turn (no need to serialize)
@@ -416,6 +419,10 @@ MultiunitFormationTypes GetCurrentBestFormationTypeForLandAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForCombinedAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
+
+bool ArmyPathIsGood(const SPath& path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy);
+int EvaluateTargetApproach(const CvAttackTarget& target, PlayerTypes ePlayer, ArmyType eArmyType);
+void SetBestTargetApproach(CvAttackTarget& target, PlayerTypes ePlayer);
 }
 
 #endif //CIV5_MILITARY_AI_H
