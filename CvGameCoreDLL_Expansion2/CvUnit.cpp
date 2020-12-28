@@ -16433,6 +16433,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		else
 			iModifier += attackBelow50HealthModifier();
 
+		//Heavy charge without escape
+		if (IsCanHeavyCharge() && !pDefender->CanFallBack(*this, false))
+			iModifier += 50;
+
 		//bonus for attacking same unit over and over in a turn?
 		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
@@ -17173,13 +17177,19 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 	}
 
 	int iRandomSeed = bIncludeRand ? (plot()->GetPlotIndex()+GetID()+iAttackerStrength+iDefenderStrength) : 0;
-	return CvUnitCombat::DoDamageMath(
+	int iDamage = CvUnitCombat::DoDamageMath(
 		iAttackerStrength,
 		iDefenderStrength,
 		GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
 		GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		0 ) / 100;
+
+	//extra damage with special promotion
+	if (GetMoraleBreakChance() > 0 && pDefender && !pDefender->CanFallBack(*this,false))
+		iDamage = (iDamage * 150) / 100;
+
+	return iDamage;
 }
 
 int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
@@ -30001,7 +30011,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 //	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
+bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
 {
 	VALIDATE_OBJECT
 
@@ -30036,9 +30046,8 @@ bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 		// Does attacker have a speed greater than 1?
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
 		if(iAttackerMovementRange > 2)
-		{
 			iWithdrawChance += (GC.getWITHDRAW_MOD_ENEMY_MOVES() * (iAttackerMovementRange - 2));
-		}
+
 		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
 		//include damage so the result changes for each attack
@@ -30050,7 +30059,7 @@ bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBack(CvUnit& attacker)
+bool CvUnit::DoFallBack(const CvUnit& attacker)
 {
 	VALIDATE_OBJECT
 

@@ -38814,6 +38814,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	}
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 /// Get the monopoly percentage owned for eResource.
 int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
@@ -38833,11 +38834,34 @@ int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 	if (iTotalNumResource <= 0)
 	{
 		// if we own a resource, but it's not on the map at all, it is 100%
+		// todo: what about other players?
 		return iOwnedNumResource > 0 ? 100 : 0;
 	}
 
 	return (iOwnedNumResource * 100) / iTotalNumResource;
 }
+
+bool CvPlayer::WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) const
+{
+	if (iExtraResource <= 0)
+		return false;
+
+	int iCurrent = GetMonopolyPercent(eResource);
+	int iExtra = (iExtraResource * 100) / max(1,GC.getMap().getNumResources(eResource));
+
+	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
+	{
+		return (iCurrent + iExtra) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD();
+	}
+	else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	{
+		return (iCurrent + iExtra) > GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD();
+	}
+
+	return false;
+}
+
 int CvPlayer::getCityYieldModFromMonopoly(YieldTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
@@ -38845,6 +38869,7 @@ int CvPlayer::getCityYieldModFromMonopoly(YieldTypes eIndex) const
 
 	return m_aiCityYieldModFromMonopoly[eIndex];
 }
+
 void CvPlayer::changeCityYieldModFromMonopoly(YieldTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");

@@ -2351,8 +2351,8 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 
-	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBack(CvUnit& pAttacker);
+	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	bool DoFallBack(const CvUnit& pAttacker);
 
 private:
 

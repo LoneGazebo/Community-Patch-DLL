@@ -777,6 +777,7 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 
 	//score some goodies
 	PlotGrabGoodyMoves();
+	PlotCivilianAttackMoves();
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -788,7 +789,6 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true);
 	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
 	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
-	PlotCivilianAttackMoves();
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, true);
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT, true);
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, false);
@@ -1201,9 +1201,9 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->canUseForTacticalAI())
 		{
-			// Danger value of plot must be greater than 0
+			// try to flee or hide
 			int iDangerLevel = pUnit->GetDanger();
-			if(iDangerLevel > 0)
+			if(iDangerLevel > 0 || pUnit->plot()->isVisibleToEnemy(pUnit->getOwner()))
 			{
 				bool bAddUnit = false;
 				if(bCombatUnits)
@@ -1236,43 +1236,6 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					{
 						bAddUnit = true;
 					}
-#if defined(MOD_BALANCE_CORE)
-					//GGs and GAs need to stay in the DANGER ZONE, but only if there are units near it to support it.
-					int iUnits = 0;
-					if (pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral())
-					{
-						//can't use garrison check here. while non-combat units may be in a city, they are not the garrison
-						if(pUnit->plot()->isCity())
-						{
-							bAddUnit = false;
-						}
-						else if(pUnit->plot()->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							CvUnit* pUnit2 = pUnit->plot()->getUnitByIndex(0);
-							//Are we under a relatively healthy unit? Alright, let's drill down and see what's around us.
-							if(pUnit2 != NULL && pUnit2->GetCurrHitPoints() > (pUnit2->GetMaxHitPoints() / 2))
-							{
-								// If there a hex adjacent to city they can airlift to?
-								for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-								{
-									CvPlot *pLoopPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-									if (pLoopPlot != NULL)
-									{
-										if(pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-										{
-											iUnits++;
-										}
-									}
-								}
-							}
-						}
-					}
-					//Two or more units nearby or we just got here? We're staying in the DANGER ZONE.
-					if(iUnits > 1 || pUnit->IsRecentlyDeployedFromOperation())
-					{
-						bAddUnit = false;
-					}
-#endif
 				}
 
 				if(bAddUnit)
@@ -5212,11 +5175,12 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 {
 	CvPlot* pBestMovePlot = NULL;
+	int iMaxTurns = m_iLandBarbarianRange;
 	
 	// combat units look at all offensive targets within x turns
 	if (pUnit->IsCanDefend())
 	{
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, true);
+		pBestMovePlot = FindNearbyTarget(pUnit, iMaxTurns, true);
 
 		// alternatively explore
 		if (pBestMovePlot == NULL)
@@ -5225,7 +5189,12 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandTarget(CvUnit* pUnit)
 
 	// by default go back to camp or so
 	if (pBestMovePlot == NULL)
-		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, false);
+	{
+		if (!pUnit->IsCanDefend())
+			iMaxTurns = 23;
+
+		pBestMovePlot = FindNearbyTarget(pUnit, iMaxTurns, false);
+	}
 
 	return pBestMovePlot;
 }
@@ -5531,7 +5500,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffen
 	for (size_t i=0; i<candidates.size(); i++)
 	{
 		CvPlot* pPlot = candidates[i].option;
-		if ( pUnit->TurnsToReachTarget(pPlot,0,iMaxTurns) < INT_MAX )
+		if ( pUnit->TurnsToReachTarget(pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_IGNORE_STACKING|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,iMaxTurns) < INT_MAX )
 			return pPlot;
 	}
 
@@ -6974,6 +6943,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 	}
 	else
+		//note that we ignore melee attacks with advancing here (heavy charge promotion)
+		//because it's too much chance involved. instead we abort the execution later if necessary and restart
 		result.eAssignmentType = pUnit->IsCanAttackRanged() ? A_RANGEATTACK : A_MELEEATTACK;
 
 	//for melee units we check if the damage received is worth it ...

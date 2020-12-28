@@ -452,6 +452,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 				}
 			}
+
+			//cannot pay for resources with lump sums of gold
+			if (IsResourceTrade(eToPlayer, NO_RESOURCE))
+				return false;
 		}
 #endif
 	}
@@ -609,6 +613,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			{
 				return false;
 			}
+
 #if defined(MOD_BALANCE_CORE)
 			if(!bHumanToHuman)
 			{
@@ -619,6 +624,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 					}
 				}
+
+				//cannot pay for resources with lump sums of gold
+				if (GetGoldTrade(eToPlayer)>0)
+					return false;
 			}
 #endif
 			// Can't trade resource if the seller does not have the city trade tech
@@ -1965,11 +1974,12 @@ bool CvDeal::IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource)
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		if(it->m_eItemType == TRADE_ITEM_RESOURCES &&
-		        it->m_eFromPlayer == eFrom &&
-		        (ResourceTypes)it->m_iData1 == eResource)
+		if (it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == eFrom)
 		{
-			return true;
+			if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
+			{
+				return true;
+			}
 		}
 	}
 	return false;

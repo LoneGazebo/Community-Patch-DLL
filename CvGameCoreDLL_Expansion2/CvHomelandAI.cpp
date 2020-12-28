@@ -387,14 +387,18 @@ void CvHomelandAI::FindHomelandTargets()
 							if(eNavalImprovement == NO_IMPROVEMENT)
 								continue;
 
-							if (GC.getImprovementInfo(eNavalImprovement)->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
+							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eNavalImprovement);
+							//sometimes we have different improvements for the same resource on land and water
+							if (pImprovement->IsWater() != pLoopPlot->isWater())
+								continue;
+
+							if (pImprovement->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
 								newTarget.SetTargetY(pLoopPlot->getY());
 								newTarget.SetAuxIntData(eBuild);
 								m_TargetedNavalResources.push_back(newTarget);
-								//once is enough ... apparently multiple builds are valid?
 								break;
 							}
 						}

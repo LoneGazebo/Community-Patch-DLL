@@ -2199,7 +2199,10 @@ public:
 	void CheckForMonopoly(ResourceTypes eResource);
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
+
 	int GetMonopolyPercent(ResourceTypes eResource) const;
+	bool WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) const;
+
 	//cache these because we need them a lot
 	int GetCombatAttackBonusFromMonopolies() const;
 	int GetCombatDefenseBonusFromMonopolies() const;

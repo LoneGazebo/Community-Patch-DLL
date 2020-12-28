@@ -260,11 +260,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
 		}
 
-		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iAttackerStrength = (iAttackerStrength * 150) / 100;
-		}
-
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
@@ -814,12 +809,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iDamage = (iDamage * 150) / 100;
 		}
 #endif
 

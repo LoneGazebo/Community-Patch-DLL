@@ -1409,6 +1409,12 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
+		//let's assume an interest rate of 0.5% per turn, no compounding
+		int iInterestPercent = min(50, 100 * (iNumTurns * 5) / 1000);
+
+		//subtract interest. 100 gold now is better than 100 gold in the future
+		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
+
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 		if (bRoundUp)
 		{
@@ -5498,9 +5504,10 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 		DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue);
 	}
 	DoAddOpenBordersToThem(pDeal, eOtherPlayer, iTotalValue);
-	DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
 	DoAddGoldToThem(pDeal, eOtherPlayer, iTotalValue);
+	DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
 }
+
 void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue)
 {
 	if (pDeal->DoNotModifyTo() && pDeal->GetToPlayer() == eOtherPlayer)
@@ -5531,7 +5538,10 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 	}
 	DoAddOpenBordersToUs(pDeal, eOtherPlayer, iTotalValue);
 	DoAddGPTToUs(pDeal, eOtherPlayer, iTotalValue);
-	DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
+
+	//do not offer lump sums of gold for resources
+	if (!pDeal->IsResourceTrade(eOtherPlayer,NO_RESOURCE))
+		DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
 }
 
 /// See if removing Gold Per Turn from their side of the deal helps even out pDeal

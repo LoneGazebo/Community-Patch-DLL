@@ -6995,35 +6995,38 @@ void CvCity::updateEconomicValue()
 	//divide by avg conversion factor
 	iYieldValue /= 3;
 
+	//arbitrary conversion factor ... yields are already covered?
+	iYieldValue += getNumWorldWonders() * 23;
+
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
-
-	int iWonders = getNumWorldWonders() * 50;
-	iYieldValue += iWonders;
 
 	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		//for plots owned by this city
-		if (NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
-		{
-			//todo: add something for currently unworked plots (future potential)
-			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
-			if (eResource == NO_RESOURCE)
-				continue;
+		if (!pLoopPlot)
+			continue;
 
+		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
+		if (eResource == NO_RESOURCE)
+			continue;
+		
+		//for plots owned by this city or reasonably likely to be claimed
+		bool bGood = false;
+		if (pLoopPlot->isOwned())
+			bGood = (GetID() == pLoopPlot->GetCityPurchaseID());
+		else
+			bGood = pLoopPlot->isAdjacentPlayer(getOwner()) && !pLoopPlot->IsAdjacentOwnedByTeamOtherThan(getTeam());
+
+		if (bGood)
+		{
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (!pkResourceInfo)
 				continue;
 
-			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
-				continue;
-
-			int iResourceQuantity = pLoopPlot->getNumResource();
-
-			validResources.push_back(eResource, iResourceQuantity);
-		} //owned plots
-	} //all plots
+			validResources.push_back(eResource, pLoopPlot->getNumResource());
+		}
+	}
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -7057,11 +7060,16 @@ void CvCity::updateEconomicValue()
 						{
 							int iValue = 200;
 
+							if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
+								iValue = 100;
+
 							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity))
+							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || 
+								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
+								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource,iResourceQuantity) ))
 								iValue = 600;
 
-							int iHappinessFromResource = pkResourceInfo->getHappiness();
+							int iHappinessFromResource = pkResourceInfo->getHappiness() + GET_PLAYER(ePossibleOwner).GetExtraHappinessPerLuxury();
 							iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
 						}
 						else if (eUsage == RESOURCEUSAGE_STRATEGIC)
@@ -7069,7 +7077,9 @@ void CvCity::updateEconomicValue()
 							int iValue = 400;
 
 							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity))
+							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || 
+								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
+								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource,iResourceQuantity) ))
 								iValue = 800;
 
 							iResourceValue += iResourceQuantity * iValue;
