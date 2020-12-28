@@ -1003,7 +1003,8 @@ protected:
 	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS)
-	LUAAPIEXTN(GetNumUnitsOfType, int);
+	LUAAPIEXTN(GetNumUnitsOfType, int, iUnit, bIncludeBeingTrained);
+	LUAAPIEXTN(GetNumUnitPromotions, int, iPromotion);
 #endif
 	static int lGetUnitByID(lua_State* L);
 

@@ -10772,6 +10772,28 @@ int CvPlayer::GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained)
 	return iNumUnits;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+//	-----------------------------------------------------------------------------------------------
+int CvPlayer::GetNumUnitPromotions(PromotionTypes ePromotion)
+{
+	int iNum = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+
+	// Current Units
+	for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->isHasPromotion(ePromotion))
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+#endif
+
 //	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
 {

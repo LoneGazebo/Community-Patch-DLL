@@ -941,6 +941,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetNumUnitsOfType);
+	Method(GetNumUnitPromotions);
 #endif
 	Method(GetUnitByID);
 
@@ -10028,6 +10029,12 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsOfType(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayer::GetNumUnitsOfType);
+}
+//------------------------------------------------------------------------------
+//int GetNumUnitPromotions();
+int CvLuaPlayer::lGetNumUnitPromotions(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayer::GetNumUnitPromotions);
 }
 #endif
 //------------------------------------------------------------------------------
