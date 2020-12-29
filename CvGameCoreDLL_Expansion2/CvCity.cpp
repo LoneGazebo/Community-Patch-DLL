@@ -14672,31 +14672,33 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											continue;
 										}
+									}
 
-										int iResourceQuantityPerPlot = MAX(it->first, 1);
-										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-										pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
-										pLoopPlot->DoFindCityToLinkResourceTo();
-										iNumResourcePlotsGiven++;
-										if (!pLoopPlot->IsImprovementPillaged())
+									int iResourceQuantityPerPlot = MAX(it->first, 1);
+									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
+									pLoopPlot->DoFindCityToLinkResourceTo();
+									iNumResourcePlotsGiven++;
+									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+									{
+										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
+										if (ImprovementEntry)
 										{
-											if (ImprovementEntry)
+											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
 											{
-												if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
-												{
-													owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
-												}
+												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
 											}
 										}
-										if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
+									}
+									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
+									{
+										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 										{
-											if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
-											{
-												CvString strBuffer;
-												CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-												CvAssert(pResourceInfo);
-												NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+											CvString strBuffer;
+											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+											CvAssert(pResourceInfo);
+											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
 											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
@@ -14713,17 +14715,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 												break;
 											}
 
-												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-												if (pNotifications)
-												{
-													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
-												}
+											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+											if (pNotifications)
+											{
+												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 											}
 										}
-										if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-										{
-											break;
-										}
+									}
+									if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+									{
+										break;
 									}
 								}
 							}
