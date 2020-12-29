@@ -259,11 +259,6 @@ CvMilitaryAI::CvMilitaryAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
 	m_aiTempFlavors(NULL),
-	m_paeLastTurnWarState(NULL),
-	m_paeLastTurnMilitaryThreat(NULL),
-	m_paeLastTurnMilitaryStrength(NULL),
-	m_paeLastTurnTargetValue(NULL),
-	m_iTotalThreatWeight(1),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
 	m_iNumberOfTimesSettlerBuildSkippedOver(0),
 	m_aiWarFocus(NULL)
@@ -294,18 +289,6 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	CvAssertMsg(m_aiTempFlavors==NULL, "about to leak memory, CvMilitaryAI::m_aiTempFlavors");
 	m_aiTempFlavors = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
 
-	CvAssertMsg(m_paeLastTurnWarState==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnWarState");
-	m_paeLastTurnWarState = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_paeLastTurnMilitaryThreat==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnMilitaryThreat");
-	m_paeLastTurnMilitaryThreat = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_paeLastTurnMilitaryStrength==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnMilitaryStrength");
-	m_paeLastTurnMilitaryStrength = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
-
-	CvAssertMsg(m_paeLastTurnTargetValue==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnTargetValue");
-	m_paeLastTurnTargetValue = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
-
 	CvAssertMsg(m_aiWarFocus == NULL, "about to leak memory, CvMilitaryAI::m_aiWarFocus");
 	m_aiWarFocus = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
 
@@ -318,18 +301,14 @@ void CvMilitaryAI::Uninit()
 	SAFE_DELETE_ARRAY(m_pabUsingStrategy);
 	SAFE_DELETE_ARRAY(m_paiTurnStrategyAdopted);
 	SAFE_DELETE_ARRAY(m_aiTempFlavors);
-	SAFE_DELETE_ARRAY(m_paeLastTurnWarState);
-	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryThreat);
-	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryStrength);
-	SAFE_DELETE_ARRAY(m_paeLastTurnTargetValue);
 	SAFE_DELETE_ARRAY(m_aiWarFocus);
 }
 
 /// Reset AIStrategy status array to all false
 void CvMilitaryAI::Reset()
 {
-	m_iTotalThreatWeight = 1;  // Don't ever assume there is no threat at all
 	m_potentialAttackTargets.clear();
+	m_exposedCities.clear();
 
 	m_iNumLandUnits = 0;
 	m_iNumRangedLandUnits = 0;
@@ -359,10 +338,6 @@ void CvMilitaryAI::Reset()
 	{
 		m_pabUsingStrategy[iI] = false;
 		m_paiTurnStrategyAdopted[iI] = -1;
-		m_paeLastTurnWarState[iI] = NO_WAR_STATE_TYPE;
-		m_paeLastTurnMilitaryThreat[iI] = NO_THREAT_VALUE;
-		m_paeLastTurnMilitaryStrength[iI] = NO_STRENGTH_VALUE;
-		m_paeLastTurnTargetValue[iI] = NO_TARGET_VALUE;
 	}
 }
 
@@ -375,7 +350,6 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	FAssertMsg(m_pAIStrategies != NULL && m_pAIStrategies->GetNumMilitaryAIStrategies() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream >> m_iTotalThreatWeight;
 	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
 	kStream >> m_iNumberOfTimesSettlerBuildSkippedOver;
 
@@ -405,18 +379,6 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	ArrayWrapper<int> wrapm_paiTurnStrategyAdopted(iNumStrategies, m_paiTurnStrategyAdopted);
 	kStream >> wrapm_paiTurnStrategyAdopted;
 
-	ArrayWrapper<int> wrapm_paeLastTurnWarState(MAX_CIV_PLAYERS, m_paeLastTurnWarState);
-	kStream >> wrapm_paeLastTurnWarState;
-
-	ArrayWrapper<int> wrapm_paeLastTurnMilitaryThreat(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryThreat);
-	kStream >> wrapm_paeLastTurnMilitaryThreat;
-
-	ArrayWrapper<int> wrapm_paeLastTurnMilitaryStrength(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryStrength);
-	kStream >> wrapm_paeLastTurnMilitaryStrength;
-
-	ArrayWrapper<int> wrapm_paeLastTurnTargetValue(MAX_CIV_PLAYERS, m_paeLastTurnTargetValue);
-	kStream >> wrapm_paeLastTurnTargetValue;
-
 	ArrayWrapper<int> wrapm_aiWarFocus(MAX_MAJOR_CIVS, m_aiWarFocus);
 	kStream >> wrapm_aiWarFocus;
 }
@@ -430,7 +392,6 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	FAssertMsg(GC.getNumMilitaryAIStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
-	kStream << m_iTotalThreatWeight;
 	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
 	kStream << m_iNumberOfTimesSettlerBuildSkippedOver;
 
@@ -448,10 +409,6 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << GC.getNumMilitaryAIStrategyInfos();
 	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_pabUsingStrategy);
 	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_paiTurnStrategyAdopted);
-	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnWarState);
-	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryThreat);
-	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryStrength);
-	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnTargetValue);
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_aiWarFocus);
 }
 
@@ -513,8 +470,6 @@ void CvMilitaryAI::DoTurn()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("MilitaryAI DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 	ScanForBarbarians();
-	UpdateThreats();
-	UpdateWars();
 	UpdateBaseData();
 	UpdateDefenseState();
 	UpdateMilitaryStrategies();
@@ -1031,25 +986,23 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 	return m_potentialAttackTargets.size();
 }
 
-const vector<CvAttackTarget>& CvMilitaryAI::GetBestTargetsGlobal() const
-{
-	return m_potentialAttackTargets;
-}
-
 bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild)
 {
 	//note that a given target might be repeated with different muster points / army types
-	const vector<CvAttackTarget>& possibleTargets = GetBestTargetsGlobal();
-	for (size_t i = 0; i < possibleTargets.size(); i++)
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 	{
-		CvPlot* pMusterPlot = possibleTargets[i].GetMusterPlot();
-		CvPlot* pTargetPlot = possibleTargets[i].GetTargetPlot();
+		//ignore bad targets
+		if (!m_potentialAttackTargets[i].IsPreferred())
+			continue;
+
+		CvPlot* pMusterPlot = m_potentialAttackTargets[i].GetMusterPlot();
+		CvPlot* pTargetPlot = m_potentialAttackTargets[i].GetTargetPlot();
 		PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
 		if (eTargetPlayer != eIntendedTarget)
 			continue;
 
 		AIOperationTypes opType = AI_OPERATION_TYPE_UNKNOWN;
-		switch (possibleTargets[i].m_armyType)
+		switch (m_potentialAttackTargets[i].m_armyType)
 		{
 		case ARMY_TYPE_LAND:
 			opType = AI_OPERATION_CITY_ATTACK_LAND;
@@ -1396,30 +1349,6 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 }
 
 // PROVIDE MILITARY DATA TO OTHER SUBSYSTEMS
-
-/// See if the threats we are facing have changed
-ThreatTypes CvMilitaryAI::GetHighestThreat()
-{
-	ThreatTypes eHighestThreat = THREAT_NONE;
-	ThreatTypes eMilitaryThreatType;
-
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Is this a player we have relations with?
-		if(eLoopPlayer != m_pPlayer->GetID() && m_pDiplomacyAI->IsPlayerValid(eLoopPlayer))
-		{
-			eMilitaryThreatType = m_pDiplomacyAI->GetMilitaryThreat(eLoopPlayer);
-			if((int)eMilitaryThreatType > (int)eHighestThreat)
-			{
-				eHighestThreat = eMilitaryThreatType;
-			}
-		}
-	}
-	return eHighestThreat;
-}
 
 /// How threatening are the barbarians?
 int CvMilitaryAI::GetBarbarianThreatTotal()
@@ -1834,7 +1763,7 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	float fMultiplier = (float)0.2 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	float fMultiplier = 0.2f + (100 + iFlavorOffense + iFlavorDefense) / 100.0f;
 
 	// first get the number of defenders that we think we need
 
@@ -2041,42 +1970,11 @@ void CvMilitaryAI::ScanForBarbarians()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if(pPlot->isRevealed(eTeam))
 		{
-			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+			if(pPlot->getRevealedImprovementType(eTeam) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
-				m_iBarbarianCampCount++;
-
-				// Count it as 10 camps if sitting inside our territory, that is annoying!
-				if(pPlot->getOwner() == m_pPlayer->GetID())
-				{
-					m_iBarbarianCampCount += 2;
-				}
-#if defined(MOD_BALANCE_CORE)
-				// Count it as -5 camps if sitting inside someone else's territory.
-				if(pPlot->getOwner() != m_pPlayer->GetID() && pPlot->getOwner() != NO_PLAYER)
-				{
-					m_iBarbarianCampCount -= 2;
-				}
-#endif
-
-				// See how close it is to each of our cities, if less than 10 tiles, treat it as 5 camps
-				else
-				{
-					int iTolerableDistance = 10;
-					int iCityLoop;
-					CvCity *pLoopCity;
-					for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-					{
-						if (pLoopCity)
-						{
-							int iDist = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-							if (iDist < iTolerableDistance)
-							{
-								m_iBarbarianCampCount += 2;
-								break;
-							}
-						}
-					}
-				}
+				//count only reasonably close camps
+				if (m_pPlayer->GetCityDistancePathLength(pPlot)<17)
+					m_iBarbarianCampCount++;
 			}
 		}
 
@@ -2095,98 +1993,6 @@ void CvMilitaryAI::ScanForBarbarians()
 		m_iVisibleBarbarianCount = iLastTurnBarbarianCount-1;
 #endif
 
-}
-
-/// See if the threats we are facing have changed
-void CvMilitaryAI::UpdateThreats()
-{
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateThreats, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-	ThreatTypes eMilitaryThreatType;
-
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Is this a player we have relations with?
-		if(eLoopPlayer != m_pPlayer->GetID() && m_pDiplomacyAI->IsPlayerValid(eLoopPlayer))
-		{
-			eMilitaryThreatType = m_pDiplomacyAI->GetMilitaryThreat(eLoopPlayer);
-			if(eMilitaryThreatType != m_paeLastTurnMilitaryThreat[eLoopPlayer])
-			{
-				// Change in threat level
-				if(eMilitaryThreatType > m_paeLastTurnMilitaryThreat[eLoopPlayer])
-				{
-					ThreatIncrease(eMilitaryThreatType, (ThreatTypes)m_paeLastTurnMilitaryThreat[eLoopPlayer]);
-				}
-				else
-				{
-					ThreatDecrease(eMilitaryThreatType, (ThreatTypes)m_paeLastTurnMilitaryThreat[eLoopPlayer]);
-				}
-
-				// Save off new value
-				m_paeLastTurnMilitaryThreat[eLoopPlayer] = eMilitaryThreatType;
-			}
-		}
-	}
-}
-
-/// Respond to an increased threat
-void CvMilitaryAI::ThreatIncrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat)
-{
-	// Subtract off old threat
-	m_iTotalThreatWeight -= GetThreatWeight(eOldThreat);
-
-	// Add on new threat
-	m_iTotalThreatWeight += GetThreatWeight(eNewThreat);
-
-	// FUTURE: Add anything else we'd like to do to individually handle new threats from a single power
-}
-
-/// React to a decreased in threat
-void CvMilitaryAI::ThreatDecrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat)
-{
-	// Subtract off old threat
-	m_iTotalThreatWeight -= GetThreatWeight(eOldThreat);
-
-	// Add on new threat
-	m_iTotalThreatWeight += GetThreatWeight(eNewThreat);
-
-	// FUTURE: Add anything else we'd like to do to individually handle diminishing threats from a single power
-}
-
-/// See if the wars we are fighting have changed status
-void CvMilitaryAI::UpdateWars()
-{
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateWars, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-	WarStateTypes eWarState;
-
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Is this a player we have relations with?
-		if(eLoopPlayer != m_pPlayer->GetID() && m_pDiplomacyAI->IsPlayerValid(eLoopPlayer))
-		{
-			eWarState = m_pDiplomacyAI->GetWarState(eLoopPlayer);
-			if(eWarState != m_paeLastTurnWarState[eLoopPlayer])
-			{
-				WarStateChange(eLoopPlayer, eWarState, (WarStateTypes)m_paeLastTurnWarState[eLoopPlayer]);
-
-				// Save off new value
-				m_paeLastTurnWarState[eLoopPlayer] = eWarState;
-			}
-		}
-	}
-}
-
-/// Respond to a change in war state
-void CvMilitaryAI::WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState)
-{
-	LogWarStateChange(ePlayer, eNewWarState, eOldWarState);
 }
 
 /// Start or stop military strategies to get flavors set properly
@@ -3196,7 +3002,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		// Very first update (to write header row?)
 		if(GC.getGame().getGameTurn() == 0 && m_pPlayer->GetID() == 0)
 		{
-			strTemp.Format("Turn, Player, Cities, Settlers, CivThreat, BarbThreat, LandUnits, LandArmySize, RecLandSize, LandReserve, NavalUnits, NavalArmySize, RecNavySize, TotalUnits, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
+			strTemp.Format("Turn, Player, Cities, Settlers, BarbThreat, LandUnits, LandArmySize, RecLandSize, LandReserve, NavalUnits, NavalArmySize, RecNavySize, TotalUnits, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
 			pLog->Msg(strTemp);
 		}
 
@@ -3209,7 +3015,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf = strBaseString + strTemp;
 
 		//Threat Info
-		strTemp.Format("%d, %d, ", m_iTotalThreatWeight, GetBarbarianThreatTotal());
+		strTemp.Format("%d, ", GetBarbarianThreatTotal());
 		strOutBuf += strTemp;
 
 		// Military size Info
@@ -4381,7 +4187,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 
 	iNumUnitsWanted += iNumCoastalCities;
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.75 to 2.0)
-	float fMultiplier = 0.25f + (pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon) / 100.0f;
+	float fMultiplier = 0.25f + (100 + iFlavorNaval + iFlavorNavalRecon) / 100.0f;
 
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
 	if (MOD_BALANCE_CORE_MILITARY && pPlayer->isMajorCiv())

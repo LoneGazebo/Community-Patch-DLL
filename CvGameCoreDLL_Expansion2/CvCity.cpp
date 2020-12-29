@@ -29846,9 +29846,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 
 				// Now make sure there isn't a critical military threat
 				CvMilitaryAI* thisPlayerMilAI = thisPlayer.GetMilitaryAI();
-				int iThreat = thisPlayerMilAI->GetThreatTotal();
-				iThreat += thisPlayerMilAI->GetBarbarianThreatTotal();
-				if(iThreat < thisPlayerMilAI->GetThreatWeight(THREAT_CRITICAL))
+				if (thisPlayerMilAI->GetBarbarianThreatTotal() < thisPlayerMilAI->GetThreatWeight(THREAT_MAJOR))
 				{
 					pUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())

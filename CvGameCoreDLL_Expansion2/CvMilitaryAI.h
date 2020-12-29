@@ -193,15 +193,9 @@ public:
 	bool IsPlayerValid(PlayerTypes eOtherPlayer) const;
 
 	size_t UpdateAttackTargets();
-	const vector<CvAttackTarget>& GetBestTargetsGlobal() const;
 	int ScoreAttackTarget(const CvAttackTarget& target);
 
 	// Accessors to provide military data to other AI subsystems
-	ThreatTypes GetHighestThreat();
-	int GetThreatTotal() const
-	{
-		return m_iTotalThreatWeight;
-	}
 	int GetBarbarianThreatTotal();
 	int GetThreatWeight(ThreatTypes eThreat);
 	int GetNumberCivsAtWarWith(bool bIncludeMinor = true) const;
@@ -303,12 +297,7 @@ private:
 	// Functions to process a turn
 	void UpdateBaseData();
 	void ScanForBarbarians();
-	void UpdateThreats();
-	void ThreatIncrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat);
-	void ThreatDecrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat);
-	void UpdateWars();
 	void UpdateDefenseState();
-	void WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
 #if defined(MOD_BALANCE_CORE)
@@ -337,14 +326,7 @@ private:
 	int* m_aiTempFlavors;
 	int* m_aiWarFocus;
 
-	// Archived state of threats/wars from last turn
-	int* m_paeLastTurnWarState;
-	int* m_paeLastTurnMilitaryThreat;
-	int* m_paeLastTurnMilitaryStrength;
-	int* m_paeLastTurnTargetValue;
-
 	// Internal calculated values - must be serialized
-	int m_iTotalThreatWeight;
 	int m_iNumberOfTimesOpsBuildSkippedOver;
 	int m_iNumberOfTimesSettlerBuildSkippedOver;
 
