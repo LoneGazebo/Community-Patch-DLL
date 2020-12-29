@@ -32330,6 +32330,12 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 			if(plot()->isRiver())
 			return false;
 		}
+		//Must not be on coast
+		if (pkBuildingInfo->IsNoCoast())
+		{
+			if (isCoastal(-1))
+				return false;
+		}
 		//Capital Only
 		if(pkBuildingInfo->IsCapitalOnly())
 		{

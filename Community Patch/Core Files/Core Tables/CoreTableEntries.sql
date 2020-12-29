@@ -35,6 +35,9 @@ ALTER TABLE Unit_UniqueNames ADD COLUMN 'EraType' TEXT DEFAULT NULL;
 ALTER TABLE Buildings ADD COLUMN 'IsNoWater' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IsNoRiver' BOOLEAN DEFAULT 0;
 
+-- Create buildings that cannot have access to fresh water.
+ALTER TABLE Buildings ADD COLUMN 'IsNoCoast' BOOLEAN DEFAULT 0;
+
 -- Create buildings that must be in the Capital
 
 ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;

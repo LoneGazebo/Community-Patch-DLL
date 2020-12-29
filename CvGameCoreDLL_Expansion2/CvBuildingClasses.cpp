@@ -216,6 +216,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
 	m_bIsNoRiver(false),
+	m_bIsNoCoast(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
@@ -578,6 +579,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
+	m_bIsNoCoast = kResults.GetBool("IsNoCoast");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
@@ -4052,6 +4054,11 @@ bool CvBuildingEntry::IsNoWater() const
 bool CvBuildingEntry::IsNoRiver() const
 {
 	return m_bIsNoRiver;
+}
+/// Does a city need to be away from the coast?
+bool CvBuildingEntry::IsNoCoast() const
+{
+	return m_bIsNoCoast;
 }
 /// Does a city need to be the Capital?
 bool CvBuildingEntry::IsCapitalOnly() const
