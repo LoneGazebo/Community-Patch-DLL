@@ -10028,7 +10028,13 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 //int GetNumUnitsOfType();
 int CvLuaPlayer::lGetNumUnitsOfType(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayer::GetNumUnitsOfType);
+	CvPlayer* pkPlayer = GetInstance(L);
+	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const bool bIncludeBeingTrained = luaL_optbool(L, 3, false);
+
+	const int iResult = pkPlayer->GetNumUnitsOfType(eUnit, bIncludeBeingTrained);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitPromotions();
