@@ -464,7 +464,6 @@
     <!-- 
 	Various new tables and logics for beliefs. Currently, this is required to activate:
 		- Table 'Belief_FreePromotions'. Columns are 'BeliefType', 'PromotionType'.
-		- Table 'Belief_YieldFromTechUnlock'. Columns are 'BeliefType', 'YieldType', 'Yield'.
 		- Table 'Belief_YieldFromImprovementCompletion'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
 		- Table 'Belief_YieldFromPillage'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
 	-->

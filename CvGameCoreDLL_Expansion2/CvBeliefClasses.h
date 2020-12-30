@@ -106,6 +106,7 @@ public:
 	int GetYieldFromConquest(int i) const;
 	int GetYieldFromPolicyUnlock(int i) const;
 	int GetYieldFromEraUnlock(int i) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield) const;
 	int GetYieldFromConversion(int i) const;
 	int GetYieldFromConversionExpo(int i) const;
 	int GetYieldFromWLTKD(int i) const;
@@ -350,6 +351,7 @@ protected:
 	int* m_piYieldFromConquest;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromEraUnlock;
+	std::map<int, int> m_piYieldFromTechUnlock;
 	int* m_piYieldFromConversion;
 	int* m_piYieldFromConversionExpo;
 	int* m_piYieldFromWLTKD;
@@ -534,7 +536,7 @@ public:
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
 #if defined(MOD_RELIGION_EXTENSIONS)
-	std::vector<int> GetFreePromotions(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly = false) const;
+	std::vector<int> GetFreePromotions(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
 	int GetResourceHappiness(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetYieldChangeAnySpecialist(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -580,6 +582,7 @@ public:
 	int GetYieldFromConquest(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromPolicyUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromEraUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

@@ -458,13 +458,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BELIEF: Grants free promotions to units trained in a city. -->
+	<!-- BELIEF: Intended as Pantheon or Follower. Grants free promotions to units trained in a city. -->
 	<Table name="Belief_FreePromotions">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="PromotionType" type="integer" reference="UnitPromotions(Type)"/>
 	</Table>
 
-	<!-- BELIEF: Grants yields when researching technology. Scales with number of followers. Does not scale with era. -->
+	<!-- BELIEF: Founder only. Grants yields when researching technology. Scales with number of followers. Does not scale with era. -->
 	<Table name="Belief_YieldFromTechUnlock">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
