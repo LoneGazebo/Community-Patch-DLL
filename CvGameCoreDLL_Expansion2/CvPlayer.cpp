@@ -26839,7 +26839,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}			
 				case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
 				{
-					iValue += GetYieldFromPillage(eYield) + pLoopCity->GetYieldFromPillageGlobal(eYield);
+					// The building versions of the YieldFromPillage are hardcoded to be era scaling due to no additional column in the tables to denote era scaling or not.
+					if (bEraScale)
+					{
+						iValue += GetYieldFromPillage(eYield) + pLoopCity->GetYieldFromPillageGlobal(eYield);
+					}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+					if (MOD_RELIGION_EXTENSIONS && pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldFromPillageGlobal(eYield, bEraScale, GetID(), pLoopCity, true);
+					}
+#endif
 					break;
 				}
 				

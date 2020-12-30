@@ -188,6 +188,7 @@ public:
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions() const;
 	int GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling) const;
+	int GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling) const;
 #endif
 	int GetResourceHappiness(int i) const;
 	int GetYieldChangeAnySpecialist(int i) const;
@@ -319,6 +320,7 @@ protected:
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> m_aiFreePromotions;
 	std::map<int, std::map<bool, int>> m_pbiYieldFromImprovementBuild;
+	std::map<int, std::map<bool, int>> m_pbiYieldFromPillageGlobal;
 #endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
@@ -540,6 +542,7 @@ public:
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
 	int GetResourceHappiness(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetYieldChangeAnySpecialist(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

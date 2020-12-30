@@ -464,14 +464,14 @@
 		<Column name="PromotionType" type="integer" reference="UnitPromotions(Type)"/>
 	</Table>
 
-	<!-- BELIEF: Founder only. Grants yields when researching technology. Scales with number of followers. Does not scale with era. -->
+	<!-- BELIEF: Founder only. Grants yields to the holy city when researching technology. Scales with number of followers. Does not scale with era. -->
 	<Table name="Belief_YieldFromTechUnlock">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BELIEF: Intended as a Pantheon. Grants yields when finishing an improvement if religion is the player's majority. Note that roads are not considered improvements. -->
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants yields to the owning city, or capital, when finishing an improvement if religion is the player's majority. Note that roads are not considered improvements. -->
 	<Table name="Belief_YieldFromImprovementBuild">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
@@ -479,8 +479,13 @@
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
-	<!-- BELIEF: Intended as a Pantheon. Grants yields when pillaging if religion is the player's majority. -->
-	<Table name="Belief_YieldFromPillage">
+	<!--
+	BELIEF: Grants yields when pillaging with units trained from any city if the religion is the player's majority. 
+			Intended as a Pantheon, in which case yields are granted at the capital or holy city.
+			Can work as a Follower, though beware of balance, as yields will be granted at every city where the majority religion has this belief.
+			Naming is to follow the Building versions of the table.
+	-->
+	<Table name="Belief_YieldFromPillageGlobal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

@@ -169,6 +169,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #if defined(MOD_RELIGION_EXTENSIONS)
 	m_aiFreePromotions(),
 	m_pbiYieldFromImprovementBuild(),
+	m_pbiYieldFromPillageGlobal(),
 #endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
@@ -212,6 +213,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	{
 		m_aiFreePromotions.clear();
 		m_pbiYieldFromImprovementBuild.clear();
+		m_pbiYieldFromPillageGlobal.clear();
 	}
 #endif
 }
@@ -1114,6 +1116,24 @@ int CvBeliefEntry::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScal
 	}
 	return 0;
 }
+
+/// Instant yield when pillaging
+int CvBeliefEntry::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromPillageGlobal.find((int)eYield);
+	if (itYield != m_pbiYieldFromPillageGlobal.end())
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+	return 0;
+}
 #endif
 
 /// Happiness from a resource
@@ -1740,6 +1760,30 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 			//Trim extra memory off container since this is mostly read-only.
 			std::map<int, std::map<bool, int>>(m_pbiYieldFromImprovementBuild).swap(m_pbiYieldFromImprovementBuild);
+		}
+
+		//YieldFromPillageGlobal
+		{
+			std::string strKey("Belief_YieldFromPillageGlobal");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldFromPillageGlobal inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int YieldID = pResults->GetInt(0);
+				const int yield = pResults->GetInt(1);
+				const bool eraScaling = pResults->GetBool(2);
+
+				m_pbiYieldFromPillageGlobal[YieldID][eraScaling] = yield;
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, std::map<bool, int>>(m_pbiYieldFromPillageGlobal).swap(m_pbiYieldFromPillageGlobal);
 		}
 	}
 #endif
@@ -3673,6 +3717,7 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 	return rtnVector;
 }
 
+///  Gain instant yields when building improvements
 int CvReligionBeliefs::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -3681,6 +3726,24 @@ int CvReligionBeliefs::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEra
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromImprovementBuild(eYield, bEraScaling);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Gain instant yields when pillaging
+int CvReligionBeliefs::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromPillageGlobal(eYield, bEraScaling);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
