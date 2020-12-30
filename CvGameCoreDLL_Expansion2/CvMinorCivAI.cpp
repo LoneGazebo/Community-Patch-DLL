@@ -4594,11 +4594,6 @@ void CvMinorCivAI::DoTurn()
 	if(GetPlayer()->isMinorCiv())
 	{
 		DoTurnStatus();
-		// Remove this if picking unique unit is fixed
-		if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && m_eUniqueUnit == NO_UNIT)
-		{
-			DoPickUniqueUnit();
-		}
 
 #if defined(MOD_CONFIG_GAME_IN_XML)
 		m_pPlayer->GetDiplomacyAI()->DoCounters();
