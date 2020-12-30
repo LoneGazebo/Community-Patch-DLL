@@ -9548,7 +9548,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
+		int iRandom = getSmallFakeRandNum(20, iPlotX + iPlotY + iUnitLoop);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
@@ -9673,11 +9673,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 				continue;
 
-			int iRandom = getSmallFakeRandNum(20, iPlotX + iPlotY);
+			int iRandom = getSmallFakeRandNum(20, iPlotX + iPlotY + iUnitLoop);
 
 			//Weight minor civ gift units higher, so they're more likely to spawn each game.
 			if (pkUnitInfo->IsMinorCivGift())
-				iRandom += 10;
+				iRandom *= 2;
 
 			veUnitRankings.push_back(OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}

@@ -4575,7 +4575,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 				}
 			}
 
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ true, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
 																	bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
 		}
 	}
@@ -4594,6 +4594,11 @@ void CvMinorCivAI::DoTurn()
 	if(GetPlayer()->isMinorCiv())
 	{
 		DoTurnStatus();
+		// Remove this if picking unique unit is fixed
+		if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && m_eUniqueUnit == NO_UNIT)
+		{
+			DoPickUniqueUnit();
+		}
 
 #if defined(MOD_CONFIG_GAME_IN_XML)
 		m_pPlayer->GetDiplomacyAI()->DoCounters();
