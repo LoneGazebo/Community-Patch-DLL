@@ -168,6 +168,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #endif
 #if defined(MOD_RELIGION_EXTENSIONS)
 	m_aiFreePromotions(),
+	m_pbiYieldFromImprovementBuild(),
 #endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
@@ -210,6 +211,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	if (MOD_RELIGION_EXTENSIONS)
 	{
 		m_aiFreePromotions.clear();
+		m_pbiYieldFromImprovementBuild.clear();
 	}
 #endif
 }
@@ -1089,9 +1091,28 @@ int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 #endif
 
 #if defined(MOD_RELIGION_EXTENSIONS)
+/// Free promotions 
 std::vector<int> CvBeliefEntry::GetFreePromotions() const
 {
 	return m_aiFreePromotions;
+}
+
+/// Instant yield when finishing an improvement build (roads are not improvements)
+int CvBeliefEntry::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromImprovementBuild.find((int)eYield);
+	if (itYield != m_pbiYieldFromImprovementBuild.end())
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+	return 0;
 }
 #endif
 
@@ -1695,6 +1716,30 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 			//Trim extra memory off container since this is mostly read-only.
 			std::vector<int>(m_aiFreePromotions).swap(m_aiFreePromotions);
+		}
+
+		//YieldFromImprovementBuild
+		{
+			std::string strKey("Belief_YieldFromImprovementBuild");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldFromImprovementBuild inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int YieldID = pResults->GetInt(0);
+				const int yield = pResults->GetInt(1);
+				const bool eraScaling = pResults->GetBool(2);
+
+				m_pbiYieldFromImprovementBuild[YieldID][eraScaling] = yield;
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, std::map<bool, int>>(m_pbiYieldFromImprovementBuild).swap(m_pbiYieldFromImprovementBuild);
 		}
 	}
 #endif
@@ -3626,6 +3671,23 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 	}
 
 	return rtnVector;
+}
+
+int CvReligionBeliefs::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromImprovementBuild(eYield, bEraScaling);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
 }
 #endif
 

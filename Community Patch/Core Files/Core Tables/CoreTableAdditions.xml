@@ -458,7 +458,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BELIEF: Intended as Pantheon or Follower. Grants free promotions to units trained in a city. -->
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants free promotions to units trained in a city with the religion. -->
 	<Table name="Belief_FreePromotions">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="PromotionType" type="integer" reference="UnitPromotions(Type)"/>
@@ -471,15 +471,15 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BELIEF: Grants yields when finishing an improvement build. Note that roads are not considered improvements. -->
-	<Table name="Belief_YieldFromImprovementCompletion">
+	<!-- BELIEF: Intended as a Pantheon. Grants yields when finishing an improvement if religion is the player's majority. Note that roads are not considered improvements. -->
+	<Table name="Belief_YieldFromImprovementBuild">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
-	<!-- BELIEF: Grants yields when pillaging. -->
+	<!-- BELIEF: Intended as a Pantheon. Grants yields when pillaging if religion is the player's majority. -->
 	<Table name="Belief_YieldFromPillage">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>

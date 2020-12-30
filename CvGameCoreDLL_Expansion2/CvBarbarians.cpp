@@ -83,17 +83,20 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		if (pPlot)
 		{
-			CvPlot* pPlot = pLoopCity->plot();
-			if (pPlot)
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (pCityPlot)
 				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
+					iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+
+					if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+					{
+						iBestCityID = pLoopCity->GetID();
+						iBestCityDistance = iDistance;
+					}
 				}
 			}
 		}

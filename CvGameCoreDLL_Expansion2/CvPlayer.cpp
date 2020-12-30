@@ -27181,6 +27181,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:
+				{
+					if (MOD_RELIGION_EXTENSIONS)
+					{
+						if (pReligion)
+						{
+							iValue += MAX(pReligion->m_Beliefs.GetYieldFromImprovementBuild(eYield, bEraScale, GetID(), pLoopCity), 0);
+						}
+					}
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -28083,6 +28093,22 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
+			case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
 		}
 		if(pCity == NULL)
 		{

@@ -8062,6 +8062,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #endif
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if (eBuilder != NO_PLAYER)
+			{
+				CvCity* pTargetCity = pOwningCity;
+				if (pTargetCity == NULL)
+				{
+					pTargetCity = GET_PLAYER(eBuilder).getCapitalCity();
+				}
+				if (pTargetCity != NULL)
+				{
+					// call one for era scaling, and another for non-era scaling
+					GET_PLAYER(eBuilder).doInstantYield(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pTargetCity);
+					GET_PLAYER(eBuilder).doInstantYield(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pTargetCity);
+				}
+			}
+#endif
 		}
 
 		// If we're removing an Improvement that hooked up a resource then we need to take away the bonus

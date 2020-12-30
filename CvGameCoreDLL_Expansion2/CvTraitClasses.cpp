@@ -2884,7 +2884,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		{
 			const int iYieldType = pResults->GetInt(0);
 			const int iYield = pResults->GetInt(1);
-			const int bEraScaling = pResults->GetBool(2);
+			const bool bEraScaling = pResults->GetBool(2);
 
 			m_pbiYieldFromBarbarianCampClear[iYieldType][bEraScaling] = iYield;
 		}
