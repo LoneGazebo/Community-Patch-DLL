@@ -461,6 +461,14 @@
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
     <!-- disable passive religious pressure without trade routes -->
     <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY" Value="0" DbUpdates="1"/>
+    <!-- 
+	Various new tables and logics for beliefs. Currently, this is required to activate:
+		- Table 'Belief_FreePromotions'. Columns are 'BeliefType', 'PromotionType'.
+		- Table 'Belief_YieldFromTechUnlock'. Columns are 'BeliefType', 'YieldType', 'Yield'.
+		- Table 'Belief_YieldFromImprovementCompletion'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
+		- Table 'Belief_YieldFromPillage'. Columns are 'BeliefType', 'YieldType', 'Yield', 'IsEraScaling'.
+	-->
+    <Row Class="4" Name="RELIGION_EXTENSIONS" Value="0"/>
 
     <!-- disable ranged strikes from cities -->
     <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>

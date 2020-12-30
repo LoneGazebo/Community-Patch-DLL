@@ -457,7 +457,36 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-	
+
+	<!-- BELIEF: Grants free promotions to units trained in a city. -->
+	<Table name="Belief_FreePromotions">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="PromotionType" type="integer" reference="UnitPromotions(Type)"/>
+	</Table>
+
+	<!-- BELIEF: Grants yields when researching technology. Scales with number of followers. Does not scale with era. -->
+	<Table name="Belief_YieldFromTechUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- BELIEF: Grants yields when finishing an improvement build. Note that roads are not considered improvements. -->
+	<Table name="Belief_YieldFromImprovementCompletion">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!-- BELIEF: Grants yields when pillaging. -->
+	<Table name="Belief_YieldFromPillage">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
 	<!-- POLICY: Allows you to define a resource gained from having a CS Ally) -->
 	<Table name="Policy_ResourcefromCSAlly">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>

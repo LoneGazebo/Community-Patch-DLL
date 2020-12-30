@@ -1467,6 +1467,10 @@ public:
 	bool isFreePromotion(PromotionTypes eIndex) const;
 	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	void SetRetroactivePromotion(PromotionTypes ePromotion);
+#endif
+
 	int getSpecialistFreeExperience() const;
 	void changeSpecialistFreeExperience(int iChange);
 

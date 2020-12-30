@@ -14238,32 +14238,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			//Let's give this to all units from this city.
 			if (MOD_BALANCE_RETROACTIVE_PROMOS)
 			{
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion());
-				if (pkPromotionInfo)
-				{
-					int iUnitLoop;
-					CvUnit* pLoopUnit = NULL;
-					for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
-					{
-						if(pLoopUnit->getOriginCity() == NULL)
-						{
-							if(this == GetPlayer()->getCapitalCity())
-							{
-								if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), pLoopUnit->getUnitType()))
-								{
-									pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
-								}
-							}
-						}
-						else if (pLoopUnit->getOriginCity() != this)
-							continue;
-
-						if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), pLoopUnit->getUnitType()))
-						{
-							pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
-						}
-					}
-				}
+				SetRetroactivePromotion((PromotionTypes)(pBuildingInfo->GetTrainedFreePromotion()));
 			}
 #endif
 		}
@@ -15637,6 +15612,28 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	}
 	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCityCulture()->CalculateBaseTourism();
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS && MOD_BALANCE_RETROACTIVE_PROMOS)
+	{
+		PlayerTypes eCityOwner = getOwner();
+		if (eNewMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, eCityOwner);
+			if (pReligion)
+			{
+				std::vector<int> aFreePromotions = pReligion->m_Beliefs.GetFreePromotions(eCityOwner, this, false);
+				if (aFreePromotions.size() > 0)
+				{
+					for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
+					{
+						PromotionTypes ePromotion = (PromotionTypes)*it;
+						SetRetroactivePromotion(ePromotion);
+					}
+				}
+			}
+		}
+	}
 #endif
 	GET_PLAYER(getOwner()).UpdateReligion();
 	UpdateHappinessFromReligion();
@@ -27285,7 +27282,37 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 bool CvCity::isFreePromotion(PromotionTypes eIndex) const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (getFreePromotionCount(eIndex) > 0)
+	{
+		return true;
+	}
+
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pMajority = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pMajority)
+			{
+				std::vector<int> aFreePromotions = pMajority->m_Beliefs.GetFreePromotions(getOwner(), this, false);
+				for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
+				{
+					if ((PromotionTypes)*it == eIndex)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+#else
 	return (getFreePromotionCount(eIndex) > 0);
+#endif
 }
 
 
@@ -27298,6 +27325,46 @@ void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 	m_paiFreePromotionCount.setAt(eIndex, m_paiFreePromotionCount[eIndex] + iChange);
 	CvAssert(getFreePromotionCount(eIndex) >= 0);
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvCity::SetRetroactivePromotion(PromotionTypes eIndex)
+{
+	
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	
+	if (eIndex != NO_PROMOTION)
+	{
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eIndex);
+		if (pkPromotionInfo)
+		{
+			int iUnitLoop;
+			CvUnit* pLoopUnit = NULL;
+			for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit->getOriginCity() == NULL)
+				{
+					if (this == GetPlayer()->getCapitalCity())
+					{
+						if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType(eIndex, pLoopUnit->getUnitType()))
+						{
+							pLoopUnit->setHasPromotion(eIndex, true);
+						}
+					}
+				}
+				else if (pLoopUnit->getOriginCity() != this)
+					continue;
+
+				if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType(eIndex, pLoopUnit->getUnitType()))
+				{
+					pLoopUnit->setHasPromotion(eIndex, true);
+				}
+			}
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getSpecialistFreeExperience() const

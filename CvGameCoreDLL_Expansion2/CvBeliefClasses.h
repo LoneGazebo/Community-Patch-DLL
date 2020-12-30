@@ -184,6 +184,9 @@ public:
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
 #endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	std::vector<int> GetFreePromotions() const;
+#endif
 	int GetResourceHappiness(int i) const;
 	int GetYieldChangeAnySpecialist(int i) const;
 	int GetYieldChangeTradeRoute(int i) const;
@@ -310,6 +313,9 @@ protected:
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int** m_ppiPlotYieldChange;
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	std::vector<int> m_aiFreePromotions;
 #endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
@@ -526,6 +532,9 @@ public:
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	std::vector<int> GetFreePromotions(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly = false) const;
 #endif
 	int GetResourceHappiness(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetYieldChangeAnySpecialist(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

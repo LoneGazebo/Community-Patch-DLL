@@ -165,6 +165,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiPlotYieldChange(NULL),
 	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
 #endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	m_aiFreePromotions(),
+#endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
@@ -200,6 +203,12 @@ CvBeliefEntry::~CvBeliefEntry()
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	if (MOD_RELIGION_PLOT_YIELDS) {
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
+	}
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		m_aiFreePromotions.clear();
 	}
 #endif
 }
@@ -1065,6 +1074,13 @@ int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 }
 #endif
 
+#if defined(MOD_RELIGION_EXTENSIONS)
+std::vector<int> CvBeliefEntry::GetFreePromotions() const
+{
+	return m_aiFreePromotions;
+}
+#endif
+
 /// Happiness from a resource
 int CvBeliefEntry::GetResourceHappiness(int i) const
 {
@@ -1613,6 +1629,33 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int yield = pResults->GetInt(2);
 
 			m_ppiPlotYieldChange[PlotID][YieldID] = yield;
+		}
+	}
+#endif
+
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		//FreePromotions
+		{
+			std::string strKey("Belief_FreePromotions");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select UnitPromotions.ID as UnitPromotionsID from Belief_FreePromotions inner join UnitPromotions on UnitPromotions.Type = PromotionType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int PromotionID = pResults->GetInt(0);
+
+				m_aiFreePromotions.push_back(PromotionID);
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::vector<int>(m_aiFreePromotions).swap(m_aiFreePromotions);
 		}
 	}
 #endif
@@ -3509,6 +3552,41 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 	}
 
 	return rtnValue;
+}
+#endif
+
+#if defined(MOD_RELIGION_EXTENSIONS)
+/// Get free promotions from beliefs
+std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	std::vector<int> rtnVector;
+
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		// combine all the free promotions from the beliefs
+		for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		{
+			std::vector<int> aPromotions = pBeliefs->GetEntry(*it)->GetFreePromotions();
+			if (!aPromotions.empty() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			{
+				for (std::vector<int>::iterator itPromotions = aPromotions.begin(); itPromotions != aPromotions.end(); ++itPromotions)
+				{
+					rtnVector.push_back(*itPromotions);
+				}
+			}
+		}
+
+		// sort and remove duplicates
+		if (rtnVector.size() > 1)
+		{
+			std::sort(rtnVector.begin(), rtnVector.end());
+			rtnVector.erase( std::unique( rtnVector.begin(), rtnVector.end() ), rtnVector.end() );
+		}
+
+	}
+
+	return rtnVector;
 }
 #endif
 
