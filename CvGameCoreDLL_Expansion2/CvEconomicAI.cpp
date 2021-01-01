@@ -668,11 +668,7 @@ void CvEconomicAI::DoTurn()
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
 #else
-#if defined(MOD_BALANCE_CORE)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
-#endif
 #endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappiness(eStrategy, m_pPlayer);
@@ -3503,10 +3499,9 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 #endif
 		return false;
 
-	if (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	if (pPlayer->isHuman() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		return false;
 
-	// scale based on flavor and world size
 	if(pPlayer->IsEmpireUnhappy())
 		return false;
 
@@ -3515,55 +3510,28 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 		return false;
 
-	int iLoopCity = 0;
-	bool bCoastal = false;
-	CvCity* pLoopCity = NULL;
-	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
+	//do this check last, it can be expensive
+	CvPlot* pSettlePlot = pPlayer->GetBestSettlePlot(NULL);
+	if (!pSettlePlot)
 	{
-		if(pLoopCity->isCoastal())
-		{
-			bCoastal = true;
-			break;
-		}
+		return false;
 	}
 
-	if(!bCoastal && pPlayer->getNumCities()<5)
-	{
-		return true;
-	}
-
-	// Over 75% of territory on our landmass full? Time to look elsewhere.
-	if(pPlayer->getCapitalCity() != NULL)
-	{
-		CvArea* pArea = GC.getMap().getArea(pPlayer->getCapitalCity()->getArea());
-
-		int iNumOwnedTiles = pArea->getNumOwnedTiles();
-		int iNumTiles = max(1,pArea->getNumTiles());
-
-		int iOwnageRatio = iNumOwnedTiles * 100 / iNumTiles;
-		if(iOwnageRatio < GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
-		{
-			return true;
-		}
-	}
-
-	return false;
+	//run this strategy as long as there are good settle plots without close neighbors
+	return GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6;
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer){
+bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+{
 	bool bCannotExpand = pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy) || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 #else
-#if defined(MOD_BALANCE_CORE)
 bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
-#else
-bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-#endif
 {
 	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 #endif
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isHuman() || bCannotExpand)
 	{
 		return true;
 	}
