@@ -21243,7 +21243,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 /// Is this major civ a potential military target or threat? Only called if NOT currently at war.
 bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection /* = false */) const
 {
-	if (!GET_PLAYER(ePlayer).isMajorCiv())
+	if (!GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).isAlive())
 		return false;
 
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || GET_PLAYER(ePlayer).IsVassalOfSomeone())

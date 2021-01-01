@@ -29843,25 +29843,23 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 		{
 			if(pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE) && pUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 			{
-
 				// Now make sure there isn't a critical military threat
-				CvMilitaryAI* thisPlayerMilAI = thisPlayer.GetMilitaryAI();
-				if (thisPlayerMilAI->GetBarbarianThreatTotal() < thisPlayerMilAI->GetThreatWeight(THREAT_MAJOR))
+				if (thisPlayer.GetMilitaryAI()->ShouldFightBarbarians())
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+				else
 				{
 					pUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Assigning explore unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
