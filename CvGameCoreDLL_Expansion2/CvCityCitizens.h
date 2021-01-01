@@ -180,7 +180,7 @@ private:
 
 	CityAIFocusTypes m_eCityAIFocusTypes;
 	bool m_bForceAvoidGrowth;
-	bool m_bDiscourageGrowth;
+	bool m_bDummy;
 
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
