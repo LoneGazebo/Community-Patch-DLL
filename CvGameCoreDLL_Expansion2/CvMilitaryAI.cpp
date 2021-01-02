@@ -1697,7 +1697,7 @@ void CvMilitaryAI::UpdateBaseData()
 ///	How many military units should we have given current threats?
 void CvMilitaryAI::SetRecommendedArmyNavySize()
 {
-	int iNumUnitsWanted = GC.getAI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS();
+	int iNumUnitsWantedDefense = GC.getAI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS();
 	int	iMinNumUnits = 1; //for each category
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	iMinNumUnits = /*3*/ GC.getBALANCE_ARMY_NAVY_START_SIZE();
@@ -1710,11 +1710,11 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iModifier = 100 + iFlavorDefense*2;
 
 	// 1 Unit per City & 1 per Settler
-	iNumUnitsWanted += (int)(m_pPlayer->getNumCities() * /*1.0*/ GC.getAI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY());
-	iNumUnitsWanted += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	iNumUnitsWantedDefense += (int)(m_pPlayer->getNumCities() * /*1.0*/ GC.getAI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY());
+	iNumUnitsWantedDefense += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 	// tall players have few cities but many wonders
-	iNumUnitsWanted += min(5, (m_pPlayer->GetNumWonders() / 3));
+	iNumUnitsWantedDefense += min(5, (m_pPlayer->GetNumWonders() / 3));
 
 	int iNumCoastalCities = 0;
 	int iLoop;
@@ -1726,11 +1726,14 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 
 		//additional units if the enemy is likely to attack here
 		if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER))
-			iNumUnitsWanted++;
+			iNumUnitsWantedDefense++;
 	}
 
 	// put it together
-	m_iRecDefensiveLandUnits = max(iMinNumUnits,(iNumUnitsWanted*iModifier)/100);
+	m_iRecDefensiveLandUnits = max(iMinNumUnits,(iNumUnitsWantedDefense*iModifier)/100);
+
+	// how many units can we afford?
+	int iMaxOffensiveUnitsPossible = max(0, m_pPlayer->GetNumUnitsSupplied() - m_iRecDefensiveLandUnits);
 
 	// offense is simple for minors
 	if (m_pPlayer->isMinorCiv())
@@ -1745,7 +1748,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	// this is the total number for offense, we split between land and sea later
 	// in practise some defensive land units can be used as offensive land units as well ...
-	int iNumUnitsWanted2 = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
+	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
 
 	//Look at our competitors ...
 	if (m_pPlayer->isMajorCiv())
@@ -1757,7 +1760,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 			{
 				//one army per target
 				if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer))
-					iNumUnitsWanted2 += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
+					iNumUnitsWantedOffense += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
 			}
 		}
 	}
@@ -1767,7 +1770,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	if(eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
 	{
 		if(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
-			iNumUnitsWanted2 += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
+			iNumUnitsWantedOffense += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
 	}
 
 	// now how many should be naval units?
@@ -1779,10 +1782,16 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
 	int iNavalPercent = (iFlavorNaval > 7 ? 30 : 15) + (bNavalFocus ? 10 : 0) + iCoastalPercent/3;
 
-	// how many units can we afford?
-	int iMaxUnitsPossible = min(iNumUnitsWanted2, m_pPlayer->GetNumUnitsSupplied() - m_iRecDefensiveLandUnits);
-	m_iRecOffensiveNavalUnits = max(iMinNumUnits, (iNavalPercent*iMaxUnitsPossible) / 100);
-	m_iRecOffensiveLandUnits = max(iMinNumUnits, iMaxUnitsPossible - m_iRecOffensiveNavalUnits);
+	//you don't always get what you want ...
+	iNumUnitsWantedOffense = min(iNumUnitsWantedOffense, iMaxOffensiveUnitsPossible);
+
+	if (iNumCoastalCities > 0)
+		m_iRecOffensiveNavalUnits = max(iMinNumUnits, (iNavalPercent*iMaxOffensiveUnitsPossible) / 100);
+	else
+		m_iRecOffensiveNavalUnits = 0;
+
+	//the remainder is our offensive land army
+	m_iRecOffensiveLandUnits = max(iMinNumUnits, iMaxOffensiveUnitsPossible - m_iRecOffensiveNavalUnits);
 }
 
 
