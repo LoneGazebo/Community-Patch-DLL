@@ -3513,12 +3513,18 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	//do this check last, it can be expensive
 	CvPlot* pSettlePlot = pPlayer->GetBestSettlePlot(NULL);
 	if (!pSettlePlot)
-	{
 		return false;
-	}
 
-	//run this strategy as long as there are good settle plots without close neighbors
-	return GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6 && pPlayer->GetCityDistancePathLength(pSettlePlot) < 12;
+	//as long as it's within our "sphere of influence"
+	CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pSettlePlot, true);
+	if (pClosestCity && pClosestCity->getOwner() == pPlayer->GetID())
+		return true;
+
+	//if the neighbors are far away it's also good
+	if (GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6)
+		return true;
+
+	return false;
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
