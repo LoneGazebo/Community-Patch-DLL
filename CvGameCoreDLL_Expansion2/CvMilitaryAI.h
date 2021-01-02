@@ -250,7 +250,6 @@ public:
 	void LogPeace(TeamTypes eOpponentTeam);
 	void LogVassalFailure(TeamTypes eOpponentTeam);
 	void LogDeficitScrapUnit(CvUnit* pUnit);
-	void LogMilitarySummaryMessage(const CvString& strMsg);
 
 #if defined(MOD_BALANCE_CORE)
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);

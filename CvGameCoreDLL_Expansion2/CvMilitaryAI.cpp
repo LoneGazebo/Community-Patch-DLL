@@ -321,8 +321,9 @@ void CvMilitaryAI::Reset()
 	m_iNumNavalUnitsInArmies = 0;
 	m_iBarbarianCampCount = 0;
 	m_iVisibleBarbarianCount = 0;
-	m_iRecOffensiveLandUnits = 0;
 	m_iRecDefensiveLandUnits = 0;
+	m_iRecOffensiveLandUnits = 0;
+	m_iRecOffensiveNavalUnits = 0;
 	m_eLandDefenseState = NO_DEFENSE_STATE;
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
@@ -330,7 +331,6 @@ void CvMilitaryAI::Reset()
 #if defined(MOD_BALANCE_CORE)
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
-	m_iRecOffensiveNavalUnits = 0;
 	m_iNumFreeCarriers = 0;
 #endif
 
@@ -1401,8 +1401,6 @@ void CvMilitaryAI::LogDeclarationOfWar(PlayerTypes eOpponent)
 		strTemp.Format("Declared War on: %s", opponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1429,8 +1427,6 @@ void CvMilitaryAI::LogCivilizationDestroyed()
 		strTemp.Format("DESTROYED!");
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1462,8 +1458,6 @@ void CvMilitaryAI::LogCityCaptured(CvCity* pCity, PlayerTypes eOldOwner)
 		strTemp += "From: " + strOldOwnerName;
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1495,8 +1489,6 @@ void CvMilitaryAI::LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner)
 		strTemp += "From: " + strOldOwnerName;
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1525,8 +1517,6 @@ void CvMilitaryAI::LogPeace(PlayerTypes eOpponent)
 		strTemp.Format("Made peace with: %s", strOpponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1566,8 +1556,6 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 		strTemp.Format("Made peace with team: %d (%s)", (int)eOpponentTeam, strOpponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1607,8 +1595,6 @@ void CvMilitaryAI::LogVassalFailure(TeamTypes eOpponentTeam)
 		strTemp.Format("Tried to DOW a vassal without war on master first...WTF! : %d (%s)", (int)eOpponentTeam, strOpponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 }
 
@@ -1712,6 +1698,10 @@ void CvMilitaryAI::UpdateBaseData()
 void CvMilitaryAI::SetRecommendedArmyNavySize()
 {
 	int iNumUnitsWanted = GC.getAI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS();
+	int	iMinNumUnits = 1; //for each category
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	iMinNumUnits = /*3*/ GC.getBALANCE_ARMY_NAVY_START_SIZE();
+#endif
 
 	//now check how many units we want for defense
 	//these are only land units!
@@ -1739,8 +1729,8 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 			iNumUnitsWanted++;
 	}
 
-	// put it together and guard against modder stupidity
-	m_iRecDefensiveLandUnits = max(3,(iNumUnitsWanted*iModifier)/100);
+	// put it together
+	m_iRecDefensiveLandUnits = max(iMinNumUnits,(iNumUnitsWanted*iModifier)/100);
 
 	// offense is simple for minors
 	if (m_pPlayer->isMinorCiv())
@@ -1789,16 +1779,10 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
 	int iNavalPercent = (iFlavorNaval > 7 ? 30 : 15) + (bNavalFocus ? 10 : 0) + iCoastalPercent/3;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	int iMinNavySize = /*3*/ GC.getBALANCE_NAVY_START_SIZE();
-#else
-	int	iMinNavySize = 1;
-#endif
-
 	// how many units can we afford?
 	int iMaxUnitsPossible = min(iNumUnitsWanted2, m_pPlayer->GetNumUnitsSupplied() - m_iRecDefensiveLandUnits);
-	m_iRecOffensiveNavalUnits = max(iMinNavySize, (iNavalPercent*iMaxUnitsPossible) / 100);
-	m_iRecOffensiveLandUnits = iMaxUnitsPossible - m_iRecOffensiveNavalUnits;
+	m_iRecOffensiveNavalUnits = max(iMinNumUnits, (iNavalPercent*iMaxUnitsPossible) / 100);
+	m_iRecOffensiveLandUnits = max(iMinNumUnits, iMaxUnitsPossible - m_iRecOffensiveNavalUnits);
 }
 
 
@@ -2254,8 +2238,6 @@ void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 		strTemp.Format("War Declared! ***** %s ****** Setting up defenses.", strOpponentName.GetCString());
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		LogMilitarySummaryMessage(strTemp);
 	}
 
 	//land response
@@ -2908,7 +2890,6 @@ void CvMilitaryAI::LogMilitaryStatus()
 		CvString strTemp;
 		CvString playerName;
 		CvCity* pCity;
-		CvString cityName;
 		FILogFile* pLog;
 
 		// Open the right file
@@ -2916,9 +2897,9 @@ void CvMilitaryAI::LogMilitaryStatus()
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName,true), FILogFile::kDontTimeStamp);
 
 		// Very first update (to write header row?)
-		if(GC.getGame().getGameTurn() == 0 && m_pPlayer->GetID() == 0)
+		if(GC.getGame().getElapsedGameTurns() == 0 && m_pPlayer->GetID() == 0)
 		{
-			strTemp.Format("Turn, Player, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, AirUnits, AntiAirUnits, TotalUnits, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
+			strTemp.Format("Turn, Player, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, AirUnits, AntiAirUnits, RecTotal, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
 			pLog->Msg(strTemp);
 		}
 
@@ -2936,7 +2917,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 
 		// Unit supply
 		strTemp.Format("%d, %d, %d, %d, %d, %d, ", 
-			m_pPlayer->getNumUnits(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsSupplyFree(), 
+			GetRecommendedMilitarySize(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsSupplyFree(), 
 			m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetPlayersAtWarWith().size());
 		strOutBuf += strTemp;
 
@@ -2945,9 +2926,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		pCity = threatCities.empty() ? NULL : threatCities.front();
 		if(pCity != NULL)
 		{
-			cityName = pCity->getName();
-			cityName.Replace(' ', '_'); //easier spreadsheet import
-			strOutBuf += cityName;
+			strOutBuf += pCity->getNameNoSpace();
 			strTemp.Format(", %d", pCity->getThreatValue());
 			strOutBuf += strTemp;
 		}
@@ -3198,25 +3177,6 @@ void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits);
 		}
 		strOutBuf += strTemp;
-		pLog->Msg(strOutBuf);
-	}
-}
-
-
-/// Log a message to the high-level summary log
-void CvMilitaryAI::LogMilitarySummaryMessage(const CvString& strMsg)
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
-		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName, true/*bSummary*/), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", ";
-		strOutBuf = strBaseString + strMsg;
 		pLog->Msg(strOutBuf);
 	}
 }
