@@ -3499,7 +3499,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 #endif
 		return false;
 
-	if (pPlayer->isHuman() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	if (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		return false;
 
 	if(pPlayer->IsEmpireUnhappy())
@@ -3518,7 +3518,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	}
 
 	//run this strategy as long as there are good settle plots without close neighbors
-	return GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6;
+	return GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6 && pPlayer->GetCityDistancePathLength(pSettlePlot) < 12;
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
@@ -3531,7 +3531,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
 {
 	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 #endif
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isHuman() || bCannotExpand)
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
 	}
