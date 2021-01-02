@@ -29039,22 +29039,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		break;
 
 	case ORDER_CONSTRUCT:
-			{
+	{
 		eConstructBuilding = ((BuildingTypes)(pOrderNode->iData1));
 
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 
 		if(pkBuildingInfo)
-				{
+		{
 			kOwner.changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), -1);
 
 			if(bFinish)
-					{
+			{
 				produce(eConstructBuilding);
 			}
-					}
+		}
 		break;
-				}
+	}
 
 	case ORDER_CREATE:
 		eCreateProject = ((ProjectTypes)(pOrderNode->iData1));
@@ -29063,25 +29063,25 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		kOwner.changeProjectMaking(eCreateProject, -1);
 
 		if(bFinish)
-									{
+		{
 			produce(eCreateProject);
-									}
+		}
 		break;
 
 	case ORDER_PREPARE:
 
 		if(bFinish)
-									{
+		{
 			eSpecialist = (SpecialistTypes)(pOrderNode->iData1);
 			produce(eSpecialist);
-									}
+		}
 
 		break;
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
 		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS)
-									{
+		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 										{
@@ -29094,35 +29094,35 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	default:
 		CvAssertMsg(false, "pOrderNode->eOrderType is not a valid option");
 													break;
-												}
+	}
 
 	if(m_unitBeingBuiltForOperation.IsValid())
 	{
 		kOwner.CityUncommitToBuildUnitForOperationSlot(m_unitBeingBuiltForOperation);
 		m_unitBeingBuiltForOperation.Invalidate();
-											}
+	}
 
 	if(pOrderNode == headOrderQueueNode())
 	{
 		bStart = true;
 		stopHeadOrder();
-										}
+	}
 	else
-										{
+	{
 		bStart = false;
-										}
+	}
 
 	m_orderQueue.deleteNode(pOrderNode);
 	pOrderNode = NULL;
 	if(bFinish)
-										{
+	{
 		CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
-										}
+	}
 
 	if(bStart)
 	{
 		startHeadOrder();
-									}
+	}
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
@@ -29130,15 +29130,15 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
-								}
-							}
+		}
+	}
 
 	bMessage = false;
 
 	if(bChoose)
 	{
 		if(getOrderQueueLength() == 0)
-							{
+		{
 			if(!isHuman() || isProductionAutomated())
 			{
 				AI_chooseProduction(false /*bInterruptWonders*/, false);
@@ -29161,7 +29161,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eTrainUnit);
 				if(pkUnitInfo)
-					{
+				{
 					localizedText = Localization::Lookup(((isLimitedUnitClass((UnitClassTypes)(pkUnitInfo->GetUnitClassType()))) ? "TXT_KEY_MISC_TRAINED_UNIT_IN_LIMITED" : "TXT_KEY_MISC_TRAINED_UNIT_IN"));
 					localizedText << pkUnitInfo->GetTextKey() << getNameKey();
 				}
@@ -29241,61 +29241,61 @@ void CvCity::swapOrder(int iNum)
 
 //	--------------------------------------------------------------------------------
 void CvCity::startHeadOrder()
-			{
+{
+	VALIDATE_OBJECT
+	OrderData* pOrderNode = headOrderQueueNode();
+
+	if(pOrderNode != NULL)
+	{
+		GetCityCitizens()->DoReallocateCitizens();
+
+		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
+		{
+			processProcess(((ProcessTypes)(pOrderNode->iData1)), 1);
+		}
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::stopHeadOrder()
+{
 	VALIDATE_OBJECT
 	OrderData* pOrderNode = headOrderQueueNode();
 
 	if(pOrderNode != NULL)
 	{
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-				{
-			processProcess(((ProcessTypes)(pOrderNode->iData1)), 1);
-				}
-			}
-		}
-
-
-//	--------------------------------------------------------------------------------
-void CvCity::stopHeadOrder()
 		{
-	VALIDATE_OBJECT
-	OrderData* pOrderNode = headOrderQueueNode();
-
-	if(pOrderNode != NULL)
-			{
-		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-				{
 			processProcess(((ProcessTypes)(pOrderNode->iData1)), -1);
-				}
-				}
-				}
+		}
+	}
+}
 
 
 //	--------------------------------------------------------------------------------
 int CvCity::getOrderQueueLength()
-				{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.getLength();
-				}
-				
+}
+
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::getOrderFromQueue(int iIndex)
-				{
+{
 	VALIDATE_OBJECT
-	OrderData* pOrderNode;
+	OrderData* pOrderNode = m_orderQueue.getAt(iIndex);
 
-	pOrderNode = m_orderQueue.getAt(iIndex);
-
-	if(pOrderNode != NULL)
-					{
+	if (pOrderNode != NULL)
+	{
 		return pOrderNode;
 	}
 	else
-						{
+	{
 		return NULL;
-						}
-					}
+	}
+}
 
 
 //	--------------------------------------------------------------------------------
@@ -29303,26 +29303,26 @@ OrderData* CvCity::nextOrderQueueNode(OrderData* pNode)
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-				}
+}
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::nextOrderQueueNode(const OrderData* pNode) const
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-	}
+}
 
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::headOrderQueueNode() const
-		{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::headOrderQueueNode()
-			{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
@@ -29330,34 +29330,34 @@ OrderData* CvCity::headOrderQueueNode()
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::tailOrderQueueNode() const
-			{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.tail();
-			}
+}
 
 //	--------------------------------------------------------------------------------
 /// remove items in the queue that are no longer valid
 bool CvCity::CleanUpQueue(void)
-			{
+{
 	VALIDATE_OBJECT
 	bool bOK = true;
 
-	for(int iI = (getOrderQueueLength() - 1); iI >= 0; iI--)
+	for (int iI = (getOrderQueueLength() - 1); iI >= 0; iI--)
 	{
 		OrderData* pOrder = getOrderFromQueue(iI);
 
-		if(pOrder != NULL)
+		if (pOrder != NULL)
 		{
-			if(!canContinueProduction(*pOrder))
+			if (!canContinueProduction(*pOrder))
 			{
 				popOrder(iI, false, true);
 				bOK = false;
 			}
 		}
-			}
+	}
 
 	return bOK;
-		}
+}
 
 //	--------------------------------------------------------------------------------
 /// Create unit by completing production in city, separated out from popOrder() so other functions can call this

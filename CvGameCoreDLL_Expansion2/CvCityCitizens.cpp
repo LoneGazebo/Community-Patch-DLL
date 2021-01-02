@@ -2328,16 +2328,17 @@ bool CvCityCitizens::NeedReworkCitizens()
 		SetDirty(false);
 		return true;
 	}
-	int iBestWorkedPlotValue = 0;
-	CvPlot* pBestworkedPlot = GetBestCityPlotWithValue(iBestWorkedPlotValue, /*bBest*/ true, /*bWorked*/ true);
+
+	int iWorstWorkedPlotValue = 0;
+	CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
 
 	int iBestUnworkedPlotValue = 0;
 	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
 	//First let's look at plots - if there is a better plot not being worked, we need to reallocate.
-	if (pBestworkedPlot != NULL && pBestUnworkedPlot != NULL)
+	if (pWorstWorkedPlot != NULL && pBestUnworkedPlot != NULL)
 	{
-		if (iBestUnworkedPlotValue > iBestWorkedPlotValue)
+		if (iBestUnworkedPlotValue > iWorstWorkedPlotValue)
 		{
 			return true;
 		}
@@ -2358,7 +2359,8 @@ bool CvCityCitizens::NeedReworkCitizens()
 	{
 		return false;
 	}
-	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestWorkedPlotValue);
+
+	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iWorstWorkedPlotValue);
 	if (bSpecialistBetterThanPlot)
 	{
 		return true;
@@ -2366,11 +2368,11 @@ bool CvCityCitizens::NeedReworkCitizens()
 
 	int iSpecialistInCityValue = 0;
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
-
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
 		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue, specialistValueCache);
 	}
+
 	bool bSpecialistBetterThanExistingSpecialist = (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
 	if (bSpecialistBetterThanExistingSpecialist)
 	{
