@@ -440,7 +440,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumFreePolicies("CvPlayer::m_iNumFreePolicies", m_syncArchive)
 	, m_iNumFreePoliciesEver("CvPlayer::m_iNumFreePoliciesEver", m_syncArchive)
 	, m_iNumFreeTenets("CvPlayer::m_iNumFreeTenets", m_syncArchive)
-	, m_iMaxEffectiveCities("CvPlayer::m_iMaxEffectiveCities", m_syncArchive, 1)
+	, m_iDummy2("CvPlayer::m_iDummy", m_syncArchive, 1)
 	, m_iLastSliceMoved("CvPlayer::m_iLastSliceMoved", m_syncArchive)
 	, m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 	, m_iEndTurnBlockingNotificationIndex(0)
@@ -1684,13 +1684,13 @@ void CvPlayer::uninit()
 	m_iNumFreePolicies = 0;
 	m_iNumFreePoliciesEver = 0;
 	m_iNumFreeTenets = 0;
+	m_iDummy2 = 0;
 	m_iNumFreeGreatPeople = 0;
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
-	m_iMaxEffectiveCities = 1;
 	m_iLastSliceMoved = 0;
 
 	m_bHasBetrayedMinorCiv = false;
@@ -31786,7 +31786,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	// Mod for City Count
 	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
 
-	int iNumCities = GetMaxEffectiveCities();
+	int iNumCities = GetNumEffectiveCities();
 
 	iMod *= (iNumCities - 1);
 
@@ -47632,42 +47632,25 @@ bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 
 //	--------------------------------------------------------------------------------
 // How many Cities does this player have for policy/tech cost purposes?
-int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
+int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets)
 {
 	int iNumCities = getNumCities();
 
-	// Don't count puppet Cities
-	int iNumPuppetCities = GetNumPuppetCities();
-	iNumCities -= iNumPuppetCities;
+	if (!bIncludePuppets)
+		iNumCities -= GetNumPuppetCities();
 
 	// Don't count cities where the player hasn't decided yet what to do with them or ones that are currently being razed
-	int iNumLimboCities = 0;
-	const CvCity* pLoopCity;
 	int iLoop;
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if (pLoopCity->IsIgnoreCityForHappiness() || (!MOD_BALANCE_CORE && pLoopCity->IsRazing()))
 		{
-			iNumLimboCities++;
+			iNumCities--;
 		}
 	}
-	iNumCities -= iNumLimboCities;
 
-	if(iNumCities == 0)	// If we don't pretend the player has at least one city it screws up the math
-		iNumCities = 1;
-
-	// Update member variable
-	if (!MOD_BALANCE_CORE)
-		m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
-	else
-		m_iMaxEffectiveCities = iNumCities;
-
-	if (bIncludePuppets)
-	{
-		return m_iMaxEffectiveCities + iNumPuppetCities;
-	}
-
-	return m_iMaxEffectiveCities;
+	//always at least one ...
+	return max(1, iNumCities);
 }
 
 #if defined(MOD_BALANCE_CORE)

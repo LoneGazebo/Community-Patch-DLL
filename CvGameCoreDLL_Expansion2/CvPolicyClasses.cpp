@@ -3997,12 +3997,6 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 	m_eBranchPicked2 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
 	m_eBranchPicked3 = (PolicyBranchTypes)CvInfosSerializationHelper::ReadHashed(kStream);
 
-	if (uiVersion < 2)
-	{
-		int temp;
-		kStream >> temp;  // m_iMaxEffectiveCities moved to player class
-	}
-
 	// Now for AI
 	m_pPolicyAI->Read(kStream);
 
@@ -4884,7 +4878,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		iMod /= 100;
 	}
 
-	int iNumCities = m_pPlayer->GetMaxEffectiveCities();
+	int iNumCities = m_pPlayer->GetNumEffectiveCities();
 
 	iMod = (iCost * (iNumCities - 1) * iMod);
 	iMod /= 100;

@@ -727,7 +727,7 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
-	bool isCombatEndTurn(eTactPlotDomain eDomain) const { return aiFriendlyCombatUnitsAdjacentEndTurn[eDomain]; }
+	bool isCombatEndTurn() const { return bFriendlyCombatUnitEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 

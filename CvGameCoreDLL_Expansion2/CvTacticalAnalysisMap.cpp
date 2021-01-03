@@ -989,46 +989,6 @@ void CvTacticalAnalysisMap::UpdatePostures()
 		//but we've thrown it away at this point ...
 		pZone->SelectPostureMultiZone(vNeighbors);
 	}
-
-	//third pass, logging only
-	for (unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
-	{
-		CvTacticalDominanceZone* pZone = &m_vDominanceZones[iI];
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString szPostureMsg;
-			szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
-
-			switch(pZone->GetPosture())
-			{
-			case TACTICAL_POSTURE_ATTRIT_FROM_RANGE:
-				szPostureMsg += "Attrit from Range";
-				break;
-			case TACTICAL_POSTURE_EXPLOIT_FLANKS:
-				szPostureMsg += "Exploit Flanks";
-				break;
-			case TACTICAL_POSTURE_STEAMROLL:
-				szPostureMsg += "Steamroll";
-				break;
-			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE:
-				szPostureMsg += "Surgical City Strike";
-				break;
-			case TACTICAL_POSTURE_HEDGEHOG:
-				szPostureMsg += "Hedgehog";
-				break;
-			case TACTICAL_POSTURE_COUNTERATTACK:
-				szPostureMsg += "Counterattack";
-				break;
-			case TACTICAL_POSTURE_WITHDRAW:
-				szPostureMsg += "Withdraw";
-				break;
-			case TACTICAL_POSTURE_NONE:
-				szPostureMsg += "NoPosture";
-				break;
-			}
-			GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szPostureMsg);
-		}
-	}
 }
 
 /// Log dominance zone data

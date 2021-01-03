@@ -618,12 +618,6 @@ void CvEconomicAI::DoTurn()
 			}
 		}
 
-		CvString shortName = strStrategyName.substr(19);
-		if (IsUsingStrategy(eStrategy))
-			LogEconomyMessage(CvString::format("%s active, check for %s", shortName.c_str(), bTestStrategyEnd ? "end" : "nothing" ));
-		else
-			LogEconomyMessage(CvString::format("%s inactive, check for %s", shortName.c_str(), bTestStrategyStart ? "start" : "nothing" ));
-
 		// Check Strategy Triggers
 		// Functionality and existence of specific Strategies is hardcoded here, but data is stored in XML so it's easier to modify
 
@@ -774,6 +768,12 @@ void CvEconomicAI::DoTurn()
 					}
 				}
 			}
+
+			CvString shortName = strStrategyName.substr(19);
+			if (IsUsingStrategy(eStrategy))
+				LogEconomyMessage(CvString::format("%s active, check for %s, result is %s", shortName.c_str(), bTestStrategyEnd ? "end":"nothing", bStrategyShouldBeActive ? "true":"false" ));
+			else
+				LogEconomyMessage(CvString::format("%s inactive, check for %s, result is %s", shortName.c_str(), bTestStrategyStart ? "start":"nothing", bStrategyShouldBeActive ? "true":"false" ));
 
 			// This variable keeps track of whether or not we should be doing something (i.e. Strategy is active now but should be turned off, OR Strategy is inactive and should be enabled)
 			bool bAdoptOrEndStrategy = false;
@@ -3510,6 +3510,10 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 		return false;
 
+	//we do not want to lose time building our settlers even if we don't have explored yet
+	if (pPlayer->GetNumCitiesFounded() < 3 && GC.getGame().getElapsedGameTurns()<54)
+		return true;
+
 	//do this check last, it can be expensive
 	CvPlot* pSettlePlot = pPlayer->GetBestSettlePlot(NULL);
 	if (!pSettlePlot)
@@ -3521,7 +3525,13 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		return true;
 
 	//if the neighbors are far away it's also good
-	if (GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 6)
+	int iOffset = 0;
+	if (pPlayer->GetPlayerTraits()->IsExpansionist())
+		iOffset--; //smaller distance - keep expanding longer
+	if (pPlayer->GetPlayerTraits()->IsSmaller() || pPlayer->GetPlayerTraits()->IsTourism())
+		iOffset++; //larger distance - stop expanding earlier
+
+	if (GC.getGame().GetClosestCityDistancePathLength(pSettlePlot, true) > 7 + iOffset)
 		return true;
 
 	return false;
@@ -3564,13 +3574,16 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
 		return true;
 	}
 
-	if(pPlayer->IsEmpireUnhappy() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
+	// Don't self-sabotage with too many cities
+	if (pPlayer->GetPlayerTraits()->IsSmaller() || pPlayer->GetPlayerTraits()->IsTourism() || pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 	{
-		return true;
-	}
-	if(pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
-	{
-		return true;
+		int iNonPuppetCities = pPlayer->GetNumEffectiveCities();
+		int iTourismMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod() * (iNonPuppetCities - 1);
+		//the modifier is positive even if the effect is negative, wtf
+		if (iTourismMod > 23 + pPlayer->GetDiplomacyAI()->GetBoldness())
+		{
+			return true;
+		}
 	}
 
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"

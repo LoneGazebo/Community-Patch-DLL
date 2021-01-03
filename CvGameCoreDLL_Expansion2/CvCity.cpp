@@ -33766,7 +33766,9 @@ bool CvCity::IsBuildingWorldWonder() const
 	if (getProductionBuilding() == NO_BUILDING)
 		return false;
 	
-	return GET_PLAYER(getOwner()).GetWonderProductionAI()->IsWonder(*GC.getBuildingInfo(getProductionBuilding()));
+	const CvBuildingClassInfo& kBuildingClass = GC.getBuildingInfo(getProductionBuilding())->GetBuildingClassInfo();
+
+	return ::isWorldWonderClass(kBuildingClass);
 }
 
 bool CvCity::IsCivilization(CivilizationTypes iCivilizationType) const

@@ -510,18 +510,24 @@ void CvTacticalAI::FindTacticalTargets()
 					if (m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
 						iExtraScore = 20;
 
-					if (eResource != NO_RESOURCE)
+					ResourceUsageTypes eResourceUsage = (eResource != NO_RESOURCE) ? GC.getResourceInfo(eResource)->getResourceUsage() : RESOURCEUSAGE_BONUS;
+					if (eResourceUsage == RESOURCEUSAGE_STRATEGIC)
+					{
+						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
+						newTarget.SetAuxIntData(80+iExtraScore);
+					}
+					else if (eResourceUsage == RESOURCEUSAGE_LUXURY)
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
 						newTarget.SetAuxIntData(40+iExtraScore);
-						m_AllTargets.push_back(newTarget);
 					}
 					else
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
 						newTarget.SetAuxIntData(5+iExtraScore);
-						m_AllTargets.push_back(newTarget);
 					}
+
+					m_AllTargets.push_back(newTarget);
 				}
 
 				// ... enemy trade route? (city connection - not caravan)
@@ -1384,7 +1390,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		if (bImmediate)
 		{
 			// try paratroopers first, not because they are more effective, just because it looks cooler...
-			if (FindParatroopersWithinStrikingDistance(pPlot,true))
+			if (eTarget != AI_TACTICAL_TARGET_IMPROVEMENT && FindParatroopersWithinStrikingDistance(pPlot,true))
 			{
 				// Queue best one up to capture it
 				ExecuteParadropPillage(pPlot);
@@ -7406,7 +7412,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		if (bScoreEndTurn)
 		{
 			//we want one of our own combat units covering us
-			if (!testPlot.isCombatEndTurn(DomainForUnit(pUnit)))
+			if (!testPlot.isCombatEndTurn())
 			{
 				//anything else that could protect the unit?
 				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
@@ -9116,7 +9122,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0)
 	{
-		getTactPlotMutable(newAssignment.iToPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
+		if (IsCombatUnit(*itUnit))
+			getTactPlotMutable(itUnit->iPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
 		notQuiteFinishedUnits.push_back(*itUnit);
 		availableUnits.erase(itUnit);
 	}
