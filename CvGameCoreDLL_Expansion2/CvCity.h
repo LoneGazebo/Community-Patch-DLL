@@ -471,7 +471,7 @@ public:
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 #if defined(MOD_BALANCE_CORE)
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip = false);
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate = false);
 #else
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 #endif
@@ -976,7 +976,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	void SetBorderObstacleCity(int iValue);
 
 	void ChangeBorderObstacleWater(int iNewValue);
@@ -1074,15 +1074,12 @@ public:
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetRank(int iRank);
-	int GetRank() const;
+	int GetEspionageRanking() const;
+	void SetEspionageRanking(int iRank, bool bNotify);
 
 	void SetTurnsSinceLastRankMessage(int iTurns);
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
 	int GetTurnsSinceLastRankMessage() const;
-
-	void DoRankIncreaseWarning(int iRank, bool bNotify);
-	void SetEspionageRanking(int iPotential, bool bNotify);
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
@@ -1635,6 +1632,7 @@ public:
 	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
 	bool HasAnyWonder() const;
 	bool HasWonder(BuildingTypes iBuildingType) const;
+	bool IsBuildingWorldWonder() const;
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;
 	bool HasWorkedFeature(FeatureTypes iFeatureType) const;
@@ -1990,7 +1988,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBlockUnrest;
 	FAutoVariable<int, CvCity> m_iBlockScience;
 	FAutoVariable<int, CvCity> m_iBlockGold;
-	FAutoVariable<int, CvCity> m_iCityRank;
+	FAutoVariable<int, CvCity> m_iCitySpyRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
 	FAutoVariable<int, CvCity> m_iEmpireNeedsModifier;

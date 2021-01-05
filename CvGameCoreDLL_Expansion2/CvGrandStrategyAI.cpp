@@ -853,7 +853,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	iPriorityBonus += (m_pPlayer->getJONSCulture() / 30);
 	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 130);
 
-	iPriorityBonus += (m_pPlayer->GetMaxEffectiveCities() * -10);
+	iPriorityBonus += (m_pPlayer->GetNumEffectiveCities() * -10);
 
 	//Add priority value based on flavors of policies we've acquired.
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)

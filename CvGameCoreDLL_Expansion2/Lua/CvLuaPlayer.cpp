@@ -15026,7 +15026,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
 #if defined(MOD_BALANCE_CORE_SPIES)
-				int iRate = pCity->GetRank();
+				int iRate = pCity->GetEspionageRanking();
 				lua_pushinteger(L, iRate);
 				lua_setfield(L, t, "Potential");
 

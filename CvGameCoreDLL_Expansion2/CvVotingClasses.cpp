@@ -12874,14 +12874,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Just War
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iIsWorldWar)
 	{
-		PlayerTypes eLoopPlayer;
 		int iWar = 0;
 		int iPeace = 0;
-		int iThreat = GetPlayer()->GetMilitaryAI()->GetThreatTotal();
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
 			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
@@ -12938,10 +12936,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if(GetPlayer()->GetCapitalConqueror() != NO_PLAYER)
 		{
 			iWar += iWar;
-		}
-		if(iThreat < GetPlayer()->GetMilitaryAI()->GetThreatWeight(THREAT_MAJOR))
-		{
-			iPeace += iPeace;
 		}
 
 		if((iWar > 0) || (iPeace > 0))

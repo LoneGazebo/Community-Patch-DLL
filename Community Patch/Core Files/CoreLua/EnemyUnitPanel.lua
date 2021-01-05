@@ -963,6 +963,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		if (iMyStrength > 0) then
 			
 			-- Start with logic of combat estimation
+			local iTheirStrength = 0;
 			local iMyDamageInflicted = 0;
 			local iTheirDamageInflicted = 0;
 			local iTheirFireSupportCombatDamage = 0;
@@ -974,11 +975,9 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				if (pTheirUnit:IsEmbarked()) then
 					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
-				else
+				elseif (pTheirUnit:IsCanAttackRanged()) then
 					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
-				end
-				
-				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then
+				else
 					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
 				end
 				

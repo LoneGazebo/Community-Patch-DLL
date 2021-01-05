@@ -260,11 +260,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
 		}
 
-		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iAttackerStrength = (iAttackerStrength * 150) / 100;
-		}
-
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
@@ -296,7 +291,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			kAttacker.DoPlagueTransfer(*pkDefender);
 		}
-		if (pkDefender->getPlagueChance() > 0 && !pkDefender->isRanged())
+		if (pkDefender->getPlagueChance() > 0 && !pkDefender->IsCanAttackRanged())
 		{
 			pkDefender->DoPlagueTransfer(kAttacker);
 		}
@@ -814,12 +809,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBack(kAttacker,false))
-		{
-			iDamage = (iDamage * 150) / 100;
 		}
 #endif
 
@@ -2899,7 +2888,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				if((eAttackerOwner == NO_PLAYER || pkUnit->getOwner() != eAttackerOwner) && !pkUnit->isBarbarian())
 					uiOpposingDamageCount++;	// Count the number of non-barbarian opposing units
 
-				if(pkUnit->IsCombatUnit() || pkUnit->IsCanAttackRanged())
+				if(pkUnit->IsCanAttack() || pkUnit->IsCanAttackRanged())
 				{
 					pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
 				}
@@ -3615,7 +3604,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 	}
 
 	// Ranged Attack
-	else if(kInfo.getAttackIsRanged())
+	else if(kInfo.GetAttackIsRanged())
 	{
 		if(kInfo.getUnit(BATTLE_UNIT_ATTACKER))
 		{

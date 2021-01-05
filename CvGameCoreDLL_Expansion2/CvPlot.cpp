@@ -2071,8 +2071,8 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 
 #if defined(MOD_BALANCE_CORE)
 				//hack: don't do this during map generation
-				if (bRecalculate && GC.getGame().getGameTurn()>0)
-					GC.getMap().ClearPlotsAtRange(pLoopPlot);
+				if (bRecalculate && GC.getGame().getElapsedGameTurns()>0)
+					GC.getMap().LineOfSightChanged(pLoopPlot);
 #endif
 			}
 		}
@@ -4883,7 +4883,7 @@ bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 			if (bCorrectOwner)
 			{
 				//exclude civilians
-				if(pkUnit->IsCombatUnit())
+				if(pkUnit->IsCanAttack())
 				{
 					//exclude embarked units, ships in port etc
 					if (pkUnit->isNativeDomain(this))
@@ -9224,8 +9224,7 @@ void CvPlot::updateOwningCity()
 			pOldOwningCity->GetCityCitizens()->SetWorkingPlot(this, false);
 			SetResourceLinkedCity(NULL);
 			// Re-add citizen somewhere else
-			std::map<SpecialistTypes, int> specialistValueCache;
-			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+			pOldOwningCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 		}
 		// Change what City's allowed to work this Plot
 		if(pBestCity != NULL)
@@ -12350,7 +12349,7 @@ int CvPlot::GetNumCombatUnits()
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->IsCombatUnit())
+		if(pLoopUnit && pLoopUnit->IsCanAttack())
 		{
 			iCount++;
 		}
@@ -14847,7 +14846,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 				if(pLoopUnit)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
 					{
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
@@ -14933,9 +14932,9 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->isRanged() && !bCountRanged)
+						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
 							continue;
 
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
@@ -14980,9 +14979,9 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->isRanged() && !bCountRanged)
+						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
 							continue;
 
 						// Same team?
@@ -15026,7 +15025,7 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCanAttack() && !pLoopUnit->isEmbarked())
 					{
 						// Same team?
 						if(pLoopUnit->getTeam() == eMyTeam)
@@ -15068,7 +15067,7 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
 					{
 						// Combat Unit?
-						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
+						if(!bCombatUnit || pLoopUnit->IsCanAttack())
 						{
 							return true;
 						}
@@ -15101,7 +15100,7 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
 				{
 					// Must be a combat Unit
-					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
+					if(!bCombatOnly || pLoopUnit->IsCanAttack())
 					{
 						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
 						{
@@ -15167,16 +15166,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-							iBadAdjacent++;
-						}
+					iBadAdjacent++;
+			}
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-							iBadAdjacent++;
-						}
-					}
-				}
+					iBadAdjacent++;
+			}
+		}
+	}
 
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
 	if(iAdjacentUnowned + iAdjacentOwnedOther > 2 || iBadAdjacent > 0)
@@ -15198,22 +15197,22 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-								iBadNearby++;
-							}
+							iBadNearby++;
+					}
 					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-								iBadNearby++;
-							}
-						}
+							iBadNearby++;
+					}
+				}
 
 					//Let's check for owned nearby forts as well
 				if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
 					if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
-							iNearbyForts++;
-						}
-					}
+						iNearbyForts++;
+			}
+		}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
 		if (iBadNearby == 0 || iNearbyForts > 2)

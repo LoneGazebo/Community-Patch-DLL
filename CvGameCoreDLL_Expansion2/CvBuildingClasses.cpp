@@ -2654,7 +2654,7 @@ int CvBuildingEntry::GetCityAirStrikeDefense() const
 	return m_iCityAirStrikeDefense;
 }
 /// Is this an obstacle for just the tiles around your city?
-int CvBuildingEntry::GetBorderObstacleCity() const
+int CvBuildingEntry::GetBorderObstacleLand() const
 {
 	return m_iBorderObstacleCity;
 }

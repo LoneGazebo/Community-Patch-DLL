@@ -26,7 +26,6 @@ enum AIHomelandTargetType
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
 	AI_HOMELAND_TARGET_WORKER,
-	AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
 
@@ -264,7 +263,6 @@ private:
 	void PlotWorkerMoves();
 	void PlotWorkerSeaMoves();
 #endif
-	void PlotAncientRuinMoves();
 	void PlotWriterMoves();
 	void PlotArtistMoves();
 	void PlotMusicianMoves();
@@ -342,7 +340,6 @@ private:
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
-	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
 

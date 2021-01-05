@@ -1109,7 +1109,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 	if(iYield <= 2)
 	{
-		int iGold = pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns;
+		int iGold = min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iGold > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
@@ -1133,7 +1133,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 4)
 	{
-		int iCulture = pCity->getJONSCulturePerTurn() * iTheftTurns;
+		int iCulture = min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iCulture > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
@@ -1160,7 +1160,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 		int iScience = 0;
 		if(eCurrentTech != NO_TECH)
 		{
-			iScience = pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns;
+			iScience = min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iScience > 0)
 			{
 				GET_TEAM(pCity->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
@@ -1185,7 +1185,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 8)
 	{
-		int iFood = pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns;
+		int iFood = min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iFood > 0)
 		{
 			pCity->changeFood(-iFood);
@@ -1211,7 +1211,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	{
 		if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
 		{
-			int iProduction = pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns;
+			int iProduction = min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iProduction > 0)
 			{
 				pCity->changeProduction(-iProduction);

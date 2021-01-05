@@ -405,7 +405,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		int iLoop;
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit())
+			if (pLoopUnit && pLoopUnit->IsCanAttack())
 			{
 #if defined(MOD_UNITS_XP_TIMES_100)
 				pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
@@ -10260,7 +10260,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				int iValue = pLoopCity->getPopulation();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-				iValue *= pLoopCity->GetRank();
+				iValue *= pLoopCity->GetEspionageRanking();
 
 				if(iValue > iBestValue)
 				{
@@ -15034,12 +15034,21 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 {
 	if (m_iBullyPlotsBuilt != GC.getGame().getGameTurn())
 	{
-		if (GetPlayer()->getCapitalCity())
+		CvCity* pCapital = GetPlayer()->getCapitalCity();
+		if (pCapital)
 		{
 			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
+
+			//make sure we include all adjacent plots even if they are impassable for us ... but they might be passable for the bully (inca!)
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pPlot = iterateRingPlots(pCapital->plot(), i);
+				if (pPlot && m_bullyRelevantPlots.find(pPlot->GetPlotIndex()) == m_bullyRelevantPlots.end())
+					m_bullyRelevantPlots.insertWithIndex( SMovePlot(pPlot->GetPlotIndex(),1,0,500) );
+			}
 		}
 		else
 			m_bullyRelevantPlots.clear();
@@ -15051,11 +15060,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-#if defined(MOD_BALANCE_CORE)
-	int iGoldGrowthFactor = 400; //antonjs: todo: XML
-#else
-	int iGoldGrowthFactor = 350; //antonjs: todo: XML
-#endif
+	int iGoldGrowthFactor = 400;
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
@@ -17722,7 +17727,9 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 	CvPlayer* pkPlayer = GetPlayer();
 	if(pkPlayer)
 	{
-		CvCity* pkCity = pkPlayer->getCapitalCity();
+		//don't use the capital, this is faster and mostly equivalent for a minor
+		int dummy;
+		const CvCity* pkCity = pkPlayer->firstCity(&dummy);
 		if(pkCity)
 		{
 			ReligionTypes eMinorReligion = pkCity->GetCityReligions()->GetReligiousMajority();

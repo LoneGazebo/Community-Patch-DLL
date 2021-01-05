@@ -6750,7 +6750,7 @@
 			<Text>Our {2_Unit} was forced to retreat by an enemy {1_Unit}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_S">
-			<Text>{1_Unit} has routed!</Text>
+			<Text>{1_Unit} was routed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM">
 			<Text>Our {1_Unit} forced an enemy {2_Unit} to retreat!</Text>

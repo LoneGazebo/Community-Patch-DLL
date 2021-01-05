@@ -542,9 +542,9 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (nFoodPlots < 4)
+	if (nFoodPlots < 5)
 		return 0;
-	if (nHammerPlots < 3)
+	if (nHammerPlots < 4)
 		return 0;
 	if (iResourceLuxuryCount < 2 && iResourceStrategicCount < 2 && iResourceBonusCount < 2 && nGoodPlots < 2)
 		return 0;
@@ -1016,11 +1016,8 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 {
 	int rtnValue = 0;
 
-	CvAssert(pPlot);
-	if(!pPlot) return rtnValue;
-
 	// If we already own this Tile then we already have access to the Strategic Resource
-	if(pPlot->isOwned())
+	if(!pPlot || pPlot->isOwned())
 	{
 		return rtnValue;
 	}
@@ -1042,11 +1039,9 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 		{
 			rtnValue += pPlot->getNumResource() * m_iFlavorMultiplier[SITE_EVALUATION_RESOURCES];
 
-#if defined(MOD_BALANCE_CORE)
 			//Since there aren't 'multiple' luxuries on a tile, increase this value.
 			if(eResourceUsage == RESOURCEUSAGE_LUXURY)
 				rtnValue *= 3;
-#endif
 
 			if(pPlayer)
 			{
@@ -1054,11 +1049,6 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 				if(pPlayer->getNumResourceTotal(eResource) == 0)
 					rtnValue *= 3;
 
-#if defined(MOD_BALANCE_CORE)
-				//If luxury and we already do, increase a little for trade
-				else if(eResourceUsage == RESOURCEUSAGE_LUXURY && pPlayer->getNumResourceTotal(eResource) > 0)
-					rtnValue *= 2;
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (GC.getMap().getNumResources(eResource) > 0))
 				{

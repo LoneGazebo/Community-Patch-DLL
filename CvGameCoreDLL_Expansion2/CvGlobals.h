@@ -677,9 +677,6 @@ public:
 	//
 	void cacheGlobals();
 
-	// use very sparingly - this is costly
-	CvString getDefineSTRING(const char* szName, bool bReportErrors = true);
-
 	// -- ints --
 
 	inline int getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD()
@@ -7591,9 +7588,9 @@ public:
 	{
 		return m_iBALANCE_BASIC_ATTACK_ARMY_SIZE;
 	}
-	inline int getBALANCE_NAVY_START_SIZE()
+	inline int getBALANCE_ARMY_NAVY_START_SIZE()
 	{
-		return m_iBALANCE_NAVY_START_SIZE;
+		return m_iBALANCE_ARMY_NAVY_START_SIZE;
 	}
 	// -- HAPPINESS DEFINES //
 	inline int getBALANCE_UNHAPPINESS_PER_SPECIALIST()
@@ -9217,6 +9214,10 @@ public:
 
 	void deleteInfoArrays();
 
+	bool getDatabaseValue(const char* szName, int& iValue, bool bReportErrors = true);
+	bool getDatabaseValue(const char* szName, float& fValue, bool bReportErrors = true);
+	bool getDatabaseValue(const char* szName, CvString& szValue, bool bReportErrors = true);
+
 protected:
 
 	bool m_bGraphicsInitialized;
@@ -9389,13 +9390,6 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 	// Formerly Global Defines
 	//////////////////////////////////////////////////////////////////////////
-
-	int getDefineINT(const char* szName, bool bReportErrors = true);
-	float getDefineFLOAT(const char* szName, bool bReportErrors = true);
-
-	bool getDefineValue(const char* szName, int& iValue, bool bReportErrors = true);
-	bool getDefineValue(const char* szName, float& fValue, bool bReportErrors = true);
-	bool getDefineValue(const char* szName, CvString& szValue, bool bReportErrors = true);
 
 	// -- ints --
 
@@ -11268,7 +11262,7 @@ protected:
 	int m_iBALANCE_BAD_TILES_STRATEGIC_VALUE;
 	int m_iBALANCE_BARBARIAN_HEAL_RATE;
 	int m_iBALANCE_BASIC_ATTACK_ARMY_SIZE;
-	int m_iBALANCE_NAVY_START_SIZE;
+	int m_iBALANCE_ARMY_NAVY_START_SIZE;
 	int m_iBALANCE_UNHAPPINESS_PER_SPECIALIST;
 	int m_iBALANCE_HAPPINESS_LUXURY_POP_SCALER;
 	int m_iBALANCE_HAPPINESS_LUXURY_COUNT_SCALER;

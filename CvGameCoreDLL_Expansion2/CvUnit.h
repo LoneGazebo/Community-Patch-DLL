@@ -57,7 +57,7 @@ struct CvUnitCaptureDefinition
 #endif
 	ReligionTypes eReligion;
 	int iReligiousStrength;
-	int iSpreadsLeft;
+	int iSpreadsUsed;
 
 	CvUnitCaptureDefinition()
 		: eOriginalOwner(NO_PLAYER)
@@ -75,7 +75,7 @@ struct CvUnitCaptureDefinition
 #endif
 		, eReligion(NO_RELIGION)
 		, iReligiousStrength(0)
-		, iSpreadsLeft(0) { }
+		, iSpreadsUsed(0) { }
 
 	inline bool IsValid() const
 	{
@@ -212,7 +212,7 @@ public:
 	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
-	bool SentryAlert() const;
+	bool SentryAlert(bool bAllowAttacks) const;
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
@@ -645,7 +645,6 @@ public:
 	int firstStrikes() const;
 	int chanceFirstStrikes() const;
 	int maxFirstStrikes() const;
-	bool isRanged() const;
 
 	bool immuneToFirstStrikes() const;
 	bool ignoreBuildingDefense() const;
@@ -1710,7 +1709,7 @@ public:
 
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
-	bool canRecruitFromTacticalAI() const;
+	bool canUseForAIOperation() const;
 	bool canUseForTacticalAI() const;
 
 	void SetTacticalAIPlot(CvPlot* pPlot);
@@ -1769,17 +1768,6 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-	inline bool IsCivilianUnit() const
-	{
-		return !(IsCombatUnit() || isRanged());
-	}
-
-	// Combat eligibility routines
-	inline bool IsCombatUnit() const
-	{
-		return (m_iBaseCombat > 0);
-	}
-
 	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 	bool IsCanAttackWithMove() const;
@@ -1787,6 +1775,7 @@ public:
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend() const;
+	bool IsCivilianUnit() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
@@ -2362,8 +2351,8 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 
-	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBack(CvUnit& pAttacker);
+	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
+	bool DoFallBack(const CvUnit& pAttacker);
 
 private:
 

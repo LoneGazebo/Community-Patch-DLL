@@ -2199,7 +2199,10 @@ public:
 	void CheckForMonopoly(ResourceTypes eResource);
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
+
 	int GetMonopolyPercent(ResourceTypes eResource) const;
+	bool WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) const;
+
 	//cache these because we need them a lot
 	int GetCombatAttackBonusFromMonopolies() const;
 	int GetCombatDefenseBonusFromMonopolies() const;
@@ -2576,7 +2579,7 @@ public:
 	int GetNumCapitalCities() const;
 	int GetNumMinorsControlled() const;
 #endif
-	int GetMaxEffectiveCities(bool bIncludePuppets = false);
+	int GetNumEffectiveCities(bool bIncludePuppets = false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
@@ -3444,7 +3447,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNumFreePolicies;
 	FAutoVariable<int, CvPlayer> m_iNumFreePoliciesEver; 
 	FAutoVariable<int, CvPlayer> m_iNumFreeTenets;
-    FAutoVariable<int, CvPlayer> m_iMaxEffectiveCities;
+	FAutoVariable<int, CvPlayer> m_iDummy2;  //unused
 
 	FAutoVariable<int, CvPlayer> m_iLastSliceMoved;
 

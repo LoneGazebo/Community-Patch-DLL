@@ -1878,14 +1878,14 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ false);
 	}
 	else
 	{
-		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 	}
 #else
-	iMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+	iMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
 #endif
 
 	//apply the modifiers
@@ -2553,14 +2553,14 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ false);
 		}
 		else
 		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
 		}
 #else
-		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
 #endif
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 		

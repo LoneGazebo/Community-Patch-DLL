@@ -1409,6 +1409,12 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
+		//let's assume an interest rate of 0.5% per turn, no compounding
+		int iInterestPercent = min(50, 100 * (iNumTurns * 5) / 1000);
+
+		//subtract interest. 100 gold now is better than 100 gold in the future
+		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
+
 		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 		if (bRoundUp)
 		{
@@ -1703,13 +1709,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	}
 }
 
+//Ratio between 50 and 200.
 int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource, int iNumInTrade)
 {
 	bool bImSelling = ePlayer == GetPlayer()->GetID();
-	int iBase = bImSelling ? 2 : 1;
-	//Ratio between 0 and 100.
-	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, true);
-	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, true);
+	int iPlayer1 = GET_PLAYER(ePlayer).getNumResourceTotal(eResource, true);
+	int iPlayer2 = GET_PLAYER(eOtherPlayer).getNumResourceTotal(eResource, true);
 
 	CvDeal* pRenewDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(eOtherPlayer);
 	if (pRenewDeal)
@@ -1733,15 +1738,14 @@ int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, Re
 	else
 		iPlayer2 -= iNumInTrade;
 
-	int iValue = (iPlayer1 * 100) / max(1, iPlayer2);
-	iValue = range(iValue, 0, 200);
-
+	int iRatio = 100;
 	if (bImSelling)
-		iBase *= (200 - iValue);
+		iRatio = (iPlayer2 * 100) / max(1, iPlayer1);
 	else
-		iBase *= iValue;
-		
-	return max(0, iBase);
+		iRatio = (iPlayer1 * 100) / max(1, iPlayer2);
+
+	//min half, max double
+	return range(iRatio, 50, 200);
 }
 
 /// How much is a Resource worth?
@@ -1786,7 +1790,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	}
 	//Get the average multiplier from the number of Flavors being considered.
 	if ((iFlavorResult > 0) && (iFlavors > 0))
-		iItemValue += (iFlavorResult / iFlavors)*10;
+		iItemValue += (iFlavorResult / iFlavors)*(iValueScale/2);
 
 	if (bFromMe)
 	{
@@ -3555,7 +3559,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 
 			//No target? Abort!
-			if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
+			if(!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eWithPlayer))
 			{
 				return INT_MAX;
 			}
@@ -3781,7 +3785,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			if (!GET_PLAYER(eOtherPlayer).isHuman())
 			{
 				//No target? Abort!
-				if (!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
+				if (!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(eWithPlayer))
 				{
 					return INT_MAX;
 				}
@@ -5500,9 +5504,10 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 		DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue);
 	}
 	DoAddOpenBordersToThem(pDeal, eOtherPlayer, iTotalValue);
-	DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
 	DoAddGoldToThem(pDeal, eOtherPlayer, iTotalValue);
+	DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
 }
+
 void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue)
 {
 	if (pDeal->DoNotModifyTo() && pDeal->GetToPlayer() == eOtherPlayer)
@@ -5533,7 +5538,10 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 	}
 	DoAddOpenBordersToUs(pDeal, eOtherPlayer, iTotalValue);
 	DoAddGPTToUs(pDeal, eOtherPlayer, iTotalValue);
-	DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
+
+	//do not offer lump sums of gold for resources
+	if (!pDeal->IsResourceTrade(eOtherPlayer,NO_RESOURCE))
+		DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
 }
 
 /// See if removing Gold Per Turn from their side of the deal helps even out pDeal

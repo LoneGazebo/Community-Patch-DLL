@@ -49,11 +49,10 @@ struct CvDangerPlotContents
 	void reset()
 	{
 		m_bFlatPlotDamage = false;
-		m_bEnemyAdjacent = false;
-		m_bEnemyCanCapture = false;
 		m_iImprovementDamage = 0;
 		m_apUnits.clear();
 		m_apCities.clear();
+		m_apCaptureUnits.clear();
 		m_fogDanger.clear();
 
 		//reset cache
@@ -77,11 +76,10 @@ struct CvDangerPlotContents
 
 	CvPlot* m_pPlot;
 	bool m_bFlatPlotDamage;
-	bool m_bEnemyAdjacent; //use this as a tiebreaker, disengage when in doubt
-	bool m_bEnemyCanCapture; //for civilians
 	int m_iImprovementDamage; //only one citadel can affect a unit at a time
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
+	DangerUnitVector m_apCaptureUnits; //for civilians
 	std::vector<int> m_fogDanger;
 
 	//caching ...

@@ -381,15 +381,16 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 		// Default for this zone
 		m_ePosture = TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 
-		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
-		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		//try to grab it ...
+		CvCity *pClosestCity = GetZoneCity();
+		if (pClosestCity && pClosestCity->isInDangerOfFalling())
 		{
-			//try to grab it ...
-			CvCity *pClosestCity = GetZoneCity();
-			if (pClosestCity && pClosestCity->isInDangerOfFalling())
-				m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-			else
-				m_ePosture = TACTICAL_POSTURE_WITHDRAW;
+			m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+		}
+		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
+		else if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		{
+			m_ePosture = TACTICAL_POSTURE_WITHDRAW;
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{
@@ -734,7 +735,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
-				if (!bZoneTypeMatch && !pLoopUnit->isRanged())
+				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
 					continue;
 
 				//a little cheating for AI - invisible units still count with reduced strength
@@ -875,7 +876,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 			if (GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,false) ||
 				GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,true) ||
-				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pZoneCity))
+				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsPreferredAttackTarget(pZoneCity))
 			{
 				iBaseValue *= 2;
 			}
@@ -987,46 +988,6 @@ void CvTacticalAnalysisMap::UpdatePostures()
 		//todo: should we include the previous posture in the logic?
 		//but we've thrown it away at this point ...
 		pZone->SelectPostureMultiZone(vNeighbors);
-	}
-
-	//third pass, logging only
-	for (unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
-	{
-		CvTacticalDominanceZone* pZone = &m_vDominanceZones[iI];
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString szPostureMsg;
-			szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
-
-			switch(pZone->GetPosture())
-			{
-			case TACTICAL_POSTURE_ATTRIT_FROM_RANGE:
-				szPostureMsg += "Attrit from Range";
-				break;
-			case TACTICAL_POSTURE_EXPLOIT_FLANKS:
-				szPostureMsg += "Exploit Flanks";
-				break;
-			case TACTICAL_POSTURE_STEAMROLL:
-				szPostureMsg += "Steamroll";
-				break;
-			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE:
-				szPostureMsg += "Surgical City Strike";
-				break;
-			case TACTICAL_POSTURE_HEDGEHOG:
-				szPostureMsg += "Hedgehog";
-				break;
-			case TACTICAL_POSTURE_COUNTERATTACK:
-				szPostureMsg += "Counterattack";
-				break;
-			case TACTICAL_POSTURE_WITHDRAW:
-				szPostureMsg += "Withdraw";
-				break;
-			case TACTICAL_POSTURE_NONE:
-				szPostureMsg += "NoPosture";
-				break;
-			}
-			GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szPostureMsg);
-		}
 	}
 }
 

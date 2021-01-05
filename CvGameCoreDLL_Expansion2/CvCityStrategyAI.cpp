@@ -850,7 +850,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	}
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if (!bInterruptWonders && m_pCity->getProductionBuilding() != NO_BUILDING && kPlayer.GetWonderProductionAI()->IsWonder(*GC.getBuildingInfo((BuildingTypes)m_pCity->getProductionBuilding())))
+	if (!bInterruptWonders && m_pCity->IsBuildingWorldWonder())
 		return;
 
 	int iBldgLoop, iUnitLoop, iProjectLoop, iProcessLoop, iTempWeight;

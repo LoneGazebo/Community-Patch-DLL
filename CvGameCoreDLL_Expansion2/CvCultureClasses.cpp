@@ -7512,7 +7512,7 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
-	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	int iNumCities = kPlayer.GetNumEffectiveCities();
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
@@ -7727,7 +7727,7 @@ int CvCityCulture::GetBaseTourism()
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
-	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	int iNumCities = kPlayer.GetNumEffectiveCities();
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
@@ -8387,9 +8387,9 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += szTemp;
 	}
 
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetMaxEffectiveCities() > 0)
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetNumEffectiveCities() > 0)
 	{
-		int iNumCities = kCityPlayer.GetMaxEffectiveCities();
+		int iNumCities = kCityPlayer.GetNumEffectiveCities();
 		int iMod = 0;
 		if (iNumCities != 0)
 		{

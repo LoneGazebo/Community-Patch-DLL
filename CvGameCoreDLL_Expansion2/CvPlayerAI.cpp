@@ -1006,7 +1006,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
 			continue;
 		}
-		else if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !IsAtWar())
+		else if (pLoopUnit->IsCanAttack() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !IsAtWar())
 		{
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_USE_POWER);
 			continue;
@@ -2381,7 +2381,6 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
 			CvPlot* pAdjacentPlot = iterateRingPlots(pPlot,iI);
-
 			if(pAdjacentPlot == NULL)
 				continue;
 
@@ -2395,7 +2394,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 
 			//danger is bad - check even adjacent plots!
 			int iDanger = pUnit->GetDanger(pAdjacentPlot);
-			if (iDanger > 0)
+			if (iDanger > 20) //allow fog
 			{
 				iScore = 0;
 				break;
@@ -2452,7 +2451,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				}
 			}
 
-			// score resource
+			// score resource - this may be the dominant factor!
 			ResourceTypes eResource = pAdjacentPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
 			{
@@ -2467,24 +2466,9 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		}
 
 		//require a certain minimum score ...
-		if(iScore > 0)
+		if (iScore > 0)
 		{
-			if (goodPlots.empty())
-			{
-				goodPlots.push( SPlotWithScore(pPlot,iScore) );
-			}
-			else if (iScore > goodPlots.top().score * 0.8f )
-			{
-				//don't even keep it if it's much worse than the current best
-				goodPlots.push( SPlotWithScore(pPlot,iScore) );
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Possible culture bomb location: X: %d, Y: %d. SCORE: %d", pPlot->getX(), pPlot->getY(), iScore);
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
+			goodPlots.push(SPlotWithScore(pPlot, iScore));
 		}
 	}
 
@@ -2507,7 +2491,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		//look at the top two and take the closer one
 		SPlotWithScore nr1 = goodPlots.top(); goodPlots.pop();
 		SPlotWithScore nr2 = goodPlots.top(); goodPlots.pop();
-		if (nr2.score < nr1.score * 0.8f)
+		if (nr1.score * 0.8f > nr2.score)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2519,11 +2503,9 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		}
 		else
 		{
-			SPlotWithScore chosen = nr1;
 			int iTurns1 = pUnit->TurnsToReachTarget(nr1.pPlot, true);
 			int iTurns2 = pUnit->TurnsToReachTarget(nr2.pPlot, true);
-			if (iTurns2*nr1.score < iTurns1*nr2.score)
-				chosen = nr2;
+			SPlotWithScore chosen = (iTurns2<iTurns1) ? nr2 : nr1;
 
 			if (GC.getLogging() && GC.getAILogging())
 			{

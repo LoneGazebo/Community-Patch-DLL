@@ -443,7 +443,7 @@ int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
 
-	return m_piPersonalityFlavor[eType];
+	return range(m_piPersonalityFlavor[eType],0,30);
 }
 
 /// Retrieve the value of all Personality flavors

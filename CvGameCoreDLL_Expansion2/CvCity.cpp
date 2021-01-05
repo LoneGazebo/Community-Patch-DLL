@@ -455,7 +455,7 @@ CvCity::CvCity() :
 	, m_iBlockGold("CvCity::m_iBlockGold", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_iCityRank("CvCity::m_iCityRank", m_syncArchive)
+	, m_iCitySpyRank("CvCity::m_iCitySpyRank", m_syncArchive)
 	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1573,7 +1573,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	m_iCityRank = 0;
+	m_iCitySpyRank = 0;
 	m_iTurnsSinceRankAnnouncement = 0;
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -2605,7 +2605,7 @@ void CvCity::doTurn()
 			pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
 
 			//Only get land combat units
-			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pLoopUnit->getDamage() > 0)
 				{
@@ -6861,8 +6861,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	case TASK_REMOVE_SPECIALIST:
 	{
 		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, true);
-		std::map<SpecialistTypes, int> specialistValueCache;
-		GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+		GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 		break;
 	}
 	case TASK_CHANGE_WORKING_PLOT:
@@ -6996,35 +6995,38 @@ void CvCity::updateEconomicValue()
 	//divide by avg conversion factor
 	iYieldValue /= 3;
 
+	//arbitrary conversion factor ... yields are already covered?
+	iYieldValue += getNumWorldWonders() * 23;
+
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
-
-	int iWonders = getNumWorldWonders() * 50;
-	iYieldValue += iWonders;
 
 	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-		//for plots owned by this city
-		if (NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
-		{
-			//todo: add something for currently unworked plots (future potential)
-			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
-			if (eResource == NO_RESOURCE)
-				continue;
+		if (!pLoopPlot)
+			continue;
 
+		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
+		if (eResource == NO_RESOURCE)
+			continue;
+		
+		//for plots owned by this city or reasonably likely to be claimed
+		bool bGood = false;
+		if (pLoopPlot->isOwned())
+			bGood = (GetID() == pLoopPlot->GetCityPurchaseID());
+		else
+			bGood = pLoopPlot->isAdjacentPlayer(getOwner()) && !pLoopPlot->IsAdjacentOwnedByTeamOtherThan(getTeam());
+
+		if (bGood)
+		{
 			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (!pkResourceInfo)
 				continue;
 
-			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
-				continue;
-
-			int iResourceQuantity = pLoopPlot->getNumResource();
-
-			validResources.push_back(eResource, iResourceQuantity);
-		} //owned plots
-	} //all plots
+			validResources.push_back(eResource, pLoopPlot->getNumResource());
+		}
+	}
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -7058,11 +7060,16 @@ void CvCity::updateEconomicValue()
 						{
 							int iValue = 200;
 
+							if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
+								iValue = 100;
+
 							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity))
+							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || 
+								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
+								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource,iResourceQuantity) ))
 								iValue = 600;
 
-							int iHappinessFromResource = pkResourceInfo->getHappiness();
+							int iHappinessFromResource = pkResourceInfo->getHappiness() + GET_PLAYER(ePossibleOwner).GetExtraHappinessPerLuxury();
 							iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
 						}
 						else if (eUsage == RESOURCEUSAGE_STRATEGIC)
@@ -7070,7 +7077,9 @@ void CvCity::updateEconomicValue()
 							int iValue = 400;
 
 							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity))
+							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || 
+								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
+								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource,iResourceQuantity) ))
 								iValue = 800;
 
 							iResourceValue += iResourceQuantity * iValue;
@@ -7144,16 +7153,10 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 #endif
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-void CvCity::SetRank(int iRank)
+int CvCity::GetEspionageRanking() const
 {
 	VALIDATE_OBJECT
-	m_iCityRank = iRank;
-	CvAssert(GetRank() >= 0);
-}
-int CvCity::GetRank() const
-{
-	VALIDATE_OBJECT
-	return m_iCityRank;
+	return m_iCitySpyRank;
 }
 void CvCity::SetTurnsSinceLastRankMessage(int iTurns)
 {
@@ -7171,31 +7174,13 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 	VALIDATE_OBJECT
 	SetTurnsSinceLastRankMessage(GetTurnsSinceLastRankMessage() + iTurns);
 }
-void CvCity::SetEspionageRanking(int iPotential, bool bNotify)
-{
-	int iRank = 0;
-
-	//Don't want to divide by zero!
-	if(GC.getGame().GetLargestSpyPotential() > 0)
-	{
-		iRank = ((iPotential * 100) / GC.getGame().GetLargestSpyPotential());
-		//Rank time - 10 is worst, 1 is best
-		iRank /= 10;
-		if (iRank <= 0)
-		{
-			iRank = 1;
-		}
-	}
-	//Seed rank warning and update rank.
-	DoRankIncreaseWarning(iRank, bNotify);
-}
-void CvCity::DoRankIncreaseWarning(int iRank, bool bNotify)
+void CvCity::SetEspionageRanking(int iRank, bool bNotify)
 {
 	if(bNotify)
 	{
 		if(GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
 		{
-			if((iRank > GetRank()) && (GetRank() > 4))
+			if(iRank > GetEspionageRanking() && GetEspionageRanking() > 4)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
@@ -7229,7 +7214,8 @@ void CvCity::DoRankIncreaseWarning(int iRank, bool bNotify)
 			ChangeTurnsSinceLastRankMessage(1);
 		}
 	}
-	SetRank(iRank);
+
+	m_iCitySpyRank = iRank;
 }
 #endif
 
@@ -14083,7 +14069,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iLoop = 0;
 				for(pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCanAttack())
 					{
 						UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
 						UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
@@ -14438,9 +14424,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeCityAirStrikeDefense(pBuildingInfo->GetCityAirStrikeDefense() * iChange);
 		}
-		if((pBuildingInfo->GetBorderObstacleCity() > 0))
+		if((pBuildingInfo->GetBorderObstacleLand() > 0))
 		{
-			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
+			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleLand() * iChange);
 		}
 		if((pBuildingInfo->GetBorderObstacleWater() > 0))
 		{
@@ -15312,7 +15298,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip)
+void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate)
 #else
 void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 #endif
@@ -15354,7 +15340,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 		}
 	}
 
-	if(!bSkip)
+	if(!bSkipUpdate)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
@@ -17673,8 +17659,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Add Citizens
 				for(int iNewPopLoop = 0; iNewPopLoop < iPopChange; iNewPopLoop++)
 				{
-					std::map<SpecialistTypes, int> specialistValueCache;
-					GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+					GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 				}
 			}
 		}
@@ -17755,7 +17740,8 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
  	if (iChange != 0) {
 		if (bReassignPop && iChange < 0) {
 			// If we are reducing automatons, remove the workers first
-			for (int iNewPopLoop = -iChange; iNewPopLoop--;) {
+			for (int iNewPopLoop = -iChange; iNewPopLoop--;)
+			{
 				GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue + getPopulation());
 			}
  			// Fixup the unassigned workers
@@ -17769,9 +17755,9 @@ void CvCity::setAutomatons(int iNewValue, bool bReassignPop /* = true */)
 			// Give new automatons something to do in the City
 			GetCityCitizens()->ChangeNumUnassignedCitizens(iChange);
  			// Need to Add Citizens
-			std::map<SpecialistTypes, int> specialistValueCache;
-			for (int iNewPopLoop = 0; iNewPopLoop < iChange; iNewPopLoop++) {
-				GetCityCitizens()->DoAddBestCitizenFromUnassigned(specialistValueCache);
+			for (int iNewPopLoop = 0; iNewPopLoop < iChange; iNewPopLoop++)
+			{
+				GetCityCitizens()->DoAddBestCitizenFromUnassigned();
 			}
 		}
  		setLayoutDirty(true);
@@ -23201,7 +23187,7 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetBorderObstacleCity() const
+int CvCity::GetBorderObstacleLand() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleCity;
@@ -23211,7 +23197,7 @@ int CvCity::GetBorderObstacleCity() const
 void CvCity::ChangeBorderObstacleCity(int iChange)
 {
 	VALIDATE_OBJECT
-	SetBorderObstacleCity(GetBorderObstacleCity() + iChange);
+	SetBorderObstacleCity(GetBorderObstacleLand() + iChange);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetBorderObstacleCity(int iValue)
@@ -26900,6 +26886,7 @@ const CvString CvCity::getNameNoSpace() const
 {
 	CvString ret = getName();
 	ret.Replace(' ', '_');
+	ret.Replace('\'', '_');
 	return ret;
 }
 
@@ -29052,22 +29039,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		break;
 
 	case ORDER_CONSTRUCT:
-			{
+	{
 		eConstructBuilding = ((BuildingTypes)(pOrderNode->iData1));
 
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 
 		if(pkBuildingInfo)
-				{
+		{
 			kOwner.changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), -1);
 
 			if(bFinish)
-					{
+			{
 				produce(eConstructBuilding);
 			}
-					}
+		}
 		break;
-				}
+	}
 
 	case ORDER_CREATE:
 		eCreateProject = ((ProjectTypes)(pOrderNode->iData1));
@@ -29076,25 +29063,25 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		kOwner.changeProjectMaking(eCreateProject, -1);
 
 		if(bFinish)
-									{
+		{
 			produce(eCreateProject);
-									}
+		}
 		break;
 
 	case ORDER_PREPARE:
 
 		if(bFinish)
-									{
+		{
 			eSpecialist = (SpecialistTypes)(pOrderNode->iData1);
 			produce(eSpecialist);
-									}
+		}
 
 		break;
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
 		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS)
-									{
+		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 										{
@@ -29107,35 +29094,35 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	default:
 		CvAssertMsg(false, "pOrderNode->eOrderType is not a valid option");
 													break;
-												}
+	}
 
 	if(m_unitBeingBuiltForOperation.IsValid())
 	{
 		kOwner.CityUncommitToBuildUnitForOperationSlot(m_unitBeingBuiltForOperation);
 		m_unitBeingBuiltForOperation.Invalidate();
-											}
+	}
 
 	if(pOrderNode == headOrderQueueNode())
 	{
 		bStart = true;
 		stopHeadOrder();
-										}
+	}
 	else
-										{
+	{
 		bStart = false;
-										}
+	}
 
 	m_orderQueue.deleteNode(pOrderNode);
 	pOrderNode = NULL;
 	if(bFinish)
-										{
+	{
 		CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
-										}
+	}
 
 	if(bStart)
 	{
 		startHeadOrder();
-									}
+	}
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
@@ -29143,15 +29130,15 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
-								}
-							}
+		}
+	}
 
 	bMessage = false;
 
 	if(bChoose)
 	{
 		if(getOrderQueueLength() == 0)
-							{
+		{
 			if(!isHuman() || isProductionAutomated())
 			{
 				AI_chooseProduction(false /*bInterruptWonders*/, false);
@@ -29174,7 +29161,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eTrainUnit);
 				if(pkUnitInfo)
-					{
+				{
 					localizedText = Localization::Lookup(((isLimitedUnitClass((UnitClassTypes)(pkUnitInfo->GetUnitClassType()))) ? "TXT_KEY_MISC_TRAINED_UNIT_IN_LIMITED" : "TXT_KEY_MISC_TRAINED_UNIT_IN"));
 					localizedText << pkUnitInfo->GetTextKey() << getNameKey();
 				}
@@ -29254,61 +29241,61 @@ void CvCity::swapOrder(int iNum)
 
 //	--------------------------------------------------------------------------------
 void CvCity::startHeadOrder()
-			{
+{
+	VALIDATE_OBJECT
+	OrderData* pOrderNode = headOrderQueueNode();
+
+	if(pOrderNode != NULL)
+	{
+		GetCityCitizens()->DoReallocateCitizens();
+
+		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
+		{
+			processProcess(((ProcessTypes)(pOrderNode->iData1)), 1);
+		}
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::stopHeadOrder()
+{
 	VALIDATE_OBJECT
 	OrderData* pOrderNode = headOrderQueueNode();
 
 	if(pOrderNode != NULL)
 	{
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-				{
-			processProcess(((ProcessTypes)(pOrderNode->iData1)), 1);
-				}
-			}
-		}
-
-
-//	--------------------------------------------------------------------------------
-void CvCity::stopHeadOrder()
 		{
-	VALIDATE_OBJECT
-	OrderData* pOrderNode = headOrderQueueNode();
-
-	if(pOrderNode != NULL)
-			{
-		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-				{
 			processProcess(((ProcessTypes)(pOrderNode->iData1)), -1);
-				}
-				}
-				}
+		}
+	}
+}
 
 
 //	--------------------------------------------------------------------------------
 int CvCity::getOrderQueueLength()
-				{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.getLength();
-				}
-				
+}
+
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::getOrderFromQueue(int iIndex)
-				{
+{
 	VALIDATE_OBJECT
-	OrderData* pOrderNode;
+	OrderData* pOrderNode = m_orderQueue.getAt(iIndex);
 
-	pOrderNode = m_orderQueue.getAt(iIndex);
-
-	if(pOrderNode != NULL)
-					{
+	if (pOrderNode != NULL)
+	{
 		return pOrderNode;
 	}
 	else
-						{
+	{
 		return NULL;
-						}
-					}
+	}
+}
 
 
 //	--------------------------------------------------------------------------------
@@ -29316,26 +29303,26 @@ OrderData* CvCity::nextOrderQueueNode(OrderData* pNode)
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-				}
+}
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::nextOrderQueueNode(const OrderData* pNode) const
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-	}
+}
 
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::headOrderQueueNode() const
-		{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::headOrderQueueNode()
-			{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
@@ -29343,34 +29330,34 @@ OrderData* CvCity::headOrderQueueNode()
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::tailOrderQueueNode() const
-			{
+{
 	VALIDATE_OBJECT
 	return m_orderQueue.tail();
-			}
+}
 
 //	--------------------------------------------------------------------------------
 /// remove items in the queue that are no longer valid
 bool CvCity::CleanUpQueue(void)
-			{
+{
 	VALIDATE_OBJECT
 	bool bOK = true;
 
-	for(int iI = (getOrderQueueLength() - 1); iI >= 0; iI--)
+	for (int iI = (getOrderQueueLength() - 1); iI >= 0; iI--)
 	{
 		OrderData* pOrder = getOrderFromQueue(iI);
 
-		if(pOrder != NULL)
+		if (pOrder != NULL)
 		{
-			if(!canContinueProduction(*pOrder))
+			if (!canContinueProduction(*pOrder))
 			{
 				popOrder(iI, false, true);
 				bOK = false;
 			}
 		}
-			}
+	}
 
 	return bOK;
-		}
+}
 
 //	--------------------------------------------------------------------------------
 /// Create unit by completing production in city, separated out from popOrder() so other functions can call this
@@ -29856,27 +29843,23 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 		{
 			if(pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE) && pUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 			{
-
 				// Now make sure there isn't a critical military threat
-				CvMilitaryAI* thisPlayerMilAI = thisPlayer.GetMilitaryAI();
-				int iThreat = thisPlayerMilAI->GetThreatTotal();
-				iThreat += thisPlayerMilAI->GetBarbarianThreatTotal();
-				if(iThreat < thisPlayerMilAI->GetThreatWeight(THREAT_CRITICAL))
+				if (thisPlayer.GetMilitaryAI()->ShouldFightBarbarians())
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+				else
 				{
 					pUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Assigning explore unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 						thisPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
@@ -30159,7 +30142,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		if(pLoopUnit != NULL)
 		{
 			// check stacking
-			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCombatUnit())
+			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCanAttack())
 				return false;
 		}
 
@@ -32911,7 +32894,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 	// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
 #if defined(MOD_BALANCE_CORE)
 	//Correction - make this apply to all ranged units, naval too.
-	else if (!pDefender->isRangedSupportFire() && pDefender->isRanged())
+	else if (!pDefender->isRangedSupportFire() && pDefender->IsCanAttackRanged())
 #else
 	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
 #endif
@@ -33082,7 +33065,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCombatUnit())
+			if (pUnit->IsCanAttack())
 			{
 				if (pUnit->getTeam() == getTeam())
 					iFriendlyPower += pUnit->GetPower();
@@ -33527,13 +33510,10 @@ void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 	}
 	else
 	{
-		OutputDebugString("\nNo stat for selected unit type.\n");
+		//OutputDebugString("No stat for selected unit type.\n");
 	}
 
-	bool bAllUnitsUnlocked;
-
-	bAllUnitsUnlocked = AreAllUnitsBuilt();
-	if(bAllUnitsUnlocked)
+	if(AreAllUnitsBuilt())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_UNITS);
 	}
@@ -33779,6 +33759,16 @@ bool CvCity::HasAnyWonder() const
 bool CvCity::HasWonder(BuildingTypes iBuildingType) const
 {
 	return HasBuilding(iBuildingType);
+}
+
+bool CvCity::IsBuildingWorldWonder() const
+{
+	if (getProductionBuilding() == NO_BUILDING)
+		return false;
+	
+	const CvBuildingClassInfo& kBuildingClass = GC.getBuildingInfo(getProductionBuilding())->GetBuildingClassInfo();
+
+	return ::isWorldWonderClass(kBuildingClass);
 }
 
 bool CvCity::IsCivilization(CivilizationTypes iCivilizationType) const

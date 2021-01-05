@@ -530,7 +530,7 @@ public:
 	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetHighestPotential();
+	void SetHighestSpyPotential();
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
@@ -715,10 +715,6 @@ public:
 #endif
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
-
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int GetLargestSpyPotential() { return m_iLargestBasePotential; }
-#endif
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
@@ -935,9 +931,6 @@ protected:
 	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int		m_iLargestBasePotential;
-#endif
 	CvDistanceMapByTurns m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 

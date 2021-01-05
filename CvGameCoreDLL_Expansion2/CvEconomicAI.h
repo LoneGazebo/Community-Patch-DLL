@@ -304,11 +304,7 @@ bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer*
 bool IsTestStrategy_NeedRecon(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
 bool IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer);
-#else
-bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#endif
 #endif
 bool IsTestStrategy_EnoughRecon(CvPlayer* pPlayer);
 bool IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer);

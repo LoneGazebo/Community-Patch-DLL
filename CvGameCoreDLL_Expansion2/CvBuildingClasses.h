@@ -378,7 +378,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
 	int GetCityAirStrikeDefense() const;
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
