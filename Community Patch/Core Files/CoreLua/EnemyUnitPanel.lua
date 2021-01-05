@@ -21,17 +21,6 @@ local g_iPortraitSize = Controls.UnitPortrait:GetSize().x;
 local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
--- fix for DB cache issue, by merill
-local DB_HandicapInfos = {};
-if Game then
-	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
-		DB_HandicapInfos[realHandicap["ID"]] = {};
-		for key,val in pairs(realHandicap) do 
-			DB_HandicapInfos[realHandicap["ID"]][key] = val;
-		end
-	end
-end
-
 function SetName(name)
 	
 	name = Locale.ToUpper(name);
@@ -302,7 +291,6 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		local iTheirPlayer = pCity:GetOwner();
 		local pMyPlayer = Players[iMyPlayer];
 		local pTheirPlayer = Players[iTheirPlayer];
-		local iHandicap = pMyPlayer:GetHandicapType();
 		
 		local iMyStrength = 0;
 		local iTheirStrength = 0;
@@ -1922,7 +1910,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- BarbarianBonuses
 			if (pTheirUnit:IsBarbarian()) then
-				iModifier = DB_HandicapInfos[iHandicap].BarbarianBonus;
 				iModifier = iModifier + Players[pMyUnit:GetOwner()]:GetBarbarianCombatBonus();
 
 				iModifier = iModifier + pMyUnit:BarbarianCombatBonus();
@@ -2836,7 +2823,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 
 		local myPlayerID = myCity:GetOwner();
 		local myPlayer = Players[myPlayerID];
-		local iHandicap = myPlayer:GetHandicapType();
 		
 		local theirPlayerID = theirUnit:GetOwner();
 		local theirPlayer = Players[theirPlayerID];
@@ -3251,7 +3237,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
-			iModifier = DB_HandicapInfos[iHandicap].BarbarianBonus;
 			iModifier = iModifier + myPlayer:GetBarbarianCombatBonus();
 
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

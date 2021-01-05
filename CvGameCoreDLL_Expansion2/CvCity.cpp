@@ -27517,23 +27517,17 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 					// Generic Barb Combat Bonus
 					iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 
-					const CvHandicapInfo& thisPlayerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
 					const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
-					// Human bonus
-					if (isHuman())
+					// AI bonus
+					if (!isHuman())
 					{
-						iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
+						iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 					}
 					// Minor bonus
 					else if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
 					{
 						iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-					}
-					// AI bonus
-					else
-					{
-						iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 					}
 
 					if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))

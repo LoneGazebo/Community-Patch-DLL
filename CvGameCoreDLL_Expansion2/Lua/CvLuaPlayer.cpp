@@ -12618,30 +12618,30 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case MAJOR_CIV_APPROACH_WAR:
 					if (pDiplo->IsAtWar(ePlayer))
 					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_WAR").toUTF8();
+						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_WAR").toUTF8();
 					}
 					else
 					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR").toUTF8();
+						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR").toUTF8();
 					}
 					break;
 				case MAJOR_CIV_APPROACH_HOSTILE:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_DECEPTIVE:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_GUARDED:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_GUARDED").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_AFRAID:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_AFRAID").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_FRIENDLY:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
 				default:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL").toUTF8();
 					break;
 				}
 

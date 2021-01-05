@@ -16139,23 +16139,17 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			iModifier += kPlayer.GetBarbarianCombatBonus();
 			iModifier += GetBarbarianCombatBonus();
 
-			const CvHandicapInfo& thisPlayerHandicap = kPlayer.getHandicapInfo();
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
-			// Human bonus
-			if(isHuman())
+			// AI bonus
+			if (!isHuman())
 			{
-				iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
+				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 			}
 			// Minor bonus
 			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
 			{
 				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-			}
-			// AI bonus
-			else
-			{
-				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 			}
 
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
@@ -16850,15 +16844,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Generic Barb Combat Bonus
 			iModifier += kPlayer.GetBarbarianCombatBonus();
 
-			const CvHandicapInfo& thisPlayerHandicap = kPlayer.getHandicapInfo();
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
-			// Human bonus
-			if(isHuman())
-				iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
 			// AI bonus
-			else
+			if (!isHuman())
 				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
+			// Minor bonus
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
+			{
+				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
+			}
 		}
 
 		// ATTACKING

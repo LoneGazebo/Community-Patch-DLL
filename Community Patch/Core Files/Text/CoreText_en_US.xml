@@ -2917,30 +2917,30 @@
 			<Text>Diplomacy is much more difficult on your difficulty level.</Text>
 		</Row>
 		
-		<!-- Show True Approach Debug Text -->
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
-			<Text>True Approach is War.</Text>
+		<!-- Show Real Approach Debug Text -->
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_WAR">
+			<Text>Real Approach is War.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
-			<Text>True Approach is Planning War.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR">
+			<Text>Real Approach is Planning War.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
-			<Text>True Approach is Hostile.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE">
+			<Text>Real Approach is Hostile.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
-			<Text>True Approach is Deceptive.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE">
+			<Text>Real Approach is Deceptive.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
-			<Text>True Approach is Guarded.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_GUARDED">
+			<Text>Real Approach is Guarded.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
-			<Text>True Approach is Afraid.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_AFRAID">
+			<Text>Real Approach is Afraid.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
-			<Text>True Approach is Friendly.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY">
+			<Text>Real Approach is Friendly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
-			<Text>True Approach is Neutral.</Text>
+		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL">
+			<Text>Real Approach is Neutral.</Text>
 		</Row>
 
 		<!-- Embassy Diplo Mod -->
