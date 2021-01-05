@@ -231,9 +231,7 @@ private:
 	void PlotHealMoves();
 	void PlotMovesToSafety();
 
-#if defined(MOD_AI_SECONDARY_SETTLERS)
 	void PlotOpportunisticSettlementMoves();
-#endif
 
 //------------------------------------- move to tactical AI
 #if defined(MOD_BALANCE_CORE)
@@ -256,13 +254,8 @@ private:
 #endif
 //-------------------------------------
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
-#else
-	void PlotWorkerMoves();
-	void PlotWorkerSeaMoves();
-#endif
 	void PlotWriterMoves();
 	void PlotArtistMoves();
 	void PlotMusicianMoves();

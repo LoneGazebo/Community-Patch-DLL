@@ -4258,42 +4258,67 @@ void CvPlayerPolicies::SetOneShotFreeUnitsFired(PolicyTypes eIndex, bool bFired)
 }
 
 /// Returns number of policies purchased by this player
-#if defined(MOD_BALANCE_CORE)
-int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher, bool bExcludeFree) const
-#else
-int CvPlayerPolicies::GetNumPoliciesOwned() const
-#endif
+int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher, bool bExcludeFree, bool bIncludeOpeners) const
 {
 	int rtnValue = 0;
 
-	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
 		// Do we have this policy?
-		if(m_pabHasPolicy[i])
+		if (m_pabHasPolicy[i])
 		{
-#if defined(MOD_API_EXTENSIONS)
-			if (bExcludeFree && m_pabFreePolicy[i]) continue;
-#endif
-#if defined(MOD_BALANCE_CORE)
-			if(m_pPolicies->GetPolicyEntry(i)->IsDummy())
+			if (bExcludeFree && m_pabFreePolicy[i])
+				continue;
+
+			if (m_pPolicies->GetPolicyEntry(i)->IsDummy())
 				continue;
 
 			//Skipping finishers?
-			if(bSkipFinisher && m_pPolicies->GetPolicyEntry(i)->IsFinisher())
+			if (bSkipFinisher && m_pPolicies->GetPolicyEntry(i)->IsFinisher())
 			{
 				continue;
 			}
-#endif
+
 			rtnValue++;
+		}
+	}
+	if (bIncludeOpeners)
+	{
+		for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
+		{
+			PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) iPolicyLoop;
+			if (ePolicyBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
+				if (pkPolicyBranchInfo == NULL)
+				{
+					continue;
+				}
+				//No ideologies.
+				if (pkPolicyBranchInfo->IsPurchaseByLevel())
+				{
+					continue;
+				}
+
+				if (IsPolicyBranchUnlocked(ePolicyBranch))
+				{
+					rtnValue++;
+				}
+			}
 		}
 	}
 
 	return rtnValue;
 }
+
 /// Number of policies purchased in this branch
 int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const
 {
 	int rtnValue = 0;
+
+	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
+	if (pkPolicyBranchInfo == NULL)
+		return 0;
 
 	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
@@ -4837,28 +4862,10 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {
-#if defined(MOD_BUGFIX_DUMMY_POLICIES)
-#if defined(MOD_API_EXTENSIONS)
-	int iNumPolicies = GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES, true);
-#else
-	int iNumPolicies = GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES);
-#endif
-#else
-#if defined(MOD_API_EXTENSIONS)
 	int iNumPolicies = GetNumPoliciesOwned(false, true);
-#else
-	int iNumPolicies = GetNumPoliciesOwned();
-#endif
-#endif
 
 	// Reduce count by however many free Policies we've had in this game
 	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
-
-	// Each branch we unlock (after the first) costs us a buy, so add that in; JON: not any more
-	//if (GetNumPolicyBranchesUnlocked() > 0)
-	//{
-	//	iNumPolicies += (GetNumPolicyBranchesUnlocked() - 1);
-	//}
 
 	int iCost = 0;
 	iCost += (int)(iNumPolicies* (/*7*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED() + GC.getPOLICY_COST_EXTRA_VALUE()));
@@ -4902,10 +4909,9 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		int iTier1 = 0;
 		int iTier2 = 0;
 		int iTier3 = 0;
-		PolicyBranchTypes eLoopBranch;
 		for (int iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
 		{
-			eLoopBranch = (PolicyBranchTypes)iBranchLoop;
+			PolicyBranchTypes eLoopBranch = (PolicyBranchTypes) iBranchLoop;
 
 			if (eLoopBranch != NO_POLICY_BRANCH_TYPE)
 			{
@@ -5624,21 +5630,17 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	m_pPlayer->GetCulture()->SetTurnIdeologySwitch(GC.getGame().getGameTurn());
 	m_pPlayer->setJONSCulture(0);
 	m_pPlayer->ChangeNumFreeTenets(iNewBranchTenets, false /*bCountAsFreePolicies*/);
-#if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
-	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
-	{
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(eNewBranchType);
 
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
-		}
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(m_pPlayer->GetID());
+		args->Push(eNewBranchType);
+
+		bool bResult = false;
+		LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
 	}
-#endif
 
 	//Buildings enabled by the old policy branch should be destroyed.
 	int iLoop;
@@ -5931,11 +5933,7 @@ int CvPlayerPolicies::GetNumPoliciesCanBeAdopted()
 		}
 	}
 
-#if defined(MOD_BUGFIX_DUMMY_POLICIES)
-	return iNumPoliciesToAcquire - GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES);
-#else
 	return iNumPoliciesToAcquire - GetNumPoliciesOwned();
-#endif
 }
 
 /// New Policy picked... figure how what that means for history. This isn't the greatest example of programming ever, but oh well, it'll do
@@ -6350,30 +6348,29 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 	// Start by resetting the AI
 	m_pPolicyAI->Reset();
 
-#if defined(MOD_BALANCE_CORE)
-	int iCurrentUnhappiness = m_pPlayer->GetUnhappiness(); 
-#endif
+	int iCurrentUnhappiness = m_pPlayer->GetUnhappiness();
 
 	// Now populate the AI with the current flavor information
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-//		OLD WAY: use CURRENT player flavors
-//		iFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
+		// OLD WAY: use CURRENT player flavors
+		// iFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
 
-//		NEW WAY: use PERSONALITY flavors (since policy choices are LONG-TERM)
-//		EVEN NEWER WAY: add in a modifier for the Grand Strategy we are running (since these are also long term)
-#if defined(MOD_AI_SMART_GRAND_STRATEGY)
+		// NEW WAY: use PERSONALITY flavors (since policy choices are LONG-TERM)
+		// EVEN NEWER WAY: add in a modifier for the Grand Strategy we are running (since these are also long term)
+
 		// NEWER NEWER WAY: don't add grand strategy factor before medieval era, the AI still doesn't know if the Grand Strategy is solid.
 		EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-		if (MOD_AI_SMART_GRAND_STRATEGY && m_pPlayer->GetCurrentEra() < eMedieval)
+		if (m_pPlayer->GetCurrentEra() < eMedieval)
 		{
 			iFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes) iFlavor);
 		}
 		else
-#endif
-		iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
+		{
+			iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
+		}
 
-//		Boost flavor even further based on in-game conditions
+		// Boost flavor even further based on in-game conditions
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
 		if (eStrategyLosingMoney == NO_ECONOMICAISTRATEGY)
 		{
@@ -6383,28 +6380,24 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		bool bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
 		bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
-		if(bInDeficit && iFlavor == GC.getInfoTypeForString("FLAVOR_GOLD"))
+		if (bInDeficit && iFlavor == GC.getInfoTypeForString("FLAVOR_GOLD"))
 		{
 			iFlavorValue += 5;
 		}
-#if defined(MOD_BALANCE_CORE)
-		else if(m_pPlayer->GetHappiness() < iCurrentUnhappiness && iFlavor == GC.getInfoTypeForString("FLAVOR_HAPPINESS"))
-#else
-		else if(m_pPlayer->GetHappiness() < m_pPlayer->GetUnhappiness() && iFlavor == GC.getInfoTypeForString("FLAVOR_HAPPINESS"))
-#endif
+		else if (m_pPlayer->GetHappiness() < iCurrentUnhappiness && iFlavor == GC.getInfoTypeForString("FLAVOR_HAPPINESS"))
 		{
 			iFlavorValue += 5;
 		}
-		else if(bIsAtWarWithSomeone && iFlavor == GC.getInfoTypeForString("FLAVOR_DEFENSE"))
+		else if (bIsAtWarWithSomeone && iFlavor == GC.getInfoTypeForString("FLAVOR_DEFENSE"))
 		{
 			iFlavorValue += 3;
 		}
-		else if(bIsAtWarWithSomeone && iFlavor == GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE"))
+		else if (bIsAtWarWithSomeone && iFlavor == GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE"))
 		{
 			iFlavorValue += 3;
 		}
 
-		if(iFlavorValue > 0)
+		if (iFlavorValue > 0)
 		{
 			m_pPolicyAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue, iPropagatePercent);
 		}

@@ -124,7 +124,7 @@ public:
 
 	bool IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlayer, bool bOnlyOwnedByCityOwner);
 	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
-	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
 
 	bool CitiesHaveTradeConnection (CvCity* pFirstCity, CvCity* pSecondCity);
 
@@ -142,11 +142,7 @@ public:
 	void UpdateTradePlots();
 	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	void ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits = false); // called when a city is captured or traded
-#else
-	void ClearAllCityTradeRoutes (CvPlot* pPlot); // called when a city is captured or traded
-#endif
 	void ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo = false); // called from world congress code
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
 #if defined(MOD_BALANCE_CORE)
@@ -340,11 +336,7 @@ public:
 	void AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 	bool CheckTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);
 
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	static UnitTypes GetTradeUnit (DomainTypes eDomain, CvPlayer* pPlayer);
-#else
-	static UnitTypes GetTradeUnit (DomainTypes eDomain);
-#endif
 
 	std::vector<CvString> GetPlotToolTips (CvPlot* pPlot);
 	std::vector<CvString> GetPlotMouseoverToolTips (CvPlot* pPlot);

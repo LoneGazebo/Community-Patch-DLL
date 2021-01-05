@@ -95,7 +95,6 @@ public:
 		return m_iMovesToTarget;
 	};
 
-#ifdef MOD_AI_SMART_AIR_TACTICS 
 	void SetInterceptor(CvUnit* pInterceptor)
 	{
 		m_pInterceptor = pInterceptor;
@@ -104,7 +103,6 @@ public:
 	{
 		return m_pInterceptor;
 	};
-#endif
 
 	// Derived
 	int GetAttackPriority() const
@@ -119,9 +117,7 @@ private:
 	int m_iMovesToTarget;
 	int m_iExpectedTargetDamage;
 	int m_iExpectedSelfDamage;
-#ifdef MOD_AI_SMART_AIR_TACTICS
 	CvUnit* m_pInterceptor;
-#endif
 };
 
 // Object stored in the list of current move cities (m_CurrentMoveCities)
@@ -473,9 +469,7 @@ private:
 
 	int GetRecruitRange() const;
 
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
-#endif
 
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
 	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);

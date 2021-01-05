@@ -47,6 +47,14 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
+
+		<!-- Include City Name in "Work Has Begun On" Notification -->
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
+			<Text>[SPACE]Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
+			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -2897,42 +2905,42 @@
 		
 		<!-- Base Opinion Mod -->
 		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
-			<Text>They instinctively like you!</Text>
+			<Text>Diplomacy is much easier on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
-			<Text>They instinctively view you more favorably.</Text>
+			<Text>Diplomacy is easier on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
-			<Text>They instinctively view you as a competitor.</Text>
+			<Text>Diplomacy is more difficult on your difficulty level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
-			<Text>They instinctively hate you!</Text>
+			<Text>Diplomacy is much more difficult on your difficulty level.</Text>
 		</Row>
 		
 		<!-- Show True Approach Debug Text -->
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
-			<Text>True Approach: War</Text>
+			<Text>True Approach is War.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
-			<Text>True Approach: Planning War</Text>
+			<Text>True Approach is Planning War.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
-			<Text>True Approach: Hostile</Text>
+			<Text>True Approach is Hostile.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
-			<Text>True Approach: Deceptive</Text>
+			<Text>True Approach is Deceptive.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
-			<Text>True Approach: Guarded</Text>
+			<Text>True Approach is Guarded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
-			<Text>True Approach: Afraid</Text>
+			<Text>True Approach is Afraid.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
-			<Text>True Approach: Friendly</Text>
+			<Text>True Approach is Friendly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
-			<Text>True Approach: Neutral</Text>
+			<Text>True Approach is Neutral.</Text>
 		</Row>
 
 		<!-- Embassy Diplo Mod -->
@@ -2941,6 +2949,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
 			<Text>We have an embassy in their capital.</Text>
+		</Row>
+
+		<!-- Diplomat Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_DIPLOMAT">
+			<Text>We have a Diplomat in their capital.</Text>
 		</Row>
 
 		<!-- Open Borders Diplo Mod -->
@@ -2970,6 +2983,17 @@
 			<Text>We have made a Research Agreement!</Text>
 		</Row>
 
+		<!-- City Liberation Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_LIBERATED_HOLY_CITY">
+			<Text>You liberated their Holy City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_CAPITAL">
+			<Text>You gave them back their original capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RETURNED_HOLY_CITY">
+			<Text>You gave them back their Holy City!</Text>
+		</Row>
+
 		<!-- Denouncement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT">
 			<Text>We have denounced each other!</Text>
@@ -2978,6 +3002,11 @@
 		<!-- Tech Dispute Mod (for scientific civs) -->
 		<Row Tag="TXT_KEY_DIPLO_TECH_DISPUTE">
 			<Text>You are competing for technological advancement.</Text>
+		</Row>
+
+		<!-- Cultural Dispute Mod (for cultural civs) -->
+		<Row Tag="TXT_KEY_DIPLO_POLICY_DISPUTE">
+			<Text>You are competing for cultural advancement.</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
@@ -2989,6 +3018,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_TECH_DISPUTE">
 			<Text>You are not competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_DISPUTE">
+			<Text>You are not competing for cultural advancement.</Text>
 		</Row>
 		
 		<!-- Wonder Spammer Diplo Mod -->
@@ -3026,7 +3058,7 @@
 		
 		<!-- City-State Coup Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
-			<Text>Our spies usurped their City-State Alliance in a coup d'état.</Text>
+			<Text>Your spies usurped their City-State Alliance in a coup d'état.</Text>
 		</Row>
 
 		<!-- Aggressive Posture Diplo Mod -->
@@ -3035,6 +3067,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>Your military deployment is extremely threatening.</Text>
+		</Row>
+
+		<!-- Betrayed Resurrected Civ Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_BETRAYED_US">
+			<Text>You restored their civilization and then attacked them!</Text>
 		</Row>
 
 		<!-- Religion Diplo Mods -->
@@ -3059,6 +3096,17 @@
 			<Text>You have adopted the {1_YourPolicyTree} Ideology, but they believe in {2_TheirPolicyTree}.</Text>
 		</Row>
 
+		<!-- World Congress Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING">
+			<Text>We helped them remain the host of the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously passed their proposal in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
+			<Text>We previously defeated their proposal in the World Congress.</Text>
+		</Row>
+
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
 			<Text>They liked our proposal to the United Nations.</Text>
@@ -3067,13 +3115,22 @@
 			<Text>They disliked our proposal to the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN">
-			<Text>We helped them pass their proposal in the United Nations.</Text>
+			<Text>We passed their proposal in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN">
-			<Text>We helped their proposal fail in the United Nations.</Text>
+			<Text>We defeated their proposal in the United Nations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>We helped them become the host of the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN">
+			<Text>We helped them remain the host of the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously passed their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
+			<Text>We previously defeated their proposal in the United Nations.</Text>
 		</Row>
 
 		<!-- Special Warmonger Hate Descriptor for Aztecs -->
@@ -6885,7 +6942,7 @@
 			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
-			<Text>[ICON_PIRATE] Bullying a Minor Civ:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
@@ -6931,6 +6988,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
 			<Text>Process in destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
+			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->

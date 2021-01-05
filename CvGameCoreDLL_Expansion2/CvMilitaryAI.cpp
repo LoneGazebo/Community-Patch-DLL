@@ -571,90 +571,80 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true);
 	if(eType != NO_UNIT)
 	{
-#if defined(MOD_BALANCE_CORE)
 		CvUnitEntry* pUnitInfo = GC.GetGameUnits()->GetEntry(eType);
 		if(pUnitInfo && pUnitInfo->GetUnitAIType(eUnitType))
 		{
-#endif
-		// Can we buy the primary unit type at the start city?
-		if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-		{
-			int iGoldCost = pCity->GetPurchaseCost(eType);
-			int iPriority = GC.getAI_GOLD_PRIORITY_UNIT();
-			if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
+			// Can we buy the primary unit type at the start city?
+			if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 			{
+				int iGoldCost = pCity->GetPurchaseCost(eType);
+				int iPriority = GC.getAI_GOLD_PRIORITY_UNIT();
+				if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
+				{
+					if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
+					{
+						// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
+						int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
+
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+
+						if (iResult != -1)
+						{
+							CvUnit* pUnit = m_pPlayer->getUnit(iResult);
+							m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
+							m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+
+							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+							{
+								pUnit->finishMoves();
+							}
+
+							CvString szMsg;
+							szMsg.Format("Emergency Unit Purchased: %s, ", pUnit->getUnitInfo().GetDescription());
+							szMsg += pCity->getName();
+							m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
+
+							return pUnit;
+						}
+						else
+						{
+							return NULL;
+						}
+					}
+				}
+			}
+
+			// Try again with Faith
+			if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_FAITH))
+			{
+				int iFaithCost = pCity->GetFaithPurchaseCost(eType, false /*bIncludeBeliefDiscounts*/);
+
 				if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
 				{
+					m_pPlayer->ChangeFaith(-iFaithCost);
+
 					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
 					int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
 
 					CvAssertMsg(iResult != -1, "Unable to create unit");
+					CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 
-					if (iResult != -1)
+					if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 					{
-						CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-						m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
-						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
-						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-						{
-#endif
-							pUnit->finishMoves();
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
-						}
-#endif
-
-						CvString szMsg;
-						szMsg.Format("Emergency Unit Purchased: %s, ", pUnit->getUnitInfo().GetDescription());
-						szMsg += pCity->getName();
-						m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
-
-						return pUnit;
+						pUnit->finishMoves();
 					}
-					else
-					{
-						return NULL;
-					}
+
+					CvString szMsg;
+					szMsg.Format("Emergency Faith Unit Purchase: %s, ", pUnit->getUnitInfo().GetDescription());
+					szMsg += pCity->getName();
+					m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
+
+					return pUnit;
 				}
 			}
 		}
-
-		// Try again with Faith
-		if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_FAITH))
-		{
-			int iFaithCost = pCity->GetFaithPurchaseCost(eType, false /*bIncludeBeliefDiscounts*/);
-
-			if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
-			{
-				m_pPlayer->ChangeFaith(-iFaithCost);
-
-				// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-				int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
-
-				CvAssertMsg(iResult != -1, "Unable to create unit");
-				CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
-				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-				{
-#endif
-					pUnit->finishMoves();
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
-				}
-#endif
-
-				CvString szMsg;
-				szMsg.Format("Emergency Faith Unit Purchase: %s, ", pUnit->getUnitInfo().GetDescription());
-				szMsg += pCity->getName();
-				m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
-
-				return pUnit;
-			}
-		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
+
 	return NULL;
 }
 
@@ -2703,7 +2693,7 @@ int CvMilitaryAI::GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bo
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
 	const std::vector<PlayerTypes>& vEnemies = m_pPlayer->GetPlayersAtWarWith();
 
-	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	for (size_t iI = 0; iI < vEnemies.size(); iI++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(vEnemies[iI]);
 
@@ -2713,14 +2703,10 @@ int CvMilitaryAI::GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bo
 		{
 			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
 			{
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 				// Just to keep fighters closer to high range bombers (stealth bombers)
-				int iAcceptableDistance = MOD_AI_SMART_AIR_TACTICS ? min(pLoopUnit->GetRange(), 12) + (iRange / 2) : 10;
+				int iAcceptableDistance = min(pLoopUnit->GetRange(), 12) + (iRange / 2);
 				// distance was checked to a fixed 10 value
-				if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= iAcceptableDistance )
-#else
-				if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= 10 )
-#endif
+				if (plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= iAcceptableDistance)
 				{
 					// Let's not factor in revealed or visible - As a human I can remember past attacks and intuit whether a bomber could be in range of the city, AIs don't have great intuition...
 					if (pLoopUnit->IsAirSweepCapable() || pLoopUnit->canAirDefend())
@@ -3691,14 +3677,12 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 /// "At War" Player Strategy: If the player is at war, increase OFFENSE, DEFENSE and MILITARY_TRAINING.  Then look into which operation(s) to run
 bool MilitaryAIHelpers::IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor)
 {
-	if(pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0)
+	if (pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0)
 	{
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
 /// "Minor Civ GeneralDefense" Player Strategy: Prioritize CITY_DEFENSE and DEFENSE
@@ -3710,7 +3694,7 @@ bool MilitaryAIHelpers::IsTestStrategy_MinorCivGeneralDefense()
 /// "Minor Civ Threat Elevated" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED)
+	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED)
 	{
 		return true;
 	}
@@ -3721,7 +3705,7 @@ bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer)
 /// "Minor Civ Threat Critical" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL)
+	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL)
 	{
 		return true;
 	}

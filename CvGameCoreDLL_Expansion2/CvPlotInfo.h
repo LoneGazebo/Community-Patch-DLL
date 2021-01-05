@@ -18,6 +18,11 @@ public:
 	bool isImpassable() const;
 
 	// Arrays
+#if defined(MOD_PLOTS_EXTENSIONS)
+	int GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
+	bool IsAdjacentFeatureYieldChange() const;
+	bool IsAdjacentFeatureYieldChange(FeatureTypes eFeature) const;
+#endif
 	int getYield(int i) const;
 
 	// Other
@@ -28,6 +33,9 @@ protected:
 	bool m_bImpassable;
 
 	// Arrays
+#if defined(MOD_PLOTS_EXTENSIONS)
+	std::map<int, std::map<int, int>> m_ppiAdjacentFeatureYieldChange;
+#endif
 	int* m_piYields;
 
 private:

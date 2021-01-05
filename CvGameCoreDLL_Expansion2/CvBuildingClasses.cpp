@@ -216,6 +216,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
 	m_bIsNoRiver(false),
+	m_bIsNoCoast(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
@@ -578,6 +579,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
+	m_bIsNoCoast = kResults.GetBool("IsNoCoast");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
@@ -4053,6 +4055,11 @@ bool CvBuildingEntry::IsNoRiver() const
 {
 	return m_bIsNoRiver;
 }
+/// Does a city need to be away from the coast?
+bool CvBuildingEntry::IsNoCoast() const
+{
+	return m_bIsNoCoast;
+}
 /// Does a city need to be the Capital?
 bool CvBuildingEntry::IsCapitalOnly() const
 {
@@ -5094,14 +5101,14 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 						{
 							CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
-							if(thisPlayer.isAlive())
+							if(thisPlayer.isAlive() || thisPlayer.isObserver())
 							{
 								// Owner already got his messaging
 								if(iI != m_pCity->getOwner())
 								{
 									// If the builder is met, and the city is revealed
 									// Special case for DLC_06 Scenario: Always show the more informative notification
-									if((m_pCity->plot()->isRevealed(thisPlayer.getTeam()) && GET_TEAM(thisPlayer.getTeam()).isHasMet(m_pCity->getTeam())) || gDLL->IsModActivated(CIV5_DLC_06_SCENARIO_MODID))
+									if((m_pCity->plot()->isRevealed(thisPlayer.getTeam()) && GET_TEAM(thisPlayer.getTeam()).isHasMet(m_pCity->getTeam())) || gDLL->IsModActivated(CIV5_DLC_06_SCENARIO_MODID) || thisPlayer.isObserver())
 									{
 										CvNotifications* pNotifications = thisPlayer.GetNotifications();
 										if(pNotifications)
@@ -5168,7 +5175,6 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 
 	if(GetNumFreeBuilding(eIndex) != iNewValue)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if (iNewValue>0)
 		{
 			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
@@ -5181,9 +5187,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
 				m_buildingsThatExistAtLeastOnce.erase(pos);
 		}
-#endif
 
-#if defined(MOD_BUGFIX_MINOR)
 		// This condensed logic comes from SetNumRealBuilding()
 		int iChangeNumFreeBuilding = iNewValue - GetNumFreeBuilding(eIndex);
 		
@@ -5191,28 +5195,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 
 		// Process building effects
 		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true, false, false, true);
-#else
-		int iOldNumBuilding = GetNumBuilding(eIndex);
 
-		if (iOldNumBuilding > 0 && iNewValue > 0)
-		{
-			DoSellBuilding(eIndex);
-			m_paiNumFreeBuilding[eIndex] = iNewValue;
-			m_pCity->processBuilding(eIndex, iNewValue, true);			
-		}
-		
-		else
-		{
-			m_paiNumFreeBuilding[eIndex] = iNewValue;
-
-			if (iOldNumBuilding != GetNumBuilding(eIndex))
-			{
-				m_pCity->processBuilding(eIndex, iNewValue - iOldNumBuilding, true);
-			}
-		}
-#endif
-
-#if defined(MOD_BUGFIX_MINOR)
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
 		if(buildingEntry->IsCityWall())
 		{
@@ -5225,7 +5208,6 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		// Building might affect City Banner stats
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
-#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE)

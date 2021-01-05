@@ -126,9 +126,15 @@ SELECT 'DIPLOAI_PASSIVE_MODE', '0';
 -- [AGGRESSIVE MODE]
 -- If set to 1, AI civilizations will be much more aggressive towards human players. This is just for fun, and is not balanced at all! NOTE: Has no effect if Passive Mode is enabled.
 -- If set to 2, AI civilizations will be much more aggressive towards all other civilizations and City-States. NOTE: If Passive Mode is set to 1, this has no effect towards human players, and if set to 2, this has no effect.
--- This setting is switched on automatically if Passive Mode is not enabled and the Science, Culture and Diplomatic victory conditions are all disabled.
+-- Unless disabled with DISABLE DOMINATION ONLY AGGRESSION BOOST below, this setting is set to 2 automatically if Passive Mode is not enabled and only Domination and/or Time victories are possible.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_AGGRESSIVE_MODE', '0';
+
+-- [DISABLE DOMINATION ONLY AGGRESSION BOOST]
+-- If set to 1, AI civilizations' Aggressive Mode (see above) will not be automatically enabled if only Domination and/or Time victories are possible.
+-- Instead, they will be set to their normal levels of aggression. NOTE: If Aggressive Mode is enabled manually above, this setting does nothing.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION', '0';
 
 
 -- Debug Mode
@@ -139,5 +145,6 @@ SELECT 'DIPLOAI_AGGRESSIVE_MODE', '0';
 -- Transparent Diplomacy is activated (even if C4DF is not enabled).
 -- AI civilizations will display their true approach towards you in their table of opinion modifiers.
 -- AI will always agree to share their Approach towards other players, and will always share their true Approach.
+-- You also have full knowledge of all AI civs' World Congress desires while this option is enabled, regardless of ideology/diplomats.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_DEBUG_MODE', '0';

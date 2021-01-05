@@ -302,6 +302,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		local iTheirPlayer = pCity:GetOwner();
 		local pMyPlayer = Players[iMyPlayer];
 		local pTheirPlayer = Players[iTheirPlayer];
+		local iHandicap = pMyPlayer:GetHandicapType();
 		
 		local iMyStrength = 0;
 		local iTheirStrength = 0;
@@ -1921,9 +1922,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- BarbarianBonuses
 			if (pTheirUnit:IsBarbarian()) then
-				--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
-				
-				iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+				iModifier = DB_HandicapInfos[iHandicap].BarbarianBonus;
 				iModifier = iModifier + Players[pMyUnit:GetOwner()]:GetBarbarianCombatBonus();
 
 				iModifier = iModifier + pMyUnit:BarbarianCombatBonus();
@@ -2837,6 +2836,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 
 		local myPlayerID = myCity:GetOwner();
 		local myPlayer = Players[myPlayerID];
+		local iHandicap = myPlayer:GetHandicapType();
 		
 		local theirPlayerID = theirUnit:GetOwner();
 		local theirPlayer = Players[theirPlayerID];
@@ -3251,9 +3251,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
-			--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
-			
-			iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+			iModifier = DB_HandicapInfos[iHandicap].BarbarianBonus;
 			iModifier = iModifier + myPlayer:GetBarbarianCombatBonus();
 
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

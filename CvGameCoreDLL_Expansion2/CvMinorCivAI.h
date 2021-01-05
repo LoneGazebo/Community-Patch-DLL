@@ -290,10 +290,9 @@ public:
 	void DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessages);
 
 	void DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewAlly);
-#if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
+
 	void DoTestEndSkirmishes(PlayerTypes eNewAlly);
 	void RecalculateRewards(PlayerTypes ePlayer);
-#endif
 
 	void DoTurnStatus();
 	MinorCivStatusTypes GetStatus() const;
@@ -746,9 +745,12 @@ public:
 	void SetWaryOfTeam(TeamTypes eTeam, bool bValue);
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	int GetJerk(TeamTypes eTeam) const;
-	void SetJerk(TeamTypes eTeam, int iValue);
-	void ChangeJerk(TeamTypes eTeam, int iChange);
+	int GetTurnLastAttacked(TeamTypes eTeam) const;
+	void SetTurnLastAttacked(TeamTypes eTeam, int iTurn);
+	int GetJerkTurnsRemaining(TeamTypes eTeam) const;
+
+	bool IsIgnoreJerk(TeamTypes eTeam) const;
+	void SetIgnoreJerk(TeamTypes eTeam, bool bValue);
 
 	PlayerTypes GetPermanentAlly() const;
 	void SetPermanentAlly(PlayerTypes ePlayer);
@@ -798,9 +800,6 @@ private:
 	int m_iTurnsSinceThreatenedByBarbarians;
 	int m_iGlobalQuestCountdown;
 
-	bool m_abWarQuestAgainstMajor[MAX_MAJOR_CIVS];
-	int m_aaiNumEnemyUnitsLeftToKillByMajor[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
-
 	bool m_abRouteConnectionEstablished[MAX_MAJOR_CIVS];
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -816,7 +815,8 @@ private:
 #endif
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	int m_aiJerk[REALLY_MAX_TEAMS];
+	int m_aiTurnLastAttacked[MAX_CIV_TEAMS];
+	bool m_abIgnoreJerk[MAX_CIV_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
 	PlayerTypes m_ePermanentAlly;
 	bool m_bNoAlly;
@@ -849,8 +849,8 @@ private:
 	bool m_abFriends[MAX_MAJOR_CIVS];
 #endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
-	bool m_abPermanentWar[REALLY_MAX_TEAMS];
-	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
+	bool m_abPermanentWar[MAX_CIV_TEAMS];
+	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
 
 	bool m_bDisableNotifications;
 

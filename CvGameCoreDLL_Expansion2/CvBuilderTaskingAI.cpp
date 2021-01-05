@@ -1743,12 +1743,8 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	switch(pUnit->getDomainType())
 	{
 	case DOMAIN_LAND:
-#if defined(MOD_AI_SECONDARY_WORKERS)
 		// As embarked workers can now build fishing boats, we need to consider coastal plots
 		if(pPlot->isDeepWater())
-#else
-		if(pPlot->isWater())
-#endif
 		{
 			return false;
 		}

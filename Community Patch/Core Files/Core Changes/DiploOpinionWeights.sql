@@ -42,6 +42,9 @@ SELECT 'OPINION_WEIGHT_BASE_HUMAN', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_BASE_AI', '0';
 
+-- Other Opinion Weights
+-- These values affects the many individual opinion modifiers.
+
 -- 30
 UPDATE Defines
 SET Value = '40'
@@ -145,19 +148,32 @@ SELECT 'OPINION_WEIGHT_TECH_WEAK', '10';
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_TECH_NONE', '-10';
 
--- 30
-UPDATE Defines
-SET Value = '40'
-WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
+-- Tech Dispute Weight (for scientific civs)
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_POLICY_FIERCE', '30';
 
--- 20
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_POLICY_STRONG', '20';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_POLICY_WEAK', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_POLICY_NONE', '-10';
+
+-- 30 (unchanged)
 UPDATE Defines
 SET Value = '30'
-WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
+WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
 
--- 10
+-- 20 (unchanged)
 UPDATE Defines
 SET Value = '20'
+WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
+
+-- 10 (unchanged)
+UPDATE Defines
+SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_VICTORY_WEAK';
 
 -- -6
@@ -171,23 +187,19 @@ SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '3';
 
 -- Victory Block Opinion Weights
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '30';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '40';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '20';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '30';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '10';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '20';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_NONE', '0';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', '3';
-
--- Endgame Victory Opinion Weight Increase
-INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_ENDGAME_MULTIPLIER', '2';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', '4';
 
 -- -20
 UPDATE Defines
@@ -204,25 +216,39 @@ UPDATE Defines
 SET Value = '-200'
 WHERE Name = 'OPINION_WEIGHT_RESURRECTED';
 
--- -80 (unchanged)
+-- -80
 UPDATE Defines
-SET Value = '-80'
+SET Value = '-120'
 WHERE Name = 'OPINION_WEIGHT_LIBERATED_CAPITAL';
 
--- -60 (unchanged)
-UPDATE Defines
-SET Value = '-60'
-WHERE Name = 'OPINION_WEIGHT_LIBERATED_THREE_CITIES';
-
--- -50 (unchanged)
-UPDATE Defines
-SET Value = '-50'
-WHERE Name = 'OPINION_WEIGHT_LIBERATED_TWO_CITIES';
-
--- -30 (unchanged)
+-- -40
 UPDATE Defines
 SET Value = '-30'
-WHERE Name = 'OPINION_WEIGHT_LIBERATED_ONE_CITY';
+WHERE Name = 'OPINION_WEIGHT_LIBERATED_CITY';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LIBERATED_HOLY_CITY', '-80';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LIBERATED_CAPITAL_VASSAL_MULTIPLIER', '150';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LIBERATED_HOLY_CITY_VASSAL_MULTIPLIER', '150';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LIBERATED_CITY_VASSAL_MULTIPLIER', '200';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RETURNED_CAPITAL', '-60';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RETURNED_HOLY_CITY', '-40';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RETURNED_CAPITAL_VASSAL_MULTIPLIER', '150';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RETURNED_HOLY_CITY_VASSAL_MULTIPLIER', '150';
 
 -- Embassy Opinion Weights
 INSERT INTO Defines (Name, Value)
@@ -236,6 +262,17 @@ UPDATE Defines
 SET Value = '-2'
 WHERE Name = 'OPINION_WEIGHT_EMBASSY';
 
+-- Diplomat in their Capital
+-- Additional bonus if AI has Diplomat personality
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_DIPLOMAT', '-15';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_DIPLOMAT_MOD', '-10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_DIPLOMAT_CAPITULATED_VASSAL', '-10';
+
 -- -10 (unchanged)
 UPDATE Defines
 SET Value = '-10'
@@ -246,14 +283,14 @@ UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_ASKED_NO_SETTLE';
 
--- 10
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'OPINION_WEIGHT_ASKED_STOP_SPYING';
-
--- 20
+-- 10 (unchanged)
 UPDATE Defines
 SET Value = '10'
+WHERE Name = 'OPINION_WEIGHT_ASKED_STOP_SPYING';
+
+-- 20 (unchanged)
+UPDATE Defines
+SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_MADE_DEMAND_OF_US';
 
 -- 30
@@ -358,40 +395,25 @@ UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD';
 
--- 1 (unchanged)
+-- 15
 UPDATE Defines
-SET Value = '1'
-WHERE Name = 'BROKEN_EXPANSION_PROMISE_PER_OPINION_WEIGHT';
+SET Value = '0'
+WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE';
 
 -- 20 (unchanged)
 UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_BROKE_MAX';
 
--- 1 (unchanged)
-UPDATE Defines
-SET Value = '1'
-WHERE Name = 'IGNORED_EXPANSION_PROMISE_PER_OPINION_WEIGHT';
-
 -- 15 (unchanged)
 UPDATE Defines
 SET Value = '15'
 WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX';
 
--- 1 (unchanged)
-UPDATE Defines
-SET Value = '1'
-WHERE Name = 'BROKEN_BORDER_PROMISE_PER_OPINION_WEIGHT';
-
 -- 20 (unchanged)
 UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_BORDER_PROMISE_BROKE_MAX';
-
--- 1 (unchanged)
-UPDATE Defines
-SET Value = '1'
-WHERE Name = 'IGNORED_BORDER_PROMISE_PER_OPINION_WEIGHT';
 
 -- 15 (unchanged)
 UPDATE Defines
@@ -480,17 +502,7 @@ WHERE Name = 'OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_RECENTLY';
 -- 15 (unchanged)
 UPDATE Defines
 SET Value = '15'
-WHERE Name = 'OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_WHILE_AGO';
-
--- 15 (unchanged)
-UPDATE Defines
-SET Value = '15'
 WHERE Name = 'OPINION_WEIGHT_ATTACKED_MANY_PROTECTED_MINORS';
-
--- 20 (unchanged)
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_RECENTLY_NUM_TURNS';
 
 -- 30 (unchanged)
 UPDATE Defines
@@ -505,17 +517,7 @@ WHERE Name = 'OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_RECENTLY';
 -- 10 (unchanged)
 UPDATE Defines
 SET Value = '10'
-WHERE Name = 'OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_WHILE_AGO';
-
--- 10 (unchanged)
-UPDATE Defines
-SET Value = '10'
 WHERE Name = 'OPINION_WEIGHT_BULLIED_MANY_PROTECTED_MINORS';
-
--- 20 (unchanged)
-UPDATE Defines
-SET Value = '20'
-WHERE Name = 'OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_RECENTLY_NUM_TURNS';
 
 -- 30 (unchanged)
 UPDATE Defines
@@ -730,22 +732,22 @@ SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', '20';
 
 -- Similar/Divergent Social Policies Weight
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_PER_SIMILAR_POLICY', '-1';
+SELECT 'OPINION_WEIGHT_PER_SIMILAR_POLICY', '-5';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_PER_DIVERGENT_POLICY', '-1';
+SELECT 'OPINION_WEIGHT_PER_DIVERGENT_POLICY', '5';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_SIMILAR_POLICIES', '-5';
+SELECT 'OPINION_WEIGHT_SIMILAR_POLICIES', '-10';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_DIVERGENT_POLICIES', '5';
+SELECT 'OPINION_WEIGHT_DIVERGENT_POLICIES', '10';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'POLICY_SCORE_NEEDY_THRESHOLD', '8';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'POLICY_SCORE_NEEDY_MULTIPLIER', '2';
+SELECT 'POLICY_SCORE_NEEDY_BONUS', '5';
 
 -- Pledge to Protect Same CS Weight
 INSERT INTO Defines (Name, Value)
@@ -765,55 +767,207 @@ SELECT 'OPINION_WEIGHT_CAPTURED_HOLY_CITY', '80';
 
 -- Opinion Weight Divisor for Capitulated Vassals
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR', '2';
+SELECT 'OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR', '200';
 
--- -15 (unchanged)
+-- World Congress Modifiers
 UPDATE Defines
-Set Value = '-15'
+SET Value = '-15'
 WHERE Name = 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL';
 
--- 15 (unchanged)
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG', '-30';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING', '-45';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_DIPLOMAT_MULTIPLIER', '134';
+
 UPDATE Defines
 SET Value = '15'
 WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL';
 
--- -20
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG', '30';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING', '45';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_DIPLOMAT_MULTIPLIER', '134';
+
 UPDATE Defines
 SET Value = '-10'
-WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL';
+WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL'; -- min
 
--- 20
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_MAX', '-60';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_DIPLOMAT_MULTIPLIER', '167';
+
 UPDATE Defines
-SET Value = '15'
-WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL';
+SET Value = '10'
+WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL'; -- min
 
--- -20 (unchanged)
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_MAX', '60';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_DIPLOMAT_MULTIPLIER', '167';
+
 UPDATE Defines
 SET Value = '-20'
-WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING';
+WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING'; -- min
 
--- AI spam message reduction
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_MAX', '-70';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_DIPLOMAT_MULTIPLIER', '150';
+
+-- This % of the difference between the max and min values is added for each % that you contributed to the triggering vote
+INSERT INTO Defines(Name, Value)
+SELECT 'OPINION_WEIGHT_PER_VOTE_PERCENT', '2';
+
 -- 45
 UPDATE Defines
-SET Value = '30'
+SET Value = '50'
 WHERE Name = 'OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS';
 
 -- 45
 UPDATE Defines
-SET Value = '30'
+SET Value = '50'
 WHERE Name = 'OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS';
 
 -- 45
 UPDATE Defines
-SET Value = '30'
+SET Value = '50'
 WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS';
 
 -- 45
 UPDATE Defines
-SET Value = '30'
+SET Value = '50'
 WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS';
 
--- 45 (unchanged)
+-- 45
 UPDATE Defines
-SET Value = '45'
+SET Value = '50'
 WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS';
+
+
+-- Promise Duration (affects all players)
+-- Defines how many turns a specific promise lasts for (for making the promise).
+-- Defines how many turns until the AI forgets that you ignored/broke a specific promise (for other values). Once the AI forgets that you ignored/broke a promise, they become able to ask you to make it again.
+-- Most promise lengths scale with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
+
+-- Military/Move Troops Request
+-- This promise does NOT scale with game speed!
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MOVE_TROOPS_MEMORY_TURN_EXPIRATION', '20';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MILITARY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MILITARY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '80';
+
+-- Stop Settling Near Us
+
+-- 50
+UPDATE Defines
+SET Value = '50'
+WHERE Name = 'EXPANSION_PROMISE_TURNS_EFFECTIVE';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'EXPANSION_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'EXPANSION_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
+
+-- Stop Buying Land Near Us
+
+-- 50
+UPDATE Defines
+SET Value = '50'
+WHERE Name = 'BORDER_PROMISE_TURNS_EFFECTIVE'; 
+
+INSERT INTO Defines (Name, Value)
+SELECT 'BORDER_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'BORDER_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
+
+-- Stop Bullying Our Protected City-States
+
+INSERT INTO Defines (Name, Value)
+SELECT 'BULLY_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'BULLY_CS_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
+
+-- Don't Conquer Our Protected City-States
+
+INSERT INTO Defines (Name, Value)
+SELECT 'ATTACK_CS_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'ATTACK_CS_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+
+-- Stop Spying On Us
+
+INSERT INTO Defines (Name, Value)
+SELECT 'SPY_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '30';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'SPY_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
+
+-- Stop Converting Our Cities
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONVERT_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONVERT_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+
+-- Stop Digging Up Our Artifacts
+
+INSERT INTO Defines (Name, Value)
+SELECT 'DIGGING_PROMISE_IGNORED_TURNS_UNTIL_FORGIVEN', '40';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'DIGGING_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+
+-- Broken Coop War Promise
+-- This promise does NOT scale with game speed!
+
+INSERT INTO Defines (Name, Value)
+SELECT 'COOP_WAR_PROMISE_BROKEN_TURNS_UNTIL_FORGIVEN', '60';
+
+
+-- Backstabbing Penalties Duration (affects all players)
+-- Defines how many turns until the AI forgets that you backstabbed them.
+-- The amount of turns scales with game speed: Quick 0.67x, Standard 1x, Epic 1.5x, Marathon 3x
+-- NOTE: Broken military / CS conquest promises count as backstabbing penalties as well, but they are handled in the Promises section just above.
+
+INSERT INTO Defines (Name, Value)
+SELECT 'DOF_BROKEN_TURNS_UNTIL_FORGIVEN', '50';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'DOF_BROKEN_TURNS_UNTIL_FORGIVEN_FRIENDS', '10'; -- if Opinion has risen to FRIEND or higher since ending the DoF
+
+INSERT INTO Defines (Name, Value)
+SELECT 'FRIEND_DENOUNCED_US_TURNS_UNTIL_FORGIVEN', '75';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'FRIEND_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN', '100';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MASTER_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN', '100';
+
+-- Number of turns after prematurely ending a DoF during which you will obtain backstabbing penalties for denouncing or declaring war.
+-- It will always take AT LEAST this many turns to clear the penalty for prematurely ending a DoF.
+-- This value does not scale with game speed!
+INSERT INTO Defines (Name, Value)
+SELECT 'DOF_BROKEN_BACKSTAB_TIMER', '10';

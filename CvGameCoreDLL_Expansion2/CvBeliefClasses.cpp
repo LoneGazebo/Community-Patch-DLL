@@ -95,6 +95,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromConquest(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromEraUnlock(NULL),
+	m_piYieldFromTechUnlock(),
 	m_piYieldFromConversion(NULL),
 	m_piYieldFromConversionExpo(NULL),
 	m_piYieldFromWLTKD(NULL),
@@ -165,6 +166,11 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiPlotYieldChange(NULL),
 	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
 #endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	m_aiFreePromotions(),
+	m_pbiYieldFromImprovementBuild(),
+	m_pbiYieldFromPillageGlobal(),
+#endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
@@ -200,6 +206,14 @@ CvBeliefEntry::~CvBeliefEntry()
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	if (MOD_RELIGION_PLOT_YIELDS) {
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
+	}
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		m_aiFreePromotions.clear();
+		m_pbiYieldFromImprovementBuild.clear();
+		m_pbiYieldFromPillageGlobal.clear();
 	}
 #endif
 }
@@ -641,6 +655,19 @@ int CvBeliefEntry::GetYieldFromEraUnlock(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromEraUnlock ? m_piYieldFromEraUnlock[i] : -1;
 }
+/// Accessor:: Yield Tech Unlock
+int CvBeliefEntry::GetYieldFromTechUnlock(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piYieldFromTechUnlock.find((int)eYield);
+	if (it != m_piYieldFromTechUnlock.end())
+	{
+		return it->second;
+	}
+	return 0;
+}
 /// Accessor:: Yield from Conversion
 int CvBeliefEntry::GetYieldFromConversion(int i) const
 {
@@ -1065,6 +1092,50 @@ int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 }
 #endif
 
+#if defined(MOD_RELIGION_EXTENSIONS)
+/// Free promotions 
+std::vector<int> CvBeliefEntry::GetFreePromotions() const
+{
+	return m_aiFreePromotions;
+}
+
+/// Instant yield when finishing an improvement build (roads are not improvements)
+int CvBeliefEntry::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromImprovementBuild.find((int)eYield);
+	if (itYield != m_pbiYieldFromImprovementBuild.end())
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+	return 0;
+}
+
+/// Instant yield when pillaging
+int CvBeliefEntry::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromPillageGlobal.find((int)eYield);
+	if (itYield != m_pbiYieldFromPillageGlobal.end())
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+	return 0;
+}
+#endif
+
 /// Happiness from a resource
 int CvBeliefEntry::GetResourceHappiness(int i) const
 {
@@ -1303,6 +1374,31 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #endif
 	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithUnitPurchase", "EraType", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	//YieldFromTechUnlock
+	{
+		std::string strKey("Belief_YieldFromTechUnlock");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Belief_YieldFromTechUnlock inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while (pResults->Step())
+		{
+			const int YieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+
+			m_piYieldFromTechUnlock[YieldID] = yield;
+		}
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piYieldFromTechUnlock).swap(m_piYieldFromTechUnlock);
+	}
+#endif
 
 	//ImprovementYieldChanges
 	{
@@ -1613,6 +1709,81 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int yield = pResults->GetInt(2);
 
 			m_ppiPlotYieldChange[PlotID][YieldID] = yield;
+		}
+	}
+#endif
+
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		//FreePromotions
+		{
+			std::string strKey("Belief_FreePromotions");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select UnitPromotions.ID as UnitPromotionsID from Belief_FreePromotions inner join UnitPromotions on UnitPromotions.Type = PromotionType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int PromotionID = pResults->GetInt(0);
+
+				m_aiFreePromotions.push_back(PromotionID);
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::vector<int>(m_aiFreePromotions).swap(m_aiFreePromotions);
+		}
+
+		//YieldFromImprovementBuild
+		{
+			std::string strKey("Belief_YieldFromImprovementBuild");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldFromImprovementBuild inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int YieldID = pResults->GetInt(0);
+				const int yield = pResults->GetInt(1);
+				const bool eraScaling = pResults->GetBool(2);
+
+				m_pbiYieldFromImprovementBuild[YieldID][eraScaling] = yield;
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, std::map<bool, int>>(m_pbiYieldFromImprovementBuild).swap(m_pbiYieldFromImprovementBuild);
+		}
+
+		//YieldFromPillageGlobal
+		{
+			std::string strKey("Belief_YieldFromPillageGlobal");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldFromPillageGlobal inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			}
+
+			pResults->Bind(1, szBeliefType);
+
+			while (pResults->Step())
+			{
+				const int YieldID = pResults->GetInt(0);
+				const int yield = pResults->GetInt(1);
+				const bool eraScaling = pResults->GetBool(2);
+
+				m_pbiYieldFromPillageGlobal[YieldID][eraScaling] = yield;
+			}
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, std::map<bool, int>>(m_pbiYieldFromPillageGlobal).swap(m_pbiYieldFromPillageGlobal);
 		}
 	}
 #endif
@@ -3512,6 +3683,77 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 }
 #endif
 
+#if defined(MOD_RELIGION_EXTENSIONS)
+/// Get free promotions from beliefs
+std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	std::vector<int> rtnVector;
+
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		// combine all the free promotions from the beliefs
+		for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		{
+			std::vector<int> aPromotions = pBeliefs->GetEntry(*it)->GetFreePromotions();
+			if (!aPromotions.empty() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			{
+				for (std::vector<int>::iterator itPromotions = aPromotions.begin(); itPromotions != aPromotions.end(); ++itPromotions)
+				{
+					rtnVector.push_back(*itPromotions);
+				}
+			}
+		}
+
+		// sort and remove duplicates
+		if (rtnVector.size() > 1)
+		{
+			std::sort(rtnVector.begin(), rtnVector.end());
+			rtnVector.erase( std::unique( rtnVector.begin(), rtnVector.end() ), rtnVector.end() );
+		}
+
+	}
+
+	return rtnVector;
+}
+
+///  Gain instant yields when building improvements
+int CvReligionBeliefs::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromImprovementBuild(eYield, bEraScaling);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Gain instant yields when pillaging
+int CvReligionBeliefs::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromPillageGlobal(eYield, bEraScaling);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+#endif
+
 // Get happiness boost from a resource
 int CvReligionBeliefs::GetResourceHappiness(ResourceTypes eResource, PlayerTypes ePlayer, bool bHolyCityOnly) const
 {
@@ -4162,6 +4404,23 @@ int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromEraUnlock(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+/// Get yield modifier from beliefs from tech unlock
+int CvReligionBeliefs::GetYieldFromTechUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromTechUnlock(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

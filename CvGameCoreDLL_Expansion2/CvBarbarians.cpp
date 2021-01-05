@@ -83,17 +83,20 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		if (pPlot)
 		{
-			CvPlot* pPlot = pLoopCity->plot();
-			if (pPlot)
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (pCityPlot)
 				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
+					iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+
+					if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+					{
+						iBestCityID = pLoopCity->GetID();
+						iBestCityDistance = iDistance;
+					}
 				}
 			}
 		}
@@ -181,9 +184,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	int iSpawnTurnAddition = 12;
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = iSpawnTurnAddition + iAddVal;
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -198,13 +199,12 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) {
-		// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -247,9 +247,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	//bumped a bit - too many barbs gets annoying.
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = 7 + iAddVal;
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -265,12 +263,11 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) {
+	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -656,12 +653,9 @@ void CvBarbarians::DoCamps()
 				CvPlot* pLoopPlot = vRelevantPlots[iPlotIndex];
 
 				//now do some additional (expensive) checks we shouldn't do above
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
-				if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || 
-					(pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
+				if (pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
 				{
-#endif
 					// Max Camps for this area
 					int iMaxCampsThisArea = iCampTargetNum * pLoopPlot->area()->getNumTiles() / iNumLandPlots + 1;
 
@@ -775,7 +769,6 @@ void CvBarbarians::DoCamps()
 
 						iNumCampsToAdd--;
 					}
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				}
 				else
 				{
@@ -784,7 +777,6 @@ void CvBarbarians::DoCamps()
 					vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
 #endif
 				}
-#endif
 			}
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
 		}
@@ -1050,7 +1042,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					pUnit->finishMoves();
 				}
 
-#if defined(MOD_BUGFIX_MINOR)
 				// Stop units from plundered trade routes ending up in the ocean
 				if(bIgnoreMaxBarbarians && pUnit)
 				{
@@ -1063,7 +1054,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					}
 #endif
 				}
-#endif
 			}
 		}
 	}

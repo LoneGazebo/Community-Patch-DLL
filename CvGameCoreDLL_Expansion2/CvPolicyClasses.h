@@ -1045,11 +1045,7 @@ public:
 #else
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false) const;
-#else
-	int GetNumPoliciesOwned() const;
-#endif
+	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false, bool bIncludeOpeners = false) const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;

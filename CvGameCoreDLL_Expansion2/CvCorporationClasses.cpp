@@ -744,7 +744,7 @@ void CvPlayerCorporations::SetNoFranchisesInForeignCities(bool bValue)
 		m_bIsNoFranchisesInForeignCities = bValue;
 		if (bValue)
 		{
-			ClearCorporationFromForeignCities();
+			ClearCorporationFromForeignCities(false, true);
 		}
 	}
 }
@@ -1565,7 +1565,7 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 }
 
 // Clear our Corporation from foreign cities
-void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /* = false */, bool bFromEmbargo /* = false */)
+void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, bool bExcludeVassals, bool bExcludeMasters)
 {
 	if (!HasFoundedCorporation())
 		return;
@@ -1584,10 +1584,10 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /*
 		return;
 
 	//and destroy our franchises!
-	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
 		if (!GET_PLAYER(eLoopPlayer).isAlive()) 
 			continue;
 
@@ -1595,10 +1595,13 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /*
 			continue;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// Don't clear franchises between masters and vassals if it's from a World Congress embargo
-		if (MOD_DIPLOMACY_CIV4_FEATURES && bFromEmbargo)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
-			if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			if (bExcludeVassals && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			{
+				continue;
+			}
+			if (bExcludeMasters && GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				continue;
 			}
@@ -1671,7 +1674,7 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 		return false;
 
 	//no foreign franchises? Exception for vassals.
-	if (IsNoFranchisesInForeignCities() && !GET_TEAM(pTargetCity->getTeam()).GetMaster() == pOriginCity->getTeam())
+	if (IsNoFranchisesInForeignCities() && GET_TEAM(pTargetCity->getTeam()).GetMaster() != pOriginCity->getTeam())
 		return false;
 
 	if (pTargetCity->IsHasFranchise(m_eFoundedCorporation) || !pOriginCity->IsHasOffice())

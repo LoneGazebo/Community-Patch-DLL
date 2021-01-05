@@ -31,6 +31,9 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateMilitaryStats();
 		kPlayer.UpdateCurrentAndFutureWars();
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		kPlayer.UpdateMonopolyCache();
+#endif
 
 		//only after loading, force danger update (only known enemy units are serialized)
 		if(!bWarStateChanged && kPlayer.m_pDangerPlots)

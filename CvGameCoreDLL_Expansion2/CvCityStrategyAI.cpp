@@ -1663,11 +1663,7 @@ void CvCityStrategyAI::DoTurn()
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(eCityStrategy, GetCity());
-#else
-					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(GetCity());
-#endif
 				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
 #endif
@@ -1991,11 +1987,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -2023,11 +2015,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -2054,11 +2042,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -2085,11 +2069,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -2116,11 +2096,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -2147,11 +2123,7 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
-#if defined(MOD_BUGFIX_MINOR)
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
-#else
-						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
-#endif
 					}
 				}
 			}
@@ -3513,12 +3485,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
 	if (!EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
-#else
-	if(!kPlayer.isMinorCiv())
-#endif
 	{
 		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
 		//Too many settlers? Stop building them!
@@ -3539,11 +3507,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	return false;
 }
 // We a new city on a bigger continent? Let's spread our legs!
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
-#else
-bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
-#endif
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
@@ -3555,12 +3519,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 	{
 		return false;
 	}
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-	if (!( kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() )
+	if (!(kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs())
 		&& kPlayer.getCapitalCity() != NULL)
-#else
-	if(!kPlayer.isMinorCiv() && kPlayer.getCapitalCity() != NULL)
-#endif
 	{
 		CvArea* pArea2 = GC.getMap().getArea(kPlayer.getCapitalCity()->getArea());
 		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
@@ -3637,29 +3597,20 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 	{
 		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
-		if (! (kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
-#else
-		if(!kPlayer.isMinorCiv())
-#endif
+		if (!(kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
 		{
 			int iNumCities = kPlayer.getNumCities();
 			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 			int iCitiesPlusSettlers = iNumCities + iSettlersOnMapOrBuild;
 
-#if defined(MOD_BALANCE_CORE)
 			bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 			//City #2 is essential.
 			if(!bIsVenice && (iCitiesPlusSettlers <= 1))
 			{
 				return true;
 			}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 			if((iCitiesPlusSettlers > 0) && (iCitiesPlusSettlers < 6))
-#else
-			if((iCitiesPlusSettlers) < 3)
-#endif
 			{
 
 				AICityStrategyTypes eUnderThreat = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");

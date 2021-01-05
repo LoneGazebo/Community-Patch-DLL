@@ -1002,6 +1002,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumUnitsOfType, int, iUnit, bIncludeBeingTrained);
+	LUAAPIEXTN(GetNumUnitPromotions, int, iPromotion);
+#endif
 	static int lGetUnitByID(lua_State* L);
 
 	static int lAI_updateFoundValues(lua_State* L);
@@ -1075,8 +1079,6 @@ protected:
 	static int lGetWonderDisputeLevel(lua_State* L);
 	static int lGetMinorCivDisputeLevel(lua_State* L);
 	static int lGetWarmongerThreat(lua_State* L);
-	static int lIsPlayerNoSettleRequestEverAsked(lua_State* L);
-	static int lIsPlayerStopSpyingRequestEverAsked(lua_State* L);
 	static int lIsDemandEverMade(lua_State* L);
 	static int lGetNumCiviliansReturnedToMe(lua_State* L);
 	static int lGetNumLandmarksBuiltForMe(lua_State* L);

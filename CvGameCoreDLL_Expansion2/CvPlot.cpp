@@ -2574,26 +2574,19 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			{
 				bValid = true;
 			}
-#if defined(MOD_BUGFIX_REMOVE_GHOST_ROUTES)
-			else if(MOD_BUGFIX_REMOVE_GHOST_ROUTES && getOwner() == NO_PLAYER && (GetPlayerResponsibleForRoute() == NO_PLAYER || !GET_PLAYER(GetPlayerResponsibleForRoute()).isAlive()))
+			else if(getOwner() == NO_PLAYER && (GetPlayerResponsibleForRoute() == NO_PLAYER || !GET_PLAYER(GetPlayerResponsibleForRoute()).isAlive()))
 			{
 				bValid = true;
 			}
-#endif
 			else
 			{
 				return false;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if(isCity())
-#else
-		else
-#endif
 		{
 			return false;
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if(getRouteType() != NO_ROUTE)
 		{
 			if(getOwner() == ePlayer)
@@ -2604,14 +2597,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			{
 				bValid = true;
 			}
-#if defined(MOD_BUGFIX_REMOVE_GHOST_ROUTES)
-			else if(MOD_BUGFIX_REMOVE_GHOST_ROUTES && getOwner() == NO_PLAYER && (GetPlayerResponsibleForRoute() == NO_PLAYER || !GET_PLAYER(GetPlayerResponsibleForRoute()).isAlive()))
+			else if(getOwner() == NO_PLAYER && (GetPlayerResponsibleForRoute() == NO_PLAYER || !GET_PLAYER(GetPlayerResponsibleForRoute()).isAlive()))
 			{
 				bValid = true;
 			}
-#endif
 		}
-#endif
 	}
 
 	eImprovement = ((ImprovementTypes)(thisBuildInfo.getImprovement()));
@@ -6629,10 +6619,8 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	bool bRecalculateAreas;
 	int iAreaCount;
 	int iI;
-	
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+
 	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES) return;
-#endif
 
 	if(getPlotType() != eNewValue)
 	{
@@ -6873,9 +6861,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 {
 	bool bUpdateSight;
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES) return;
-#endif
 
 	if(getTerrainType() != eNewValue)
 	{
@@ -6943,10 +6929,8 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 	FeatureTypes eOldFeature;
 	bool bUpdateSight;
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_FEATURE) return;
 	if (eNewValue > NO_FEATURE && GC.getFeatureInfo(eNewValue) == NULL) return;
-#endif
 
 	eOldFeature = getFeatureType();
 
@@ -7077,6 +7061,34 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			}
 		}
 
+#if defined(MOD_PLOTS_EXTENSIONS)
+		if (MOD_PLOTS_EXTENSIONS)
+		{
+			// update adjacent tiles if there is a change for adjacent plot yields
+			for (int iI = 0; iI < GC.getNumPlotInfos(); iI++)\
+			{
+				PlotTypes ePlot = (PlotTypes)iI;
+
+				if (ePlot == NO_PLOT)
+				{
+					continue;
+				}
+
+				if (GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eOldFeature) || GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange(eNewValue))
+				{
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+						if (pAdjacentPlot && pAdjacentPlot->getPlotType() == ePlot)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+#endif
+
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileFeatureChanged, getX(), getY(), getOwner(), eOldFeature, eNewValue);
@@ -7161,10 +7173,8 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
 {
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_RESOURCE) return;
 	if (eNewValue > NO_RESOURCE && GC.getResourceInfo(eNewValue) == NULL) return;
-#endif
 
 	if(m_eResourceType != eNewValue)
 	{
@@ -7407,10 +7417,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	ImprovementTypes eOldImprovement = getImprovementType();
 	bool bGiftFromMajor = false;
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
-#endif
 
 	if (eBuilder != NO_PLAYER)
 	{
@@ -7462,7 +7470,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #endif
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
-#if defined(MOD_BUGFIX_MINOR)
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
 			if (oldImprovementEntry.IsAllowsWalkWater()) {
 				eTradeRouteDomain = DOMAIN_LAND;
@@ -7472,10 +7479,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				eTradeRouteDomain = DOMAIN_SEA;
 #endif
 			}
-#endif
 
 
-#if defined(MOD_BUGFIX_MINOR)
 			if (eTradeRouteDomain != NO_DOMAIN) {
 				// Take away any trade routes of this domain that pass through the plot
 				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -7510,7 +7515,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 			}
-#endif
 
 			// If this improvement can add culture to nearby improvements, update them as well
 			if(area())
@@ -8060,6 +8064,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					setOwner(eBuilder, iBestCityID);
 				}
 #endif
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			if (eBuilder != NO_PLAYER)
+			{
+				CvCity* pTargetCity = pOwningCity;
+				if (pTargetCity == NULL)
+				{
+					pTargetCity = GET_PLAYER(eBuilder).getCapitalCity();
+				}
+				if (pTargetCity != NULL)
+				{
+					// call one for era scaling, and another for non-era scaling
+					GET_PLAYER(eBuilder).doInstantYield(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pTargetCity);
+					GET_PLAYER(eBuilder).doInstantYield(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pTargetCity);
+				}
 			}
 #endif
 		}
@@ -8674,10 +8694,8 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 	RouteTypes eOldRoute = getRouteType();
 	int iI;
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_ROUTE) return;
 	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return;
-#endif
 
 	if(eOldRoute != eNewValue || (eOldRoute == eNewValue && IsRoutePillaged()))
 	{
@@ -9420,6 +9438,29 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
 	}
+
+#if defined(MOD_PLOTS_EXTENSIONS)
+	if (MOD_PLOTS_EXTENSIONS)
+	{
+		PlotTypes ePlot = getPlotType();
+		if (ePlot != NO_PLOT && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange())
+		{
+			// yield from adjacent features
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot == NULL)
+					continue;
+
+				if (pAdjacentPlot->getFeatureType() != NO_FEATURE)
+				{
+					iYield += GC.getPlotInfo(ePlot)->GetAdjacentFeatureYieldChange(pAdjacentPlot->getFeatureType(), eYield);
+				}
+			}
+		}
+	}
+#endif
 
 	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
 	{
@@ -11377,19 +11418,14 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 										playerI.GetTreasury()->ChangeGold(iGoldPerTeamMember);
 									}
 								}
-#if defined(MOD_BUGFIX_MINOR)
 							}
-#endif
 
-								if(eTeam == eActiveTeam)
-								{
-									char text[256] = {0};
-									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
-									SHOW_PLOT_POPUP(this, NO_PLAYER, text);
-								}
-#if !defined(MOD_BUGFIX_MINOR)
+							if(eTeam == eActiveTeam)
+							{
+								char text[256] = {0};
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
+								SHOW_PLOT_POPUP(this, NO_PLAYER, text);
 							}
-#endif
 						}
 					}
 
@@ -11710,10 +11746,8 @@ bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewVa
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_IMPROVEMENT) return false;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return false;
-#endif
 
 	ImprovementTypes eOldImprovementType = getRevealedImprovementType(eTeam);
 	if(eOldImprovementType != eNewValue)
@@ -11768,10 +11802,8 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-#if defined(MOD_BUGFIX_PLOT_VALIDATION)
 	if (eNewValue < NO_ROUTE) return false;
 	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return false;
-#endif
 
 	if(getRevealedRouteType(eTeam, false) != eNewValue)
 	{
@@ -11856,8 +11888,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				setImprovementType(eImprovement, ePlayer);
-				
-#if defined(MOD_BUGFIX_MINOR)
+
 				// Building a GP improvement on a resource needs to clear any previous pillaged state
 				if (GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson()) {
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
@@ -11866,7 +11897,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					SetImprovementPillaged(false);
 #endif
 				}
-#endif
 
 				// Unowned plot, someone has to foot the bill
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)

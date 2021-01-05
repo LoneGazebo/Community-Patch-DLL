@@ -241,17 +241,13 @@ private:
 	void DoReconState();
 	void DoAntiquitySites();
 	void DisbandExtraWorkers();
-#if defined(MOD_BALANCE_CORE)
 	void DisbandExtraWorkboats();
 	void DisbandUselessSettlers();
 	void DisbandMiscUnits();
 	CvUnit* FindSettlerToScrap(bool bMayBeInOperation);
 	CvUnit* FindSeaWorkerToScrap();
-#endif
 	void DisbandExtraArchaeologists();
-#if defined(MOD_AI_SMART_DISBAND)
 	void DisbandLongObsoleteUnits();
-#endif
 
 	// Low-level utility functions
 	CvUnit* FindWorkerToScrap();
@@ -295,17 +291,10 @@ int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, 
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#else
-bool IsTestStrategy_NeedRecon(CvPlayer* pPlayer);
-bool IsTestStrategy_NeedReconSea(CvPlayer* pPlayer);
-bool IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer);
-bool IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer);
-#endif
 bool IsTestStrategy_EnoughRecon(CvPlayer* pPlayer);
 bool IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer);
@@ -324,11 +313,7 @@ bool IsTestStrategy_OneOrFewerCoastalCities(CvPlayer* pPlayer);
 bool IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_TooManyUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#else
-bool IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer);
-#endif
 bool IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer);
 bool IsTestStrategy_NavalMap(CvPlayer* pPlayer);
 bool IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer);
@@ -355,9 +340,7 @@ bool IsTestStrategy_GS_Diplomacy(CvPlayer* pPlayer);
 bool IsTestStrategy_GS_Spaceship(CvPlayer* pPlayer);
 
 bool IsTestStrategy_GS_SpaceshipHomestretch(CvPlayer* pPlayer);
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes strategy);
-#endif
 }
 
 #endif //CIV5_ECONOMIC_AI_H

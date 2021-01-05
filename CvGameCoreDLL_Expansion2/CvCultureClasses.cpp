@@ -3428,13 +3428,12 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		if (eLandmarkImprovement != NO_IMPROVEMENT)
 		{
 			pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
-#if defined(MOD_BUGFIX_MINOR)
+
 			// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 			pPlot->SetImprovementPillaged(false, false);
 #else
 			pPlot->SetImprovementPillaged(false);
-#endif
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
@@ -3453,13 +3452,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 					kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
 				}
 
-				// AI major civ owned territory?
-				else if (!kOwner.isHuman())
+				// Major civ owned territory?
+				else if (kOwner.isMajorCiv())
 				{
 					kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
-#if defined(MOD_BALANCE_CORE)
-					kOwner.GetDiplomacyAI()->SetLandmarksBuiltForMeTurn(m_pPlayer->GetID(), GC.getGame().getGameTurn());
-#endif
 				}
 			}
 		}
@@ -3469,12 +3465,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (pUnit)
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 			{
-				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
@@ -3537,12 +3530,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (pUnit)
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 			{
-				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
@@ -3606,12 +3596,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (pUnit)
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 			{
-				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
@@ -3677,12 +3664,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		if (pUnit)
 		{
-			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			if (pPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 			{
-				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
-				}
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
 			}
 		}
 
@@ -3883,10 +3867,10 @@ void CvPlayerCulture::DoTurn()
 	{
 		if(bCultureVictoryValid)
 		{//This civilization is the first civ to be one civilizations away from getting a cultural victory.  Notify the masses!
-#if defined(MOD_BUGFIX_MINOR)
+
 		  // but don't notify if there are only two players left in the game!
-		  if (GC.getGame().countMajorCivsAlive() > 2) {
-#endif
+		  if (GC.getGame().countMajorCivsAlive() > 2) 
+		  {
 			CvString							targCloseOneSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER");
 			Localization::String	targCloseOneInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER_TT");
 			CvString							someoneCloseOneSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE");
@@ -3918,9 +3902,7 @@ void CvPlayerCulture::DoTurn()
 					kCurPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
 				}
 			}
-#if defined(MOD_BUGFIX_MINOR)
 		  }
-#endif
 		}
 
 		m_bReportedOneCivAway = true;
@@ -4206,11 +4188,8 @@ void CvPlayerCulture::DoTurn()
 					if (eBuilding != NO_BUILDING)
 					{
 						CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-#if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
+
 						if (pkBuilding && iBuildingClassLoop == GC.getInfoTypeForString("BUILDINGCLASS_BROADCAST_TOWER"))
-#else
-						if (pkBuilding && strcmp(pkBuilding->GetType(), "BUILDING_BROADCAST_TOWER") == 0)
-#endif
 						{
 							if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 							{
@@ -5602,7 +5581,7 @@ int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iStrength /= 100;
 
-	return max(iStrength, GC.getMINIUMUM_TOURISM_BLAST_STRENGTH());
+	return max(iStrength, GC.getMINIMUM_TOURISM_BLAST_STRENGTH());
 }
 
 /// Add tourism with all known civs
@@ -5775,7 +5754,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 			iRisingWarWeariness++;
 
 		//but never more than x% of pop...
-		iRisingWarWeariness = min(iRisingWarWeariness, m_pPlayer->getTotalPopulation() / 4);
+		int iPopLimit = m_pPlayer->getTotalPopulation() * /*25*/ GC.getBALANCE_WAR_WEARINESS_POPULATION_CAP() / 100;
+		iRisingWarWeariness = min(iRisingWarWeariness, iPopLimit);
 	}
 
 	//whichever is worse counts
@@ -7661,11 +7641,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
-#endif
 				}
 			}
 		}
@@ -7693,11 +7669,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 				int iTourism = pkEntry->GetTechEnhancedTourism();
 				if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-					iBase += iTourism;
-#endif
 				}
 			}
 		}
@@ -7771,11 +7743,7 @@ int CvCityCulture::GetBaseTourism()
 				iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
 				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-					iModifier += iBuildingMod;
-#endif
 				}
 			}
 		}
@@ -8074,11 +8042,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#else
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
-#endif
 				}
 			}
 		}
@@ -8117,9 +8081,8 @@ CvString CvCityCulture::GetTourismTooltip()
 				int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
 				if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#endif
+
 					if (szRtnValue.length() > 0)
 					{
 						szRtnValue += "[NEWLINE][NEWLINE]";
@@ -8168,9 +8131,8 @@ CvString CvCityCulture::GetTourismTooltip()
 				iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
 				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-#endif
+
 					if (szRtnValue.length() > 0)
 					{
 						szRtnValue += "[NEWLINE][NEWLINE]";

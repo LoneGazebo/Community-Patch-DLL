@@ -95,15 +95,8 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, int iCount);
 	CvPlot* addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI);
 
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#elif defined(MOD_API_EXTENSIONS)
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
-#elif defined(MOD_BALANCE_CORE)
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#else
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
-#endif
+
 #if defined(MOD_API_EXTENSIONS)
 #if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
@@ -198,12 +191,8 @@ public:
 	void disbandUnit(bool bAnnounce);
 	void killUnits();
 
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	UnitTypes GetSpecificUnitType(const char* szUnitClass, bool hideAssert = false);
-#endif
-#if defined(MOD_API_EXTENSIONS) || defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
 	BuildingTypes GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert = false);
-#endif
 
 	CvPlot *GetGreatAdmiralSpawnPlot (CvUnit *pUnit);
 
@@ -218,6 +207,9 @@ public:
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
+#if defined(MOD_API_EXTENSIONS)
+	int GetNumUnitPromotions(PromotionTypes ePromotion);
+#endif
 	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
@@ -419,6 +411,8 @@ public:
 	int calculateResearchModifier(TechTypes eTech);
 	int calculateGoldRate() const;
 	int calculateGoldRateTimes100() const;
+	int GetCachedGoldRate() const;
+	void cacheGoldRate();
 
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;
@@ -429,24 +423,14 @@ public:
 
 	int specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;
 
-#if defined(MOD_BUGFIX_MINOR)
 	int GetCityYieldChangeTimes100(YieldTypes eYield) const;
 	void ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange);
-#else
-	int GetCityYieldChange(YieldTypes eYield) const;
-	void ChangeCityYieldChange(YieldTypes eYield, int iChange);
-#endif
 
 	int GetCoastalCityYieldChange(YieldTypes eYield) const;
 	void ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange);
 
-#if defined(MOD_BUGFIX_MINOR)
 	int GetCapitalYieldChangeTimes100(YieldTypes eYield) const;
 	void ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange);
-#else
-	int GetCapitalYieldChange(YieldTypes eYield) const;
-	void ChangeCapitalYieldChange(YieldTypes eYield, int iChange);
-#endif
 
 	int GetCapitalYieldPerPopChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange);
@@ -654,8 +638,12 @@ public:
 	int GetGreatWorksTourismModifierGlobal() const;
 #endif
 
-	bool CanSeeIfOtherPlayerUnhappy(PlayerTypes eOtherPlayer) const;
-	bool IsEmpireInBadShapeForWar(PlayerTypes eEvaluatingPlayer = NO_PLAYER, bool bDontCheckPhonyWars = false) const;
+	void DoTestEmpireInBadShapeForWar();
+	bool IsNoNewWars() const;
+	void SetNoNewWars(bool bValue);
+
+	int GetTurnsSinceLastAttackedMinorCiv() const;
+	void SetTurnLastAttackedMinorCiv(int iTurn);
 
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
@@ -1702,9 +1690,7 @@ public:
 
 	int GetOriginalCapitalX() const;
 	int GetOriginalCapitalY() const;
-#if defined(MOD_BALANCE_CORE)
 	void setOriginalCapitalXY(CvCity* pCapitalCity);
-#endif
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
 
@@ -1729,51 +1715,22 @@ public:
 	int GetProductionMight() const;
 	void ResetMightCalcTurn();
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	int getCombatExperienceTimes100() const;
-#else
-	int getCombatExperience() const;
-#endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 	void setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
 #else
-	void setCombatExperience(int iExperience, CvUnit* pFromUnit = NULL);
-	void changeCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 	void setCombatExperienceTimes100(int iExperienceTimes100);
 	void changeCombatExperienceTimes100(int iChangeTimes100);
-#else
-	void setCombatExperience(int iExperience);
-	void changeCombatExperience(int iChange);
 #endif
-#endif
-#if defined(MOD_UNITS_XP_TIMES_100)
 	int getLifetimeCombatExperienceTimes100() const;
 	int getNavalCombatExperienceTimes100() const;
-#else
-	int getLifetimeCombatExperience() const;
-	int getNavalCombatExperience() const;
-#endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 	void setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
 #else
-	void setNavalCombatExperience(int iExperience, CvUnit* pFromUnit = NULL);
-	void changeNavalCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 	void setNavalCombatExperienceTimes100(int iExperienceTimes100);
 	void changeNavalCombatExperienceTimes100(int iChangeTimes100);
-#else
-	void setNavalCombatExperience(int iExperience);
-	void changeNavalCombatExperience(int iChange);
-#endif
 #endif
 
 	int getBorderObstacleCount() const;
@@ -1907,9 +1864,6 @@ public:
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int GetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach) const;
-	void SetApproachScratchValue(PlayerTypes ePlayer, MajorCivApproachTypes eMajorCivApproach, int iValue);
-
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
 
@@ -2586,6 +2540,7 @@ public:
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);
+	void DoMilitaryRatingDecay();
 	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
@@ -3389,14 +3344,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iScenarioScore3;
 	FAutoVariable<int, CvPlayer> m_iScenarioScore4;
 	FAutoVariable<int, CvPlayer> m_iScoreFromFutureTech;
-	FAutoVariable<int, CvPlayer> m_iCombatExperience;
-	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperience;
-	FAutoVariable<int, CvPlayer> m_iNavalCombatExperience;
-#if defined(MOD_UNITS_XP_TIMES_100)
+	FAutoVariable<int, CvPlayer> m_iTurnLastAttackedMinorCiv;
 	FAutoVariable<int, CvPlayer> m_iCombatExperienceTimes100;
 	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperienceTimes100;
 	FAutoVariable<int, CvPlayer> m_iNavalCombatExperienceTimes100;
-#endif
 	FAutoVariable<int, CvPlayer> m_iBorderObstacleCount;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	FAutoVariable<int, CvPlayer> m_iBorderGainlessPillageCount;
@@ -3417,6 +3368,7 @@ protected:
 #if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	FAutoVariable<int, CvPlayer> m_iCityAutomatonWorkersChange;
 #endif
+	FAutoVariable<int, CvPlayer> m_iCachedGoldRate;
 	FAutoVariable<int, CvPlayer> m_iPlotCultureCostModifier;
 	FAutoVariable<int, CvPlayer> m_iPlotCultureExponentModifier;
 	FAutoVariable<int, CvPlayer> m_iNumCitiesPolicyCostDiscount;
@@ -3447,13 +3399,13 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNumFreePolicies;
 	FAutoVariable<int, CvPlayer> m_iNumFreePoliciesEver; 
 	FAutoVariable<int, CvPlayer> m_iNumFreeTenets;
-	FAutoVariable<int, CvPlayer> m_iDummy2;  //unused
 
 	FAutoVariable<int, CvPlayer> m_iLastSliceMoved;
 
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
 	FAutoVariable<bool, CvPlayer> m_bHasUUPeriod;
+	FAutoVariable<bool, CvPlayer> m_bNoNewWars;
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
@@ -3607,7 +3559,6 @@ protected:
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiUnimprovedFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
-	std::vector< Firaxis::Array<int, NUM_MAJOR_CIV_APPROACHES > > m_ppiApproachScratchValue;
 	std::vector<int> m_piYieldFromKills;
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;

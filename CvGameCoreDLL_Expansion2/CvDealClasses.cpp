@@ -386,15 +386,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
-#if defined(MOD_BALANCE_CORE)
 	bool bHumanToHuman = false;
-	if(pFromPlayer->isHuman() && pToPlayer->isHuman())
+	if (pFromPlayer->isHuman() && pToPlayer->isHuman())
 	{
 		bHumanToHuman = true;
 	}
 
 	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(eToPlayer);
-#endif
 
 	if (this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && eItem != TRADE_ITEM_PEACE_TREATY && !ContainsItemType(TRADE_ITEM_PEACE_TREATY))
 	{
@@ -418,36 +416,28 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	////////////////////////////////////////////////////
 
 	// Gold
-	if(eItem == TRADE_ITEM_GOLD)
+	if (eItem == TRADE_ITEM_GOLD)
 	{
-		// DoF has not been made with this player
-#if defined(MOD_BALANCE_CORE)
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
-#else
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
-#endif
-		{
-			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
-				return false;
-		}
-
 		// Can't trade more Gold than you have
 		int iGold = iData1;
-		if(iGold != -1 && iGoldAvailable < iGold)
+		if (iGold != -1 && iGoldAvailable < iGold)
 			return false;
 
-#if defined(MOD_BALANCE_CORE)
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (!bHumanToHuman)
 		{
-			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if(GetGoldPerTurnTrade(eToPlayer) > 0)
-				return false;
-		}
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			// Can't trade lump Gold unless you're on the same team or have a DoF, except in a Peace Treaty
+			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
+				if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
+					return false;
+
+				// Can't exchange GPT for lump Gold - we aren't a bank.
+				if (GetGoldPerTurnTrade(eToPlayer) > 0)
+					return false;
+			}
+			else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			{
+				if (this->GetSurrenderingPlayer() != ePlayer)
 				{
 					return false;
 				}
@@ -457,10 +447,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (IsResourceTrade(eToPlayer, NO_RESOURCE))
 				return false;
 		}
-#endif
 	}
 	// Gold per Turn
-	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
+	else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
 	{
 		// Can't trade more GPT than you're making
 		int iGoldPerTurn = iData1;
@@ -478,24 +467,22 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
-#if defined(MOD_BALANCE_CORE)
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (!bHumanToHuman)
 		{
-			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if(GetGoldTrade(eToPlayer) > 0)
-				return false;
-		}
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
+				// Can't exchange GPT for lump Gold - we aren't a bank.
+				if (GetGoldTrade(eToPlayer) > 0)
+					return false;
+			}
+			else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			{
+				if (this->GetSurrenderingPlayer() != ePlayer)
 				{
 					return false;
 				}
 			}
 		}
-#endif
 
 		//int iDuration = iData2;
 		//if (iDuration != GC.getGame().GetDealDuration())
@@ -793,36 +780,37 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsDefensivePactTrade(ePlayer);
 
+		// No DPs with vassals!
+		if (pFromTeam->IsVassalOfSomeone())
+			return false;
+
 		// Neither of us yet has the Tech for DP
-		if(!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
+		if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			return false;
+
 		// Embassy has not been established
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+		if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
+
 		// Already has DP
 		if (!bIgnoreExistingOP)
 		{
 			if (pFromTeam->IsHasDefensivePact(eToTeam))
 				return false;
 		}
+
 		// Same Team
-		if(eFromTeam == eToTeam)
+		if (eFromTeam == eToTeam)
 			return false;
-#if defined(MOD_BALANCE_CORE)
+
 		//Can't if at war.
-		if(pFromTeam->isAtWar(eToTeam))
+		if (pFromTeam->isAtWar(eToTeam))
 			return false;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// If we're a vassal, can't
-		if(pFromTeam->IsVassalOfSomeone())
-			return false;
-#endif
 
 		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
-		if(bCheckOtherPlayerValidity)
+		if (bCheckOtherPlayerValidity)
 		{
-			if(!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
+			if (!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
 				return false;
 		}
 	}
@@ -2979,17 +2967,13 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		else if(it->m_eItemType == TRADE_ITEM_CITIES)
 		{
 			CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
-			if(pCity != NULL)
-#if defined(MOD_BALANCE_CORE)
+			if (pCity != NULL)
 			{
 				//I've traded for? I don't want to give away again.
 				pCity->SetTraded(eAcceptedToPlayer, true);
 				bool bWar = kDeal.IsPeaceTreatyTrade(eAcceptedFromPlayer);
-#endif
 				GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, bWar, !bWar);
-#if defined(MOD_BALANCE_CORE)
 			}
-#endif
 		}
 		else if(it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY)
 		{
@@ -3038,35 +3022,21 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
 			GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 			GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
-			
-			// Update diplo stuff.
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				
-				if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
-				{
-					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
-					{
-						vector<PlayerTypes> v;
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
-					}
-				}
-			}
 
 			if(bTargetTeamIsMinor)
 			{
 				veNowAtPeacePairs.push_back(eTargetTeam, eFromTeam); //eFromTeam is second so we can take advantage of CvWeightedVector's sort by weights
 			}
-#if defined(MOD_BALANCE_CORE)
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+				if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+					continue;
+
+				if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 				{
 					//If human was target, let human know.
-					if(GET_PLAYER(eLoopPlayer).isHuman())
+					if (GET_PLAYER(eLoopPlayer).isHuman())
 					{
 						CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 						if(pNotifications)
@@ -3080,9 +3050,12 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 						}
 					}
 					//If AI, improve opinion of broker a bit.
-					else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+					else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
+						vector<PlayerTypes> v = GET_TEAM(eFromTeam).getPlayers();
+						v.push_back(eAcceptedToPlayer);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
 					}
 					// Other players' reactions
 					for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -3098,8 +3071,12 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 						}
 					}
 				}
+				else if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam)
+				{
+					vector<PlayerTypes> v = GET_TEAM(eTargetTeam).getPlayers();
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
+				}
 			}
-#endif
 		}
 		// Third Party War
 		else if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
@@ -3712,32 +3689,18 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
 					GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 					GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
-					
-					// Update diplo stuff.
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						
-						if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
-						{
-							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
-							{
-								vector<PlayerTypes> v;
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
-							}
-						}
-					}
 
-					if(bTargetTeamIsMinor)
+					if (bTargetTeamIsMinor)
 					{
 						veNowAtPeacePairs.push_back(eTargetTeam, eFromTeam); //eFromTeam is second so we can take advantage of CvWeightedVector's sort by weights
 					}
-#if defined(MOD_BALANCE_CORE)
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+						if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+							continue;
+
+						if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 						{
 							//If human was target, let human know.
 							if(GET_PLAYER(eLoopPlayer).isHuman())
@@ -3754,9 +3717,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								}
 							}
 							//If AI, improve opinion of broker a bit.
-							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+							else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
+								vector<PlayerTypes> v = GET_TEAM(eFromTeam).getPlayers();
+								v.push_back(eAcceptedToPlayer);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
 							}
 							// Other players' reactions
 							for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -3772,8 +3738,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								}
 							}
 						}
+						else if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam)
+						{
+							vector<PlayerTypes> v = GET_TEAM(eTargetTeam).getPlayers();
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
+						}
 					}
-#endif
 				}
 				// Third Party War
 				else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
@@ -3996,13 +3966,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						
-						if (!GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive())
+						if (GET_PLAYER(eLoopPlayer).isAlive())
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
-								vector<PlayerTypes> v;
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches(v);
+								vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam ? GET_TEAM(eToTeam).getPlayers() : GET_TEAM(eFromTeam).getPlayers();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
 							}
 						}
 					}

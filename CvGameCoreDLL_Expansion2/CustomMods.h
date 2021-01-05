@@ -85,38 +85,6 @@
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
 
-/// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
-#define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
-/// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
-#define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
-
-/// If the international trade route would be to a minor, the gold and tech received by the minor do not count
-#define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-/// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city
-#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
-/// Instead of simply doubling score if we want the tourism boost, the multiplier is based on our grand strategy
-#define AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
-/// When prioritizing trade routes, the actual trade value of all three possible route types will be considered instead of prioritizing food > production > international
-#define AUI_TRADE_UNBIASED_PRIORITIZE
-
-/// Uses a different algorithm for scoring voting on world ideology
-#define AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
-
-/// Weighs different yield types differently depending on flavor and citizen value
-#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
-/// Weighs different yield types differently depending on flavor and citizen value
-#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
-/// Considers grand strategies when scoring things like beliefs that only function when at peace
-#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
-/// River happiness score will only be applied if the city being scored is actually on a river
-#define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
-/// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
-#define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (100.0 / 3.0)
-/// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs
-#define AUI_RELIGION_RELATIVE_BELIEF_SCORE
-/// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
-#define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
-
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 
@@ -177,8 +145,6 @@
 // Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values
 #define MOD_CONFIG_AI_IN_XML                        gCustomMods.isCONFIG_AI_IN_XML()
 
-// If A declares war on B that preempts a co-op war, A is locked into the war for the same number of turns as if they had agreed to the co-op war (v86) 
-#define MOD_GLOBAL_EARLY_COOP_WAR_LOCK				gCustomMods.isGLOBAL_EARLY_COOP_WAR_LOCK()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
 // Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
@@ -207,16 +173,12 @@
 #define MOD_GLOBAL_CS_GIFT_SHIPS                    gCustomMods.isGLOBAL_CS_GIFT_SHIPS()
 // Permits units to upgrade in allied militaristic City States
 #define MOD_GLOBAL_CS_UPGRADES                      gCustomMods.isGLOBAL_CS_UPGRADES()
-// City States will only raze captured cities if they are very unhappy
-#define MOD_GLOBAL_CS_RAZE_RARELY                   gCustomMods.isGLOBAL_CS_RAZE_RARELY()
 // City States can be liberated after they have been "bought" (Austria's or Venice's UA)
 #define MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT         gCustomMods.isGLOBAL_CS_LIBERATE_AFTER_BUYOUT()
 // City States give different gifts depending on their type (cultural, religious, maritime, etc)
 #define MOD_GLOBAL_CS_GIFTS                         gCustomMods.isGLOBAL_CS_GIFTS()
 // Units gifted from City States receive XP from their spawning city, not the CS capital (v84)
 #define MOD_GLOBAL_CS_GIFTS_LOCAL_XP                gCustomMods.isGLOBAL_CS_GIFTS_LOCAL_XP()
-// City States at war with each other but allied to the same major will declare peace (v39)
-#define MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES          gCustomMods.isGLOBAL_CS_NO_ALLIED_SKIRMISHES()
 // Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22)
 #define MOD_GLOBAL_VENICE_KEEPS_RESOURCES           gCustomMods.isGLOBAL_VENICE_KEEPS_RESOURCES()
 // Units attacking from cities, forts or citadels will not follow-up if they kill the defender
@@ -257,6 +219,8 @@
 #define MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS	gCustomMods.isGLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS()
 // Various new tables and logics for improvements
 #define MOD_IMPROVEMENTS_EXTENSIONS					gCustomMods.isIMPROVEMENTS_EXTENSIONS()
+// Various new tables and logics for plots
+#define MOD_PLOTS_EXTENSIONS						gCustomMods.isPLOTS_EXTENSIONS()
 // No auto spawn great prophets for human players, must select pulldown menu in Lua when you are ready to spawn one, only pre-Industrial era
 #define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
 // Change Assyria's trait to choosing a free tech upon city conquest
@@ -483,10 +447,6 @@
 
 // Permits units to have no supply cost (v77)
 #define MOD_UNITS_NO_SUPPLY                         gCustomMods.isUNITS_NO_SUPPLY()
-// Permits units to have other than GameDefines.MAX_HIT_POINTS maximum hit points (v77)
-#define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
-// Enables the XP times 100 API (v77)
-#define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
 // Enables the table Unit_ResourceQuantityTotals - AFFECTS SAVE GAME DATA FORMAT
@@ -514,6 +474,8 @@
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
 // if true, you need a trade route to get passive religious pressure to a city
 #define MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY()
+// Enables several additional tables related to beliefs
+#define MOD_RELIGION_EXTENSIONS						gCustomMods.isRELIGION_EXTENSIONS()
 
 // if true, only cities cannot do ranged strikes
 #define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
@@ -523,49 +485,6 @@
 
 // Enables the various tables related to production cost modifiers triggered by access to resources
 #define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
-
-// Fixes the AI's inability to use combat units as secondary workers (v26)
-#define MOD_AI_SECONDARY_WORKERS                    gCustomMods.isAI_SECONDARY_WORKERS()
-// Fixes the AI's inability to use combat units for founding cities (v26)
-#define MOD_AI_SECONDARY_SETTLERS                   gCustomMods.isAI_SECONDARY_SETTLERS()
-
-// Features from the "Smart AI mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=521955 (v50)
-#define MOD_AI_SMART                                gCustomMods.isAI_SMART()
-
-#if defined(MOD_AI_SMART)
-// Use Great people more effectively, plant some improvements early, and later use GP powers (v50)
-#define MOD_AI_SMART_GREAT_PEOPLE                   (MOD_AI_SMART && gCustomMods.isAI_SMART_GREAT_PEOPLE())
-// Delay grand strategy bias until the Renaissance (v50)
-#define MOD_AI_SMART_GRAND_STRATEGY                 (MOD_AI_SMART && gCustomMods.isAI_SMART_GRAND_STRATEGY())
-// Stop making archaeologists sooner and also disband archaeologists if there are not valid targets (v50)
-#define MOD_AI_SMART_ARCHAEOLOGISTS                 (MOD_AI_SMART && gCustomMods.isAI_SMART_ARCHAEOLOGISTS())
-// Disband long obsolete units, eg triremes in industrial era (v50)
-#define MOD_AI_SMART_DISBAND                        (MOD_AI_SMART && gCustomMods.isAI_SMART_DISBAND())
-// AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby (v50)
-#define MOD_AI_SMART_AIR_TACTICS                    (MOD_AI_SMART && gCustomMods.isAI_SMART_AIR_TACTICS())
-// Quickens how fast the AI will critically ask for settler based also on difficulty and game speed properties.
-#define MOD_AI_SMART_FASTER_CAPITAL_SETTLER_NEED_BY_DIFFICULTY_SPEED gCustomMods.isAI_SMART()
-// Also check for water and non luxury resources for the locale tech multiplier, luxuries get double value.
-#define MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES gCustomMods.isAI_SMART()
-// Tech is calculated with flavors from current needs vs grand strategy player flavor, based on this.
-// As difficulty is not taken into account, for standard speed will use a base of 500 turns even for 
-// a deity AI player. The value even out at turn 250, witch is stupid due to AI bonuses the game could
-// be near finished (if not finished) by then.
-#define MOD_AI_SMART_TECH_GAME_PROGRESS_UPDATED_WITH_DIFFICULTY gCustomMods.isAI_SMART()
-// As how tech flavor works and is calculated, it is easily zeroed specially at the beginning.
-// Zeroed values will not make further calculations with resources and player priorities...
-// So let's rescale them on a 2 to 10 range.
-#define MOD_AI_SMART_TECH_FLAVOR_MINIMUM_VALUES     gCustomMods.isAI_SMART()
-// When recursively propagating, use NUM_AND_TECH_PREREQS (6) instead of NUM_OR_TECH_PREREQS (3), while in 
-// practice only Agriculture uses 4 and prereqs, could have unexpected flavors with a custom tech tree.
-#define MOD_AI_SMART_TECH_FLAVOR_PROPAGATION_BUGFIX gCustomMods.isAI_SMART()
-// Minor adjustement to avoid further calculations if flavor value is zero.
-#define MOD_AI_SMART_OPTIMIZE_FLAVOR_WEIGHT_ROUNDTRIPS gCustomMods.isAI_SMART()
-
-// Features from the "Smart AI V3 mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=562319 (v85)
-#define MOD_AI_SMART_V3                             gCustomMods.isAI_SMART_V3()
-
-#endif
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -891,71 +810,6 @@
 #define MOD_EVENTS_RED_COMBAT_ABORT                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ABORT())
 #define MOD_EVENTS_RED_COMBAT_RESULT                (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_RESULT())
 #define MOD_EVENTS_RED_COMBAT_ENDED                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ENDED())
-
-// Minor bug fixes (missing catch-all else clauses, etc) (v30 onwards)
-#define MOD_BUGFIX_MINOR 							(true)
-// Minor bug fixes in the Lua API (v86 onwards)
-#define MOD_BUGFIX_LUA_API 							(true)
-// Adds validation to setting plot values (type, terrain, feature, resource, improvement and route) to stop CTDs in the graphics engine (v86)
-#define MOD_BUGFIX_PLOT_VALIDATION					(true)
-// Fixes some minor issues with the random number generator (v83)
-#define MOD_BUGFIX_RANDOM							(true)
-// Fixes the spy name crash (v53)
-#define MOD_BUGFIX_SPY_NAMES                        (true)
-// Fixes the research NaN issue (v90)
-#define MOD_BUGFIX_RESEARCH_NAN						(true)
-// Fixes the research overflow bug/exploit (v52)
-#define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
-// Fixes the bug where a city doesn't work its centre tile (v45)
-#define MOD_BUGFIX_CITY_CENTRE_WORKING              (true)
-// Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73)
-#define MOD_BUGFIX_NO_PUPPET_CAPITALS               (true)
-// Adds missing policy events when adopting an ideology (v33)
-#define MOD_BUGFIX_MISSING_POLICY_EVENTS			(true)
-// Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33)
-#define MOD_BUGFIX_TRADE_ROUTES_EMBARK_ALL_WATER	(true)
-// Fixes the bug where Venice puppets it's own capital (v42)
-#define MOD_BUGFIX_VENICE_PUPPETS_CAPITAL			(true)
-// Fixes the bug in the Lua Plot:ChangeVisibilityCount() method where iChange is treated as a boolean and not a signed int (v23)
-#define MOD_BUGFIX_LUA_CHANGE_VISIBILITY_COUNT      (true)
-// Fixes the CanMoveAfterPurchase() bug where it is only tested for at one specific point in the code (v26)
-#define MOD_BUGFIX_MOVE_AFTER_PURCHASE              (true)
-// Fixes the issues caused by using UNIT_XYZ instead of UNITCLASS_XYZ (v26)
-#define MOD_BUGFIX_UNITCLASS_NOT_UNIT               (true)
-// Fixes the issues caused by using BUILDING_XYZ instead of BUILDINGCLASS_XYZ (v26)
-#define MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING       (true)
-// Fixes the NumCitiesFreeFoodBuilding (policy finisher) bug where the civilization has a UB for the Aqueduct - AFFECTS SAVE GAME DATA FORMAT
-#define MOD_BUGFIX_FREE_FOOD_BUILDING               gCustomMods.isBUGFIX_FREE_FOOD_BUILDING()
-// Fixes the bug where the naval Civilization_FreeUnits start on land
-#define MOD_BUGFIX_NAVAL_FREE_UNITS                 (true)
-// Fixes the bug in goody hut messages that have parameters (v38)
-#define MOD_BUGFIX_GOODY_HUT_MESSAGES               (true)
-// Fixes the bug where Barb Camps ignore the ValidTerrains and ValidFeatures tables
-#define MOD_BUGFIX_BARB_CAMP_TERRAINS               gCustomMods.isBUGFIX_BARB_CAMP_TERRAINS()
-// Fixes the bug where Barb Camps won't spawn units if they are added via pPlot:SetImprovementType() (v21)
-#define MOD_BUGFIX_BARB_CAMP_SPAWNING               (true)
-// Fixes the bug where ranged combat (archers, catapults, ships and planes) against barbarians generates Great People XP (v43)
-#define MOD_BUGFIX_BARB_GP_XP                       gCustomMods.isBUGFIX_BARB_GP_XP()
-// Fixes the bug where you can't remove roads in no-mans-land originally built by a now dead player
-#define MOD_BUGFIX_REMOVE_GHOST_ROUTES              (true)
-// Fixes healing units ignoring enemy units and sleeping units under direct fire remaining asleep - thanks to hulkster for highlighting the latter issue
-#define MOD_BUGFIX_UNITS_AWAKE_IN_DANGER            gCustomMods.isBUGFIX_UNITS_AWAKE_IN_DANGER()
-// Fixes the hard-coding of what builds remove which features (v45)
-#define MOD_BUGFIX_FEATURE_REMOVAL                  (true)
-// Fixes the very dodgy maths in the calculation of a unit's power
-#define MOD_BUGFIX_UNIT_POWER_CALC                  gCustomMods.isBUGFIX_UNIT_POWER_CALC()
-// Fixes the naval imbalance in a unit's power calculation, requires BUGFIX_UNIT_POWER_CALC to be enabled
-#define MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY     gCustomMods.isBUGFIX_UNIT_POWER_NAVAL_CONSISTENCY()
-// Fixes the bug where units can upgrade even without any pre-req project being available (v22)
-#define MOD_BUGFIX_UNIT_PREREQ_PROJECT              (true)
-// Fixes a bug where hovering units can be chosen as rebels! (v39)
-#define MOD_BUGFIX_NO_HOVERING_REBELS               (true)
-// Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
-#define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
-// Fixes the ExtraMissionarySpreads column to affect naturally born Prophets
-#define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
-// Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
-#define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1384,11 +1238,8 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
-	MOD_OPT_DECL(GLOBAL_EARLY_COOP_WAR_LOCK);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
-	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_1UPT);
-	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_RESTRICTIONS);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GREAT_ADMIRAL);
 	MOD_OPT_DECL(GLOBAL_PROMOTION_CLASSES);
@@ -1403,12 +1254,10 @@ public:
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);
 	MOD_OPT_DECL(GLOBAL_CS_UPGRADES);
-	MOD_OPT_DECL(GLOBAL_CS_RAZE_RARELY);
 	MOD_OPT_DECL(GLOBAL_CS_LIBERATE_AFTER_BUYOUT);
 	MOD_OPT_DECL(GLOBAL_CS_GIFTS);
 	MOD_OPT_DECL(GLOBAL_CS_GIFTS_LOCAL_XP);
 	MOD_OPT_DECL(GLOBAL_CS_OVERSEAS_TERRITORY);
-	MOD_OPT_DECL(GLOBAL_CS_NO_ALLIED_SKIRMISHES);
 	MOD_OPT_DECL(GLOBAL_VENICE_KEEPS_RESOURCES);
 	MOD_OPT_DECL(GLOBAL_CS_MARRIAGE_KEEPS_RESOURCES);
 	MOD_OPT_DECL(GLOBAL_NO_FOLLOWUP_FROM_CITIES);
@@ -1430,6 +1279,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
 	MOD_OPT_DECL(GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS);
 	MOD_OPT_DECL(IMPROVEMENTS_EXTENSIONS);
+	MOD_OPT_DECL(PLOTS_EXTENSIONS);
 	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
@@ -1572,8 +1422,6 @@ public:
 	MOD_OPT_DECL(TRADE_WONDER_RESOURCE_ROUTES);
 
 	MOD_OPT_DECL(UNITS_NO_SUPPLY);
-	MOD_OPT_DECL(UNITS_MAX_HP);
-	MOD_OPT_DECL(UNITS_XP_TIMES_100);
 	MOD_OPT_DECL(UNITS_LOCAL_WORKERS);
 	MOD_OPT_DECL(UNITS_HOVERING_LAND_ONLY_HEAL);
 	MOD_OPT_DECL(UNITS_HOVERING_COASTAL_ATTACKS);
@@ -1589,21 +1437,12 @@ public:
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
+	MOD_OPT_DECL(RELIGION_EXTENSIONS);
 
 	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
-
-	MOD_OPT_DECL(AI_SECONDARY_WORKERS);
-	MOD_OPT_DECL(AI_SECONDARY_SETTLERS);
-	MOD_OPT_DECL(AI_SMART_V3);
-	MOD_OPT_DECL(AI_SMART);
-	MOD_OPT_DECL(AI_SMART_GREAT_PEOPLE);
-	MOD_OPT_DECL(AI_SMART_GRAND_STRATEGY);
-	MOD_OPT_DECL(AI_SMART_ARCHAEOLOGISTS);
-	MOD_OPT_DECL(AI_SMART_DISBAND);
-	MOD_OPT_DECL(AI_SMART_AIR_TACTICS);
 
 	MOD_OPT_DECL(EVENTS_TERRAFORMING);
 	MOD_OPT_DECL(EVENTS_TILE_IMPROVEMENTS);
@@ -1681,16 +1520,6 @@ public:
 
 	MOD_OPT_DECL(CONFIG_GAME_IN_XML);
 	MOD_OPT_DECL(CONFIG_AI_IN_XML);
-
-	MOD_OPT_DECL(BUGFIX_RESEARCH_OVERFLOW);
-	MOD_OPT_DECL(BUGFIX_FREE_FOOD_BUILDING);
-	MOD_OPT_DECL(BUGFIX_BARB_CAMP_TERRAINS);
-	MOD_OPT_DECL(BUGFIX_BARB_GP_XP);
-	MOD_OPT_DECL(BUGFIX_UNITS_AWAKE_IN_DANGER);
-	MOD_OPT_DECL(BUGFIX_UNIT_POWER_CALC);
-	MOD_OPT_DECL(BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY);
-	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
-	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);

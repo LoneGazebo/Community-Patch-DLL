@@ -635,35 +635,19 @@ void CvEconomicAI::DoTurn()
 			{
 				// Check all of the Strategy Triggers
 				if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughRecon(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON_SEA")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedReconSea(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedReconSea(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughReconSea(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EARLY_EXPANSION")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_EXPANSION")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappiness(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL")
@@ -693,11 +677,7 @@ void CvEconomicAI::DoTurn()
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_IslandStart(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS")
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(eStrategy, m_pPlayer);
-#else
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY")
@@ -856,17 +836,11 @@ void CvEconomicAI::DoTurn()
 		DoPlotPurchases();
 		DisbandExtraWorkers();
 		DisbandExtraArchaeologists();
-#if defined(MOD_AI_SMART_DISBAND)
-		if (MOD_AI_SMART_DISBAND)
-		{
-			DisbandLongObsoleteUnits();
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+		DisbandLongObsoleteUnits();
 		DisbandUselessSettlers();
 		DisbandExtraWorkboats();
 		DisbandMiscUnits();
-#endif
+
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		YieldTypes eFocusYield = NO_YIELD;
 		if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer)) {
@@ -1318,11 +1292,7 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "Num Techs", GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown());
 
 	// Culture
-#if defined(MOD_BUGFIX_DUMMY_POLICIES)
-	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false));
-#else
 	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
-#endif
 	AppendToLog(strHeader, strLog, "Culture (lifetime)", GetPlayer()->GetJONSCultureEverGenerated());
 
 	// Faith
@@ -2157,14 +2127,10 @@ void CvEconomicAI::DoReconState()
 	if (m_pPlayer->getNumCities() <= 0)
 		return;
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	bool isCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
 	bool isCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
 
 	if (isCannotRecon && isCannotReconSea)
-#else
-	if(GetPlayer()->isMinorCiv())
-#endif
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 		m_eNavalReconState = RECON_STATE_ENOUGH;
@@ -2355,7 +2321,6 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	if (isCannotRecon)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
@@ -2364,34 +2329,28 @@ void CvEconomicAI::DoReconState()
 	{
 		m_eNavalReconState = RECON_STATE_ENOUGH;
 	}
-#endif
-
 }
 
 /// Determine how many sites we have for archaeologists
 void CvEconomicAI::DoAntiquitySites()
 {
 	int iNumSites = 0;
-#if defined(MOD_BALANCE_CORE)
 	int iNumSitesOwn = 0;
 	int iNumHiddenSitesOwn = 0;
 	int iNumSitesNeutral = 0;
-#endif
-	int iPlotLoop;
-	CvPlot *pPlot;
+
 	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
 	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
 
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if(pPlot->isRevealed(m_pPlayer->getTeam()))
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		if (pPlot->isRevealed(m_pPlayer->getTeam()))
 		{
 			if (pPlot->getResourceType(m_pPlayer->getTeam()) == eArtifactResourceType ||
 				pPlot->getResourceType(m_pPlayer->getTeam()) == eHiddenArtifactResourceType)
 			{
-#if defined(MOD_BALANCE_CORE)
-				if(pPlot->getOwner() == m_pPlayer->GetID())
+				if (pPlot->getOwner() == m_pPlayer->GetID())
 				{
 					iNumSitesOwn++;
 					if (pPlot->getResourceType(m_pPlayer->getTeam()) == eHiddenArtifactResourceType)
@@ -2399,29 +2358,24 @@ void CvEconomicAI::DoAntiquitySites()
 						iNumHiddenSitesOwn++;
 					}
 				}
-				else if(pPlot->getOwner() == NO_PLAYER)
+				else if (pPlot->getOwner() == NO_PLAYER)
 				{
 					iNumSitesNeutral++;
 				}
 				else
 				{
-#endif
-				iNumSites++;
-#if defined(MOD_BALANCE_CORE)
+					iNumSites++;
 				}
-#endif
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	m_iVisibleAntiquitySitesOwn =  iNumSitesOwn;
 	m_iVisibleHiddenAntiquitySitesOwn = iNumHiddenSitesOwn;
 	m_iVisibleAntiquitySitesNeutral = iNumSitesNeutral;
-#endif
 	m_iVisibleAntiquitySites = iNumSites;
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvEconomicAI::DisbandMiscUnits()
 {
 	if (m_pPlayer->isMinorCiv())
@@ -2590,6 +2544,7 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumUnimprovedPlots, iNumValidPlots);
 	}
 }
+
 CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 {
 	CvUnit* pLoopUnit = NULL;
@@ -2633,14 +2588,11 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 	}
 	
 	CvUnit* pUnit;
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST", true);
-#else
-	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
-#endif
-	if(eArch == NO_UNIT){
+
+	if (eArch == NO_UNIT)
 		return;
-	}
+
 	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
 		pUnit = FindArchaeologistToScrap();
 	
@@ -2653,7 +2605,7 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 		LogScrapUnit(pUnit, iNumArchaeologists, iNumSites, 0, 0);
 	}
 }
-#endif
+
 void CvEconomicAI::DisbandExtraWorkers()
 {
 	// Are we running at a deficit?
@@ -2667,7 +2619,6 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	int iNumCities = m_pPlayer->getNumCities();
 
-#if defined(MOD_BALANCE_CORE)
 	//If we want workers in any city, don't disband.
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 	int iLoopCity = 0;
@@ -2696,7 +2647,6 @@ void CvEconomicAI::DisbandExtraWorkers()
 	{
 		return;
 	}
-#endif
 
 	double fCurrentRatio = iNumWorkers / (double)iNumCities;
 	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
@@ -2737,12 +2687,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
 	int iUnimprovedPlotPerWorkers = 8;
 	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
-#if defined(MOD_BALANCE_CORE)
+
 	if(iMinWorkers <= 0)
 	{
 		iMinWorkers = 1;
 	}
-#endif
 
 	// less than two thirds of the plots are improved, don't discard anybody
 	float fRatio = iNumImprovedPlots / (float)iNumValidPlots;
@@ -2768,22 +2717,21 @@ void CvEconomicAI::DisbandExtraWorkers()
 	}
 
 	int iLoop;
-	CvCity* pCity;
-	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pCity == pCapital)
+		if (pCity == pCapital)
 		{
 			continue;
 		}
 
-		if(pCapital->getArea() == pCity->getArea() && !pCity->IsRouteToCapitalConnected())
+		if (pCapital->getArea() == pCity->getArea() && !pCity->IsRouteToCapitalConnected())
 		{
 			iMinWorkers += 1;
 		}
 	}
 
 
-	if(iNumWorkers <= iMinWorkers)
+	if (iNumWorkers <= iMinWorkers)
 	{
 		return;
 	}
@@ -2791,16 +2739,13 @@ void CvEconomicAI::DisbandExtraWorkers()
 	m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
 
 	CvUnit* pUnit = FindWorkerToScrap();
-	if(!pUnit)
-	{
+	if (!pUnit)
 		return;
-	}
 
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
 }
 
-#if defined(MOD_AI_SMART_DISBAND)
 // Check for very long obsolete units that didn't get an upgrade (usual suspects are triremes and warriors)
 void CvEconomicAI::DisbandLongObsoleteUnits()
 {
@@ -2824,7 +2769,7 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 
 			// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
 			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
-				
+
 			//Fixed for settlers for advanced start.
 			if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
 			{
@@ -2860,7 +2805,6 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 		}
 	}
 }
-#endif
 
 void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWater, bool bAllowDeepWater, std::vector<SPlotWithScore>& landTargets, std::vector<SPlotWithScore>& seaTargets)
 {
@@ -2998,11 +2942,9 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 		{
 			continue;
 		}
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+
 		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
-#else
-		UnitTypes eWorker = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER");
-#endif
+
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCanAttack() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			int WorkRateMod = 100 - pLoopUnit->GetWorkRateMod();
@@ -3029,11 +2971,8 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 			if (!pLoopUnit->canScrap())
 				continue;
 
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
-#else
-			UnitTypes eWorker = (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER");
-#endif
+
 			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCanAttack() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 			{
 				return pLoopUnit;
@@ -3059,11 +2998,9 @@ CvUnit* CvEconomicAI::FindArchaeologistToScrap()
 
 		if (!pLoopUnit->canScrap())
 			continue;
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+
 		UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST");
-#else
-		UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true);
-#endif
+
 		if(pLoopUnit->getUnitType() == eArch)
 		{
 			return pLoopUnit;
@@ -3200,17 +3137,12 @@ int EconomicAIHelpers::GetWeightThresholdModifier(EconomicAIStrategyTypes eStrat
 }
 
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer,eStrategy))
 	{
 		return false;
 	}
-#else
-bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
-{
-#endif
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3323,17 +3255,12 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 }
 
 /// "Need Recon Sea" Player Strategy: chosen by the DoRecon() function
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
 	{
 		return false;
 	}
-#else
-bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(CvPlayer* pPlayer)
-{
-#endif
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3488,15 +3415,9 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 }
 
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
-#else
-bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
-{
-	if (pPlayer->isMinorCiv())
-#endif
 		return false;
 
 	if (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
@@ -3510,7 +3431,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 		return false;
 
-	//we do not want to lose time building our settlers even if we don't have explored yet
+	//we do not want to lose time building our settlers even if we haven't explored yet
 	if (pPlayer->GetNumCitiesFounded() < 3 && GC.getGame().getElapsedGameTurns()<54)
 		return true;
 
@@ -3538,15 +3459,10 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	bool bCannotExpand = pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy) || pPlayer->GetPlayerTraits()->IsNoAnnexing();
-#else
-bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
-{
-	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
-#endif
+
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
@@ -3633,16 +3549,10 @@ bool EconomicAIHelpers::IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eSt
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	if(CannotMinorCiv(pPlayer, eStrategy) || pPlayer->isBarbarian())
-#else
-	if(pPlayer->isMinorCiv() || pPlayer->isBarbarian())
-#endif
 	{
 		return false;
 	}
-#endif
 
 	if(pPlayer->getTotalPopulation() > 0 && pPlayer->GetUnhappiness() > 0)
 	{
@@ -3782,15 +3692,9 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 /// "Found City" Player Strategy: If there is a settler who isn't in an operation?  If so, find him a city site
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 		return false;
-#else
-	eStrategy;
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
-		return false;
-#endif
 
 	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 		return false;
@@ -4218,22 +4122,14 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 }
 
 /// Are we running out of room on our current landmass?
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-#else
-bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer)
-#endif
 {
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
-#else
-	if(pPlayer->IsEmpireUnhappy() || pPlayer->isMinorCiv())
-#endif
 	{
 		return false;
 	}
@@ -4346,12 +4242,8 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 		return false;
 	}
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	// Minor Civs can't run some Strategies
 	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
-#else
-	if (pPlayer->IsEmpireUnhappy() || pPlayer->isMinorCiv())
-#endif
 	{
 		return false;
 	}
@@ -4501,14 +4393,11 @@ bool EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 {
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
-	double iMaxRatio = MOD_AI_SMART_ARCHAEOLOGISTS ? .25 : .5; //Ratio of archaeologists to sites
-#else
-	double iMaxRatio = .5; //Ratio of archaeologists to sites
-#endif
+	double iMaxRatio = .25; //Ratio of archaeologists to sites
+
 	int iNumArchaeologists = pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
-	
+
 	if (eExpFinisher != NO_POLICY)
 	{
 		if (pPlayer->GetPlayerPolicies()->HasPolicy(eExpFinisher))
@@ -4516,7 +4405,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 			iNumSites += GC.getGame().GetNumHiddenArchaeologySites();
 		}
 	}
-		
+
 	if ((double)iNumSites * iMaxRatio + 1 < iNumArchaeologists)
 	{
 		return true;
@@ -4907,16 +4796,10 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 {
 	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
 
-#if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
 	const CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
 	BuildingTypes eWritersGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD"));
 	BuildingTypes eArtistsGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD"));
 	BuildingTypes eMusiciansGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD"));
-#else
-	BuildingTypes eWritersGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
-	BuildingTypes eArtistsGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
-	BuildingTypes eMusiciansGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
-#endif
 
 	CvBuildingEntry *pkBuilding;
 	pkBuilding = GC.getBuildingInfo(eWritersGuild);
@@ -4973,7 +4856,6 @@ bool EconomicAIHelpers::IsTestStrategy_StartedPiety(CvPlayer* pPlayer)
 	return bRtnValue;
 }
 
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
 {
 	if(!pPlayer->isMinorCiv())
@@ -4983,5 +4865,3 @@ bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyType
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
 	return (pStrategy->IsNoMinorCivs() != 0);
 }
-#endif
-

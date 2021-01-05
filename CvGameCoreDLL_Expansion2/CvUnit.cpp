@@ -144,10 +144,7 @@ CvUnit::CvUnit() :
 	, m_iDamage("CvUnit::m_iDamage", m_syncArchive, true)
 	, m_iMoves("CvUnit::m_iMoves", m_syncArchive, true)
 	, m_bImmobile("CvUnit::m_bImmobile", m_syncArchive)
-	, m_iExperience("CvUnit::m_iExperience", m_syncArchive)
-#if defined(MOD_UNITS_XP_TIMES_100)
 	, m_iExperienceTimes100("CvUnit::m_iExperienceTimes100", m_syncArchive)
-#endif
 	, m_iLevel("CvUnit::m_iLevel", m_syncArchive)
 	, m_iCargo("CvUnit::m_iCargo", m_syncArchive)
 	, m_iCargoCapacity("CvUnit::m_iCargoCapacity", m_syncArchive)
@@ -301,11 +298,9 @@ CvUnit::CvUnit() :
 #if defined(MOD_UNITS_NO_SUPPLY)
 	, m_iNoSupply("CvUnit::m_iNoSupply", m_syncArchive)
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	, m_iMaxHitPointsBase(GC.getMAX_HIT_POINTS())
 	, m_iMaxHitPointsChange("CvUnit::m_iMaxHitPointsChange", m_syncArchive)
 	, m_iMaxHitPointsModifier("CvUnit::m_iMaxHitPointsModifier", m_syncArchive)
-#endif
 	, m_iFriendlyLandsModifier("CvUnit::m_iFriendlyLandsModifier", m_syncArchive)
 	, m_iFriendlyLandsAttackModifier("CvUnit::m_iFriendlyLandsAttackModifier", m_syncArchive)
 	, m_iOutsideFriendlyLandsModifier("CvUnit::m_iOutsideFriendlyLandsModifier", m_syncArchive)
@@ -1069,11 +1064,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
 	if (iXP && !kPlayer.isHuman() && canAcquirePromotionAny())
 	{
-#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
-#else
-		changeExperience(iXP);
-#endif
 	}
 
 	// bonus xp in combat from handicap?
@@ -1328,11 +1319,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
-#if defined(MOD_UNITS_XP_TIMES_100)
 				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetInspirationalLeader() * 100);
-#else
-				pLoopUnit->changeExperience(GetPlayerTraits()->GetInspirationalLeader());
-#endif
 			}
 		}
 	}
@@ -1414,10 +1401,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDamage = 0;
 	m_iMoves = 0;
 	m_bImmobile = false;
-	m_iExperience = 0;
-#if defined(MOD_UNITS_XP_TIMES_100)
 	m_iExperienceTimes100 = 0;
-#endif
 	m_iLevel = 1;
 	m_iCargo = 0;
 	m_iAttackPlotX = INVALID_PLOT_COORD;
@@ -1698,11 +1682,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_API_EXTENSIONS)
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GC.getMAX_HIT_POINTS();
 	m_iMaxHitPointsChange = 0;
 	m_iMaxHitPointsModifier = 0;
-#endif
 	m_eLeaderUnitType = NO_UNIT;
 	m_eInvisibleType = NO_INVISIBLE;
 	m_eSeeInvisibleType = NO_INVISIBLE;
@@ -2132,21 +2114,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		{
 			iLevel = 1;
 		}
-#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(20 * iLostPromotions * iLevel * 100);
-#else
-		changeExperience(20 * iLostPromotions * iLevel);
-#endif
 	}
 #endif
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
-#if defined(MOD_UNITS_MAX_HP)
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
 	setDamage(min(pUnit->getDamage(), GetMaxHitPoints()-1));
-#else
-	setDamage(pUnit->getDamage());
-#endif
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
@@ -2206,11 +2180,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier());
 	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier());
-#if defined(MOD_UNITS_XP_TIMES_100)
 	setExperienceTimes100(std::max(0, (pUnit->getExperienceTimes100() * iOurModifier) / iOldModifier));
-#else
-	setExperience(std::max(0, (pUnit->getExperience() * iOurModifier) / iOldModifier));
-#endif
 
 	setName(pUnit->getNameNoDesc());
 	setLeaderUnitType(pUnit->getLeaderUnitType());
@@ -2429,7 +2399,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 
 			int iCivValue = 0;
-			if (IsCivilianUnit() && !IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && (GetOriginalOwner() == getOwner() || isBarbarian()))
+			if (IsCivilianUnit() && !IsGreatGeneral() && !IsGreatAdmiral() && !IsCityAttackSupport() && !IsSapper() && (GetOriginalOwner() == getOwner() || isBarbarian()))
 			{
 				// AI cares less about lost workers / etc in lategame
 				int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(getOwner()).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
@@ -2765,35 +2735,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #endif
 
 	// A unit dying reduces the Great General meter
-#if defined(MOD_UNITS_XP_TIMES_100)
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
-#else
-	if (getExperience() > 0 && ePlayer != NO_PLAYER)
-#endif
 	{
-#if defined(MOD_UNITS_XP_TIMES_100)
 		int iGreatGeneralMeterLossTimes100 = getExperienceTimes100() * /*50*/ GC.getUNIT_DEATH_XP_GREAT_GENERAL_LOSS();
 		iGreatGeneralMeterLossTimes100 /= 100;
-#else
-		int iGreatGeneralMeterLoss = getExperience() * /*50*/ GC.getUNIT_DEATH_XP_GREAT_GENERAL_LOSS();
-		iGreatGeneralMeterLoss /= 100;
-#endif
 
 		if(getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_UNITS_XP_TIMES_100)
 			GET_PLAYER(getOwner()).changeNavalCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
-#else
-			GET_PLAYER(getOwner()).changeNavalCombatExperience(-iGreatGeneralMeterLoss);
-#endif
 		}
 		else
 		{
-#if defined(MOD_UNITS_XP_TIMES_100)
 			GET_PLAYER(getOwner()).changeCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
-#else
-			GET_PLAYER(getOwner()).changeCombatExperience(-iGreatGeneralMeterLoss);
-#endif
 		}
 	}
 
@@ -3199,12 +3152,6 @@ void CvUnit::doTurn()
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
 	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (!isHuman() || IsAutomated() || !IsHurt());
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-		// Healing units will awaken if they can see an enemy unit
-		bHealCheck = bHealCheck || (eActivityType == ACTIVITY_HEAL && SentryAlert(false));
-	}
-#endif
 	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true);
 	bool bInterceptCheck = eActivityType == ACTIVITY_INTERCEPT && !isHuman();
 
@@ -3229,11 +3176,7 @@ void CvUnit::doTurn()
 				if (iExperience > 0)
 				{
 					//Up to max barb value - rest has to come through combat!
-#if defined(MOD_UNITS_XP_TIMES_100)
 					changeExperienceTimes100(iExperience * 100);
-#else
-					changeExperience(iExperience);
-#endif
 				}
 			}
 		}
@@ -5975,11 +5918,7 @@ int CvUnit::GetScrapGold() const
 	iNumGold /= 100;
 
 	// Modify amount based on current health
-#if defined(MOD_UNITS_MAX_HP)
 	iNumGold *= 100 * (GetMaxHitPoints() - getDamage()) / GetMaxHitPoints();
-#else
-	iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
-#endif
 	iNumGold /= 100;
 
 
@@ -7531,16 +7470,14 @@ int CvUnit::GetPower() const
 	VALIDATE_OBJECT
 	int iPower = getUnitInfo().GetPower();
 
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (getUnitInfo().GetRangedCombat() > getUnitInfo().GetCombat()) {
+	if (getUnitInfo().GetRangedCombat() > getUnitInfo().GetCombat()) 
+	{
 		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
 	}
-#endif
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	else if (getUnitInfo().GetCombat() > 0) {
+	else if (getUnitInfo().GetCombat() > 0) 
+	{
 		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
 	}
-#endif
 	
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
@@ -8090,11 +8027,7 @@ void CvUnit::DoAttrition()
 	}
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 	if(getDamage() >= GetMaxHitPoints())
-#else
-	if(getDamage() >= GC.getMAX_HIT_POINTS())
-#endif
 	{
 		CvString strBuffer;
 		CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
@@ -8975,13 +8908,9 @@ bool CvUnit::canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) c
 
 	if (getDomainType() == DOMAIN_SEA)
 	{
-#if defined(MOD_BUGFIX_MINOR)
 		// The path finder permits routes between cities on lakes,
 		// so we'd better allow cargo ships to be relocated there!
 		if (!pToCity->isCoastal(0))
-#else
-		if (!pToCity->isCoastal())
-#endif
 		{
 			return false;
 		}
@@ -9740,11 +9669,7 @@ bool CvUnit::sellExoticGoods()
 	{
 		int iXP = getExoticGoodsXPAmount();
 		int iGold = getExoticGoodsGoldAmount();
-#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
-#else
-		changeExperience(iXP);
-#endif
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
@@ -10363,7 +10288,9 @@ bool CvUnit::pillage()
 				if (pPlot->getOwner() != NO_PLAYER)
 				{
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
+					// call one for era scaling, and another for non-era scaling
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
 				}
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
@@ -10563,11 +10490,7 @@ bool CvUnit::pillage()
 
 	if (IsGainsXPFromPillaging())
 	{
-#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(GC.getBALANCE_SCOUT_XP_BASE() * 500);
-#else
-		changeExperienceTimes100(GC.getBALANCE_SCOUT_XP_BASE() * 5);
-#endif
 	}
 
 	if(bSuccessfulNonRoadPillage)
@@ -10655,12 +10578,11 @@ bool CvUnit::foundCity()
 	VALIDATE_OBJECT
 
 	CvPlot* pPlot = plot();
-	
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-	if (IsCanAttack()) {
+
+	if (IsCanAttack()) 
+	{
 		CUSTOMLOG("Trying to found a city with combat unit %s at (%i, %i)", getName().c_str(), getX(), getY());
 	}
-#endif	
 
 	if(!canFoundCity(pPlot))
 	{
@@ -10705,11 +10627,10 @@ bool CvUnit::foundCity()
 	}
 #endif
 
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-	if (IsCanAttack() && plot()->getPlotCity() != NULL) {
+	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
+	{
 		CUSTOMLOG("  ... success!  They founded %s", plot()->getPlotCity()->getName().c_str());
 	}
-#endif	
 
 	if(pPlot->isActiveVisible(false))
 	{
@@ -13017,6 +12938,9 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			if (pPlayer->isBarbarian())
 				continue;
 
+			if (!pPlayer->isAlive())
+				continue;
+
 			// Minor civ response
 			if (pPlayer->isMinorCiv())
 			{
@@ -13559,10 +13483,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	}
 
 	bool bValidBuildPlot = isNativeDomain(pPlot);
-	
-#if defined(MOD_AI_SECONDARY_WORKERS)
+
 	bValidBuildPlot |= (pkBuildInfo->IsWater() && getDomainType() == DOMAIN_LAND && pPlot->isWater() && IsHasEmbarkAbility());
-#endif
 
 	if(!bValidBuildPlot)
 	{
@@ -13571,12 +13493,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 	if (pPlot->isWater())
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		// Needs the associated SQL executing - UPDATE Builds SET CanBeEmbarked=1 WHERE Type='BUILD_FISHING_BOATS_NO_KILL';
 		if (pPlot->needsEmbarkation(this) && !pkBuildInfo->IsCanBeEmbarked())
-#else
-		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
-#endif
 		{
 			return false;
 		}
@@ -14407,11 +14325,7 @@ bool CvUnit::giveExperience()
 
 				if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canAcquirePromotionAny())
 				{
-#if defined(MOD_UNITS_XP_TIMES_100)
 					pUnit->changeExperienceTimes100(100 * (i < iRemainder ? iMinExperiencePerUnit + 1 : iMinExperiencePerUnit));
-#else
-					pUnit->changeExperience(i < iRemainder ? iMinExperiencePerUnit + 1 : iMinExperiencePerUnit);
-#endif
 					pUnit->testPromotionReady();
 				}
 
@@ -14479,7 +14393,6 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	if(ePrereqTech != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 		return false;
 
-#if defined(MOD_BUGFIX_UNIT_PREREQ_PROJECT)
 	// Project requirement
 	ProjectTypes ePrereqProject = (ProjectTypes) pUpgradeUnitInfo->GetProjectPrereq();
 	if (ePrereqProject != NO_PROJECT) {
@@ -14487,7 +14400,6 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if (pkProjectInfo && GET_TEAM(getTeam()).getProjectCount(ePrereqProject) == 0)
 			return false;
 	}
-#endif
 		
 	CvPlot* pPlot = plot();
 
@@ -15721,7 +15633,7 @@ bool CvUnit::isInCombat() const
 int CvUnit::GetMaxHitPoints() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_UNITS_MAX_HP)
+
 	int iMaxHP = getMaxHitPointsBase();
 
 	iMaxHP *= (100 + getMaxHitPointsModifier());
@@ -15730,9 +15642,6 @@ int CvUnit::GetMaxHitPoints() const
 	iMaxHP += getMaxHitPointsChange();
 
 	return iMaxHP;
-#else
-	return GC.getMAX_HIT_POINTS();
-#endif
 }
 
 
@@ -15935,11 +15844,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	}
 
 	// If the empire is unhappy, then Units get a combat penalty
-#if defined(MOD_GLOBAL_CS_RAZE_RARELY)
-	if((!kPlayer.isMinorCiv() && kPlayer.IsEmpireUnhappy()) || (kPlayer.isMinorCiv() && kPlayer.IsEmpireVeryUnhappy()))
-#else
-	if(kPlayer.IsEmpireUnhappy())
-#endif
+	if (kPlayer.IsEmpireUnhappy())
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
@@ -16224,9 +16129,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
 		{
 			iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
-#if defined(MOD_BALANCE_CORE)
 			iModifier += kPlayer.GetCityStateCombatModifier();
-#endif
 		}
 
 		// OTHER UNIT is a Barbarian
@@ -16234,25 +16137,21 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		{
 			// Generic Barb Combat Bonus
 			iModifier += kPlayer.GetBarbarianCombatBonus();
-
-#if defined(MOD_BALANCE_CORE)
 			iModifier += GetBarbarianCombatBonus();
-#endif
 
+			const CvHandicapInfo& thisPlayerHandicap = kPlayer.getHandicapInfo();
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
 			if(isHuman())
 			{
-				iModifier += thisGameHandicap.getBarbarianCombatModifier();
+				iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
 			}
-#if defined(MOD_BALANCE_CORE)
 			// Minor bonus
 			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
 			{
 				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
 			}
-#endif
 			// AI bonus
 			else
 			{
@@ -16951,11 +16850,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Generic Barb Combat Bonus
 			iModifier += kPlayer.GetBarbarianCombatBonus();
 
+			const CvHandicapInfo& thisPlayerHandicap = kPlayer.getHandicapInfo();
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
 			if(isHuman())
-				iModifier += thisGameHandicap.getBarbarianCombatModifier();
+				iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
 			// AI bonus
 			else
 				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
@@ -18177,7 +18077,7 @@ void CvUnit::SetSpottedEnemy(bool bValue)
 bool CvUnit::IsGainsYieldFromScouting() const
 {
 	VALIDATE_OBJECT
-	for (int iI = 0; iI < YIELD_TOURISM; iI++)
+	for (int iI = 0; iI < YIELD_GREAT_ADMIRAL_POINTS; iI++)
 	{
 		if (getYieldFromScouting((YieldTypes)iI) > 0)
 		{
@@ -19664,11 +19564,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
-#if defined(MOD_UNITS_XP_TIMES_100)
 												changeExperienceTimes100(1 * 100);
-#else
-												changeExperience(1);
-#endif
 
 											CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
@@ -20030,12 +19926,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			iExperience /= 6;
 			if(iExperience > 0)
 			{
-					//Up to max barb value - rest has to come through combat!
-#if defined(MOD_UNITS_XP_TIMES_100)
+				//Up to max barb value - rest has to come through combat!
 				changeExperienceTimes100(iExperience * 100);
-#else
-				changeExperience(iExperience);
-#endif
 				bZero = true;
 			}
 		}
@@ -20908,11 +20800,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			if(!IsDead())
 			{
 				CvString text;
-#if defined(MOD_UNITS_MAX_HP)
 				iNewValue = MIN(GetMaxHitPoints(),iNewValue);
-#else
-				iNewValue = MIN(GC.getMAX_HIT_POINTS(),iNewValue);
-#endif
 				int iDiff = iOldValue - iNewValue;
 				if(iNewValue < iOldValue)
 				{
@@ -21124,7 +21012,6 @@ void CvUnit::SetImmobile(bool bValue)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Is this Unit in foreign territory?
 bool CvUnit::IsInForeignOwnedTerritory() const
@@ -21137,60 +21024,30 @@ bool CvUnit::IsInForeignOwnedTerritory() const
 	}
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_UNITS_XP_TIMES_100)
 int CvUnit::getExperienceTimes100() const
-#else
-int CvUnit::getExperience() const
-#endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_UNITS_XP_TIMES_100)
-		return m_iExperienceTimes100;
-#else
-		return m_iExperience;
-#endif
+	return m_iExperienceTimes100;
 }
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_UNITS_XP_TIMES_100)
 void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
-#else
-void CvUnit::setExperience(int iNewValue, int iMax)
-#endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_UNITS_XP_TIMES_100)
+
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
 	
 	if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < iMaxTimes100))
-#else
-	if ((getExperience() != iNewValue) && (getExperience() < ((iMax == -1) ? INT_MAX : iMax)))
-#endif
 	{
-#if defined(MOD_UNITS_XP_TIMES_100)
 		int iExperienceChangeTimes100 = iNewValueTimes100 - getExperienceTimes100();
-#else
-		int iExperienceChange = iNewValue - getExperience();
-#endif
 
-#if defined(MOD_UNITS_XP_TIMES_100)
-		if (!MOD_UNITS_XP_TIMES_100) {
-			// If NOT using XP times 100, remove any fractional part
-			iNewValueTimes100 -= (iNewValueTimes100 % 100);
-		}
-		
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
-#else
-		m_iExperience = std::min(((iMax == -1) ? INT_MAX : iMax), iNewValue);
-		CvAssert(getExperience() >= 0);
-#endif
 
 		if(getOwner() == GC.getGame().getActivePlayer())
 		{
@@ -21198,11 +21055,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 			if(!IsDead())
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_EXPERIENCE_POPUP");
-#if defined(MOD_UNITS_XP_TIMES_100)
 				localizedText << iExperienceChangeTimes100 / 100;
-#else
-				localizedText << iExperienceChange;
-#endif
 
 				int iX = m_iX;
 				int iY = m_iY;
@@ -21238,19 +21091,11 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_UNITS_XP_TIMES_100)
 void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
-#else
-void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
-#endif
 {
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
-#if defined(MOD_UNITS_XP_TIMES_100)
 	if (isBarbarian() && iChangeTimes100 > 0)
-#else
-	if (isBarbarian() && iChange > 0)
-#endif
 	{
 		return;
 	}
@@ -21261,15 +21106,12 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		iChangeTimes100 /= 100;
 	}
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long)INT_MAX)) ? INT_MAX : (int)lMaxTimes100;
 	
 	int iUnitExperienceTimes100 = iChangeTimes100;
-#else
-	int iUnitExperience = iChange;
-#endif
+
 	PromotionTypes eNewPromotion = NO_PROMOTION;
 
 	if(bFromCombat)
@@ -21320,14 +21162,9 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		}
 
 		// Unit XP mod
-#if defined(MOD_UNITS_XP_TIMES_100)
 		int iPlayerBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpModifier()) / 100;
-		if (!MOD_UNITS_XP_TIMES_100) {
-			// If NOT using XP times 100, remove any fractional part
-			iPlayerBonusXpTimes100 -= (iPlayerBonusXpTimes100 % 100);
-		}
 		iUnitExperienceTimes100 += iPlayerBonusXpTimes100;
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
 			const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 			for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
@@ -21340,24 +21177,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 				}
 			}
 		}
-#else
-		iUnitExperience += (iChange * kPlayer.getExpModifier()) / 100;
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
-			for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-			{
-				ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->getMonopolyXPBonus() > 0)
-				{
-					iUnitExperience += pInfo->getMonopolyXPBonus();
-				}
-			}
-		}
-#endif
-#endif
+
 		// Great General & Unit XP mod in borders
 		if (bInBorders)
 		{
@@ -21368,10 +21188,6 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			}
 
 			int iBorderBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
-			if (!MOD_UNITS_XP_TIMES_100) {
-				// If NOT using XP times 100, remove any fractional part
-				iBorderBonusXpTimes100 -= (iBorderBonusXpTimes100 % 100);
-			}
 			iUnitExperienceTimes100 += iBorderBonusXpTimes100;
 		}
 
@@ -21388,76 +21204,39 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 				if(getDomainType() == DOMAIN_SEA)
 				{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeNavalCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
-					kPlayer.changeNavalCombatExperience((iChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeNavalCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100);
-#else
-					kPlayer.changeNavalCombatExperience((iChange * iCombatExperienceMod) / 100);
-#endif
 #endif
 				}
 				else
 				{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
-					kPlayer.changeCombatExperience((iChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100);
-#else
-					kPlayer.changeCombatExperience((iChange * iCombatExperienceMod) / 100);
-#endif
 #endif
 				}
 			}
 			else
 			{
-#if defined(MOD_UNITS_XP_TIMES_100)
 				int iModdedChangeTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iChangeTimes100);
 				if (iModdedChangeTimes100 > 0)
-#else
-				int iModdedChange = min(iMax - m_iExperience, iChange);
-				if (iModdedChange > 0)
-#endif
 				{
 					if(getDomainType() == DOMAIN_SEA)
 					{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeNavalCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
-						kPlayer.changeNavalCombatExperience((iModdedChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeNavalCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100);
-#else
-						kPlayer.changeNavalCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
-#endif
 #endif
 					}
 					else
 					{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
-						kPlayer.changeCombatExperience((iModdedChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
-#endif
-#else
-#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100);
-#else
-						kPlayer.changeCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
-#endif
 #endif
 					}
 				}
@@ -21466,26 +21245,12 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 		if (getExperiencePercent() != 0)
 		{
-#if defined(MOD_UNITS_XP_TIMES_100)
 			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
-			if (!MOD_UNITS_XP_TIMES_100) 
-			{
-				// If NOT using XP times 100, remove any fractional part
-				iUnitBonusXpTimes100 -= (iUnitBonusXpTimes100 % 100);
-			}
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
-#else
-			iUnitExperience *= 100 + getExperiencePercent();
-			iUnitExperience /= 100;
-#endif
 		}
 	}
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
-#else
-	setExperience((getExperience() + iUnitExperience), iMax);
-#endif
 }
 
 
@@ -23477,12 +23242,8 @@ bool CvUnit::IsStackedGreatGeneral(const CvPlot* pLoopPlot, const CvUnit* pIgnor
 			if (pLoopUnit && pLoopUnit != pIgnoreThisGeneral)
 			{
 				// Great General unit
-#if defined(MOD_BUGFIX_MINOR)
 				// IsNearGreatGeneral() includes GAs, so we'll add them here as well
 				if(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral())
-#else
-				if(pLoopUnit->IsGreatGeneral())
-#endif
 				{
 					// Same domain
 					if(pLoopUnit->getDomainType() == getDomainType())
@@ -24315,7 +24076,6 @@ void CvUnit::changeNoSupply(int iChange)
 }
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 //	--------------------------------------------------------------------------------
 int CvUnit::getMaxHitPointsBase() const
 {
@@ -24365,7 +24125,7 @@ void CvUnit::changeMaxHitPointsModifier(int iChange)
 
 	setInfoBarDirty(true);
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsIgnoreZOC() const
 {
@@ -24813,11 +24573,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-#if defined(MOD_UNITS_XP_TIMES_100)
 		setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
-#else
-		setPromotionReady((getExperience() >= experienceNeeded()) && canAcquirePromotionAny());
-#endif
 }
 
 
@@ -26702,7 +26458,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 #endif
 
-#if defined(MOD_BUGFIX_MINOR)
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
 		if (bNewValue && (canMoveAllTerrain() || isConvertUnit())) {
@@ -26714,7 +26469,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #endif
 			}
 		}
-#endif
 
 		m_Promotions.SetPromotion(eIndex, bNewValue);
 		iChange = ((isHasPromotion(eIndex)) ? 1 : -1);
@@ -26994,10 +26748,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 		changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
 		changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
-#endif
 
 		ChangeSapperCount((thisPromotion.IsSapper() ? iChange: 0));
 
@@ -27365,13 +27117,11 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_missionAIUnit.eOwner;
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
-#if defined(MOD_UNITS_MAX_HP)
 	kStream >> m_YieldModifier;
 	kStream >> m_YieldChange;
 	kStream >> m_iGarrisonYieldChange;
 	kStream >> m_iFortificationYieldChange;
 	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
-#endif
 
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream >> m_strGreatName;
@@ -27453,9 +27203,8 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_YieldChange;
 	kStream << m_iGarrisonYieldChange;
 	kStream << m_iFortificationYieldChange;
-#if defined(MOD_UNITS_MAX_HP)
 	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
-#endif
+
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream << m_strGreatName;
 	kStream << m_strName;

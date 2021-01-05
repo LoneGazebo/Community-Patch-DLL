@@ -94,7 +94,67 @@ INSERT INTO Defines (Name, Value)
 SELECT 'APPROACH_WAR_AI_PERCENT', '0';
 
 
+-- Target Value Multipliers to Approach Weights
+-- WAR and HOSTILE approach scores are multiplied by whichever of these values is appropriate, and then divided by 100.
+-- NOTE: Target Value is also affected by proximity!
+
+-- Normal Target Value Multiplier (Major Civs)
+INSERT INTO Defines (Name, Value)
+SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_SOFT', '150';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE', '125';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE', '75';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_BAD', '50';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '25';
+
+-- Normal Target Value Multiplier (City-States)
+UPDATE Defines
+SET Value = '150'
+WHERE Name = 'MINOR_APPROACH_WAR_TARGET_SOFT';
+
+UPDATE Defines
+SET Value = '125'
+WHERE Name = 'MINOR_APPROACH_WAR_TARGET_FAVORABLE';
+
+UPDATE Defines
+SET Value = '75'
+WHERE Name = 'MINOR_APPROACH_WAR_TARGET_AVERAGE';
+
+UPDATE Defines
+SET Value = '50'
+WHERE Name = 'MINOR_APPROACH_WAR_TARGET_BAD';
+
+UPDATE Defines
+SET Value = '25'
+WHERE Name = 'MINOR_APPROACH_WAR_TARGET_IMPOSSIBLE';
+
+-- Conquest Target Value Multiplier
+-- Applied if AI really wants to conquer this player AND has a good attack target.
+INSERT INTO Defines (Name, Value)
+SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_SOFT', '200';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE', '150';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE', '125';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_BAD', '100';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE', '75';
+
+
 -- Proximity Multipliers to Approach Weights
+-- These are only for MAJOR CIVS!
 -- Approach is multiplied by whichever of these values is appropriate, and then divided by 100.
 
 -- Normal Proximity Multiplier
@@ -105,36 +165,42 @@ INSERT INTO Defines (Name, Value)
 SELECT 'APPROACH_MULTIPLIER_PROXIMITY_CLOSE', '125';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_FAR', '100';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_FAR', '75';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '75';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '50';
 
--- Conquest Multiplier (proximity multiplier to WAR and HOSTILE approaches if AI is going for domination or just really wants to conquer this player)
+-- Conquest Multiplier (proximity multiplier to WAR and HOSTILE approaches if AI really wants to conquer this player AND has a good attack target)
 -- 115
 UPDATE Defines
 SET Value = '200'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_NEIGHBORS';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'APPROACH_WAR_PROXIMITY_NEIGHBORS_EARLY_GAME', '300';
 
 -- 100
 UPDATE Defines
 SET Value = '150'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_CLOSE';
 
+INSERT INTO Defines (Name, Value)
+SELECT 'APPROACH_WAR_PROXIMITY_CLOSE_EARLY_GAME', '225';
+
 -- 60
 UPDATE Defines
-SET Value = '125'
+SET Value = '100'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_FAR';
 
 -- 50
 UPDATE Defines
-SET Value = '100'
+SET Value = '75'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 
 
 -- Peace Treaty Dampener Turns
 -- Dissuades the AI from declaring war for a certain amount of time after a peace treaty has been signed.
--- NOTE: This amount is reduced on higher difficulties.
+-- NOTE: For MAJOR CIVS, this amount is reduced on higher difficulties.
 -- 25
 UPDATE Defines
 SET Value = '20'

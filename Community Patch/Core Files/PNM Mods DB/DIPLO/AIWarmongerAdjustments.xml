@@ -6,34 +6,13 @@
 			<!-- Default 100 -->
 			<Value>125</Value>
 		</Row>
-		<!-- Warmonger threat for capturing a major's city -->
-		<Row Name="WARMONGER_THREAT_MAJOR_CITY_WEIGHT">
-			<!-- Default 1000 -->
-			<Value>200</Value>
-		</Row>
-		<!-- Warmonger threat for capturing a minor's city -->
-		<Row Name="WARMONGER_THREAT_MINOR_CITY_WEIGHT">
-			<!-- Default 1000 -->
-			<!-- As a minor city will almost always be a capital, this should be the desired value divided by WARMONGER_THREAT_CAPITAL_CITY_PERCENT -->
-			<Value>150</Value>
-		</Row>
 
-		<!-- Multiplicative modifier for when the bystander does know the defender, they may or may not know the attacker -->
-		<Row Name="WARMONGER_THREAT_KNOWS_DEFENDER_PERCENT">
-			<!-- Default 0 -->
-			<Value>0</Value>
-		</Row>
 		<!-- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker -->
 		<Row Name="WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT">
 			<!-- Default 100 -->
 			<Value>85</Value>
 		</Row>
 
-		<!-- Multiplicative modifier for capturing a city from someone who declared war on you -->
-		<Row Name="WARMONGER_THREAT_AGGRIEVED_PERCENT">
-			<!-- Default 100 -->
-			<Value>100</Value>
-		</Row>
 		<!-- If enabled, a bystander with a DefPact with the defender will always receive the full amount of warmonger threat -->
 		<Row Name="WARMONGER_THREAT_DEF_PACT_ENABLED">
 			<!-- Default 0 -->
@@ -69,12 +48,6 @@
 		<Row Name="WARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM">
 			<!-- Default 0 -->
 			<Value>-50</Value>
-		</Row>
-
-		<!-- If enabled, city size is taken into consideration as well as remaining cities in empire -->
-		<Row Name="WARMONGER_THREAT_CITY_SIZE_ENABLED">
-			<!-- Default 0 -->
-			<Value>1</Value>
 		</Row>
 
 		<!-- Per turn warmonger decay -->

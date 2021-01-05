@@ -6750,6 +6750,11 @@ bool CvGame::IsAIAggressiveMode() const
 		return true;
 	}
 
+	if (GC.getDIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION() > 0)
+	{
+		return false;
+	}
+
 	bool bDiplomaticVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
@@ -8955,7 +8960,6 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 			if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 				continue;
 
-#if defined(MOD_BUGFIX_NO_HOVERING_REBELS)
 			// Must NOT be a hovering unit
 			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 			{
@@ -8965,7 +8969,6 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 						continue;
 				}
 			}
-#endif
 
 			// Must be able to train this thing
 			if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
@@ -9545,11 +9548,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
+		int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
-			iRandom *= 2;
+			iRandom += 50;
 
 		veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 	}
@@ -9670,11 +9673,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 				continue;
 
-			int iRandom = getSmallFakeRandNum(20, iPlotX + iPlotY);
+			int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
 			//Weight minor civ gift units higher, so they're more likely to spawn each game.
 			if (pkUnitInfo->IsMinorCivGift())
-				iRandom += 10;
+				iRandom += 50;
 
 			veUnitRankings.push_back(OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
@@ -9753,9 +9756,8 @@ void CvGame::updateMoves()
 	int currentTurn = getGameTurn();
 	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	m_firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
-#endif
+
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
@@ -10863,14 +10865,10 @@ CvRandom& CvGame::getMapRand()
 //	--------------------------------------------------------------------------------
 int CvGame::getMapRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return m_mapRand.get(iNum, pszLog);
 
 	return (int)m_mapRand.get(-iNum, pszLog)*(-1);
-#else
-	return m_mapRand.get(iNum, pszLog);
-#endif
 }
 
 
@@ -10886,14 +10884,10 @@ CvRandom& CvGame::getJonRand()
 /// Allows for logging.
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
 	return (int)m_jonRand.get(-iNum, pszLog)*(-1);
-#else
-	return m_jonRand.get(iNum, pszLog);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -10924,14 +10918,10 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 /// This should only be called by operations that will not effect gameplay!
 int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return GC.getASyncRand().get(iNum, pszLog);
 
 	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
-#else
-	return GC.getASyncRand().get(iNum, pszLog);
-#endif
 }
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
@@ -11102,11 +11092,7 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
-#if defined(MOD_UNITS_XP_TIMES_100)
 					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
-#else
-					iMultiplier += (pLoopUnit->getExperience() * 820622);
-#endif
 					iMultiplier += (pLoopUnit->getLevel() * 367291);
 				}
 				break;
@@ -11188,11 +11174,7 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
-#if defined(MOD_UNITS_XP_TIMES_100)
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
-#else
-					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
-#endif
 		}
 	}
 
@@ -14254,7 +14236,6 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, false, false, false);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
-#if defined(MOD_UNITS_MAX_HP)
 	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
 	int iDefenderMaxHitPoints = pDefendingUnit->GetMaxHitPoints();
 
@@ -14269,30 +14250,6 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	bool bAttackerDies = (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iAttackerMaxHitPoints);
 	bool bDefenderDies = (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iDefenderMaxHitPoints);
-#else
-	int iMaxUnitHitPoints = GC.getMAX_HIT_POINTS();
-	if (iAttackingDamageInflicted > iMaxUnitHitPoints)
-	{
-		iAttackingDamageInflicted = iMaxUnitHitPoints;
-	}
-	if (iDefenderDamageInflicted > iMaxUnitHitPoints)
-	{
-		iDefenderDamageInflicted = iMaxUnitHitPoints;
-	}
-
-	bool bAttackerDies = false;
-	bool bDefenderDies = false;
-
-	if (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
-	{
-		bAttackerDies = true;
-	}
-
-	if (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
-	{
-		bDefenderDies = true;
-	}
-#endif
 
 	if(bAttackerDies && bDefenderDies)
 	{
@@ -15047,9 +15004,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	return true;
 }
 #endif
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 bool CvGame::isFirstActivationOfPlayersAfterLoad()
 {
 	return m_firstActivationOfPlayersAfterLoad;
 }
-#endif

@@ -225,6 +225,7 @@ public:
 	int GetNumRequiredTier3Tenets() const;
 	bool IsNoWater() const;
 	bool IsNoRiver() const;
+	bool IsNoCoast() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
 	int GetReformationFollowerReduction() const;
@@ -844,6 +845,7 @@ private:
 	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
 	bool m_bIsNoRiver;
+	bool m_bIsNoCoast;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
 	int m_iReformationFollowerReduction;

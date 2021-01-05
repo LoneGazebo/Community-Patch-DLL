@@ -970,10 +970,9 @@ public:
 	bool IsOwedCultureBuilding() const;
 	void SetOwedCultureBuilding(bool bNewValue);
 
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	bool IsOwedFoodBuilding() const;
 	void SetOwedFoodBuilding(bool bNewValue);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
 	int GetBorderObstacleLand() const;
@@ -1463,6 +1462,10 @@ public:
 	int getFreePromotionCount(PromotionTypes eIndex) const;
 	bool isFreePromotion(PromotionTypes eIndex) const;
 	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	void SetRetroactivePromotion(PromotionTypes ePromotion);
+#endif
 
 	int getSpecialistFreeExperience() const;
 	void changeSpecialistFreeExperience(int iChange);
@@ -2091,10 +2094,7 @@ protected:
 	FAutoVariable<CvString, CvCity> m_strName;
 
 	FAutoVariable<bool, CvCity> m_bOwedCultureBuilding;
-
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	FAutoVariable<bool, CvCity> m_bOwedFoodBuilding;
-#endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 

@@ -477,7 +477,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
 				}
 			}
-			else if (pPlayer->GetDiplomacyAI()->GetMostValuableDefensivePact(false) == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableDoF(false) == eLoopPlayer)
+			else if (pPlayer->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
 			{
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
@@ -702,21 +702,16 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		pPlayer->doPolicyGEorGM(iPolicyGEorGM);
 	}
 #endif
-#if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
-	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
 	{
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(pPlayer->GetID());
-			args->Push(eChosenBranch);
+		CvLuaArgsHandle args;
+		args->Push(pPlayer->GetID());
+		args->Push(eChosenBranch);
 
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
-		}
+		bool bResult = false;
+		LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
 	}
-#endif
 }
 
 /// Should the AI look at switching ideology branches?

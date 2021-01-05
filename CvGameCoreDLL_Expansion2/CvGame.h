@@ -744,15 +744,13 @@ public:
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
 	//------------------------------------------------------------
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+
 	bool isFirstActivationOfPlayersAfterLoad();
-#endif
 
 protected:
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	bool m_firstActivationOfPlayersAfterLoad;
-#endif
+
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	//for MP RNG we split this into two parts - everybody agrees on the previous turn but for the current turn races are possible
 	int m_iGlobalAssetCounterAllPreviousTurns;

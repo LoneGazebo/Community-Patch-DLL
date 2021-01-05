@@ -201,10 +201,8 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 
 	// Initialize AI constants from XML
 	m_iRecruitRange = GC.getAI_TACTICAL_RECRUIT_RANGE();
-	m_iLandBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianLandTargetRange());
-	m_iSeaBarbarianRange = std::max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange());
-	if (MOD_BALANCE_CORE_DIFFICULTY)
-		m_iSeaBarbarianRange /= 2;
+	m_iLandBarbarianRange = max(1, GC.getGame().getHandicapInfo().getBarbarianLandTargetRange());
+	m_iSeaBarbarianRange = MOD_BALANCE_CORE_DIFFICULTY ? max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange()) : max(1, (GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange()/2));
 }
 
 /// Deallocate memory created in initialize
@@ -3416,31 +3414,27 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 	if (!pTargetPlot)
 		return;
 
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-	if (MOD_AI_SMART_AIR_TACTICS) {
-		// Start by sending possible air sweeps
-		for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
+	// Start by sending possible air sweeps
+	for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
+
+		if(pUnit && pUnit->canMove())
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
-
-			if(pUnit && pUnit->canMove())
+			if(pUnit->canAirSweep())
 			{
-				if(pUnit->canAirSweep())
-				{
-					pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
-					UnitProcessed(m_CurrentAirSweepUnits[iI].GetID());
+				pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
+				UnitProcessed(m_CurrentAirSweepUnits[iI].GetID());
 
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
-						LogTacticalMessage(strMsg);
-					}
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
+					LogTacticalMessage(strMsg);
 				}
 			}
 		}
 	}
-#endif
 }
 
 bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot)
@@ -4607,7 +4601,6 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, i
 	return pBestRepositionPlot;
 }
 
-#ifdef MOD_AI_SMART_AIR_TACTICS
 //AMS: Fills m_CurrentAirSweepUnits with all units able to sweep at target plot.
 void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 {
@@ -4643,7 +4636,6 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 
 	std::stable_sort(m_CurrentAirSweepUnits.begin(), m_CurrentAirSweepUnits.end());
 }
-#endif
 
 CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {

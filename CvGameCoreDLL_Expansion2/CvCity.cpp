@@ -493,9 +493,7 @@ CvCity::CvCity() :
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding("CvCity::m_bOwedFoodBuilding", m_syncArchive)
-#endif
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
 	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
@@ -607,14 +605,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// remove the resource allocation from the current owner.  This would result in double resource points because
 	// the plot has already had setOwner called on it (above), giving the player the resource points.
 	pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_BUGFIX_MINOR)
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	pPlot->SetImprovementPillaged(false, false);
 	pPlot->SetRoutePillaged(false, false);
 #else
 	pPlot->SetImprovementPillaged(false);
 	pPlot->SetRoutePillaged(false);
-#endif
 #endif
 	pPlot->setPlotCity(this);
 	pPlot->SetCityPurchaseID(m_iID);
@@ -1461,9 +1457,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bIndustrialRouteToCapital = false;
 	m_iTerrainImprovementNeed = 0;
 	m_bOwedCultureBuilding = false;
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	m_bOwedFoodBuilding = false;
-#endif
 
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
@@ -2248,11 +2242,7 @@ void CvCity::PreKill()
 
 	CvPlot* pPlot = plot();
 
-#if defined(MOD_BUGFIX_MINOR)
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot, true);
-#else
-	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot);
-#endif
 
 	// Update resources linked to this city
 
@@ -2497,11 +2487,7 @@ void CvCity::kill()
 	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
 	if(pkGameTrade)
 	{
-#if defined(MOD_BUGFIX_MINOR)
 		pkGameTrade->ClearAllCityTradeRoutes(plot(), true);
-#else
-		pkGameTrade->ClearAllCityTradeRoutes(plot());
-#endif
 	}
 
 	//save this before deleting the city
@@ -8912,9 +8898,8 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					int iCulture = pkBuildingInfo->GetResourceCultureChange(eResource);
 
 					if(iCulture != 0)
-#if defined(MOD_BUGFIX_MINOR)
 						iCulture *= GetCityBuildings()->GetNumBuilding(eBuilding);
-#endif
+
 #if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iCulture * iChange);
 #else
@@ -8925,9 +8910,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					int iFaith = pkBuildingInfo->GetResourceFaithChange(eResource);
 
 					if(iFaith != 0)
-#if defined(MOD_BUGFIX_MINOR)
 						iFaith *= GetCityBuildings()->GetNumBuilding(eBuilding);
-#endif
 #if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						ChangeBaseYieldRateFromBuildings(YIELD_FAITH, iFaith * iChange);
 #else
@@ -9789,11 +9772,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 
 	if(pUnit->canAcquirePromotionAny())
 	{
-#if defined(MOD_UNITS_XP_TIMES_100)
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((HalveXP) ? 2 : 1));
-#else
-		pUnit->changeExperience(getProductionExperience(pUnit->getUnitType()) / ((HalveXP) ? 2 : 1));
-#endif
 		
 #if !defined(NO_ACHIEVEMENTS)
 		// XP2 Achievement
@@ -9803,11 +9782,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman() && kOwner.isLocalPlayer())
 			{
 				// This unit begins with a promotion from XP, and part of that XP came from filled Great Work slots
-#if defined(MOD_UNITS_XP_TIMES_100)
 				if ((pUnit->getExperienceTimes100() / 100) >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks((DomainTypes)pUnit->getUnitInfo().GetDomainType()) > 0)
-#else
-				if (pUnit->getExperience() >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks((DomainTypes)pUnit->getUnitInfo().GetDomainType()) > 0)
-#endif
 				{
 					// We have a Royal Library
 					BuildingTypes eRoyalLibrary = (BuildingTypes) GC.getInfoTypeForString("BUILDING_ROYAL_LIBRARY", true);
@@ -12306,9 +12281,8 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 
 				if(iTempMod != 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					iTempMod *= GetCityBuildings()->GetNumBuilding(eBuilding);
-#endif
+
 					iBuildingMod += iTempMod;
 					if(toolTipSink && iTempMod)
 					{
@@ -14224,32 +14198,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			//Let's give this to all units from this city.
 			if (MOD_BALANCE_RETROACTIVE_PROMOS)
 			{
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion());
-				if (pkPromotionInfo)
-				{
-					int iUnitLoop;
-					CvUnit* pLoopUnit = NULL;
-					for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
-					{
-						if(pLoopUnit->getOriginCity() == NULL)
-						{
-							if(this == GetPlayer()->getCapitalCity())
-							{
-								if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), pLoopUnit->getUnitType()))
-								{
-									pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
-								}
-							}
-						}
-						else if (pLoopUnit->getOriginCity() != this)
-							continue;
-
-						if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), pLoopUnit->getUnitType()))
-						{
-							pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
-						}
-					}
-				}
+				SetRetroactivePromotion((PromotionTypes)(pBuildingInfo->GetTrainedFreePromotion()));
 			}
 #endif
 		}
@@ -14658,31 +14607,33 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											continue;
 										}
+									}
 
-										int iResourceQuantityPerPlot = MAX(it->first, 1);
-										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-										pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
-										pLoopPlot->DoFindCityToLinkResourceTo();
-										iNumResourcePlotsGiven++;
-										if (!pLoopPlot->IsImprovementPillaged())
+									int iResourceQuantityPerPlot = MAX(it->first, 1);
+									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
+									pLoopPlot->DoFindCityToLinkResourceTo();
+									iNumResourcePlotsGiven++;
+									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+									{
+										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
+										if (ImprovementEntry)
 										{
-											if (ImprovementEntry)
+											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
 											{
-												if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
-												{
-													owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
-												}
+												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
 											}
 										}
-										if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
+									}
+									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
+									{
+										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 										{
-											if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
-											{
-												CvString strBuffer;
-												CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-												CvAssert(pResourceInfo);
-												NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+											CvString strBuffer;
+											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+											CvAssert(pResourceInfo);
+											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
 											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
@@ -14699,17 +14650,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 												break;
 											}
 
-												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-												if (pNotifications)
-												{
-													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
-												}
+											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+											if (pNotifications)
+											{
+												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 											}
 										}
-										if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-										{
-											break;
-										}
+									}
+									if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+									{
+										break;
 									}
 								}
 							}
@@ -15367,11 +15317,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	m_iJONSCulturePerTurnFromReligion = 0;
 	m_iFaithPerTurnFromReligion = 0;
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-#else
-	for(int iYield = 0; iYield <= YIELD_SCIENCE; iYield++)
-#endif
 	{
 		m_aiBaseYieldRateFromReligion.setAt(iYield, 0);
 	}
@@ -15563,15 +15509,13 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						if (iNumBuilding > 0)
 						{
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers, getOwner(), this);
-#if defined(MOD_BUGFIX_MINOR)
 							iYieldFromBuilding *= iNumBuilding;
-#endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))
 							{
 								iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder((YieldTypes)iYield, getOwner(), this);
 							}
-//New majority, not a pantheon
+							//New majority, not a pantheon
 							if(eNewMajority > RELIGION_PANTHEON)
 							{
 								//Our new majority matches our total majority, so let's add in our new yields.
@@ -15622,6 +15566,28 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	}
 	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCityCulture()->CalculateBaseTourism();
+#endif
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (MOD_RELIGION_EXTENSIONS && MOD_BALANCE_RETROACTIVE_PROMOS)
+	{
+		PlayerTypes eCityOwner = getOwner();
+		if (eNewMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, eCityOwner);
+			if (pReligion)
+			{
+				std::vector<int> aFreePromotions = pReligion->m_Beliefs.GetFreePromotions(eCityOwner, this, false);
+				if (aFreePromotions.size() > 0)
+				{
+					for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
+					{
+						PromotionTypes ePromotion = (PromotionTypes)*it;
+						SetRetroactivePromotion(ePromotion);
+					}
+				}
+			}
+		}
+	}
 #endif
 	GET_PLAYER(getOwner()).UpdateReligion();
 	UpdateHappinessFromReligion();
@@ -17563,11 +17529,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 
 	//make sure this is valid
 	iNewValue = max(0, iNewValue);
-	
-#if defined(MOD_BUGFIX_CITY_CENTRE_WORKING)
+
 	// To fix the "not working the centre tile" bug always call GetCityCitizens()->SetWorkingPlot(plot(), true, false); here
 	GetCityCitizens()->SetWorkingPlot(plot(), true, false, false);
-#endif
 
 	iOldPopulation = getPopulation();
 	int iPopChange = iNewValue - iOldPopulation;
@@ -20582,7 +20546,6 @@ bool CvCity::DoRazingTurn()
 		
 		if (bAllowRazingEvents)
 		{
-
 			// Notify Diplo AI that damage has been done
 			int iRazeValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 
@@ -23076,10 +23039,8 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 			if(!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo))
 			{
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
-				if(!MOD_BUGFIX_FREE_FOOD_BUILDING || (getFirstBuildingOrder(eBuilding) != -1 || canConstruct(eBuilding)))
+				if(getFirstBuildingOrder(eBuilding) != -1 || canConstruct(eBuilding))
 				{
-#endif
 					int iFood = pkBuildingInfo->GetFoodKept();
 					int iCost = pkBuildingInfo->GetProductionCost();
 					if(iFood > 0 && iCost > 0)
@@ -23091,9 +23052,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 							buildingChoices.push_back(iI, iWeight);
 						}
 					}
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 				}
-#endif
 			}
 		}
 	}
@@ -23171,7 +23130,6 @@ void CvCity::SetOwedCultureBuilding(bool bNewValue)
 	m_bOwedCultureBuilding = bNewValue;
 }
 
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 //	--------------------------------------------------------------------------------
 bool CvCity::IsOwedFoodBuilding() const
 {
@@ -23183,7 +23141,7 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 {
 	m_bOwedFoodBuilding = bNewValue;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
@@ -24093,9 +24051,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
-#if defined(MOD_BUGFIX_MINOR)
 			break;
-#endif
+
 		case YIELD_GOLD:
 			iTempMod = GC.getPUPPET_GOLD_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
 			if (iTempMod > 0)
@@ -24103,9 +24060,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
-#if defined(MOD_BUGFIX_MINOR)
 			break;
-#endif
+
 		case YIELD_PRODUCTION:
 			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
 			if (iTempMod > 0)
@@ -24113,9 +24069,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
-#if defined(MOD_BUGFIX_MINOR)
 			break;
-#endif
+
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		case YIELD_TOURISM:
 			iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
@@ -27271,7 +27226,37 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 bool CvCity::isFreePromotion(PromotionTypes eIndex) const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_RELIGION_EXTENSIONS)
+	if (getFreePromotionCount(eIndex) > 0)
+	{
+		return true;
+	}
+
+	if (MOD_RELIGION_EXTENSIONS)
+	{
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pMajority = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pMajority)
+			{
+				std::vector<int> aFreePromotions = pMajority->m_Beliefs.GetFreePromotions(getOwner(), this, false);
+				for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
+				{
+					if ((PromotionTypes)*it == eIndex)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+#else
 	return (getFreePromotionCount(eIndex) > 0);
+#endif
 }
 
 
@@ -27284,6 +27269,46 @@ void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 	m_paiFreePromotionCount.setAt(eIndex, m_paiFreePromotionCount[eIndex] + iChange);
 	CvAssert(getFreePromotionCount(eIndex) >= 0);
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvCity::SetRetroactivePromotion(PromotionTypes eIndex)
+{
+	
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	
+	if (eIndex != NO_PROMOTION)
+	{
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eIndex);
+		if (pkPromotionInfo)
+		{
+			int iUnitLoop;
+			CvUnit* pLoopUnit = NULL;
+			for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit->getOriginCity() == NULL)
+				{
+					if (this == GetPlayer()->getCapitalCity())
+					{
+						if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType(eIndex, pLoopUnit->getUnitType()))
+						{
+							pLoopUnit->setHasPromotion(eIndex, true);
+						}
+					}
+				}
+				else if (pLoopUnit->getOriginCity() != this)
+					continue;
+
+				if (((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType())) || ::IsPromotionValidForCivilianUnitType(eIndex, pLoopUnit->getUnitType()))
+				{
+					pLoopUnit->setHasPromotion(eIndex, true);
+				}
+			}
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getSpecialistFreeExperience() const
@@ -27492,20 +27517,19 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 					// Generic Barb Combat Bonus
 					iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 
+					const CvHandicapInfo& thisPlayerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
 					const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 					// Human bonus
 					if (isHuman())
 					{
-						iModifier += thisGameHandicap.getBarbarianCombatModifier();
+						iModifier += thisPlayerHandicap.getBarbarianCombatModifier();
 					}
-#if defined(MOD_BALANCE_CORE)
 					// Minor bonus
 					else if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
 					{
 						iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
 					}
-#endif
 					// AI bonus
 					else
 					{
@@ -29182,8 +29206,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			}
 			if(isProduction())
 			{
-				localizedText = Localization::Lookup(((isProductionLimited()) ? "TXT_KEY_MISC_WORK_HAS_BEGUN_LIMITED" : "TXT_KEY_MISC_WORK_HAS_BEGUN"));
-				localizedText << getProductionNameKey();
+				localizedText = Localization::Lookup(((isProductionLimited()) ? "TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED" : "TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY"));
+				localizedText << getProductionNameKey() << getNameKey();
 			}
 			DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8()/*, szSound, MESSAGE_TYPE_MINOR_EVENT, szIcon, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
 		}
@@ -29818,7 +29842,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 		thisPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
 		m_unitBeingBuiltForOperation.Invalidate();
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Check existing armies this unit could fit into if it wasn't automatically added to one.
 	if(pUnit && pUnit->getArmyID() == -1)
 	{
@@ -29829,14 +29853,9 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 				break;
 		}
 	}
-#endif
 
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	else if (!pUnit->isHuman() && EconomicAIHelpers::CannotMinorCiv(&thisPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
-#else
-	else if(!pUnit->isHuman() && !thisPlayer.isMinorCiv())
-#endif
 	{
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		if(thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategy))
@@ -30503,16 +30522,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				bool bSpecificBeliefBlocked = false;
 				if (pReligion)
 				{
-#if defined(MOD_BUGFIX_MINOR)
 					if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
-#else
-					if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_bEnhanced))
-#endif
 					{
-					return false;
+						return false;
 					}
-#if defined(MOD_BALANCE_CORE)
-						
+
 					BeliefTypes SpecificBelief = pReligion->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
 					if (SpecificBelief != NO_BELIEF && SpecificBelief != NULL)
 					{
@@ -30539,10 +30553,10 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						}
 					}
 				}
-#endif				
+
 				if (pkUnitInfo->IsRequiresFaithPurchaseEnabled())
 				{
-#if defined(MOD_BALANCE_CORE)
+
 					if(pkUnitInfo->GetBeliefUnlock() != NULL && pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
 					{
 						if(!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
@@ -30550,7 +30564,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 							return false;
 						}
 					}
-#endif
+
 					TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
 					if (ePrereqTech == -1)
 					{
@@ -30600,10 +30614,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						}
 					}
 				}
-#if defined(MOD_BUGFIX_MINOR)
 				else
 				{
-#if defined(MOD_BALANCE_CORE)
 					if(pkUnitInfo->GetBeliefUnlock() != NULL && pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
 					{
 						if(!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
@@ -30615,7 +30627,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 					{
 						return false;
 					}
-#endif
+
 					// Missionaries, Inquisitors and Prophets
 					// We need a full religion and not just a pantheon,
 					// and also to test that the player can build the unit, specifically the check for a civ specific version of the unit
@@ -30624,7 +30636,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						return false;
 					}
 				}
-#endif
 			}
 		}
 		// Building
@@ -30648,62 +30659,53 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					return false;
 				}
-#if defined(MOD_BUGFIX_MINOR)
 			}
-#endif
 
-#if defined(MOD_API_EXTENSIONS)
-				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
-#else
-				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/))
-#endif
+			if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
+			{
+				return false;
+			}
+
+			if(GetCityBuildings()->GetNumBuilding(eBuildingType) > 0)
+			{
+				return false;
+			}
+
+			TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
+			if(ePrereqTech != NO_TECH)
+			{
+				CvTechEntry *pkTechInfo = GC.GetGameTechs()->GetEntry(ePrereqTech);
+				if (pkTechInfo && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 				{
 					return false;
 				}
+			}
 
-				if(GetCityBuildings()->GetNumBuilding(eBuildingType) > 0)
+			// Does this city have prereq buildings?
+			int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+			BuildingTypes ePrereqBuilding;
+			for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+			{
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+				if(!pkBuildingClassInfo)
 				{
-					return false;
+					continue;
 				}
 
-				TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-				if(ePrereqTech != NO_TECH)
+				if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 				{
-					CvTechEntry *pkTechInfo = GC.GetGameTechs()->GetEntry(ePrereqTech);
-					if (pkTechInfo && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
-					{
-						return false;
-					}
-				}
+					const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+					ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
-				// Does this city have prereq buildings?
-				int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				BuildingTypes ePrereqBuilding;
-				for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
-				{
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-					if(!pkBuildingClassInfo)
+					if(ePrereqBuilding != NO_BUILDING)
 					{
-						continue;
-					}
-
-					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
-					{
-						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
-						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
-
-						if(ePrereqBuilding != NO_BUILDING)
+						if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding))
 						{
-							if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding))
-							{
-								return false;
-							}
+							return false;
 						}
 					}
 				}
-#if !defined(MOD_BUGFIX_MINOR)
 			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			// Does this city have prereq buildings?
 			if(MOD_BALANCE_CORE)
@@ -31091,7 +31093,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
 			CvUnit* pUnit = kPlayer.getUnit(iResult);
-#if defined(MOD_BALANCE_CORE)
+
 			if(pUnit && pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
 			{
 				int iCooldown = pUnit->getUnitInfo().GetGlobalFaithCooldown();
@@ -31107,16 +31109,12 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				iCooldown /= 100;
 				ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
 			}
-#endif
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
+
 			if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 			{
-#endif
 				pUnit->finishMoves();
-#if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 			}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 			if(pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
 			{
 				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
@@ -31140,7 +31138,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					}
 				}
 			}
-#endif
+
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), false, true);
@@ -32312,6 +32310,12 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 		{
 			if(plot()->isRiver())
 			return false;
+		}
+		//Must not be on coast
+		if (pkBuildingInfo->IsNoCoast())
+		{
+			if (isCoastal(-1))
+				return false;
 		}
 		//Capital Only
 		if(pkBuildingInfo->IsCapitalOnly())

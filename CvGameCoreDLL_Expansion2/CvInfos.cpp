@@ -3006,6 +3006,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIStartingWorkerUnits(0),
 	m_iAIStartingExploreUnits(0),
 	m_iAIDeclareWarProb(0),
+	m_iAIHumanStrengthMod(0),
 	m_iAIWorkRateModifier(0),
 	m_iAIUnhappinessPercent(0),
 	m_iAIGrowthPercent(0),
@@ -3262,6 +3263,11 @@ int CvHandicapInfo::getAIDeclareWarProb() const
 	return m_iAIDeclareWarProb;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHumanStrengthMod() const
+{
+	return m_iAIHumanStrengthMod;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIWorkRateModifier() const
 {
 	return m_iAIWorkRateModifier;
@@ -3458,6 +3464,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
 	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
 	m_iAIDeclareWarProb = kResults.GetInt("AIDeclareWarProb");
+	m_iAIHumanStrengthMod = kResults.GetInt("AIHumanStrengthMod");
 	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
 	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
@@ -4069,10 +4076,8 @@ CvBuildInfo::CvBuildInfo() :
 	m_paiFeatureProduction(NULL),
 	m_paiFeatureCost(NULL),
 	m_paiTechTimeChange(NULL),
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	m_paiFeatureObsoleteTech(NULL),
 	m_pabFeatureRemoveOnly(NULL),
-#endif
 	m_pabFeatureRemove(NULL)
 {
 }
@@ -4085,10 +4090,8 @@ CvBuildInfo::~CvBuildInfo()
 	SAFE_DELETE_ARRAY(m_paiFeatureCost);
 	SAFE_DELETE_ARRAY(m_paiTechTimeChange);
 	SAFE_DELETE_ARRAY(m_pabFeatureRemove);
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	SAFE_DELETE_ARRAY(m_paiFeatureObsoleteTech);
 	SAFE_DELETE_ARRAY(m_pabFeatureRemoveOnly);
-#endif
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getTime() const
@@ -4233,7 +4236,7 @@ bool CvBuildInfo::isFeatureRemove(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabFeatureRemove ? m_pabFeatureRemove[i] : false;
 }
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureObsoleteTech(int i) const
 {
@@ -4248,7 +4251,7 @@ bool CvBuildInfo::isFeatureRemoveOnly(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabFeatureRemoveOnly ? m_pabFeatureRemoveOnly[i] : false;
 }
-#endif
+
 //------------------------------------------------------------------------------
 bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -4296,10 +4299,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureProduction, "Features");
 		kUtility.InitializeArray(m_paiFeatureCost, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemove, "Features");
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
-#endif
 
 		char szQuery[512];
 		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
@@ -4321,10 +4322,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				m_paiFeatureProduction[iFeatureIdx] = kArrayResults.GetInt("Production");
 				m_paiFeatureCost[iFeatureIdx]		= kArrayResults.GetInt("Cost");
 				m_pabFeatureRemove[iFeatureIdx]		= kArrayResults.GetBool("Remove");
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 				m_paiFeatureObsoleteTech[iFeatureIdx]= GC.getInfoTypeForString(kArrayResults.GetText("ObsoleteTech"), true);
 				m_pabFeatureRemoveOnly[iFeatureIdx]	= kArrayResults.GetBool("RemoveOnly");
-#endif
 			}
 		}
 	}

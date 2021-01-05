@@ -16,10 +16,7 @@
 #include "CvGrandStrategyAI.h"
 #include "cvStopWatch.h"
 #include "CvTypes.h"
-
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 #include "CvMilitaryAI.h"
-#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -541,7 +538,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotInquisitorMoves();
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-			//this is for embassies - diplomatic missions are handled via AI operation
+	//this is for embassies - diplomatic missions are handled via AI operation
 	if (MOD_DIPLOMACY_CITYSTATES)
 	{
 		PlotDiplomatMoves();
@@ -555,11 +552,9 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotTradeUnitMoves();
 	PlotArchaeologistMoves();
 
-#if defined(MOD_AI_SECONDARY_SETTLERS)
 	PlotOpportunisticSettlementMoves();
 	PlotWorkerMoves(true);
 	PlotWorkerSeaMoves(true);
-#endif
 
 	ReviewUnassignedUnits();
 }
@@ -867,12 +862,8 @@ void CvHomelandAI::PlotSentryNavalMoves()
 }
 #endif
 
-#if defined(MOD_AI_SECONDARY_SETTLERS)
 void CvHomelandAI::PlotOpportunisticSettlementMoves()
 {
-	if(!MOD_AI_SECONDARY_SETTLERS)
-		return;
-
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SECONDARY_SETTLER);
 	const char* szCiv = m_pPlayer->getCivilizationTypeKey();
 
@@ -881,7 +872,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 
 	int iCapitalX = 0;
 	int iCapitalY = 0;
-	if(m_pPlayer->getCapitalCity() != NULL)
+	if (m_pPlayer->getCapitalCity() != NULL)
 	{
 		iCapitalX = m_pPlayer->getCapitalCity()->getX();
 		iCapitalY = m_pPlayer->getCapitalCity()->getY();
@@ -891,13 +882,11 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		return;
 	}
 
-	if (m_pPlayer->GetHappiness() <= iMinHappiness) {
+	if (m_pPlayer->GetHappiness() <= iMinHappiness)
 		return;
-	}
 	
-	if (m_pPlayer->GetTurnsSinceSettledLastCity() <= iMinTurnsSinceLastCity) {
+	if (m_pPlayer->GetTurnsSinceSettledLastCity() <= iMinTurnsSinceLastCity)
 		return;
-	}
 	
 	// Make a list of all combat units that can do this.
 	CHomelandUnitArray PossibleSettlerUnits;
@@ -946,46 +935,33 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	}
 	PossibleSettlerUnits.clear();
 }
-#endif
 
 /// Find something for all workers to do
-#if defined(MOD_AI_SECONDARY_WORKERS)
 void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
-#else
-void CvHomelandAI::PlotWorkerMoves()
-#endif
 {
-	if(bSecondary && !MOD_AI_SECONDARY_WORKERS)
-		return;
-
 	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (pUnit)
 		{
-#if defined(MOD_AI_SECONDARY_WORKERS)
 			bool bUsePrimaryUnit = (pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_BUILD);
 			bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER) || pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA)) && pUnit->getDomainType() == DOMAIN_LAND);
-			if(m_pPlayer->IsAtWar())
+			if (m_pPlayer->IsAtWar())
 			{
 				bSecondary = false;
 			}
-			if(!bUseSecondaryUnit && bSecondary)
+			if (!bUseSecondaryUnit && bSecondary)
 			{
-				if(pUnit->getUnitInfo().GetCombat() > 0 && pUnit->getDomainType() == DOMAIN_LAND)
+				if (pUnit->getUnitInfo().GetCombat() > 0 && pUnit->getDomainType() == DOMAIN_LAND)
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
 						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-					
-#if defined(MOD_BALANCE_CORE)
+
 						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
-#else
-						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
-#endif
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -993,11 +969,7 @@ void CvHomelandAI::PlotWorkerMoves()
 					}
 				}
 			}
-			if((!bSecondary && bUsePrimaryUnit) || (bSecondary && bUseSecondaryUnit))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_WORKER  ||
-			        pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_BUILD)
-#endif
+			if ((!bSecondary && bUsePrimaryUnit) || (bSecondary && bUseSecondaryUnit))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1013,56 +985,45 @@ void CvHomelandAI::PlotWorkerMoves()
 }
 
 /// Send out work boats to harvest resources
-#if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
-#else
-void CvHomelandAI::PlotWorkerSeaMoves()
-#endif
 {
 	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER_SEA);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (pUnit)
 		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA  ||
-			   pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD)
+			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA  || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
 			}
-#if defined(MOD_AI_SECONDARY_WORKERS)
-			else if(MOD_AI_SECONDARY_WORKERS && bSecondary && !m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
+			else if (bSecondary && !m_pPlayer->IsAtWar() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->getUnitInfo().GetCombat() > 0)
 			{
 				bool bUseSecondaryUnit = (pUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA) && (pUnit->getUnitInfo().GetUnitAIType(UNITAI_WORKER_SEA));
-				if(!bUseSecondaryUnit)
+				if (!bUseSecondaryUnit)
 				{
 					for (int i = 0; i < GC.getNumBuildInfos(); i++) 
 					{
 						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
-#if defined(MOD_BALANCE_CORE)
 						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
-#else
-						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
-#endif
 						{
 							bUseSecondaryUnit = true;
 							break;
 						}
 					}
 				}
-				if(bUseSecondaryUnit)
+				if (bUseSecondaryUnit)
 				{
 					CvHomelandUnit unit;
 					unit.SetID(pUnit->GetID());
 					m_CurrentMoveUnits.push_back(unit);
 				}
 			}
-#endif
 		}
 	}
 
@@ -1086,19 +1047,17 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			if (pUnit->GetDanger(pTarget)>20)
 				continue;
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-			if(MOD_AI_SECONDARY_WORKERS && bSecondary)
+			if (bSecondary)
 			{
-				if(pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA ||
-					(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
+				if (pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || (pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
 				{
 					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 						continue;
 				}
-				else if(MOD_AI_SECONDARY_WORKERS && !pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
+				else if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 				{
 					BuildTypes eBuildCheck1 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS");
-					if(eBuildCheck1 == (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData())
+					if (eBuildCheck1 == (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData())
 					{
 						BuildTypes eBuildCheck2 = (BuildTypes)GC.getInfoTypeForString("BUILD_FISHING_BOATS_NO_KILL");
 						if (eBuildCheck2 != NO_BUILD)
@@ -1123,10 +1082,6 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 					continue;
 			}
-#else
-			if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
-				continue;
-#endif
 
 			int iTurns = INT_MAX;
 			if (pUnit->GeneratePath(pTarget, 0, iBestTurns, &iTurns))
@@ -1451,11 +1406,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 							iPriority *= 2;
 
 						//Add in experience - we should promote veterans.
-#if defined(MOD_UNITS_XP_TIMES_100)
 						iPriority += pUnit->getExperienceTimes100();
-#else
-						iPriority += pUnit->getExperience();
-#endif
 
 						unit.SetAuxIntData(max(1, iPriority));
 						m_CurrentMoveUnits.push_back(unit);
@@ -2631,10 +2582,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		//how far around each worker should we be checking?
 		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-		if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCanAttack())
+		if (pUnit->IsCanAttack())
 			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
-#endif
 
 		//is the unit still busy? if so, less time for movement
 		int iBuildTimeLeft = 0;
@@ -4725,9 +4674,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 // Get an archaeologist and send it to an antiquity site
 void CvHomelandAI::ExecuteArchaeologistMoves()
 {
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
 	int iUnassignedArchaeologists = 0;
-#endif
 
 	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -4765,18 +4712,15 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 			// Delete this unit from those we have to move
 			UnitProcessed(pUnit->GetID());
 		}
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
 		else
 		{
 			iUnassignedArchaeologists++;
 			UnitProcessed(pUnit->GetID());
 		}
-#endif
 	}
 
-#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
 	// Unassigned archaeologists due to no valid targets, check against the possible targets left and scrap one if there are too many.
-	if (MOD_AI_SMART_ARCHAEOLOGISTS && iUnassignedArchaeologists > 0)
+	if (iUnassignedArchaeologists > 0)
 	{
 		int iPossibleSites = ((m_TargetedAntiquitySites.size() / 5) + 1);
 
@@ -4797,7 +4741,6 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 			}
 		}
 	}
-#endif
 }
 
 /// Don't allow adjacent tiles to both be sentry points
