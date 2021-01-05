@@ -10499,7 +10499,7 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 		{
 			(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_SPY").toUTF8();
 		}
-		else if (!bOverride && !GetPlayer()->isHuman())
+		else
 		{
 			(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_NO_SPY").toUTF8();
 		}
