@@ -4921,7 +4921,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 {
 	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
 
-#if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
+#if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	const CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
 	BuildingTypes eWritersGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD"));
 	BuildingTypes eArtistsGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD"));

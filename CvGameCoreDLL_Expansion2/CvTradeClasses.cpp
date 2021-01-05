@@ -5660,7 +5660,19 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(iI);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI);
+			}
 			if(eBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
@@ -6955,7 +6967,26 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 					CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eOffice);
 					if (pInfo)
 					{
-						BuildingTypes eOfficeBuilding = (BuildingTypes)GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+						BuildingTypes eOfficeBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+						{
+							if (pFromCity->HasBuildingClass(eOffice))
+							{
+								eOfficeBuilding = pFromCity->GetCityBuildings()->GetBuildingTypeFromClass(eOffice);
+							}
+							else
+							{
+								eOfficeBuilding = (BuildingTypes)GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+							}
+						}
+						else
+						{
+							eOfficeBuilding = (BuildingTypes)GET_PLAYER(pFromCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+						}
 						if (eOfficeBuilding != NO_BUILDING)
 						{
 							CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eOfficeBuilding);

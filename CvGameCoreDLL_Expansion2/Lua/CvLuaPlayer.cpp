@@ -3520,7 +3520,20 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(pkPlayer->getCivilizationType());
 	if (pkCity && pkCivInfo)
 	{
-		int iBuilding = pkCivInfo->getCivilizationBuildings(eBuildingClass);
+		int iBuilding = -1;
+#if defined(MOD_BALANCE_CORE)
+		bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+		}
+		else
+		{
+			iBuilding = pkCivInfo->getCivilizationBuildings(eBuildingClass);
+		}
 		lua_pushinteger(L, iBuilding);
 		return 1;
 	}
@@ -6189,7 +6202,21 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
-			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			}
+
 			if (eBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -12531,13 +12558,45 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 				continue;
 			}
 			
-			BuildingTypes eParentBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(eParentBuildingClass);
-			if (eParentBuilding != NO_BUILDING && pkPlayer->countNumBuildings(eParentBuilding) > 0)
+#if defined(MOD_BALANCE_CORE)
+			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
 			{
-				CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
-				if (pkParentBuilding)
+				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
 				{
-					iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass);
+					int iLoop = 0;
+
+					for (const CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+					{
+						if (pLoopCity->HasBuildingClass(eParentBuildingClass))
+						{
+							BuildingTypes eParentBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eParentBuildingClass);
+							if (eParentBuilding != NO_BUILDING)
+							{
+								CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
+								if (pkParentBuilding)
+								{
+									iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass);
+								}
+							}
+						}
+					}
+
+				}
+			}
+			else
+			{
+				BuildingTypes eParentBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(eParentBuildingClass);
+				if (eParentBuilding != NO_BUILDING && pkPlayer->countNumBuildings(eParentBuilding) > 0)
+				{
+					CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
+					if (pkParentBuilding)
+					{
+						iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass) * pkPlayer->getNumBuildings(eParentBuilding);
+					}
 				}
 			}
 		}
