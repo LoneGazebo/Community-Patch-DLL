@@ -229,7 +229,7 @@
 	
     <!-- 
 	Various new tables and logics for plots. Currently, this is required to activate:
-		- Table 'Plot_AdjacentFeatureYieldChanges'. Columns are 'PlotType', 'FeatureType', 'YieldType', 'Yield'.
+		- Table 'Plot_AdjacentFeatureYieldChanges'. Columns are 'PlotType', 'FeatureType', 'YieldType', 'Yield', 'IgnoreNaturalWonderPlots'.
 	-->
     <Row Class="4" Name="PLOTS_EXTENSIONS" Value="0"/>
 

@@ -10,7 +10,7 @@ CvPlotInfo::CvPlotInfo() :
 	m_bWater(false),
 	m_bImpassable(false),
 #if defined(MOD_PLOTS_EXTENSIONS)
-	m_ppiAdjacentFeatureYieldChange(),
+	m_pppiAdjacentFeatureYieldChange(),
 #endif
 	m_piYields(NULL)
 {
@@ -19,7 +19,7 @@ CvPlotInfo::CvPlotInfo() :
 CvPlotInfo::~CvPlotInfo()
 {
 #if defined(MOD_PLOTS_EXTENSIONS)
-	m_ppiAdjacentFeatureYieldChange.clear();
+	m_pppiAdjacentFeatureYieldChange.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piYields);
 }
@@ -43,47 +43,86 @@ int CvPlotInfo::getYield(int i) const
 
 #if defined(MOD_PLOTS_EXTENSIONS)
 //------------------------------------------------------------------------------
-int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const
+int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield, bool bNaturalWonderPlot) const
 {
-	int iFeature = (int)eFeature;
-	int iYield = (int)eYield;
-
 	CvAssertMsg(iFeature < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(iFeature > -1, "Index out of bounds");
 	CvAssertMsg(iYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(iYield > -1, "Index out of bounds");
 
-	std::map<int, std::map<int, int>>::const_iterator itFeature = m_ppiAdjacentFeatureYieldChange.find(iFeature);
-	if (itFeature != m_ppiAdjacentFeatureYieldChange.end())
+	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
+	int iYieldChange = 0;
+	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
 	{
-		std::map<int, int>::const_iterator itYield = itFeature->second.find(iYield);
-		if (itYield != itFeature->second.end())
+		if (bNaturalWonderPlot)
 		{
-			return itYield->second;
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			if (itBool != itFeature->second.end())
+			{
+				std::map<YieldTypes, int>::const_iterator itYield = itBool->second.find(eYield);
+				if (itYield != itBool->second.end())
+				{
+					iYieldChange +=itYield->second;
+				}
+			}
+		}
+		else
+		{
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool;
+			for(itBool = itFeature->second.begin(); itBool != itFeature->second.end(); ++itBool)
+			{
+				std::map<YieldTypes, int>::const_iterator itYield = itBool->second.find(eYield);
+				if (itYield != itBool->second.end())
+				{
+					iYieldChange += itYield->second;
+				}
+			}
 		}
 	}
 
-	return 0;
+	return iYieldChange;
 }
 //------------------------------------------------------------------------------
 /// Quick check if a plot gains yields from any adjacent feature
-bool CvPlotInfo::IsAdjacentFeatureYieldChange() const
+bool CvPlotInfo::IsAdjacentFeatureYieldChange(bool bNaturalWonderPlot) const
 {
-	return !m_ppiAdjacentFeatureYieldChange.empty();
+	if (bNaturalWonderPlot)
+	{
+		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature;
+		for (itFeature = m_pppiAdjacentFeatureYieldChange.begin(); itFeature != m_pppiAdjacentFeatureYieldChange.end(); ++itFeature)
+		{
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			if (itBool != itFeature->second.end())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	return !m_pppiAdjacentFeatureYieldChange.empty();
 }
 //------------------------------------------------------------------------------
 /// Check if a plot gains yields from a particular feature
-bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature) const
+bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNaturalWonderPlot) const
 {
-	int iFeature = (int)eFeature;
-
 	CvAssertMsg(iFeature < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(iFeature > -1, "Index out of bounds");
 
-	std::map<int, std::map<int, int>>::const_iterator itFeature = m_ppiAdjacentFeatureYieldChange.find(iFeature);
-	if (itFeature != m_ppiAdjacentFeatureYieldChange.end())
+	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
+	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
 	{
-		return true;
+		if (bNaturalWonderPlot)
+		{
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			if (itBool != itFeature->second.end())
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -109,24 +148,28 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Plot_AdjacentFeatureYieldChanges inner join Features on FeatureType = Features.Type inner join Yields on YieldType = Yields.Type where PlotType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield, IgnoreNaturalWonderPlots from Plot_AdjacentFeatureYieldChanges inner join Features on FeatureType = Features.Type inner join Yields on YieldType = Yields.Type where PlotType = ?");
 		}
 
 		pResults->Bind(1, szPlotType);
 
 		while (pResults->Step())
 		{
-			const int iFeature = pResults->GetInt(0);
-			const int iYield = pResults->GetInt(1);
+			const FeatureTypes eFeature = (FeatureTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
 			const int iYieldChange = pResults->GetInt(2);
+			const IgnoreNaturalWonders bIgnoreNaturalWonderPlots = pResults->GetBool(3);
 
-			m_ppiAdjacentFeatureYieldChange[iFeature][iYield] += iYieldChange;
+			if (iYieldChange != 0)
+			{
+				m_pppiAdjacentFeatureYieldChange[eFeature][bIgnoreNaturalWonderPlots][eYield] += iYieldChange;
+			}
 		}
 
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<int, int>>(m_ppiAdjacentFeatureYieldChange).swap(m_ppiAdjacentFeatureYieldChange);
+		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>(m_pppiAdjacentFeatureYieldChange).swap(m_pppiAdjacentFeatureYieldChange);
 	}
 #endif
 
