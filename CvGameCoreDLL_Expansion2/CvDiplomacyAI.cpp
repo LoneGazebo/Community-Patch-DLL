@@ -14873,7 +14873,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 			bool bConsiderWar = false;
 
 			int iCityLoop;
-			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
 				// They have one of our cities!
 				if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam())

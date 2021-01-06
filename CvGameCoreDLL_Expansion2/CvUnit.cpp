@@ -19318,14 +19318,6 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getIndex() const
-{
-	VALIDATE_OBJECT
-	return GetID();
-}
-
-
-//	--------------------------------------------------------------------------------
 IDInfo CvUnit::GetIDInfo() const
 {
 	VALIDATE_OBJECT

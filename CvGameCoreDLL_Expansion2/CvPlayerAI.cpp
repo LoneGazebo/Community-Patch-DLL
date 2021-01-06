@@ -119,21 +119,14 @@ void CvPlayerAI::AI_doTurnPre()
 	//make sure we iterate our units in a sensible order
 	struct CompareUnitPowerAscending
 	{
-		const TContainer<CvUnit>& container;
-
-		CompareUnitPowerAscending(TContainer<CvUnit>& c) : container(c) {}
-		bool operator()(int iID1, int iID2)
+		bool operator()(const CvUnit* a, const CvUnit* b)
 		{
-			return ( container.Get(iID1)->GetPower() > container.Get(iID2)->GetPower() );
+			return ( a->GetPower() > b->GetPower() );
 		}
-
-	private:
-		//need an assignment operator apparently
-		CompareUnitPowerAscending& operator=( const CompareUnitPowerAscending& ) { return *this; }
 	};
 
 	//this orders units by combat strength
-	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
+	m_units.OrderByContent( CompareUnitPowerAscending() );
 #endif
 
 	AI_doResearch();

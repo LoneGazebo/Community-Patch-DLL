@@ -12240,29 +12240,7 @@ int CvLuaPlayer::lGetNextCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pCurrentCity = CvLuaCity::GetInstance(L, 2);
-	CvCity* pLoopCity = NULL;
-	CvCity* pNextCity = NULL;
-	int	iLoop = pCurrentCity->getIndex();
-	iLoop++;
-
-	do
-	{
-		pLoopCity = pkPlayer->nextCity(&iLoop, false);
-
-		if(pLoopCity == NULL)
-		{
-			pLoopCity = pkPlayer->firstCity(&iLoop, false);
-		}
-
-		if((pLoopCity != NULL) && (pLoopCity != pCurrentCity) && !pLoopCity->IsPuppet())  // we don't want the player to be able to cycle to puppeted cities - it kind of defeats teh whole purpose
-		{
-			pNextCity = pLoopCity;
-		}
-
-	}
-	while((pLoopCity != pCurrentCity) && !pNextCity);
-
-
+	CvCity* pNextCity = pkPlayer->nextCity(pCurrentCity);
 	CvLuaCity::Push(L, pNextCity);
 	return 1;
 }
@@ -12271,28 +12249,7 @@ int CvLuaPlayer::lGetPrevCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pCurrentCity = CvLuaCity::GetInstance(L, 2);
-	CvCity* pLoopCity = NULL;
-	CvCity* pPrevCity = NULL;
-	int	iLoop = pCurrentCity->getIndex();
-	iLoop--;
-
-	do
-	{
-		pLoopCity = pkPlayer->nextCity(&iLoop, true);
-
-		if(pLoopCity == NULL)
-		{
-			pLoopCity = pkPlayer->firstCity(&iLoop, true);
-		}
-
-		if((pLoopCity != NULL) && (pLoopCity != pCurrentCity) && !pLoopCity->IsPuppet())  // we don't want the player to be able to cycle to puppeted cities - it kind of defeats teh whole purpose
-		{
-			pPrevCity = pLoopCity;
-		}
-
-	}
-	while((pLoopCity != pCurrentCity) && !pPrevCity);
-
+	CvCity* pPrevCity = pkPlayer->nextCity(pCurrentCity,true);
 	CvLuaCity::Push(L, pPrevCity);
 	return 1;
 }

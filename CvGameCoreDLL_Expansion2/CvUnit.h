@@ -948,7 +948,6 @@ public:
 	{
 		return m_iID;
 	}
-	int getIndex() const;
 	IDInfo GetIDInfo() const;
 	void SetID(int iID);
 

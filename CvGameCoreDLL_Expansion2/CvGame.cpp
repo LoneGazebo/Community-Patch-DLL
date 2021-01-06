@@ -2563,10 +2563,6 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 	if((pkHeadSelectedCity != NULL) && ((pkHeadSelectedCity->getTeam() == getActiveTeam()) || isDebugMode()))
 	{
-		int iLoop = pkHeadSelectedCity->getIndex();
-
-		iLoop += (bForward ? 1 : -1);
-
 		CvCity* pLoopCity = pkHeadSelectedCity;
 		do
 		{
@@ -2574,6 +2570,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 			if(pLoopCity == NULL)
 			{
+				int iLoop = 0;
 				pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).firstCity(&iLoop, !bForward);
 			}
 
@@ -3400,7 +3397,7 @@ void CvGame::handleAction(int iAction)
 				{
 					GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkHeadSelectedUnit->getOwner());
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_INTERNATIONAL_TRADE_ROUTE, pkHeadSelectedUnit->getOwner());
-					kPopup.iData2 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData2 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}
@@ -3415,7 +3412,7 @@ void CvGame::handleAction(int iAction)
 				if (pkHeadSelectedUnit)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_TRADE_UNIT_NEW_HOME);
-					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData1 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}
@@ -3429,7 +3426,7 @@ void CvGame::handleAction(int iAction)
 				if (pkHeadSelectedUnit)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_ADMIRAL_PORT);
-					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData1 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}

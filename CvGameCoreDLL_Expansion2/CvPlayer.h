@@ -2386,7 +2386,7 @@ public:
 	CvUnit* nextUnit(int* pIterIdx, bool bRev=false);
 #if defined(MOD_BALANCE_CORE)
 	CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev);
-	const CvUnit* nextUnit(const CvCity* pCurrent, bool bRev) const;
+	const CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev) const;
 #endif
 	CvUnit* getUnit(int iID) const;
 	CvUnit* addUnit();

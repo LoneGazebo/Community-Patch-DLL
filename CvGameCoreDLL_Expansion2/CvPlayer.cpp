@@ -40816,9 +40816,19 @@ const CvCity* CvPlayer::nextCity(const CvCity* pCurrent, bool bRev) const
 		return NULL;
 
 	if (bRev)
-		iIdx--;
+	{
+		if (iIdx > 0)
+			iIdx--;
+		else
+			iIdx = m_cities.GetCount() - 1;
+	}
 	else
-		iIdx++;
+	{
+		if (iIdx == m_cities.GetCount() - 1)
+			iIdx = 0;
+		else
+			iIdx++;
+	}
 
 	return m_cities.GetAt(iIdx);
 }
@@ -41027,7 +41037,7 @@ CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 }
 
 //	--------------------------------------------------------------------------------
-const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
+const CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev) const
 {
 	int iIdx = m_units.GetIndexForID(pCurrent->GetID());
 
@@ -41035,9 +41045,19 @@ const CvUnit* CvPlayer::nextUnit(const CvCity* pCurrent, bool bRev) const
 		return NULL;
 
 	if (bRev)
-		iIdx--;
+	{
+		if (iIdx > 0)
+			iIdx--;
+		else
+			iIdx = m_cities.GetCount() - 1;
+	}
 	else
-		iIdx++;
+	{
+		if (iIdx == m_cities.GetCount() - 1)
+			iIdx = 0;
+		else
+			iIdx++;
+	}
 
 	return m_units.GetAt(iIdx);
 }

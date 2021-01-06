@@ -17169,14 +17169,6 @@ bool CvCity::hasActiveWorldWonder() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getIndex() const
-{
-	VALIDATE_OBJECT
-	return GetID();
-}
-
-
-//	--------------------------------------------------------------------------------
 IDInfo CvCity::GetIDInfo() const
 {
 	VALIDATE_OBJECT
