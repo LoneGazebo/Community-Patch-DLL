@@ -1047,6 +1047,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDenouncedPlayer);
 	Method(GetDenouncedPlayerCounter);
 	Method(IsDenouncingPlayer);
+	Method(IsDenounceMessageTooSoon);
 	Method(IsPlayerRecklessExpander);
 	Method(GetRecentTradeValue);
 	Method(GetCommonFoeValue);
@@ -10339,8 +10340,7 @@ int CvLuaPlayer::lIsDoFMessageTooSoon(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	// Removed IsDoFMessageTooSoon()...human should always be able to ask for DoF unless they already have one
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer);
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFMessageTooSoon(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
@@ -10930,6 +10930,17 @@ int CvLuaPlayer::lIsDenouncingPlayer(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lIsDenounceMessageTooSoon(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDenounceMessageTooSoon(eOtherPlayer);
+
+	lua_pushboolean(L, bValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lIsPlayerRecklessExpander(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -11077,6 +11088,10 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	// Can't do this while at war!
+	if (pkPlayer->IsAtWarWith(eOtherPlayer))
+		return 1;
 
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);

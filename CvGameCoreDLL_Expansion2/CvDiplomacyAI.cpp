@@ -2902,6 +2902,23 @@ int CvDiplomacyAI::GetNumDoF(bool bVassalageException)
 	return iRtnValue;
 }
 
+bool CvDiplomacyAI::IsDoFMessageTooSoon(PlayerTypes ePlayer) const
+{
+	// Already have a DoF?
+	if (IsDoFAccepted(ePlayer))
+		return true;
+
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
+		return true;
+
+	return false;
+}
+
 int CvDiplomacyAI::GetDoFAcceptedTurn(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
@@ -2963,6 +2980,24 @@ void CvDiplomacyAI::SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue)
 bool CvDiplomacyAI::IsDenouncedByPlayer(PlayerTypes ePlayer) const
 {
 	return GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID());
+}
+
+/// Too soon for ePlayer to denounce us?
+bool CvDiplomacyAI::IsDenounceMessageTooSoon(PlayerTypes ePlayer) const
+{
+	// They already denounced us?
+	if (IsDenouncedByPlayer(ePlayer))
+		return true;
+
+	// Observers can't do this!
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't denounce if always at war
+	if (IsAlwaysAtWar(ePlayer))
+		return true;
+
+	return false;
 }
 
 int CvDiplomacyAI::GetDenouncedPlayerTurn(PlayerTypes ePlayer) const
@@ -4922,6 +4957,14 @@ bool CvDiplomacyAI::IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeExpansionPromise(GetID()))
 		return true;
 
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
+		return true;
+
 	return false;
 }
 
@@ -5348,6 +5391,14 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeSpyPromise(GetID()))
 		return true;
 
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
+		return true;
+
 	return false;
 }
 
@@ -5435,9 +5486,15 @@ bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const
 
 	// Can't ask if we've already promised
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(GetID()))
-	{
 		return true;
-	}
+
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
+		return true;
 
 	return m_abAskedNotToConvert[(int)ePlayer];
 }
@@ -5550,15 +5607,19 @@ bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer) const
 
 	// Can't ask if we've already promised
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(GetID()))
-	{
 		return true;
-	}
 
 	// Can't ask if we're their teammate or vassal - promise is automatic
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer))
-	{
 		return true;
-	}
+
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
+		return true;
 
 	return m_abAskedNotToDig[(int)ePlayer];
 }
@@ -7180,6 +7241,14 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 		return true;
 
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
+		return true;
+
+	// Observer can't ask this
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
+		return true;
+
+	// Can't ask this while at war
+	if (IsAtWar(ePlayer))
 		return true;
 
 	return false;
@@ -24930,9 +24999,6 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	if (!IsAtWar(ePlayer))
 		return false;
 
-	if (ePlayer == BARBARIAN_PLAYER)
-		return true;
-
 	if (IsAlwaysAtWar(ePlayer))
 		return true;
 	
@@ -25534,6 +25600,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
+
+				SetShareOpinionAccepted(ePlayer, false);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, false);
 
 				// End all coop war agreements with this player
 				CancelCoopWarsWithPlayer(ePlayer, !bDefensivePact);
@@ -28942,6 +29011,9 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	{
 		//	OFFERS - all members but ePlayer passed by address
 		DoPeaceOffer(ePlayer, eStatement, pDeal);
+
+		// If not offering peace, can still denounce while at war!
+		DoDenounceStatement(ePlayer, eStatement);
 	}
 
 #if !defined(FINAL_RELEASE)
@@ -32259,7 +32331,6 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 					continue;
 
 				// Found a match!
-
 				int iWeight = GetChattiness();		// Usually ranges from 3 to 7
 				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
@@ -32330,7 +32401,6 @@ void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementT
 					continue;
 
 				// Found a match!
-
 				int iWeight = GetChattiness();		// Usually ranges from 3 to 7
 				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
@@ -32363,15 +32433,13 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		return;
 
 	if (!IsAtWar(ePlayer))
-	{
 		return;
-	}
+
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// Have to have been at war for at least a little while
-#if defined(MOD_BALANCE_CORE)
 		GetPlayer()->SetCachedValueOfPeaceWithHuman(0);
-#endif
+
 		if (IsWantsPeaceWithPlayer(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
@@ -36959,8 +37027,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION:
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
-			bool bHostile = (IsActHostileTowardsHuman(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer));
-			bool bAcceptable = (!bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && !GET_PLAYER(eFromPlayer).isObserver() && (IsShareOpinionAccepted(eFromPlayer) || IsShareOpinionAcceptable(eFromPlayer)));
+			bool bHostile = (IsAtWar(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer));
+			bool bAcceptable = (!bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && !IsAtWar(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (IsShareOpinionAccepted(eFromPlayer) || IsShareOpinionAcceptable(eFromPlayer)));
 			bool bOverride = (IsAtWar(eTargetPlayer) || IsVassal(eFromPlayer) || GC.getGame().IsDiploDebugModeEnabled() || GET_PLAYER(eFromPlayer).isObserver());
 
 			// We refuse! Choose a hostile response.
@@ -40838,9 +40906,19 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 /// Does this player feel it's time to denounce ePlayer?
 bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 {
-	// Can't denounce a civ you're at war with
-	if (IsAtWar(ePlayer) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+	// Can't denounce if always at war
+	if (IsAlwaysAtWar(ePlayer))
 		return false;
+
+	// Don't denounce if we're at war and want peace
+	if (IsAtWar(ePlayer))
+	{
+		if (GetWarGoal(ePlayer) == WAR_GOAL_PEACE)
+			return false;
+
+		if (IsWantsPeaceWithPlayer(ePlayer))
+			return false;
+	}
 
 	// If we've already denounced, it's no good
 	if (IsDenouncedPlayer(ePlayer))
@@ -40951,24 +41029,31 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		break;
 	// War - depends on war face
 	case MAJOR_CIV_APPROACH_WAR:
-		switch (GetWarFace(ePlayer))
+		if (IsAtWar(ePlayer))
 		{
-		// Higher bump than true HOSTILE
-		case WAR_FACE_HOSTILE:
 			iWeight += 8;
-			break;
-		// Slightly higher bump than true GUARDED
-		case WAR_FACE_GUARDED:
-			iWeight += 2;
-			break;
-		// Avoid upsetting things, but lower weight than true NEUTRAL
-		case WAR_FACE_NEUTRAL:
-			iWeight -= 4;
-			break;
-		// Do NOT reveal if pretending to be FRIENDLY
-		case WAR_FACE_FRIENDLY:
-			iWeight -= 25;
-			break;
+		}
+		else
+		{
+			switch (GetWarFace(ePlayer))
+			{
+			// Higher bump than true HOSTILE
+			case WAR_FACE_HOSTILE:
+				iWeight += 8;
+				break;
+			// Slightly higher bump than true GUARDED
+			case WAR_FACE_GUARDED:
+				iWeight += 2;
+				break;
+			// Avoid upsetting things, but lower weight than true NEUTRAL
+			case WAR_FACE_NEUTRAL:
+				iWeight -= 4;
+				break;
+			// Do NOT reveal if pretending to be FRIENDLY
+			case WAR_FACE_FRIENDLY:
+				iWeight -= 25;
+				break;
+			}
 		}
 		break;
 	}

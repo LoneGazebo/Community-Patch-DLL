@@ -221,10 +221,6 @@
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
 
-    <!-- Human players will auto-denounce AI players before going to war with them (v39) -->
-    <!-- See also: "Diplomacy - Auto-Denounce" -->
-    <Row Class="6" Name="DIPLOMACY_AUTO_DENOUNCE" Value="0"/>
-
     <!-- Don't display leader heads (behaves more like multi-player diplomacy) (v67) -->
     <!-- See also: "Diplomacy - No Leaderheads" -->
     <Row Class="4" Name="DIPLOMACY_NO_LEADERHEADS" Value="0"/>

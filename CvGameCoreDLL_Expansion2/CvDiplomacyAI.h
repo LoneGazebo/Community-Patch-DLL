@@ -310,6 +310,7 @@ public:
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 	int GetNumDoF(bool bVassalageException = false);
+	bool IsDoFMessageTooSoon(PlayerTypes ePlayer) const;
 
 	int GetDoFAcceptedTurn(PlayerTypes ePlayer) const;
 	void SetDoFAcceptedTurn(PlayerTypes ePlayer, int iValue);
@@ -322,6 +323,7 @@ public:
 	bool IsDenouncedPlayer(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue);
 	bool IsDenouncedByPlayer(PlayerTypes ePlayer) const;
+	bool IsDenounceMessageTooSoon(PlayerTypes ePlayer) const;
 
 	int GetDenouncedPlayerTurn(PlayerTypes ePlayer) const;
 	void SetDenouncedPlayerTurn(PlayerTypes ePlayer, int iTurn);

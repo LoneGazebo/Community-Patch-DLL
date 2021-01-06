@@ -7111,7 +7111,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 
 		// Don't ask in always war games
-		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 			return false;
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
@@ -7129,10 +7129,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		// This player must have met the most recent bully
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMostRecentBully).getTeam()))
-			return false;
-
-		// This player must not be at war with the most recent bully (cannot denounce)
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eMostRecentBully).getTeam()))
 			return false;
 
 		// Humans are unable to denounce each other

@@ -1111,6 +1111,7 @@ protected:
 	static int lIsDenouncedPlayer(lua_State* L);
 	static int lGetDenouncedPlayerCounter(lua_State* L);
 	static int lIsDenouncingPlayer(lua_State* L);
+	static int lIsDenounceMessageTooSoon(lua_State* L);
 	static int lIsPlayerRecklessExpander(lua_State* L);
 	static int lGetRecentTradeValue(lua_State* L);
 	static int lGetCommonFoeValue(lua_State* L);

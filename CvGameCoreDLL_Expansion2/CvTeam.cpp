@@ -1741,17 +1741,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						}
 					}
 #endif
-#if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
-					if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
-					{
-						CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
-
-						if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) 
-						{
-							pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
-						}
-					}
-#endif
 				}
 			}
 		}

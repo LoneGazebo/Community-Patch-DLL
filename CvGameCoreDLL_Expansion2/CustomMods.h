@@ -237,8 +237,6 @@
 #define MOD_PILLAGE_PERMANENT_IMPROVEMENTS			gCustomMods.isPILLAGE_PERMANENT_IMPROVEMENTS()
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
-// Human players will auto-denounce AI players before going to war with them (v39)
-#define MOD_DIPLOMACY_AUTO_DENOUNCE                 gCustomMods.isDIPLOMACY_AUTO_DENOUNCE()
 // Changes for the City State Diplomacy mod by Gazebo - AFFECTS SAVE GAME DATA FORMAT (v35)
 #define MOD_DIPLOMACY_CITYSTATES                    gCustomMods.isDIPLOMACY_CITYSTATES()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1288,7 +1286,6 @@ public:
 	MOD_OPT_DECL(NO_HEALING_ON_MOUNTAINS);
 	MOD_OPT_DECL(PILLAGE_PERMANENT_IMPROVEMENTS);
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
-	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);
 	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
