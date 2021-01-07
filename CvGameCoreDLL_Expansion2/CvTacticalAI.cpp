@@ -7009,6 +7009,32 @@ bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer,
 	return false;
 }
 
+int TacticalAIHelpers::SentryScore(const CvPlot * pPlot, PlayerTypes ePlayer)
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	int iScore = pPlot->defenseModifier(eTeam, false, false);
+
+	const vector<CvPlot*>& possibleEnemyPlots = GC.getMap().GetPlotsAtRangeX(pPlot, 2, true, true);
+	for (size_t i = 0; i < possibleEnemyPlots.size(); i++)
+	{
+		//there may be a sentinel null pointer
+		if (possibleEnemyPlots[i] == NULL)
+			continue;
+
+		//don't need to cover a plot multiple times ... but don't want the sentry unit to shuffle around too much
+		if (possibleEnemyPlots[i]->getVisibilityCount(eTeam) > 1)
+			continue;
+
+		//really we should consider whether the enemy can move there, not our team
+		if (!possibleEnemyPlots[i]->isValidMovePlot(ePlayer, false))
+			continue;
+
+		iScore += 37; //less than a good defense bonus ...
+	}
+
+	return iScore;
+}
+
 STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)

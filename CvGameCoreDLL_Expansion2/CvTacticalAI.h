@@ -959,6 +959,7 @@ namespace TacticalAIHelpers
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 	bool IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
+	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, bool bFirstRun);
 	vector<STacticalAssignment> FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);

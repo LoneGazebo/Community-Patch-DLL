@@ -24485,10 +24485,11 @@ void CvUnit::ChangeExtraAirInterceptRange(int iChange) // JJ: NEW
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isOutOfInterceptions() const
+bool CvUnit::canInterceptNow() const
 {
 	VALIDATE_OBJECT
-	return getMadeInterceptionCount() >= GetNumInterceptions();
+	//check embarkation status also because that might change after we collect the area effect units!
+	return canIntercept() && getMadeInterceptionCount() < GetNumInterceptions();
 }
 
 //	--------------------------------------------------------------------------------

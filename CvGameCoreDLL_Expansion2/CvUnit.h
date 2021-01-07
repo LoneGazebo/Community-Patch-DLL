@@ -1444,7 +1444,7 @@ public:
 	int GetExtraAirInterceptRange() const; // JJ: New
 	void ChangeExtraAirInterceptRange(int iChange);
 
-	bool isOutOfInterceptions() const;
+	bool canInterceptNow() const;
 	int getMadeInterceptionCount() const;
 	void increaseInterceptionCount();
 	void resetInterceptionCount();
