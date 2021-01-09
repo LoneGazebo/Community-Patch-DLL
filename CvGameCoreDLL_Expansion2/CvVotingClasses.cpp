@@ -6149,7 +6149,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 
 CvString CvLeague::GetMemberDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";
@@ -6168,7 +6168,7 @@ CvString CvLeague::GetMemberDetails(PlayerTypes eMember, PlayerTypes eObserver)
 
 CvString CvLeague::GetMemberDelegationDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";
@@ -6200,7 +6200,7 @@ CvString CvLeague::GetMemberDelegationDetails(PlayerTypes eMember, PlayerTypes e
 
 CvString CvLeague::GetMemberKnowledgeDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";

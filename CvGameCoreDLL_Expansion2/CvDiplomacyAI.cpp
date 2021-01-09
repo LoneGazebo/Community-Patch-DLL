@@ -21082,11 +21082,6 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			bValid = false;
 		}
 
-		if (AvoidExchangesWithPlayer(eLoopPlayer))
-		{
-			bValid = false;
-		}
-
 		if (bValid)
 		{
 			vValidPlayers.push_back(eLoopPlayer);
@@ -21178,6 +21173,12 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			{
 				continue;
 			}
+		}
+
+		// Planning war?
+		if (AvoidExchangesWithPlayer(*it))
+		{
+			continue;
 		}
 
 		// This checks if they're otherwise okay to befriend
@@ -40132,6 +40133,10 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	if (IsUntrustworthy(ePlayer))
 		return true;
 
+	// We're planning war!
+	if (AvoidExchangesWithPlayer(ePlayer))
+		return true;
+
 	// Don't end friendships we just made.
 	if (!bIgnoreCurrentDoF && GetTurnsSinceBefriendedPlayer(ePlayer) <= 15)
 		return false;
@@ -40139,9 +40144,6 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	if (eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 		return false;
-
-	if (eApproach == MAJOR_CIV_APPROACH_HOSTILE)
-		return true;
 
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 	if (eOpinion >= MAJOR_CIV_OPINION_FRIEND)

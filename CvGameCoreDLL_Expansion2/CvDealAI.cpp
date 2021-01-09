@@ -2622,6 +2622,26 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 		return INT_MAX;
 	}
 
+	// Do not exceed Defensive Pact limit!
+	if (!GetPlayer()->isHuman() && !GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer))
+	{
+		int iNumDefensePacts = GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts();
+		int iDefensePactLimit = 2;
+
+		if (GetPlayer()->GetDefensePactsToVotes() > 0)
+		{
+			iDefensePactLimit = MAX_MAJOR_CIVS;
+		}
+
+		// Scale limit with map size, but sparingly
+		iDefensePactLimit += (int)(GetPlayer()->GetDiplomacyAI()->GetNumValidMajorCivs() / 10);
+
+		if (iNumDefensePacts >= iDefensePactLimit)
+		{
+			return INT_MAX;
+		}
+	}
+
 	if (bFromMe)
 	{
 		int iStrengthMod = (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) - 3;
