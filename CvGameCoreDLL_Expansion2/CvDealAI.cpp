@@ -2623,7 +2623,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 
 	// Do not exceed Defensive Pact limit!
-	if (!GetPlayer()->isHuman() && !GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer))
+	if (!GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer))
 	{
 		int iNumDefensePacts = GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts();
 		int iDefensePactLimit = 2;

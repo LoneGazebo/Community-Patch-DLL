@@ -8928,9 +8928,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 				{
 					iDangerMod += 2;
-					if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+					if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
-						bSeriousDangerUs = true;
+						if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+						{
+							bSeriousDangerUs = true;
+						}
 					}
 				}
 
@@ -8983,9 +8986,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 					{
 						iDangerMod += 2;
-						if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+						if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
-							bSeriousDangerThem = true;
+							if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+							{
+								bSeriousDangerThem = true;
+							}
 						}
 					}
 
@@ -11392,9 +11398,13 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 		{
 			iDangerMod += 2;
-			if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+
+			if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 			{
-				bSeriousDangerUs = true;
+				if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+				{
+					bSeriousDangerUs = true;
+				}
 			}
 		}
 
@@ -11438,9 +11448,13 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 			{
 				iDangerMod += 2;
-				if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+
+				if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 				{
-					bSeriousDangerThem = true;
+					if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
+					{
+						bSeriousDangerThem = true;
+					}
 				}
 			}
 
@@ -40133,8 +40147,8 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	if (IsUntrustworthy(ePlayer))
 		return true;
 
-	// We're planning war!
-	if (AvoidExchangesWithPlayer(ePlayer))
+	// We're planning war and not willing to backstab!
+	if (AvoidExchangesWithPlayer(ePlayer) && !IsWarSane(ePlayer))
 		return true;
 
 	// Don't end friendships we just made.
