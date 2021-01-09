@@ -128,12 +128,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- PLOT: Allows a plot to gain yields depending on the adjacent features -->
+	<!-- PLOT: Allows a plot to gain yields depending on the adjacent features. IgnoreNaturalWonderPlots = true means that plots with natural wonders will not gain a bonus from an adjacent feature (useful for multi-tile natural wonders). -->
 	<Table name="Plot_AdjacentFeatureYieldChanges">
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
+		<Column name="IgnoreNaturalWonderPlots" type="boolean" default="false"/>
 	</Table>
 
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. -->

@@ -4547,7 +4547,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 		return (GetNumRealBuilding(eIndex) + GetNumFreeBuilding(eIndex));
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 /// Accessor: How many of these building classes in the city?
 int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 {
@@ -4559,10 +4559,58 @@ int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if(pkInfo && pkInfo->GetBuildingClassType() == eIndex)
 		{
-			iValue++;
+			int iCount = MAX(GetNumBuilding(*iI), 0);
+			iValue += iCount;
 		}
 	}
 	return iValue;
+}
+
+/// Accessor: Is there at least one building of the class in the city? Potentially faster function than the above.
+bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eIndex) const
+{
+	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+
+	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumBuilding(*iI) > 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/// Accessor: What BuildingType do we have in our city for the specified class? This function assumes at most 1 building type will exist in a city for each class.
+BuildingTypes CvCityBuildings::GetBuildingTypeFromClass(BuildingClassTypes eIndex) const
+{
+	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+
+	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumBuilding(*iI) > 0)
+		{
+			return *iI;
+		}
+	}
+	return NO_BUILDING;
+}
+
+/// Accessor: Removes all real buildings which belong to the specified building class.
+void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
+{
+	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+
+	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumBuilding(*iI) > 0)
+		{
+			SetNumRealBuilding(*iI, 0);
+		}
+	}
 }
 #endif
 /// Accessor: How many of these buildings are not obsolete?
@@ -5261,7 +5309,19 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 					(*it).iChange = iChange;
 				}
 
-				BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+				BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					eBuilding = GetBuildingTypeFromClass(eBuildingClass);
+				}
+				else
+				{
+					eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+				}
 				if(NO_BUILDING != eBuilding)
 				{
 					if(GetNumActiveBuilding(eBuilding) > 0)
@@ -5283,7 +5343,19 @@ void CvCityBuildings::SetBuildingYieldChange(BuildingClassTypes eBuildingClass, 
 		kChange.iChange = iChange;
 		m_aBuildingYieldChange.push_back(kChange);
 
-		BuildingTypes eBuilding = (BuildingTypes)m_pCity->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+		BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			eBuilding = GetBuildingTypeFromClass(eBuildingClass);
+		}
+		else
+		{
+			eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+		}
 		if(NO_BUILDING != eBuilding)
 		{
 			if(GetNumActiveBuilding(eBuilding) > 0)
@@ -5409,7 +5481,19 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots() const
 		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 		if (pkCivInfo)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if(NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)
@@ -5443,7 +5527,19 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) 
 		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 		if (pkCivInfo)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if(NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)
@@ -5479,7 +5575,19 @@ int CvCityBuildings::GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) con
 		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 		if (pkCivInfo)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if (NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)
@@ -5512,7 +5620,19 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-			BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if(NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)
@@ -5543,7 +5663,19 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-			BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pCity->getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if(NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)
@@ -5727,7 +5859,20 @@ int CvCityBuildings::GetNumGreatWorks() const
 			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
 			if (pkClassInfo)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					eBuilding = GetBuildingTypeFromClass(eBldgClass);
+				}
+				else
+				{
+					eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				}
+
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
@@ -5770,7 +5915,20 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 			CvBuildingClassInfo *pkClassInfo = GC.getBuildingClassInfo(eBldgClass);
 			if (pkClassInfo)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+
+					eBuilding = GetBuildingTypeFromClass(eBldgClass);
+				}
+				else
+				{
+					eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBldgClass);
+				}
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
@@ -5946,7 +6104,19 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 		if (pkCivInfo)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = GetBuildingTypeFromClass(eLoopBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			}
 			if (NO_BUILDING != eBuilding)
 			{
 				if (GetNumBuilding(eBuilding) > 0)

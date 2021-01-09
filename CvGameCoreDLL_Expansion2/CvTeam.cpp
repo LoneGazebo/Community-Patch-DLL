@@ -5389,14 +5389,25 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 							{
 								if(GET_PLAYER((PlayerTypes)iJ).getTeam() == GetID())
 								{
-									const BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-									CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
-									if(pBuildingEntry == NULL)
-										continue;
+									BuildingTypes eBuilding = (BuildingTypes) GET_PLAYER((PlayerTypes)iJ).getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 
 									CvCity* pCapital = GET_PLAYER((PlayerTypes)iJ).getCapitalCity();
 
 									if(pCapital == NULL)
+										continue;
+
+#if defined(MOD_BALANCE_CORE)
+									bool bRome = GET_PLAYER((PlayerTypes)iJ).GetPlayerTraits()->IsKeepConqueredBuildings();
+									if ( (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
+#else
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES && pCapital->HasBuildingClass(eBuildingClass))
+#endif
+									{
+										eBuilding = pCapital->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									}
+
+									CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+									if (pBuildingEntry == NULL)
 										continue;
 
 									pCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
@@ -7966,27 +7977,57 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 								int iLoop;
 								for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 								{
-									if(pLoopCity->isValidBuildingLocation(eBuilding))
+									bool bHasBuildingClass = pLoopCity->HasBuildingClass((BuildingClassTypes)iI);
+									BuildingTypes eReplacedBuilding = eBuilding;
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
+									{
+										if (bHasBuildingClass)
+										{
+											eReplacedBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
+										}
+									}
+									if(pLoopCity->isValidBuildingLocation(eBuilding) || (eBuilding != eReplacedBuilding && pLoopCity->isValidBuildingLocation(eReplacedBuilding)))
 									{
 										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
 										{
-											if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+											if (eBuilding != eReplacedBuilding)
 											{
-												pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+												pLoopCity->GetCityBuildings()->SetNumRealBuilding(eReplacedBuilding, 0);
+												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) <= 0)
+												{
+													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eReplacedBuilding, 1);
+												}
+												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) > 0)
+												{
+													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+												}
+												if (pLoopCity->getFirstBuildingOrder(eReplacedBuilding) == 0)
+												{
+													pLoopCity->clearOrderQueue();
+													pLoopCity->chooseProduction();
+													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+												}
 											}
-											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
+											else
 											{
-												pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-											}
-											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-											{
-												kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
-											}
-											if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-											{
-												pLoopCity->clearOrderQueue();
-												pLoopCity->chooseProduction();
-												// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+												if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+												{
+													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+												}
+												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
+												{
+													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+												}
+												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+												{
+													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+												}
+												if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+												{
+													pLoopCity->clearOrderQueue();
+													pLoopCity->chooseProduction();
+													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+												}
 											}
 										}
 									}

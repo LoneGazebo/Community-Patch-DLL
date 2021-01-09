@@ -4453,12 +4453,26 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 			CvCity* pOldCapital = getCapitalCity();
+#if defined(MOD_BALANCE_CORE)
+			bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+#endif
 			if (pOldCapital != NULL)
 #else
 			if (getCapitalCity() != NULL)
 #endif
 			{
-				pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass((BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS());
+				}
+				else
+				{
+					pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+				}
 #if defined(MOD_BALANCE_CORE)
 				if (GetPlayerTraits()->IsNoAnnexing())
 				{
@@ -4489,7 +4503,18 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 								pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
 								if (pOldCapital != NULL)
 								{
-									pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+#if defined(MOD_BALANCE_CORE)
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+									{
+										pOldCapital->GetCityBuildings()->RemoveAllRealBuildingsOfClass(eBuildingClass);
+									}
+									else
+									{
+										pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+									}
 								}
 							}
 						}
@@ -7126,21 +7151,37 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		
 						if (pCivilizationInfo != NULL)
 						{
-							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
-							CvCity *pLoopCity;
-							int iLoop;
-							for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							BuildingTypes eBuildingType = NO_BUILDING;
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 							{
-								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+							}
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuildingType != NO_BUILDING)
+							{
+								int iLoop;
+								for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									continue;
+									if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+									{
+										continue;
+									}
+									if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || GET_PLAYER(pLoopCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+									{
+										eBuildingType = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+										if (eBuildingType == NO_BUILDING)
+										{
+											continue;
+										}
+									}
+
+									pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0);
+									bChanged = true;
 								}
-								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-								{
-									continue;
-								}
-								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0);
-								bChanged = true;
 							}
 						}
 					}
@@ -7282,65 +7323,80 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					}
 					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
 					{
-						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-						if(eBuilding != NO_BUILDING)
+						BuildingTypes eBuilding = NO_BUILDING;
+						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-							if(pkBuilding)
-							{
-								CvCity *pLoopCity;
-								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-									{
-										continue;
-									}
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									{
-										continue;
-									}
-									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+						}
 
-									pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) * -1);
-									bChanged = true;
-									if(iBuildingCount > 0)
+						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+						{
+							int iLoop;
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							{
+								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+								{
+									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									if (eBuilding == NO_BUILDING)
 									{
-										pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) * -1);
+										continue;
 									}
+								}
+
+								pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) * -1);
+								bChanged = true;
+								if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) * -1);
 								}
 							}
 						}
 					}
 					if(pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
 					{
-						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-						if(eBuilding != NO_BUILDING)
+						BuildingTypes eBuilding = NO_BUILDING;
+						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-							if(pkBuilding)
+							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+						}
+
+						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+						{
+							int iLoop;
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								CvCity *pLoopCity;
-								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+									continue;
+								}
+								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+								{
+									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									if (eBuilding == NO_BUILDING)
 									{
 										continue;
 									}
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									{
-										continue;
-									}
-									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) * -1);
-									bChanged = true;
-									if(iBuildingCount > 0)
-									{
-										pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) * -1);
-									}
+								}
+
+								pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) * -1);
+								bChanged = true;
+								if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) * -1);
 								}
 							}
 						}
@@ -8447,12 +8503,18 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 		
 							if (pCivilizationInfo != NULL)
 							{
-								BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
-								if(eBuildingType != NO_BUILDING)
+								BuildingTypes eBuildingType = NO_BUILDING;
+								bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+
+								if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 								{
-									CvCity *pLoopCity;
+									eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+								}
+
+								if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuildingType != NO_BUILDING)
+								{
 									int iLoop;
-									for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+									for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 									{
 										if(pLoopCity != pCity)
 											continue;
@@ -8463,6 +8525,20 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 										}
 
 										if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+										{
+											continue;
+										}
+
+										if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+										{
+											eBuildingType = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+											if (eBuildingType == NO_BUILDING)
+											{
+												continue;
+											}
+										}
+
+										if (pLoopCity->HasBuilding(eBuildingType))
 										{
 											continue;
 										}
@@ -8521,70 +8597,74 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 						}
 						if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
 						{
-							BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-							if(eBuilding != NO_BUILDING)
+							BuildingTypes eBuilding = NO_BUILDING;
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 							{
-								CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-								if(pkBuilding)
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
+
+							if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								int iLoop;
+								for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									CvCity *pLoopCity;
-									int iLoop;
-									for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+									if(pLoopCity != pCity)
+										continue;
+
+									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 									{
-										if(pLoopCity != pCity)
-											continue;
-
-										if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-										{
-											continue;
-										}
-										if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-										{
-											continue;
-										}
-										int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-
-										pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-										if(iBuildingCount > 0)
-										{
-											pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-										}
+										continue;
+									}
+									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+									{
+										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									}
+									pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+									if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+									{
+										pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
 									}
 								}
 							}
 						}
 						if(pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
 						{
-							BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-							if(eBuilding != NO_BUILDING)
+							BuildingTypes eBuilding = NO_BUILDING;
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 							{
-								CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-								if(pkBuilding)
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
+
+							if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								int iLoop;
+								for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									CvCity *pLoopCity;
-									int iLoop;
-									for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+									if(pLoopCity != pCity)
+										continue;
+
+									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 									{
-										if(pLoopCity != pCity)
-											continue;
-
-										if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-										{
-											continue;
-										}
-										if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-										{
-											continue;
-										}
-										int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-
-										pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-										if(iBuildingCount > 0)
-										{
-											pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-										}
+										continue;
+									}
+									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+									{
+										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									}
+									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+									if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+									{
+										pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
 									}
 								}
 							}
@@ -8925,19 +9005,38 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 		
 						if (pCivilizationInfo != NULL)
 						{
-							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
-							if(eBuildingType != NO_BUILDING)
+							BuildingTypes eBuildingType = NO_BUILDING;
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 							{
-								CvCity *pLoopCity;
+								eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+							}
+							
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuildingType != NO_BUILDING)
+							{
 								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+								for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+									if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 									{
 										continue;
 									}
 
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+									{
+										eBuildingType = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+										if (eBuildingType == NO_BUILDING)
+										{
+											continue;
+										}
+									}
+
+									if (pLoopCity->HasBuilding(eBuildingType))
 									{
 										continue;
 									}
@@ -9061,32 +9160,35 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					}
 					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
 					{
-						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-						if(eBuilding != NO_BUILDING)
+						BuildingTypes eBuilding = NO_BUILDING;
+						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-							if(pkBuilding)
-							{
-								CvCity *pLoopCity;
-								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-									{
-										continue;
-									}
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									{
-										continue;
-									}
-									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+						}
 
-									pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-									if(iBuildingCount > 0)
-									{
-										pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-									}
+						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+						{
+							int iLoop;
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							{
+								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+								{
+									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+								}
+
+								pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+								if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
 								}
 							}
 						}
@@ -9094,31 +9196,34 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					if(pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
 					{
 						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-
-						if(eBuilding != NO_BUILDING)
+						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-							if(pkBuilding)
-							{
-								CvCity *pLoopCity;
-								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-									{
-										continue;
-									}
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									{
-										continue;
-									}
-									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+						}
 
-									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-									if(iBuildingCount > 0)
-									{
-										pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-									}
+						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+						{
+							int iLoop;
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							{
+								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+								{
+									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+								}
+
+								pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+								if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
 								}
 							}
 						}
@@ -12502,22 +12607,25 @@ void CvPlayer::findNewCapital()
 {
 	int iLoop;
 
-	BuildingTypes eCapitalBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS())));
-	if(eCapitalBuilding == NO_BUILDING)
-	{
-		return;
-	}
+	BuildingClassTypes eCapitalBuildingClass = (BuildingClassTypes)GC.getCAPITAL_BUILDINGCLASS();
+	BuildingTypes eCapitalBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(eCapitalBuildingClass)));
+#if defined(MOD_BALANCE_CORE)
+	bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+#endif
 
 	CvCity* pOldCapital = getCapitalCity();
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
 
-	CvCity* pLoopCity;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity != pOldCapital)
 		{
-			if(0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding))
+#if defined(MOD_BALANCE_CORE)
+			if(0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && !HasBuildingClass(eCapitalBuildingClass)))
+#else
+			if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || (MOD_BUILDINGS_THOROUGH_PREREQUISITES && !HasBuildingClass(eCapitalBuildingClass)))
+#endif
 			{
 				// First pass, exclude cities in resistance, puppets, and those burning to the ground
 				if (!(pLoopCity->IsResistance() || pLoopCity->IsPuppet() || pLoopCity->IsRazing()))
@@ -12543,11 +12651,15 @@ void CvPlayer::findNewCapital()
 
 	if (pBestCity == NULL)
 	{
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity != pOldCapital)
 			{
-				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding))
+#if defined(MOD_BALANCE_CORE)
+				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && !HasBuildingClass(eCapitalBuildingClass)))
+#else
+				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) || (MOD_BUILDINGS_THOROUGH_PREREQUISITES && !HasBuildingClass(eCapitalBuildingClass)))
+#endif
 				{
 					int iValue = 0;
 
@@ -12582,7 +12694,25 @@ void CvPlayer::findNewCapital()
 	{
 		if (pOldCapital != NULL)
 		{
-			pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				if (pOldCapital->HasBuildingClass(eCapitalBuildingClass))
+				{
+					BuildingTypes eReplacedCapitalBuilding = pOldCapital->GetCityBuildings()->GetBuildingTypeFromClass(eCapitalBuildingClass);
+					if (eReplacedCapitalBuilding != NO_BUILDING)
+					{
+						pOldCapital->GetCityBuildings()->SetNumRealBuilding(eReplacedCapitalBuilding, 0);
+					}
+				}
+			}
+			else
+			{
+				pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+			}
 		}
 		CvAssertMsg(!(pBestCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 		pBestCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
@@ -16691,9 +16821,6 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 	// -1 means Building is needed in all Cities
 	else if(iPrereqs == -1)
 	{
-#if defined(MOD_BUILDINGS_NW_EXCLUDE_RAZING)
-		BuildingTypes ePrereqBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(ePrereqBuildingClass);
-#endif
 		int iNonPuppetCities = 0;
 		int iLoop = 0;
 		const CvCity* pLoopCity = NULL;
@@ -16703,7 +16830,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 			{
 #if defined(MOD_BUILDINGS_NW_EXCLUDE_RAZING)
 				// Don't count this city if it is being razed and doesn't already have the pre-req building
-				if (!(MOD_BUILDINGS_NW_EXCLUDE_RAZING && pLoopCity->IsRazing() && pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0))
+				if (!(MOD_BUILDINGS_NW_EXCLUDE_RAZING && pLoopCity->IsRazing() && pLoopCity->GetCityBuildings()->GetNumBuildingClass(ePrereqBuildingClass) == 0))
 #endif
 				iNonPuppetCities++;
 			}
@@ -16749,11 +16876,24 @@ void CvPlayer::removeBuildingClass(BuildingClassTypes eBuildingClass)
 
 	eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 
-	if(eBuilding != NO_BUILDING)
+#if defined(MOD_BALANCE_CORE)
+	bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING || bRome)
+#else
+	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
+#endif
 	{
 		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+			}
+			if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 			{
 				pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 				break;
@@ -17223,7 +17363,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				continue;
 			}
 
-			BuildingTypes eTestBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			BuildingTypes eTestBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+			}
+			else
+			{
+				eTestBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			}
 
 			if(eTestBuilding != NO_BUILDING)
 			{
@@ -19503,7 +19655,15 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 						for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 						{
 							const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-							BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+							BuildingTypes eBuilding = NO_BUILDING;
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+							{
+								eBuilding = pPlayerCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+							}
+							else
+							{
+								eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+							}
 							if (eBuilding != NO_BUILDING)
 							{
 								CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -19583,7 +19743,15 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 									break;
 								}
 								const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-								BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+								BuildingTypes eBuilding = NO_BUILDING;
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+								{
+									eBuilding = pPlayerCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+								}
+								else
+								{
+									eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+								}
 								if (eBuilding != NO_BUILDING)
 								{
 									CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -33002,17 +33170,20 @@ void CvPlayer::DoMilitaryRatingDecay()
 {
 	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (1000 * GC.getGame().getStartEra()) : 1000;
 	int iCurrentRating = GetMilitaryRating();
+	float fDecay = 2.000f;
+	fDecay *= 100;
+	fDecay /= max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
 
 	if (iCurrentRating < iStartingRating)
 	{
 		int iDifference = iStartingRating - iCurrentRating;
-		int iReduction = min(1, (iDifference/50));
+		int iReduction = min(1, (int)(iDifference * fDecay / 100));
 		ChangeMilitaryRating(iReduction);
 	}
 	else if (iCurrentRating > iStartingRating)
 	{
 		int iDifference = iCurrentRating - iStartingRating;
-		int iReduction = min(1, (iDifference/50));
+		int iReduction = min(1, (int)(iDifference * fDecay / 100));
 		ChangeMilitaryRating(-iReduction);
 	}
 }
@@ -40967,6 +41138,9 @@ CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClas
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE)
+		pLoopCity->HasBuildingClass(eBuildingClass);
+#else
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)eBuildingClass);
 		if (eBuilding != NO_BUILDING)
@@ -40976,6 +41150,7 @@ CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClas
 				return pLoopCity;
 			}
 		}
+#endif
 	}
 	return false;
 }
@@ -42735,14 +42910,15 @@ int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, C
 								{
 									int iNumBuildings = 0;
 									BuildingTypes ePrereqBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iBuildingClassPrereqLoop)));
+									bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
 
-									if(ePrereqBuilding != NO_BUILDING)
+									if(ePrereqBuilding != NO_BUILDING || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 									{
 										CvCity* pLoopCity;
 										int iLoop;
 										for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 										{
-											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
+											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0 || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pLoopCity->HasBuildingClass(eBuildingClass)))
 											{
 												iNumBuildings++;
 											}
@@ -42757,14 +42933,15 @@ int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, C
 								if(MOD_BALANCE_CORE && pkBuildingLoopInfo->IsBuildingClassNeededNowhere(iBuildingClassPrereqLoop))
 								{
 									BuildingTypes ePrereqBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iBuildingClassPrereqLoop)));
+									bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
 
-									if(ePrereqBuilding != NO_BUILDING)
+									if(ePrereqBuilding != NO_BUILDING || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 									{
 										CvCity* pLoopCity;
 										int iLoop;
 										for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 										{
-											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
+											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0 || ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pLoopCity->HasBuildingClass(eBuildingClass)))
 											{
 												return -1;
 											}
@@ -44012,7 +44189,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				continue;
 			}
 
-			eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			}
 
 			if(eBuilding != NO_BUILDING)
 			{
@@ -44161,8 +44350,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				int iNumFreeBuildings = pPolicy->GetFreeChosenBuilding(eBuildingClass);
 				if(iNumFreeBuildings > 0 || (pPolicy->GetAllCityFreeBuilding() == eBuildingClass))
 				{
-					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-					if(NO_BUILDING != eBuilding)
+					BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+					if(NO_BUILDING != eBuilding || (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings()))
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 						if(pkBuildingInfo)
@@ -44172,6 +44361,17 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							int iLoopTwo;
 							for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
 							{
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
+								{
+									if (pLoopCity->HasBuildingClass(eBuildingClass))
+									{
+										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+										if (eBuilding == NO_BUILDING)
+										{
+											continue;
+										}
+									}
+								}
 								if(pLoopCity->isValidBuildingLocation(eBuilding))
 								{
 									if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeBuildingAllCity(eBuildingClass))
@@ -45144,7 +45344,19 @@ void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
 				continue;
 			}
 
-			BuildingTypes eTestBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			BuildingTypes eTestBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eTestBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+			}
+			else
+			{
+				eTestBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			}
 
 			if(eTestBuilding != NO_BUILDING)
 			{

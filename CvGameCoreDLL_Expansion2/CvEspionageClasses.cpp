@@ -5230,7 +5230,7 @@ int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 	return m_aiNumTechsToStealList[ePlayer];
 }
 #if defined(MOD_BALANCE_CORE)
-/// BuildStealableGWList - Go through opponents list and see what techs you can steal from them.
+/// BuildStealableGWList - Go through opponents list and see what great works you can steal from them.
 void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 {
 	CvAssertMsg((uint)ePlayer < m_aPlayerStealableGWList.size(), "ePlayer out of bounds");
@@ -5283,7 +5283,20 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 			for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 			{
 				const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-				BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				BuildingTypes eBuilding = NO_BUILDING;
+				// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+				}
+				else
+				{
+					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				}
 				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -8748,7 +8761,19 @@ void CvEspionageAI::StealGreatWork()
 							break;
 						}
 						const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(eDefendingPlayer).getCivilizationInfo();
-						BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+						BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(eDefendingPlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+						{
+							eBuilding = pPlayerCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+						}
+						else
+						{
+							eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+						}
 						if (eBuilding != NO_BUILDING)
 						{
 							CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);

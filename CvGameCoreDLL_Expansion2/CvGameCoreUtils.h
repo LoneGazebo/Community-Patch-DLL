@@ -449,7 +449,6 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 
 	size_t maxCandidates = min(candidates.size(), (size_t)maxCandidatesToConsider);
 	sort(candidates.begin(), candidates.end());
-	reverse(candidates.begin(), candidates.end());
 
 	int totalWeight = 0;
 	for (size_t i = 0; i < maxCandidates; i++)

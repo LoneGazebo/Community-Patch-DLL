@@ -607,9 +607,18 @@ void CvPlayerCorporations::DestroyCorporation()
 	BuildingClassTypes eFranchiseClass = pkCorporationInfo->GetFranchiseBuildingClass();
 
 	// Get Corporation Buildings
-	BuildingTypes eHeadquarters = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass);
-	BuildingTypes eOffice = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
-	BuildingTypes eFranchise = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	BuildingTypes eHeadquarters = NO_BUILDING;
+	BuildingTypes eOffice = NO_BUILDING;
+	BuildingTypes eFranchise = NO_BUILDING;
+
+	// Get Corporation Buildings
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Don't check for Rome as even they don't keep Corporation buildings on conquest
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass);
+		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	}
 
 	int iLoop = 0;
 	// Destroy our headquarters and offices
@@ -618,15 +627,21 @@ void CvPlayerCorporations::DestroyCorporation()
 		if (pCity == NULL)
 			continue;
 
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+		{
+			eHeadquarters = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eHeadquartersClass);
+			eOffice = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eOfficeClass);
+		}
+
 		// City has headquarters?
-		if(pCity->HasBuilding(eHeadquarters))
+		if(eHeadquarters != NO_BUILDING && pCity->HasBuilding(eHeadquarters))
 		{
 			pCity->GetCityBuildings()->SetNumRealBuilding(eHeadquarters, 0);
 			GC.getGame().decrementBuildingClassCreatedCount(eHeadquartersClass);
 		}
 
 		// City has office?
-		if(pCity->HasBuilding(eOffice))
+		if(eOffice != NO_BUILDING && pCity->HasBuilding(eOffice))
 		{
 			pCity->GetCityBuildings()->SetNumRealBuilding(eOffice, 0);
 		}
@@ -642,7 +657,11 @@ void CvPlayerCorporations::DestroyCorporation()
 		iLoop = 0;
 		for(CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
-			if(pCity->HasBuilding(eFranchise))
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			{
+				eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eFranchiseClass);
+			}
+			if(eFranchise != NO_BUILDING && pCity->HasBuilding(eFranchise))
 			{
 				pCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 0);
 			}
@@ -1426,9 +1445,22 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 		return;
 
 	// Explicitly destroy all corporation buildings from this city
-	BuildingTypes eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetHeadquartersBuildingClass());
-	BuildingTypes eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
-	BuildingTypes eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+	BuildingTypes eHeadquarters = NO_BUILDING;
+	BuildingTypes eOffice = NO_BUILDING;
+	BuildingTypes eFranchise = NO_BUILDING;
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eHeadquarters = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetHeadquartersBuildingClass());
+		eOffice = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetOfficeBuildingClass());
+		eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetFranchiseBuildingClass());
+	}
+	else
+	{
+		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetHeadquartersBuildingClass());
+		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+	}
 
 	const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t jJ = 0; jJ < vBuildings.size(); jJ++)
@@ -1577,11 +1609,20 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 	BuildingClassTypes eFranchiseClass = pkCorporationInfo->GetFranchiseBuildingClass();
 
 	// Get Corporation Buildings
-	BuildingTypes eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	BuildingTypes eFranchise = NO_BUILDING;
+	CvBuildingEntry* pkBuilding = NULL;
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
 
-	CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFranchise);
-	if (!pkBuilding || !pkBuilding->IsCorp())
-		return;
+		if (eFranchise == NO_BUILDING)
+			return;
+
+		pkBuilding = GC.getBuildingInfo(eFranchise);
+		if (!pkBuilding || !pkBuilding->IsCorp())
+			return;
+	}
 
 	//and destroy our franchises!
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -1611,7 +1652,19 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 		int iLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
-			if (pCity->HasBuilding(eFranchise))
+			// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+			if(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			{
+				eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetFranchiseBuildingClass());
+
+				if (eFranchise == NO_BUILDING)
+					continue;
+
+				pkBuilding = GC.getBuildingInfo(eFranchise);
+				if (!pkBuilding || !pkBuilding->IsCorp())
+					return;
+			}
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pCity->HasBuilding(eFranchise))
 			{
 				pCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 0);
 

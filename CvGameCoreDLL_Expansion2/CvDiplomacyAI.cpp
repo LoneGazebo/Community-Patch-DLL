@@ -10808,9 +10808,20 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 			int iWarScore = GetWarScore(ePlayer);
 			bool bCapturedKeyCity = IsCapitalCapturedBy(ePlayer, true, false) || IsHolyCityCapturedBy(ePlayer, true, false);
 			bool bPhonyWar = IsPhonyWar(ePlayer);
-			bool bReadyForVassalage = bMajor && !bCapturedKeyCity && (!bWorldConquest || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER) && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam());
 			bool bWarApproach = bMajor ? GetMajorCivApproach(ePlayer, false) == MAJOR_CIV_APPROACH_WAR : GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST;
-			bool bNotEnoughTurns = GetPeaceBlockReason(ePlayer) == 3;
+
+			bool bReadyForVassalage = false;
+			if (bMajor)
+			{
+				if (!bCapturedKeyCity && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam()))
+				{
+					if (!bWorldConquest || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+					{
+						bReadyForVassalage = true;
+					}
+				}
+			}
+
 			bool bConsiderPeace = GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE;
 			bConsiderPeace |= bReadyForVassalage;
 			bConsiderPeace |= GetStateAllWars() == STATE_ALL_WARS_LOSING;
@@ -10882,7 +10893,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				continue;
 			}
 			// Too soon to make peace?
-			else if (bNotEnoughTurns && !bCriticalState)
+			else if (GetPeaceBlockReason(ePlayer) == 3 && !bCriticalState)
 			{
 				if (bWarApproach || IsAggressor(ePlayer))
 				{
@@ -10974,8 +10985,8 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 					continue;
 				}
 
-				// We're very unhappy or war weary, let's make peace.
-				if (GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayerNumTurnsAtWar(ePlayer) || GetPlayer()->IsEmpireVeryUnhappy())
+				// We're very unhappy and war weary, let's make peace.
+				if (GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireVeryUnhappy())
 				{
 					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
 					continue;
@@ -11667,12 +11678,25 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 	// Danger considerations
 	iWantPeace += iOurDanger;
-	iWantPeace += (iTheirDanger * -1);
 
-	// They're in danger and we're not? Let's hold out for a bit.
+	// They're in danger and we're not? Let's hold out longer!
 	if (iOurDanger == 0 && iTheirDanger > 0)
 	{
-		iWantPeace -= 5;
+		int iMultiplier = 1;
+		if (IsEasyTarget(ePlayer))
+		{
+			iMultiplier++;
+		}
+		if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
+		{
+			iMultiplier++;
+		}
+
+		iWantPeace -= (5 * iTheirDanger * iMultiplier);
+	}
+	else
+	{
+		iWantPeace += (iTheirDanger * -1);
 	}
 
 	// Negative warscore means we're losing, so peace desire is higher!
@@ -16285,20 +16309,20 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	switch (eMilitaryStrength)
 	{
 	case STRENGTH_PATHETIC:
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 6 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR] * 3;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 3;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 6 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 6 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 6 * iAttackMultiplier;
 		break;
 	case STRENGTH_WEAK:
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 4 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 4 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 4 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 4 * iAttackMultiplier;
 		break;
 	case STRENGTH_POOR:
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR];
-		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE];
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 2 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 2 * iAttackMultiplier;
@@ -16330,22 +16354,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// For high economic strength, do not add AFRAID weight or remove WAR/HOSTILE weight unless military strength is also that high ... military power should remain a larger factor
 	if (eEconomicStrength == STRENGTH_PATHETIC)
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 6 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR] * 3;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 3;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 6 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 6 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 6 * iAttackMultiplier;
 	}
 	else if (eEconomicStrength == STRENGTH_WEAK)
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 4 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 4 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 4 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 4 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 4 * iAttackMultiplier;
 	}
 	else if (eEconomicStrength == STRENGTH_POOR)
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_WAR];
-		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier : vApproachBias[MAJOR_CIV_APPROACH_HOSTILE];
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2 * iAttackMultiplier : 0;
+		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier : 0;
 		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 2 * iAttackMultiplier;
 		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] -= vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 2 * iAttackMultiplier;
@@ -17188,6 +17212,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Different government types get along worse
 	else if (iPolicyScore < 0)
 	{
+		if (bEarlyGameCompetitor)
+		{
+			iPolicyScore *= 2;
+		}
+
 		if (!bIgnorePolicyDifferences)
 		{
 			if (eMilitaryStrength < STRENGTH_AVERAGE)
@@ -25179,10 +25208,6 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	// Not the early game
 	if (GetPlayer()->GetCurrentEra() > 2)
 		return false;
-
-	// Encourage early game friction between different types of empires.
-	if (GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS && GetNumSamePolicies(ePlayer) < 0 && !IsIgnorePolicyDifferences(ePlayer))
-		return true;
 
 	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
 		return true;

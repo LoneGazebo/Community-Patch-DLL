@@ -252,6 +252,7 @@ public:
 	bool isTeamWondersMaxed() const;
 	bool isNationalWondersMaxed() const;
 	bool isBuildingsMaxed() const;
+	bool hasBuildingPrerequisites(BuildingTypes eBuilding) const;
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;

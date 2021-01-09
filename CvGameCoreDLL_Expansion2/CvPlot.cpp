@@ -9446,6 +9446,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 		if (ePlot != NO_PLOT && GC.getPlotInfo(ePlot)->IsAdjacentFeatureYieldChange())
 		{
 			// yield from adjacent features
+			bool bNaturalWonderPlot = IsNaturalWonder();
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
 				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -9455,7 +9456,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 
 				if (pAdjacentPlot->getFeatureType() != NO_FEATURE)
 				{
-					iYield += GC.getPlotInfo(ePlot)->GetAdjacentFeatureYieldChange(pAdjacentPlot->getFeatureType(), eYield);
+					iYield += GC.getPlotInfo(ePlot)->GetAdjacentFeatureYieldChange(pAdjacentPlot->getFeatureType(), eYield, bNaturalWonderPlot);
 				}
 			}
 		}

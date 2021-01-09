@@ -9107,7 +9107,19 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 				}
 			}
 
-			BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(jJ);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)jJ);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)jJ);
+			}
 			if (eBuilding != NO_BUILDING)
 			{
 				if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -10793,15 +10805,35 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 				eFaithBuildingClass = FaithBuildingAvailable(eReligion, pLoopCity);
 				BuildingTypes eFaithBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFaithBuildingClass);
 
-				if (eFaithBuildingClass == NO_BUILDINGCLASS || eFaithBuilding == NO_BUILDING)
+				if (eFaithBuildingClass == NO_BUILDINGCLASS)
 				{
-					return true;
+					continue;
 				}
 
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eFaithBuilding) < 1)
+#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+				//Exception for new Rome UA, because civ type doesn't help you here.
+				//Also use this if the option to check for all buildings in a class is enabled.
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
 				{
-					bRtnValue = false;
-					break;
+					if (!pLoopCity->HasBuildingClass(eFaithBuildingClass))
+					{
+						bRtnValue = false;
+						break;
+					}
+				}
+				else
+#endif
+				if (eFaithBuilding != NO_BUILDING)
+				{
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eFaithBuilding) < 1)
+					{
+						bRtnValue = false;
+						break;
+					}
 				}
 			}
 		}

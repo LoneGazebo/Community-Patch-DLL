@@ -436,6 +436,9 @@
 #define MOD_BUILDINGS_CITY_WORKING                  gCustomMods.isBUILDINGS_CITY_WORKING()
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
 #define MOD_BUILDINGS_CITY_AUTOMATON_WORKERS        gCustomMods.isBUILDINGS_CITY_AUTOMATON_WORKERS()
+// When checking for a building's prerequisites in a city for Building_ClassesNeededInCity, loop through all buildings in the city to find a building belonging in the class, rather than the shortcut method of only checking if there is an entry in Civilization_BuildingClassOverrides.
+// A more thorough check for mods which replace buildings using Lua. Otherwise, the prerequisite for Building_ClassesNeededInCity will not be fulfilled correctly.
+#define MOD_BUILDINGS_THOROUGH_PREREQUISITES		gCustomMods.isBUILDINGS_THOROUGH_PREREQUISITES()
 
 // Scales trade routes based on map size and game speed (v52)
 #define MOD_TRADE_ROUTE_SCALING                     gCustomMods.isTRADE_ROUTE_SCALING()
@@ -1414,6 +1417,7 @@ public:
 	MOD_OPT_DECL(BUILDINGS_PRO_RATA_PURCHASE);
 	MOD_OPT_DECL(BUILDINGS_CITY_WORKING);
 	MOD_OPT_DECL(BUILDINGS_CITY_AUTOMATON_WORKERS);
+	MOD_OPT_DECL(BUILDINGS_THOROUGH_PREREQUISITES);
 
 	MOD_OPT_DECL(TRADE_ROUTE_SCALING);
 	MOD_OPT_DECL(TRADE_WONDER_RESOURCE_ROUTES);
