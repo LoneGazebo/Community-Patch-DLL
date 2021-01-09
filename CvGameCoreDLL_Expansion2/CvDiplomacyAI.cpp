@@ -40148,7 +40148,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 		return true;
 
 	// We're planning war and not willing to backstab!
-	if (AvoidExchangesWithPlayer(ePlayer) && !IsWarSane(ePlayer))
+	if (AvoidExchangesWithPlayer(ePlayer) && (bIgnoreCurrentDoF || !IsWarSane(ePlayer)))
 		return true;
 
 	// Don't end friendships we just made.
