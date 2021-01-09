@@ -348,7 +348,7 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
-		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+		if(pLoopPlot->isVisible(eTeam))
 		{
 			// Have a ...
 			// ... friendly city?
@@ -421,9 +421,9 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
 				pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 			{
-				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
+				if (pLoopPlot->isRevealedFortification(eTeam))
 				{
-					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
+					int iWeight = 100000 + pLoopPlot->defenseModifier(eTeam, false, false);
 
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_FORT);
 					newTarget.SetTargetX(pLoopPlot->getX());
@@ -436,15 +436,18 @@ void CvHomelandAI::FindHomelandTargets()
 			if (!pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				if ((pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isAdjacentTeam(m_pPlayer->getTeam(), true)) ||
+				if ((pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isAdjacentTeam(eTeam, true)) ||
 					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true)))
 				{
-					int iScore = GC.getMap().GetPlotsAtRangeX(pLoopPlot, 2, true, true).size() * 54 + pLoopPlot->defenseModifier(eTeam, false, false);
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(iScore);
-					m_TargetedSentryPoints.push_back(newTarget);
+					int iScore = TacticalAIHelpers::SentryScore(pLoopPlot, m_pPlayer->GetID());
+					if (iScore > 30)
+					{
+						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
+						newTarget.SetTargetX(pLoopPlot->getX());
+						newTarget.SetTargetY(pLoopPlot->getY());
+						newTarget.SetAuxIntData(iScore);
+						m_TargetedSentryPoints.push_back(newTarget);
+					}
 				}
 			}
 			// ... possible naval sentry point?
@@ -453,7 +456,7 @@ void CvHomelandAI::FindHomelandTargets()
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
-					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(m_pPlayer->getTeam(), DOMAIN_SEA, true);
+					int iSuspiciousNeighbors = pLoopPlot->GetNumAdjacentDifferentTeam(eTeam, DOMAIN_SEA, true);
 					if (iSuspiciousNeighbors > 0)
 					{
 						int iWeight = m_pPlayer->GetCityDistancePathLength(pLoopPlot) + iSuspiciousNeighbors*2;
@@ -485,7 +488,7 @@ void CvHomelandAI::FindHomelandTargets()
 			pLoopUnit->isNativeDomain(pLoopUnit->plot()) &&
 			pLoopUnit->plot()->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(),true))
 		{
-			newTarget.SetTargetType(AI_HOMELAND_TARGET_WORKER);
+			newTarget.SetTargetType(AI_HOMELAND_TARGET_WORKER); //we don't select by type but simply iterate the container later
 			newTarget.SetTargetX(pLoopUnit->getX());
 			newTarget.SetTargetY(pLoopUnit->getY());
 			newTarget.SetAuxIntData(123);
@@ -764,19 +767,20 @@ void CvHomelandAI::PlotSentryMoves()
 
 		if(m_CurrentMoveUnits.size() > 0)
 		{
+			//since the target order depends on visibility, this may lead to shuttling behavior? but seems to be alright, or maybe even good?
 			CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 			if (!pSentry)
 				continue;
 
 			if (pSentry->atPlot(*pTarget))
 			{
-				//check our immediate neighbors if we can increase our visibility
-				int iBestCount = 0;
+				//check our immediate neighbors if we can increase our visibility significantly
+				int iBestCount = 1;
 				CvPlot* pBestNeighbor = NULL;
 				for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
 				{
 					CvPlot* pNeighbor = iterateRingPlots(pSentry->plot(), i);
-					if (!pNeighbor || !pSentry->canMoveInto(*pNeighbor,CvUnit::MOVEFLAG_DESTINATION))
+					if (!pNeighbor || !pSentry->isNativeDomain(pNeighbor) || pNeighbor->getOwner()==pSentry->getOwner() || !pSentry->canMoveInto(*pNeighbor,CvUnit::MOVEFLAG_DESTINATION))
 						continue;
 
 					int iCount = TacticalAIHelpers::CountAdditionallyVisiblePlots(pSentry, pNeighbor);
@@ -797,7 +801,8 @@ void CvHomelandAI::PlotSentryMoves()
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
+				strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), 
+					m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
 				LogHomelandMessage(strLogString);
 			}
 		}

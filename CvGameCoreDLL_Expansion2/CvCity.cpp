@@ -27977,11 +27977,17 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
 						if (pkResource)
 						{
+							//bonus resources are preferred because of their added yields anyway ... here it's just about trade
 							if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							{
 								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST;
-							else if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) <= iWorkPlotDistance)
-								//bonus resources are meh, even if they are in range
-								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST/2;
+								if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) == 0)
+									iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST/2;
+							}
+
+							if (GET_PLAYER(getOwner()).WouldGainMonopoly(eResource,pLoopPlot->getNumResource()))
+								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST;
+
 						}
 					}
 
@@ -28160,8 +28166,10 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 
 	//note: we don't use getPLOT_INFLUENCE_DISTANCE_MULTIPLIER() here because the influence distance is already pre-multiplied
 	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE + (iDistance-iRefDistance) / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
-	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
+	if (pPlot->getResourceType(getTeam()) != NO_RESOURCE)
+	{
 		iInfluenceCostFactor += iPLOT_BUY_RESOURCE_COST;
+	}
 
 	if(iInfluenceCostFactor > 100)
 	{

@@ -1944,7 +1944,8 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		//plot type dependent cost. should really be handled via terrain, but ok for now
 		if (pToPlot->isHills())
 			iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
-		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
+		//inca can cross mountains ...
+		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder() && !pToPlot->isValidMovePlot(finder->GetData().ePlayer,false))
 			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
 
 		//ignore this if there's a resource here

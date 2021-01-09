@@ -3180,7 +3180,7 @@ bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
 			continue;
 
 		// Must not have already intercepted this turn
-		if (pInterceptorUnit->isOutOfInterceptions())
+		if (!pInterceptorUnit->canInterceptNow())
 			continue;
 
 		// Test range
@@ -3236,7 +3236,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 				continue;
 
 			// Must not have already intercepted this turn
-			if (pInterceptorUnit->isOutOfInterceptions())
+			if (!pInterceptorUnit->canInterceptNow())
 				continue;
 
 			// Check input booleans

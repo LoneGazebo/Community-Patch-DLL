@@ -5134,7 +5134,7 @@ int CvLuaUnit::lSetMadeAttack(lua_State* L)
 int CvLuaUnit::lisOutOfInterceptions(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isOutOfInterceptions();
+	const bool bResult = !pkUnit->canInterceptNow();
 
 	lua_pushboolean(L, bResult);
 	return 1;
