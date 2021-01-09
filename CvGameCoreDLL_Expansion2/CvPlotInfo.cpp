@@ -45,10 +45,10 @@ int CvPlotInfo::getYield(int i) const
 //------------------------------------------------------------------------------
 int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield, bool bNaturalWonderPlot) const
 {
-	CvAssertMsg(iFeature < GC.getNumFeatureInfos(), "Index out of bounds");
-	CvAssertMsg(iFeature > -1, "Index out of bounds");
-	CvAssertMsg(iYield < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(iYield > -1, "Index out of bounds");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(eFeature > -1, "Index out of bounds");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
 
 	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	int iYieldChange = 0;
