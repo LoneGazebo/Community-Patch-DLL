@@ -504,6 +504,8 @@ function WarStateChangedHandler( iTeam1, iTeam2, bWar )
 			Controls.WarButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEGOTIATE_PEACE" ));
 			Controls.TradeButton:SetDisabled(true);
 			Controls.DemandButton:SetDisabled(true);
+			Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+			Controls.DemandButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON_TT" ));
 			Controls.DiscussButton:SetDisabled(false);
 		else
 			Controls.WarButton:SetText(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR" ));

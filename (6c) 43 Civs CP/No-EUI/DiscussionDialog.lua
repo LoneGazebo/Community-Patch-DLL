@@ -1606,8 +1606,26 @@ function OnCloseLeaderPanelButton()
 	Controls.Button7:SetDisabled(false);
 	Controls.Button8:SetDisabled(false);
 	Controls.Button9:SetDisabled(false);
-	Controls.Button10:SetDisabled(false);
-	Controls.Button11:SetDisabled(false);
+	Controls.Button10:SetDisabled(true);
+	Controls.Button11:SetDisabled(true);
+
+	local pAIPlayer = Players[g_iAIPlayer];
+	local iActivePlayer = Game.GetActivePlayer();
+
+	-- Buttons 10 and 11 are a special case - only enabled if valid
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+
+		if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
+			if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
+				Controls.Button10:SetDisabled(false);
+			end
+		end
+
+		-- Share Opinion button: Button 11
+		if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+			Controls.Button11:SetDisabled(false);
+		end
+	end
 	
     Controls.LeaderPanel:SetHide( true );
 end
