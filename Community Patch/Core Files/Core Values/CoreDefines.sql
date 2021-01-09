@@ -339,10 +339,6 @@ SELECT 'MAX_PLOTS_PER_EXPLORER', '20';
 INSERT INTO Defines (Name, Value)
 SELECT 'BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT', '0';
 
--- Number of turns for a military promise
-INSERT INTO Defines (Name, Value)
-SELECT 'MOVE_TROOPS_MEMORY_TURN_EXPIRATION', '20';
-
 -- AI Military Strategies - no CSs
 
 UPDATE AIMilitaryStrategies
