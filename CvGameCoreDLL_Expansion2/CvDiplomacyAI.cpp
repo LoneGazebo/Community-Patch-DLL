@@ -8893,6 +8893,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	// Reset overall war state
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
 	SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -8903,6 +8904,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
 			WarStateTypes eWarState = NO_WAR_STATE_TYPE;
+			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false);
 
 			// Evaluate our danger and their danger from this war
 			int iOurDanger = 1;
@@ -8926,7 +8928,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 				{
 					iDangerMod += 2;
-					if (pLoopCity->isCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)))
+					if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
 					{
 						bSeriousDangerUs = true;
 					}
@@ -8945,9 +8947,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				
 				if (pLoopCity->isCapital())
 					iDangerMod *= 3;
-				else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
+				else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
 					iDangerMod *= 2;
-				else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || (pLoopCity->getNumNationalWonders() > 0))
+				else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
 				{
 					if (iDangerMod > 0)
 						iDangerMod++;
@@ -8981,7 +8983,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 					{
 						iDangerMod += 2;
-						if (pLoopCity->isCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false)))
+						if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
 						{
 							bSeriousDangerThem = true;
 						}
@@ -9001,7 +9003,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					
 					if (pLoopCity->isCapital())
 						iDangerMod *= 3;
-					else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
+					else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
 						iDangerMod *= 2;
 					else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
 					{
@@ -11374,6 +11376,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	int iTheirDanger = 0;
 	bool bSeriousDangerUs = false;
 	bool bSeriousDangerThem = false;
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);	
+	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
 	int iLoop;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
@@ -11388,7 +11392,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 		{
 			iDangerMod += 2;
-			if (pLoopCity->isCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)))
+			if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
 			{
 				bSeriousDangerUs = true;
 			}
@@ -11407,9 +11411,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		
 		if (pLoopCity->isCapital())
 			iDangerMod *= 3;
-		else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(m_pPlayer->GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
+		else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
 			iDangerMod *= 2;
-		else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || (pLoopCity->getNumNationalWonders() > 0))
+		else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->getNumNationalWonders() > 0)
 		{
 			if (iDangerMod > 0)
 				iDangerMod++;
@@ -11434,7 +11438,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			else if (pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand())
 			{
 				iDangerMod += 2;
-				if (pLoopCity->isCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false)))
+				if (pLoopCity->isCapital() || pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)))
 				{
 					bSeriousDangerThem = true;
 				}
@@ -11454,7 +11458,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			
 			if (pLoopCity->isCapital())
 				iDangerMod *= 3;
-			else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false)) || (pLoopCity->getNumWorldWonders() > 0))
+			else if (pLoopCity->IsOriginalMajorCapital() || (eMyReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion)) || (eTheirReligion != NO_RELIGION && pLoopCity->GetCityReligions()->IsHolyCityForReligion(eTheirReligion)) || pLoopCity->getNumWorldWonders() > 0)
 				iDangerMod *= 2;
 			else if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
 			{
@@ -11673,30 +11677,126 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		return true;
 	}
 
+	bool bReadyForVassalage = false;
+	if (GET_PLAYER(ePlayer).isMajorCiv())
+	{
+		if (!IsCapitalCapturedBy(ePlayer, false, true) && !IsHolyCityCapturedBy(ePlayer, false, true) && !IsEndgameAggressiveTo(ePlayer) && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam()))
+		{
+			if (!(GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || IsGoingForWorldConquest() || IsCloseToDominationVictory()) || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+			{
+				bReadyForVassalage = true;
+			}
+		}
+	}
+
+	// Ready to make this player our vassal - want peace
+	if (bReadyForVassalage)
+	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = m_pPlayer->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_Peace_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+			strBaseString += playerName + " VS. " + otherPlayerName;
+
+			strOutBuf.Format("We're ready to vassalize this major civ!");
+
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+
+		return true;
+	}
+
 	int iWantPeace = 0;
 	int iRequestPeaceTurnThreshold = /*11*/ GC.getREQUEST_PEACE_TURN_THRESHOLD() - m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
 	// Danger considerations
-	iWantPeace += iOurDanger;
+	int iOurMultiplier = 1;
+	int iTheirMultiplier = 1;
+
+	if (GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
+	{
+		if (IsEasyTarget(ePlayer))
+		{
+			iOurMultiplier++;
+		}
+		if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
+		{
+			iOurMultiplier++;
+		}
+		if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
+		{
+			iOurMultiplier++;
+		}
+	}
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING || GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
+	{
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(GetPlayer()->GetID()))
+		{
+			iTheirMultiplier++;
+		}
+		if (GetPlayer()->GetMilitaryAI()->HaveCityExposedToEnemy(ePlayer))
+		{
+			iTheirMultiplier++;
+		}
+		if (GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
+		{
+			iTheirMultiplier++;
+		}
+	}
 
 	// They're in danger and we're not? Let's hold out longer!
 	if (iOurDanger == 0 && iTheirDanger > 0)
 	{
-		int iMultiplier = 1;
-		if (IsEasyTarget(ePlayer))
+		if (GetPlayerNumTurnsSinceCityCapture(ePlayer) < 30 || iOurMultiplier > 2 || bSeriousDangerThem)
 		{
-			iMultiplier++;
+			iWantPeace -= (5 * iTheirDanger * iOurMultiplier);
 		}
-		if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
+		else
 		{
-			iMultiplier++;
+			iWantPeace -= (2 * iTheirDanger * iOurMultiplier);
 		}
-
-		iWantPeace -= (5 * iTheirDanger * iMultiplier);
 	}
+	// We're in danger and they're not? Let's hold out less!
+	else if (iOurDanger > 0 && iTheirDanger == 0)
+	{
+		if (iWarScore < -15 || iTheirMultiplier > 2 || bSeriousDangerUs)
+		{
+			iWantPeace += (5 * iOurDanger * iTheirMultiplier);
+		}
+		else
+		{
+			iWantPeace += (2 * iOurDanger * iTheirMultiplier);
+		}
+	}
+	// We're both in danger - how much?
 	else
 	{
-		iWantPeace += (iTheirDanger * -1);
+		iWantPeace -= (2 * iTheirDanger * iOurMultiplier);
+		iWantPeace += (2 * iOurDanger * iTheirMultiplier);
 	}
 
 	// Negative warscore means we're losing, so peace desire is higher!

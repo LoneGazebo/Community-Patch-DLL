@@ -105,8 +105,8 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(bool bNaturalWonderPlot) const
 /// Check if a plot gains yields from a particular feature
 bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNaturalWonderPlot) const
 {
-	CvAssertMsg(iFeature < GC.getNumFeatureInfos(), "Index out of bounds");
-	CvAssertMsg(iFeature > -1, "Index out of bounds");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(eFeature > -1, "Index out of bounds");
 
 	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
