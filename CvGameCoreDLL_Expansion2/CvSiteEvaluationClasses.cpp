@@ -704,13 +704,12 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	{
 		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(S) chokepoint");
-
-		//each landbride is a chokepoint, but not every chokepoint is a landbridge
-		if(pPlot->IsLandbridge(12,54))
-		{
-			iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
-			if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
-		}
+	}
+	//Can we create a canal here?
+	if(pPlot->IsWaterAreaSeparator())
+	{
+		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
+		if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
 	}
 
 	// AI only (and not for initial city)

@@ -29054,7 +29054,11 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}
-	if (pPlot->IsChokePoint() || pPlot->IsLandbridge(12, 54))
+	if (pPlot->IsChokePoint())
+	{
+		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+	}
+	if (pPlot->IsWaterAreaSeparator())
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}

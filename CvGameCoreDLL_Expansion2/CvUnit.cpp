@@ -4777,11 +4777,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(!isConvertUnit())
 		{
 			bool bNoEnemy = IsCanAttack() && !(iMoveFlags & MOVEFLAG_ATTACK);
-			if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy) && enterPlot.isAdjacentToShallowWater()))
+			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
 				return false;
 #else
 		bool bNoEnemy = IsCanAttack() && !(iMoveFlags & MOVEFLAG_ATTACK);
-		if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy) && enterPlot.isAdjacentToShallowWater()))
+		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
 			return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -4790,7 +4790,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			if(isConvertUnit())
 			{
-				if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), true)) && !enterPlot.isAdjacentToShallowWater())
+				if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
 					return false;
 			}
 		}

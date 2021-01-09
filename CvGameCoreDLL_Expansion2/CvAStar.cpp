@@ -3163,11 +3163,20 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		return TRUE;
 
 	//check passable improvements
-	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false) && pNewPlot->isAdjacentToShallowWater())
+	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false))
 	{
 		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
 		//so we have to allow all cities and forts
 		return TRUE;
+	}
+
+	//check for shortcuts ...
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_CANALS))
+	{
+		CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+		//only single plot canals on plots without resource
+		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
+			return pNewPlot->getResourceType(pCacheData->GetTeam()) == NO_RESOURCE;
 	}
 
 	return FALSE;

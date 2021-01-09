@@ -171,6 +171,8 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 
 	kStream >> m_routeNeededPlots;
 	kStream >> m_routeWantedPlots;
+	kStream >> m_canalWantedPlots;
+	kStream >> m_canalNeededPlots;
 }
 
 /// Serialization write
@@ -183,12 +185,15 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 
 	kStream << m_routeNeededPlots;
 	kStream << m_routeWantedPlots;
+	kStream << m_canalWantedPlots;
+	kStream << m_canalNeededPlots;
 }
 
 /// Update
 void CvBuilderTaskingAI::Update(void)
 {
 	UpdateRoutePlots();
+	UpdateCanalPlots();
 
 	m_eRouteBuild = GetBuildRoute();
 
@@ -500,6 +505,39 @@ bool CvBuilderTaskingAI::NeedRouteAtPlot(const CvPlot* pPlot) const
 	return (it != m_routeNeededPlots.end());
 }
 
+bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	//do not put forts on resources
+	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
+	if (eResource != NO_RESOURCE)
+		return false;
+
+	//no canals next to cities, cities are passable anyway
+	if (m_pPlayer->GetCityDistanceInPlots(pPlot) < 2)
+		return false;
+
+	//the wanted plots have only shortcuts, but for an inland sea we can check directly
+	if (pPlot->IsWaterAreaSeparator())
+		return true;
+
+	set<int>::const_iterator it = m_canalWantedPlots.find(pPlot->GetPlotIndex());
+	return (it != m_canalWantedPlots.end());
+}
+
+bool CvBuilderTaskingAI::NeedCanalAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	//do not check for a landbrige here, if the canal is useful it will be included in the needed plots
+
+	set<int>::const_iterator it = m_canalNeededPlots.find(pPlot->GetPlotIndex());
+	return (it != m_canalNeededPlots.end());
+}
+
 void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
 {
 	if (!pPlot)
@@ -531,6 +569,106 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 		return it->second.second;
 	else
 		return -1;
+}
+
+void CvBuilderTaskingAI::UpdateCanalPlots()
+{
+	//not needed every turn ... simple performance optimization
+	if ((GC.getGame().getGameTurn() + m_pPlayer->GetID()) % 7 == 0)
+		return;
+
+	//only majors build canals
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	m_canalNeededPlots.clear();
+	m_canalWantedPlots.clear();
+
+	vector<CvPlot*> vDestPlots;
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		int iCity;
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
+			vDestPlots.push_back(pDestCity->plot());
+	}
+
+	//first we collect all candidates, then enforce a minimum distance
+	vector<CvPlot*> tempCanals;
+
+	int iOriginCityLoop;
+	for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
+	{
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_TRADE_WATER);
+		//this is the important flag
+		data.iFlags = CvUnit::MOVEFLAG_PRETEND_CANALS;
+		//doesn't really matter but we don't want to underestimate the real range, so use the real range
+		data.iMaxNormalizedDistance = m_pPlayer->GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
+
+		//get all paths
+		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
+		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
+		{
+			// if this is the origin city, nothing to do
+			if (pOriginCity->plot() == it->first)
+				continue;
+
+			CvCity* pDestCity = it->first->getPlotCity();
+			SPath currentPath;
+			//make sure we have a path to compare against, otherwise the shortcut might be useless once the map is revealed
+			if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOriginCity, pDestCity, &currentPath))
+			{
+				//if the path with canals is much shorter
+				if (currentPath.length() > it->second.length() + 12)
+				{
+					//find the non-existing canal
+					CvPlot* pNewPlot = NULL;
+					int iCanalCount = 0;
+					for (int i = 0; i < it->second.length(); i++)
+					{
+						CvPlot* pCheck = it->second.get(i);
+
+						if (pCheck->isWater() || pCheck->isCity())
+							continue;
+
+						//existing canal still in use, remember that so we don't replace it by something else
+						if (pCheck->IsImprovementPassable())
+						{
+							if (pCheck->getOwner() == m_pPlayer->GetID())
+								m_canalNeededPlots.insert(pCheck->GetPlotIndex());
+						}
+						else
+						{
+							//this is where we must build a canal
+							//make sure there is only one in the path, we don't want lots of small shortcuts but a single big one
+							iCanalCount++;
+							pNewPlot = pCheck;
+						}
+					}
+
+					//got it!
+					if (pNewPlot && iCanalCount == 1 && pNewPlot->getOwner() == m_pPlayer->GetID())
+					{
+						//one more thing, we don't want to put a canal next to a city
+						//could be useful if the city is inland but let's not get started on this
+						if (m_pPlayer->GetCityDistanceInPlots(pNewPlot)>1)
+							tempCanals.push_back(pNewPlot);
+					}
+				}
+			}
+		}
+	}
+
+	//keep only one if they are too close to each other
+	set<int> ignoreIndex;
+	for (size_t i = 0; i < tempCanals.size(); i++)
+		for (size_t j = i; j < tempCanals.size(); j++)
+			if (plotDistance(*tempCanals[i], *tempCanals[j]) < 4)
+				ignoreIndex.insert(j);
+
+	for (size_t i = 0; i < tempCanals.size(); i++)
+		if (ignoreIndex.find(i) == ignoreIndex.end())
+			m_canalWantedPlots.insert( tempCanals[i]->GetPlotIndex() );
 }
 
 
@@ -1983,21 +2121,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 {
 	UpdateProjectedPlotYields(pPlot, eBuild);
 
-#if defined(MOD_BALANCE_CORE)
-	if(eImprovement == NO_IMPROVEMENT)
-	{
+	if(eImprovement == NO_IMPROVEMENT || eBuild == NO_BUILD)
 		return -1;
-	}
-	if(eBuild == NO_BUILD)
-	{
-		return -1;
-	}
 
 	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
 	if(!pImprovement)
-	{
 		return -1;
-	}
+
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 
 	//Some base value.
@@ -2072,7 +2202,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			iYieldScore -= iSmallBuff;
 		}
 	}
-#endif
+
 	CvCity* pCity = pPlot->getOwningCity();
 	//Great improvements are great!
 	if (pImprovement->IsCreatedByGreatPerson() && pImprovement->GetCultureBombRadius() <= 0)
@@ -2101,7 +2231,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			iYieldScore += iSmallBuff;
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Plots with resources on them need emphasis, especially if they offer happiness.
 		if (!pImprovement->IsCreatedByGreatPerson() && pPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 		{
@@ -2490,25 +2620,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			iSecondaryScore -= iRouteScore;
 	}
 
-	//City adjacenct improvement? Ramp it up!
+	//City adjacenct improvement? Ramp it up - other stuff can move somewhere else
 	if(pImprovement->IsAdjacentCity() && pPlot->IsAdjacentCity())
 	{
 		iSecondaryScore += iBigBuff;
 	}
-	//Holy Sites should be built near Holy Cities.
-	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
-	if (eHolySite != NO_IMPROVEMENT && eHolySite == eImprovement)
-	{
-		ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
-		if(eReligion != NO_RELIGION)
-		{
-			if(pPlot->getOwningCity() != NULL && pPlot->getOwningCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
-			{
-				iSecondaryScore += iBigBuff;
-			}
-		}
-	}
-	
+
 	//Does this improvement connect a resource? Increase the score!
 	if(eResource != NO_RESOURCE)
 	{
@@ -2578,7 +2695,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 
-	int iDefense = 0;
 	//Fort test.
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	if (eFort != NO_IMPROVEMENT && eImprovement == eFort && pPlot->canBuild(eBuild, m_pPlayer->GetID()))
@@ -2589,36 +2705,31 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
 				//looking to build a fort
-				iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-				if(iDefense==0)
+				int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+				if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+					iFortScore += iBigBuff*3;
+
+				if(iFortScore==0)
 					return -1;
 
-				if (iDefense > iSecondaryScore)
-					iSecondaryScore = iDefense;
+				if (iFortScore > iSecondaryScore)
+					iSecondaryScore = iFortScore;
 			}
 		}
 	}
 	//Looking to build something else on top of a fort? It'd better be good.
-	else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
+	else if(eImprovement != eFort && pPlot->getImprovementType() != eFort)
 	{
-		if(pPlot->getImprovementType() == eFort)
-		{
-			//looking to replace a fort
-			iDefense = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-		}
-		if ((iDefense * 3) > (iSecondaryScore * 2))
-		{
+		//looking to replace a fort - score might have changed because the border moved!
+		int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+		if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+			iFortScore += iBigBuff*3;
+
+		if (iFortScore * 4 > iSecondaryScore * 3)
 			return -1;
-		}
 	}
-#endif
-	//if we're doing this solely for the secondary benefit, let's not overweight it. We need yields first and foremost.
-	if (iYieldScore < iSecondaryScore)
-		iSecondaryScore /= 2;
 
-	iScore = iYieldScore + iSecondaryScore;
-
-	return iScore;
+	return iYieldScore + iSecondaryScore;
 }
 
 BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement)

@@ -98,7 +98,7 @@ struct TradeConnection
 
 typedef std::vector<TradeConnection> TradeConnectionList;
 
-//plot index -> plot index -> path
+//org plot index -> dst plot index -> path
 typedef std::map<int,std::map<int,SPath>> TradePathLookup;
 
 class CvGameTrade
@@ -197,15 +197,15 @@ public:
 
 	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
-	void UpdateTradePathCache(uint iOriginPlayer);
-	void InvalidateTradePathCache(uint iPlayer);
+	void UpdateTradePathCache(PlayerTypes iOriginPlayer);
+	void InvalidateTradePathCache(PlayerTypes iPlayer);
 
 protected:
 
 	TradeConnectionList m_aTradeConnections;
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
-	std::map<uint,int> m_lastTradePathUpdate;
+	std::map<PlayerTypes,int> m_lastTradePathUpdate;
 	std::vector<vector<int>> m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 
