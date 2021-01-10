@@ -21367,7 +21367,7 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 #if defined(MOD_BALANCE_CORE)
 			if (pkBuilding)// || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 #else
-			if (pkBuilding>// || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			if (pkBuilding)// || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
 				for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)

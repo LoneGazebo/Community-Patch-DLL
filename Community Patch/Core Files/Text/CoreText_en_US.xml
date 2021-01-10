@@ -2827,7 +2827,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
-			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
+			<Text>Cannot have Gold and Gold Per Turn/Resources in same trade.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
