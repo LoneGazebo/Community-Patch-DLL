@@ -299,6 +299,8 @@ public:
 	void SetDemandTargetPlayer(PlayerTypes ePlayer);
 	bool HasEndedFriendshipThisTurn() const;
 	void SetEndedFriendshipThisTurn(bool bValue);
+	bool IsAvoidDeals() const;
+	void SetAvoidDeals(bool bValue);
 	bool IsDemandReady() const;
 	void SetDemandReady(bool bValue);
 
@@ -1190,7 +1192,7 @@ public:
 	// Planning Exchanges
 	void DoRelationshipPairing();
 	void DoUpdatePlanningExchanges();
-	bool AvoidExchangesWithPlayer(PlayerTypes ePlayer) const;
+	bool AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly = false) const;
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
 	bool IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer);
@@ -1869,6 +1871,7 @@ private:
 	PlayerTypes m_eCSBullyTarget;
 
 	// Other Global Memory
+	bool m_bAvoidDeals; // Not serialized!
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bDemandReady;
 	bool m_bBackstabber;

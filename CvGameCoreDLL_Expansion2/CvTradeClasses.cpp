@@ -6294,8 +6294,10 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		return ValuesVector;
 
 	// don't send trade routes if we're about to declare war?
-	// todo: should we consider diplomatic stance as well?
 	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)
+		return ValuesVector;
+
+	if (m_pPlayer->GetDiplomacyAI()->AvoidExchangesWithPlayer(kTradeConnection.m_eDestOwner, true))
 		return ValuesVector;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);

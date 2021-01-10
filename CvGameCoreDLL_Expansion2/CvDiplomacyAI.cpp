@@ -98,6 +98,7 @@ void CvDiplomacyAI::Reset()
 	m_eCSBullyTarget = NO_PLAYER;
 
 	// Other Global Memory
+	m_bAvoidDeals = false; // Not serialized!
 	m_bEndedFriendshipThisTurn = false;
 	m_bDemandReady = false;
 	m_bBackstabber = false;
@@ -2764,6 +2765,17 @@ bool CvDiplomacyAI::HasEndedFriendshipThisTurn() const
 void CvDiplomacyAI::SetEndedFriendshipThisTurn(bool bValue)
 {
 	m_bEndedFriendshipThisTurn = bValue;
+}
+
+/// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
+bool CvDiplomacyAI::IsAvoidDeals() const
+{
+	return m_bAvoidDeals;
+}
+
+void CvDiplomacyAI::SetAvoidDeals(bool bValue)
+{
+	m_bAvoidDeals = bValue;
 }
 
 /// Are we ready to make a demand to GetDemandTargetPlayer?
@@ -19975,10 +19987,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 				vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-				vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 				vScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
 				vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-				vScratchValueOverrides[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 			}
 		}
 	}
@@ -21544,7 +21554,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 }
 
 /// Should we avoid making certain agreements with this player?
-bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly) const
 {
 	if (IsAtWar(ePlayer))
 		return true;
@@ -21569,28 +21579,57 @@ bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer) const
 			if (GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
 				continue;
 
-			// Hostile visible approach from them
-			if (!GET_PLAYER(vTheirTeam[j]).isHuman() && pDiploAI->GetVisibleApproachTowardsUs(vTheirTeam[j]) == MAJOR_CIV_APPROACH_HOSTILE)
-				return true;
-
-			// Has there been a denouncement in either direction?
-			if (pDiploAI->IsDenouncedPlayer(vTheirTeam[j]) || pDiploAI->IsDenouncedByPlayer(vTheirTeam[j]))
-				return true;
-
-			// Are we planning war?
-			if (pDiploAI->GetGlobalCoopWarAgainstState(vTheirTeam[j]) >= COOP_WAR_STATE_PREPARING)
-				return true;
-
-			if (!GET_PLAYER(vOurTeam[i]).isHuman())
+			if (GET_PLAYER(vTheirTeam[j]).isMajorCiv())
 			{
-				if (pDiploAI->GetMajorCivApproach(vTheirTeam[j]) <= MAJOR_CIV_APPROACH_HOSTILE)
+				// Hostile visible approach from them
+				if (!bWarOnly)
+				{
+					if (!GET_PLAYER(vTheirTeam[j]).isHuman() && pDiploAI->GetVisibleApproachTowardsUs(vTheirTeam[j]) == MAJOR_CIV_APPROACH_HOSTILE)
+						return true;
+
+					// Has there been a denouncement in either direction?
+					if (pDiploAI->IsDenouncedPlayer(vTheirTeam[j]) || pDiploAI->IsDenouncedByPlayer(vTheirTeam[j]))
+						return true;
+				}
+
+				// Are we planning war?
+				if (pDiploAI->GetGlobalCoopWarAgainstState(vTheirTeam[j]) >= COOP_WAR_STATE_PREPARING)
 					return true;
 
-				if (pDiploAI->GetMajorCivOpinion(vTheirTeam[j]) <= MAJOR_CIV_OPINION_ENEMY)
-					return true;
+				if (!GET_PLAYER(vOurTeam[i]).isHuman())
+				{
+					if (bWarOnly)
+					{
+						if (pDiploAI->GetMajorCivApproach(vTheirTeam[j]) == MAJOR_CIV_APPROACH_WAR)
+							return true;
 
-				if (pDiploAI->IsWantsSneakAttack(vTheirTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vTheirTeam[j]))
-					return true;
+						if (pDiploAI->IsWantsSneakAttack(vTheirTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vTheirTeam[j]))
+							return true;
+					}
+					else
+					{
+						if (pDiploAI->GetMajorCivApproach(vTheirTeam[j], false) <= MAJOR_CIV_APPROACH_HOSTILE)
+							return true;
+
+						if (pDiploAI->GetMajorCivApproach(vTheirTeam[j], true) != MAJOR_CIV_APPROACH_FRIENDLY && pDiploAI->GetMajorCivOpinion(vTheirTeam[j]) <= MAJOR_CIV_OPINION_ENEMY)
+							return true;
+
+						if (pDiploAI->IsWantsSneakAttack(vTheirTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vTheirTeam[j]))
+							return true;
+					}
+				}
+			}
+			else if (GET_PLAYER(vTheirTeam[j]).isMinorCiv())
+			{
+				// Planning to conquer this City-State?
+				if (!GET_PLAYER(vOurTeam[i]).isHuman())
+				{
+					if (pDiploAI->GetCSWarTargetPlayer() == vTheirTeam[j])
+						return true;
+
+					if (pDiploAI->GetMinorCivApproach(vTheirTeam[j]) == MINOR_CIV_APPROACH_CONQUEST)
+						return true;
+				}
 			}
 		}
 	}
@@ -21615,6 +21654,29 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	// If we're willing to end our friendship with them, don't make friends with them!
 	if (IsDenounceAcceptable(ePlayer) || IsEndDoFAcceptable(ePlayer, true) || IsDenounceFriendAcceptable(ePlayer))
 		return false;
+
+	// Recent peace treaty?
+	if (GetNumWarsFought(ePlayer) > 0)
+	{
+		int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(ePlayer).getTeam());
+		if (iPeaceTreatyTurn > -1)
+		{
+			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+
+			if (MOD_BALANCE_CORE_DIFFICULTY)
+			{
+				iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
+				if (iPeaceDampenerTurns < 11)
+					iPeaceDampenerTurns = 11;
+			}
+
+			iPeaceDampenerTurns += 10; // to account for the approach curve; hostility weight is zeroed out and then climbs up gradually...
+
+			if (iTurnsSincePeace < iPeaceDampenerTurns)
+				return false;
+		}
+	}
 
 	return true;
 }
@@ -21647,9 +21709,36 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	// Untrustworthy?
 	if (IsUntrustworthy(ePlayer))
 		return false;
-	
+
 	// If we're willing to end our friendship with them, don't make a DP with them!
-	if (IsDenounceAcceptable(ePlayer) || IsEndDoFAcceptable(ePlayer, true) || IsDenounceFriendAcceptable(ePlayer))
+	if (IsWantsToEndDoFWithPlayer(ePlayer) || IsDenounceAcceptable(ePlayer) || IsEndDoFAcceptable(ePlayer, true) || IsDenounceFriendAcceptable(ePlayer))
+		return false;
+
+	// Recent peace treaty?
+	if (GetNumWarsFought(ePlayer) > 0)
+	{
+		int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(ePlayer).getTeam());
+		if (iPeaceTreatyTurn > -1)
+		{
+			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+
+			if (MOD_BALANCE_CORE_DIFFICULTY)
+			{
+				iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
+				if (iPeaceDampenerTurns < 11)
+					iPeaceDampenerTurns = 11;
+			}
+
+			iPeaceDampenerTurns += 10; // to account for the approach curve; hostility weight is zeroed out and then climbs up gradually...
+
+			if (iTurnsSincePeace < iPeaceDampenerTurns)
+				return false;
+		}
+	}
+
+	// Planning war? Have to check this here as well because of the GetDefensePactsToVotes edge case...
+	if (AvoidExchangesWithPlayer(ePlayer))
 		return false;
 
 	return true;
@@ -21682,15 +21771,15 @@ bool CvDiplomacyAI::IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer)
 	// Untrustworthy?
 	if (IsUntrustworthy(ePlayer))
 		return false;
-	
+
 	// If we're willing to end our friendship with them, don't make a RA with them!
-	if (IsEndDoFAcceptable(ePlayer) || IsDenounceFriendAcceptable(ePlayer))
+	if (IsWantsToEndDoFWithPlayer(ePlayer) || IsEndDoFAcceptable(ePlayer) || IsDenounceFriendAcceptable(ePlayer))
 		return false;
 
 	// One of us has already researched all techs
 	if (GET_TEAM(GetTeam()).GetTeamTechs()->HasResearchedAllTechs() || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasResearchedAllTechs())
 		return false;
-	
+
 	return true;
 }
 
@@ -22099,6 +22188,20 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(*it).getTeam(), GetID()))
 				continue;
 
+			// Recent peace treaty?
+			if (GetNumWarsFought(*it) > 0)
+			{
+				int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(*it).getTeam());
+				if (iPeaceTreatyTurn > -1)
+				{
+					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+					int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+
+					if (iTurnsSincePeace < iPeaceDampenerTurns)
+						continue;
+				}
+			}
+
 			// Need a valid (bad) approach towards this player
 			bool bValidApproach = false;
 			MajorCivApproachTypes eApproach = GetMajorCivApproach(*it, false);
@@ -22379,6 +22482,27 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			{
 				SetPotentialWarTarget(ePlayer, false);
 				continue;
+			}
+
+			// Recent peace treaty?
+			if (GetNumWarsFought(ePlayer) > 0)
+			{
+				int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(ePlayer).getTeam());
+				if (iPeaceTreatyTurn > -1)
+				{
+					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
+					int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
+
+					if (MOD_BALANCE_CORE_DIFFICULTY)
+					{
+						iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
+						if (iPeaceDampenerTurns < 11)
+							iPeaceDampenerTurns = 11;
+					}
+
+					if (iTurnsSincePeace < iPeaceDampenerTurns)
+						continue;
+				}
 			}
 
 			if (!IsUntrustworthy(ePlayer))
@@ -29012,6 +29136,12 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	// AT PEACE
 	if (!IsAtWar(ePlayer))
 	{
+		// Avoiding exchanges?
+		if (AvoidExchangesWithPlayer(ePlayer))
+		{
+			SetAvoidDeals(true);
+		}
+
 		//DoCoopWarTimeStatement(ePlayer, eStatement, iData1);
 		DoCoopWarStatement(ePlayer, eStatement, iData1);
 		DoRenewExpiredDeal(ePlayer, eStatement, pDeal);
@@ -29155,6 +29285,9 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		// If not offering peace, can still denounce while at war!
 		DoDenounceStatement(ePlayer, eStatement);
 	}
+
+	// Reset avoiding deals value
+	SetAvoidDeals(false);
 
 #if !defined(FINAL_RELEASE)
 	// Check for an optional message injection from the Tuner
@@ -30530,6 +30663,9 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 	if (GetPlayer()->IsNoNewWars())
 		return;
 
+	if (IsAvoidDeals())
+		return;
+
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		PlayerTypes eTargetPlayer;
@@ -31323,6 +31459,9 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (IsAvoidDeals())
+		return;
+
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
 
@@ -31354,6 +31493,9 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -31410,6 +31552,9 @@ void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eSt
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (IsAvoidDeals())
+		return;
+
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
 
@@ -31444,6 +31589,9 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -31505,6 +31653,9 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (IsAvoidDeals())
+		return;
+
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
 
@@ -31539,6 +31690,9 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -31579,6 +31733,9 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (IsAvoidDeals())
+		return;
+
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
 
@@ -31610,6 +31767,9 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
@@ -31749,6 +31909,9 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (IsAvoidDeals())
+		return;
+
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
 
@@ -31786,7 +31949,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING)
+		if (IsAvoidDeals())
 		{
 			CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 			return;
@@ -31960,6 +32123,9 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsGiftOffersDisabled())
 		return;
@@ -50448,6 +50614,9 @@ void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsAvoidDeals())
+		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsTradeOffersDisabled())
 		return;
