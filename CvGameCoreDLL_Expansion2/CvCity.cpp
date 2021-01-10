@@ -21357,17 +21357,17 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 		{
 			CvBuildingEntry* pkBuilding = NULL;
 #if defined(MOD_BALANCE_CORE)
-			if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
+			//if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 #else
-			if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			//if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
 				pkBuilding = GC.getBuildingInfo(eBuilding);
 			}
 #if defined(MOD_BALANCE_CORE)
-			if (pkBuilding || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+			if (pkBuilding)// || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 #else
-			if (pkBuilding || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			if (pkBuilding>// || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
 			{
 				for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
@@ -21375,30 +21375,30 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes)jJ;
 					int iHappinessPerBuilding = 0;
 #if defined(MOD_BALANCE_CORE)
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+					//if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 #else
 					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 #endif
-					{
-						int iLoop;
-						for (const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-						{
-							if (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice && pLoopCity->IsPuppet())
-							{
-								continue;
-							}
-							eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-							if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-							{
-								pkBuilding = GC.getBuildingInfo(eBuilding);
-								if (pkBuilding)
-								{
-									iHappinessPerBuilding += pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
-								}
-							}
-						}
-					}
-					else
+					//{
+					//	int iLoop;
+					//	for (const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					//	{
+					//		if (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice && pLoopCity->IsPuppet())
+					//		{
+					//			continue;
+					//		}
+					//		eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+					//		if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					//		{
+					//			pkBuilding = GC.getBuildingInfo(eBuilding);
+					//			if (pkBuilding)
+					//			{
+					//				iHappinessPerBuilding += pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
+					//			}
+					//		}
+					//	}
+					//}
+					//else
 					{
 						iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness) * kPlayer.getNumBuildings(eBuilding);
 					}
