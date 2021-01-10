@@ -19924,26 +19924,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	vector<int> vScratchValueOverrides(NUM_MAJOR_CIV_APPROACHES, -1);
 
-	if (!GET_TEAM(eTeam).canDeclareWar(eMyTeam, ePlayer) && !IsAtWar(ePlayer)) // Why be afraid of players who can't attack us?
-	{
-		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] = 0;
-		vScratchValueOverrides[MAJOR_CIV_APPROACH_AFRAID] = 0;
-	}
-
 	// No valid attack target?
 	if (!GetPlayer()->GetMilitaryAI()->HavePossibleAttackTarget(ePlayer))
-	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-		vScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
-		vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-	}
-
-	////////////////////////////////////
-	// Disfavor war if we can't even attack them!
-	////////////////////////////////////
-
-	if (!GET_TEAM(eMyTeam).canDeclareWar(eTeam, eMyPlayer) && !IsAtWar(ePlayer))
 	{
 		vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
@@ -19968,6 +19950,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
 	////////////////////////////////////
 
+	bool bRecentPeaceTreaty = false;
+
 	if (GetNumWarsFought(ePlayer) > 0)
 	{
 		int iPeaceTreatyTurn = GET_TEAM(eMyTeam).GetTurnMadePeaceTreatyWithTeam(eTeam);
@@ -19984,6 +19968,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
+				bRecentPeaceTreaty = true;
+
+			if (bRecentPeaceTreaty && !bStrategic) // Don't zero out weight here if this is the strategic update, we don't want to make friends that we would prefer to attack
 			{
 				vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 				vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
@@ -19991,6 +19978,28 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 			}
 		}
+	}
+
+	////////////////////////////////////
+	// Disfavor war if we can't even attack them!
+	////////////////////////////////////
+
+	if (!GET_TEAM(eMyTeam).canDeclareWar(eTeam, eMyPlayer) && !IsAtWar(ePlayer))
+	{
+		if (!bStrategic || !bRecentPeaceTreaty) // For the same reason, don't zero out weight here during the strategic update if we can't attack them due to a recent peace treaty
+		{
+			vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
+			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			vScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
+			vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		}
+	}
+
+	// On the flipside, why be afraid of players who can't attack us?
+	if (!GET_TEAM(eTeam).canDeclareWar(eMyTeam, ePlayer) && !IsAtWar(ePlayer))
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] = 0;
+		vScratchValueOverrides[MAJOR_CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -21664,15 +21673,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
 			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
 
-			if (MOD_BALANCE_CORE_DIFFICULTY)
-			{
-				iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
-				if (iPeaceDampenerTurns < 11)
-					iPeaceDampenerTurns = 11;
-			}
-
-			iPeaceDampenerTurns += 10; // to account for the approach curve; hostility weight is zeroed out and then climbs up gradually...
-
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
 		}
@@ -21722,15 +21722,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
 			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
-
-			if (MOD_BALANCE_CORE_DIFFICULTY)
-			{
-				iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
-				if (iPeaceDampenerTurns < 11)
-					iPeaceDampenerTurns = 11;
-			}
-
-			iPeaceDampenerTurns += 10; // to account for the approach curve; hostility weight is zeroed out and then climbs up gradually...
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
@@ -21837,25 +21828,25 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 		switch (GetPlayerMilitaryStrengthComparedToUs(eChoice))
 		{
 		case STRENGTH_PATHETIC:
-			iDPValue = -20;
+			iDPValue += -20;
 			break;
 		case STRENGTH_WEAK:
-			iDPValue = -10;
+			iDPValue += -10;
 			break;
 		case STRENGTH_POOR:
-			iDPValue = 0;
+			iDPValue += 0;
 			break;
 		case STRENGTH_AVERAGE:
-			iDPValue = 5;
+			iDPValue += 5;
 			break;
 		case STRENGTH_STRONG:
-			iDPValue = 10;
+			iDPValue += 10;
 			break;
 		case STRENGTH_POWERFUL:
-			iDPValue = 15;
+			iDPValue += 15;
 			break;
 		case STRENGTH_IMMENSE:
-			iDPValue = 20;
+			iDPValue += 20;
 			break;
 		}
 
@@ -23419,8 +23410,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			{
 				if (IsAtWar(eLoopPlayer) || GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE || IsWantsSneakAttack(eLoopPlayer) || IsArmyInPlaceForAttack(eLoopPlayer) || GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR)
 				{
-					vApproachScores[MINOR_CIV_APPROACH_CONQUEST] = 0;
-					vApproachScores[MINOR_CIV_APPROACH_IGNORE] += vApproachBias[MINOR_CIV_APPROACH_IGNORE] * 2;
+					if (!IsPhonyWar(eLoopPlayer))
+					{
+						vApproachScores[MINOR_CIV_APPROACH_CONQUEST] = 0;
+						vApproachScores[MINOR_CIV_APPROACH_IGNORE] += vApproachBias[MINOR_CIV_APPROACH_IGNORE] * 2;
+					}
 				}
 			}
 		}
