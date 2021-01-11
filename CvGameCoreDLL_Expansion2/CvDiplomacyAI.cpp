@@ -7625,8 +7625,8 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	if(!GetPlayer()->isHuman())
 	{
 		DoDetermineTaxRateForVassals();
-		MakeWar();
 		DoUpdateDemands();
+		MakeWar();
 		DoMakePeaceWithMinors();
 		DoMakePeaceWithVassals();
 		DoContactMinorCivs();
@@ -23767,7 +23767,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	else
 	{
 		bWantToAttack = (GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR) && IsWarSane(eTargetPlayer);
-		bWantShowOfForce = (GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND) && m_pPlayer->IsAtPeace();
+		bWantShowOfForce = (GetDemandTargetPlayer() == eTargetPlayer) && m_pPlayer->IsAtPeace();
 
 		// Don't attack someone else's vassal unless we want to attack the master too
 		if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
@@ -23802,6 +23802,8 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		//we just want to scare them
 		else if (bWantShowOfForce)
 		{
+			SetWarGoal(eTargetPlayer, WAR_GOAL_DEMAND);
+
 			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 		}
 		//we have no operation under way and we don't want to attack anyway
@@ -24417,11 +24419,6 @@ void CvDiplomacyAI::DoUpdateDemands()
 		if (!bExistingValidTarget)
 		{
 			SetDemandTargetPlayer(vePotentialDemandTargets.GetElement(0));
-			SetWarGoal(vePotentialDemandTargets.GetElement(0), WAR_GOAL_DEMAND);
-		}
-		else
-		{
-			SetWarGoal(GetDemandTargetPlayer(), WAR_GOAL_DEMAND); // may have been reset in DoMakeWarOnPlayer()
 		}
 	}
 	else
