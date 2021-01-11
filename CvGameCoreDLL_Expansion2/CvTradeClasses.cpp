@@ -161,21 +161,19 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	return false;
 }
 
-void CvGameTrade::InvalidateTradePathCache(uint iPlayer)
+void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
-	m_lastTradePathUpdate[iPlayer] = -1;
-	m_aPotentialTradePathsWater[iPlayer] = m_dummyTradePaths;
-	m_aPotentialTradePathsLand[iPlayer] = m_dummyTradePaths;
+	m_lastTradePathUpdate[ePlayer] = -1;
 }
 
-void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
+void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 {
-	CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);
+	CvPlayer& kPlayer1 = GET_PLAYER(ePlayer1);
 	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian())
 		return;
 
 	//check if we have anything to do
-	std::map<uint,int>::iterator lastUpdate = m_lastTradePathUpdate.find(iPlayer1);
+	std::map<PlayerTypes,int>::iterator lastUpdate = m_lastTradePathUpdate.find(ePlayer1);
 	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
 
@@ -191,15 +189,16 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			vDestPlots.push_back(pDestCity->plot());
 	}
 
-	//throw away the old data before adding the new
-	InvalidateTradePathCache(iPlayer1);
-
 	int iOriginCityLoop;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
+		//throw away the old data before adding the new
+		m_aPotentialTradePathsLand[pOriginCity->plot()->GetPlotIndex()].clear();
+		m_aPotentialTradePathsWater[pOriginCity->plot()->GetPlotIndex()].clear();
+
 		//first see how far we can go from this city on water
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
-		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
+		SPathFinderUserData data(ePlayer1,PT_TRADE_WATER);
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 
 		//get all paths
@@ -233,7 +232,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 	}
 
-	m_lastTradePathUpdate[iPlayer1]=GC.getGame().getGameTurn();
+	m_lastTradePathUpdate[ePlayer1]=GC.getGame().getGameTurn();
 
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{

@@ -29054,7 +29054,11 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}
-	if (pPlot->IsChokePoint() || pPlot->IsLandbridge(12, 54))
+	if (pPlot->IsChokePoint())
+	{
+		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+	}
+	if (pPlot->IsWaterAreaSeparator())
 	{
 		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
 	}
@@ -30499,14 +30503,18 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 	if (!bAccept)
 		return false;
 
+	//civilians can always stack
+	if (pkUnitInfo->GetCombat() == 0)
+		return true;
+
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		if(pLoopUnit != NULL)
 		{
-			// check stacking
-			if (pkUnitInfo->GetCombat() > 0 && pLoopUnit->IsCanAttack())
+			// check stacking (see also CountStackingUnitsAtPlot)
+			if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType()==pkUnitInfo->GetDomainType())
 				return false;
 		}
 
@@ -30545,6 +30553,11 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		if (IsValidPlotForUnitType(pPlot,getOwner(),pkUnitInfo))
 			validChoices.push_back(pPlot);
 	}
+
+	//first choice is route and no enemy
+	for (size_t i=0; i<validChoices.size(); i++)
+		if (validChoices[i]->isValidRoute(NULL) && validChoices[i]->GetNumEnemyUnitsAdjacent( getTeam(), (DomainTypes)pkUnitInfo->GetDomainType() ) == 0)
+			return validChoices[i];
 
 	//now check for plots with route
 	for (size_t i=0; i<validChoices.size(); i++)

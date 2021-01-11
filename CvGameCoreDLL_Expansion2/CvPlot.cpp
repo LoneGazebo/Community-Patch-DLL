@@ -3789,8 +3789,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 
 bool CvPlot::IsChokePoint() const
 {
-	//only passable hill plots can be chokepoints
-	if(!isHills() || isImpassable(BARBARIAN_TEAM))
+	if(isImpassable(BARBARIAN_TEAM))
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
@@ -3800,43 +3799,45 @@ bool CvPlot::IsChokePoint() const
 	if (iPassable<2 || iPassable>4)
 		return false;
 
-	//each adjacent passable plot must have at least 3 passable neighbors (anti peninsula/dead end valley check)
-	int iPassableAndNoPeninsula = 0;
-	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
+	//each adjacent passable plot must have at least 3 passable neighbors (anti peninsula / mountain valley check)
+	int iPassableNoDeadEnd = 0;
+	CvPlot* aPassableNeighborsNoDeadEnd[NUM_DIRECTION_TYPES];
 	for (int iI = 0; iI<iPassable; iI++)
 	{
-		if (aPassableNeighbors[iI]->countPassableNeighbors(DOMAIN_SEA,NULL)>2)
+		if (aPassableNeighbors[iI]->countPassableNeighbors(DOMAIN_LAND,NULL)>2)
 		{
-			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
-			iPassableAndNoPeninsula++;
+			aPassableNeighborsNoDeadEnd[iPassableNoDeadEnd] = aPassableNeighbors[iI];
+			iPassableNoDeadEnd++;
 		}
 	}
 
-	if (iPassableAndNoPeninsula<2)
+	if (iPassableNoDeadEnd<2)
+	{
 		return false;
-	else if (iPassableAndNoPeninsula==2)
+	}
+	else if (iPassableNoDeadEnd==2)
 	{
 		//check they are not adjacent
-		return !( aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]) );
+		return aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[1]) == false;
 	}
-	else if (iPassableAndNoPeninsula==3)
+	else if (iPassableNoDeadEnd==3)
 	{
 		//three passable plots. not more than one pair may be adjacent
-		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
-		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
-		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int AB = aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[1]) ? 1 : 0;
+		int AC = aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[2]) ? 1 : 0;
+		int BC = aPassableNeighborsNoDeadEnd[1]->isAdjacent(aPassableNeighborsNoDeadEnd[2]) ? 1 : 0;
 
 		return (AB+AC+BC)<2;
 	}
-	else if (iPassableAndNoPeninsula==4)
+	else if (iPassableNoDeadEnd==4)
 	{
 		//four passable plots. not more than two pairs may be adjacent
-		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
-		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
-		int AD = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
-		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
-		int BD = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
-		int CD = int(aPassableNeighborsNonPeninsula[2]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+		int AB = aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[1]) ? 1 : 0;
+		int AC = aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[2]) ? 1 : 0;
+		int AD = aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[3]) ? 1 : 0;
+		int BC = aPassableNeighborsNoDeadEnd[1]->isAdjacent(aPassableNeighborsNoDeadEnd[2]) ? 1 : 0;
+		int BD = aPassableNeighborsNoDeadEnd[1]->isAdjacent(aPassableNeighborsNoDeadEnd[3]) ? 1 : 0;
+		int CD = aPassableNeighborsNoDeadEnd[2]->isAdjacent(aPassableNeighborsNoDeadEnd[3]) ? 1 : 0;
 
 		return (AB+AC+AD+BC+BD+CD)<3;
 	}
@@ -3844,45 +3845,30 @@ bool CvPlot::IsChokePoint() const
 	return false;
 }
 
-bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
+bool CvPlot::IsWaterAreaSeparator() const
 {
-	//only passable land plots can be chokepoints
+	//only passable land plots
 	if(isWater() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
-	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_SAME_AREA, NO_PLAYER);
+	//for simplicity we simply require a different water area on both sides
+	int iFirstWaterArea = -1;
 
-	const CvPlot *pFirstPlot = 0, *pSecondPlot = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 	{
 		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-
 		if(pLoopPlot==NULL || !pLoopPlot->isWater())
 			continue;
 
-		pFirstPlot = pSecondPlot;
-		pSecondPlot = pLoopPlot;
-
-		if (pFirstPlot && pSecondPlot)
+		if (iFirstWaterArea == -1)
 		{
-			//don't use the pathfinder for direct neighbors
-			if(plotDistance(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY())<2)
-				continue;
-
-			//how useful is the shortcut we could generate
-			SPath path = GC.GetStepFinder().GetPath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY(), data);
-			if (!path)
-			{
-				//no path found, perhaps it's two different oceans?
-				if (pFirstPlot->getArea()!=pSecondPlot->getArea() && pFirstPlot->area()->getNumTiles()>iMinOceanSize && pSecondPlot->area()->getNumTiles()>iMinOceanSize)
-					return true;
-			}
-			else
-			{
-				if (path.vPlots.size()>=(size_t)iMinDistanceSaved)
-					return true;
-			}
+			iFirstWaterArea = pLoopPlot->getArea();
+		}
+		else if (pLoopPlot->getArea() != iFirstWaterArea)
+		{
+			//want to have cities on both water bodies, otherwise a canal makes no sense
+			return pLoopPlot->area()->getNumCities() > 0 && GC.getMap().getArea(iFirstWaterArea)->getNumCities() > 0;
 		}
 	}
 
@@ -4319,7 +4305,7 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 {
 	bool bIsCityOrPassable = isCity();
 	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged());
+		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged() && isAdjacentToShallowWater());
 
 	// Not a city or a fort
 	if (!bIsCityOrPassable)
@@ -15179,6 +15165,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			//Adjacent to city? Break!
 			if(pLoopAdjacentPlot->isCity())
 				return 0;
+
 			//impassable is uninteresting
 			if(pLoopAdjacentPlot->isImpassable(eTeam))
 				continue;
@@ -15199,79 +15186,65 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
 					iBadAdjacent++;
 			}
-			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
-			{
-				iAdjacentOwnedOther++;
-				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-					iBadAdjacent++;
-			}
 		}
 	}
 
-	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if(iAdjacentUnowned + iAdjacentOwnedOther > 2 || iBadAdjacent > 0)
+	//if there are no unowned or enemy tiles, don't bother
+	if(iAdjacentUnowned+iAdjacentOwnedOther < 3 && iBadAdjacent == 0)
+		return 0;
+
+	//check the wider area for enemy tiles. may also be on another landmass
+	for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 	{
-		//check the wider area for enemy tiles. may also be on another landmass
-		for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
+		CvPlot* pLoopNearbyPlot = iterateRingPlots(this, i);
+
+		//Don't want them adjacent to cities, but we do want to check for plot ownership.
+		if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam))
 		{
-			CvPlot* pLoopNearbyPlot = iterateRingPlots(this, i);
+			if (!pLoopNearbyPlot->isOwned())
+				continue;
 
-			//Don't want them adjacent to cities, but we do want to check for plot ownership.
-			if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam))
+			if (pLoopNearbyPlot->getOwner() != eOwner)
 			{
-				if (!pLoopNearbyPlot->isOwned())
-					continue;
-
-				if (pLoopNearbyPlot->getOwner() != eOwner)
+				if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 				{
-					if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
-					{
-						iNearbyOwnedOther++;
-						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-							iBadNearby++;
-					}
-					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
-					{
-						iNearbyOwnedOther++;
-						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-							iBadNearby++;
-					}
+					iNearbyOwnedOther++;
+					if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
+						iBadNearby++;
 				}
-
-					//Let's check for owned nearby forts as well
-				if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
-					if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
-						iNearbyForts++;
 			}
+
+				//Let's check for owned nearby forts as well
+			if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
+				if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
+					iNearbyForts++;
 		}
-
-		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-		if (iBadNearby == 0 || iNearbyForts > 2)
-			return 0;
-
-		// Get score for this sentry point (defense and danger)
-		int iScore = defenseModifier(eTeam, true, true);
-
-		//Bonus for nearby owned tiles
-		iScore += (iNearbyOwnedOther * 3);
-		
-		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwnedOther * 4);
-
-		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadAdjacent * 16);
-
-		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadNearby * 10);
-
-		//Big bonus if chokepoint
-		if(IsChokePoint())
-			iScore += 17;
-
-		return iScore;
 	}
 
-	return 0;
+	//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
+	if (iBadNearby == 0 || iNearbyForts > 2)
+		return 0;
+
+	//Get score for this fortification
+	int iScore = defenseModifier(eTeam, true, true);
+
+	//Bonus for nearby owned tiles
+	iScore += (iNearbyOwnedOther * 3);
+		
+	//Big Bonus if adjacent to territory.
+	iScore += (iAdjacentOwnedOther * 4);
+
+	//Big Bonus if adjacent to enemy territory.
+	iScore += (iBadAdjacent * 16);
+
+	//Big Bonus if adjacent to enemy territory.
+	iScore += (iBadNearby * 10);
+
+	//Big bonus if chokepoint
+	if(IsChokePoint())
+		iScore += 17;
+
+	return iScore;
 }
 
 #endif
