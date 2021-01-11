@@ -23743,6 +23743,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()) || GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
 	{
+		SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 		SetWantsSneakAttack(eTargetPlayer, false);
 		SetArmyInPlaceForAttack(eTargetPlayer, false);
 
@@ -23803,7 +23804,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		else if (bWantShowOfForce)
 		{
 			SetWarGoal(eTargetPlayer, WAR_GOAL_DEMAND);
-
 			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 		}
 		//we have no operation under way and we don't want to attack anyway
