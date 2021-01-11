@@ -11130,16 +11130,10 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 		return 8;
 	}
 
-	CoopWarStates eCoopWarState = GetGlobalCoopWarAgainstState(ePlayer);
-	if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
-	{
-		return 9;
-	}
-
 	// Some other reason?
 	if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
-		return 10;
+		return 9;
 	}
 
 	return 0; // No reason we're peace blocked
@@ -11340,9 +11334,6 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()));
 				break;
 			case 9:
-				strPeaceBlockReason.Format("We're starting a coop war soon!");
-				break;
-			case 10:
 				strPeaceBlockReason.Format("Cannot change war/peace status!");
 				break;
 			default:
