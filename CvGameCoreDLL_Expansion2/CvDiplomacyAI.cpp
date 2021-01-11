@@ -15104,7 +15104,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 										continue;
 
 									SetMajorCivApproach(vMasterTeam[i], MAJOR_CIV_APPROACH_WAR);
-									MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(vMasterTeam[i], true);
+									MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(vMasterTeam[i], true, true);
 
 									switch (eWarFaceApproach)
 									{
@@ -22008,7 +22008,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (GetMajorCivApproach(*it) != MAJOR_CIV_APPROACH_WAR)
 			{
 				SetMajorCivApproach(*it, MAJOR_CIV_APPROACH_WAR);
-				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(*it, true);
+				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(*it, true, true);
 
 				switch (eWarFaceApproach)
 				{
@@ -22134,7 +22134,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			{
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
-					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true));
+					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
 					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
@@ -22246,7 +22246,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			{
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
-					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true));
+					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
 					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
@@ -22268,7 +22268,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (GetMajorCivApproach(eSneakAttackTarget) != MAJOR_CIV_APPROACH_WAR)
 			{
 				SetMajorCivApproach(eSneakAttackTarget, MAJOR_CIV_APPROACH_WAR);
-				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eSneakAttackTarget, true);
+				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eSneakAttackTarget, true, true);
 
 				switch (eWarFaceApproach)
 				{
@@ -22340,7 +22340,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (GetMajorCivApproach(eCandidate) != MAJOR_CIV_APPROACH_WAR)
 				{
 					SetMajorCivApproach(eCandidate, MAJOR_CIV_APPROACH_WAR);
-					MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eCandidate, true);
+					MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eCandidate, true, true);
 
 					switch (eWarFaceApproach)
 					{
@@ -22396,7 +22396,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			{
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
-					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true));
+					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
 					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
