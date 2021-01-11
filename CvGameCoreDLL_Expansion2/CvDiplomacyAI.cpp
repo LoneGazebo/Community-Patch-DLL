@@ -11130,7 +11130,8 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 		return 8;
 	}
 
-	if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING)
+	CoopWarStates eCoopWarState = GetGlobalCoopWarAgainstState(ePlayer);
+	if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
 	{
 		return 9;
 	}
