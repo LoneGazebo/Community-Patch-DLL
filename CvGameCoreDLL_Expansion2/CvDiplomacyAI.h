@@ -59,17 +59,6 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
-#if !defined(MOD_ACTIVE_DIPLOMACY)
-	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
-	enum DiplomacyPlayerType
-	{
-		DIPLO_FIRST_PLAYER		=  0,
-		DIPLO_ALL_PLAYERS		= -1,
-		DIPLO_AI_PLAYERS		= -2,
-		DIPLO_HUMAN_PLAYERS		= -3
-	};
-#endif
-
 	struct MinorGoldGiftInfo
 	{
 		PlayerTypes eMinor;
@@ -301,8 +290,6 @@ public:
 	void SetEndedFriendshipThisTurn(bool bValue);
 	bool IsAvoidDeals() const;
 	void SetAvoidDeals(bool bValue);
-	bool IsDemandReady() const;
-	void SetDemandReady(bool bValue);
 
 	// ------------------------------------
 	// Exchanges
@@ -1037,7 +1024,7 @@ public:
 	// Turn Stuff
 	// ************************************
 
-	void DoTurn(DiplomacyPlayerType eTargetPlayer);
+	void DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer=NO_PLAYER);
 
 	// ------------------------------------
 	// War Damage
@@ -1228,9 +1215,6 @@ public:
 
 	void DoUpdateDemands();
 	int GetPlayerDemandValueScore(PlayerTypes ePlayer);
-	void DoStartDemandProcess(PlayerTypes ePlayer);
-	void DoHaltDemandProcess();
-	void DoTestDemandReady();
 
 	/////////////////////////////////////////////////////////
 	// Requests
@@ -1333,7 +1317,7 @@ public:
 	void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 
-	void DoMakeDemand(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoMakeDemand(PlayerTypes ePlayer);
 
 	void DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
@@ -1873,7 +1857,6 @@ private:
 	// Other Global Memory
 	bool m_bAvoidDeals; // Not serialized!
 	bool m_bEndedFriendshipThisTurn;
-	bool m_bDemandReady;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
 	VictoryFocusTypes m_eVictoryFocus;
@@ -2135,10 +2118,9 @@ private:
 	typedef std::vector<PlayerTypes> PlayerTypesArray;
 	PlayerTypesArray m_aGreetPlayers;
 
-	DiplomacyPlayerType	m_eTargetPlayer;
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	DiplomacyPlayerType	m_eTargetPlayerType;
-#endif
+	DiplomacyMode m_eDiploMode;
+	PlayerTypes	m_eTargetPlayer;
+
 	// Data members for injecting test messages
 	PlayerTypes			m_eTestToPlayer;
 	DiploStatementTypes m_eTestStatement;

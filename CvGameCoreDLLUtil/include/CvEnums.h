@@ -3568,14 +3568,15 @@ enum AirActionType
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 // JdH: from CvDiplomacyAI
-enum DiplomacyPlayerType
+enum DiplomacyMode
 {
-	DIPLO_FIRST_PLAYER		=  0,
+	DIPLO_SPECIFIC_PLAYER	=  0,
 	DIPLO_ALL_PLAYERS		= -1,
 	DIPLO_AI_PLAYERS		= -2,
 	DIPLO_HUMAN_PLAYERS		= -3,
 };
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 enum InstantYieldType
 {

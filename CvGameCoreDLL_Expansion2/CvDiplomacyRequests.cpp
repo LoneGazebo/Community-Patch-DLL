@@ -658,7 +658,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 		// Don't process while a modal dialog is up or another diplo or popup is up.
 		if(pkIFace->IsModalStackEmpty() && !pkIFace->isDiploOrPopupWaiting() && !pkIFace->isCityScreenUp())
 		{
-			CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes) eTargetPlayer);
+			CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
 			CvDiplomacyRequests* pkTargetRequests = kTargetPlayer.GetDiplomacyRequests();
 			if(pkTargetRequests)
 			{
@@ -674,7 +674,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 
 							if(eTargetPlayer != ePlayerLoop && kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 							{
-								kPlayer.GetDiplomacyAI()->DoTurn((DiplomacyPlayerType)eTargetPlayer);
+								kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_SPECIFIC_PLAYER,eTargetPlayer);
 								if(pkTargetRequests->HasPendingRequests())
 								{
 									ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);

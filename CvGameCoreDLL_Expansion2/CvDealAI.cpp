@@ -6216,18 +6216,13 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	int iIdealValue = 25 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
 	if (Value > 0)
-	{
 		iIdealValue *= Value;
-	}
+
 	int iTotalValue = iIdealValue;
+
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue);
 
-	if (pDeal->m_TradedItems.size() > 0 && iTotalValue > 0)
-	{
-		return true;
-	}
-
-	return false;
+	return (pDeal->m_TradedItems.size() > 0 && iTotalValue > 0);
 }
 
 /// A good time to make an offer for someone's extra Luxury?

@@ -98,9 +98,7 @@ void CvDiplomacyAI::Reset()
 	m_eCSBullyTarget = NO_PLAYER;
 
 	// Other Global Memory
-	m_bAvoidDeals = false; // Not serialized!
 	m_bEndedFriendshipThisTurn = false;
-	m_bDemandReady = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
 	m_eVictoryFocus = NO_VICTORY_FOCUS_TYPE;
@@ -403,7 +401,12 @@ void CvDiplomacyAI::Reset()
 		m_abEasyTarget[iI] = false;
 	}
 
+	m_bAvoidDeals = false;
+	
 	m_aGreetPlayers.clear();
+
+	m_eDiploMode = DIPLO_ALL_PLAYERS;
+	m_eTargetPlayer = NO_PLAYER;
 }
 
 /// Serialization read
@@ -443,7 +446,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	// Other Global Memory
 	kStream >> m_bEndedFriendshipThisTurn;
-	kStream >> m_bDemandReady;
 	kStream >> m_bBackstabber;
 	kStream >> m_bCompetingForVictory;
 	kStream >> m_eVictoryFocus;
@@ -742,7 +744,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 
 	// Other Global Memory
 	kStream << m_bEndedFriendshipThisTurn;
-	kStream << m_bDemandReady;
 	kStream << m_bBackstabber;
 	kStream << m_bCompetingForVictory;
 	kStream << m_eVictoryFocus;
@@ -2778,18 +2779,6 @@ void CvDiplomacyAI::SetAvoidDeals(bool bValue)
 	m_bAvoidDeals = bValue;
 }
 
-/// Are we ready to make a demand to GetDemandTargetPlayer?
-bool CvDiplomacyAI::IsDemandReady() const
-{
-	return m_bDemandReady;
-}
-
-/// Sets that we are ready to make a demand to GetDemandTargetPlayer (or not)
-void CvDiplomacyAI::SetDemandReady(bool bValue)
-{
-	m_bDemandReady = bValue;
-}
-
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -3527,9 +3516,6 @@ void CvDiplomacyAI::SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_abArmyInPlaceForAttack[(int)ePlayer] = bValue;
-
-	if (bValue)
-		DoTestDemandReady();
 }
 
 /// Did this AI want to start the war it's currently in with ePlayer?
@@ -7569,9 +7555,12 @@ void CvDiplomacyAI::ChangeVassalGoldPerTurnTaxedSinceVassalStarted(PlayerTypes e
 
 
 /// Runs every turn! The order matters for a lot of this stuff, so be VERY careful about moving anything around (!)
-void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
+void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 {
-	m_eTargetPlayer = eTargetPlayer;
+	//set this for one iteration, reset below
+	m_eDiploMode = eDiploMode;
+	m_eTargetPlayer = ePlayer;
+
 	SetEndedFriendshipThisTurn(false);
 
 	// War Damage
@@ -7664,7 +7653,9 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	LogWarStatus();
 	LogStatements();
 
-	m_eTargetPlayer = DIPLO_ALL_PLAYERS;
+	//reset to default
+	m_eDiploMode = DIPLO_ALL_PLAYERS;
+	m_eTargetPlayer = NO_PLAYER;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -7676,7 +7667,8 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 /// Every turn we're at peace war damage goes down a bit
 void CvDiplomacyAI::DoWarDamageDecay()
 {
-	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+	//we want to do this only once per turn
+	if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
 		return;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -22179,6 +22171,10 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(*it).getTeam(), GetID()))
 				continue;
 
+			// Recent demand?
+			if (GetNumTurnsSinceStatementSent(*it, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+				continue;
+
 			// Recent peace treaty?
 			if (GetNumWarsFought(*it) > 0)
 			{
@@ -22492,8 +22488,18 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 					}
 
 					if (iTurnsSincePeace < iPeaceDampenerTurns)
+					{
+						SetPotentialWarTarget(ePlayer, false);
 						continue;
+					}
 				}
+			}
+
+			// Recent demand?
+			if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+			{
+				SetPotentialWarTarget(ePlayer, false);
+				continue;
 			}
 
 			if (!IsUntrustworthy(ePlayer))
@@ -23651,12 +23657,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::MakeWar()
 {
-	CvWeightedVector<int> playerList;
-	int iWeight;
+	CvWeightedVector<PlayerTypes> playerList;
 
-	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+	if(m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
 	{
-		DoMakeWarOnPlayer((PlayerTypes)m_eTargetPlayer);
+		DoMakeWarOnPlayer(m_eTargetPlayer);
 	}
 	else
 	{
@@ -23668,7 +23673,7 @@ void CvDiplomacyAI::MakeWar()
 			{
 				if (IsPlayerValid(eTarget))
 				{
-					iWeight = (int)GetWarProjection(eTarget) + 1;
+					int iWeight = (int)GetWarProjection(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
@@ -23684,7 +23689,7 @@ void CvDiplomacyAI::MakeWar()
 						iWeight *= 10;  // Make sure majors are looked at before city states
 					}
 
-					playerList.push_back(iPlayerLoop, iWeight);
+					playerList.push_back(eTarget, iWeight);
 				}
 			}
 			else
@@ -23694,7 +23699,7 @@ void CvDiplomacyAI::MakeWar()
 				if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
 #endif
 				{
-					iWeight = (int)GetWarProjection(eTarget) + 1;
+					int iWeight = (int)GetWarProjection(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
@@ -23710,7 +23715,7 @@ void CvDiplomacyAI::MakeWar()
 						iWeight *= 10;  // Make sure majors are looked at before city states
 					}
 
-					playerList.push_back(iPlayerLoop, iWeight);
+					playerList.push_back(eTarget, iWeight);
 				}
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			}
@@ -23721,7 +23726,7 @@ void CvDiplomacyAI::MakeWar()
 
 		for(int iI = 0; iI < playerList.size(); iI++)
 		{
-			DoMakeWarOnPlayer((PlayerTypes)playerList.GetElement(iI));
+			DoMakeWarOnPlayer(playerList.GetElement(iI));
 		}
 	}
 }
@@ -23729,46 +23734,40 @@ void CvDiplomacyAI::MakeWar()
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 {
-	if (!IsPlayerValid(eTargetPlayer))
-		return;
-
 	if (IsAtWar(eTargetPlayer))
+	{
+		SetWantsSneakAttack(eTargetPlayer, false);
+		SetArmyInPlaceForAttack(eTargetPlayer, false);
 		return;
+	}
 
-	if (GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND)
-		return;
+	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()) || GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+	{
+		SetWantsSneakAttack(eTargetPlayer, false);
+		SetArmyInPlaceForAttack(eTargetPlayer, false);
 
-	// If we recently made a demand, don't declare war (either it was accepted, or they called a bluff by us)
-	if (GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+		if (GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer) != NULL)
+		{
+			GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_TARGET_NOT_VALID);
+			GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eTargetPlayer,AI_ABORT_TARGET_NOT_VALID);
+		}
 		return;
+	}
 
 	bool bWantToAttack = false;
-	bool bDeclareWar = false;
+	bool bWantShowOfForce = false;
 
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
-		if (!GetPlayer()->IsNoNewWars())
-		{
-			//we want to have an army for conquest or for bullying.
-			//if we are out to bully we will never actually declare war because we will never set the "in place for attack" flag
-			bWantToAttack = (GetCSWarTargetPlayer() == eTargetPlayer);
-			bWantToAttack = (GetCSBullyTargetPlayer() == eTargetPlayer);
-		}
+		bWantToAttack = (GetCSWarTargetPlayer() == eTargetPlayer) && !GetPlayer()->IsNoNewWars();
+		bWantShowOfForce = (GetCSBullyTargetPlayer() == eTargetPlayer) && m_pPlayer->IsAtPeace();
 	}
 	// Major Civ
 	else
 	{
-		if (GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
-		{
-			bWantToAttack = true;
-		}
-
-		// Failsafe! If we might backstab, don't declare war unless we're willing to do so!
-		if (bWantToAttack && !IsWarSane(eTargetPlayer))
-		{
-			bWantToAttack = false;
-		}
+		bWantToAttack = (GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR) && IsWarSane(eTargetPlayer);
+		bWantShowOfForce = (GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND) && m_pPlayer->IsAtPeace();
 
 		// Don't attack someone else's vassal unless we want to attack the master too
 		if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
@@ -23779,14 +23778,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 	}
 
-	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
-	{
-		bWantToAttack = false;
-	}
-
 	// Not yet readying an attack
 	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
-	if (pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
+	if (pCurrentSneakAttackOperation == NULL)
 	{
 		// Want to declare war on someone
 		if (bWantToAttack)
@@ -23801,24 +23795,24 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			// Attack on major
 			else
 			{
-				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3); //consider: if we want to declare war but this call fails because we don't have a preferred target, declare war now?
 				SetWantsSneakAttack(eTargetPlayer, true);
 			}
 		}
+		//we just want to scare them
+		else if (bWantShowOfForce)
+		{
+			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
+		}
+		//we have no operation under way and we don't want to attack anyway
 		else
 		{
 			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 			SetWantsSneakAttack(eTargetPlayer, false);
-
-			if (!m_pPlayer->IsAtWar() && GET_PLAYER(eTargetPlayer).isMinorCiv() && GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_BULLY)
-			{
-				GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
-			}
+			SetArmyInPlaceForAttack(eTargetPlayer, false);
 
 			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
-			{
-				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true));
-			}
+				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 		}
 	}
 	// We already have an attack on the way
@@ -23829,33 +23823,37 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			if (IsArmyInPlaceForAttack(eTargetPlayer))
 			{	
-				bDeclareWar = true;
 				SetArmyInPlaceForAttack(eTargetPlayer, false);
 				SetWantsSneakAttack(eTargetPlayer, false);
+
+				// If our Sneak Attack is ready then actually initiate the DoW
+				DeclareWar(eTargetPlayer);
 			}
 		}
-		// We were planning an attack, but changed our minds so abort
+		else if (bWantShowOfForce)
+		{
+			if (IsArmyInPlaceForAttack(eTargetPlayer))
+			{	
+				SetArmyInPlaceForAttack(eTargetPlayer, false);
+				SetWantsSneakAttack(eTargetPlayer, false);
+
+				//minors will be bullied automatically
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+					DoMakeDemand(eTargetPlayer);
+			}
+		}
+		// We were planning something, but changed our minds so abort
 		else
 		{
 			SetWantsSneakAttack(eTargetPlayer, false);
 			SetArmyInPlaceForAttack(eTargetPlayer, false);
 			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 
-			if (pCurrentSneakAttackOperation != NULL)
-			{
-				pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
-				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_CANCELLED);
-			}
 			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
-			{
-				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true));
-			}
-		}
+				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 
-		// If our Sneak Attack is ready then actually initiate the DoW
-		if (bDeclareWar)
-		{
-			DeclareWar(eTargetPlayer);
+			pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
+			pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 		}
 	}
 }
@@ -24418,21 +24416,18 @@ void CvDiplomacyAI::DoUpdateDemands()
 		// Otherwise, start the demand process against the player with the highest weight
 		if (!bExistingValidTarget)
 		{
-			// Cancel any demand work underway
-			DoHaltDemandProcess();
-
-			vePotentialDemandTargets.SortItems();
-			DoStartDemandProcess(vePotentialDemandTargets.GetElement(0));
+			SetDemandTargetPlayer(vePotentialDemandTargets.GetElement(0));
+			SetWarGoal(vePotentialDemandTargets.GetElement(0), WAR_GOAL_DEMAND);
+		}
+		else
+		{
+			SetWarGoal(GetDemandTargetPlayer(), WAR_GOAL_DEMAND); // may have been reset in DoMakeWarOnPlayer()
 		}
 	}
-	// No valid possibilities - cancel any demand work underway
 	else
 	{
-		DoHaltDemandProcess();
+		SetDemandTargetPlayer(NO_PLAYER);
 	}
-
-	// See if we have a demand ready to make
-	DoTestDemandReady();
 }
 
 /// How much value can we get from ePlayer if we made a demand of them?
@@ -24473,110 +24468,6 @@ int CvDiplomacyAI::GetPlayerDemandValueScore(PlayerTypes ePlayer)
 
 	return iDemandValue;
 }
-
-/// AI has picked someone to make a demand of... request a city attack from the military AI
-void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	SetDemandTargetPlayer(ePlayer);
-
-	// Not yet readying an attack
-	if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) && !IsArmyInPlaceForAttack(ePlayer))
-	{
-		GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 2);
-		SetWarGoal(ePlayer, WAR_GOAL_DEMAND);
-	}
-}
-
-/// Stop any current progress towards making a demand
-void CvDiplomacyAI::DoHaltDemandProcess()
-{
-	PlayerTypes eDemandTarget = GetDemandTargetPlayer();
-	SetDemandReady(false);
-
-	// Are we targeting anyone for a demand?
-	if (eDemandTarget != NO_PLAYER)
-	{
-		if (GetMajorCivApproach(eDemandTarget, false) == MAJOR_CIV_APPROACH_WAR && !IsAtWar(eDemandTarget))
-		{
-			SetWarGoal(eDemandTarget, WAR_GOAL_PREPARE);
-		}
-		else
-		{
-			SetArmyInPlaceForAttack(eDemandTarget, false);
-
-			if (!IsAtWar(eDemandTarget))
-			{
-				SetWarGoal(eDemandTarget, NO_WAR_GOAL_TYPE);
-				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eDemandTarget,AI_ABORT_DIPLO_OPINION_CHANGE);
-				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eDemandTarget,AI_ABORT_DIPLO_OPINION_CHANGE);
-			}
-		}
-
-		SetDemandTargetPlayer(NO_PLAYER);
-	}
-}
-
-/// Are we ready to make a demand, backed with force?
-void CvDiplomacyAI::DoTestDemandReady()
-{
-	PlayerTypes eDemandTarget = GetDemandTargetPlayer();
-
-	if (!IsPlayerValid(eDemandTarget))
-		return;
-
-	// Are we actually targeting anyone for a demand?
-	if (!IsAtWar(eDemandTarget) && GetWarGoal(eDemandTarget) == WAR_GOAL_DEMAND)
-	{
-		// Ready? Let's go!
-		if (IsArmyInPlaceForAttack(eDemandTarget))
-		{
-			SetArmyInPlaceForAttack(eDemandTarget, false);
-			SetDemandReady(true);
-		}
-		// Continuously request attacks until one of them is ready...
-		else
-		{
-			GetPlayer()->GetMilitaryAI()->RequestCityAttack(eDemandTarget, 2);
-		}
-	}
-
-	if (!IsDemandReady())
-		return;
-
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		//End the gift exchange at the start of each round.
-		GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eDemandTarget, false);
-		GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eDemandTarget, false);
-	}
-
-	DiploStatementTypes eStatement;
-
-	// We can use this deal pointer to form a trade offer
-	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
-
-	// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
-	int iData1;
-	int iData2;
-
-	// Clear this data out before any deals are offered.
-	pDeal->SetRequestingPlayer(NO_PLAYER);
-	SetCantMatchDeal(eDemandTarget, false);
-	eStatement = NO_DIPLO_STATEMENT_TYPE;
-	iData1 = -1;
-	iData2 = -1;
-
-	pDeal->ClearItems();
-	pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
-	pDeal->SetFromPlayer(GetID());
-	pDeal->SetToPlayer(eDemandTarget);
-
-	DoMakeDemand(eDemandTarget, eStatement, pDeal);
-}
-
-
 
 /////////////////////////////////////////////////////////
 // Requests
@@ -25139,7 +25030,8 @@ void CvDiplomacyAI::DoMakePeaceWithVassals()
 /// Do we want to make peace with any Minors we're at war with?
 void CvDiplomacyAI::DoMakePeaceWithMinors()
 {
-	if ((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
+	//we want to do this only once per turn
+	if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
 		return;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -28912,11 +28804,11 @@ void CvDiplomacyAI::DoContactMajorCivs()
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		if (m_eTargetPlayer >= DIPLO_FIRST_PLAYER)
+		if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
 		{
-			DoContactPlayer((PlayerTypes)m_eTargetPlayer);
+			DoContactPlayer(m_eTargetPlayer);
 		}
-		else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
+		else if (m_eDiploMode == DIPLO_ALL_PLAYERS || m_eDiploMode == DIPLO_AI_PLAYERS)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -28932,7 +28824,7 @@ void CvDiplomacyAI::DoContactMajorCivs()
 				DoContactPlayer(eLoopPlayer);
 			}
 		}
-		if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_HUMAN_PLAYERS)
+		if (m_eDiploMode == DIPLO_ALL_PLAYERS || m_eDiploMode == DIPLO_HUMAN_PLAYERS)
 		{
 			// JdH => contact humans by priority, but use a notification system instead of pop up the diplo screen
 			// every AI can only talk to one human a time (as a human can only talk to one human a time
@@ -30681,35 +30573,43 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 }
 
 /// Possible Contact Statement - Demand
-void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
+void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		if (IsDemandReady() && GetDemandTargetPlayer() == ePlayer)
+		//End the gift exchange at the start of each round.
+		GetPlayer()->GetDiplomacyAI()->SetOfferingGift(ePlayer, false);
+		GetPlayer()->GetDiplomacyAI()->SetOfferedGift(ePlayer, false);
+	}
+
+	// We can use this deal pointer to form a trade offer
+	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
+
+	// Clear this data out before any deals are offered.
+	pDeal->ClearItems();
+	pDeal->SetRequestingPlayer(NO_PLAYER);
+	pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
+	pDeal->SetFromPlayer(GetID());
+	pDeal->SetToPlayer(ePlayer);
+	SetCantMatchDeal(ePlayer, false);
+
+	//set up the deal
+	if (GetPlayer()->GetDealAI()->IsMakeDemand(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+	{
+		int iTurnsBetweenStatements = 13;
+		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) >= iTurnsBetweenStatements)
 		{
-			if (GetPlayer()->GetDealAI()->IsMakeDemand(ePlayer, /*pDeal can be modified in this function*/ pDeal))
-			{
-				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_DEMAND;
-				int iTurnsBetweenStatements = 40;
-
-				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-					eStatement = eTempStatement;
-
-				DoSendStatementToPlayer(ePlayer, eStatement, -1, pDeal);
-				LogStatementToPlayer(ePlayer, eStatement);
-				DoAddNewStatementToDiploLog(ePlayer, eStatement);
-			}
-			else
-			{
-				// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-				pDeal->ClearItems();
-				DoHaltDemandProcess();
-			}
+			DiploStatementTypes eStatement = DIPLO_STATEMENT_DEMAND;
+			DoSendStatementToPlayer(ePlayer, eStatement, -1, pDeal);
+			LogStatementToPlayer(ePlayer, eStatement);
+			DoAddNewStatementToDiploLog(ePlayer, eStatement);
 		}
 	}
+
+	// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+	pDeal->ClearItems();
 }
 
 /// Possible Contact Statement - guy has his military positioned aggressively near us
@@ -49756,7 +49656,10 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 	if(eTargetPlayer != NO_PLAYER)
 	{
 		CvPlayer& kTarget = GET_PLAYER(eTargetPlayer);
-		if(m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == eTargetPlayer || (m_eTargetPlayer == DIPLO_AI_PLAYERS && !kTarget.isHuman()) || (m_eTargetPlayer == DIPLO_HUMAN_PLAYERS && kTarget.isHuman()))
+		if (m_eDiploMode == DIPLO_ALL_PLAYERS || 
+			(m_eDiploMode == DIPLO_SPECIFIC_PLAYER && m_eTargetPlayer == eTargetPlayer) || 
+			(m_eDiploMode == DIPLO_AI_PLAYERS && !kTarget.isHuman()) || 
+			(m_eDiploMode == DIPLO_HUMAN_PLAYERS && kTarget.isHuman()))
 			return true;
 	}
 
@@ -52809,7 +52712,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 	// Cancel all war plans
 	CancelAllCoopWars();
 	SetBackstabber(false);
-	SetDemandReady(false);
 	SetDemandTargetPlayer(NO_PLAYER);
 	SetCSWarTargetPlayer(NO_PLAYER);
 	SetCSBullyTargetPlayer(NO_PLAYER);

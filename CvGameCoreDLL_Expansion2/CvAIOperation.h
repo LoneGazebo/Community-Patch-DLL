@@ -188,7 +188,6 @@ public:
 	virtual void OnSuccess() const {}
 	virtual void Reset();
 	virtual bool IsOffensive() const;
-	virtual bool IsShowOfForce() const { return false; }
 	virtual bool IsNeverEnding() const { return false; }
 
 	virtual int GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const;
@@ -286,7 +285,6 @@ public:
 	virtual int GetDeployRange() const { return 3; }
 	virtual int GetMaximumRecruitTurns() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-	virtual bool IsShowOfForce() const;
 
 	virtual bool CheckTransitionToNextStage();
 	virtual void OnSuccess() const;
@@ -369,7 +367,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_NUKE_ATTACK, ARMY_TYPE_AIR) {}
 	virtual ~CvAIOperationNukeAttack() {}
 	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
-	virtual int GetDeployRange() const { return 12; }
 	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);

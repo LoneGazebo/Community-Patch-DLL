@@ -2562,13 +2562,6 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		//if this operation has a specific target player
 		if (pOperation->GetEnemy() != NO_PLAYER)
 		{
-			//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
-			if (pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam() &&
-				!pOperation->IsShowOfForce() && !m_pPlayer->IsAtWarWith(pOperation->GetEnemy()))
-			{
-				m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
-			}
-
 			//getting too close to another enemy?
 			if (GC.getGame().GetClosestCityDistanceInPlots(pThisTurnTarget) < 3)
 			{

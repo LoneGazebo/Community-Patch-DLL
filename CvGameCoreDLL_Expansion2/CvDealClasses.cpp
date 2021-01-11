@@ -4499,7 +4499,7 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 // JdH => added eTargetPlayers parameter to be able to control proposed deal removal
-void CvGameDeals::DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyPlayerType eTargetPlayers)
+void CvGameDeals::DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyMode eTargetPlayers)
 {//Cancel all proposed deals involving eCancelPlayer.
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

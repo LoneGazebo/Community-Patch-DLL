@@ -540,8 +540,8 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 			return NULL;
 	}
 
-	// use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
 	//once the army has gathered both pure and mixed naval ops can only use water plots
+	//we assume we can enter the enemy player's territory even in peacetime, don't need to pass any flags
 	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
@@ -1432,12 +1432,6 @@ AIOperationAbortReason CvAIOperationMilitary::VerifyOrAdjustTarget(CvArmyAI*)
 	return NO_ABORT_REASON;
 }
 
-//sometimes we don't really mean it
-bool CvAIOperationMilitary::IsShowOfForce() const
-{
-	return GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND;
-}
-
 MultiunitFormationTypes OperationalAIHelpers::GetArmyFormationForOpType(AIOperationTypes eType)
 {
 	switch (eType)
@@ -1634,27 +1628,13 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					{
 						LogOperationSpecialMessage("Discovered by enemy");
 						bInPlace = true;
-
-						CvPlot *pOtherTarget = NULL;
-						for (int i=0; i<RING3_PLOTS; i++)
-						{
-							CvPlot* pTestPlot = iterateRingPlots( pCenterOfMass, i );
-							if (pTestPlot && pTestPlot->getOwner()==m_eEnemy && pTestPlot->getOwningCity())
-							{
-								pOtherTarget = pTestPlot;
-								break;
-							}
-						}
-
-						if (pOtherTarget != NULL)
-							pTarget = pOtherTarget;
 					}
 				}
 
 				if(bInPlace)
 				{
-					// Notify Diplo AI we're in place for attack (unless this is just for show)
-					if(!IsShowOfForce() && GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
+					// Notify Diplo AI we're in place for attack
+					if(GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetArmyInPlaceForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
