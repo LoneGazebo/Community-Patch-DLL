@@ -1,3 +1,41 @@
+------------------------------
+-- GameOptions
+------------------------------
+INSERT INTO GameOptions
+			(Type,								Description,								Help,											"Default",	"SupportsSinglePlayer",	"SupportsMultiplayer")
+VALUES		('GAMEOPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	0,	1,	1),
+			('GAMEOPTION_EVENTS',	'TXT_KEY_GAME_OPTION_EVENTS',	'TXT_KEY_GAME_OPTION_EVENTS_HELP',	1,	1,	1),
+			('GAMEOPTION_GOOD_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_GOOD',	'TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP',	0,	1,	1),
+			('GAMEOPTION_NEUTRAL_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL',	'TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP',	0,	1,	1),
+			('GAMEOPTION_BAD_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_BAD',	'TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP',	0,	1,	1),
+			('GAMEOPTION_TRADE_EVENTS_OFF',	'TXT_KEY_GAME_OPTION_EVENTS_TRADE',	'TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP',	0,	1,	1),
+			('GAMEOPTION_CIV_SPECIFIC_EVENTS_OFF',	'TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS',	'TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP',	0,	1,	1),
+			('GAMEOPTION_CHILL_BARBARIANS',	'TXT_KEY_GAMEOPTION_CHILL_BARBARIANS',	'TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP',	0,	1,	1),
+			('GAMEOPTION_RANDOM_VICTORY',	'TXT_KEY_GAMEOPTION_RANDOM_VICTORY',	'TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP',	0,	1,	1),
+			('GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN',	'TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN',	'TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP',	0,	0,	1);
+
+------------------------------
+-- End GameOptions
+------------------------------
+
+-- No pillage and repairing in foreign lands
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_REPAIR_FOREIGN_LANDS';
+
+-- No yield from Ice Features
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_YIELD_ICE';
+
+-- No major civ gifting exploit fix
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_MAJORCIV_GIFTING';
+
+-- No healing on mountains if not city plot
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_HEALING_ON_MOUNTAINS';
+
+-- If player is using Alternate Assyria Trait...choose a free tech
+UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
+
+-- Activates Active Diplomacy in DLL for Multiplayer trade deals between Human and AI
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
+
 -- Adjusted for Religion Spread Rework
 UPDATE Defines
 SET Value = '9'
@@ -1401,23 +1439,81 @@ WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 
--- Unit SelectionSound fix
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_HORSEMAN', SelectionSound = 'AS2D_SELECT_HORSEMAN'
-WHERE UnitType = 'UNIT_BARBARIAN_HORSEMAN';
 
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_WARRIER', SelectionSound = 'AS2D_SELECT_WARRIER'
-WHERE UnitType = 'UNIT_BARBARIAN_WARRIOR';
+-- AI Military Strategies - no CSs
 
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_CANNON', SelectionSound = 'AS2D_SELECT_CANNON'
-WHERE UnitType = 'UNIT_GATLINGGUN';
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_RANGED';
 
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_FRIGATE', SelectionSound = 'AS2D_SELECT_FRIGATE'
-WHERE UnitType = 'UNIT_PRIVATEER';
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL';
 
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_BIRTH_MUSKETMAN', SelectionSound = 'AS2D_SELECT_MUSKETMAN'
-WHERE UnitType = 'UNIT_SWEDISH_CAROLEAN';
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_RANGED';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_MOBILE';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_MOBILE';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_ANTIAIR';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_ANTIAIR';
+
+UPDATE AIMilitaryStrategies
+SET NoMinorCivs = '1'
+WHERE Type = 'MILITARYAISTRATEGY_NEED_AIR_CARRIER';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '40'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '80'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '80'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '15'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '50'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '25'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '-10'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '10'
+WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '30'
+WHERE FlavorType = 'FLAVOR_DEFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '20'
+WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+UPDATE AIMilitaryStrategy_City_Flavors
+SET Flavor = '-20'
+WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
