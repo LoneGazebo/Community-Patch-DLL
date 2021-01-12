@@ -528,6 +528,13 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (!pMusterCity)
 		return false;
 
+	//if the target is very close assume we can embark or don't even need to
+	AIOperationTypes opType = (pMusterCity->getArea() == pTargetCity->getArea()) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
+
+	// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+	if (m_pPlayer->getFirstAIOperationOfType(opType))
+		return false;
+
 	//don't venture too far
 	int iDistanceTurns = m_pPlayer->GetCityDistancePathLength(pTargetCity->plot());
 	if (iDistanceTurns > 23)
@@ -543,13 +550,6 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	//check if we have a chance ...
 	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyScore(m_pPlayer->GetID(), true);
 	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
-		return false;
-
-	//if the target is very close assume we can embark or don't even need to
-	AIOperationTypes opType = (pMusterCity->getArea() == pTargetCity->getArea()) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
-
-	// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
-	if (m_pPlayer->getFirstAIOperationOfType(opType))
 		return false;
 
 	//don't try to build additional units, only do this if we have enough at hand
@@ -995,7 +995,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 	//note that a given target might be repeated with different muster points / army types
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 	{
-		//ignore bad targets
+		//ignore bad targets!
 		if (!m_potentialAttackTargets[i].IsPreferred())
 			continue;
 

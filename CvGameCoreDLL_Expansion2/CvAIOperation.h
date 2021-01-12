@@ -28,7 +28,6 @@ enum AIOperationTypes
 	AI_OPERATION_TYPE_UNKNOWN = -1,
 
 	AI_OPERATION_FOUND_CITY,
-	AI_OPERATION_DESTROY_BARBARIAN_CAMP,
     AI_OPERATION_PILLAGE_ENEMY,
 
 	AI_OPERATION_CITY_ATTACK_LAND,
@@ -375,33 +374,6 @@ public:
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationAntiBarbarian
-//!  \brief		Send out a squad of units to take out a barbarian camp
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationAntiBarbarian : public CvAIOperationMilitary
-{
-public:
-
-	CvAIOperationAntiBarbarian(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
-		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_DESTROY_BARBARIAN_CAMP,ARMY_TYPE_LAND), m_iUnitToRescue(-1) {}
-	virtual ~CvAIOperationAntiBarbarian() {}
-
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
-
-	virtual void Read(FDataStream& kStream);
-	virtual void Write(FDataStream& kStream) const;
-
-	virtual int GetDeployRange() const;
-	virtual int GetMaximumRecruitTurns() const;
-
-	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-
-protected:
-	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
-	int m_iUnitToRescue;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
