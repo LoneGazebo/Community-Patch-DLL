@@ -4839,7 +4839,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 			{
 				iWeight = 0;
 			}
-			else if (pPlayer->GetDiplomacyAI()->GetNumMinorCivApproach(MINOR_CIV_APPROACH_FRIENDLY) <= 0)
+			else if (pPlayer->GetNumCSFriends() <= 0)
 			{
 				iWeight /= 5;
 			}

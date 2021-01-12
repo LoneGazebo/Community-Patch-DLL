@@ -1488,6 +1488,23 @@ void CvDiplomacyAI::DoInitializePersonality()
 	SetPlayerEconomicStrengthComparedToUs(GetID(), STRENGTH_AVERAGE);
 	SetPlayerTargetValue(GetID(), TARGET_VALUE_AVERAGE);
 	SetWarGoal(BARBARIAN_PLAYER, WAR_GOAL_CONQUEST);
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsTeammate(eLoopPlayer))
+		{
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+			{
+				m_aeMajorCivApproach[(int)eLoopPlayer] = MAJOR_CIV_APPROACH_FRIENDLY;
+			}
+			else if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				m_aeMinorCivApproach[(int)eLoopPlayer] = MINOR_CIV_APPROACH_PROTECTIVE;
+			}
+		}
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2190,7 +2207,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer) co
 
 void CvDiplomacyAI::SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || GetTeam() == GET_PLAYER(ePlayer).getTeam()) return;
 	if (eApproach < 0 || eApproach >= NUM_MAJOR_CIV_APPROACHES) return;
 	m_aeMajorCivApproach[(int)ePlayer] = eApproach;
 }
@@ -2424,25 +2441,9 @@ void CvDiplomacyAI::SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachType
 {
 	int iArrayIndex = (int)eMinor - MAX_MAJOR_CIVS;
 	if (iArrayIndex < 0 || iArrayIndex >= MAX_MINOR_CIVS) return;
+	if (GetTeam() == GET_PLAYER(eMinor).getTeam()) return;
 	if (eApproach < NO_MINOR_CIV_APPROACH || eApproach >= NUM_MINOR_CIV_APPROACHES) return;
 	m_aeMinorCivApproach[iArrayIndex] = eApproach;
-}
-
-/// How many Minors do we have a particular Approach towards?
-int CvDiplomacyAI::GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const
-{
-	int iCount = 0;
-
-	for (int iMinorLoop = 0; iMinorLoop < MAX_MINOR_CIVS; iMinorLoop++)
-	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if (GetMinorCivApproach(eMinor) == eApproach)
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
 }
 
 /// Is there a City-State we're targeting for bullying, backed with force?
@@ -14214,7 +14215,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && IsHasMet(eLoopPlayer, /*bMyTeamIsValid*/ true))
+		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && IsHasMet(eLoopPlayer, false))
 		{
 			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eLoopPlayer);
 			bool bPriorityUpdate = false;
@@ -14222,13 +14223,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 			// Under certain circumstances, set the approach immediately
 			// Prioritized approach updates are done first and don't depend on each other, therefore we can fairly use the new approach in the map ...
 			// Only do this on the first pass, because we'll get the exact same result next time.
-			if (IsTeammate(eLoopPlayer))
-			{
-				bPriorityUpdate = true;
-				if (bFirstPass)
-					SelectApproachTowardsTeammate(eLoopPlayer);
-			}
-			else if (IsAlwaysAtWar(eLoopPlayer))
+			if (IsAlwaysAtWar(eLoopPlayer))
 			{
 				bPriorityUpdate = true;
 				if (bFirstPass)
@@ -14302,50 +14297,6 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 				SelectApproachTowardsVassal(*it);
 			}
 		}
-	}
-}
-
-/// Updates our Diplomatic Approach towards a Civ on our team
-void CvDiplomacyAI::SelectApproachTowardsTeammate(PlayerTypes ePlayer)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || ePlayer == GetID())
-		return;
-
-	if (GET_PLAYER(ePlayer).isMajorCiv())
-	{
-		// Teammates are always FRIENDLY to each other
-		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
-		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
-		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = 9999;
-
-		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
-		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
-			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-
-		vector<int> vApproachScoresScratch;
-
-		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
-		{
-			MajorCivApproachTypes eLoopApproach = (MajorCivApproachTypes) iApproachLoop;
-
-			int iLastTurnValue = GetPlayerApproachValue(ePlayer, eLoopApproach);
-			vApproachScoresScratch.push_back(iLastTurnValue);
-
-			SetPlayerApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
-			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
-		}
-
-		// Update approach and log.
-		SetMajorCivApproach(ePlayer, eApproach);
-		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
-		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
-	}
-	// We shouldn't have any minors on our team...but just in case there somehow are
-	else if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		SetMinorCivApproach(ePlayer, MINOR_CIV_APPROACH_PROTECTIVE);
 	}
 }
 
@@ -22249,14 +22200,9 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 	{
 		PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive() && IsHasMet(eMinor, true))
+		if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive() && IsHasMet(eMinor, false))
 		{
-			if (IsTeammate(eMinor))
-			{
-				SelectApproachTowardsTeammate(eMinor);
-				continue;
-			}
-			else if (IsAlwaysAtWar(eMinor))
+			if (IsAlwaysAtWar(eMinor))
 			{
 				SelectAlwaysWarApproach(eMinor);
 				continue;

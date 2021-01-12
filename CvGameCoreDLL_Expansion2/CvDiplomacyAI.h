@@ -232,7 +232,6 @@ public:
 
 	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes eMinor) const;
 	void SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
-	int GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const;
 
 	PlayerTypes GetCSBullyTargetPlayer() const;
 	void SetCSBullyTargetPlayer(PlayerTypes ePlayer);
@@ -1158,7 +1157,6 @@ public:
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
 	// Priority approach updates
-	void SelectApproachTowardsTeammate(PlayerTypes ePlayer);
 	void SelectAlwaysWarApproach(PlayerTypes ePlayer);
 	void SelectHumanApproach(PlayerTypes ePlayer);
 	void SelectApproachIfWeHaveNoCities(PlayerTypes ePlayer);
