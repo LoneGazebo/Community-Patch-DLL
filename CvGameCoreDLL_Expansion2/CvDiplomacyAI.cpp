@@ -23372,6 +23372,7 @@ void CvDiplomacyAI::MakeWar()
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 {
+	//if we are already at war, there is not much to do
 	if (IsAtWar(eTargetPlayer))
 	{
 		SetWantsSneakAttack(eTargetPlayer, false);
@@ -23379,7 +23380,8 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		return;
 	}
 
-	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()) || GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+	//sometimes we cannot declare war
+	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
 	{
 		SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 		SetWantsSneakAttack(eTargetPlayer, false);
@@ -23417,11 +23419,42 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 	}
 
-	// Not yet readying an attack
-	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
-	if (pCurrentSneakAttackOperation == NULL)
+	if (IsArmyInPlaceForAttack(eTargetPlayer))
 	{
-		// Want to declare war on someone
+		// Our Approach with this player calls for war
+		if (bWantToAttack)
+		{
+			// If our Sneak Attack is ready then declare war
+			DeclareWar(eTargetPlayer);
+		}
+		else if (bWantShowOfForce)
+		{
+			//minors will be bullied automatically!
+			if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+				DoMakeDemand(eTargetPlayer);
+		}
+		else
+		{
+			//hmm, seems we changed our mind. abort the operation if it's still ongoing
+			CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
+			if (pCurrentSneakAttackOperation)
+			{
+				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
+
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
+					SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
+
+				pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
+				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
+			}
+		}
+
+		SetArmyInPlaceForAttack(eTargetPlayer, false);
+		SetWantsSneakAttack(eTargetPlayer, false);
+	}
+	else
+	{
+		//see if we can start a sneak attack
 		if (bWantToAttack)
 		{
 			SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
@@ -23453,47 +23486,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
 				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-		}
-	}
-	// We already have an attack on the way
-	else
-	{
-		// Our Approach with this player calls for war
-		if (bWantToAttack)
-		{
-			if (IsArmyInPlaceForAttack(eTargetPlayer))
-			{	
-				SetArmyInPlaceForAttack(eTargetPlayer, false);
-				SetWantsSneakAttack(eTargetPlayer, false);
-
-				// If our Sneak Attack is ready then actually initiate the DoW
-				DeclareWar(eTargetPlayer);
-			}
-		}
-		else if (bWantShowOfForce)
-		{
-			if (IsArmyInPlaceForAttack(eTargetPlayer))
-			{	
-				SetArmyInPlaceForAttack(eTargetPlayer, false);
-				SetWantsSneakAttack(eTargetPlayer, false);
-
-				//minors will be bullied automatically
-				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
-					DoMakeDemand(eTargetPlayer);
-			}
-		}
-		// We were planning something, but changed our minds so abort
-		else
-		{
-			SetWantsSneakAttack(eTargetPlayer, false);
-			SetArmyInPlaceForAttack(eTargetPlayer, false);
-			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
-
-			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
-				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-
-			pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
-			pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 		}
 	}
 }
