@@ -200,21 +200,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/AiInXml.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/GameInXml.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/DIPLO/AIWarmongerAdjustments.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/EVENTS/CanMoveInto.sql</FileName>
       </Action>
       <Action>
@@ -647,10 +632,8 @@
     <Folder Include="Core Files\PNM Mods DB\API\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
     <Folder Include="Core Files\PNM Mods DB\BUGFIX\" />
-    <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
     <Folder Include="Core Files\PNM Mods DB\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\GLOBAL\" />
-    <Folder Include="Core Files\PNM Mods DB\DIPLO" />
     <Folder Include="Core Files\PNM Mods DB\PROMOTIONS\" />
     <Folder Include="Core Files\PNM Mods DB\RELIGION\" />
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
@@ -1318,19 +1301,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\AiInXml.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\GameInXml.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\PNM Mods DB\CustomModTables.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\DIPLO\AIWarmongerAdjustments.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
