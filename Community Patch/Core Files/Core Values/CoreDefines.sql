@@ -58,6 +58,70 @@ SELECT 'COMBAT_AI_DEFENSE_DANGERWEIGHT', '20';
 INSERT INTO Defines (Name, Value)
 SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
 
+-- Whoward AI/Game Config Defines
+
+INSERT INTO Defines (Name, Value)
+SELECT 'CITY_STARTING_RINGS', '1';
+
+-- Number of melee units per AA unit before the AI considers that they have enough, default value is 4
+INSERT INTO Defines(Name, Value)
+SELECT 'AI_CONFIG_MILITARY_MELEE_PER_AA', '2';
+
+-- Number of water tiles per ship for (small?) bodies of water, the default is 5, but 7 or 8 would be sufficient
+INSERT INTO Defines(Name, Value)
+SELECT 'AI_CONFIG_MILITARY_TILES_PER_SHIP', '6';
+
+-- Minimum war duration for AI players
+INSERT INTO Defines(Name, Value)
+SELECT 'WAR_MAJOR_MINIMUM_TURNS', '10';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
+
+-- Whoward Warmonger Adjustments
+
+UPDATE Defines
+SET Value = '-2'
+WHERE Name = 'WARMONGER_THREAT_PER_TURN_DECAY';
+
+-- Multiplicative modifiers which increase or decrease warmonger penalty per turn decay rate
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_APPROACH_DECAY_LARGE', '225';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_APPROACH_DECAY_MEDIUM', '150';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_APPROACH_DECAY_SMALL', '75';
+
+-- Multiplicative modifier for how much more the capital is worth
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_CAPITAL_CITY_PERCENT', '125';
+
+-- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT', '50';
+
+-- Multiplicative modifier for when the bystander is in a coop war with the attacker against the defender
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_COOP_WAR_PERCENT', '10';
+
+-- Additive modifiers for warmonger penalty based on various conditions
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_MODIFIER_LARGE', '75';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_MODIFIER_MEDIUM', '50';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_MODIFIER_SMALL', '25';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL', '-25';
+
+INSERT INTO Defines(Name, Value)
+SELECT 'WARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM', '-50';
+
 -- AI Citystrategy
 
 -- food is different because we include consumption.

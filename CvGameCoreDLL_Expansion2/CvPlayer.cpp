@@ -11617,11 +11617,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			if(pNotifications)
 			{
 				CvString strBuffer;
-#if defined(MOD_CONFIG_GAME_IN_XML)
 				if (GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
-#else
-				if (GetCurrentEra() > GC.getInfoTypeForString("ERA_INDUSTRIAL"))
-#endif
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA");
 				}

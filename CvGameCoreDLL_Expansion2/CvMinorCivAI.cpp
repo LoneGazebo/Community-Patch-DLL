@@ -4577,10 +4577,6 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
-#if defined(MOD_CONFIG_GAME_IN_XML)
-		m_pPlayer->GetDiplomacyAI()->DoCounters();
-#endif
-
 		DoElection();
 		DoFriendship();
 

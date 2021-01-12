@@ -828,10 +828,6 @@
     <!-- * Enables the Extensions API (v19) -->
     <!-- See also: "Unique Building - Cistern" -->
     <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
-    <!-- * Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values (v53) -->
-    <Row Class="2" Name="CONFIG_GAME_IN_XML" Value="1" DbUpdates="0"/>
-    <!-- * Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values (v19) -->
-    <Row Class="2" Name="CONFIG_AI_IN_XML" Value="1" DbUpdates="0"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>

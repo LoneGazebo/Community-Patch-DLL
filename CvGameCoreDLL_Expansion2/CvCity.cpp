@@ -615,10 +615,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->setPlotCity(this);
 	pPlot->SetCityPurchaseID(m_iID);
 
-	int iRange = 1;
-#if defined(MOD_CONFIG_GAME_IN_XML)
-	iRange = GD_INT_GET(CITY_STARTING_RINGS);
-#endif
+	int iRange = min(1, GD_INT_GET(CITY_STARTING_RINGS));
+
 	for(int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
@@ -11219,11 +11217,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	if (pkUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 	{
 		// We must be into the industrial era
-#if defined(MOD_CONFIG_GAME_IN_XML)
 		if (kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(&kPlayer))
-#else
-		if(kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
-#endif
 		{
 			// Must be proper great person for our civ
 			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();

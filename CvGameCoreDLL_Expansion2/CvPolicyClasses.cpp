@@ -6171,11 +6171,7 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		}
 	}
 #endif
-#if defined(MOD_CONFIG_GAME_IN_XML)
 	if (m_pPlayer->GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
-#else
-	if (m_pPlayer->GetCurrentEra() > GC.getInfoTypeForString("ERA_INDUSTRIAL"))
-#endif
 	{
 		return true;
 	}

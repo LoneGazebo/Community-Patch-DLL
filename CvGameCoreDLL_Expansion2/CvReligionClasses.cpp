@@ -700,11 +700,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	}
 
 	// Check for pantheon or great prophet spawning (now restricted so must occur before Industrial era)
-#if defined(MOD_CONFIG_GAME_IN_XML)
 	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= GD_INT_GET(RELIGION_LAST_FOUND_ERA))
-#else
-	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
-#endif
 	{
 		if(CanCreatePantheon(kPlayer.GetID(), true) == FOUNDING_OK)
 		{
@@ -794,11 +790,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 			szItemName = GetLocalizedText("TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM", GC.getUnitInfo(eProphetType)->GetDescription());
 			bSelectionStillValid = false;
 		}
-#if defined(MOD_CONFIG_GAME_IN_XML)
 		else if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
-#else
-		else if (kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL"))
-#endif
 		{
 			UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
 			szItemName = GetLocalizedText("TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM", GC.getUnitInfo(eProphetType)->GetDescription());

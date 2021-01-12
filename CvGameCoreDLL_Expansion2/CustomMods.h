@@ -140,11 +140,6 @@
 // Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57)
 #define MOD_API_UNIFIED_YIELDS_GOLDEN_AGE           (true)
 
-// Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values -->
-#define MOD_CONFIG_GAME_IN_XML                      gCustomMods.isCONFIG_GAME_IN_XML()
-// Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values
-#define MOD_CONFIG_AI_IN_XML                        gCustomMods.isCONFIG_AI_IN_XML()
-
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
 // Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
@@ -1518,9 +1513,6 @@ public:
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 	MOD_OPT_DECL(API_EXTENSIONS);
 	MOD_OPT_DECL(API_LUA_EXTENSIONS);
-
-	MOD_OPT_DECL(CONFIG_GAME_IN_XML);
-	MOD_OPT_DECL(CONFIG_AI_IN_XML);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
