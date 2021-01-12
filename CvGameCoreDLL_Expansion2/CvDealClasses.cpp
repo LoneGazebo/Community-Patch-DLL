@@ -376,9 +376,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if (ePlayer == NO_PLAYER || eToPlayer == NO_PLAYER)
 		return false;
 
-	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
-		return false;
-
+	// Observer can't trade anything
 	if (!GET_PLAYER(eToPlayer).isAlive() || GET_PLAYER(eToPlayer).isObserver())
 		return false;
 

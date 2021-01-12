@@ -5022,11 +5022,7 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive)
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
-#else
-			if(GET_TEAM((TeamTypes)iI).isAlive() && GC.getGame().getActiveTeam() == (TeamTypes)iI)
-#endif
 			{
 				if(isVisible((TeamTypes)iI))
 				{
@@ -6429,11 +6425,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			for(iI = 0; iI < MAX_TEAMS; ++iI)
 			{
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 				if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
-#else
-				if(GET_TEAM((TeamTypes)iI).isAlive())
-#endif
 				{
 					updateRevealedOwner((TeamTypes)iI);
 				}
@@ -7669,11 +7661,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 		for(iI = 0; iI < MAX_TEAMS; ++iI)
 		{
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 			if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
-#else
-			if(GET_TEAM((TeamTypes)iI).isAlive())
-#endif
 			{
 				if(isVisible((TeamTypes)iI))
 				{
@@ -8769,11 +8757,7 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 
 		for(iI = 0; iI < MAX_TEAMS; ++iI)
 		{
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 			if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
-#else
-			if(GET_TEAM((TeamTypes)iI).isAlive())
-#endif
 			{
 				if(isVisible((TeamTypes)iI))
 				{
@@ -8809,11 +8793,7 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
-#ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
-#else
-			if(GET_TEAM((TeamTypes)iI).isAlive() && GC.getGame().getActiveTeam() == (TeamTypes)iI)
-#endif
 			{
 				if(isVisible((TeamTypes)iI))
 				{
@@ -11420,10 +11400,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 					if(eTeam == eActiveTeam)
 					{
 						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
-#ifdef AUI_PLOT_OBSERVER_NO_NW_POPUPS
+
 						if ( GET_TEAM((TeamTypes)iI).isObserver() )
 							bDontShowRewardPopup = true;
-#endif
+
 						// Popup (no MP)
 #if defined(MOD_API_EXTENSIONS)
 						if(!GC.getGame().isReallyNetworkMultiPlayer() && !bDontShowRewardPopup)

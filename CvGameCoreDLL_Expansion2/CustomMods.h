@@ -80,11 +80,6 @@
 
 #define MOD_CORE_RESILIENT_PANTHEONS
 
-#define MOD_BALANCE_CORE_OBSERVER_CHANGES
-	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
-	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
-	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
-
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 

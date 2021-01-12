@@ -735,14 +735,6 @@ void CvGame::InitPlayers()
 			{
 				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
 			}
-#if defined(MOD_BALANCE_CORE_OBSERVER_CHANGES)
-			//don't use a special observer team
-#else
-			else if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
-			{//make all observers be on the observer team.
-				CvPreGame::setTeamType((PlayerTypes)iI, OBSERVER_TEAM);
-			}
-#endif
 		}
 		// Minor civs
 		else if(iI < MAX_CIV_PLAYERS)
@@ -1488,7 +1480,6 @@ void CvGame::initDiplomacy()
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_OBSERVER_CHANGES)
 		if(kTeamA.isObserver())
 		{
 			for(int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
@@ -1498,8 +1489,6 @@ void CvGame::initDiplomacy()
 					kTeamA.makeHasMet(eTeamB,true);
 			}
 		}
-#endif
-
 	}
 }
 
@@ -5010,12 +4999,10 @@ bool CvGame::CanOpenCityScreen(PlayerTypes eOpener, CvCity* pCity)
 	{
 		return true;
 	}
-#ifdef AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	else if (GET_PLAYER(eOpener).isObserver())
 	{
 		return true;
 	}
-#endif
 	else if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && (GET_PLAYER(eOpener).GetEspionage()->HasEstablishedSurveillanceInCity(pCity) || GET_PLAYER(eOpener).GetEspionage()->IsAnySchmoozing(pCity)))
 	{
 		return true;
