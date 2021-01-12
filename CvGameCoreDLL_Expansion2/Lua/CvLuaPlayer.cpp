@@ -10282,7 +10282,7 @@ int CvLuaPlayer::lGetMajorCivApproach(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false));
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMajorCivApproach(ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12597,8 +12597,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
-	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
+	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer);
 
 	//--------------------------------//
 	// [PART 1: SPECIAL INDICATORS]	  //

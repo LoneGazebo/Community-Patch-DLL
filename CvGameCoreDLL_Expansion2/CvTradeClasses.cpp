@@ -6421,7 +6421,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 
 	//If we are friends with the player, let's not care about how much gold they make.
-	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_AFRAID)
+	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_APPROACH_AFRAID)
 	{
 		iOtherGoldAmount /= 10;
 	}
@@ -6521,7 +6521,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 
 	//If we are friends with the player, let's not care about how much science they make.
-	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
+	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
 		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
@@ -6615,7 +6615,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 
 	//If we are friends with the player, let's not care about how much science they make.
-	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
+	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
 		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
@@ -6932,7 +6932,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		{
 			int iFranchises = (GET_PLAYER(pToCity->getOwner()).GetCorporations()->GetNumFranchises() / 2);
 			//Care less if we like this guy.
-			if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY ||
+			if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner) == MAJOR_CIV_APPROACH_FRIENDLY ||
 				m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
 			{
 				iFranchises /= 5;

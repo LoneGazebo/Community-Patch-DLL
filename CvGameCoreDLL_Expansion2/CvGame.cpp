@@ -13430,7 +13430,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 								break;
 							}
 
-							switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2, false))
+							switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2))
 							{
 							case MAJOR_CIV_APPROACH_WAR:
 								iMajorWar++;

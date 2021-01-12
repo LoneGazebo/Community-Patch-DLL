@@ -3653,9 +3653,9 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		}
 
 		// Add in weight for each civ we're on really bad terms with
-		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_HOSTILE ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID ||
+		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
+		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE ||
+		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_AFRAID ||
 				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
 				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE ||
 				pkDiplomacyAI->IsCapitalCapturedBy(eOtherPlayer) || pkDiplomacyAI->IsHolyCityCapturedBy(eOtherPlayer) ||
@@ -3665,8 +3665,8 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		}
 
 		// And some if on fairly bad terms
-		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_GUARDED ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE ||
+		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_GUARDED ||
+		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_DECEPTIVE ||
 				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_GUARDED ||
 				pkDiplomacyAI->GetNumWarsDeclaredOnUs(eOtherPlayer) > 0)
 		{

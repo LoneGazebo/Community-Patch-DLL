@@ -4572,7 +4572,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 				if(eMinorAlly != NO_PLAYER)
 				{
 					MajorCivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eMinorAlly);
-					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ false);
+					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly);
 					MajorCivApproachTypes eApproachTowardsUs = pPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(eMinorAlly);
 
 					if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)

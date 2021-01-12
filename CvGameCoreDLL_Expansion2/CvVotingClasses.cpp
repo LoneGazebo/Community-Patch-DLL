@@ -10389,7 +10389,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 
 	// Opinion and approach
 	MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(ePlayer);
 	if (eOpinion > MAJOR_CIV_OPINION_NEUTRAL || eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 	{
 		iAlignment += 1;
@@ -11702,7 +11702,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false))
+				switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer))
 				{
 				case MAJOR_CIV_APPROACH_WAR:
 				case MAJOR_CIV_APPROACH_HOSTILE:
@@ -12135,7 +12135,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 								{
 									//The Master
 									MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 
 									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 									{
@@ -12200,7 +12200,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 											{
 												//The Master
 												MajorCivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer2);
-												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2, /*bHideTrueFeelings*/ true);
+												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2);
 												int iTempScore = 0;
 												switch (eOpinion2)
 												{
@@ -13034,7 +13034,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
 
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ true);
+					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer);
 					DisputeLevelTypes eDispute = (DisputeLevelTypes) max((int)GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer), (int)GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(eTargetPlayer));
 					BlockLevelTypes eBlock = GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eTargetPlayer);
 
@@ -13169,7 +13169,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{	
@@ -13273,7 +13273,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 					{

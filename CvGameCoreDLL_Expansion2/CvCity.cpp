@@ -28949,7 +28949,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 	{
-		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(pPlot->getOwner(), true) >= MAJOR_CIV_APPROACH_AFRAID)
+		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetSurfaceApproach(pPlot->getOwner()) >= MAJOR_CIV_APPROACH_AFRAID)
 		{
 			return iRtnValue;
 		}
@@ -29084,30 +29084,30 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 							{
 							case DISPUTE_LEVEL_FIERCE:
 								iRtnValue += (10 - iDistance) * /* 6 */ GC.getAI_PLOT_VALUE_FIERCE_DISPUTE();
-#if defined(MOD_BALANCE_CORE)
+
 								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
 									iRtnValue *= 8;
 								}
-#endif
+
 								break;
 							case DISPUTE_LEVEL_STRONG:
 								iRtnValue += (10 - iDistance) * /* 4 */GC.getAI_PLOT_VALUE_STRONG_DISPUTE();
-#if defined(MOD_BALANCE_CORE)
+
 								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
 									iRtnValue *= 4;
 								}
-#endif
+
 								break;
 							case DISPUTE_LEVEL_WEAK:
 								iRtnValue += (10 - iDistance) * /* 2 */ GC.getAI_PLOT_VALUE_WEAK_DISPUTE();
-#if defined(MOD_BALANCE_CORE)
+
 								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
 									iRtnValue *= 2;
 								}
-#endif
+
 								break;
 							}
 						}

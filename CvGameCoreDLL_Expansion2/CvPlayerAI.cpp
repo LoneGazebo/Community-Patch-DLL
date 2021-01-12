@@ -2001,7 +2001,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 		if (GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eAlliedPlayer).getTeam()))
 		{
-			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eAlliedPlayer, false);
+			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eAlliedPlayer);
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
 
 			// If a friendly player is allied, let's discourage going there.

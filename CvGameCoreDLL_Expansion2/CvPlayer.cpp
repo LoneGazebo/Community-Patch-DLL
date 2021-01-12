@@ -37140,7 +37140,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				int iPercent = 0;
 
 				// Approach is very important
-				switch (GetDiplomacyAI()->GetMajorCivApproach(eToPlayer, false)) {
+				switch (GetDiplomacyAI()->GetMajorCivApproach(eToPlayer)) {
 					case MAJOR_CIV_APPROACH_WAR:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_WAR_MULTIPLIER", 0) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
@@ -37237,7 +37237,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				// Use the popularity difference between the players to skew the probability
 				int iSmileRatio = (GetExcessHappiness() * 100) / (std::max(0, GET_PLAYER(eToPlayer).GetExcessHappiness()) + 10);
 				iPercent = iPercent * std::min(150, std::max(75, iSmileRatio)) / 100;
-				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetMajorCivApproach(eToPlayer, false), GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer));
+				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetMajorCivApproach(eToPlayer), GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer));
 
 				if (GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed()) < iPercent) {
 					if (GC.getGame().getActivePlayer() == GetID()) {
@@ -37662,7 +37662,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 						}
 						if (eOtherMajor != NO_PLAYER && eOtherMajor != GetID() && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
 						{
-							MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
+							MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor);
 							MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
 							// If another player is allied, let's evaluate that.
 							// Only care if they are allies
@@ -47528,7 +47528,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 				bWarMayBeComing = true;
 
 			//how is the general diplomatic climate?
-			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 			MajorCivApproachTypes eTheirApproach = GetDiplomacyAI()->GetVisibleApproachTowardsUs(eLoopPlayer);
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
 			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE || 

@@ -493,7 +493,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 			}
 
-			switch (pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true))
+			switch (pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
 			{
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				if (eOtherPlayerIdeology == eFreedomBranch)
@@ -845,7 +845,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 					PolicyBranchTypes eOtherPlayerIdeology;
 					eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
-					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true))
+					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
 					{
 						case MAJOR_CIV_APPROACH_HOSTILE:
 							if (eOtherPlayerIdeology == ePreferredIdeology)

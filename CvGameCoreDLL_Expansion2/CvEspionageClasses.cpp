@@ -3224,8 +3224,8 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			continue;
 		}
 
-		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, true);
-		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, false);
+		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
+		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer);
 
 		// if the current approach is a dangerous approach
 		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
@@ -3409,8 +3409,8 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 			continue;
 		}
 
-		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, true);
-		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, false);
+		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
+		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer);
 
 		// if the current approach is a dangerous approach
 		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
@@ -9460,11 +9460,11 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					{
 						iDiploModifier += 50;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) >= MAJOR_CIV_APPROACH_AFRAID)
+					if (pDiploAI->GetMajorCivApproach(eTargetPlayer) >= MAJOR_CIV_APPROACH_AFRAID)
 					{
 						iDiploModifier -= 100;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
+					if (pDiploAI->GetMajorCivApproach(eTargetPlayer) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
 						iDiploModifier += 100;
 					}
