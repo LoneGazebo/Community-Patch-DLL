@@ -24486,12 +24486,12 @@ void CvPlayer::ChangeUnitUpgradeCostMod(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// How much of a combat bonus do we get VS Barbarian Units?
-int CvPlayer::GetBarbarianCombatBonus() const
+int CvPlayer::GetBarbarianCombatBonus(bool bIgnoreHandicap) const
 {
 	int iRtnValue = m_iBarbarianCombatBonus;
 
 	// Hacky solution for human handicap bonus since LUA is annoying
-	if (isHuman())
+	if (!bIgnoreHandicap && isHuman())
 	{
 		iRtnValue += getHandicapInfo().getBarbarianCombatModifier();
 	}

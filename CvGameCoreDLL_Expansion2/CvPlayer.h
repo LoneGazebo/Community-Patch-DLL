@@ -886,7 +886,7 @@ public:
 	void SetUnitUpgradeCostMod(int iValue);
 	void ChangeUnitUpgradeCostMod(int iChange);
 
-	int GetBarbarianCombatBonus() const;
+	int GetBarbarianCombatBonus(bool bIgnoreHandicap = false) const;
 	void SetBarbarianCombatBonus(int iValue);
 	void ChangeBarbarianCombatBonus(int iChange);
 

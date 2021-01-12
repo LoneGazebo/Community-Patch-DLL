@@ -20275,12 +20275,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
 	
-							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus(true) > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
 								if(iCulturePoints <= 0)
 								{
-									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus(true);
 								}
 
 								// Game Speed Mod
