@@ -203,23 +203,18 @@ public:
 	// Opinion
 	MajorCivOpinionTypes GetMajorCivOpinion(PlayerTypes ePlayer) const;
 	void SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
-	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
 
 	int GetCachedOpinionWeight(PlayerTypes ePlayer) const;
 	void SetCachedOpinionWeight(PlayerTypes ePlayer, int iWeight);
 
 	// Approach
-	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
+	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 
 	MajorCivApproachTypes GetMajorCivStrategicApproach(PlayerTypes ePlayer) const;
 	void SetMajorCivStrategicApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 
-	int GetNumMajorCivApproach(MajorCivApproachTypes eApproach, bool bHideTrueFeelings = false, bool bStrategic = false) const;
-
-	// War Face: If we're planning for war, how are we acting towards ePlayer?
-	WarFaceTypes GetWarFace(PlayerTypes ePlayer) const;
-	void SetWarFace(PlayerTypes ePlayer, WarFaceTypes eFace);
+	MajorCivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 
 	// Approach Values: Cached weight for each approach
 	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
@@ -1776,7 +1771,7 @@ private:
 	void LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApproachValues, const int* aiScratchValues);
 	void LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial);
 
-	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, WarFaceTypes eNewWarFace);
+	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, MajorCivApproachTypes eSurfaceApproach);
 	void LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MinorCivApproachTypes eNewMinorCivApproach, MinorCivApproachTypes eOldApproach);
 	void LogPersonality();
 	void LogStatus();
@@ -1785,7 +1780,7 @@ private:
 
 	void LogGrandStrategy(CvString& strString);
 
-	void LogMajorCivApproach(CvString& strString, MajorCivApproachTypes eNewMajorCivApproach, WarFaceTypes eNewWarFace);
+	void LogMajorCivApproach(CvString& strString, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eSurfaceApproach);
 	void LogMinorCivApproach(CvString& strString, MinorCivApproachTypes eNewMajorCivApproach);
 	void LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes eQuestType);
 	void LogOpinion(CvString& strString, PlayerTypes ePlayer);
@@ -1873,7 +1868,6 @@ private:
 	short m_aiCachedOpinionWeight[MAX_MAJOR_CIVS];
 	char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
 	char m_aeMajorCivStrategicApproach[MAX_MAJOR_CIVS];
-	char m_aeWarFace[MAX_MAJOR_CIVS];
 	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_MAJOR_CIV_APPROACHES];
 	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_MAJOR_CIV_APPROACHES];
 

@@ -55,18 +55,6 @@ enum MinorCivApproachTypes
 	NUM_MINOR_CIV_APPROACHES,
 };
 
-enum WarFaceTypes
-{
-	NO_WAR_FACE_TYPE = -1,
-
-	WAR_FACE_HOSTILE,
-	WAR_FACE_GUARDED,
-	WAR_FACE_NEUTRAL,
-	WAR_FACE_FRIENDLY,
-
-	NUM_WAR_FACES,
-};
-
 enum WarStateTypes
 {
 	NO_WAR_STATE_TYPE = -1,

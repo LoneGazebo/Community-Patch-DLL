@@ -146,7 +146,6 @@ void CvDiplomacyAI::Reset()
 		m_aiCachedOpinionWeight[iI] = 0;
 		m_aeMajorCivApproach[iI] = NO_MAJOR_CIV_APPROACH;
 		m_aeMajorCivStrategicApproach[iI] = NO_MAJOR_CIV_APPROACH;
-		m_aeWarFace[iI] = NO_WAR_FACE_TYPE;
 
 		for (int iJ = 0; iJ < NUM_MAJOR_CIV_APPROACHES; iJ++)
 		{
@@ -469,7 +468,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aiCachedOpinionWeight;
 	kStream >> m_aeMajorCivApproach;
 	kStream >> m_aeMajorCivStrategicApproach;
-	kStream >> m_aeWarFace;
 	kStream >> m_aaiApproachValues;
 	kStream >> m_aaiStrategicApproachValues;
 
@@ -765,7 +763,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiCachedOpinionWeight;
 	kStream << m_aeMajorCivApproach;
 	kStream << m_aeMajorCivStrategicApproach;
-	kStream << m_aeWarFace;
 	kStream << m_aaiApproachValues;
 	kStream << m_aaiStrategicApproachValues;
 
@@ -2170,22 +2167,6 @@ void CvDiplomacyAI::SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes
 	m_aeMajorCivOpinion[(int)ePlayer] = eOpinion;
 }
 
-/// How many Majors do we have a particular Opinion towards?
-int CvDiplomacyAI::GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const
-{
-	int iCount = 0;
-
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		if (GetMajorCivOpinion((PlayerTypes)iMajorLoop) == eOpinion)
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
-}
-
 /// What is our cached opinion weight for this Major Civ?
 int CvDiplomacyAI::GetCachedOpinionWeight(PlayerTypes ePlayer) const
 {
@@ -2204,58 +2185,9 @@ void CvDiplomacyAI::SetCachedOpinionWeight(PlayerTypes ePlayer, int iWeight)
 MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_MAJOR_CIV_APPROACH;
-
-	MajorCivApproachTypes eApproach = (MajorCivApproachTypes) m_aeMajorCivApproach[(int)ePlayer];
-
-	// Never hide true feelings towards our master
-	if (IsVassal(ePlayer))
-	{
-		return eApproach;
-	}
-
-	// If we're hiding our true feelings then use the War Face or Friendly if we're Deceptive
-	if (bHideTrueFeelings)
-	{
-		// If we have a Declaration of Friendship, always use Friendly as the surface approach
-		if (IsDoFAccepted(ePlayer))
-		{
-			eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
-		}
-
-		// Deceptive = Friendly
-		else if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
-		{
-			eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
-		}
-
-		// War Face
-		else if (eApproach == MAJOR_CIV_APPROACH_WAR)
-		{
-			switch (GetWarFace(ePlayer))
-			{
-			case WAR_FACE_HOSTILE:
-				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
-				break;
-			case WAR_FACE_FRIENDLY:
-				eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
-				break;
-			case WAR_FACE_NEUTRAL:
-				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-				break;
-			case WAR_FACE_GUARDED:
-				eApproach = MAJOR_CIV_APPROACH_GUARDED;
-				break;
-			default:
-				CvAssert(false);
-				break;
-			}
-		}
-	}
-
-	return eApproach;
+	return (MajorCivApproachTypes) m_aeMajorCivApproach[(int)ePlayer];
 }
 
-/// Sets what our Diplomatic Approach is towards a Major Civ
 void CvDiplomacyAI::SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
@@ -2270,7 +2202,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivStrategicApproach(PlayerTypes eP
 	return (MajorCivApproachTypes) m_aeMajorCivStrategicApproach[(int)ePlayer];
 }
 
-/// Sets our Strategic Diplomatic Approach towards this Major Civ
 void CvDiplomacyAI::SetMajorCivStrategicApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
@@ -2278,45 +2209,45 @@ void CvDiplomacyAI::SetMajorCivStrategicApproach(PlayerTypes ePlayer, MajorCivAp
 	m_aeMajorCivStrategicApproach[(int)ePlayer] = eApproach;
 }
 
-/// How many Majors do we have a particular Approach towards?
-int CvDiplomacyAI::GetNumMajorCivApproach(MajorCivApproachTypes eApproach, bool bHideTrueFeelings, bool bStrategic) const
+MajorCivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 {
-	int iCount = 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_MAJOR_CIV_APPROACH;
 
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	// Always friendly if we have a Declaration of Friendship
+	if (IsDoFAccepted(ePlayer))
+		return MAJOR_CIV_APPROACH_FRIENDLY;
+
+	MajorCivApproachTypes eRealApproach = GetMajorCivApproach(ePlayer);
+
+	// Pick a surface approach to disguise our war plans
+	if (eRealApproach == MAJOR_CIV_APPROACH_WAR)
 	{
-		if (!bStrategic)
+		MajorCivApproachTypes eSurfaceApproach = GetHighestValueApproach(ePlayer, /*bExcludeWar*/ true, /*bIncludeOverrides*/ true);
+
+		// If we were just denounced or they ended our friendship, can't be better than GUARDED
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetPlayer()->GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
 		{
-			if (GetMajorCivApproach((PlayerTypes)iMajorLoop, bHideTrueFeelings) == eApproach)
+			if (eSurfaceApproach > MAJOR_CIV_APPROACH_GUARDED)
 			{
-				iCount++;
+				eSurfaceApproach = MAJOR_CIV_APPROACH_GUARDED;
 			}
 		}
-		else
+
+		// If the Surface Approach is DECEPTIVE, return FRIENDLY
+		if (eSurfaceApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 		{
-			if (GetMajorCivStrategicApproach((PlayerTypes)iMajorLoop) == eApproach)
-			{
-				iCount++;
-			}
+			return MAJOR_CIV_APPROACH_FRIENDLY;
 		}
+
+		return eSurfaceApproach;
+	}
+	// Deceptive = Friendly
+	else if (eRealApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+	{
+		return MAJOR_CIV_APPROACH_FRIENDLY;
 	}
 
-	return iCount;
-}
-
-/// If we're planning war with ePlayer, how are we acting towards him?
-WarFaceTypes CvDiplomacyAI::GetWarFace(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_WAR_FACE_TYPE;
-	return (WarFaceTypes) m_aeWarFace[(int)ePlayer];
-}
-
-/// Sets how we're acting while we prepare for our war against ePlayer
-void CvDiplomacyAI::SetWarFace(PlayerTypes ePlayer, WarFaceTypes eWarFace)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	if (eWarFace < NO_WAR_FACE_TYPE || eWarFace >= NUM_WAR_FACES) return;
-	m_aeWarFace[(int)ePlayer] = eWarFace;
+	return eRealApproach;
 }
 
 int CvDiplomacyAI::GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const
@@ -14384,7 +14315,6 @@ void CvDiplomacyAI::SelectApproachTowardsTeammate(PlayerTypes ePlayer)
 	{
 		// Teammates are always FRIENDLY to each other
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = 9999;
 
@@ -14406,11 +14336,10 @@ void CvDiplomacyAI::SelectApproachTowardsTeammate(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 	// We shouldn't have any minors on our team...but just in case there somehow are
@@ -14430,7 +14359,6 @@ void CvDiplomacyAI::SelectAlwaysWarApproach(PlayerTypes ePlayer)
 	{
 		// Permanent war means ONLY WAR!
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_WAR;
-		WarFaceTypes eWarFace = WAR_FACE_NEUTRAL;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 		vApproachScores[MAJOR_CIV_APPROACH_WAR] = 9999;
 
@@ -14452,11 +14380,10 @@ void CvDiplomacyAI::SelectAlwaysWarApproach(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 	else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -14474,52 +14401,34 @@ void CvDiplomacyAI::SelectHumanApproach(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 
 		if (IsAtWar(ePlayer))
 		{
 			eApproach = MAJOR_CIV_APPROACH_WAR;
-			eWarFace = WAR_FACE_NEUTRAL;
 		}
 		else
 		{
-			// Planning a coop war with or against this player?
-			bool bCoopWarAgainst = GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-			bool bCoopWarWith = GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-
 			if (IsDenouncedPlayer(ePlayer) || IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_HOSTILE;
-				else
-					eApproach = MAJOR_CIV_APPROACH_HOSTILE;
+				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
 			}
 			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_GUARDED;
-				else
-					eApproach = MAJOR_CIV_APPROACH_GUARDED;
+				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 			}
-			else if (bCoopWarWith || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			else if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer) || GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_FRIENDLY;
-				else
-					eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
+				eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
 			}
 			else
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_NEUTRAL;
-				else
-					eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 			}
 		}
 
 		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
@@ -14539,11 +14448,10 @@ void CvDiplomacyAI::SelectHumanApproach(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 	else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -14583,66 +14491,44 @@ void CvDiplomacyAI::SelectApproachIfWeHaveNoCities(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 
 		if (IsAtWar(ePlayer))
 		{
 			eApproach = MAJOR_CIV_APPROACH_WAR;
-			eWarFace = WAR_FACE_NEUTRAL;
 		}
 		else
 		{
-			// Planning a coop war with or against this player?
-			bool bCoopWarAgainst = GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-			bool bCoopWarWith = GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-
 			if (IsDenouncedPlayer(ePlayer) || IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || IsUntrustworthy(ePlayer))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_HOSTILE;
-				else
-					eApproach = MAJOR_CIV_APPROACH_HOSTILE;
+				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
 			}
 			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_GUARDED;
-				else
-					eApproach = MAJOR_CIV_APPROACH_GUARDED;
+				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 			}
-			else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			else if (WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_FRIENDLY;
-				else
-					eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
+				eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
 			}
 			else if (GetNumCitiesCapturedBy(ePlayer) > 0)
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_GUARDED;
-				else
-					eApproach = MAJOR_CIV_APPROACH_GUARDED;
+				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 			}
 			else
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_NEUTRAL;
-				else
-					eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 			}
 		}
 
 		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		{
 			// If this is the first time ever updating approach towards this player, let's not be hostile right off the bat - neutral is fine, though.
 			if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-				eWarFace = NO_WAR_FACE_TYPE;
 			}
 
 			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
@@ -14664,11 +14550,10 @@ void CvDiplomacyAI::SelectApproachIfWeHaveNoCities(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 	else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -14686,59 +14571,40 @@ void CvDiplomacyAI::SelectApproachIfTheyHaveNoCities(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 
 		if (IsAtWar(ePlayer))
 		{
 			eApproach = MAJOR_CIV_APPROACH_WAR;
-			eWarFace = WAR_FACE_NEUTRAL;
 		}
 		else
 		{
-			// Planning a coop war with or against this player?
-			bool bCoopWarAgainst = GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-			bool bCoopWarWith = GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING;
-
 			if (IsDenouncedPlayer(ePlayer) || IsUntrustworthy(ePlayer))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_HOSTILE;
-				else
-					eApproach = MAJOR_CIV_APPROACH_HOSTILE;
+				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
 			}
 			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_GUARDED;
-				else
-					eApproach = MAJOR_CIV_APPROACH_GUARDED;
+				eApproach = MAJOR_CIV_APPROACH_GUARDED;
 			}
-			else if (bCoopWarWith || WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			else if (WasResurrectedBy(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_FRIENDLY;
-				else
-					eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
+				eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
 			}
 			else
 			{
-				if (bCoopWarAgainst)
-					eWarFace = WAR_FACE_NEUTRAL;
-				else
-					eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 			}
 		}
 
 		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		{
 			// If this is the first time ever updating approach towards this player, let's not be hostile right off the bat - neutral is fine, though.
 			if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-				eWarFace = NO_WAR_FACE_TYPE;
 			}
 
 			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
@@ -14760,11 +14626,10 @@ void CvDiplomacyAI::SelectApproachIfTheyHaveNoCities(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 	else if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -14792,7 +14657,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 
 		VassalTreatmentTypes eTreatmentLevel = GetVassalTreatmentLevel(ePlayer);
@@ -14851,7 +14715,7 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 		}
 
 		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
@@ -14871,11 +14735,10 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 }
@@ -14892,13 +14755,11 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		MajorCivApproachTypes eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-		WarFaceTypes eWarFace = NO_WAR_FACE_TYPE;
 		vector<int> vApproachScores(NUM_MAJOR_CIV_APPROACHES, 0);
 
 		if (IsAtWar(ePlayer))
 		{
 			eApproach = MAJOR_CIV_APPROACH_WAR;
-			eWarFace = WAR_FACE_NEUTRAL;
 		}
 		else
 		{
@@ -14980,22 +14841,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 					if (bWarPlans)
 					{
-						switch (eApproach)
-						{
-						case MAJOR_CIV_APPROACH_FRIENDLY:
-							eWarFace = WAR_FACE_FRIENDLY;
-							break;
-						case MAJOR_CIV_APPROACH_NEUTRAL:
-							eWarFace = WAR_FACE_NEUTRAL;
-							break;
-						case MAJOR_CIV_APPROACH_HOSTILE:
-							eWarFace = WAR_FACE_HOSTILE;
-							break;
-						default:
-							eWarFace = WAR_FACE_NEUTRAL;
-							break;
-						}
-
 						eApproach = MAJOR_CIV_APPROACH_WAR;
 					}
 				}
@@ -15086,7 +14931,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 							if (!bAbort)
 							{
 								eApproach = MAJOR_CIV_APPROACH_WAR;
-								eWarFace = WAR_FACE_HOSTILE;
 
 								for (size_t i=0; i<vMasterTeam.size(); i++)
 								{
@@ -15096,25 +14940,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 										continue;
 
 									SetMajorCivApproach(vMasterTeam[i], MAJOR_CIV_APPROACH_WAR);
-									MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(vMasterTeam[i], true, true);
-
-									switch (eWarFaceApproach)
-									{
-									case MAJOR_CIV_APPROACH_HOSTILE:
-										SetWarFace(vMasterTeam[i], WAR_FACE_HOSTILE);
-										break;
-									case MAJOR_CIV_APPROACH_GUARDED:
-									case MAJOR_CIV_APPROACH_AFRAID:
-										SetWarFace(vMasterTeam[i], WAR_FACE_GUARDED);
-										break;
-									case MAJOR_CIV_APPROACH_DECEPTIVE:
-									case MAJOR_CIV_APPROACH_FRIENDLY:
-										SetWarFace(vMasterTeam[i], WAR_FACE_FRIENDLY);
-										break;
-									default:
-										SetWarFace(vMasterTeam[i], WAR_FACE_NEUTRAL);
-										break;
-									}
 								}
 							}
 							else
@@ -15125,7 +14950,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 						else
 						{
 							eApproach = MAJOR_CIV_APPROACH_WAR;
-							eWarFace = WAR_FACE_HOSTILE;
 						}
 					}
 					else
@@ -15137,7 +14961,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 		}
 
 		// Grab the old approach and scratch values for logging
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
@@ -15157,11 +14981,10 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 			SetPlayerStrategicApproachValue(ePlayer, eLoopApproach, vApproachScores[(int)eLoopApproach]);
 		}
 
-		// Update approach/war face and log.
+		// Update approach and log.
 		SetMajorCivApproach(ePlayer, eApproach);
 		SetMajorCivStrategicApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace);
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 }
@@ -20118,68 +19941,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		eApproach = eOpinion <= MAJOR_CIV_OPINION_ENEMY ? MAJOR_CIV_APPROACH_GUARDED : MAJOR_CIV_APPROACH_NEUTRAL;
 	}
 
-	////////////////////////////////////
-	// WAR FACE
-	////////////////////////////////////
-
-	WarFaceTypes eWarFace = GetWarFace(ePlayer);
-
-	// If we're going to war then update how we're acting
-	if (eApproach == MAJOR_CIV_APPROACH_WAR)
-	{
-		// If we haven't set War Face on a previous turn, figure out what it should be
-		if (eWarFace == NO_WAR_FACE_TYPE)
-		{
-			MajorCivApproachTypes eTempApproach;
-
-			// Use index of 1 since we already know element 0 is war; that will give us the most reasonable approach
-			eTempApproach = vApproachScoresForSorting.GetElement(1);
-
-			// Pick among the Approach types
-			// Select a War Face based on the next highest Approach score
-			switch (eTempApproach)
-			{
-			case MAJOR_CIV_APPROACH_HOSTILE:
-				eWarFace = WAR_FACE_HOSTILE;
-				break;
-			case MAJOR_CIV_APPROACH_GUARDED:
-			case MAJOR_CIV_APPROACH_AFRAID:
-				eWarFace = WAR_FACE_GUARDED;
-				break;
-			case MAJOR_CIV_APPROACH_DECEPTIVE:
-			case MAJOR_CIV_APPROACH_FRIENDLY:
-				eWarFace = WAR_FACE_FRIENDLY;
-				break;
-			default:
-				eWarFace = WAR_FACE_NEUTRAL;
-				break;
-			}
-		}
-	}
-	else
-	{
-		// Reset this so a new War Face can be picked next time
-		eWarFace = NO_WAR_FACE_TYPE;
-	}
-
-	// Don't use the FRIENDLY War Face if we're not being friendly
-	if (bNoFriendly && eWarFace == WAR_FACE_FRIENDLY)
-	{
-		eWarFace = eOpinion <= MAJOR_CIV_OPINION_ENEMY ? WAR_FACE_GUARDED : WAR_FACE_NEUTRAL;
-	}
-
-	// Don't use the HOSTILE War Face if they resurrected us
-	if (bResurrectedUs && eWarFace == WAR_FACE_HOSTILE && !bUntrustworthy)
-	{
-		eWarFace = WAR_FACE_GUARDED;
-	}
-
-	// Don't use the HOSTILE War Face towards players who are liberating our cities (if we care).
-	if (IsCityRecentlyLiberatedBy(ePlayer) && eWarFace == WAR_FACE_HOSTILE)
-	{
-		eWarFace = WAR_FACE_GUARDED;
-	}
-
 	// If this was a strategic update, update the strategic approach values
 	if (bFirstPass)
 	{
@@ -20196,8 +19957,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (!bStrategic || bReevaluation)
 	{
 		SetMajorCivApproach(ePlayer, eApproach);
-		SetWarFace(ePlayer, eWarFace); 
-		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, eWarFace);
+		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 
@@ -22000,25 +21760,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (GetMajorCivApproach(*it) != MAJOR_CIV_APPROACH_WAR)
 			{
 				SetMajorCivApproach(*it, MAJOR_CIV_APPROACH_WAR);
-				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(*it, true, true);
-
-				switch (eWarFaceApproach)
-				{
-				case MAJOR_CIV_APPROACH_HOSTILE:
-					SetWarFace(*it, WAR_FACE_HOSTILE);
-					break;
-				case MAJOR_CIV_APPROACH_GUARDED:
-				case MAJOR_CIV_APPROACH_AFRAID:
-					SetWarFace(*it, WAR_FACE_GUARDED);
-					break;
-				case MAJOR_CIV_APPROACH_DECEPTIVE:
-				case MAJOR_CIV_APPROACH_FRIENDLY:
-					SetWarFace(*it, WAR_FACE_FRIENDLY);
-					break;
-				default:
-					SetWarFace(*it, WAR_FACE_NEUTRAL);
-					break;
-				}
 			}
 		}
 
@@ -22127,7 +21868,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
 					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
-					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
 		}
@@ -22239,7 +21979,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
 					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
-					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
 			// How much do we value this existing sneak attack?
@@ -22260,25 +21999,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (GetMajorCivApproach(eSneakAttackTarget) != MAJOR_CIV_APPROACH_WAR)
 			{
 				SetMajorCivApproach(eSneakAttackTarget, MAJOR_CIV_APPROACH_WAR);
-				MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eSneakAttackTarget, true, true);
-
-				switch (eWarFaceApproach)
-				{
-				case MAJOR_CIV_APPROACH_HOSTILE:
-					SetWarFace(eSneakAttackTarget, WAR_FACE_HOSTILE);
-					break;
-				case MAJOR_CIV_APPROACH_GUARDED:
-				case MAJOR_CIV_APPROACH_AFRAID:
-					SetWarFace(eSneakAttackTarget, WAR_FACE_GUARDED);
-					break;
-				case MAJOR_CIV_APPROACH_DECEPTIVE:
-				case MAJOR_CIV_APPROACH_FRIENDLY:
-					SetWarFace(eSneakAttackTarget, WAR_FACE_FRIENDLY);
-					break;
-				default:
-					SetWarFace(eSneakAttackTarget, WAR_FACE_NEUTRAL);
-					break;
-				}
 			}
 
 			int iConflictValue = IsEasyTarget(eSneakAttackTarget) ? 5 : 10;
@@ -22332,25 +22052,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (GetMajorCivApproach(eCandidate) != MAJOR_CIV_APPROACH_WAR)
 				{
 					SetMajorCivApproach(eCandidate, MAJOR_CIV_APPROACH_WAR);
-					MajorCivApproachTypes eWarFaceApproach = GetHighestValueApproach(eCandidate, true, true);
-
-					switch (eWarFaceApproach)
-					{
-					case MAJOR_CIV_APPROACH_HOSTILE:
-						SetWarFace(eCandidate, WAR_FACE_HOSTILE);
-						break;
-					case MAJOR_CIV_APPROACH_GUARDED:
-					case MAJOR_CIV_APPROACH_AFRAID:
-						SetWarFace(eCandidate, WAR_FACE_GUARDED);
-						break;
-					case MAJOR_CIV_APPROACH_DECEPTIVE:
-					case MAJOR_CIV_APPROACH_FRIENDLY:
-						SetWarFace(eCandidate, WAR_FACE_FRIENDLY);
-						break;
-					default:
-						SetWarFace(eCandidate, WAR_FACE_NEUTRAL);
-						break;
-					}
 				}
 
 				int iConflictValue = IsEasyTarget(eCandidate) ? 5 : 10;
@@ -22389,7 +22090,6 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_WAR)
 				{
 					SetMajorCivApproach(*it, GetHighestValueApproach(*it, true, true));
-					SetWarFace(*it, NO_WAR_FACE_TYPE);
 				}
 			}
 		}
@@ -27100,19 +26800,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true, false);
 		LogBrokenDoF(ePlayer);
 
-		if (!GET_PLAYER(ePlayer).isHuman())
+		if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer) > MAJOR_CIV_APPROACH_GUARDED)
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
-			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
-			}
-			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
-			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
-				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
-				}
-			}
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
 		}
 		
 		// Other players' reactions
@@ -36492,11 +36182,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// End all coop war agreements with this player
 			CancelCoopWarsWithPlayer(eFromPlayer, true);
 
-			if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GetWarFace(eFromPlayer) != WAR_FACE_HOSTILE)
-			{
-				SetWarFace(eFromPlayer, WAR_FACE_GUARDED);
-			}
-			else if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
+			if (GetMajorCivApproach(eFromPlayer) > MAJOR_CIV_APPROACH_GUARDED)
 			{
 				SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_GUARDED);
 			}
@@ -36829,27 +36515,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 
 			// Update approach to WAR
-			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
 			SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR);
-
-			// Set War Face if old approach wasn't WAR
-			switch (eOldApproach)
-			{
-			case MAJOR_CIV_APPROACH_HOSTILE:
-				SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
-				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
-			case MAJOR_CIV_APPROACH_GUARDED:
-				SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
-				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
-			case MAJOR_CIV_APPROACH_DECEPTIVE:
-				SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
-				break;
-			default:
-				SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
-				break;
-			}
 
 			if (bActivePlayer)
 			{
@@ -39537,27 +39203,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	if (eResponse == COOP_WAR_STATE_ONGOING || eResponse == COOP_WAR_STATE_PREPARING)
 	{
 		// Update approach to WAR
-		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eTargetPlayer);
 		SetMajorCivApproach(eTargetPlayer, MAJOR_CIV_APPROACH_WAR);
-
-		// Set War Face if old approach wasn't WAR
-		switch (eOldApproach)
-		{
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-		case MAJOR_CIV_APPROACH_GUARDED:
-			SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
-			break;
-		default:
-			SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
-			break;
-		}
 
 		if (eResponse == COOP_WAR_STATE_ONGOING)
 		{
@@ -39571,27 +39217,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		if (!GET_PLAYER(eAskingPlayer).isHuman())
 		{
 			// Update their approach to WAR
-			MajorCivApproachTypes eTheirOldApproach = GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer);
 			GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetMajorCivApproach(eAskingPlayer, MAJOR_CIV_APPROACH_WAR);
-
-			// Set War Face if old approach wasn't WAR
-			switch (eTheirOldApproach)
-			{
-			case MAJOR_CIV_APPROACH_HOSTILE:
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_HOSTILE);
-				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
-			case MAJOR_CIV_APPROACH_GUARDED:
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_GUARDED);
-				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
-			case MAJOR_CIV_APPROACH_DECEPTIVE:
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_FRIENDLY);
-				break;
-			default:
-				GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->SetWarFace(eTargetPlayer, WAR_FACE_NEUTRAL);
-				break;
-			}
 
 			if (eResponse == COOP_WAR_STATE_ONGOING)
 			{
@@ -40859,11 +40485,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	v.push_back(GetID());
 	DoReevaluatePlayers(v);
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFace(eMyPlayer) != WAR_FACE_HOSTILE)
-	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFace(eMyPlayer, WAR_FACE_GUARDED);
-	}
-	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer) > MAJOR_CIV_APPROACH_GUARDED)
 	{
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
 	}
@@ -41217,7 +40839,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	case MAJOR_CIV_APPROACH_DECEPTIVE:
 		iWeight -= 25;
 		break;
-	// War - depends on war face
+	// War - depends on surface approach
 	case MAJOR_CIV_APPROACH_WAR:
 		if (IsAtWar(ePlayer))
 		{
@@ -41225,22 +40847,22 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		}
 		else
 		{
-			switch (GetWarFace(ePlayer))
+			switch (GetSurfaceApproach(ePlayer))
 			{
 			// Higher bump than true HOSTILE
-			case WAR_FACE_HOSTILE:
+			case MAJOR_CIV_APPROACH_HOSTILE:
 				iWeight += 8;
 				break;
 			// Slightly higher bump than true GUARDED
-			case WAR_FACE_GUARDED:
+			case MAJOR_CIV_APPROACH_GUARDED:
 				iWeight += 2;
 				break;
 			// Avoid upsetting things, but lower weight than true NEUTRAL
-			case WAR_FACE_NEUTRAL:
+			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iWeight -= 4;
 				break;
 			// Do NOT reveal if pretending to be FRIENDLY
-			case WAR_FACE_FRIENDLY:
+			case MAJOR_CIV_APPROACH_FRIENDLY:
 				iWeight -= 25;
 				break;
 			}
@@ -47268,7 +46890,7 @@ void CvDiplomacyAI::LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, 
 }
 
 /// Log Major Civ Approach Update
-void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, WarFaceTypes eNewWarFace)
+void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, MajorCivApproachTypes eSurfaceApproach)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -47308,11 +46930,11 @@ void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 		// Major Civs
 		if(!GET_PLAYER(ePlayer).isMinorCiv())
 		{
-			LogMajorCivApproach(strOutBuf, eNewMajorCivApproach, eNewWarFace);
+			LogMajorCivApproach(strOutBuf, eNewMajorCivApproach, eSurfaceApproach);
 
 			if(eNewMajorCivApproach != eOldApproach)
 			{
-				LogMajorCivApproach(strOutBuf, eOldApproach, eNewWarFace);
+				LogMajorCivApproach(strOutBuf, eOldApproach, eSurfaceApproach);
 			}
 			else
 			{
@@ -47760,7 +47382,7 @@ void CvDiplomacyAI::LogStatus()
 					else
 						strOutBuf += ", ";
 
-					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false), GetWarFace(eLoopPlayer));
+					LogMajorCivApproach(strOutBuf, GetMajorCivApproach(eLoopPlayer), GetSurfaceApproach(eLoopPlayer));
 					LogOpinion(strOutBuf, eLoopPlayer);
 				}
 				// Minor Civ
@@ -48111,25 +47733,25 @@ void CvDiplomacyAI::LogGrandStrategy(CvString& strString)
 }
 
 /// Log Current Approach towards Major
-void CvDiplomacyAI::LogMajorCivApproach(CvString& strString, MajorCivApproachTypes eNewMajorCivApproach, WarFaceTypes eNewWarFace)
+void CvDiplomacyAI::LogMajorCivApproach(CvString& strString, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eSurfaceApproach)
 {
 	CvString strTemp;
 
 	switch(eNewMajorCivApproach)
 	{
 	case MAJOR_CIV_APPROACH_WAR:
-		switch(eNewWarFace)
+		switch(eSurfaceApproach)
 		{
-		case WAR_FACE_HOSTILE:
+		case MAJOR_CIV_APPROACH_HOSTILE:
 			strTemp.Format("**WAR_HOSTILE**");
 			break;
-		case WAR_FACE_NEUTRAL:
+		case MAJOR_CIV_APPROACH_NEUTRAL:
 			strTemp.Format("**WAR_NEUTRAL**");
 			break;
-		case WAR_FACE_FRIENDLY:
+		case MAJOR_CIV_APPROACH_FRIENDLY:
 			strTemp.Format("**WAR_FRIENDLY**");
 			break;
-		case WAR_FACE_GUARDED:
+		case MAJOR_CIV_APPROACH_GUARDED:
 			strTemp.Format("**WAR_GUARDED**");
 			break;
 		default:
