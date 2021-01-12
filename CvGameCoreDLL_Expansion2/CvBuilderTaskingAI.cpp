@@ -2722,7 +2722,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	{
 		//looking to replace a fort - score might have changed because the border moved!
 		int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-		if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+		if (MOD_GLOBAL_PASSABLE_FORTS && NeedCanalAtPlot(pPlot))
 			iFortScore += iBigBuff*3;
 
 		if (iFortScore * 4 > iSecondaryScore * 3)
