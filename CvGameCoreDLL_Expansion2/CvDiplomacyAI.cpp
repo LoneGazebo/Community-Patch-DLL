@@ -35451,7 +35451,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL:
 	{
 		//If player is offended, AI should take note as penalty to assistance.
-		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, 150);
+		if (GetForgiveness() < 7 || GetNeediness() > 7)
+		{
+			ChangeRecentAssistValue(eFromPlayer, 150);
+		}
+		else
+		{
+			ChangeRecentAssistValue(eFromPlayer, 75);
+		}
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES)
