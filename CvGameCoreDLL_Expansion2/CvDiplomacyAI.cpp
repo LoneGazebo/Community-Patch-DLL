@@ -2250,6 +2250,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) con
 			}
 		}
 
+		// Don't pretend to be afraid if we're not
+		if (eSurfaceApproach == MAJOR_CIV_APPROACH_AFRAID)
+		{
+			return MAJOR_CIV_APPROACH_GUARDED;
+		}
+
 		// If the Surface Approach is DECEPTIVE, return FRIENDLY
 		if (eSurfaceApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 		{
