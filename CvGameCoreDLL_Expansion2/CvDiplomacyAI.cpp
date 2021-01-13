@@ -23439,14 +23439,14 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
 			if (pCurrentSneakAttackOperation)
 			{
-				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
-
-				if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
-					SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-
 				pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
+
+			SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
+
+			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR)
+				SetMajorCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
 		}
 
 		SetArmyInPlaceForAttack(eTargetPlayer, false);
