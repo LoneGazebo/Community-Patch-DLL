@@ -26632,7 +26632,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
+						iScaleValue = pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, true, GetID(), pLoopCity);
+						iScaleValue *= iEra;
+						iValue += iScaleValue;
+
+						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, false, GetID(), pLoopCity);
 					}
 					for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 					{

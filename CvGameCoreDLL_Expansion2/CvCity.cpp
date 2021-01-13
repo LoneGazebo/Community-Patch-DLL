@@ -21323,7 +21323,6 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 
 	// Building Class Mods
 	iSpecialBuildingHappiness = 0;
-	bool bVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 #if defined(MOD_BALANCE_CORE)
 	bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)

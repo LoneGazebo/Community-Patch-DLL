@@ -84,7 +84,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
-	m_piYieldPerBorderGrowth(NULL),
+	m_pbiYieldPerBorderGrowth(),
 	m_piYieldPerHeal(NULL),
 	m_piYieldPerBirth(NULL),
 	m_piYieldPerScience(NULL),
@@ -578,11 +578,21 @@ int CvBeliefEntry::GetYieldPerLux(int i) const
 	return m_piYieldPerLux ? m_piYieldPerLux[i] : -1;
 }
 /// Accessor:: Yield Per Border Growth
-int CvBeliefEntry::GetYieldPerBorderGrowth (int i) const
+int CvBeliefEntry::GetYieldPerBorderGrowth (YieldTypes eYield, bool bEraScaling) const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldPerBorderGrowth ? m_piYieldPerBorderGrowth[i] : -1;
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldPerBorderGrowth.find((int)eYield);
+	if (itYield != m_pbiYieldPerBorderGrowth.end())
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+	return 0;
 }
 /// Accessor:: Yield Per Heal
 int CvBeliefEntry::GetYieldPerHeal (int i) const
@@ -1335,7 +1345,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldPerPop, "Belief_YieldPerPop", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerGPT, "Belief_YieldPerGPT", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerLux, "Belief_YieldPerLux", "BeliefType", szBeliefType);
-	kUtility.SetYields(m_piYieldPerBorderGrowth, "Belief_YieldPerBorderGrowth", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerHeal, "Belief_YieldPerHeal", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerBirth, "Belief_YieldPerBirth", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerScience, "Belief_YieldPerScience", "BeliefType", szBeliefType);
@@ -1380,6 +1389,30 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	//YieldPerBorderGrowth
+	{
+		std::string strKey("Belief_YieldPerBorderGrowth");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldPerBorderGrowth inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while (pResults->Step())
+		{
+			const int YieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+			const bool eraScaling = pResults->GetBool(2);
+
+			m_pbiYieldPerBorderGrowth[YieldID][eraScaling] = yield;
+		}
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<bool, int>>(m_pbiYieldPerBorderGrowth).swap(m_pbiYieldPerBorderGrowth);
+	}
+
 	//YieldFromTechUnlock
 	{
 		std::string strKey("Belief_YieldFromTechUnlock");
@@ -4216,14 +4249,14 @@ int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for border growth
-int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerBorderGrowth(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerBorderGrowth(eYieldType, bEraScaling);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

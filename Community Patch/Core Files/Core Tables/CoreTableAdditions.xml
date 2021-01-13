@@ -177,6 +177,7 @@
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
 	<!-- PANTHEON: Allows you to define any belief to grant x yield for every use of the faith healer ability, where X is the number below.-->
