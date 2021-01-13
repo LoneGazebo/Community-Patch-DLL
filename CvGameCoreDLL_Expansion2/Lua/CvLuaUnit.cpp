@@ -1929,37 +1929,50 @@ int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 int CvLuaUnit::lGetBlastTourism(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
+	int iResult = 0;
+	if (pkUnit)
 	{
-		CvPlayer &kUnitOwner = GET_PLAYER(pkUnit->getOwner());
-		PlayerTypes eOwner = pkUnit->plot()->getOwner();
+		iResult = pkUnit->getBlastTourism();
 
-		if (eOwner != NO_PLAYER)
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
 		{
-			InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-			if(eLevel <= INFLUENCE_LEVEL_EXOTIC)
+			CvPlot* pPlot = pkUnit->plot();
+			if (pPlot && pkUnit->canBlastTourism(pPlot))
 			{
-				int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 2;
-				int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
-				int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
-				int iTourismDifference = 0;
+				CvPlayer& kUnitOwner = GET_PLAYER(pkUnit->getOwner());
+				PlayerTypes eOtherPlayer = pPlot->getOwner();
+				
 
-				//Get % needed for Familiarity
-				if (iTourismNeededForFamiliar > 0)
+				// below logic based on CvPlayerCulture::ChangeInfluenceOn()
+				if (eOtherPlayer != NO_PLAYER)
 				{
-					iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
+					// gamespeed modifier
+					iResult = iResult * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+
+					// player to player modifier (eg religion, open borders, ideology)
+					if (kUnitOwner.getCapitalCity())
+					{
+						int iModifier = kUnitOwner.getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
+						if (iModifier != 0)
+						{
+							iResult = iResult * (100 + iModifier) / 100;
+						}
+					}
+
+					// IsNoOpenTrade trait modifier (half tourism if trait owner does not send a trade route to the unit owner)
+					CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+					if (eOtherPlayer != pkUnit->getOwner() && kOtherPlayer.isMajorCiv() && kOtherPlayer.GetPlayerTraits()->IsNoOpenTrade())
+					{
+						if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, pkUnit->getOwner(), true))
+							iResult /= 2;
+					}
 				}
-				//Subtract existing %
-				iTourismDifference -= iInfluenceOn;
-				lua_pushinteger(L, iTourismDifference);
-				return 1;
 			}
 		}
-	}
 #endif
-
-	const int iResult = pkUnit->getBlastTourism();
+	}
+	
 	lua_pushinteger(L, iResult);
 	return 1;
 }

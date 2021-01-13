@@ -95,7 +95,7 @@ public:
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
 	int GetYieldPerLux(int i) const;
-	int GetYieldPerBorderGrowth(int i) const;
+	int GetYieldPerBorderGrowth(YieldTypes eYield, bool bEraScaling = false) const;
 	int GetYieldPerHeal(int i) const;
 	int GetYieldPerBirth(int i) const;
 	int GetYieldPerScience(int i) const;
@@ -106,7 +106,7 @@ public:
 	int GetYieldFromConquest(int i) const;
 	int GetYieldFromPolicyUnlock(int i) const;
 	int GetYieldFromEraUnlock(int i) const;
-	int GetYieldFromTechUnlock(YieldTypes eYield) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling = false) const;
 	int GetYieldFromConversion(int i) const;
 	int GetYieldFromConversionExpo(int i) const;
 	int GetYieldFromWLTKD(int i) const;
@@ -344,7 +344,7 @@ protected:
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
-	int* m_piYieldPerBorderGrowth;
+	std::map<int, std::map<bool, int>> m_pbiYieldPerBorderGrowth;
 	int* m_piYieldPerHeal;
 	int* m_piYieldPerBirth;
 	int* m_piYieldPerScience;
@@ -355,7 +355,7 @@ protected:
 	int* m_piYieldFromConquest;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromEraUnlock;
-	std::map<int, int> m_piYieldFromTechUnlock;
+	std::map<int, std::map<bool, int>> m_pbiYieldFromTechUnlock;
 	int* m_piYieldFromConversion;
 	int* m_piYieldFromConversionExpo;
 	int* m_piYieldFromWLTKD;
@@ -577,7 +577,7 @@ public:
 	int GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldPerBorderGrowth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraScaling = false, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -588,7 +588,7 @@ public:
 	int GetYieldFromConquest(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromPolicyUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromEraUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldFromTechUnlock(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling = false, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

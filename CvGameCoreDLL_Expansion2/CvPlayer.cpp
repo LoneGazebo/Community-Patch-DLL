@@ -26552,16 +26552,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_TECH:
 				{
-					iValue +=  pLoopCity->GetYieldFromTech(eYield);
-					if(pLoopCity->isCapital())
+					// the following instant yield sources have no non era scaling options
+					if (bEraScale)
 					{
-						iValue += getYieldFromTech(eYield);
+						iValue += pLoopCity->GetYieldFromTech(eYield);
+						if (pLoopCity->isCapital())
+						{
+							iValue += getYieldFromTech(eYield);
+						}
 					}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
+						iValue += pReligion->m_Beliefs.GetYieldFromTechUnlock(eYield, bEraScale, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
 					}
 #endif
 					break;
@@ -26624,7 +26628,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
+						iScaleValue = pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, true, GetID(), pLoopCity);
+						iScaleValue *= iEra;
+						iValue += iScaleValue;
+
+						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, false, GetID(), pLoopCity);
 					}
 					for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 					{

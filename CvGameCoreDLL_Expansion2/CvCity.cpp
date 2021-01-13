@@ -21315,105 +21315,76 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 
 	iTotalHappiness += iSpecialPolicyBuildingHappiness;
 
-	BuildingClassTypes eBuildingClass;
-
 	// Building Class Mods
 	iSpecialBuildingHappiness = 0;
-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+#if defined(MOD_BALANCE_CORE)
+	bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
+#else
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
 	{
-		eBuildingClass = (BuildingClassTypes)iI;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if (!pkBuildingClassInfo)
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			continue;
-		}
-
-		BuildingTypes eBuilding = NO_BUILDING;
-		int iNumTotal = 0;
-		bool bVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-#if defined(MOD_BALANCE_CORE)
-		bool bRome = kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings();
-		if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-		if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-			iNumTotal = kPlayer.countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice ? kPlayer.countNumBuildingsInPuppets(eBuilding) : 0);
-		}
-
-#if defined(MOD_BALANCE_CORE)
-		if ((eBuilding != NO_BUILDING && iNumTotal > 0) || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-		if ((eBuilding != NO_BUILDING && iNumTotal > 0) || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-		{
-			CvBuildingEntry* pkBuilding = NULL;
-#if defined(MOD_BALANCE_CORE)
-			//if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-#else
-			//if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if (!pkBuildingClassInfo)
 			{
-				pkBuilding = GC.getBuildingInfo(eBuilding);
+				continue;
 			}
-#if defined(MOD_BALANCE_CORE)
-			if (pkBuilding)// || MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-			if (pkBuilding)// || MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+
+			BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			bool bVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+			int iNumTotal = kPlayer.countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice ? kPlayer.countNumBuildingsInPuppets(eBuilding) : 0);
+		
+			if (eBuilding != NO_BUILDING && iNumTotal > 0)
 			{
-				for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+				if (pkBuilding)
 				{
-					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes)jJ;
-					int iHappinessPerBuilding = 0;
-#if defined(MOD_BALANCE_CORE)
-					//if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-#else
-					if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
-					//{
-					//	int iLoop;
-					//	for (const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					//	{
-					//		if (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice && pLoopCity->IsPuppet())
-					//		{
-					//			continue;
-					//		}
-					//		eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-					//		if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-					//		{
-					//			pkBuilding = GC.getBuildingInfo(eBuilding);
-					//			if (pkBuilding)
-					//			{
-					//				iHappinessPerBuilding += pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
-					//			}
-					//		}
-					//	}
-					//}
-					//else
+					for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
 					{
-						iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness) * kPlayer.getNumBuildings(eBuilding);
+						BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes)jJ;
+						int iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness) * iNumTotal;
+						if (iHappinessPerBuilding > 0)
+						{
+							BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
+							if (eBuildingThatGivesHappiness != NO_BUILDING)
+							{
+								int iNumTotal2 = GetCityBuildings()->GetNumBuilding(eBuildingThatGivesHappiness);
+
+								iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
+							}
+						}
 					}
-					if (iHappinessPerBuilding > 0)
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes)iI;
+			if (eBuilding == NO_BUILDING)
+			{
+				continue;
+			}
+			bool bVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+			int iNumTotal = kPlayer.countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES && !bVenice ? kPlayer.countNumBuildingsInPuppets(eBuilding) : 0);
+
+			if (iNumTotal > 0)
+			{
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+				if (pkBuilding)
+				{
+					for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
 					{
-						BuildingTypes eBuildingThatGivesHappiness = NO_BUILDING;
-#if defined(MOD_BALANCE_CORE)
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
-#else
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-#endif
+						BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes)jJ;
+						int iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness) * iNumTotal;
+						if (iHappinessPerBuilding > 0)
 						{
-							eBuildingThatGivesHappiness = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClassThatGivesHappiness);
-						}
-						else
-						{
-							eBuildingThatGivesHappiness = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
-						}
-						if (eBuildingThatGivesHappiness != NO_BUILDING)
-						{
-							int iNumTotal2 = GetCityBuildings()->GetNumBuilding(eBuildingThatGivesHappiness);
+							int iNumTotal2 = GetCityBuildings()->GetNumBuildingClass(eBuildingClassThatGivesHappiness);
 
 							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
 						}
