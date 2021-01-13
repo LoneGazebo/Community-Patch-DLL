@@ -1269,8 +1269,6 @@ function ResetDisplay()
 --CBP
 			if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
 				sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT");
-			elseif not (g_pUs:IsDoF(g_iThem)) then
-				sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
 			else
 				sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
 			end
@@ -1297,8 +1295,6 @@ function ResetDisplay()
 --CBP
 			if ( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
 				sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT");
-			elseif not (g_pUs:IsDoF(g_iThem)) then
-				sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
 			else
 				sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
 			end

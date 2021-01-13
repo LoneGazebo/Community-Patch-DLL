@@ -432,9 +432,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Can't trade lump Gold unless you're on the same team or have a DoF, except in a Peace Treaty
 			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
-				if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
-					return false;
-
 				// Can't exchange GPT for lump Gold - we aren't a bank.
 				if (GetGoldPerTurnTrade(eToPlayer) > 0)
 					return false;
