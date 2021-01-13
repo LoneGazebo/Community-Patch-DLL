@@ -13310,56 +13310,57 @@ bool CvUnit::blastTourism()
 	}
 
 	int iTourismBlast = getBlastTourism();
+	int iTourismBlastPercentOthers = m_pUnitInfo->GetOneShotTourismPercentOthers();
+	PlayerTypes eOwner = pPlot->getOwner();
+	CvPlayer &kUnitOwner = GET_PLAYER(getOwner());
+
+	// Apply to target, then save what is the amount we actually applied
+	int iTourismBlastAfterModifier = kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismBlast, true, true);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	//Let's make the GM a little more flexible.
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	{
 		PlayerTypes eOwner = pPlot->getOwner();
 
+		// Give happiness to Musician owner
 		int iCap = GC.getBALANCE_CORE_MUSICIAN_BLAST_HAPPINESS();
 
-		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
 			GET_PLAYER(getOwner()).getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 		}
 
+		// Send notifications
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if (pNotifications) 
+		if (pNotifications)
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR");
 			localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
-			localizedText << iTourismBlast;
+			localizedText << iTourismBlastAfterModifier;
 			localizedText << iCap;
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S");
 			localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 			pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
 		}
 		CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
-		if (pNotifications2) 
+		if (pNotifications2)
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET");
 			localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
-			localizedText << iTourismBlast;
+			localizedText << iTourismBlastAfterModifier;
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S");
 			localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 			pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
 		}
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
-			strLogString.Format("Foreign Tour, Familiar. Tourism gained: %d. Happiness they gained: %d", iTourismBlast, iCap);
+			strLogString.Format("Foreign Tour, Familiar. Tourism gained: %d. Happiness they gained: %d", iTourismBlastAfterModifier, iCap);
 			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
 #endif
-
-	int iTourismBlastPercentOthers = m_pUnitInfo->GetOneShotTourismPercentOthers();
-	PlayerTypes eOwner = pPlot->getOwner();
-	CvPlayer &kUnitOwner = GET_PLAYER(getOwner());
-
-	// Apply to target
-	kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismBlast, true, true);
 
 	//store off this data
 	GET_PLAYER(getOwner()).changeInstantTourismValue(eOwner, iTourismBlast);
@@ -13414,7 +13415,7 @@ bool CvUnit::blastTourism()
 			strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
 
 		char text[256] = {0};
-		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
+		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlastAfterModifier, strInfluenceText.c_str());
 		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
 	}
 
