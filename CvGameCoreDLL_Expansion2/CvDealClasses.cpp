@@ -377,7 +377,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		return false;
 
 	// Observer can't trade anything
-	if (!GET_PLAYER(eToPlayer).isAlive() || GET_PLAYER(eToPlayer).isObserver())
+	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
 		return false;
 
 	// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
