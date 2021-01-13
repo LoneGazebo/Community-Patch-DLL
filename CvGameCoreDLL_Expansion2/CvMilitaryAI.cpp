@@ -517,7 +517,7 @@ bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 /// Send an army to force concessions
 bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 {
-	if (!GET_PLAYER(eEnemy).isMinorCiv())
+	if (GET_PLAYER(eEnemy).isBarbarian())
 		return false;
 
 	CvCity* pTargetCity = GET_PLAYER(eEnemy).getCapitalCity();
