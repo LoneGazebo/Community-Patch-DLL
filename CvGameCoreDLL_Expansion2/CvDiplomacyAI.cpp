@@ -23317,20 +23317,16 @@ void CvDiplomacyAI::MakeWar()
 			{
 				if (IsPlayerValid(eTarget))
 				{
-					int iWeight = (int)GetWarProjection(eTarget) + 1;
+					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
-					if(iPlayerLoop < MAX_MAJOR_CIVS)
+					// Make sure majors are looked at before city states
+					if (GET_PLAYER(eTarget).isMajorCiv())
 					{
-						if(GetMajorCivOpinion(eTarget) == MAJOR_CIV_OPINION_UNFORGIVABLE)
-						{
-							iWeight *= 2;
-						}
-
-						iWeight *= 10;  // Make sure majors are looked at before city states
+						iWeight *= 10;
 					}
 
 					playerList.push_back(eTarget, iWeight);
@@ -23343,20 +23339,16 @@ void CvDiplomacyAI::MakeWar()
 				if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
 #endif
 				{
-					int iWeight = (int)GetWarProjection(eTarget) + 1;
+					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
-					if(iPlayerLoop < MAX_MAJOR_CIVS)
+					// Make sure majors are looked at before city states
+					if (GET_PLAYER(eTarget).isMajorCiv())
 					{
-						if(GetMajorCivOpinion(eTarget) == MAJOR_CIV_OPINION_UNFORGIVABLE)
-						{
-							iWeight *= 2;
-						}
-
-						iWeight *= 10;  // Make sure majors are looked at before city states
+						iWeight *= 10;
 					}
 
 					playerList.push_back(eTarget, iWeight);
@@ -23368,7 +23360,7 @@ void CvDiplomacyAI::MakeWar()
 
 		playerList.SortItems();
 
-		for(int iI = 0; iI < playerList.size(); iI++)
+		for (int iI = 0; iI < playerList.size(); iI++)
 		{
 			DoMakeWarOnPlayer(playerList.GetElement(iI));
 		}
