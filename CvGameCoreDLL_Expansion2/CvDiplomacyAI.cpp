@@ -23317,7 +23317,7 @@ void CvDiplomacyAI::MakeWar()
 			{
 				if (IsPlayerValid(eTarget))
 				{
-					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
+					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerStrategicApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
@@ -23339,7 +23339,7 @@ void CvDiplomacyAI::MakeWar()
 				if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
 #endif
 				{
-					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
+					int iWeight = GET_PLAYER(eTarget).isMajorCiv() ? GetPlayerStrategicApproachValue(eTarget, MAJOR_CIV_APPROACH_WAR) : (int)GetPlayerTargetValue(eTarget) + 1;
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
