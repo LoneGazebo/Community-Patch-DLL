@@ -23323,12 +23323,6 @@ void CvDiplomacyAI::MakeWar()
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
-					// Make sure majors are looked at before city states
-					if (GET_PLAYER(eTarget).isMajorCiv())
-					{
-						iWeight *= 10;
-					}
-
 					playerList.push_back(eTarget, iWeight);
 				}
 			}
@@ -23344,12 +23338,6 @@ void CvDiplomacyAI::MakeWar()
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
-
-					// Make sure majors are looked at before city states
-					if (GET_PLAYER(eTarget).isMajorCiv())
-					{
-						iWeight *= 10;
-					}
 
 					playerList.push_back(eTarget, iWeight);
 				}
