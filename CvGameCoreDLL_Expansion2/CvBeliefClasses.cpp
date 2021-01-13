@@ -95,7 +95,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromConquest(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromEraUnlock(NULL),
-	m_piYieldFromTechUnlock(),
+	m_pbiYieldFromTechUnlock(),
 	m_piYieldFromConversion(NULL),
 	m_piYieldFromConversionExpo(NULL),
 	m_piYieldFromWLTKD(NULL),
@@ -656,15 +656,19 @@ int CvBeliefEntry::GetYieldFromEraUnlock(int i) const
 	return m_piYieldFromEraUnlock ? m_piYieldFromEraUnlock[i] : -1;
 }
 /// Accessor:: Yield Tech Unlock
-int CvBeliefEntry::GetYieldFromTechUnlock(YieldTypes eYield) const
+int CvBeliefEntry::GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<int, int>::const_iterator it = m_piYieldFromTechUnlock.find((int)eYield);
-	if (it != m_piYieldFromTechUnlock.end())
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromTechUnlock.find((int)eYield);
+	if (itYield != m_pbiYieldFromTechUnlock.end())
 	{
-		return it->second;
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
 	}
 	return 0;
 }
@@ -1382,7 +1386,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Belief_YieldFromTechUnlock inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Belief_YieldFromTechUnlock inner join Yields on Yields.Type = YieldType where BeliefType = ?");
 		}
 
 		pResults->Bind(1, szBeliefType);
@@ -1391,12 +1395,13 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		{
 			const int YieldID = pResults->GetInt(0);
 			const int yield = pResults->GetInt(1);
+			const bool eraScaling = pResults->GetBool(2);
 
-			m_piYieldFromTechUnlock[YieldID] = yield;
+			m_pbiYieldFromTechUnlock[YieldID][eraScaling] = yield;
 		}
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, int>(m_piYieldFromTechUnlock).swap(m_piYieldFromTechUnlock);
+		std::map<int, std::map<bool, int>>(m_pbiYieldFromTechUnlock).swap(m_pbiYieldFromTechUnlock);
 	}
 #endif
 
@@ -4413,14 +4418,14 @@ int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes 
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from tech unlock
-int CvReligionBeliefs::GetYieldFromTechUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromTechUnlock(YieldTypes eYieldType, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromTechUnlock(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromTechUnlock(eYieldType, bEraScaling);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

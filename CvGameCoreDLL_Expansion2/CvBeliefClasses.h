@@ -106,7 +106,7 @@ public:
 	int GetYieldFromConquest(int i) const;
 	int GetYieldFromPolicyUnlock(int i) const;
 	int GetYieldFromEraUnlock(int i) const;
-	int GetYieldFromTechUnlock(YieldTypes eYield) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling = false) const;
 	int GetYieldFromConversion(int i) const;
 	int GetYieldFromConversionExpo(int i) const;
 	int GetYieldFromWLTKD(int i) const;
@@ -355,7 +355,7 @@ protected:
 	int* m_piYieldFromConquest;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromEraUnlock;
-	std::map<int, int> m_piYieldFromTechUnlock;
+	std::map<int, std::map<bool, int>> m_pbiYieldFromTechUnlock;
 	int* m_piYieldFromConversion;
 	int* m_piYieldFromConversionExpo;
 	int* m_piYieldFromWLTKD;
@@ -588,7 +588,7 @@ public:
 	int GetYieldFromConquest(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromPolicyUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromEraUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldFromTechUnlock(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling = false, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

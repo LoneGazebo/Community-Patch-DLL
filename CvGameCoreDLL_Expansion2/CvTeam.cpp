@@ -8041,7 +8041,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(!bNoBonus)
 			{
-				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_TECH);
+				// call one for era scaling, another for no era scaliing
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_TECH, false, NO_GREATPERSON, NO_BUILDING, 0, true);
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_TECH, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
