@@ -134,7 +134,7 @@ bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iValue)
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 {
-	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
+	if (pDeal->GetDemandingPlayer() != NO_PLAYER || pDeal->GetRequestingPlayer() != NO_PLAYER)
 		return true;
 
 	if (pDeal->m_bIsGift)

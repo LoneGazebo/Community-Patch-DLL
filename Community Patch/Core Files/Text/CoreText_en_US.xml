@@ -2827,7 +2827,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
-			<Text>Cannot trade Gold for Gold Per Turn/Resources.</Text>
+			<Text>Cannot trade Gold for Gold Per Turn/Resources/Votes.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">

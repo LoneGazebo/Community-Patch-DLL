@@ -444,6 +444,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			//cannot pay for resources with lump sums of gold
 			if (IsResourceTrade(eToPlayer, NO_RESOURCE))
 				return false;
+
+			//cannot pay for vote commitments with lump sums of gold
+			if(IsVoteCommitmentTrade(eToPlayer))
+				return false;
 		}
 	}
 	// Gold per Turn
@@ -467,19 +471,17 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if (!bHumanToHuman)
 		{
-			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
-			{
-				// Can't exchange GPT for lump Gold - we aren't a bank.
-				if (GetGoldTrade(eToPlayer) > 0)
-					return false;
-			}
-			else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
 			{
 				if (this->GetSurrenderingPlayer() != ePlayer)
 				{
 					return false;
 				}
 			}
+
+			// Can't exchange GPT for lump Gold - we aren't a bank.
+			if (GetGoldTrade(eToPlayer) > 0)
+				return false;
 		}
 
 		//int iDuration = iData2;
@@ -599,7 +601,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			if(!bHumanToHuman)
 			{
 				if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -614,7 +615,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if (GetGoldTrade(eToPlayer)>0)
 					return false;
 			}
-#endif
+
 			// Can't trade resource if the seller does not have the city trade tech
 			TechTypes eCityTradeTech = (TechTypes)GC.getResourceInfo(eResource)->getTechCityTrade();
 			if (eCityTradeTech != NO_TECH)
@@ -778,6 +779,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		bool bIgnoreExistingOP = pRenewDeal != NULL && pRenewDeal->IsDefensivePactTrade(ePlayer);
 
+		// Not valid in a demand/request
+		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)
+			return false;
+
 		// No DPs with vassals!
 		if (pFromTeam->IsVassalOfSomeone())
 			return false;
@@ -816,6 +821,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 	{
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+
+		// Not valid in a demand/request
+		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)
 			return false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1216,6 +1225,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		CvAssert(pLeague->IsProposed(iID, bRepeal));
 		CvAssert(iNumVotes <= pLeague->GetPotentialVotesForMember(ePlayer, eToPlayer));
+
+		//cannot pay for vote commitments with lump sums of gold
+		if (GetGoldTrade(eToPlayer) > 0)
+			return false;
 		
 		// Can't already have a vote commitment in the deal
 		if(!bFinalizing && IsVoteCommitmentTrade(ePlayer))
@@ -1228,17 +1241,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// This player must be allowed to
 		if(!bFinalizing && !pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
-
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
-		}
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Maps
