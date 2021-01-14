@@ -10246,8 +10246,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				iMight /= 100;
 
 				// Reduce if the third party is already at war with other players
-				bool bInsiderKnowledge = bSelfEvaluation && !GET_PLAYER(*it).isHuman() && (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(*it) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(*it) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate(*it));
-				int iThirdPartyWarCount = bInsiderKnowledge ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false);
+				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false);
 
 				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
 					iThirdPartyWarCount--;
