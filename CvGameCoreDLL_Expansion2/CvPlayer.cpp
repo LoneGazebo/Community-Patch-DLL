@@ -33172,6 +33172,9 @@ void CvPlayer::ChangeMilitaryRating(int iChange)
 
 void CvPlayer::DoMilitaryRatingDecay()
 {
+	if (!isMajorCiv())	
+		return;
+
 	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (1000 * GC.getGame().getStartEra()) : 1000;
 	int iCurrentRating = GetMilitaryRating();
 	float fDecay = 2.000f;

@@ -23899,6 +23899,9 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 /// Updates our desire to make a demand from a player
 void CvDiplomacyAI::DoUpdateDemands()
 {
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->IsVassalOfSomeone())
+		return;
+
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
 	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false);
