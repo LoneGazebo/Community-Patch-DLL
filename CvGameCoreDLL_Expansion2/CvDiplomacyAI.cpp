@@ -15801,7 +15801,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Ally to us now?
 		if (IsFriendOrAlly(ePlayer))
 		{
-			if (!bBold || !bEasyTarget || !bGoodAttackTarget)
+			if (!bBold || !(bEasyTarget && bGoodAttackTarget))
 			{
 				bModerateAggressiveDesire = true;
 			}
