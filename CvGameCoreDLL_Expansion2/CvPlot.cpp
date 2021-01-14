@@ -3867,8 +3867,7 @@ bool CvPlot::IsWaterAreaSeparator() const
 		}
 		else if (pLoopPlot->getArea() != iFirstWaterArea)
 		{
-			//want to have cities on both water bodies, otherwise a canal makes no sense
-			return pLoopPlot->area()->getNumCities() > 0 && GC.getMap().getArea(iFirstWaterArea)->getNumCities() > 0;
+			return true;
 		}
 	}
 
@@ -5115,6 +5114,19 @@ std::vector<int> CvPlot::getAllAdjacentAreas() const
 	}
 
 	return result;
+}
+
+bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther) const
+{
+	if (!pOther)
+		return false;
+
+	std::vector<int> myAreas = getAllAdjacentAreas();
+	std::vector<int> theirAreas = pOther->getAllAdjacentAreas();
+	std::vector<int> shared( MAX(myAreas.size(),theirAreas.size()) );
+
+	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(),myAreas.end(),theirAreas.begin(),theirAreas.end(),shared.begin());
+	return (result!=shared.begin());
 }
 
 //	--------------------------------------------------------------------------------

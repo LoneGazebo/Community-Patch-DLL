@@ -3361,7 +3361,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 				if(pLoopCityB->isCoastal())
 				{
 					// On same body of water?
-					if(pLoopCityA->hasSharedAdjacentArea(pLoopCityB))
+					if(pLoopCityA->plot()->hasSharedAdjacentArea(pLoopCityB->plot()))
 					{
 						//pathfinding for player A, not entirely symmetric ...
 						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB);

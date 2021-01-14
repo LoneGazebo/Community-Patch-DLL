@@ -172,7 +172,7 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 	kStream >> m_routeNeededPlots;
 	kStream >> m_routeWantedPlots;
 	kStream >> m_canalWantedPlots;
-	kStream >> m_canalNeededPlots;
+	kStream >> m_canalWantedPlots; //to be removed
 }
 
 /// Serialization write
@@ -186,7 +186,7 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	kStream << m_routeNeededPlots;
 	kStream << m_routeWantedPlots;
 	kStream << m_canalWantedPlots;
-	kStream << m_canalNeededPlots;
+	kStream << m_canalWantedPlots; //to be removed
 }
 
 /// Update
@@ -510,32 +510,9 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 	if (!pPlot)
 		return false;
 
-	//do not put forts on resources
-	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
-	if (eResource != NO_RESOURCE)
-		return false;
-
-	//no canals next to cities, cities are passable anyway
-	if (m_pPlayer->GetCityDistanceInPlots(pPlot) < 2)
-		return false;
-
-	//the wanted plots have only shortcuts, but for an inland sea we can check directly
-	if (pPlot->IsWaterAreaSeparator())
-		return true;
-
+	//do not check IsWaterAreaSeparator() but wait until there are cities on both sides
 	set<int>::const_iterator it = m_canalWantedPlots.find(pPlot->GetPlotIndex());
 	return (it != m_canalWantedPlots.end());
-}
-
-bool CvBuilderTaskingAI::NeedCanalAtPlot(const CvPlot* pPlot) const
-{
-	if (!pPlot)
-		return false;
-
-	//do not check for a landbrige here, if the canal is useful it will be included in the needed plots
-
-	set<int>::const_iterator it = m_canalNeededPlots.find(pPlot->GetPlotIndex());
-	return (it != m_canalNeededPlots.end());
 }
 
 void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
@@ -581,7 +558,6 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 	if (m_pPlayer->isMinorCiv())
 		return;
 
-	m_canalNeededPlots.clear();
 	m_canalWantedPlots.clear();
 
 	vector<CvPlot*> vDestPlots;
@@ -592,9 +568,6 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			vDestPlots.push_back(pDestCity->plot());
 	}
-
-	//first we collect all candidates, then enforce a minimum distance
-	vector<CvPlot*> tempCanals;
 
 	int iOriginCityLoop;
 	for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
@@ -609,66 +582,31 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
 		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
-			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == it->first)
-				continue;
-
-			CvCity* pDestCity = it->first->getPlotCity();
-			SPath currentPath;
-			//make sure we have a path to compare against, otherwise the shortcut might be useless once the map is revealed
-			if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOriginCity, pDestCity, &currentPath))
+			//the paths may contain not-yet-existing canals but the path cost for them is very high
+			//so they should only be used if there really is no other way.
+			SPath& currentPath = it->second;
+			for (int i = 0; i < currentPath.length(); i++)
 			{
-				//if the path with canals is much shorter
-				if (currentPath.length() > it->second.length() + 12)
+				CvPlot* pCheck = currentPath.get(i);
+
+				if (pCheck->isWater() || pCheck->isCity())
+					continue;
+
+				//existing canal in use, remember that so we don't replace it by something else
+				if (pCheck->IsImprovementPassable())
 				{
-					//find the non-existing canal
-					CvPlot* pNewPlot = NULL;
-					int iCanalCount = 0;
-					for (int i = 0; i < it->second.length(); i++)
-					{
-						CvPlot* pCheck = it->second.get(i);
-
-						if (pCheck->isWater() || pCheck->isCity())
-							continue;
-
-						//existing canal still in use, remember that so we don't replace it by something else
-						if (pCheck->IsImprovementPassable())
-						{
-							if (pCheck->getOwner() == m_pPlayer->GetID())
-								m_canalNeededPlots.insert(pCheck->GetPlotIndex());
-						}
-						else
-						{
-							//this is where we must build a canal
-							//make sure there is only one in the path, we don't want lots of small shortcuts but a single big one
-							iCanalCount++;
-							pNewPlot = pCheck;
-						}
-					}
-
-					//got it!
-					if (pNewPlot && iCanalCount == 1 && pNewPlot->getOwner() == m_pPlayer->GetID())
-					{
-						//one more thing, we don't want to put a canal next to a city
-						//could be useful if the city is inland but let's not get started on this
-						if (m_pPlayer->GetCityDistanceInPlots(pNewPlot)>1)
-							tempCanals.push_back(pNewPlot);
-					}
+					if (pCheck->getOwner() == m_pPlayer->GetID())
+						m_canalWantedPlots.insert(pCheck->GetPlotIndex());
+				}
+				else
+				{
+					//this is where we must build a new canal
+					if (pCheck->getOwner() == m_pPlayer->GetID())
+						m_canalWantedPlots.insert(pCheck->GetPlotIndex());
 				}
 			}
 		}
 	}
-
-	//keep only one if they are too close to each other
-	set<int> ignoreIndex;
-	for (size_t i = 0; i < tempCanals.size(); i++)
-		for (size_t j = i; j < tempCanals.size(); j++)
-			if (plotDistance(*tempCanals[i], *tempCanals[j]) < 4)
-				ignoreIndex.insert(j);
-
-	for (size_t i = 0; i < tempCanals.size(); i++)
-		if (ignoreIndex.find(i) == ignoreIndex.end())
-			m_canalWantedPlots.insert( tempCanals[i]->GetPlotIndex() );
 }
 
 
@@ -2722,7 +2660,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	{
 		//looking to replace a fort - score might have changed because the border moved!
 		int iFortScore = pPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-		if (MOD_GLOBAL_PASSABLE_FORTS && NeedCanalAtPlot(pPlot))
+		if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
 			iFortScore += iBigBuff*3;
 
 		if (iFortScore * 4 > iSecondaryScore * 3)

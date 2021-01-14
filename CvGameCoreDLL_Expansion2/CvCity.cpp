@@ -17439,18 +17439,6 @@ bool CvCity::isMatchingArea(const CvPlot* pTestPlot) const
 	return false;
 }
 
-bool CvCity::hasSharedAdjacentArea(const CvCity * pOtherCity) const
-{
-	if (!pOtherCity)
-		return false;
-
-	std::vector<int> myAreas = plot()->getAllAdjacentAreas();
-	std::vector<int> theirAreas = pOtherCity->plot()->getAllAdjacentAreas();
-	std::vector<int> shared( MAX(myAreas.size(),theirAreas.size()) );
-
-	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(),myAreas.end(),theirAreas.begin(),theirAreas.end(),shared.begin());
-	return (result!=shared.begin());
-}
 //	--------------------------------------------------------------------------------
 // if called with an invalid unit as argument, the current garrison is removed but no new garrison created!
 void CvCity::SetGarrison(CvUnit* pUnit)

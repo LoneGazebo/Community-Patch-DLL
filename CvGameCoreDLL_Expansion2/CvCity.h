@@ -582,7 +582,6 @@ public:
 	//(coastal) cities can be part of multiple areas
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isMatchingArea(const CvPlot* pTestPlot) const;
-	bool hasSharedAdjacentArea(const CvCity* pOtherCity) const;
 
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;

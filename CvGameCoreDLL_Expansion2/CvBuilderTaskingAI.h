@@ -95,8 +95,7 @@ public:
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 	bool WantRouteAtPlot(const CvPlot* pPlot) const; //build it
 	bool NeedRouteAtPlot(const CvPlot* pPlot) const; //keep it
-	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it
-	bool NeedCanalAtPlot(const CvPlot* pPlot) const; //keep it
+	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
@@ -138,7 +137,6 @@ protected:
 	RoutePlotContainer m_routeWantedPlots; //serialized
 	RoutePlotContainer m_routeNeededPlots; //serialized
 	set<int> m_canalWantedPlots; //serialized
-	set<int> m_canalNeededPlots; //serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];

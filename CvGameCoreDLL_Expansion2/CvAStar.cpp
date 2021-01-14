@@ -3133,6 +3133,15 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 	if (pToPlot->isDeepWater() && !pCacheData->m_bCanCrossOcean)
 		iCost += PATH_BASE_COST/3;
 
+	// using canals is expensive!
+	if (!pToPlot->isWater() && !pToPlot->isCity())
+	{
+		if (pToPlot->IsImprovementPassable())
+			iCost += PATH_BASE_COST * 3;
+		else
+			iCost += PATH_BASE_COST * 11; //a non-existing canal is even more expensive!
+	}
+
 	return iCost;
 }
 
@@ -3175,6 +3184,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 	{
 		CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 		//only single plot canals on plots without resource
+		//not that this is asymmetric, we can build a canal into a city but not out of a city ... shouldn't matter too much
 		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
 			return pNewPlot->getResourceType(pCacheData->GetTeam()) == NO_RESOURCE;
 	}
