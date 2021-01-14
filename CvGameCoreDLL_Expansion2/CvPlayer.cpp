@@ -49773,6 +49773,29 @@ bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 	return GET_TEAM(getTeam()).isAtWar(GET_PLAYER(iPlayer).getTeam());
 }
 
+int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars) const
+{
+	int iCount = 0;
+
+	for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
+	{
+		if (GET_PLAYER(*it).isMajorCiv() && GET_PLAYER(*it).isAlive() && GET_PLAYER(*it).getNumCities() > 0)
+		{
+			if (isMinorCiv())
+			{
+				if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE)
+					continue;
+			}
+			else if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
+				continue;
+
+			iCount++;
+		}
+	}
+
+	return iCount;
+}
+
 bool CvPlayer::HasPantheon() const
 {
 	return GetReligions()->HasCreatedPantheon();

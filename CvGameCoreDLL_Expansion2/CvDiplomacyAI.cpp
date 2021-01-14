@@ -9795,7 +9795,7 @@ void CvDiplomacyAI::DoUpdateMilitaryThreats()
 				iMilitaryThreat /= 100;
 
 				// Reduce the Threat (dramatically) if the player is already at war with other players
-				int iWarCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true);
+				int iWarCount = GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
 				if (iWarCount > 0)
 				{
 					int iAtWarMod = max(-90, (/*-30*/ GC.getMILITARY_THREAT_ALREADY_WAR_EACH_PLAYER_MULTIPLIER() * iWarCount));
@@ -10077,7 +10077,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	}
 
 	// Decrease target value if the player is already at war with other players
-	int iWarCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true);
+	int iWarCount = bSelfEvaluation ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
 
 	// Reduce by 1 if WE'RE already at war with him or he with us
 	if (GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer))
@@ -10245,11 +10245,34 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				iMight *= ComputeRatingStrengthAdjustment(*it);
 				iMight /= 100;
 
+				// Reduce if the third party is already at war with other players
+				bool bInsiderKnowledge = bSelfEvaluation && !GET_PLAYER(*it).isHuman() && (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(*it) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(*it) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate(*it));
+				int iThirdPartyWarCount = bInsiderKnowledge ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false);
+
+				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
+					iThirdPartyWarCount--;
+
+				if (iThirdPartyWarCount > 0)
+				{
+					int iScale = max(20, 100 - iThirdPartyWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
+					iMight *= iScale;
+					iMight /= 100;
+				}
+
 				// Add a % of the military might of this friend in to the overall eval
 				iStrengthEstimate += (iThirdPartyValue * iMight / 100);
 			}
 			else
 			{
+				// Ignore if they're already at war with somebody else
+				int iThirdPartyWarCount = GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false) > 0;
+
+				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
+					iThirdPartyWarCount--;
+
+				if (iThirdPartyWarCount > 0)
+					continue;
+
 				// How strong is this City-State ally compared to the other guy?
 				switch (eThirdPartyStrength)
 				{
@@ -10469,6 +10492,8 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 /// Updates whether all players are easy attack targets
 void CvDiplomacyAI::DoUpdateEasyTargets()
 {
+	int iCurrentWars = GetPlayer()->GetNumDangerousMajorsAtWarWith(true);
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
@@ -10636,7 +10661,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			bWantsConquest |= IsEndgameAggressiveTo(ePlayer);
 			bWantsConquest |= (GetBiggestCompetitor() == ePlayer);
 
-			bool bAlreadyAtWar = (!IsAtWar(ePlayer) && GET_TEAM(GetTeam()).getAtWarCount(true));
+			bool bAlreadyAtWar = !IsAtWar(ePlayer) && iCurrentWars > 0;
 
 			// Compare military and economic strengths to look for opportunities to strike
 			// We sense more opportunities to attack people we want to conquer, or those who are unhappy
@@ -23463,9 +23488,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// Our Approach with this player calls for war
 		if (bWantToAttack)
 		{
-			// If our Sneak Attack is ready then declare war...but if we have a coop war pending, wait for the timer
-			if (GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
-				DeclareWar(eTargetPlayer);
+			DeclareWar(eTargetPlayer);
 		}
 		else if (bWantShowOfForce)
 		{
@@ -23513,7 +23536,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				{
 					// we requested a city attack but it was denied by the military AI...if at peace we declare war now, but don't attack
 					// ...but if we have a coop war pending, wait for the timer
-					if (!GetPlayer()->IsNoNewWars() && m_pPlayer->IsAtPeace() && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+					if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true) == 0 && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
 					{
 						DeclareWar(eTargetPlayer);
 						SetWantsSneakAttack(eTargetPlayer, false);
@@ -23883,6 +23906,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
+	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true);
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -24068,7 +24092,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			iWeight += 20;
 		}
 
-		int iWarCount = GET_TEAM(GetTeam()).getAtWarCount(true);
+		// Already at war?
 		if (iWarCount > 0)
 		{
 			iWeight -= (iWarCount * 10);
@@ -24084,6 +24108,16 @@ void CvDiplomacyAI::DoUpdateDemands()
 		{
 			continue;
 		}
+
+		// Don't make demands if they're too far away...
+		// Do this check last, for performance
+		CvCity* pTheirClosestCity = GetPlayer()->GetClosestCityToUsByPlots(ePlayer);
+		if (pTheirClosestCity == NULL)
+			continue;
+
+		int iDistanceTurns = GetPlayer()->GetCityDistancePathLength(pTheirClosestCity->plot());
+		if (iDistanceTurns > 23)
+			continue;
 
 		iWeight += iDemandValueScore;
 
@@ -24811,17 +24845,23 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 	if (GetPlayer()->GetDiplomacyAI()->GetNumberOfThreatenedCities(ePlayer) > 0)
 		return false;
 
-	// They have a lot of soldiers nearby
+	// They're too close or have a lot of soldiers nearby
 	PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
 	AggressivePostureTypes ePosture = GetMilitaryAggressivePosture(ePlayer);
-	if (eProximity >= PLAYER_PROXIMITY_CLOSE)
+	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+
+	if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 	{
-		if (ePosture >= AGGRESSIVE_POSTURE_MEDIUM)
+		return false;
+	}
+	else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+	{
+		if (ePosture >= AGGRESSIVE_POSTURE_MEDIUM || eMilitaryStrength >= STRENGTH_POWERFUL)
 			return false;
 	}
 	else
 	{
-		if (ePosture >= AGGRESSIVE_POSTURE_HIGH)
+		if (ePosture >= AGGRESSIVE_POSTURE_HIGH || eMilitaryStrength == STRENGTH_IMMENSE)
 			return false;
 	}
 

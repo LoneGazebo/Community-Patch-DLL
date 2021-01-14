@@ -520,7 +520,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (GET_PLAYER(eEnemy).isBarbarian())
 		return false;
 
-	CvCity* pTargetCity = GET_PLAYER(eEnemy).getCapitalCity();
+	CvCity* pTargetCity = GET_PLAYER(eEnemy).isMajorCiv() ? m_pPlayer->GetClosestCityToUsByPlots(eEnemy) : GET_PLAYER(eEnemy).getCapitalCity();
 	if (!pTargetCity)
 		return false;
 
@@ -990,7 +990,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild)
 {
 	bool bAttackLaunched = false;
-	bool bEasyTargetException = m_pPlayer->GetDiplomacyAI()->IsEasyTarget(eIntendedTarget) && m_pPlayer->IsAtPeace() && m_pPlayer->getFirstOffensiveAIOperation(NO_PLAYER) == NULL;
+	bool bEasyTargetException = m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsEasyTarget(eIntendedTarget) && m_pPlayer->getFirstOffensiveAIOperation(NO_PLAYER) == NULL;
 
 	//note that a given target might be repeated with different muster points / army types
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
@@ -1030,7 +1030,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 	}
 
 	// No preferred targets? Try to attack one potential target if we're significantly stronger, at peace, and not attacking anybody else right now.
-	if (!bAttackLaunched && bEasyTargetException)
+	if (!bAttackLaunched && bEasyTargetException && m_pPlayer->GetNumDangerousMajorsAtWarWith(true) == 0)
 	{
 		for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		{
