@@ -1036,7 +1036,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 		if (m_pPlayer->IsAtWarWith(eIntendedTarget))
 			iCurrentWars--;
 
-		if (iCurrentWars == 0)
+		if (iCurrentWars <= 0)
 		{
 			for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 			{
