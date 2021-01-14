@@ -9795,7 +9795,7 @@ void CvDiplomacyAI::DoUpdateMilitaryThreats()
 				iMilitaryThreat /= 100;
 
 				// Reduce the Threat (dramatically) if the player is already at war with other players
-				int iWarCount = GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
+				int iWarCount = GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false, true);
 				if (iWarCount > 0)
 				{
 					int iAtWarMod = max(-90, (/*-30*/ GC.getMILITARY_THREAT_ALREADY_WAR_EACH_PLAYER_MULTIPLIER() * iWarCount));
@@ -10077,7 +10077,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	}
 
 	// Decrease target value if the player is already at war with other players
-	int iWarCount = (bSelfEvaluation && !GetPlayer()->isHuman()) ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
+	int iWarCount = (bSelfEvaluation && !GetPlayer()->isHuman()) ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false, true);
 
 	// Reduce by 1 if WE'RE already at war with him or he with us
 	if (GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer))
@@ -10246,7 +10246,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				iMight /= 100;
 
 				// Reduce if the third party is already at war with other players
-				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false);
+				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false, true);
 
 				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
 					iThirdPartyWarCount--;
@@ -10264,7 +10264,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 			else
 			{
 				// Ignore if they're already at war with somebody else
-				int iThirdPartyWarCount = GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false) > 0;
+				int iThirdPartyWarCount = GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false, false) > 0;
 
 				if (GET_PLAYER(eComparedToPlayer).IsAtWarWith(*it))
 					iThirdPartyWarCount--;
@@ -10491,7 +10491,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 /// Updates whether all players are easy attack targets
 void CvDiplomacyAI::DoUpdateEasyTargets()
 {
-	int iCurrentWars = GetPlayer()->GetNumDangerousMajorsAtWarWith(true);
+	int iCurrentWars = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true);
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -23535,7 +23535,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				{
 					// we requested a city attack but it was denied by the military AI...if at peace we declare war now, but don't attack
 					// ...but if we have a coop war pending, wait for the timer
-					if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true) == 0 && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+					if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0 && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
 					{
 						DeclareWar(eTargetPlayer);
 						SetWantsSneakAttack(eTargetPlayer, false);
@@ -23905,7 +23905,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
-	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true);
+	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false);
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

@@ -49773,7 +49773,7 @@ bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 	return GET_TEAM(getTeam()).isAtWar(GET_PLAYER(iPlayer).getTeam());
 }
 
-int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars) const
+int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const
 {
 	int iCount = 0;
 
@@ -49787,6 +49787,8 @@ int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars) const
 					continue;
 			}
 			else if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
+				continue;
+			else if (bExcludeIfNoTarget && !GetMilitaryAI()->HaveCityExposedToEnemy(*it))
 				continue;
 
 			iCount++;

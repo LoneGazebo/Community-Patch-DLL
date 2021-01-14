@@ -1029,38 +1029,45 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 			bAttackLaunched = true;
 	}
 
-	// No preferred targets? Try to attack one potential target if we're significantly stronger, at peace, and not attacking anybody else right now.
-	if (!bAttackLaunched && bEasyTargetException && m_pPlayer->GetNumDangerousMajorsAtWarWith(true) == 0)
+	// No preferred targets? Try to attack one potential target if we're significantly stronger and not attacking anybody else right now.
+	if (!bAttackLaunched && bEasyTargetException)
 	{
-		for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		int iCurrentWars = m_pPlayer->GetNumDangerousMajorsAtWarWith(true, true);
+		if (m_pPlayer->IsAtWarWith(eIntendedTarget))
+			iCurrentWars--;
+
+		if (iCurrentWars == 0)
 		{
-			CvPlot* pMusterPlot = m_potentialAttackTargets[i].GetMusterPlot();
-			CvPlot* pTargetPlot = m_potentialAttackTargets[i].GetTargetPlot();
-			PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
-			if (eTargetPlayer != eIntendedTarget)
-				continue;
-
-			AIOperationTypes opType = AI_OPERATION_TYPE_UNKNOWN;
-			switch (m_potentialAttackTargets[i].m_armyType)
+			for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 			{
-			case ARMY_TYPE_LAND:
-				opType = AI_OPERATION_CITY_ATTACK_LAND;
-				break;
-			case ARMY_TYPE_NAVAL:
-				opType = AI_OPERATION_CITY_ATTACK_NAVAL;
-				break;
-			case ARMY_TYPE_COMBINED:
-				opType = AI_OPERATION_CITY_ATTACK_COMBINED;
-				break;
-			default:
-				continue;
-			}
+				CvPlot* pMusterPlot = m_potentialAttackTargets[i].GetMusterPlot();
+				CvPlot* pTargetPlot = m_potentialAttackTargets[i].GetTargetPlot();
+				PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
+				if (eTargetPlayer != eIntendedTarget)
+					continue;
 
-			//don't try to build additional units, only do this if we have enough at hand
-			if (m_pPlayer->addAIOperation(opType, 0, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
-			{
-				bAttackLaunched = true;
-				break;
+				AIOperationTypes opType = AI_OPERATION_TYPE_UNKNOWN;
+				switch (m_potentialAttackTargets[i].m_armyType)
+				{
+				case ARMY_TYPE_LAND:
+					opType = AI_OPERATION_CITY_ATTACK_LAND;
+					break;
+				case ARMY_TYPE_NAVAL:
+					opType = AI_OPERATION_CITY_ATTACK_NAVAL;
+					break;
+				case ARMY_TYPE_COMBINED:
+					opType = AI_OPERATION_CITY_ATTACK_COMBINED;
+					break;
+				default:
+					continue;
+				}
+
+				//don't try to build additional units, only do this if we have enough at hand
+				if (m_pPlayer->addAIOperation(opType, 0, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
+				{
+					bAttackLaunched = true;
+					break;
+				}
 			}
 		}
 	}
