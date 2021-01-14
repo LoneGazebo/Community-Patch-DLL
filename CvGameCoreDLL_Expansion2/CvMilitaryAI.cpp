@@ -540,17 +540,20 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (iDistanceTurns > 23)
 		return false;
 
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
-	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
+	if (GET_PLAYER(eEnemy).isMinorCiv()) // eligibility for majors is handled in CvDiplomacyAI::DoUpdateDemands()
+	{
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
+		ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
 
-	//taken from CalculateBullyScore
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
-	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
+		//taken from CalculateBullyScore
+		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
+		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
-	//check if we have a chance ...
-	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyScore(m_pPlayer->GetID(), true);
-	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
-		return false;
+		//check if we have a chance ...
+		int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyScore(m_pPlayer->GetID(), true);
+		if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
+			return false;
+	}
 
 	//don't try to build additional units, only do this if we have enough at hand
 	return m_pPlayer->addAIOperation(opType, 0, eEnemy, pTargetCity, pMusterCity) != NULL;
