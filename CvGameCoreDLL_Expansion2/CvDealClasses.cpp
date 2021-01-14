@@ -757,7 +757,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
 			return false;
 		// Embassy has not been established
-		if(this->GetDemandingPlayer() == NO_PLAYER && !pFromTeam->HasEmbassyAtTeam(eToTeam))
+		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
 		
 		bool bIgnoreExistingOB = pRenewDeal != NULL && pRenewDeal->IsOpenBordersTrade(ePlayer);
