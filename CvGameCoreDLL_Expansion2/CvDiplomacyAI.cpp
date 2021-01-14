@@ -15819,7 +15819,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Don't be aggressive towards our friends or distant players without a good reason.
 			if (bModerateAggressiveDesire)
 			{
-				bWantsOpportunityAttack = bCloseToWorldConquest || (bProvokedUs && eProximity >= PLAYER_PROXIMITY_CLOSE) || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest;
+				bWantsOpportunityAttack = bCloseToWorldConquest || bProvokedUs || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest;
 			}
 			else
 			{
