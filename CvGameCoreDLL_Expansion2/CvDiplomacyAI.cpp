@@ -15020,7 +15020,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	bool bUntrustworthy = IsUntrustworthy(ePlayer);
 	bool bEarlyGameCompetitor = IsEarlyGameCompetitor(ePlayer);
-	bool bEasyTarget = IsEasyTarget(ePlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+	bool bEasyTarget = IsEasyTarget(ePlayer);
 	// They're only an easy target if we're not already at war with somebody else.
 	// ...however, if we're already at war with them, let's keep this weight.
 	if (bEasyTarget && !IsAtWar(ePlayer))
@@ -15784,7 +15784,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		bModerateAggressiveDesire = true;
 	}
-	else if (!bUntrustworthy && !bEverCapturedKeyCity)
+	else if (!bUntrustworthy && !bEverCapturedKeyCity && !GC.getGame().IsAIAggressiveMode())
 	{
 		// Ally to us now?
 		if (IsFriendOrAlly(ePlayer))
@@ -15829,6 +15829,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= MAJOR_CIV_OPINION_COMPETITOR) || eOpinion <= MAJOR_CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer);
 				}
+
+				bWantsOpportunityAttack |= GC.getGame().IsAIAggressiveMode();
 			}
 		}
 	}
