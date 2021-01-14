@@ -20686,8 +20686,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			continue;
 		}
 
-		// Master?
-		if (IsVassal(eLoopPlayer) && IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
+		// Our master?
+		if (IsVassal(eLoopPlayer))
 		{
 			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
 			{
