@@ -458,7 +458,7 @@ function UpdateDisplay()
 				--		local pMaster = Teams[iMaster];
 				--		Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
 				--	end
-				elseif (pActiveTeam:IsForcePeace(g_iAITeam)) then
+				elseif (pActiveTeam:IsForcePeace(g_iAITeam) or pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
 					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
 				else
 					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));

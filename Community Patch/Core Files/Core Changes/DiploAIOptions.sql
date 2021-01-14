@@ -69,6 +69,13 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 
 -- Advanced Options
 
+-- [ENABLE LUMP SUM GOLD TRADES]
+-- If set to 1, enables human players to trade/demand lump sum Gold with AI players at all times.
+-- If set to 2, enables all players to trade/demand lump sum Gold with each other at all times.
+-- This is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_ENABLE_LUMP_GOLD_TRADES', '0';
+
 -- [DISABLE FRIENDSHIP REQUESTS]
 -- If set to 1, AI civilizations will not ask human players to make a Declaration of Friendship.
 -- Humans can still ask the AI for a Declaration of Friendship.

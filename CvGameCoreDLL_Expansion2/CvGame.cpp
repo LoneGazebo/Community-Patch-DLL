@@ -6480,6 +6480,27 @@ bool CvGame::IsShowBaseHumanOpinion() const
 	return false;
 }
 
+/// Enable Lump Sum Gold Trading
+bool CvGame::IsLumpGoldTradingHumanOnly() const
+{
+	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() == 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CvGame::IsLumpGoldTradingEnabled() const
+{
+	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() > 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Disable Friendship Requests
 /// Only affects human players, and only affects requests sent by the AI on their turn.
 bool CvGame::IsFriendshipRequestsDisabled() const

@@ -183,6 +183,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 #endif
 	Method(IsAllowsOpenBordersToTeam);
 	Method(IsForcePeace);
+	Method(IsWarBlockedByPeaceTreaty);
 	Method(IsDefensivePact);
 	Method(GetRouteChange);
 	Method(ChangeRouteChange);
@@ -1125,6 +1126,45 @@ int CvLuaTeam::lIsAllowsOpenBordersToTeam(lua_State* L)
 int CvLuaTeam::lIsForcePeace(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::isForcePeace);
+}
+
+//------------------------------------------------------------------------------
+int CvLuaTeam::lIsWarBlockedByPeaceTreaty(lua_State* L)
+{
+	CvTeam* pkTeam = GetInstance(L);
+	TeamTypes eOtherTeam = (TeamTypes)lua_tointeger(L, 2);
+
+	if (eOtherTeam == NO_TEAM)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bool bValue = false;
+
+	if (pkTeam->isForcePeace(eOtherTeam))
+		bValue = true;
+
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+		if (eLoopTeam != NO_TEAM && eLoopTeam != pkTeam->GetID() && eLoopTeam != eOtherTeam)
+		{
+			if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eOtherTeam) || GET_TEAM(eLoopTeam).IsVassal(eOtherTeam) || GET_TEAM(eOtherTeam).IsVassal(eLoopTeam))
+			{
+				if (pkTeam->isForcePeace(eLoopTeam))
+				{
+					bValue = true;
+					break;
+				}
+			}
+		}
+	}
+
+	const bool bReturnValue = bValue;
+	lua_pushboolean(L, bReturnValue);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

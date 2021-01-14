@@ -13561,9 +13561,6 @@ bool CvDiplomacyAI::CanBackstab(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
 		return true;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
-		return true;
-
 	if (IsPlayerLiberatedCapital(ePlayer))
 		return true;
 
@@ -13588,10 +13585,6 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 {
 	// If this is called for a human, always return no
 	if (GetPlayer()->isHuman())
-		return false;
-
-	// Ongoing Peace Treaty?
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
 	// No backstabbing if we're not competitive.
@@ -38355,10 +38348,6 @@ bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnore
 	if (IsHasDefensivePact(eTargetPlayer))
 		return false;
 
-	// Can't have an ongoing Peace Treaty with the target
-	if (GET_TEAM(eMyTeam).isForcePeace(eTargetTeam))
-		return false;
-
 	// Can't have a Declaration of Friendship with the target
 	if (IsDoFAccepted(eTargetPlayer))
 		return false;
@@ -38403,9 +38392,6 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eC
 		return false;
 
 	if (GetMajorCivOpinion(eAllyPlayer) <= MAJOR_CIV_OPINION_ENEMY)
-		return false;
-
-	if (IsPlayerCapturedCapital(eAllyPlayer) || IsPlayerCapturedHolyCity(eAllyPlayer))
 		return false;
 
 	if (IsUntrustworthy(eAllyPlayer))

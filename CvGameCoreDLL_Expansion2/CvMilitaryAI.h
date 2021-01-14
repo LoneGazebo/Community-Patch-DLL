@@ -249,7 +249,6 @@ public:
 	void LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogPeace(PlayerTypes eOpponent);
 	void LogPeace(TeamTypes eOpponentTeam);
-	void LogVassalFailure(TeamTypes eOpponentTeam);
 	void LogDeficitScrapUnit(CvUnit* pUnit);
 
 #if defined(MOD_BALANCE_CORE)

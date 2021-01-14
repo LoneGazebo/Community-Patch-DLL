@@ -5235,6 +5235,10 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 				CvAssert(eEmbargoedMajor != NO_PLAYER);
 				if (eEmbargoedMajor == eTrader || eEmbargoedMajor == eRecipient)
 				{
+					//does not affect teammates
+					if (GET_PLAYER(eTrader).getTeam() == GET_PLAYER(eRecipient).getTeam())
+						continue;
+
 					//does not affect vassals
 					if (GET_TEAM(GET_PLAYER(eTrader).getTeam()).IsVassal(GET_PLAYER(eRecipient).getTeam()) || GET_TEAM(GET_PLAYER(eRecipient).getTeam()).IsVassal(GET_PLAYER(eTrader).getTeam()))
 						continue;

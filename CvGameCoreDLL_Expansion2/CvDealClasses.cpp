@@ -407,6 +407,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 	}
 
+	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled();
+	bLumpGoldEnabled |= GC.getGame().IsLumpGoldTradingHumanOnly() && (pFromPlayer->isHuman() || pToPlayer->isHuman());
 
 	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
 
@@ -427,6 +429,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (iGold != -1 && iGoldAvailable < iGold)
 			return false;
 
+		// Can't demand lump Gold - too exploitable.
+		if (this->GetDemandingPlayer() != NO_PLAYER && !bLumpGoldEnabled)
+			return false;
+
 		if (!bHumanToHuman)
 		{
 			if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
@@ -437,7 +443,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 
-			if (eFromTeam != eToTeam)
+			if (eFromTeam != eToTeam && !bLumpGoldEnabled)
 			{
 				// Can't exchange GPT for lump Gold - we aren't a bank.
 				if (GetGoldPerTurnTrade(eToPlayer) > 0)
@@ -449,6 +455,22 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 				//cannot pay for vote commitments with lump sums of gold
 				if (IsVoteCommitmentTrade(eToPlayer))
+					return false;
+
+				//cannot pay for embassies with lump sums of gold
+				if (IsAllowEmbassyTrade(eToPlayer))
+					return false;
+
+				//cannot pay for open borders with lump sums of gold
+				if (IsOpenBordersTrade(eToPlayer))
+					return false;
+
+				//cannot pay for defensive pacts with lump sums of gold
+				if (IsDefensivePactTrade(eToPlayer))
+					return false;
+
+				//cannot pay for research agreements with lump sums of gold
+				if (IsResearchAgreementTrade(eToPlayer))
 					return false;
 			}
 		}
@@ -483,7 +505,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if (eFromTeam != eToTeam && GetGoldTrade(eToPlayer) > 0)
+			if (eFromTeam != eToTeam && !bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
 				return false;
 		}
 
@@ -619,7 +641,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 
 				//cannot pay for resources with lump sums of gold
-				if (eFromTeam != eToTeam && GetGoldTrade(eToPlayer) > 0)
+				if (eFromTeam != eToTeam && !bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
 					return false;
 			}
 
@@ -717,20 +739,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eFromTeam == eToTeam)
 			return false;
 
-		//Can't if at war.
+		// If we are at war, then we can't until we make peace
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 
-		//Can't in a peace deal.
-		if(!bHumanToHuman)
+		if(!bHumanToHuman && !bLumpGoldEnabled)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
+			//cannot pay for embassies with lump sums of gold
+			if (GetGoldTrade(eToPlayer) > 0)
+				return false;
 		}
 	}
 	// Open Borders
@@ -756,20 +773,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eFromTeam == eToTeam)
 			return false;
 
-		//Can't if at war.
+		// If we are at war, then we can't until we make peace
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 
-		//Can't be part of a peace deal.
-		if(!bHumanToHuman)
+		if(!bHumanToHuman && !bLumpGoldEnabled)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
+			//cannot pay for open borders with lump sums of gold
+			if (GetGoldTrade(eToPlayer) > 0)
+				return false;
 		}
 	}
 	// Defensive Pact
@@ -804,11 +816,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (eFromTeam == eToTeam)
 			return false;
 
-		//Can't if at war.
-		if (pFromTeam->isAtWar(eToTeam))
+		// If we are at war, then we can't until we make peace
+		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 
-		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
+		if(!bHumanToHuman && !bLumpGoldEnabled)
+		{
+			//cannot pay for defensive pacts with lump sums of gold
+			if (!bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
+				return false;
+		}
+
+		// Check to see if the other player can trade this item to us as well. If they can't, we can't trade it either
 		if (bCheckOtherPlayerValidity)
 		{
 			if (!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
@@ -823,6 +842,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		// Not valid in a demand/request
 		if (this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER)
+			return false;
+
+		// If we are at war, then we can't until we make peace
+		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -850,23 +873,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(pFromTeam->GetTeamTechs()->HasResearchedAllTechs() || pToTeam->GetTeamTechs()->HasResearchedAllTechs())
 			return false;
 
-		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
+		if(!bHumanToHuman && !bLumpGoldEnabled)
+		{
+			//cannot pay for research agreements with lump sums of gold
+			if (GetGoldTrade(eToPlayer) > 0)
+				return false;
+		}
+
+		// Check to see if the other player can trade this item to us as well. If they can't, we can't trade it either
 		if(bCheckOtherPlayerValidity)
 		{
 			if(!IsPossibleToTradeItem(eToPlayer, ePlayer, eItem, iData1, iData2, iData3, bFlag1, /*bCheckOtherPlayerValidity*/ false))
 				return false;
-		}
-
-		//Not allowed in peace deals.
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
 		}
 	}
 	// Peace Treaty
@@ -1063,8 +1081,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eFromTeam == eThirdTeam)
 			return false;
 
-		//Not allowed in peace deals.
-		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+		// If we are at war, then we can't until we make peace
+		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 
 		//vassals get out!
@@ -1118,13 +1136,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
-			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
-				{
-					return false;
-				}
-			}
 			if (GC.getGame().IsAllWarBribesDisabled())
 			{
 				return false;

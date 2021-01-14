@@ -1221,7 +1221,6 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 	}
 #endif
 
-	// Blocked by Diplomacy AI options?
 	if (!GET_PLAYER(eOriginatingPlayer).isHuman())
 	{
 		if (GC.getGame().IsAIPassiveMode())
@@ -1234,25 +1233,21 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 			{
 				return false;
 			}
-			// Any human Defensive Pacts?
-			for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-			{
-				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
-				if (GET_TEAM(eLoopTeam).isHuman())
-				{
-					if (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam))
-					{
-						return false;
-					}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					// Human vassals or masters?
-					if (GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam))
-					{
-						return false;
-					}
-#endif
-				}
-			}
+		}
+	}
+
+	// Also check Defensive Pacts/Vassals
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+		if (eLoopTeam != NO_TEAM && eLoopTeam != GetID() && eLoopTeam != eTeam && (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam) || GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam)))
+		{
+			if (!GET_PLAYER(eOriginatingPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
+				return false;
+
+			// Exploit prevention: Can't bypass a Peace Treaty!
+			if (isForcePeace(eLoopTeam))
+				return false;
 		}
 	}
 
@@ -1313,30 +1308,14 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
+	// War declarations on vassals are redirected to the master
 	if (!isMinorCiv())
 	{
-		//we got here, and we are STILL trying to hit a vassal without hitting the master first? WTF bro.
 		if (GET_TEAM(eTeam).GetMaster() != NO_TEAM && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
 		{
 			if (!isAtWar(GET_TEAM(eTeam).GetMaster()))
 			{
-				PlayerTypes eOurPlayer;
-				for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
-				{
-					eOurPlayer = (PlayerTypes)iOurPlayerLoop;
-					CvPlayer& pOurPlayer = GET_PLAYER(eOurPlayer);
-
-					if (pOurPlayer.isAlive())
-					{
-						// Our Team
-						if (pOurPlayer.getTeam() == GetID())
-						{
-							pOurPlayer.GetMilitaryAI()->LogVassalFailure(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
-							DoDeclareWar(eOurPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
-							break;
-						}
-					}
-				}
+				DoDeclareWar(eOriginatingPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
 				return;
 			}
 		}
