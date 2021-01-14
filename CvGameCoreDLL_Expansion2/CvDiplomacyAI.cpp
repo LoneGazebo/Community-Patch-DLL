@@ -8513,6 +8513,12 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 			SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 			continue;
 		}
+		// Sanity check for early game.
+		else if (iOurPolicies <= 1 && iPolicyDifference <= 1)
+		{
+			SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+			continue;
+		}
 
 		// Anything that modifies policy competitiveness?
 		iPolicyDifference += iPolicyMod;
@@ -10544,13 +10550,6 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 
 			// If we've been at war for a while without capturing any of their cities, they can't be an easy target
 			if (GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
-			{
-				SetEasyTarget(ePlayer, false);
-				continue;
-			}
-
-			// We need a good military attack target!
-			if (!GetPlayer()->isHuman() && !GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
 			{
 				SetEasyTarget(ePlayer, false);
 				continue;
@@ -13766,7 +13765,7 @@ bool CvDiplomacyAI::IsWillingToAttackFriend(PlayerTypes ePlayer, bool bDirect, b
 							{
 								return false;
 							}
-							else if (!IsEasyTarget(eLoopPlayer) && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+							else if (!(IsEasyTarget(eLoopPlayer) || GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eLoopPlayer)) && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 							{
 								return false;
 							}
@@ -15021,7 +15020,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	bool bUntrustworthy = IsUntrustworthy(ePlayer);
 	bool bEarlyGameCompetitor = IsEarlyGameCompetitor(ePlayer);
-	bool bEasyTarget = IsEasyTarget(ePlayer);
+	bool bEasyTarget = IsEasyTarget(ePlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
 	// They're only an easy target if we're not already at war with somebody else.
 	// ...however, if we're already at war with them, let's keep this weight.
 	if (bEasyTarget && !IsAtWar(ePlayer))
@@ -15795,7 +15794,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Friends previously, and not major competitors?
 		else if (GetDoFType(ePlayer) >= DOF_TYPE_FRIENDS)
 		{
-			if (!IsMajorCompetitor(ePlayer) && !bEarlyGameCompetitor && !bVictoryConcern)
+			if (!IsMajorCompetitor(ePlayer) && !bEarlyGameCompetitor && !bVictoryConcern && eOpinion >= MAJOR_CIV_OPINION_COMPETITOR)
 			{
 				bModerateAggressiveDesire = true;
 			}
@@ -21870,10 +21869,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 		}
 	}
 
-	bool bBold = GetBoldness() > 6;
-	bBold |= GetPlayer()->GetPlayerTraits()->IsWarmonger();
-	bBold |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
-
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
 	bool bCloseToWorldConquest = IsCloseToDominationVictory();
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
 
@@ -21919,7 +21915,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				continue;
 
 			// Avoid war if we have no chance whatsoever of winning
-			if (GetPlayerMilitaryStrengthComparedToUs(*it) == STRENGTH_IMMENSE && !IsEasyTarget(*it))
+			if (GetPlayerMilitaryStrengthComparedToUs(*it) == STRENGTH_IMMENSE && !(IsEasyTarget(*it) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(*it)))
 				continue;
 
 			// Are we not allowing new wars?
@@ -22184,7 +22180,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			}
 
 			// Avoid war if we have no chance whatsoever of winning
-			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE && !IsEasyTarget(ePlayer))
+			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE && !(IsEasyTarget(ePlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer)))
 			{
 				SetPotentialWarTarget(ePlayer, false);
 				continue;
@@ -24898,21 +24894,23 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	// If we're in bad shape for war, retreat!
 	if (GetPlayer()->IsNoNewWars())
 		return false;
-
-	// They're an easy target, so play offensively!
-	if (IsEasyTarget(ePlayer))
-		return true;
 	
 	TargetValueTypes eTargetValue = GetPlayerTargetValue(ePlayer);
+	bool bWeHaveGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+
+	// They're an easy target, so play offensively!
+	if (IsEasyTarget(ePlayer) && bWeHaveGoodAttackTarget)
+		return true;
 
 	// We started or wanted this war - if they're not a bad target we should attack at full force
 	if (IsAggressor(ePlayer))
 	{
 		// Bad target
-		if (eTargetValue < TARGET_VALUE_AVERAGE)
+		if (eTargetValue == TARGET_VALUE_IMPOSSIBLE || (eTargetValue == TARGET_VALUE_BAD && !bWeHaveGoodAttackTarget))
 		{
 			// Bold and fiercely competitive players don't give up so easily
-			if (IsMajorCompetitor(ePlayer) && GetBoldness() > 6)
+			if (IsMajorCompetitor(ePlayer) && bBold)
 			{
 				return true;
 			}
@@ -24932,15 +24930,19 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	else
 	{
 		// Bold and nearby players
-		if (GetBoldness() > 6 && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
+		if (bBold && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
 		{
-			if (eTargetValue < TARGET_VALUE_AVERAGE)
+			if (eTargetValue == TARGET_VALUE_IMPOSSIBLE)
+			{
+				return false;
+			}
+			else if (eTargetValue == TARGET_VALUE_BAD && !bWeHaveGoodAttackTarget)
 			{
 				return false;
 			}
 		}
 		// Other players
-		else if (eTargetValue < TARGET_VALUE_FAVORABLE)
+		else if (eTargetValue <= TARGET_VALUE_BAD || (eTargetValue == TARGET_VALUE_AVERAGE && !bWeHaveGoodAttackTarget))
 		{
 			return false;
 		}
@@ -25076,6 +25078,10 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 		return true;
 
+	// Major early lead in techs/policies? Let's slow that down.
+	if (GetPolicyBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG || GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG)
+		return true;
+
 	// Special check for England / Statecraft
 	if (GetNumTimesRobbedBy(ePlayer) > 0 || GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 		return true;
@@ -25087,7 +25093,7 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 		return true;
 
 	// Are they a juicy target?
-	if (IsEasyTarget(ePlayer))
+	if (IsEasyTarget(ePlayer) || GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer))
 	{
 		PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
 		bool bRecklessExpander = IsPlayerRecklessExpander(ePlayer);
@@ -38891,16 +38897,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		iScore += 5;
 	}
 
-	// Good city attack target?
-	if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer))
-	{
-		iScore += 10;
-	}
-	else
-	{
-		iScore -= 10;
-	}
-
 	// Weight for warmonger threat
 	switch (GetWarmongerThreat(eTargetPlayer))
 	{
@@ -38969,6 +38965,19 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		break;
 	}
 
+	bool bWeHaveGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer);
+	bool bTheyHaveGoodAttackTarget = GET_PLAYER(eAllyPlayer).isHuman() || GET_PLAYER(eAllyPlayer).GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer);
+
+	// Good city attack target?
+	if (bWeHaveGoodAttackTarget)
+	{
+		iScore += 10;
+	}
+	else
+	{
+		iScore -= 10;
+	}
+
 	StrengthTypes eLowestStrength = GetPlayerMilitaryStrengthComparedToUs(eTargetPlayer);
 	bool bStrongerOrEqual = (!IsEasyTarget(eTargetPlayer) && (eLowestStrength >= STRENGTH_AVERAGE));
 
@@ -38992,7 +39001,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 			break;
 		}
 
-		if (IsEasyTarget(eTargetPlayer))
+		if (IsEasyTarget(eTargetPlayer) && bWeHaveGoodAttackTarget)
 		{
 			iScore -= 15;
 		}
@@ -39024,7 +39033,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 			break;
 		}
 
-		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer))
+		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer) && bTheyHaveGoodAttackTarget)
 		{
 			iScore += 15;
 		}
@@ -39038,14 +39047,14 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		// Avoid direct military action if they're stronger than us ... favor other approaches
 		iDangerMod -= ((int)GetPlayerMilitaryStrengthComparedToUs(eTargetPlayer) - 3);
-		if (IsEasyTarget(eTargetPlayer))
+		if (IsEasyTarget(eTargetPlayer) && bWeHaveGoodAttackTarget)
 		{
 			iDangerMod += 2;
 		}
 
 		// Factor in our ally's strength as well (prefer stronger allies!)
 		iDangerMod -= ((int)GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eTargetPlayer) - 3);
-		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer))
+		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer) && bTheyHaveGoodAttackTarget)
 		{
 			iDangerMod += 2;
 		}
@@ -39075,7 +39084,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	}
 
 	// Scale weight by target value
-	if (IsMajorCompetitor(eTargetPlayer) || IsEarlyGameCompetitor(eTargetPlayer))
+	if (IsMajorCompetitor(eTargetPlayer) || IsEarlyGameCompetitor(eTargetPlayer) || (bWeHaveGoodAttackTarget && IsEasyTarget(eTargetPlayer)))
 	{
 		switch (GetPlayerTargetValue(eTargetPlayer))
 		{
@@ -39157,7 +39166,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		return 0;
 	}
 
-	if (bBadness && !IsWantsSneakAttack(eTargetPlayer) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING && GetMajorCivApproach(eTargetPlayer) != MAJOR_CIV_APPROACH_WAR)
+	if (bBadness && !m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer) && !AvoidExchangesWithPlayer(eTargetPlayer, /*bWarOnly*/ true))
 		return 0;
 
 	return iScore;
@@ -39175,10 +39184,16 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		return COOP_WAR_STATE_REJECTED;
 	}
 
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+
 	// Teammates will always agree when a human asks
 	if (IsTeammate(eAskingPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests())
 	{
-		if (IsEasyTarget(eTargetPlayer) || (GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && GetBoldness() > 6))
+		if (GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && bBold)
+		{
+			eResponse = COOP_WAR_STATE_READY;
+		}
+		else if (IsEasyTarget(eTargetPlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer))
 		{
 			eResponse = COOP_WAR_STATE_READY;
 		}
@@ -39193,7 +39208,11 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		// A coop war is desirable
 		if (GetCoopWarDesireScore(eAskingPlayer, eTargetPlayer) >= /*40*/ GC.getCOOP_WAR_DESIRE_THRESHOLD())
 		{
-			if (IsEasyTarget(eTargetPlayer) || (GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && GetBoldness() > 6))
+			if (GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && bBold)
+			{
+				eResponse = COOP_WAR_STATE_READY;
+			}
+			else if (IsEasyTarget(eTargetPlayer) && GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer))
 			{
 				eResponse = COOP_WAR_STATE_READY;
 			}
