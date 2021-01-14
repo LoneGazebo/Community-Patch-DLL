@@ -172,7 +172,6 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 	kStream >> m_routeNeededPlots;
 	kStream >> m_routeWantedPlots;
 	kStream >> m_canalWantedPlots;
-	kStream >> m_canalWantedPlots; //to be removed
 }
 
 /// Serialization write
@@ -186,7 +185,6 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	kStream << m_routeNeededPlots;
 	kStream << m_routeWantedPlots;
 	kStream << m_canalWantedPlots;
-	kStream << m_canalWantedPlots; //to be removed
 }
 
 /// Update

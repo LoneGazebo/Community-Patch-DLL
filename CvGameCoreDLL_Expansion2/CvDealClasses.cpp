@@ -3131,7 +3131,14 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
+									if (!GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2) && !GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
+									{
+										// failed, try again but be less careful.
+										if ((!GET_PLAYER(eAcceptedFromPlayer).IsNoNewWars() && GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) == 0) || GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
+										{
+											GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,0,false);
+										}
+									}
 								}
 
 								//If human attacked, send notification with info.
@@ -3802,7 +3809,14 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2);
+									if (!GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2) && !GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
+									{
+										// failed, try again but be less careful.
+										if ((!GET_PLAYER(eAcceptedFromPlayer).IsNoNewWars() && GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) == 0) || GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
+										{
+											GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,0,false);
+										}
+									}
 								}
 
 								//If human attacked, send notification with info.

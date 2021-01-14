@@ -7894,7 +7894,11 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	{
 		if (!GetPlayer()->isHuman())
 		{
-			GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
+			// failed, try again but be less careful.
+			if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
+			{
+				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,0,false);
+			}
 		}
 
 		// Their war declaration
@@ -7902,7 +7906,11 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		{
 			if (!GET_PLAYER(eAllyPlayer).isHuman())
 			{
-				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3);
+				// failed, try again but be less careful.
+				if (!GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3) && !GET_PLAYER(eAllyPlayer).HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
+				{
+					GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer,0,false);
+				}
 			}
 
 			int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
@@ -23584,21 +23592,26 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			// Attack on minor
 			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 			{
-				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,1);
+				// failed, try again but be less careful.
+				if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,1) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
+				{
+					if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false) == 0)
+					{
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,0,false);
+					}
+				}
 			}
 			// Attack on major
 			else
 			{
 				SetWantsSneakAttack(eTargetPlayer, true);
 
-				if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3))
+				if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
 				{
-					// we requested a city attack but it was denied by the military AI...if at peace we declare war now, but don't attack
-					// ...but if we have a coop war pending, wait for the timer
-					if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0 && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+					// failed, try again but be less careful.
+					if ((!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0) || GetGlobalCoopWarAgainstState(eTargetPlayer) == COOP_WAR_STATE_PREPARING)
 					{
-						DeclareWar(eTargetPlayer);
-						SetWantsSneakAttack(eTargetPlayer, false);
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,0,false);
 					}
 				}
 			}
@@ -26405,7 +26418,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
+							if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
+							{
+								// failed, try again but be less careful.
+								if ((!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0) || GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+								{
+									GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,0,false);
+								}
+							}
 						}
 					}
 				}
@@ -26427,7 +26447,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
 							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
+							if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
+							{
+								// failed, try again but be less careful.
+								if ((!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0) || GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+								{
+									GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,0,false);
+								}
+							}
 						}
 					}
 				}
@@ -27165,7 +27192,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 				{
 					pDeal->ClearItems();
-					GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
+					if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
+					{
+						// failed, try again but be less careful.
+						if ((!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0) || GetGlobalCoopWarAgainstState(ePlayer) == COOP_WAR_STATE_PREPARING)
+						{
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,0,false);
+						}
+					}
 				}
 			}
 			else
@@ -35591,7 +35625,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			if (DeclareWar(eFromPlayer))
 			{
-				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3);
+				if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,3) && !GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eFromPlayer))
+				{
+					// failed, try again but be less careful.
+					if ((!GetPlayer()->IsNoNewWars() && GetPlayer()->GetNumDangerousMajorsAtWarWith(true, true) == 0) || GetGlobalCoopWarAgainstState(eFromPlayer) == COOP_WAR_STATE_PREPARING)
+					{
+						GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer,0,false);
+					}
+				}
 			}
 		}
 
