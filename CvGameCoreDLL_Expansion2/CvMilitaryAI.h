@@ -174,7 +174,7 @@ public:
 	};
 
 	// Requests for specific military operations
-	bool RequestCityAttack(PlayerTypes eEnemy, int iNumUnitsWillingToBuild);
+	bool RequestCityAttack(PlayerTypes eEnemy, int iNumUnitsWillingToBuild, bool bCareful=true);
 	bool RequestPillageAttack(PlayerTypes eEnemy);
 	bool RequestNukeAttack(PlayerTypes eEnemy);
 	bool RequestBullyingOperation(PlayerTypes eEnemy);
