@@ -3496,4 +3496,3 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 
 	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus,iMaxMissingUnits);
 }
-

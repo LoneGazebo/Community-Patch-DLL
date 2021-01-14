@@ -3118,12 +3118,10 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								}
 							}
 						}
-						
-						PlayerTypes eLoopPlayer;
-						PlayerTypes eLoopPlayer2;
+
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							eLoopPlayer = (PlayerTypes)iPlayerLoop;
+							PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
 							if (eLoopPlayer == eAcceptedFromPlayer || eLoopPlayer == eAcceptedToPlayer)
 								continue;
@@ -3185,7 +3183,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 							{
 								for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 								{
-									eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+									PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
 								
 									if (!GET_PLAYER(eLoopPlayer2).isAlive() || !GET_PLAYER(eLoopPlayer2).isMajorCiv())
 										continue;
@@ -3790,11 +3788,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						}
 					}
 
-					PlayerTypes eLoopPlayer;
-					PlayerTypes eLoopPlayer2;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 						if (eLoopPlayer == eAcceptedFromPlayer || eLoopPlayer == eAcceptedToPlayer)
 							continue;
@@ -3858,7 +3854,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							{
 								for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 								{
-									eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+									PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
 								
 									if (!GET_PLAYER(eLoopPlayer2).isAlive() || !GET_PLAYER(eLoopPlayer2).isMajorCiv())
 										continue;

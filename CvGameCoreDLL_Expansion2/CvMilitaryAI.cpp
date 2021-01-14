@@ -531,10 +531,6 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	//if the target is very close assume we can embark or don't even need to
 	AIOperationTypes opType = (pMusterCity->getArea() == pTargetCity->getArea()) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
 
-	// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
-	if (m_pPlayer->getFirstAIOperationOfType(opType))
-		return false;
-
 	//don't venture too far
 	int iDistanceTurns = m_pPlayer->GetCityDistancePathLength(pTargetCity->plot());
 	if (iDistanceTurns > 23)
@@ -562,10 +558,8 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 /// Spend money to quickly add a unit to a city
 CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 {
-	bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
-
 	// No units in puppet cities except for Venice!
-	if(pCity->IsPuppet() && !bIsVenice)
+	if (pCity->IsPuppet() && !m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
 	{
 		return NULL;
 	}
@@ -995,6 +989,9 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 
 bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild)
 {
+	bool bAttackLaunched = false;
+	bool bEasyTargetException = m_pPlayer->GetDiplomacyAI()->IsEasyTarget(eIntendedTarget) && m_pPlayer->IsAtPeace() && m_pPlayer->getFirstOffensiveAIOperation(NO_PLAYER) == NULL;
+
 	//note that a given target might be repeated with different muster points / army types
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 	{
@@ -1028,10 +1025,47 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 		if (m_pPlayer->getFirstAIOperationOfType(opType,eTargetPlayer,pTargetPlot)!=NULL)
 			continue;
 
-		m_pPlayer->addAIOperation(opType, iNumUnitsWillingToBuild, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity());
+		if (m_pPlayer->addAIOperation(opType, iNumUnitsWillingToBuild, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
+			bAttackLaunched = true;
 	}
 
-	return false;
+	// No preferred targets? Try to attack one potential target if we're significantly stronger, at peace, and not attacking anybody else right now.
+	if (!bAttackLaunched && bEasyTargetException)
+	{
+		for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		{
+			CvPlot* pMusterPlot = m_potentialAttackTargets[i].GetMusterPlot();
+			CvPlot* pTargetPlot = m_potentialAttackTargets[i].GetTargetPlot();
+			PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
+			if (eTargetPlayer != eIntendedTarget)
+				continue;
+
+			AIOperationTypes opType = AI_OPERATION_TYPE_UNKNOWN;
+			switch (m_potentialAttackTargets[i].m_armyType)
+			{
+			case ARMY_TYPE_LAND:
+				opType = AI_OPERATION_CITY_ATTACK_LAND;
+				break;
+			case ARMY_TYPE_NAVAL:
+				opType = AI_OPERATION_CITY_ATTACK_NAVAL;
+				break;
+			case ARMY_TYPE_COMBINED:
+				opType = AI_OPERATION_CITY_ATTACK_COMBINED;
+				break;
+			default:
+				continue;
+			}
+
+			//don't try to build additional units, only do this if we have enough at hand
+			if (m_pPlayer->addAIOperation(opType, 0, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
+			{
+				bAttackLaunched = true;
+				break;
+			}
+		}
+	}
+
+	return bAttackLaunched;
 }
 
 void MilitaryAIHelpers::SetBestTargetApproach(CvAttackTarget& target, PlayerTypes ePlayer)
@@ -2327,18 +2361,20 @@ void CvMilitaryAI::UpdateOperations()
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
+			// If we've made peace, abort all operations
+			if(GET_TEAM(m_pPlayer->getTeam()).isForcePeace(GET_PLAYER(eLoopPlayer).getTeam()))
+			{
+				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_WAR_STATE_CHANGE);
+			}
+
 			// If we cannot declare war on this player, abort all offensive operations related to him
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer) && !GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-			}
-
-			// If the other player cannot declare on us, abort defensive ops too
-			if(GET_TEAM(m_pPlayer->getTeam()).isForcePeace(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-				m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_TARGET_NOT_VALID);
+				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_TARGET_NOT_VALID);
 			}
 
 			// if we're at war with this player

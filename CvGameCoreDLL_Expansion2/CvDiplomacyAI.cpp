@@ -21894,6 +21894,10 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			if (!IsWarSane(*it))
 				continue;
 
+			// Avoid war if we have no chance whatsoever of winning
+			if (GetPlayerMilitaryStrengthComparedToUs(*it) == STRENGTH_IMMENSE && !IsEasyTarget(*it))
+				continue;
+
 			// Are we not allowing new wars?
 			if (GetPlayer()->IsNoNewWars() && !IsEndgameAggressiveTo(*it) && !IsCapitalCapturedBy(*it, true, false))
 				continue;
@@ -22150,6 +22154,13 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 
 			// Scared of them?
 			if (GetMajorCivApproach(ePlayer) == MAJOR_CIV_APPROACH_AFRAID)
+			{
+				SetPotentialWarTarget(ePlayer, false);
+				continue;
+			}
+
+			// Avoid war if we have no chance whatsoever of winning
+			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_IMMENSE && !IsEasyTarget(ePlayer))
 			{
 				SetPotentialWarTarget(ePlayer, false);
 				continue;
@@ -23430,13 +23441,13 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
 		bWantToAttack = (GetCSWarTargetPlayer() == eTargetPlayer) && !GetPlayer()->IsNoNewWars();
-		bWantShowOfForce = (GetCSBullyTargetPlayer() == eTargetPlayer) && m_pPlayer->IsAtPeace();
+		bWantShowOfForce = (GetCSBullyTargetPlayer() == eTargetPlayer) && !GetPlayer()->IsNoNewWars();
 	}
 	// Major Civ
 	else
 	{
 		bWantToAttack = (GetMajorCivApproach(eTargetPlayer) == MAJOR_CIV_APPROACH_WAR) && IsWarSane(eTargetPlayer);
-		bWantShowOfForce = (GetDemandTargetPlayer() == eTargetPlayer) && m_pPlayer->IsAtPeace();
+		bWantShowOfForce = GetDemandTargetPlayer() == eTargetPlayer;
 
 		// Don't attack someone else's vassal unless we want to attack the master too
 		if (GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
@@ -23452,8 +23463,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// Our Approach with this player calls for war
 		if (bWantToAttack)
 		{
-			// If our Sneak Attack is ready then declare war
-			DeclareWar(eTargetPlayer);
+			// If our Sneak Attack is ready then declare war...but if we have a coop war pending, wait for the timer
+			if (GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+				DeclareWar(eTargetPlayer);
 		}
 		else if (bWantShowOfForce)
 		{
@@ -23495,8 +23507,18 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			// Attack on major
 			else
 			{
-				GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3); //consider: if we want to declare war but this call fails because we don't have a preferred target, declare war now?
 				SetWantsSneakAttack(eTargetPlayer, true);
+
+				if (!GetPlayer()->GetMilitaryAI()->RequestCityAttack(eTargetPlayer,3))
+				{
+					// we requested a city attack but it was denied by the military AI...if at peace we declare war now, but don't attack
+					// ...but if we have a coop war pending, wait for the timer
+					if (!GetPlayer()->IsNoNewWars() && m_pPlayer->IsAtPeace() && GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
+					{
+						DeclareWar(eTargetPlayer);
+						SetWantsSneakAttack(eTargetPlayer, false);
+					}
+				}
 			}
 		}
 		//we just want to scare them
@@ -26043,7 +26065,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsArmyInPlaceForAttack(GetID()))
+				if (GET_PLAYER(ePlayer).HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->AvoidExchangesWithPlayer(GetID(), /*bWarOnly*/ true))
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 					{
@@ -53278,19 +53300,11 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 /// Is moving our troops from ePlayer's lands acceptable?
 MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking)
 {
-	// Teammates
-	if (IsTeammate(ePlayer))
-		return MOVE_TROOPS_RESPONSE_NEUTRAL;
-
-	if (IsVassal(ePlayer))
+	if (IsTeammate(ePlayer) || IsVassal(ePlayer))
 		return MOVE_TROOPS_RESPONSE_ACCEPT;
 
-	// If we have a pending coop war against this player then execute the attack
-	if (GetGlobalCoopWarAgainstState(ePlayer) >= COOP_WAR_STATE_PREPARING)
-		return MOVE_TROOPS_RESPONSE_REFUSE; // War!
-
-	// We have an operation en route to opponent
-	if(GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
+	// We have an operation en route to opponent, or we're planning war
+	if (GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || AvoidExchangesWithPlayer(ePlayer, /*bWarOnly*/ true))
 	{
 		return MOVE_TROOPS_RESPONSE_REFUSE;	// War!
 	}
