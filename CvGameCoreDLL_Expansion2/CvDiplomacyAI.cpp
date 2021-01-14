@@ -10077,7 +10077,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	}
 
 	// Decrease target value if the player is already at war with other players
-	int iWarCount = bSelfEvaluation ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
+	int iWarCount = (bSelfEvaluation && !GetPlayer()->isHuman()) ? GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(true) : GET_PLAYER(ePlayer).GetNumDangerousMajorsAtWarWith(false);
 
 	// Reduce by 1 if WE'RE already at war with him or he with us
 	if (GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer))
