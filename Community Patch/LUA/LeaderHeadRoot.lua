@@ -325,12 +325,6 @@ function OnShowHide( bHide )
 						else
 							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT" ));
 						end
-					--elseif (Teams[g_iAITeam]:IsVassalOfSomeone() and not Teams[g_iAITeam]:IsVassal(Game.GetActiveTeam())) then
-					--	local iMaster = Teams[g_iAITeam]:GetMaster();
-					--	if (iMaster ~= -1) then
-					--		local pMaster = Teams[iMaster];
-					--		Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
-					--	end
 					elseif (pActiveTeam:IsForcePeace(g_iAITeam) or pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
 						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
 					else

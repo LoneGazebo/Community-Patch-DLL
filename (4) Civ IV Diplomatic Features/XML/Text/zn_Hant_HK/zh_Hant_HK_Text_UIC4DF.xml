@@ -239,9 +239,6 @@
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE">
 			<Text>明白了。我們准予你獨立。</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
-			<Text>不准向另一個文明的附庸開戰（你須向他們的宗主宣戰，{1_CivName}）。</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
 			<Text>作為一名附庸不准和談（當你的宗主與該文明和談時自動和談）。</Text>
 		</Row>
