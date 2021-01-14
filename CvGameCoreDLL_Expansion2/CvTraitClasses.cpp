@@ -5710,7 +5710,7 @@ void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
 			if (m_ppaaiYieldChangePerImprovementBuilt[iImprovement][iYield] != 0)
 			{
 				m_vYieldChangeImprovementTypes.push_back((ImprovementTypes)iImprovement);
-				continue;
+				break;
 			}
 		}
 	}
