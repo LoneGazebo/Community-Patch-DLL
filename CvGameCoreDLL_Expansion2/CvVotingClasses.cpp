@@ -11561,10 +11561,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Embargo City-States
 	if (pProposal->GetEffects()->bEmbargoCityStates)
 	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
 		// Trade connections
 		int iCSDestinations = 0;
 		int iCSPartners = 0;
-		int iCivEmbargos = 0;
 		int iCivDestinations = 0;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		int iCSApproachWar = 0;
@@ -11594,11 +11595,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iCSPartners++;
 					}
 				}
-				else if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetPlayer()->GetID(), e))
-				{
-					iCivEmbargos++;
-				}
-				else
+				else if (pLeague != NULL && !pLeague->IsTradeEmbargoed(GetPlayer()->GetID(), e))
 				{
 					iCivDestinations += GET_PLAYER(e).getNumCities();
 				}

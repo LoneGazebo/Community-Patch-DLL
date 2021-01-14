@@ -19206,7 +19206,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// If either of us is sanctioned, we should be more hostile.
-			if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(eMyPlayer, ePlayer))
+			if (pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 			{
 				vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 5;
 				vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 5;
@@ -19507,6 +19507,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[MAJOR_CIV_APPROACH_WAR] /= 2;
 			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
 		}
+	}
+
+	////////////////////////////////////
+	// SANCTIONED - Less FRIENDLY
+	////////////////////////////////////
+
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] /= 2;
 	}
 
 	////////////////////////////////////
@@ -20662,6 +20671,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			continue;
 		}
 
+		// Sanctioned?
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), eLoopPlayer))
+		{
+			SetStrategicTradePartner(eLoopPlayer, false);
+			continue;
+		}
+
 		// Resurrector?
 		if (WasResurrectedBy(eLoopPlayer))
 		{
@@ -21391,6 +21408,11 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
+	// Sanctioned?
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
+		return false;
+
 	// Did we just meet them? Let's not make a DP quite yet.
 	if (IsTooEarlyForDoF(ePlayer) && !IsDoFAccepted(ePlayer))
 		return false;
@@ -21447,6 +21469,11 @@ bool CvDiplomacyAI::IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer)
 		return false;
 
 	if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsResearchAgreementTradingAllowedWithTeam(GetTeam()))
+		return false;
+
+	// Sanctioned?
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
 		return false;
 
 	// Humans on our team?
@@ -49370,7 +49397,9 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 		}
 	}
 
-	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(eWarmonger, ePlayer) || GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
+	if ((pLeague != NULL && pLeague->IsTradeEmbargoed(eWarmonger, ePlayer)) || GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
 	{
 		iWarmongerWeight *= GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
 		iWarmongerWeight /= 100;
@@ -49893,8 +49922,10 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 
 				//SANCTIONED
 
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
 				//Is the conquered player embargoed (i.e. sanctioned)? If so, half warmonger penalties against this civ.
-				if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(eMajor, eConquered))
+				if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMajor, eConquered))
 				{
 					iWarmongerStatusModifier -= /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 				}

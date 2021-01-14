@@ -998,10 +998,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	if (!HasFoundedCorporation())
 		return;
 
-	bool bIsVassalOrMaster = GET_TEAM(m_pPlayer->getTeam()).IsVassalOfSomeone() || GET_TEAM(m_pPlayer->getTeam()).GetMaster() != NO_TEAM;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague && !bIsVassalOrMaster && pLeague->IsPlayerEmbargoed(m_pPlayer->GetID()))
-		return;
 
 	int iFranchises = GetNumFranchises();
 	int iMaxFranchises = GetMaxNumFranchises();
@@ -1041,21 +1038,17 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		if (GET_PLAYER(ePlayer).GetID() == m_pPlayer->GetID())
 			continue;
 
-		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
 			continue;
 
-		//does not affect vassals
-		bool bMasterVassalRelationship = GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()) || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(m_pPlayer->getTeam());
-
-		if (pLeague && !bMasterVassalRelationship && pLeague->IsPlayerEmbargoed(ePlayer))
+		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
 			continue;
 
 		if (GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
 			continue;
 
-		CvCity* pLoopCity;
 		int iLoop;
-		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			if (pLoopCity != NULL)
 			{
@@ -1738,15 +1731,9 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 	if (iFranchises >= iMax)
 		return false;
 
-	bool bVassalRelations = GET_TEAM(GET_PLAYER(pTargetCity->getOwner()).getTeam()).IsVassal(m_pPlayer->getTeam()) || GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pTargetCity->getOwner()).getTeam());
-
-	if (!bVassalRelations)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague)
-			if (pLeague->IsPlayerEmbargoed(pTargetCity->getOwner()) || pLeague->IsPlayerEmbargoed(m_pPlayer->GetID()))
-				return false;
-	}
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner()))
+		return false;
 
 	return true;
 }

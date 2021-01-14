@@ -48314,7 +48314,8 @@ void CvPlayer::DoAnnounceReligionAdoption()
 
 bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 {
-	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetID(), eOtherPlayer) && eOtherPlayer != m_eID)
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), eOtherPlayer) && eOtherPlayer != m_eID)
 	{
 		return false;
 	}
