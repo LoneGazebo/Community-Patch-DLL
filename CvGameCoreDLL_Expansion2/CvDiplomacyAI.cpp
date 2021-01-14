@@ -20686,6 +20686,21 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			continue;
 		}
 
+		// Master?
+		if (IsVassal(eLoopPlayer) && IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
+		{
+			if (IsVoluntaryVassalage(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) >= VASSAL_TREATMENT_DISAGREE)
+			{
+				SetStrategicTradePartner(eLoopPlayer, true);
+				continue;
+			}
+			else if (GetVassalTreatmentLevel(eLoopPlayer) == VASSAL_TREATMENT_CONTENT)
+			{
+				SetStrategicTradePartner(eLoopPlayer, true);
+				continue;
+			}
+		}
+
 		if (GetVictoryDisputeLevel(eLoopPlayer) == DISPUTE_LEVEL_FIERCE)
 		{
 			SetStrategicTradePartner(eLoopPlayer, false);
@@ -20739,7 +20754,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		}
 
 		// Are we going for conquest? Check land dispute.
-		if (bGoingForConquest || bCloseToConquest)
+		if ((bGoingForConquest && !GetPlayer()->IsVassalOfSomeone()) || bCloseToConquest)
 		{
 			if (GetLandDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_WEAK)
 			{
@@ -20778,6 +20793,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 		// Liberator?
 		if (IsPlayerLiberatedCapital(eLoopPlayer) || IsPlayerLiberatedHolyCity(eLoopPlayer))
+		{
+			SetStrategicTradePartner(eLoopPlayer, true);
+			continue;
+		}
+
+		// If we're a vassal, pretty much everyone is a good trade partner
+		if (GetPlayer()->IsVassalOfSomeone())
 		{
 			SetStrategicTradePartner(eLoopPlayer, true);
 			continue;
@@ -23839,6 +23861,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -23877,6 +23900,10 @@ void CvDiplomacyAI::DoUpdateDemands()
 
 		// Don't make demands of them too often
 		if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DEMAND) < 40)
+			continue;
+
+		// Can't make/accept demands if sanctioned
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
 			continue;
 
 		// Is it sane to attack this player?
