@@ -21498,6 +21498,10 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	// Untrustworthy?
 	if (IsUntrustworthy(ePlayer))
 		return false;
+
+	// Denouncement?
+	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
+		return false;
 	
 	// If we're willing to end our friendship with them, don't make friends with them!
 	if (IsDenounceAcceptable(ePlayer) || IsEndDoFAcceptable(ePlayer, true) || IsDenounceFriendAcceptable(ePlayer))
@@ -21552,6 +21556,10 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 
 	// Untrustworthy?
 	if (IsUntrustworthy(ePlayer))
+		return false;
+
+	// Denouncement?
+	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
 		return false;
 
 	// If we're willing to end our friendship with them, don't make a DP with them!
@@ -21610,6 +21618,10 @@ bool CvDiplomacyAI::IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer)
 
 	// Untrustworthy?
 	if (IsUntrustworthy(ePlayer))
+		return false;
+
+	// Denouncement?
+	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
 		return false;
 
 	// If we're willing to end our friendship with them, don't make a RA with them!
