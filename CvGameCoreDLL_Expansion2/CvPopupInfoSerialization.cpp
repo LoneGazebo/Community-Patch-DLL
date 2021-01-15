@@ -29,8 +29,7 @@ FDataStream& operator<<(FDataStream& kStream, const CvPopupInfo& kPopupInfo)
 
 	kStream << kPopupInfo.eButtonPopupType;
 
-	CvString strDummy = kPopupInfo.szText;
-	kStream << strDummy;
+	kStream << kPopupInfo.szText;
 
 	return kStream;
 }

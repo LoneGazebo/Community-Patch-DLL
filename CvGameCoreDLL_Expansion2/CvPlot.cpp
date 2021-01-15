@@ -222,7 +222,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_iArea = -1;
 	m_iLandmass = -1;
-	m_iDummy = 0;
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
@@ -12686,7 +12685,6 @@ void CvPlot::read(FDataStream& kStream)
 	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
 
 	kStream >> m_iArea;
-	kStream >> m_iDummy;
 	kStream >> m_iOwnershipDuration;
 	kStream >> m_iImprovementDuration;
 	kStream >> m_iUpgradeProgress;
@@ -12892,7 +12890,6 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iArea;
-	kStream << m_iDummy;
 	kStream << m_iOwnershipDuration;
 	kStream << m_iImprovementDuration;
 	kStream << m_iUpgradeProgress;

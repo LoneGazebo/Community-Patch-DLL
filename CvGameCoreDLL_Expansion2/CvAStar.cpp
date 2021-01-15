@@ -3186,7 +3186,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		//only single plot canals on plots without resource
 		//not that this is asymmetric, we can build a canal into a city but not out of a city ... shouldn't matter too much
 		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
-			return pNewPlot->getResourceType(pCacheData->GetTeam()) == NO_RESOURCE;
+			return pNewPlot->getResourceType() == NO_RESOURCE;
 	}
 
 	return FALSE;
