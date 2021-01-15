@@ -3568,7 +3568,6 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMin(0),
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_iShareOpinionDuration(0),
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
 	m_iMinimumVassalTurns(75),
@@ -3832,7 +3831,6 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_iShareOpinionDuration			= kResults.GetInt("ShareOpinionDuration");
 		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
 		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
 		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
@@ -11350,11 +11348,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 bool CvEraInfo::getVassalageEnabled() const
 {
 	return m_bVassalageEnabled;
-}
-//------------------------------------------------------------------------------
-int CvGameSpeedInfo::getShareOpinionDuration() const
-{
-	return m_iShareOpinionDuration;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getTechCostPerTurnMultiplier() const

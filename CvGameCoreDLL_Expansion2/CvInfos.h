@@ -1171,7 +1171,6 @@ public:
 	int getNumTurnIncrements() const;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int getShareOpinionDuration() const;
 	int getTechCostPerTurnMultiplier() const;
 	int getMinimumVoluntaryVassalTurns() const;
 	int getMinimumVassalTurns() const;
@@ -1229,7 +1228,6 @@ protected:
 	int m_iLeaguePercent;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int m_iShareOpinionDuration;
 	int m_iTechCostPerTurnMultiplier;
 	int m_iMinimumVoluntaryVassalTurns;
 	int m_iMinimumVassalTurns;

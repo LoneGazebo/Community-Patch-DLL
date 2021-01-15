@@ -56,8 +56,8 @@ INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_FAILED_P
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50);				-- Protected a Vassal Maximum Opinion
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', 100);	-- How many turns until we forget you've peacefully revoked our vassalage?
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100);	-- How many turns until we forgive that you forcibly revoked our vassalage?
-INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT', 40);
-INSERT INTO Defines	('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', 10);			-- Opinion weight change per vassal
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT', 100);
+INSERT INTO Defines	('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', 20);			-- Opinion weight change per vassal
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_MASTER_LIBERATED_ME_FROM_VASSALAGE', -50);	-- Opinion weight for liberating a vassal
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_VASSAL_FORCEFULLY_REVOKED', 4);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED', -10);
