@@ -15811,7 +15811,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Ally to us now?
 		if (IsFriendOrAlly(ePlayer))
 		{
-			if (!bBold || !(bEasyTarget && bGoodAttackTarget))
+			if (!bBold || !bEasyTarget || !bGoodAttackTarget)
 			{
 				bModerateAggressiveDesire = true;
 			}
@@ -15821,7 +15821,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			if (!IsMajorCompetitor(ePlayer) && !bEarlyGameCompetitor && eOpinion >= MAJOR_CIV_OPINION_COMPETITOR)
 			{
-				if (!bBold || !bEasyTarget || !bGoodAttackTarget)
+				if (!bBold || !(bEasyTarget || bGoodAttackTarget))
 				{
 					bModerateAggressiveDesire = true;
 				}
