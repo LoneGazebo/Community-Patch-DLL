@@ -19864,6 +19864,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 	}
 
+	////////////////////////////////////
+	// NO FRIENDLY - Don't be friendly if we hate them!
+	////////////////////////////////////
+
+	bool bNoFriendly = IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy;
+	bNoFriendly |= bProvokedUs && bWantsOpportunityAttack && (bEasyTarget || bGoodAttackTarget);
+
+	if (bStrategic)
+	{
+		bNoFriendly |= eOpinion <= MAJOR_CIV_OPINION_ENEMY;
+
+		if (bNoFriendly)
+		{
+			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
+			vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		}
+	}
+
 	//--------------------------------//
 	// [PART 13: THE APPROACH CURVE]  //
 	//--------------------------------//
@@ -19977,9 +19995,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		eApproach = MAJOR_CIV_APPROACH_GUARDED;
 	}
-
-	// Don't bother being friendly (real or fake) if there's been a denouncement or they're untrustworthy
-	bool bNoFriendly = (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy);
 
 	if (bNoFriendly && (eApproach == MAJOR_CIV_APPROACH_FRIENDLY || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE))
 	{
