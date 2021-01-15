@@ -14091,6 +14091,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	// WORLD CONGRESS
 	//////////////////////////////////////
 
+	iOpinionWeight += GetLeagueAlignmentScore(ePlayer);
 	iOpinionWeight += GetLikedTheirProposalScore(ePlayer);
 	iOpinionWeight += GetDislikedTheirProposalScore(ePlayer);
 	iOpinionWeight += GetSupportedOurProposalScore(ePlayer);
@@ -44042,6 +44043,50 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
 	}
 	
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetLeagueAlignmentScore(PlayerTypes ePlayer)
+{
+	if (!GC.getGame().GetGameLeagues()->GetActiveLeague())
+		return 0;
+
+	int iOpinionWeight = 0;
+	bool bDiplomat = IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
+
+	if (GetPrimeLeagueCompetitor() == ePlayer)
+	{
+		iOpinionWeight = bDiplomat ? /*50*/ GC.getOPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR_DIPLOMAT() : /*25*/ GC.getOPINION_WEIGHT_PRIME_LEAGUE_COMPETITOR();
+	}
+	else
+	{
+		CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(ePlayer, /*bIgnoreWar*/ true);
+		switch (eAlignment)
+		{
+		case CvLeagueAI::ALIGNMENT_ENEMY:
+			iOpinionWeight = bDiplomat ? /*40*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY_DIPLOMAT() : /*20*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_ENEMY();
+			break;
+		case CvLeagueAI::ALIGNMENT_HATRED:
+			iOpinionWeight = bDiplomat ? /*30*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED_DIPLOMAT() : /*15*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_HATRED();
+			break;
+		case CvLeagueAI::ALIGNMENT_RIVAL:
+			iOpinionWeight = bDiplomat ? /*20*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL_DIPLOMAT() : /*10*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_RIVAL();
+			break;
+		case CvLeagueAI::ALIGNMENT_FRIEND:
+			iOpinionWeight = bDiplomat ? /*-20*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND_DIPLOMAT() : /*-10*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_FRIEND();
+			break;
+		case CvLeagueAI::ALIGNMENT_CONFIDANT:
+			iOpinionWeight = bDiplomat ? /*-30*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT_DIPLOMAT() : /*-15*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_CONFIDANT();
+			break;
+		case CvLeagueAI::ALIGNMENT_ALLY:
+			iOpinionWeight = bDiplomat ? /*-40*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY_DIPLOMAT() : /*-20*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_ALLY();
+			break;
+		case CvLeagueAI::ALIGNMENT_LIBERATOR:
+			iOpinionWeight = bDiplomat ? /*-50*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR_DIPLOMAT() : /*-25*/ GC.getOPINION_WEIGHT_LEAGUE_ALIGNMENT_LIBERATOR();
+			break;
+		}
+	}
+
 	return iOpinionWeight;
 }
 

@@ -1672,6 +1672,7 @@ public:
 	int GetPolicyScore(PlayerTypes ePlayer);
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
+	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedOurProposalScore(PlayerTypes ePlayer);

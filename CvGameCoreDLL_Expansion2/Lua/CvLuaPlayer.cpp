@@ -13875,6 +13875,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetLeagueAlignmentScore(ePlayer);
+		if (iValue > 0 && (bHideDisputes || bHideNegatives))
+		{
+			iValue = 0;
+		}
+
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->GetPrimeLeagueCompetitor() == ePlayer)
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT").toUTF8();
+				}
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT").toUTF8();
+			}
+		}
+
 		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
 			if (pDiplo->IsMaster(ePlayer))

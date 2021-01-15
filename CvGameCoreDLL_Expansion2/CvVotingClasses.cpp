@@ -10217,9 +10217,18 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		}
 		else
 		{
-			iAlignment -= 2;
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsAggressor(GetPlayer()->GetID())
+			{
+				iAlignment -= 2;
+			}
+			else
+			{
+				iAlignment -= 1;
+			}
 		}
 	}
+
+	bool bUntrustworthy = GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(ePlayer);
 
 	// Ideology
 	PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -10228,7 +10237,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		int iIdeologyMod = 0;
 
-		if (eOurIdeology == eTheirIdeology)
+		if (eOurIdeology == eTheirIdeology && !bUntrustworthy)
 		{
 			iIdeologyMod += 2;
 		}
@@ -10267,7 +10276,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		int iReligionMod = 0;
 
-		if (eOurReligion == eTheirReligion)
+		if (eOurReligion == eTheirReligion && !bUntrustworthy && !GetPlayer()->GetDiplomacyAI()->IsHolyCityCapturedBy(ePlayer))
 		{
 			iReligionMod += 1;
 		}
@@ -10327,13 +10336,24 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// DoF or Denounce
-	if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer) || GetPlayer()->GetDiplomacyAI()->IsDenouncedByPlayer(ePlayer))
 	{
-		iAlignment += 1;
+		iAlignment -= 2;
 	}
-	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
+	else if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
 	{
-		iAlignment += -1;
+		switch (GetPlayer()->GetDiplomacyAI()->GetDoFType(ePlayer))
+		{
+		case DOF_TYPE_FRIENDS:
+			iAlignment += 1;
+			break;
+		case DOF_TYPE_ALLIES:
+			iAlignment += 2;
+			break;
+		case DOF_TYPE_BATTLE_BROTHERS:
+			iAlignment += 3;
+			break;
+		}
 	}
 
 	if (GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
@@ -10384,23 +10404,75 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		}
 	}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	if (GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 	{
-		iAlignment += -1;
+		iAlignment -= 2;
+
+		if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory() && (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC))
+		{
+			iAlignment -= 4;
+		}
 	}
-#endif
 
 	// Opinion and approach
-	MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(ePlayer);
-	if (eOpinion > MAJOR_CIV_OPINION_NEUTRAL || eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+	switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_UNFORGIVABLE:
+	case MAJOR_CIV_OPINION_ENEMY:
+		iAlignment -= 2;
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		iAlignment -= 1;
+		break;
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		iAlignment += 0;
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+	case MAJOR_CIV_OPINION_FRIEND:
+		iAlignment += 1;
+		break;
+	case MAJOR_CIV_OPINION_ALLY:
+		iAlignment += 2;
+		break;
+	}
+
+	switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(ePlayer))
+	{
+	case MAJOR_CIV_APPROACH_WAR:
+	case MAJOR_CIV_APPROACH_HOSTILE:
+		iAlignment -= 2;
+		break;
+	case MAJOR_CIV_APPROACH_DECEPTIVE:
+	case MAJOR_CIV_APPROACH_GUARDED:
+		iAlignment -= 1;
+		break;
+	case MAJOR_CIV_APPROACH_AFRAID:
+	case MAJOR_CIV_APPROACH_NEUTRAL:
+		iAlignment += 0;
+		break;
+	case MAJOR_CIV_APPROACH_FRIENDLY:
+		iAlignment += 1;
+		break;
+	}
+
+	// Backstabber?
+	if (bUntrustworthy)
+	{
+		iAlignment -= 2;
+	}
+	// Liberator?
+	else if (GetPlayer()->GetDiplomacyAI()->IsPlayerLiberatedCapital(ePlayer) || GetPlayer()->GetDiplomacyAI()->IsPlayerLiberatedHolyCity(ePlayer))
+	{
+		if (!GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory() && !bUntrustworthy && !GetPlayer()->IsAtWarWith(ePlayer))
+		{
+			return ALIGNMENT_LIBERATOR;
+		}
+
+		iAlignment += 2;
+	}
+	else if (GetPlayer()->GetDiplomacyAI()->GetNumCitiesLiberatedBy(ePlayer) > 0 && GetPlayer()->GetDiplomacyAI()->GetNumCitiesCapturedBy(ePlayer) <= 0 && !bUntrustworthy && !GetPlayer()->IsAtWarWith(ePlayer))
 	{
 		iAlignment += 1;
-	}
-	else if (eOpinion <= MAJOR_CIV_OPINION_ENEMY || eApproach == MAJOR_CIV_APPROACH_HOSTILE)
-	{
-		iAlignment += -1;
 	}
 
 	AlignmentLevels eAlignment = ALIGNMENT_NEUTRAL;

@@ -3103,6 +3103,15 @@
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY">
 			<Text>We previously defeated their proposal in the World Congress.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT">
+			<Text>They consider us an ally in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT">
+			<Text>They consider us a rival in the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR">
+			<Text>We are their greatest rival in the World Congress.</Text>
+		</Row>
 
 		<!-- World Congress >>> United Nations -->
 		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
@@ -3128,6 +3137,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN">
 			<Text>We previously defeated their proposal in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN">
+			<Text>They consider us an ally in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN">
+			<Text>They consider us a rival in the United Nations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN">
+			<Text>We are their greatest rival in the United Nations.</Text>
 		</Row>
 
 		<!-- Special Warmonger Hate Descriptor for Aztecs -->
