@@ -520,6 +520,10 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (GET_PLAYER(eEnemy).isBarbarian())
 		return false;
 
+	// If we already have an operation on the way, don't send another one
+	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eEnemy))
+		return false;
+
 	CvCity* pTargetCity = GET_PLAYER(eEnemy).isMajorCiv() ? m_pPlayer->GetClosestCityToUsByPlots(eEnemy) : GET_PLAYER(eEnemy).getCapitalCity();
 	if (!pTargetCity)
 		return false;
