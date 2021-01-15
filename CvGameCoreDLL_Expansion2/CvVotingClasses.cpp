@@ -10217,7 +10217,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsAggressor(GetPlayer()->GetID())
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsAggressor(GetPlayer()->GetID()))
 			{
 				iAlignment -= 2;
 			}
