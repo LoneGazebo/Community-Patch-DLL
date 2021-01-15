@@ -15151,9 +15151,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// Same for demand
-		else if (eOldApproach == MAJOR_CIV_APPROACH_HOSTILE && GetWarGoal(ePlayer) == WAR_GOAL_DEMAND)
+		else if (GetWarGoal(ePlayer) == WAR_GOAL_DEMAND)
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 4;
+			vApproachScores[(int)eOldApproach] += vApproachBias[(int)eOldApproach] * 4;
 		}
 	}
 
@@ -15520,6 +15520,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+		bProvokedUs = true;
 
 		if (bEasyTarget)
 		{
