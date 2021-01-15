@@ -15299,7 +15299,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsHasDefensivePact(ePlayer))
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 5;
 		vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
@@ -15313,7 +15313,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 5;
 		vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
@@ -15331,7 +15331,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		if (IsWantsDoFWithPlayer(ePlayer))
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 			vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 			vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
@@ -15341,7 +15341,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (IsWantsDefensivePactWithPlayer(ePlayer))
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 			vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
 			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 			vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
