@@ -50,7 +50,7 @@ INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_CURRENT_TAX
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL', -20);	-- Opinion Weight for AI voluntary vassal
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL', 0);				-- Opinion Weight for AI being your Vassal
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER', -50);			-- Opinion Weight for AI being your Master
-INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED', -20);	-- We peacefully revoked Vassalage
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED', -25);	-- We peacefully revoked Vassalage
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY_REVOKED', 50);		-- We forcefully revoked Vassalage
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX', 50);		-- Failed to protect a Vassal Maximum Opinion
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_PROTECT_MAX', -50);				-- Protected a Vassal Maximum Opinion
@@ -65,5 +65,5 @@ INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_FRIENDLY_VASSAL_FORCEFUL
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED', -4);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED', 2);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_FRIENDLY_VASSAL_PEACEFULLY_REVOKED', 5);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_GUARDED_TOO_MANY_VASSALS', 10);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_TOO_MANY_VASSALS', 10);
+INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_GUARDED_TOO_MANY_VASSALS', 20);
+INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_TOO_MANY_VASSALS', 20);

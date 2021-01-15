@@ -19447,11 +19447,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		if (GET_PLAYER(ePlayer).GetNumVassals() > 1)
 		{
-			// Increase WAR and GUARDED approach scores for each vassal they own, provided they have more than one
-			vApproachScores[MAJOR_CIV_APPROACH_WAR] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*10*/ GC.getAPPROACH_WAR_TOO_MANY_VASSALS());	// 2 vassals = 120%, 3 vassals = 130%
+			// Increase bad approach scores for each vassal they own, provided they have more than one
+			vApproachScores[MAJOR_CIV_APPROACH_WAR] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GC.getAPPROACH_WAR_TOO_MANY_VASSALS());	// 2 vassals = 140%, 3 vassals = 160%
 			vApproachScores[MAJOR_CIV_APPROACH_WAR] /= 100;
-			vApproachScores[MAJOR_CIV_APPROACH_GUARDED] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*10*/ GC.getAPPROACH_GUARDED_TOO_MANY_VASSALS());	// 2 vassals = 120%, 3 vassals = 130%
+			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GC.getAPPROACH_WAR_TOO_MANY_VASSALS());
+			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
+			vApproachScores[MAJOR_CIV_APPROACH_GUARDED] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GC.getAPPROACH_GUARDED_TOO_MANY_VASSALS());
 			vApproachScores[MAJOR_CIV_APPROACH_GUARDED] /= 100;
+			vApproachScores[MAJOR_CIV_APPROACH_AFRAID] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GC.getAPPROACH_GUARDED_TOO_MANY_VASSALS());
+			vApproachScores[MAJOR_CIV_APPROACH_AFRAID] /= 100;
 		}
 	}
 
