@@ -2387,17 +2387,16 @@ int CvGameReligions::GetNumCitiesFollowing(ReligionTypes eReligion) const
 	int iRtnValue = 0;
 
 	// Loop through all the players
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
+		if (kPlayer.isAlive())
 		{
 			// Loop through each of their cities
 			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+				if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 				{
 					iRtnValue++;
 				}
@@ -2412,20 +2411,40 @@ int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, Play
 	int iRtnValue = 0;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	if (!kPlayer.isAlive())
+		return 0;
+
 	// Loop through each of their cities
 	int iLoop;
-	CvCity* pLoopCity;
-	for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 		{
 			iRtnValue++;
 		}
 	}
+
 	return iRtnValue;
 }
 
+bool CvGameReligions::HasAnyDomesticCityFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const
+{
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	if (!kPlayer.isAlive())
+		return false;
 
+	// Loop through each of their cities
+	int iLoop;
+	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 /// Has this player created a religion?
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)

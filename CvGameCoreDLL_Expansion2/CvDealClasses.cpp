@@ -3131,13 +3131,11 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									if (!GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2) && !GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
+									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
+
+									if (!GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 									{
-										// failed, try again but be less careful.
-										if ((!GET_PLAYER(eAcceptedFromPlayer).IsNoNewWars() && GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) == 0) || GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
-										{
-											GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,0,false);
-										}
+										GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer, 2, bCareful);
 									}
 								}
 
@@ -3809,13 +3807,11 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								//AI go to war now.
 								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 								{
-									if (!GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,2) && !GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
+									bool bCareful = GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) < COOP_WAR_STATE_PREPARING;
+
+									if (!GET_PLAYER(eAcceptedFromPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
 									{
-										// failed, try again but be less careful.
-										if ((!GET_PLAYER(eAcceptedFromPlayer).IsNoNewWars() && GET_PLAYER(eAcceptedFromPlayer).GetNumDangerousMajorsAtWarWith(true, false) == 0) || GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
-										{
-											GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer,0,false);
-										}
+										GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestCityAttack(eLoopPlayer, 2, bCareful);
 									}
 								}
 

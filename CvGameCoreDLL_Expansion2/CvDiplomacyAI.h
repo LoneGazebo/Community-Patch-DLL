@@ -1238,8 +1238,6 @@ public:
 	bool DeclareWar(PlayerTypes ePlayer);
 	bool DeclareWar(TeamTypes eTeam);
 
-	// Set default values when we're attacked and its not our turn
-	void DoSomeoneDeclaredWarOnMe(TeamTypes eTeam);
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	void DoUpdateConquestStats();

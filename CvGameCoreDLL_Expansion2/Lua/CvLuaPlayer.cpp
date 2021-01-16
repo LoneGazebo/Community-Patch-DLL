@@ -12681,7 +12681,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Untrustworthy friend?
-			if (!bJustMet && pDiplo->IsUntrustworthy(ePlayer))
+			if (!bJustMet && !pDiplo->IsAlwaysAtWar(ePlayer) && pDiplo->IsUntrustworthy(ePlayer))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12691,12 +12691,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			// Base opinion score?
 			iValue = pDiplo->GetBaseOpinionScore(ePlayer);
-			if (iValue != 0 && GC.getGame().IsShowBaseHumanOpinion())
+			if (iValue != 0 && !pDiplo->IsAlwaysAtWar(ePlayer) && GC.getGame().IsShowBaseHumanOpinion())
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-				
+
 				if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION").toUTF8();
@@ -13902,6 +13902,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT").toUTF8();
 			}
+
+			kOpinion.m_str = str;
+			aOpinions.push_back(kOpinion);
 		}
 
 		if (MOD_DIPLOMACY_CIV4_FEATURES)

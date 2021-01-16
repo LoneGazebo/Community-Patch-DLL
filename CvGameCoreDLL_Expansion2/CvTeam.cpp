@@ -1626,8 +1626,8 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						kDefendingPlayer.GetMilitaryAI()->SetupInstantDefenses(eAttackingPlayer);
 					}
 
-					// Update Diplo.
-					kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
+					// Update City Specializations.
+					kDefendingPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 #if defined(MOD_BALANCE_CORE)
 					//Do a golden age on war if we can
 					if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
