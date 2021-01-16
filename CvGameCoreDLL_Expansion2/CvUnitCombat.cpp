@@ -4071,12 +4071,16 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	}
 	else
 	{
-		bool bNothing = false;
+		bool bFallbackAttack = false;
 		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			bNothing = kAttacker.attemptGroundAttacks(targetPlot);
+			bFallbackAttack = kAttacker.attemptGroundAttacks(targetPlot);
 
-		if (bNothing)
+		if (bFallbackAttack)
 		{
+			int iExperience = /*6*/ GC.getEXPERIENCE_ATTACKING_AIR_SWEEP();
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, targetPlot.getOwner() == kAttacker.getOwner(), true);
+			kAttacker.testPromotionReady();
+
 			// attempted to do a sweep in a plot that had no interceptors
 			// consume the movement and finish its moves
 			if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
@@ -4088,8 +4092,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		}
 		else
 		{
-			// attempted to do a sweep in a plot that had no interceptors
-			// consume the movement and finish its moves
 			if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_AIR_PATROL_FOUND_NOTHING");

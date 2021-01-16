@@ -1148,9 +1148,6 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom)
 {
-	saveTo << 0u;
-	saveTo << 0u;
-	saveTo << 0u;
 	saveTo << readFrom.m_ePlayer;
 	saveTo << readFrom.m_iTurnSliceBuilt;
 
@@ -1161,11 +1158,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 }
 FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 {
-	int dummy;
-
-	loadFrom >> dummy;
-	loadFrom >> dummy;
-	loadFrom >> dummy;
 	loadFrom >> writeTo.m_ePlayer;
 	loadFrom >> writeTo.m_iTurnSliceBuilt;
 

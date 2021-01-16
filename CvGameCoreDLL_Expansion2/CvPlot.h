@@ -1078,7 +1078,6 @@ protected:
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSEFlowDirection; // flow direction on the SE edge (isNWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSWFlowDirection; // flow direction on the SW edge (isNEofRiver)
-	char m_iDummy; //unused
 	char m_iNumMajorCivsRevealed;
 	char m_iCityRadiusCount;
 	char m_iReconCount;
