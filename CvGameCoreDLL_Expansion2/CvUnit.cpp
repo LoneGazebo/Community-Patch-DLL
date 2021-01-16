@@ -27737,10 +27737,6 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 							GC.GetEngineUserInterface()->AddMessage(0, getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 						}
 
-						changeExperienceTimes100(200, -1, true);
-
-						testPromotionReady();
-
 						CvUnitCombat::ApplyPostKillTraitEffects(this, pLoopUnit);
 					}
 
