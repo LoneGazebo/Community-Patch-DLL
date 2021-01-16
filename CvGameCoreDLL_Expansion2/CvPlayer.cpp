@@ -751,6 +751,7 @@ CvPlayer::CvPlayer() :
 	, m_bVassalLevy("CvPlayer::m_bVassalLevy", m_syncArchive)
 	, m_iVassalGoldMaintenanceMod("CvPlayer::m_iVassalGoldMaintenanceMod", m_syncArchive)
 #endif
+	, m_iPreviousBestSettlePlot("CvPlayer::m_iPreviousBestSettlePlot", m_syncArchive)
 	, m_iFoundValueOfCapital("CvPlayer::m_iFoundValueOfCapital", m_syncArchive)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl("CvPlayer::m_iFractionOriginalCapitalsUnderControl", m_syncArchive)
@@ -2286,6 +2287,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_vCityConnectionPlots.clear();
 	m_iNumUnitsSuppliedCached = -1;
+
+	m_iPlotFoundValuesUpdateTurn = -1;
+	m_iPreviousBestSettlePlot = -1;
+	m_iFoundValueOfCapital = 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -47935,6 +47940,35 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	}
 
 	return pTestPlot;
+}
+
+PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
+{
+	//only check this if we want to found new cities
+	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	static EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+	bool bWantExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY && GetEconomicAI()->IsUsingStrategy(eEarlyExpand)) ||
+		(eExpandOther != NO_ECONOMICAISTRATEGY && GetEconomicAI()->IsUsingStrategy(eExpandOther));
+
+	//looking up the best settle plot is expensive so do this only if we really want to expand
+	if (bWantExpansion)
+	{
+		CvPlot* pPreviousFavorite = GC.getMap().plotByIndex(m_iPreviousBestSettlePlot);
+	
+		CvPlot* pCurrentFavorite = GetBestSettlePlot(NULL);
+		m_iPreviousBestSettlePlot = pCurrentFavorite ? pCurrentFavorite->GetPlotIndex() : -1;
+
+		if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 3)
+		{
+			CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
+			if (pCity->getTeam() != getTeam())
+				return pCity->getOwner();
+		}
+	}
+	else
+		m_iPreviousBestSettlePlot = -1;
+
+	return NO_PLAYER;
 }
 
 //	--------------------------------------------------------------------------------

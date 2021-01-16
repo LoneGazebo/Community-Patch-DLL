@@ -1291,16 +1291,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 
-		// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
-		EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-		if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
-		{
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
-			{
-				iFlavorExpansion += 50;
-			}
-		}
-
 		AICityStrategyTypes eFeeder = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
 		if (eFeeder != NO_AICITYSTRATEGY)
 		{
