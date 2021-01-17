@@ -3887,6 +3887,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					if (GetPlayer()->IsAITeammateOfHuman())
 						return INT_MAX;
 
+					// If we were resurrected by someone, they're getting our votes
+					if (GetPlayer()->GetDiplomacyAI()->WasResurrectedByAnyone())
+						return INT_MAX;
+
 					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
 					if (iOurVotes >= iVotesNeededToWin)
