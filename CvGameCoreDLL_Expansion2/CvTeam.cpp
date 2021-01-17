@@ -9403,14 +9403,17 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		return false;
 	}
 
-	//blocks vassalage rebellion?
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	//blocks capitulated vassal rebellion?
+	if (!IsVoluntaryVassal(eTeam))
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
-				return false;
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+			{
+				if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
+					return false;
+			}
 		}
 	}
 

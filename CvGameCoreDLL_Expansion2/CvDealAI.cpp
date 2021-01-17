@@ -3883,10 +3883,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				//Let's look real quick to see if this is the world leader vote. If so, don't give ANYTHING away if we can win.
 				if (pProposal->GetEffects()->bDiplomaticVictory)
 				{
-					// Vassals do not sell their votes!
-					if (GetPlayer()->IsVassalOfSomeone())
-						return INT_MAX;
-
 					// Never support the opposition if we're on a human's team.
 					if (GetPlayer()->IsAITeammateOfHuman())
 						return INT_MAX;

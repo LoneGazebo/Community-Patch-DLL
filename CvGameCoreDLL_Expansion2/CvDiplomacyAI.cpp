@@ -51445,11 +51445,11 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if(m_pPlayer->IsAnarchy())
 		return false;
 
-	if (GET_PLAYER(ePlayer).IsVassalsNoRebel())
+	if (!IsVoluntaryVassalage(ePlayer) && GET_PLAYER(ePlayer).IsVassalsNoRebel())
 		return false;
 
 	// If UN is in session, end vassalage ASAP if going for diplo victory
-	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES) && !WasResurrectedBy(ePlayer))
 	{
 		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
 		{
@@ -51465,7 +51465,7 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 		}
 	}
 
-	int iChance = 0;
+	int iChance = WasResurrectedBy(ePlayer) ? -100 : 0;
 
 	// How are we being treated?
 	VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
@@ -51491,6 +51491,10 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
 	{
 		iChance += 25;
+	}
+	else if (GetMajorCivApproach(ePlayer) == MAJOR_CIV_APPROACH_AFRAID)
+	{
+		iChance -= 25;
 	}
 
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
