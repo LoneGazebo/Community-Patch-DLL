@@ -2580,6 +2580,7 @@ public:
 
 	bool HaveGoodSettlePlot(int iAreaID);
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -3609,7 +3610,10 @@ protected:
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 
+	FAutoVariable<int, CvPlayer> m_iPreviousBestSettlePlot;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
+
+	// not serialized
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
 

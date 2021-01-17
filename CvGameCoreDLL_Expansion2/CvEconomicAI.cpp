@@ -680,10 +680,6 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GROW_LIKE_CRAZY")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GrowLikeCrazy(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_CULTURE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Culture(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_CONQUEST")
@@ -3521,17 +3517,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
-
-	// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
-	EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-	if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
-	{
-		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
-		{
-			return false;
-		}
-	}
-
+	
 	//do this check last, it can be expensive
 	if (!pPlayer->HaveGoodSettlePlot(-1) )
 	{
@@ -4233,46 +4219,6 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 		}
 	}
 	return (iCoastalPop > 0 && iCoastalPop >= iInlandPop);
-}
-
-bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-{
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
-	{
-		return false;
-	}
-
-	// Minor Civs can't run some Strategies
-	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
-	{
-		return false;
-	}
-
-	if (!pPlayer->HaveGoodSettlePlot(-1))
-	{
-		return false;
-	}
-
-	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	if(iFlavorExpansion >= pStrategy->GetWeightThreshold())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool EconomicAIHelpers::IsTestStrategy_GrowLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-{
-	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	if(iFlavorGrowth >= pStrategy->GetWeightThreshold())
-	{
-		return true;
-	}
-
-	return false;
 }
 
 // MORE NON-MEMBER FUNCTIONS

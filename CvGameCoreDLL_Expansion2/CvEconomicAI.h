@@ -330,10 +330,6 @@ bool IsTestStrategy_NeedMuseums(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedGuilds(CvPlayer* pPlayer);
 bool IsTestStrategy_StartedPiety(CvPlayer* pPlayer);
 
-// these make a few players' behaviors a bit more extreme
-bool IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-bool IsTestStrategy_GrowLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-
 bool IsTestStrategy_GS_Culture(CvPlayer* pPlayer);
 bool IsTestStrategy_GS_Conquest(CvPlayer* pPlayer);
 bool IsTestStrategy_GS_Diplomacy(CvPlayer* pPlayer);
