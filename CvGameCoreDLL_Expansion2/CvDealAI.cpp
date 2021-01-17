@@ -3408,6 +3408,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							return INT_MAX;
 						}
 					}
+
+					// Anti-stupidity: Is this guy not sane to attack (e.g. friends, coop war, DP etc)? Then don't accept a bribe...indirect backstabbing should never be because of a bribe.
+					if (!pDiploAI->IsWarSane(*it))
+						return INT_MAX;
 				}
 				else
 				{
