@@ -424,7 +424,6 @@ public:
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
-	void SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel);
 
 	// War State: How's the war with ePlayer going? (NO_WAR_STATE_TYPE if at peace)
 	WarStateTypes GetWarState(PlayerTypes ePlayer) const;
@@ -1024,8 +1023,8 @@ public:
 	// War Damage
 	// ------------------------------------
 
-	void DoWarDamageDecay();
-	void DoUpdateWarDamageLevels();
+	void DoWarValueLostDecay();
+	void DoUpdateWarDamage();
 
 	// ------------------------------------
 	// Coop Wars
@@ -1911,7 +1910,6 @@ private:
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
 	int m_aiWarValueLost[MAX_CIV_PLAYERS];
 	unsigned short m_aiWarDamageValue[MAX_CIV_PLAYERS];
-	char m_aeWarDamageLevel[MAX_CIV_PLAYERS];
 	char m_aeWarState[MAX_CIV_PLAYERS];
 	char m_aeWarProjection[MAX_CIV_PLAYERS];
 	char m_aeWarGoal[MAX_PLAYERS];

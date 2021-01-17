@@ -376,7 +376,6 @@ void CvDiplomacyAI::Reset()
 		m_aiNumCitiesCaptured[iI] = 0;
 		m_aiWarValueLost[iI] = 0;
 		m_aiWarDamageValue[iI] = 0;
-		m_aeWarDamageLevel[iI] = NO_WAR_DAMAGE_LEVEL_VALUE;
 		m_aeWarState[iI] = NO_WAR_STATE_TYPE;
 		m_aeWarProjection[iI] = WAR_PROJECTION_UNKNOWN;
 		m_aeWarGoal[iI] = NO_WAR_GOAL_TYPE;
@@ -514,7 +513,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aiNumCitiesCaptured;
 	kStream >> m_aiWarValueLost;
 	kStream >> m_aiWarDamageValue;
-	kStream >> m_aeWarDamageLevel;
 	kStream >> m_aeWarState;
 	kStream >> m_aeWarProjection;
 	kStream >> m_aeWarGoal;
@@ -809,7 +807,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiNumCitiesCaptured;
 	kStream << m_aiWarValueLost;
 	kStream << m_aiWarDamageValue;
-	kStream << m_aeWarDamageLevel;
 	kStream << m_aeWarState;
 	kStream << m_aeWarProjection;
 	kStream << m_aeWarGoal;
@@ -3602,10 +3599,6 @@ void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_aiWarValueLost[(int)ePlayer] = max(iValue, 0);
-
-	// Reset War Damage
-	if (iValue <= 0)
-		SetWarDamageLevel(ePlayer, WAR_DAMAGE_LEVEL_NONE);
 }
 
 /// Changes the value of stuff (Units & Cities) lost in a war against a particular player
@@ -3646,19 +3639,24 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 	m_aiWarDamageValue[(int)ePlayer] = range(iValue, 0, USHRT_MAX);
 }
 
-/// How much damage have we taken in a war against a particular player?
+/// How much damage have we taken in a war against a particular player? (Used for UI)
 WarDamageLevelTypes CvDiplomacyAI::GetWarDamageLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_WAR_DAMAGE_LEVEL_VALUE;
-	return (WarDamageLevelTypes) m_aeWarDamageLevel[(int)ePlayer];
-}
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return WAR_DAMAGE_LEVEL_NONE;
 
-/// Sets how much damage we have taken in a war against a particular player
-void CvDiplomacyAI::SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	if (eDamageLevel < 0 || eDamageLevel >= NUM_WAR_DAMAGE_LEVEL_TYPES) return;
-	m_aeWarDamageLevel[(int)ePlayer] = eDamageLevel;
+	WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
+	int iWarDamageValue = GetWarDamageValue(ePlayer);
+
+	if (iWarDamageValue >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
+		eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
+	else if (iWarDamageValue >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
+		eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
+	else if (iWarDamageValue >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
+		eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
+	else if (iWarDamageValue >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
+		eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
+
+	return eWarDamageLevel;
 }
 
 /// What is the state of war with this player?
@@ -7502,8 +7500,8 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	SetEndedFriendshipThisTurn(false);
 
 	// War Damage
-	DoWarDamageDecay();
-	DoUpdateWarDamageLevels();
+	DoWarValueLostDecay();
+	DoUpdateWarDamage();
 	DoUpdateConquestStats();
 
 	// Coop Wars
@@ -7603,7 +7601,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 // ////////////////////////////////////
 
 /// Every turn we're at peace war damage goes down a bit
-void CvDiplomacyAI::DoWarDamageDecay()
+void CvDiplomacyAI::DoWarValueLostDecay()
 {
 	//we want to do this only once per turn
 	if (m_eDiploMode == DIPLO_SPECIFIC_PLAYER)
@@ -7640,7 +7638,7 @@ void CvDiplomacyAI::DoWarDamageDecay()
 }
 
 /// Updates how much damage we have taken in wars against all players
-void CvDiplomacyAI::DoUpdateWarDamageLevels()
+void CvDiplomacyAI::DoUpdateWarDamage()
 {
 	// Calculate the value of what we have currently - this is invariant so we will just do it once
 	int iCurrentValue = 0;
@@ -7737,11 +7735,10 @@ void CvDiplomacyAI::DoUpdateWarDamageLevels()
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer, true))
+		if (IsHasMet(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			int iWarValueLost = GetWarValueLost(eLoopPlayer);
 			int iValueLostRatio = 0;
-			WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
 
 			if (iWarValueLost > 0)
 			{
@@ -7753,19 +7750,13 @@ void CvDiplomacyAI::DoUpdateWarDamageLevels()
 				{
 					iValueLostRatio = iWarValueLost;
 				}
-				
-				if (iValueLostRatio >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
-				else if (iValueLostRatio >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
-				else if (iValueLostRatio >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
-				else if (iValueLostRatio >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
-					eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
 			}
 
 			SetWarDamageValue(eLoopPlayer, iValueLostRatio);
-			SetWarDamageLevel(eLoopPlayer, eWarDamageLevel);
+		}
+		else
+		{
+			SetWarDamageValue(eLoopPlayer, 0);
 		}
 	}
 }
@@ -14245,7 +14236,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	if (bFromWar)
 	{
 		DoResetPotentialWarTargets();
-		DoUpdateWarDamageLevels();
+		DoUpdateWarDamage();
 		DoUpdateWarStates();
 		DoUpdatePlayerMilitaryStrengths();
 		DoUpdatePlayerEconomicStrengths();
@@ -17975,7 +17966,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						bThinkingAboutDogpiling = true;
 					}
-					else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(eLoopPlayer) >= WAR_DAMAGE_LEVEL_SERIOUS)
+					else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) > 50)
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 5;
@@ -33656,7 +33647,7 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
 		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
 		{
-			DoUpdateWarDamageLevels();
+			DoUpdateWarDamage();
 			DoUpdatePeaceTreatyWillingness();
 		}
 #endif
@@ -37694,7 +37685,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	DoUpdateWarDamageLevels();
+	DoUpdateWarDamage();
 
 	MajorCivApproachTypes eVisibleApproach = GetSurfaceApproach(eHuman);
 	WarProjectionTypes eWarProjection = GetWarProjection(eHuman);
