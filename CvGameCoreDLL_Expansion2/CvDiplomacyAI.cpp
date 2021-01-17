@@ -17989,7 +17989,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_DEFEAT && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer) && GetCoopWarState(eLoopPlayer, ePlayer) < COOP_WAR_STATE_PREPARING)
 					{
 						bAllowDogpiling = false;
-						bThinkingAboutDogpiling = false;
+						break;
 					}
 
 					if (bThinkingAboutDogpiling)
