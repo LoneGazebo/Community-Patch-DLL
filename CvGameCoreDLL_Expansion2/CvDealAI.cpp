@@ -3345,6 +3345,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		// already planning a coop war against the target? then we aren't interested! (reduce the chance of a premature declaration...)
+		if (pDiploAI->GetGlobalCoopWarAgainstState(eWithPlayer) >= COOP_WAR_STATE_PREPARING)
+		{
+			return INT_MAX;
+		}
 
 		//anti-exploit rule - AI to AI bribes should only be for competitors.
 		if (!bWithHuman)

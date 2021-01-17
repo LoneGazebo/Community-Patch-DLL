@@ -2253,7 +2253,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) con
 			return MAJOR_CIV_APPROACH_GUARDED;
 		}
 
-		// If the Surface Approach is DECEPTIVE, return FRIENDLY
+		// Deceptive = Friendly
 		if (eSurfaceApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 		{
 			return MAJOR_CIV_APPROACH_FRIENDLY;
@@ -4111,7 +4111,12 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 
 		SetFriendDeclaredWarOnUsTurn(ePlayer, GC.getGame().getGameTurn());
 		SetBackstabbedBy(ePlayer, true);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBackstabber(true);
+
+		// If they didn't backstab in reaction to our backstabbing, mark them as a serial backstabber
+		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthy(GetID()))
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetBackstabber(true);
+		}
 	}
 	else
 	{
@@ -19943,7 +19948,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	bool bNoFriendly = IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || bUntrustworthy;
-	bNoFriendly |= bProvokedUs && bWantsOpportunityAttack && (bEasyTarget || bGoodAttackTarget);
+	bNoFriendly |= bProvokedUs && bWantsOpportunityAttack && (bEasyTarget || (GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_STRONG && bGoodAttackTarget));
 
 	if (bStrategic)
 	{
@@ -19952,7 +19957,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (bNoFriendly)
 		{
 			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
-			vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 		}
 	}
 
