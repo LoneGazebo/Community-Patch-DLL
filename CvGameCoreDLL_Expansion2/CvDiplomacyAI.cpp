@@ -12236,6 +12236,9 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 {
 	int iEra = GetPlayer()->GetCurrentEra();
 	bool bCramped = GetPlayer()->IsCramped();
+	PlayerTypes eSettleSpotThief = GetPlayer()->GetPlayerWhoStoleMyFavoriteCitySite();
+	bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bBold |= GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) > 7;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -12265,22 +12268,42 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			}
 
 			// Is the player already cramped in on other sides? If so, bump up the score
-			if (bCramped)
-			{
-				iContestedScore *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
-				iContestedScore /= 100;
-			}
+			int iMultiplier = bCramped ? /*50*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER() : 0;
 			
-			// Land disputes matter more in the early game.
-			if (iEra == 0)
+			// Land disputes matter more if a warmonger, or in the early game.
+			if (bBold)
 			{
-				iContestedScore *= 2;
+				if (iEra == 0)
+				{
+					iMultiplier += 150;
+				}
+				else if (iEra == 1)
+				{
+					iMultiplier += 100;
+				}
+				else
+				{
+					iMultiplier += 50;
+				}
 			}
-			else if (iEra == 1)
+			else
 			{
-				iContestedScore *= 150;
-				iContestedScore /= 100;
+				if (iEra == 0)
+				{
+					iMultiplier += 100;
+				}
+				else if (iEra == 1)
+				{
+					iMultiplier += 50;
+				}
+				else if (iEra == 2)
+				{
+					iMultiplier += 25;
+				}
 			}
+
+			iContestedScore *= (100 + iMultiplier);
+			iContestedScore /= 100;
 
 			// Now see what our new Dispute Level should be
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
@@ -12290,6 +12313,27 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
 			else if (iContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
+
+			// Did this player steal "our" favorite city settling spot? We should get mad!
+			if (ePlayer == eSettleSpotThief)
+			{
+				if (bBold)
+				{
+					if (eDisputeLevel >= DISPUTE_LEVEL_WEAK)
+						eDisputeLevel = DISPUTE_LEVEL_FIERCE;
+					else
+						eDisputeLevel = DISPUTE_LEVEL_STRONG;
+				}
+				else
+				{
+					if (eDisputeLevel >= DISPUTE_LEVEL_STRONG)
+						eDisputeLevel = DISPUTE_LEVEL_FIERCE;
+					else if (eDisputeLevel == DISPUTE_LEVEL_WEAK)
+						eDisputeLevel = DISPUTE_LEVEL_STRONG;
+					else
+						eDisputeLevel = DISPUTE_LEVEL_WEAK;
+				}
+			}
 
 			// Actually set the Level
 			if (GetLandDisputeLevel(ePlayer) != eDisputeLevel)
