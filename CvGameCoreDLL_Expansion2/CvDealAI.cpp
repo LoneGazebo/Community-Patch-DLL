@@ -2642,14 +2642,14 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 		}
 	}
 
-	if (bFromMe)
+	if (!bFromMe)
 	{
 		int iStrengthMod = (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) - 3;
-		iItemValue += (200 * iStrengthMod);
+		iItemValue += (250 * iStrengthMod);
 
 		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer)
 		{
-			iItemValue += 500;
+			iItemValue += 250;
 		}
 	}
 
