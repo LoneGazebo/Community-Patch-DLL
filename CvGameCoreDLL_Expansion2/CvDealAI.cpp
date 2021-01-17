@@ -2649,7 +2649,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 
 		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer)
 		{
-			iItemValue += 250;
+			iItemValue += 500;
 		}
 	}
 
