@@ -11904,25 +11904,28 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			// Keep a record of last turn
 			SetLastTurnMilitaryAggressivePosture(ePlayer, GetMilitaryAggressivePosture(ePlayer));
 
-			// We're allowing them Open Borders? We shouldn't care.
-			if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(eTeam))
+			if (!IsVassal(ePlayer))
 			{
-				SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-				return;
-			}
+				// We're allowing them Open Borders? We shouldn't care.
+				if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(eTeam))
+				{
+					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					return;
+				}
 
-			// We're working together, so don't worry about it
-			if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
-			{
-				SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-				return;
-			}
+				// We're working together, so don't worry about it
+				if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+				{
+					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					return;
+				}
 
-			// They resurrected us, so don't worry about it
-			if (WasResurrectedBy(ePlayer) && !IsAtWar(ePlayer))
-			{
-				SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-				return;
+				// They resurrected us, so don't worry about it
+				if (WasResurrectedBy(ePlayer) && !IsAtWar(ePlayer))
+				{
+					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+					return;
+				}
 			}
 
 			// Don't be frightened of vassals.
@@ -13994,12 +13997,14 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 
 	iOpinionWeight += GetWarmongerThreatScore(ePlayer);
-	iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 5);
 	iOpinionWeight += GetTradeRoutesPlunderedScore(ePlayer);
 	iOpinionWeight += max(GetCitiesRazedScore(ePlayer), GetCitiesRazedGlobalScore(ePlayer));
 	iOpinionWeight += GetNukedByScore(ePlayer);
 	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
 	iOpinionWeight += GetCapitalCapturedByScore(ePlayer);
+
+	if (!IsVassal(ePlayer))
+		iOpinionWeight += (int)GetMilitaryAggressivePosture(ePlayer) * 5;
 
 	//////////////////////////////////////
 	// Player has done nice stuff
