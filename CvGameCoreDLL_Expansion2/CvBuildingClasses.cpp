@@ -4603,10 +4603,18 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 {
 	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
+	std::vector<BuildingTypes> aBuildingsToDelete;
 	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
 		CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
-		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumBuilding(*iI) > 0)
+		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumRealBuilding(*iI) > 0)
+		{
+			aBuildingsToDelete.push_back(*iI);
+		}
+	}
+	for (std::vector<BuildingTypes>::const_iterator iI = aBuildingsToDelete.begin(); iI != aBuildingsToDelete.end(); ++iI)
+	{
+		if (*iI != NO_BUILDING)
 		{
 			SetNumRealBuilding(*iI, 0);
 		}
