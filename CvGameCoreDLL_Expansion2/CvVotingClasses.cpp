@@ -10374,12 +10374,14 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			{
 			case VASSAL_TREATMENT_CONTENT:
 				if (bNoAutomaticMasterAlignment)
-					iAlignment += 2;
+					iAlignment += 4;
 				else
 					return ALIGNMENT_LEADER;
 				break;
 			case VASSAL_TREATMENT_DISAGREE:
-				if (!bNoAutomaticMasterAlignment)
+				if (bNoAutomaticMasterAlignment)
+					iAlignment += 2;
+				else
 					return ALIGNMENT_ALLY;
 				break;
 			case VASSAL_TREATMENT_MISTREATED:
@@ -10402,7 +10404,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			{
 			case VASSAL_TREATMENT_CONTENT:
 				if (bNoAutomaticMasterAlignment)
-					iAlignment += 1;
+					iAlignment += 2;
 				else
 					return ALIGNMENT_ALLY;
 				break;
@@ -13824,16 +13826,23 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		{
 			iScore += -50;
 
-			if (bSeekingDiploVictory)
-			{
-				iScore += -150;
-			}
-
 			// Don't hand victory to someone
-			if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(eChoicePlayer) + 4
-				>= GC.getGame().GetVotesNeededForDiploVictory())
+			if (!GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer) || GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eChoicePlayer) > VASSAL_TREATMENT_CONTENT)
 			{
-				iScore += -150;
+				if (bSeekingDiploVictory)
+				{
+					iScore += -150;
+				}
+
+				if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(eChoicePlayer) + 4
+					>= GC.getGame().GetVotesNeededForDiploVictory())
+				{
+					iScore += -150;
+				}
+			}
+			else if (GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer))
+			{
+				iScore += 110;
 			}
 			
 			switch (eAlignment)
@@ -13866,7 +13875,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// Mostly same as evaluating Diplomatic Victory, but with higher value to pick others you like
 	if (pProposal->GetEffects()->bChangeLeagueHost)
 	{
-#if defined(MOD_BALANCE_CORE)
 		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false, GC.getGame().IsVictoryCompetitionEnabled());
 		PlayerTypes ePlayer = GetPlayer()->GetID();
 
@@ -13917,6 +13925,11 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		}
 		else
 		{
+			if (!bCanWin && eAlignment > ALIGNMENT_NEUTRAL && GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer) && GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eChoicePlayer) == VASSAL_TREATMENT_CONTENT)
+			{
+				iScore += 200;
+			}
+
 			switch (eAlignment)
 			{
 			case ALIGNMENT_ALLY:
@@ -14012,56 +14025,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 				break;
 			}
 		}
-#else
-			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
-			if (eAlignment == ALIGNMENT_LIBERATOR)
-			{
-				iScore += 200;
-			}
-			else if (eAlignment == ALIGNMENT_SELF)
-			{
-				iScore += 100;
-			}
-			else if (eAlignment == ALIGNMENT_LEADER)
-			{
-				iScore += 50;
-			}
-			else if (eAlignment == ALIGNMENT_WAR)
-			{
-				iScore += -500;
-			}
-			else
-			{
-				if (bSeekingDiploVictory)
-				{
-					iScore += -150;
-				}
-
-				switch (eAlignment)
-				{
-				case ALIGNMENT_ALLY:
-					iScore += 130;
-					break;
-				case ALIGNMENT_CONFIDANT:
-					iScore += 90;
-					break;
-				case ALIGNMENT_FRIEND:
-					iScore += 50;
-					break;
-				case ALIGNMENT_RIVAL:
-					iScore += -50;
-					break;
-				case ALIGNMENT_HATRED:
-					iScore += -90;
-					break;
-				case ALIGNMENT_ENEMY:
-					iScore += -130;
-					break;
-				default:
-					break;
-				}
-			}
-#endif
 	}
 
 	return iScore;
