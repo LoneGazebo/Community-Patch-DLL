@@ -25858,7 +25858,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					int iTurn = GET_PLAYER(eAttackedPlayer).GetMinorCivAI()->GetTurnLastAttacked(GET_PLAYER(ePlayer).getTeam());
 
 					// Only apply this penalty once!
-					if (bProtected && iTurn == -1)
+					if (bProtected && iTurn == -1 && GetOtherPlayerProtectedNumMinorsAttacked(ePlayer) >= 2)
 					{
 						ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
 					}
