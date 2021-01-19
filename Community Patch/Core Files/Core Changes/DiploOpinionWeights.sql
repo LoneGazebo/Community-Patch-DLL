@@ -539,7 +539,7 @@ WHERE Name = 'OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN';
 
 -- Research Agreement Opinion Weight
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_RA', '-5';
+SELECT 'OPINION_WEIGHT_RA', '-10';
 
 -- Defensive Pact Opinion Weights
 INSERT INTO Defines (Name, Value)

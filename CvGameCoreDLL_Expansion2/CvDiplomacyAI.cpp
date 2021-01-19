@@ -43679,7 +43679,7 @@ int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
-		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_RA();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_RA();
 	}
 
 	return iOpinionWeight;
