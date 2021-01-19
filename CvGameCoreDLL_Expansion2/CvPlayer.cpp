@@ -16276,7 +16276,6 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
 
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
-	iProductionNeeded += getUnitExtraCost(eUnitClass);
 
 	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
 	iProductionNeeded /= 100;
@@ -16342,6 +16341,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 		iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
 		iProductionNeeded /= 100;
 	}
+
+	iProductionNeeded += getUnitExtraCost(eUnitClass);
 
 	return std::max(1, iProductionNeeded);
 }
