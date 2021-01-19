@@ -4995,7 +4995,7 @@ bool CvGame::IsCityScreenBlocked()
 //	--------------------------------------------------------------------------------
 bool CvGame::CanOpenCityScreen(PlayerTypes eOpener, CvCity* pCity)
 {
-	if(eOpener == pCity->getOwner())
+	if(GET_PLAYER(eOpener).getTeam() == pCity->getTeam())
 	{
 		return true;
 	}
