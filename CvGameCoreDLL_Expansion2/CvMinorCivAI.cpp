@@ -4523,7 +4523,6 @@ void CvMinorCivAI::DoPickUniqueUnit()
 	m_eUniqueUnit = NO_UNIT;
 	if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
-		// Units from our starting era or before would be no fun because players won't get the chance to use them
 		int iCoastal = 0;
 		int iPlayers = 0;
 		bool bCoastal = false;

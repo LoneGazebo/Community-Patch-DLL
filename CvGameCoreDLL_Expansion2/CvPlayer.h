@@ -2534,6 +2534,7 @@ public:
 	int GetNumMinorsControlled() const;
 #endif
 	int GetNumEffectiveCities(bool bIncludePuppets = false);
+	int GetNumEffectiveCoastalCities() const;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;

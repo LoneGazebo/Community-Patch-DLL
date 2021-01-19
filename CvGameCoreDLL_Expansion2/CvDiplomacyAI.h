@@ -1461,6 +1461,10 @@ public:
 	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+	int GetNumMutualFriends(PlayerTypes ePlayer) const;
+	int GetNumEnemyFriends(PlayerTypes ePlayer) const;
+	int GetNumMutualDefensePacts(PlayerTypes ePlayer) const;
+	int GetNumEnemyDefensePacts(PlayerTypes ePlayer) const;
 
 	// Religion
 	bool IsPlayerSameReligion(PlayerTypes ePlayer) const;

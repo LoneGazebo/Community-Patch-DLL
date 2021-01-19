@@ -47143,7 +47143,6 @@ CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bS
 }
 
 //	--------------------------------------------------------------------------------
-
 int CvPlayer::GetNumRealCities() const
 {
 	int iNum = 0;
@@ -47163,6 +47162,7 @@ int CvPlayer::GetNumRealCities() const
 
 	return iNum;
 }
+
 // How many Puppet Cities does this player own
 int CvPlayer::GetNumPuppetCities() const
 {
@@ -47180,6 +47180,7 @@ int CvPlayer::GetNumPuppetCities() const
 
 	return iNum;
 }
+
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 // How many other Capital Cities does this player own
@@ -47598,6 +47599,30 @@ int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets)
 
 	//always at least one ...
 	return max(1, iNumCities);
+}
+
+// How many Coastal Cities does this player own
+int CvPlayer::GetNumEffectiveCoastalCities() const
+{
+	int iNum = 0;
+
+	int iLoop;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsIgnoreCityForHappiness() || pLoopCity->IsRazing())
+			continue;
+
+		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			continue;
+
+		if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
+			continue;
+
+		if (pLoopCity->isCoastal())
+			iNum++;
+	}
+
+	return iNum++;
 }
 
 #if defined(MOD_BALANCE_CORE)
