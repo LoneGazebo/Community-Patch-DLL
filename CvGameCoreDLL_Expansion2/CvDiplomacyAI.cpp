@@ -25988,7 +25988,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 
 	if (GetPlayer()->isHuman())
 	{
-		return (iReturnValue / 3);
+		return (iReturnValue * 6) / 15;
 	}
 
 	// Modify warmonger amount based on diplomatic view of this player
