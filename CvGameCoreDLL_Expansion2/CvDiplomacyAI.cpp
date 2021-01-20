@@ -13107,7 +13107,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 	}
 
 	// Betrayed us as a friend?
-	if (IsDoFBroken(ePlayer) || IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer))
+	if (IsDoFBroken(ePlayer) || IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsResurrectorAttackedUs(ePlayer))
 	{
 		return true;
 	}
@@ -13225,7 +13225,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 				return true;
 			}
 
-			if (pDiploAI->IsFriendDenouncedUs(ePlayer) || pDiploAI->IsFriendDeclaredWarOnUs(ePlayer))
+			if (pDiploAI->IsFriendDenouncedUs(ePlayer) || pDiploAI->IsFriendDeclaredWarOnUs(ePlayer) || pDiploAI->IsResurrectorAttackedUs(ePlayer))
 			{
 				return true;
 			}
@@ -13252,7 +13252,7 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 				if (!GET_PLAYER(eTeammate).isMajorCiv())
 					continue;
 
-				if (pDiploAI->IsFriendDenouncedUs(eTeammate) || pDiploAI->IsFriendDeclaredWarOnUs(eTeammate))
+				if (pDiploAI->IsFriendDenouncedUs(eTeammate) || pDiploAI->IsFriendDeclaredWarOnUs(eTeammate) || pDiploAI->IsResurrectorAttackedUs(eTeammate))
 				{
 					return true;
 				}
@@ -13264,37 +13264,47 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 			}
 		}
 		// Normal check
-		else if (!WasResurrectedBy(ePlayer))
+		else
 		{
 			CvDiplomacyAI* pDiploAI = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
 
-			if (pDiploAI->IsFriendDenouncedUs(ePlayer))
+			if (IsVassal(ePlayer) && pDiploAI->IsPlayerBrokenVassalAgreement(ePlayer))
 			{
-				iNumFriendsDenounced++;
+				return true;
 			}
 
-			if (pDiploAI->IsFriendDeclaredWarOnUs(ePlayer))
-			{
-				iNumFriendsAttacked++;
-			}
+			bool bIgnore = WasResurrectedBy(ePlayer) && !pDiploAI->IsResurrectorAttackedUs(ePlayer);
 
-			if (pDiploAI->IsPlayerBrokenMilitaryPromise(ePlayer))
+			if (!bIgnore)
 			{
-				iNumBrokenAgreements++;
-			}
-
-			if (pDiploAI->IsPlayerBrokenAttackCityStatePromise(ePlayer))
-			{
-				iNumBrokenAgreements++;
-			}
-
-			if (pDiploAI->IsPlayerBrokenVassalAgreement(ePlayer))
-			{
-				iNumBrokenAgreements++;
-
-				if (IsVassal(ePlayer))
+				if (pDiploAI->IsResurrectorAttackedUs(ePlayer))
 				{
-					return true;
+					iNumFriendsAttacked++;
+
+					if (IsVassal(ePlayer) || WasResurrectedBy(ePlayer))
+					{
+						return true;
+					}
+				}
+
+				if (pDiploAI->IsFriendDenouncedUs(ePlayer))
+				{
+					iNumFriendsDenounced++;
+				}
+
+				if (pDiploAI->IsPlayerBrokenMilitaryPromise(ePlayer))
+				{
+					iNumBrokenAgreements++;
+				}
+
+				if (pDiploAI->IsPlayerBrokenAttackCityStatePromise(ePlayer))
+				{
+					iNumBrokenAgreements++;
+				}
+
+				if (pDiploAI->IsPlayerBrokenVassalAgreement(ePlayer))
+				{
+					iNumBrokenAgreements++;
 				}
 			}
 
@@ -13315,24 +13325,51 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 				if (!GET_PLAYER(eTeammate).isMajorCiv())
 					continue;
 
-				if (pDiploAI->IsFriendDenouncedUs(eLoopPlayer))
+				if (IsVassal(eTeammate) && pDiploAI->IsPlayerBrokenVassalAgreement(eTeammate))
 				{
-					iNumFriendsDenounced++;
+					return true;
 				}
 
-				if (pDiploAI->IsFriendDeclaredWarOnUs(eLoopPlayer))
-				{
-					iNumFriendsAttacked++;
-				}
+				if (bIgnore && pDiploAI->IsResurrectorAttackedUs(eTeammate))
+					bIgnore = false;
 
-				if (pDiploAI->IsPlayerBrokenMilitaryPromise(eLoopPlayer))
+				if (!bIgnore)
 				{
-					iNumBrokenAgreements++;
-				}
+					if (pDiploAI->IsResurrectorAttackedUs(eTeammate))
+					{
+						if (!pDiploAI->IsResurrectorAttackedUs(ePlayer))
+							iNumFriendsAttacked++;
 
-				if (pDiploAI->IsPlayerBrokenAttackCityStatePromise(eLoopPlayer))
-				{
-					iNumBrokenAgreements++;
+						if (IsVassal(eTeammate) || WasResurrectedBy(eTeammate))
+						{
+							return true;
+						}
+					}
+
+					if (pDiploAI->IsFriendDenouncedUs(eTeammate))
+					{
+						iNumFriendsDenounced++;
+					}
+
+					if (pDiploAI->IsPlayerBrokenAttackCityStatePromise(eTeammate))
+					{
+						iNumBrokenAgreements++;
+					}
+
+					if (pDiploAI->IsFriendDeclaredWarOnUs(eTeammate) && !pDiploAI->IsFriendDeclaredWarOnUs(ePlayer))
+					{
+						iNumFriendsAttacked++;
+					}
+
+					if (pDiploAI->IsPlayerBrokenMilitaryPromise(eTeammate) && !pDiploAI->IsPlayerBrokenMilitaryPromise(ePlayer))
+					{
+						iNumBrokenAgreements++;
+					}
+
+					if (pDiploAI->IsPlayerBrokenVassalAgreement(eTeammate) && !pDiploAI->IsPlayerBrokenVassalAgreement(ePlayer))
+					{
+						iNumBrokenAgreements++;
+					}
 				}
 			}
 		}
