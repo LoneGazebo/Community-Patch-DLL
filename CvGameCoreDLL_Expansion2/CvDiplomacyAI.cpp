@@ -14053,6 +14053,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetDenouncedThemScore(ePlayer);
 	iOpinionWeight += GetDenouncedFriendScore(ePlayer);
 	iOpinionWeight += GetDenouncedEnemyScore(ePlayer);
+	iOpinionWeight += GetDenouncedByOurFriendScore(ePlayer);
 
 	//////////////////////////////////////
 	// PROMISES
@@ -21098,6 +21099,11 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				{
 					continue;
 				}
+			}
+			// Global politics makes this a bad decision
+			if (IsPlayerDenouncedFriend(*it) || IsPlayerDoFWithAnyEnemy(*it) || IsPlayerDPWithAnyEnemy(*it) || GetDenouncedByOurFriendScore(*it) > 0)
+			{
+				continue;
 			}
 			// Too much aggression in this relationship...
 			if ((eApproach <= MAJOR_CIV_APPROACH_GUARDED && eApproach != MAJOR_CIV_APPROACH_DECEPTIVE) || GetVictoryDisputeLevel(*it) >= DISPUTE_LEVEL_STRONG || GetVictoryBlockLevel(*it) == BLOCK_LEVEL_FIERCE || GetWarmongerThreat(*it) >= THREAT_SEVERE || IsEndgameAggressiveTo(*it))
@@ -41501,7 +41507,7 @@ bool CvDiplomacyAI::IsPlayerDenouncedFriend(PlayerTypes ePlayer) const
 		if (GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman())
 			continue;
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
 			continue;
 
 		if (IsDoFAccepted(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
@@ -41521,7 +41527,7 @@ bool CvDiplomacyAI::IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const
 		if (GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman())
 			continue;
 		
-		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
 			continue;
 
 		if (IsDenouncedPlayer(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
@@ -41531,6 +41537,47 @@ bool CvDiplomacyAI::IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const
 	return false;
 }
 
+int CvDiplomacyAI::GetNumFriendsDenounced(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman())
+			continue;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+			continue;
+
+		if (IsDoFAccepted(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
+			iCount++;
+	}
+
+	return iCount;
+}
+
+int CvDiplomacyAI::GetNumEnemiesDenounced(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman())
+			continue;
+		
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+			continue;
+
+		if (IsDenouncedPlayer(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
+			iCount++;
+	}
+
+	return iCount;
+}
 
 
 ///////////////////////////////
@@ -43693,6 +43740,11 @@ int CvDiplomacyAI::GetDPAcceptedScore(PlayerTypes ePlayer)
 	if (IsHasDefensivePact(ePlayer))
 	{
 		iOpinionWeight += /*-15*/ GC.getOPINION_WEIGHT_DP();
+
+		if (GetMostValuableAlly() == ePlayer)
+		{
+			iOpinionWeight += -15;
+		}
 	}
 
 	return iOpinionWeight;
@@ -43706,12 +43758,24 @@ int CvDiplomacyAI::GetDPWithAnyFriendScore(PlayerTypes ePlayer)
 	// They have a DP with at least one other player we have a DP with
 	if (iMutualDefensePacts > 0)
 	{
-		iOpinionWeight += /*-15*/ GC.getOPINION_WEIGHT_DP_WITH_FRIEND();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_DP_WITH_FRIEND();
 
 		if (iMutualDefensePacts > 1)
 		{
-			iOpinionWeight += (iMutualDefensePacts - 1) * (GC.getOPINION_WEIGHT_DP_WITH_FRIEND() / 3);
+			iOpinionWeight += (iMutualDefensePacts - 1) * (GC.getOPINION_WEIGHT_DP_WITH_FRIEND() / 2);
 		}
+	}
+
+	PlayerTypes eBestFriend = GetMostValuableFriend();
+	if (eBestFriend != NO_PLAYER && IsDoFAccepted(eBestFriend) && IsHasDefensivePact(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eBestFriend))
+	{
+		iOpinionWeight += -5;
+	}
+
+	eBestFriend = GetMostValuableAlly();
+	if (eBestFriend != NO_PLAYER && IsHasDefensivePact(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eBestFriend))
+	{
+		iOpinionWeight += -10;
 	}
 
 	return iOpinionWeight;
@@ -43725,11 +43789,29 @@ int CvDiplomacyAI::GetDPWithAnyEnemyScore(PlayerTypes ePlayer)
 	// They have a DP with at least one enemy we have denounced
 	if (iEnemyDefensePacts > 0)
 	{
-		iOpinionWeight += /*-15*/ GC.getOPINION_WEIGHT_DP_WITH_ENEMY();
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_DP_WITH_ENEMY();
 
 		if (iEnemyDefensePacts > 1)
 		{
-			iOpinionWeight += (iEnemyDefensePacts - 1) * (GC.getOPINION_WEIGHT_DP_WITH_ENEMY() / 3);
+			iOpinionWeight += (iEnemyDefensePacts - 1) * (GC.getOPINION_WEIGHT_DP_WITH_ENEMY() / 2);
+		}
+	}
+
+	PlayerTypes eWorstCompetitor = GetBiggestCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(eWorstCompetitor).GetDiplomacyAI()->IsHasDefensivePact(ePlayer))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor) || IsAtWar(eWorstCompetitor))
+		{
+			iOpinionWeight += 20;
+		}
+	}
+
+	eWorstCompetitor = GetPrimeLeagueCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(eWorstCompetitor).GetDiplomacyAI()->IsHasDefensivePact(ePlayer))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor) || IsAtWar(eWorstCompetitor))
+		{
+			iOpinionWeight += 20;
 		}
 	}
 
@@ -43766,6 +43848,26 @@ int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
 	if (IsDoFAccepted(ePlayer))
 	{
 		iOpinionWeight += /*-30*/ GC.getOPINION_WEIGHT_DOF();
+
+		if (GetMostValuableFriend() == ePlayer)
+		{
+			iOpinionWeight += -20;
+		}
+	}
+	else
+	{
+		switch (GetDoFType(ePlayer))
+		{
+		case DOF_TYPE_FRIENDS:
+			iOpinionWeight += -10;
+			break;
+		case DOF_TYPE_ALLIES:
+			iOpinionWeight += -20;
+			break;
+		case DOF_TYPE_BATTLE_BROTHERS:
+			iOpinionWeight += -30;
+			break;
+		}
 	}
 
 	return iOpinionWeight;
@@ -43787,6 +43889,18 @@ int CvDiplomacyAI::GetDOFWithAnyFriendScore(PlayerTypes ePlayer)
 		}
 	}
 
+	PlayerTypes eBestFriend = GetMostValuableFriend();
+	if (eBestFriend != NO_PLAYER && IsDoFAccepted(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eBestFriend))
+	{
+		iOpinionWeight += -18;
+	}
+
+	eBestFriend = GetMostValuableAlly();
+	if (eBestFriend != NO_PLAYER && IsDoFAccepted(eBestFriend) && IsHasDefensivePact(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eBestFriend))
+	{
+		iOpinionWeight += -9;
+	}
+
 	return iOpinionWeight;
 }
 
@@ -43803,6 +43917,69 @@ int CvDiplomacyAI::GetDOFWithAnyEnemyScore(PlayerTypes ePlayer)
 		if (iEnemyFriends > 1)
 		{
 			iOpinionWeight += (iEnemyFriends - 1) * (GC.getOPINION_WEIGHT_DOF_WITH_ENEMY());
+		}
+	}
+
+	PlayerTypes eWorstCompetitor = GetBiggestCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(eWorstCompetitor).GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor) || IsAtWar(eWorstCompetitor))
+		{
+			iOpinionWeight += 18;
+		}
+	}
+
+	eWorstCompetitor = GetPrimeLeagueCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(eWorstCompetitor).GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor) || IsAtWar(eWorstCompetitor))
+		{
+			iOpinionWeight += 18;
+		}
+	}
+
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	int iNumDenouncements = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+			continue;
+
+		if (GetDoFType(ePlayer) > GetDoFType(eLoopPlayer))
+			continue;
+
+		if (GetCachedOpinionWeight(ePlayer) <= GetCachedOpinionWeight(eLoopPlayer))
+			continue;
+
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedByPlayer(eLoopPlayer))
+		{
+			if (IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || (GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS && GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_NEUTRAL))
+			{
+				iNumDenouncements++;
+			}
+
+			if ((GetMostValuableFriend() == eLoopPlayer && IsDoFAccepted(eLoopPlayer)) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
+			{
+				iOpinionWeight += 20;
+			}
+		}
+	}
+
+	if (iNumDenouncements > 0)
+	{
+		iOpinionWeight += 20;
+
+		if (iNumDenouncements > 1)
+		{
+			iOpinionWeight += (iNumDenouncements - 1) * 10;
 		}
 	}
 
@@ -43828,9 +44005,14 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 			if (!IsUntrustworthy(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()) && !IsAtWar(eLoopPlayer) && !IsDenouncedPlayer(eLoopPlayer) && !IsDenouncedByPlayer(eLoopPlayer))
 			{
 				// Do we like this player who denounced them more than the player we're evaluating?
-				if (GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
+				if (GetCachedOpinionWeight(eLoopPlayer) < GetCachedOpinionWeight(ePlayer))
 				{
-					iTraitorOpinion += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH();
+					int iPenalty = /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH();
+
+					if (IsFriendOrAlly(eLoopPlayer))
+						iPenalty *= 2;
+
+					iTraitorOpinion += iPenalty;
 				}
 				else
 				{
@@ -43981,24 +44163,66 @@ int CvDiplomacyAI::GetDenouncedThemScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iNumFriendsDenounced = GetNumFriendsDenounced(ePlayer);
 
 	// They've denounced someone we have a DoF with
-	if (IsPlayerDenouncedFriend(ePlayer))
+	if (iNumFriendsDenounced > 0)
 	{
 		iOpinionWeight += /*18*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND();
+
+		if (iNumFriendsDenounced > 1)
+		{
+			iOpinionWeight += (iNumFriendsDenounced - 1) * (GC.getOPINION_WEIGHT_DENOUNCED_FRIEND() / 3);
+		}
 	}
-	
+
+	PlayerTypes eBestFriend = GetMostValuableFriend();
+	if (eBestFriend != NO_PLAYER && IsDoFAccepted(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eBestFriend))
+	{
+		iOpinionWeight += 18;
+	}
+
+	eBestFriend = GetMostValuableAlly();
+	if (eBestFriend != NO_PLAYER && IsHasDefensivePact(eBestFriend) && GET_PLAYER(eBestFriend).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eBestFriend))
+	{
+		iOpinionWeight += 18;
+	}
+
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iNumEnemiesDenounced = GetNumEnemiesDenounced(ePlayer);
 
 	// They've denounced someone we've denounced
-	if (IsPlayerDenouncedEnemy(ePlayer))
+	if (iNumEnemiesDenounced > 0)
 	{
 		iOpinionWeight += /*-18*/ GC.getOPINION_WEIGHT_DENOUNCED_ENEMY();
+
+		if (iNumEnemiesDenounced > 1)
+		{
+			iOpinionWeight += (iNumEnemiesDenounced - 1) * (GC.getOPINION_WEIGHT_DENOUNCED_ENEMY() / 3);
+		}
+	}
+
+	PlayerTypes eWorstCompetitor = GetBiggestCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eWorstCompetitor))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor))
+		{
+			iOpinionWeight += -18;
+		}
+	}
+
+	eWorstCompetitor = GetPrimeLeagueCompetitor();
+	if (eWorstCompetitor != NO_PLAYER && GET_PLAYER(eWorstCompetitor).isAlive() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eWorstCompetitor))
+	{
+		if (IsDenouncedPlayer(eWorstCompetitor))
+		{
+			iOpinionWeight += -18;
+		}
 	}
 
 	return iOpinionWeight;

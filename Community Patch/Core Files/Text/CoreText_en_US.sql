@@ -693,6 +693,11 @@ UPDATE Language_en_US
 SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
+-- Denounced by Friend
+UPDATE Language_en_US
+SET Text = 'Other civs that they like more than you have denounced you!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
+
 -- Friend Betrayal
 UPDATE Language_en_US
 SET Text = 'We made a Declaration of Friendship and then denounced them!'

@@ -1482,6 +1482,8 @@ public:
 
 	bool IsPlayerDenouncedFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const;
+	int GetNumFriendsDenounced(PlayerTypes ePlayer) const;
+	int GetNumEnemiesDenounced(PlayerTypes ePlayer) const;
 
 	// Requests of Friends
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
@@ -1661,6 +1663,7 @@ public:
 	int GetDenouncedThemScore(PlayerTypes ePlayer);
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
+	int GetDenouncedByOurFriendScore(PlayerTypes ePlayer);
 	int GetRecklessExpanderScore(PlayerTypes ePlayer);
 	int GetWonderSpammerScore(PlayerTypes ePlayer);
 	int GetRecentTradeScore(PlayerTypes ePlayer);

@@ -14232,7 +14232,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DOF");
+			kOpinion.m_str = pDiplo->IsDoFAccepted(ePlayer) ? Localization::Lookup("TXT_KEY_DIPLO_DOF") : Localization::Lookup("TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14710,6 +14710,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		if (!bHideNegatives && !bJustMet)
 		{
+			iValue = pDiplo->GetDenouncedByOurFriendScore(ePlayer);
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE");
+				aOpinions.push_back(kOpinion);
+			}
+
 			iValue = pDiplo->GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
 			if (iValue != 0)
 			{

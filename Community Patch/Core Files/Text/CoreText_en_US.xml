@@ -2940,6 +2940,11 @@
 			<Text>Real Approach is Neutral.</Text>
 		</Row>
 
+		<!-- Previous Friendship Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS">
+			<Text>We were previously friends with their civilization.</Text>
+		</Row>
+
 		<!-- Embassy Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
 			<Text>We have shared embassies.</Text>
