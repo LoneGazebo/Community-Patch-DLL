@@ -3085,7 +3085,16 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pOldOwnerDiploAI->ChangeWarValueLost(GetID(), iCityValue);
 
 			// zero out any liberation credit since we just captured a city from them
-			pOldOwnerDiploAI->SetResurrectedBy(GetID(), false);
+			if (pOldOwnerDiploAI->WasResurrectedBy(GetID()))
+			{
+				pOldOwnerDiploAI->SetResurrectorAttackedUs(GetID(), true);
+				pOldOwnerDiploAI->SetResurrectedBy(GetID(), false);
+
+				if (GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).GetLiberatedByTeam() == getTeam())
+				{
+					GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).SetLiberatedByTeam(NO_TEAM);
+				}
+			}
 			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
 			pOldOwnerDiploAI->SetPlayerLiberatedHolyCity(GetID(), false);
 			pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
@@ -9861,7 +9870,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				PlayerTypes eMyTeamPlayer = (PlayerTypes) iPlayerLoop;
 
-				if (GET_PLAYER(eMyTeamPlayer).getTeam() == getTeam())
+				if (GET_PLAYER(eMyTeamPlayer).getTeam() == getTeam() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(eMyTeamPlayer))
 				{
 					pDiploAI->SetResurrectedBy(eMyTeamPlayer, true);
 
@@ -10174,6 +10183,12 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+
+	// Exploit fix - if we attacked a player we resurrected, we can't resurrect them again
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
+	{
+		return false;
+	}
 	
 #if defined(MOD_EVENTS_LIBERATION)
 	if (MOD_EVENTS_LIBERATION) {
@@ -10198,11 +10213,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
-#else
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
-#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10222,11 +10233,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-#if defined(MOD_BALANCE_CORE)
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
-#else
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
-#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -10242,11 +10249,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	return pUnit;
 }
 
-#if defined(MOD_BALANCE_CORE)
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
-#else
-CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
-#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10261,11 +10264,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-#if defined(MOD_BALANCE_CORE)
 		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
-#else
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
-#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial

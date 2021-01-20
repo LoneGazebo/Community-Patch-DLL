@@ -744,6 +744,9 @@ public:
 	void SetPlayerCapturedHolyCity(PlayerTypes ePlayer, bool bValue);
 	bool IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently = false, bool bTeammates = true, bool bCheckEver = false) const;
 
+	bool IsResurrectorAttackedUs(PlayerTypes ePlayer) const;
+	void SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue);
+
 	// ------------------------------------
 	// # of times/points counters
 	// ------------------------------------
@@ -1676,6 +1679,7 @@ public:
 	int GetPolicyScore(PlayerTypes ePlayer);
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
+	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
 	int GetLeagueAlignmentScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
@@ -2024,6 +2028,7 @@ private:
 	bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 	bool m_abCapturedCapital[MAX_MAJOR_CIVS];
 	bool m_abCapturedHolyCity[MAX_MAJOR_CIVS];
+	bool m_abResurrectorAttackedUs[MAX_MAJOR_CIVS];
 
 	// # of times/points counters
 	unsigned char m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];

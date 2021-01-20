@@ -1441,6 +1441,11 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	if (!bDefensivePact && bAggressor && !GET_TEAM(eTeam).isMinorCiv())
 	{
 		cancelDefensivePacts();
+
+		if (GET_TEAM(eTeam).GetLiberatedByTeam() == m_eID)
+		{
+			GET_TEAM(eTeam).SetLiberatedByTeam(NO_TEAM);
+		}
 	}
 
 	GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);

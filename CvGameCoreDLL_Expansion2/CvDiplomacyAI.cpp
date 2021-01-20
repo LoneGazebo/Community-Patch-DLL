@@ -277,6 +277,7 @@ void CvDiplomacyAI::Reset()
 		m_abDoFEverAsked[iI] = false;
 		m_abCapturedCapital[iI] = false;
 		m_abCapturedHolyCity[iI] = false;
+		m_abResurrectorAttackedUs[iI] = false;
 
 		// # of times/points counters
 		m_aiNumCitiesLiberated[iI] = 0;
@@ -620,6 +621,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_abDoFEverAsked;
 	kStream >> m_abCapturedCapital;
 	kStream >> m_abCapturedHolyCity;
+	kStream >> m_abResurrectorAttackedUs;
 
 	// # of times/points counters
 	kStream >> m_aiNumCitiesLiberated;
@@ -914,6 +916,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_abDoFEverAsked;
 	kStream << m_abCapturedCapital;
 	kStream << m_abCapturedHolyCity;
+	kStream << m_abResurrectorAttackedUs;
 
 	// # of times/points counters
 	kStream << m_aiNumCitiesLiberated;
@@ -5865,6 +5868,18 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 	return false;
 }
 
+bool CvDiplomacyAI::IsResurrectorAttackedUs(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	return m_abResurrectorAttackedUs[(int)ePlayer];
+}
+
+void CvDiplomacyAI::SetResurrectorAttackedUs(PlayerTypes ePlayer, bool bValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_abResurrectorAttackedUs[(int)ePlayer] = bValue;
+}
+
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -6634,10 +6649,10 @@ void CvDiplomacyAI::SetResurrectedBy(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
-/// Were we ever resurrected by anyone?
+/// Were we resurrected by anyone?
 bool CvDiplomacyAI::WasResurrectedByAnyone() const
 {
-	return (GET_TEAM(GetTeam()).GetLiberatedByTeam() != NO_TEAM);
+	return GET_TEAM(GetTeam()).GetLiberatedByTeam() != NO_TEAM;
 }
 
 /// On what turn did this player most recently liberate one of our cities?
@@ -14002,6 +14017,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetNukedByScore(ePlayer);
 	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
 	iOpinionWeight += GetCapitalCapturedByScore(ePlayer);
+	iOpinionWeight += GetResurrectorAttackedUsScore(ePlayer);
 
 	if (!IsVassal(ePlayer))
 		iOpinionWeight += (int)GetMilitaryAggressivePosture(ePlayer) * 5;
@@ -25739,6 +25755,22 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 						ChangeRecentAssistValue(ePlayer, 300);
 						SetDoFBroken(ePlayer, true, true);
 						SetFriendDeclaredWarOnUs(ePlayer, true);
+
+						if (GetCoopWarScore(ePlayer) > 0)
+						{
+							SetCoopWarScore(ePlayer, 0);
+						}
+					}
+
+					// HAD been resurrected by this player
+					if (WasResurrectedBy(ePlayer))
+					{
+						SetResurrectorAttackedUs(ePlayer, true);
+
+						if (GetCoopWarScore(ePlayer) > 0)
+						{
+							SetCoopWarScore(ePlayer, 0);
+						}
 					}
 				}
 
@@ -44537,6 +44569,18 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
+int CvDiplomacyAI::GetResurrectorAttackedUsScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+
+	if (IsResurrectorAttackedUs(ePlayer))
+	{
+		iOpinionWeight = 200;
+	}
+
+	return iOpinionWeight;
+}
+
 int CvDiplomacyAI::GetLeagueAlignmentScore(PlayerTypes ePlayer)
 {
 	if (!GC.getGame().GetGameLeagues()->GetActiveLeague())
@@ -53104,7 +53148,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			SetVassalagePeacefullyRevokedTurn(eOtherTeamPlayer, -1);
 			
 			// During capitulation, reset almost all (negative) diplomatic scores. Rationale: When capitulating, AI tends to be very hostile.
-			if (!bVoluntary)
+			if (!bVoluntary && !IsResurrectorAttackedUs(eOtherTeamPlayer))
 			{
 				SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 				SetWonderDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
@@ -53176,6 +53220,12 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				}
 				
 				// Reset common foe bonus
+				SetCommonFoeValue(eOtherTeamPlayer, 0);
+				SetCoopWarScore(eOtherTeamPlayer, 0);
+				GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetCoopWarScore(GetID(), 0);
+			}
+			else if (IsResurrectorAttackedUs(eOtherTeamPlayer))
+			{
 				SetCommonFoeValue(eOtherTeamPlayer, 0);
 				SetCoopWarScore(eOtherTeamPlayer, 0);
 				GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetCoopWarScore(GetID(), 0);

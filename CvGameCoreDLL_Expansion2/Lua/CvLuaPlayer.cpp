@@ -14674,6 +14674,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetDislikedTheirProposalScore(ePlayer);
 		if (iValue != 0)
 		{

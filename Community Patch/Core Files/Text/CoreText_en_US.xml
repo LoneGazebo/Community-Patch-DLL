@@ -3071,8 +3071,8 @@
 			<Text>Your military deployment is extremely threatening.</Text>
 		</Row>
 
-		<!-- Betrayed Resurrected Civ Diplo Mod -->
-		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_BETRAYED_US">
+		<!-- Attacked Resurrected Civ Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US">
 			<Text>You restored their civilization and then attacked them!</Text>
 		</Row>
 
