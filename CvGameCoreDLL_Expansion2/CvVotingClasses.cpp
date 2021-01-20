@@ -10502,7 +10502,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		iAlignment -= 2;
 
 		// A personal betrayal is worse!
-		if (pDiplo->IsFriendDeclaredWarOnUs(ePlayer) || pDiplo->IsFriendDenouncedUs(ePlayer) || pDiplo->IsPlayerBrokenVassalAgreement(ePlayer))
+		if (pDiplo->IsFriendDeclaredWarOnUs(ePlayer) || pDiplo->IsFriendDenouncedUs(ePlayer) || pDiplo->IsPlayerBrokenVassalAgreement(ePlayer) || pDiplo->IsResurrectorAttackedUs(ePlayer))
 		{
 			iAlignment -= 2;
 		}
