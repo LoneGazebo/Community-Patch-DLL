@@ -4191,6 +4191,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		if(!m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 			UnitProcessed(pUnit->GetID());
 			continue;
 		}
