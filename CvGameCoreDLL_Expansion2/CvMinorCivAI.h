@@ -425,8 +425,6 @@ public:
 	PlayerTypes SpawnHorde();
 	PlayerTypes SpawnRebels();
 	//Ends
-	void SetSacked(bool bValue);
-	bool IsSacked();
 	bool IsRebellion();
 	void SetRebellion(bool bValue);
 	//Countdown
@@ -547,7 +545,7 @@ public:
 
 	void DoIntrusion();
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	void DoSack();
+	void DoTakeover();
 	void DoDefection();
 #endif
 
@@ -803,9 +801,8 @@ private:
 	bool m_abRouteConnectionEstablished[MAX_MAJOR_CIVS];
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	bool m_bIsSacked;
 	bool m_bIsRebellion;
-	int m_iIsRebellionCountdown;
+	int m_iTurnsSinceRebellion;
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;

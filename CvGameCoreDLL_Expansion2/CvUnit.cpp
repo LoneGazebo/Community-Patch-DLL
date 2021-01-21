@@ -7273,7 +7273,7 @@ bool CvUnit::canUseForTacticalAI() const
 		return false;
 
 	//we want all barbarians ...
-	if (IsCivilianUnit() && !isBarbarian())
+	if (!IsCanAttack() && !isBarbarian())
 	{
 		if (IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral())
 		{
@@ -27293,7 +27293,7 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 
 	//this also catches air units!
 	//they have separate checks (canRebaseAt)
-	if (!IsCanAttack())
+	if (!IsCanDefend())
 		return 0;
 
 	if (IsStackingUnit())
@@ -29382,7 +29382,8 @@ bool CvUnit::IsCanDefend() const
 
 bool CvUnit::IsCivilianUnit() const
 {
-	return !IsCanDefend();
+	//aircraft can not defend but can attack!
+	return !IsCanDefend() && !IsCanAttack();
 }
 
 //	--------------------------------------------------------------------------------

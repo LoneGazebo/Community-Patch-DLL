@@ -8980,7 +8980,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop)) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop + GET_PLAYER(ePlayer).getNumUnits() )) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)

@@ -3821,9 +3821,10 @@ bool CvMinorCivQuest::DoCancelQuest()
 			if(pMinor->GetMinorCivAI()->IsHordeActive())
 			{
 				pMinor->GetMinorCivAI()->SetHordeActive(false);
-				pMinor->GetMinorCivAI()->SetSacked(true);
 				pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 				pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
+
+				pMinor->GetMinorCivAI()->DoTakeover();
 			}
 
 			//Update Military AI
@@ -4090,9 +4091,8 @@ void CvMinorCivAI::Reset()
 	m_bullyRelevantPlots.clear();
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	m_bIsSacked = false;
 	m_bIsRebellion = false;
-	m_iIsRebellionCountdown = 0;
+	m_iTurnsSinceRebellion = 0;
 	m_bIsRebellionActive = 0;
 	m_bIsHordeActive = 0;
 	m_iCooldownSpawn = 0;
@@ -4231,9 +4231,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abWaryOfTeam;
 
 #if defined(MOD_BALANCE_CORE)
-	kStream >> m_bIsSacked;
 	kStream >> m_bIsRebellion;
-	kStream >> m_iIsRebellionCountdown;
+	kStream >> m_iTurnsSinceRebellion;
 	kStream >> m_bIsRebellionActive;
 	kStream >> m_bIsHordeActive;
 	kStream >> m_iCooldownSpawn;
@@ -4325,9 +4324,8 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abWaryOfTeam; // Version 12
 
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_bIsSacked;
 	kStream << m_bIsRebellion;
-	kStream << m_iIsRebellionCountdown;
+	kStream << m_iTurnsSinceRebellion;
 	kStream << m_bIsRebellionActive;
 	kStream << m_bIsHordeActive;
 	kStream << m_iCooldownSpawn;
@@ -4594,10 +4592,6 @@ void CvMinorCivAI::DoTurn()
 			if(GetCooldownSpawn() > 0)
 			{
 				ChangeCooldownSpawn(-1);
-			}
-			if(IsSacked())
-			{
-				DoSack();
 			}
 			if(IsRebellion())
 			{
@@ -9103,19 +9097,6 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	return NO_PLAYER;
 }
 
-void CvMinorCivAI::SetSacked(bool bValue)
-{
-	if(m_bIsSacked != bValue)
-	{
-		m_bIsSacked = bValue;
-	}
-}
-
-bool CvMinorCivAI::IsSacked()
-{
-	return m_bIsSacked;
-}
-
 bool CvMinorCivAI::IsRebellion()
 {
 	return m_bIsRebellion;
@@ -9123,10 +9104,7 @@ bool CvMinorCivAI::IsRebellion()
 
 void CvMinorCivAI::SetRebellion(bool bValue)
 {
-	if(m_bIsRebellion != bValue)
-	{
-		m_bIsRebellion = bValue;
-	}
+	m_bIsRebellion = bValue;
 }
 
 void CvMinorCivAI::ChangeTurnsSinceRebellion(int iChange)
@@ -9136,13 +9114,12 @@ void CvMinorCivAI::ChangeTurnsSinceRebellion(int iChange)
 
 int CvMinorCivAI::GetTurnsSinceRebellion() const
 {
-	return m_iIsRebellionCountdown;
+	return m_iTurnsSinceRebellion;
 }
 
 void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 {
-	if(GetTurnsSinceRebellion() != iValue)
-		m_iIsRebellionCountdown = iValue;
+	m_iTurnsSinceRebellion = iValue;
 }
 
 void CvMinorCivAI::DoRebellion()
@@ -12188,21 +12165,23 @@ void CvMinorCivAI::DoIntrusion()
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //Sack a city-state
-void CvMinorCivAI::DoSack()
+void CvMinorCivAI::DoTakeover()
 {
-	CvPlot* pPlot = GetPlayer()->getCapitalCity()->plot();
-	if(pPlot != NULL)
+	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+	if (eUnit == NO_UNIT)
+		return;
+
+	int iCityLoop;
+	// Loop through each of our cities
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		CvGame& theGame = GC.getGame();
-		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-		if(eUnit != NO_UNIT)
-		{
-			// Init unit
-			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-		}
-		SetSacked(false);
+		CvPlot* pCityPlot = pLoopCity->plot();
+		// create a barbarian unit in the city, taking it over
+		if (pCityPlot->GetNumFriendlyUnitsAdjacent(BARBARIAN_TEAM,NO_DOMAIN)>0)
+			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pCityPlot->getX(), pCityPlot->getY());
 	}
 }
+
 //Do Defection
 void CvMinorCivAI::DoDefection()
 {

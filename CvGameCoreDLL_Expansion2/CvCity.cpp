@@ -12318,9 +12318,11 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		}
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
+	UnitTypes prodUnit = getProductionUnit();
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness && prodUnit != NO_UNIT)
 	{
-		if (getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->IsFound() || GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0) || GC.getUnitInfo(getProductionUnit())->GetNukeDamageLevel() != -1)
+		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
+		if (pUnitEntry->IsFound() || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta(!toolTipSink) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
