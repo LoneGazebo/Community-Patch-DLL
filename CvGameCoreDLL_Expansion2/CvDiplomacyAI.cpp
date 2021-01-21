@@ -14338,7 +14338,8 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		}
 	}
 
-	DoUpdateMajorCivApproaches(vPlayersToReevaluate, /*bStrategic*/ false);
+	if (!vPlayersToReevaluate.empty())
+		DoUpdateMajorCivApproaches(vPlayersToReevaluate, /*bStrategic*/ false);
 }
 
 /// Updates our general Diplomatic Approach towards each major civilization we've met
