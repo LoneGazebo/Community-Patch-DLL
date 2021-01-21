@@ -14284,6 +14284,9 @@ void CvDiplomacyAI::DoUpdateGlobalPolitics()
 /// Reevaluate our general Diplomatic Approach towards specified players
 void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar, bool bCancelExchanges)
 {
+	if (!GetPlayer()->isMajorCiv())
+		return;
+
 	if (vTargetPlayers.empty())
 		return;
 
@@ -14320,7 +14323,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 
 	for (std::vector<PlayerTypes>::iterator it = vTargetPlayers.begin(); it != vTargetPlayers.end(); it++)
 	{
-		if (GET_PLAYER(*it).isAlive() && IsHasMet(*it))
+		if (GET_PLAYER(*it).isAlive() && IsHasMet(*it) && GET_PLAYER(*it).isMajorCiv())
 		{
 			DoUpdateOnePlayerOpinion(*it);
 			vPlayersToReevaluate.push_back(*it);
