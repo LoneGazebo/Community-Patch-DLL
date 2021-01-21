@@ -4841,9 +4841,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(pNewCity != NULL && pNewCity->getOwner() == BARBARIAN_PLAYER)
 	{
 		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
-		
-		// Spawn a Barbarian unit to garrison the acquired city
-		CvBarbarians::DoSpawnBarbarianUnit(pNewCity->plot(), true, true);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
