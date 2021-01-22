@@ -3634,7 +3634,7 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 int CvPlayerEspionage::GetSpyIndexInCity(CvCity* pCity)
 {
 	CvAssertMsg(pCity, "pCity is null. Can't do much with this");
-	if(!pCity)
+	if(!pCity || !m_pPlayer->isMinorCiv())
 	{
 		return -1;
 	}
