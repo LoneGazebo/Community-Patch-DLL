@@ -11904,6 +11904,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 {
 	TeamTypes eOurTeam = GetTeam();
 	PlayerTypes eOurPlayerID = GetID();
+	vector<PlayerTypes> v;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -11917,7 +11918,8 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 			// Keep a record of last turn
-			SetLastTurnMilitaryAggressivePosture(ePlayer, GetMilitaryAggressivePosture(ePlayer));
+			AggressivePostureTypes eCurrentPosture = GetMilitaryAggressivePosture(ePlayer);
+			SetLastTurnMilitaryAggressivePosture(ePlayer, eCurrentPosture);
 
 			if (!IsVassal(ePlayer))
 			{
@@ -12025,6 +12027,9 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 				eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
 
 			SetMilitaryAggressivePosture(ePlayer, eAggressivePosture);
+
+			if (eAggressivePosture > eCurrentPosture)
+				v.push_back(ePlayer);
 		}
 		else
 		{
@@ -12032,11 +12037,16 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			SetLastTurnMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
+
+	// If someone's aggressive posture rose, reevaluate our approach towards them immediately
+	DoReevaluatePlayers(v);
 }
 
 /// Updates how aggressively all players have settled in relation to us
 void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 {
+	vector<PlayerTypes> v;
+
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -12116,6 +12126,9 @@ void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 			{
 				SetExpansionAggressivePosture(ePlayer, eNewAggressivePosture);
 
+				if (eNewAggressivePosture > eLastAggressivePosture)
+					v.push_back(ePlayer);
+
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Find the name of this civ and city
@@ -12163,6 +12176,9 @@ void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 			SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
+
+	// If someone's aggressive posture rose, reevaluate our approach towards them immediately
+	DoReevaluatePlayers(v);
 }
 
 /// Returns plot indices!
@@ -12203,6 +12219,8 @@ CvCity* CvDiplomacyAI::GetPlotCityAndVerifyOwnership(int iPlotIndex, PlayerTypes
 /// Updates how aggressively all players have bought land near us
 void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 {
+	vector<PlayerTypes> v;
+
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -12211,6 +12229,7 @@ void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 		if (IsPlayerValid(ePlayer))
 		{
 			AggressivePostureTypes ePosture = AGGRESSIVE_POSTURE_NONE;
+			AggressivePostureTypes eCurrentPosture = GetPlotBuyingAggressivePosture(ePlayer);
 			int iAggressionScore = 0;
 			int iCityLoop;
 
@@ -12231,12 +12250,18 @@ void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 				ePosture = AGGRESSIVE_POSTURE_LOW;
 
 			SetPlotBuyingAggressivePosture(ePlayer, ePosture);
+
+			if (ePosture > eCurrentPosture)
+				v.push_back(ePlayer);
 		}
 		else
 		{
 			SetPlotBuyingAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
+
+	// If someone's aggressive posture rose, reevaluate our approach towards them immediately
+	DoReevaluatePlayers(v);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -12253,6 +12278,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 	PlayerTypes eSettleSpotThief = GetPlayer()->GetPlayerWhoStoleMyFavoriteCitySite();
 	bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
 	bBold |= GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) > 7;
+	vector<PlayerTypes> v;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -12260,7 +12286,8 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		// Update last turn's values
-		SetLastTurnLandDisputeLevel(ePlayer, GetLandDisputeLevel(ePlayer));
+		DisputeLevelTypes eCurrentDisputeLevel = GetLandDisputeLevel(ePlayer);
+		SetLastTurnLandDisputeLevel(ePlayer, eCurrentDisputeLevel);
 
 		if (IsPlayerValid(ePlayer))
 		{
@@ -12350,9 +12377,12 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			}
 
 			// Actually set the Level
-			if (GetLandDisputeLevel(ePlayer) != eDisputeLevel)
+			if (eCurrentDisputeLevel != eDisputeLevel)
 			{
 				SetLandDisputeLevel(ePlayer, eDisputeLevel);
+
+				if (eCurrentDisputeLevel > eDisputeLevel)
+					v.push_back(ePlayer);
 
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -12388,8 +12418,12 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		else
 		{
 			SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+			SetLastTurnLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 		}
 	}
+
+	// If someone's land dispute level increased, reevaluate that player's approach immediately
+	DoReevaluatePlayers(v);
 }
 
 /// Updates what our level of Dispute is with all players over World Wonders
