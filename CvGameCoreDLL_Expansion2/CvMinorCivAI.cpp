@@ -3824,7 +3824,8 @@ bool CvMinorCivQuest::DoCancelQuest()
 				pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 				pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
 
-				pMinor->GetMinorCivAI()->DoTakeover();
+				//cannot do this directly as it likely will kill the player, then we have a problem
+				pMinor->GetMinorCivAI()->SetReadyForTakeOver();
 			}
 
 			//Update Military AI
@@ -4099,6 +4100,7 @@ void CvMinorCivAI::Reset()
 	m_ePermanentAlly = NO_PLAYER;
 	m_bNoAlly = false;
 	m_iCoup = 0;
+	m_iTakeoverTurn = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnLiberated = 0;
@@ -12164,22 +12166,16 @@ void CvMinorCivAI::DoIntrusion()
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-//Sack a city-state
-void CvMinorCivAI::DoTakeover()
-{
-	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-	if (eUnit == NO_UNIT)
-		return;
 
-	int iCityLoop;
-	// Loop through each of our cities
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
-		CvPlot* pCityPlot = pLoopCity->plot();
-		// create a barbarian unit in the city, taking it over
-		if (pCityPlot->GetNumFriendlyUnitsAdjacent(BARBARIAN_TEAM,NO_DOMAIN)>0)
-			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pCityPlot->getX(), pCityPlot->getY());
-	}
+//barbarians may take over the city once it's their turn
+void CvMinorCivAI::SetReadyForTakeOver()
+{
+	m_iTakeoverTurn = GC.getGame().getGameTurn();
+}
+
+bool CvMinorCivAI::IsReadyForTakeOver() const
+{
+	return m_iTakeoverTurn == GC.getGame().getGameTurn();
 }
 
 //Do Defection

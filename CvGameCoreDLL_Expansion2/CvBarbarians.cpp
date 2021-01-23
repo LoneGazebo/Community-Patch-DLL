@@ -1060,16 +1060,12 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 }
 
 //return false if stealing is impossible and the unit should do something else instead
-bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
+bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 {
 	if (!MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		return false;
 
-	if (!pUnit || !pUnit->IsCanAttack())
-		return false;
-
-	CvCity* pCity = pUnit->plot()->GetAdjacentCity();
-	if (!pCity)
+	if (!pUnit || !pUnit->IsCanAttack() || !pCity)
 		return false;
 
 	//don't steal from ourselves
@@ -1226,4 +1222,17 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	
 	return true;
+}
+
+bool CvBarbarians::DoTakeOverCity(CvCity * pCity)
+{
+	// create a barbarian unit in the city, taking it over
+	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+	if (eUnit != NO_UNIT)
+	{
+		GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pCity->getX(), pCity->getY());
+		return true;
+	}
+
+	return false;
 }
