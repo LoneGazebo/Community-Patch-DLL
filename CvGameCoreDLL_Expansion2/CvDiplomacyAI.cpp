@@ -10200,6 +10200,13 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				if (GET_PLAYER(*it).IsNoNewWars())
 					continue;
 
+				// If this guy is a Defensive Pact of the player, check if it's relevant...
+				if (GET_PLAYER(*it).GetDiplomacyAI()->IsHasDefensivePact(ePlayer))
+				{
+					if (GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer) && !GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer))
+						continue;
+				}
+
 				// How strong is this friend compared to the other guy?
 				switch (eThirdPartyStrength)
 				{
