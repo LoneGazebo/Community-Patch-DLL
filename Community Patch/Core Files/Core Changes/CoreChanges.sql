@@ -73,16 +73,6 @@ UPDATE Buildings
 SET ExtraLeagueVotes = '0'
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
 
--- Warmonger Percent
-UPDATE Eras Set WarmongerPercent = '50' WHERE Type = 'ERA_ANCIENT';
-UPDATE Eras Set WarmongerPercent = '60' WHERE Type = 'ERA_CLASSICAL';
-UPDATE Eras Set WarmongerPercent = '70' WHERE Type = 'ERA_MEDIEVAL';
-UPDATE Eras Set WarmongerPercent = '80' WHERE Type = 'ERA_RENAISSANCE';
-UPDATE Eras Set WarmongerPercent = '90' WHERE Type = 'ERA_INDUSTRIAL';
-UPDATE Eras Set WarmongerPercent = '100' WHERE Type = 'ERA_MODERN';
-UPDATE Eras Set WarmongerPercent = '110' WHERE Type = 'ERA_POSTMODERN';
-UPDATE Eras Set WarmongerPercent = '120' WHERE Type = 'ERA_FUTURE';
-
 -- Unit Promotions
 UPDATE UnitPromotions
 SET FlankAttackModifier = '5'
