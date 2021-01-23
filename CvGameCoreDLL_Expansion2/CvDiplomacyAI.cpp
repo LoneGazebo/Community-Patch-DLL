@@ -7703,7 +7703,7 @@ void CvDiplomacyAI::DoUpdateWarDamage()
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
 		if (pkUnitInfo)
 		{
-			int iUnitValue = (pkUnitInfo->GetPower() * 100);
+			int iUnitValue = pkUnitInfo->GetPower() * 100;
 
 			if (iUnitValue > 0)
 			{
@@ -11906,6 +11906,10 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 	PlayerTypes eOurPlayerID = GetID();
 	vector<PlayerTypes> v;
 
+	int iTypicalLandPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	int iTypicalNavalPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
+	int iTypicalAirPower = GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
+
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -11953,6 +11957,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			}
 
 			int iUnitValueOnMyHomeFront = 0;
+			int iUnitScore = 0;
 			bool bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
 
 			// For humans (Move Troops request) or if at war with them, ignore other wars the player may be waging
@@ -11963,7 +11968,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 			{
 				// Don't be scared of noncombat Units!
-				if (!pLoopUnit->IsCanAttack() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
+				if (pLoopUnit->IsCivilianUnit() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
 				{
 					continue;
 				}
@@ -12002,33 +12007,101 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 					}
 				}
 
-				int iValueToAdd = 10;
+				int iValueToAdd = 100;
 
-				// If the Unit is in the other player's territory, halve its "aggression value", since he may just be defending himself
-				if (pUnitPlot->getOwner() == ePlayer)
+				// Adjust based on unit power compared to us
+				// Units stronger than ours are worth more, units weaker than ours are worth less
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+				if (pkUnitInfo)
 				{
-					iValueToAdd /= 2;
+					int iUnitValuePercent = pkUnitInfo->GetPower() * 100;
+
+					if (iUnitValuePercent > 0)
+					{
+						// Compare to strongest unit we can build in that domain, for an apples to apples comparison
+						// Best unit that can be currently built in a domain is given a value of 100
+						DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
+
+						if (eDomain == DOMAIN_AIR)
+						{
+							if (iTypicalAirPower > 0)
+							{
+								iUnitValuePercent /= iTypicalAirPower;
+							}
+							else
+							{
+								iUnitValuePercent = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+							}
+						}
+						else if (eDomain == DOMAIN_SEA)
+						{
+							if (iTypicalNavalPower > 0)
+							{
+								iUnitValuePercent /= iTypicalNavalPower;
+							}
+							else
+							{
+								iUnitValuePercent = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+							}
+						}
+						else
+						{
+							if (iTypicalLandPower > 0)
+							{
+								iUnitValuePercent /= iTypicalLandPower;
+							}
+							else
+							{
+								iUnitValuePercent = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+							}
+						}
+
+						iValueToAdd *= iUnitValuePercent;
+						iValueToAdd /= 100;
+					}
+					else
+					{
+						continue;
+					}
 				}
 
-				// Maybe look at Unit Power here instead?
+				// If the Unit is in the other team's territory, halve its "aggression value", since he may just be defending himself
+				if (GET_PLAYER(pUnitPlot->getOwner()).getTeam() == eTeam)
+				{
+					iValueToAdd /= 2;
+					iUnitScore++;
+				}
+				else
+				{
+					iUnitScore += 2;
+				}
+
 				iUnitValueOnMyHomeFront += iValueToAdd;
 			}
 
 			AggressivePostureTypes eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
 			// So how threatening is he being?
-			if (iUnitValueOnMyHomeFront >= /*80*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE())
+			if (iUnitValueOnMyHomeFront >= /*800*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE())
 				eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
-			else if (iUnitValueOnMyHomeFront >= /*50*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH())
+			else if (iUnitValueOnMyHomeFront >= /*500*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH())
 				eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-			else if (iUnitValueOnMyHomeFront >= /*30*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM())
+			else if (iUnitValueOnMyHomeFront >= /*300*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM())
 				eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
-			else if (iUnitValueOnMyHomeFront >= /*10*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW())
+			else if (iUnitValueOnMyHomeFront >= /*100*/ GC.getMILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW())
 				eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+
+			// Common sense override in case they have a large number of low-power units nearby
+			if (eAggressivePosture < AGGRESSIVE_POSTURE_INCREDIBLE && iUnitScore >= 18) // 9 units
+				eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
+			else if (eAggressivePosture < AGGRESSIVE_POSTURE_HIGH && iUnitScore >= 14) // 7 units
+				eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
+			else if (eAggressivePosture < AGGRESSIVE_POSTURE_MEDIUM && iUnitScore >= 10) // 5 units
+				eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
 
 			SetMilitaryAggressivePosture(ePlayer, eAggressivePosture);
 
-			if (eAggressivePosture > eCurrentPosture)
+			if (eAggressivePosture > eCurrentPosture && eAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
 				v.push_back(ePlayer);
 		}
 		else
@@ -12315,32 +12388,22 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			if (bBold)
 			{
 				if (iEra == 0)
-				{
 					iMultiplier += 150;
-				}
 				else if (iEra == 1)
-				{
 					iMultiplier += 100;
-				}
+				else if (iEra == 2)
+					iMultiplier += 75;
 				else
-				{
 					iMultiplier += 50;
-				}
 			}
 			else
 			{
 				if (iEra == 0)
-				{
 					iMultiplier += 100;
-				}
 				else if (iEra == 1)
-				{
 					iMultiplier += 50;
-				}
 				else if (iEra == 2)
-				{
 					iMultiplier += 25;
-				}
 			}
 
 			iContestedScore *= (100 + iMultiplier);
