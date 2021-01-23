@@ -3270,22 +3270,22 @@
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
-			<Text>[COLOR_NEGATIVE_TEXT]They fear you are competing with them.[ENDCOLOR]</Text>
+			<Text>They fear you are competing with them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG">
-			<Text>[COLOR_NEGATIVE_TEXT]They suspect you are competing with them.[ENDCOLOR]</Text>
+			<Text>They suspect you are competing with them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE">
-			<Text>[COLOR_NEGATIVE_TEXT]They know you are competing with them, and they hate it![ENDCOLOR]</Text>
+			<Text>They know you are competing with them, and they hate it!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior infuriates them.[ENDCOLOR]</Text>
+			<Text>Your behavior infuriates them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior angers them.[ENDCOLOR]</Text>
+			<Text>Your behavior angers them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK">
-			<Text>[COLOR_NEGATIVE_TEXT]Your behavior worries them.[ENDCOLOR]</Text>
+			<Text>Your behavior worries them.</Text>
 		</Row>
 		<!-- END DOF Texts -->
 		<Row Tag="TXT_KEY_END_WORK_WITH_US_BLOCK_1">

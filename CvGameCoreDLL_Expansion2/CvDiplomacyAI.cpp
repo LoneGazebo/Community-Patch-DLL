@@ -14146,7 +14146,6 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetPolicyBlockLevelScore(ePlayer);
 	iOpinionWeight += GetVictoryDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
-	iOpinionWeight += GetAngryAboutSidedWithProtectedMinorScore(ePlayer);
 
 	//////////////////////////////////////
 	// WAR STUFF
@@ -14158,7 +14157,6 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetNukedByScore(ePlayer);
 	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
 	iOpinionWeight += GetCapitalCapturedByScore(ePlayer);
-	iOpinionWeight += GetResurrectorAttackedUsScore(ePlayer);
 
 	if (!IsVassal(ePlayer))
 		iOpinionWeight += (int)GetMilitaryAggressivePosture(ePlayer) * 5;
@@ -14261,6 +14259,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetAngryAboutProtectedMinorKilledScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorAttackedScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorBulliedScore(ePlayer);
+	iOpinionWeight += GetAngryAboutSidedWithProtectedMinorScore(ePlayer);
 
 	//////////////////////////////////////
 	// DECLARATION OF FRIENDSHIP
@@ -14290,6 +14289,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iTraitorOpinion = max(iTraitorOpinion, GetWeDeclaredWarOnFriendScore(ePlayer));
 	iTraitorOpinion = max(iTraitorOpinion, GetFriendDeclaredWarOnUsScore(ePlayer));
 	iOpinionWeight += iTraitorOpinion;
+	iOpinionWeight += GetResurrectorAttackedUsScore(ePlayer);
 
 	//////////////////////////////////////
 	// RECKLESS EXPANDER / WONDER SPAMMER
@@ -37307,10 +37307,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerNoConvertPromiseState(eFromPlayer, PROMISE_STATE_MADE);
 
-			if (GetNegativeReligiousConversionPoints(eFromPlayer) >= GC.getRELIGION_DIPLO_HIT_THRESHOLD())
+			// Reduce their conversion points to a maximum since they agreed to withdraw
+			if (GetNegativeReligiousConversionPoints(eFromPlayer) >= /*4*/ GC.getRELIGION_DIPLO_HIT_THRESHOLD())
 			{
-				int iAdjustmentToJustBelowThreshold = (GC.getRELIGION_DIPLO_HIT_THRESHOLD() - 1);
-				SetNegativeReligiousConversionPoints(eFromPlayer, iAdjustmentToJustBelowThreshold);
+				SetNegativeReligiousConversionPoints(eFromPlayer, GC.getRELIGION_DIPLO_HIT_THRESHOLD());
 			}
 
 			if (bActivePlayer)
@@ -44654,8 +44654,8 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 		iOpinionWeight /= 2;
 	}
 
-	// If a capitulated vassal, halve the weight.
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
+	// If we're a well-treated capitulated vassal, halve the weight.
+	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
 	{
 		iOpinionWeight *= 100;
 		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
@@ -44679,8 +44679,8 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 		iOpinionWeight /= 2;
 	}
 
-	// If a capitulated vassal, halve the weight.
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
+	// If we're a well-treated capitulated vassal, halve the weight.
+	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
 	{
 		iOpinionWeight *= 100;
 		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
