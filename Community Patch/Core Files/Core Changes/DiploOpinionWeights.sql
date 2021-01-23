@@ -3,44 +3,20 @@
 
 -- Opinion Thresholds
 -- Defines how much positive or negative Opinion is required for a specific opinion rating.
--- 80
-UPDATE Defines
-SET Value = '160'
-WHERE Name = 'OPINION_THRESHOLD_UNFORGIVABLE';
+UPDATE Defines SET Value = '160' WHERE Name = 'OPINION_THRESHOLD_UNFORGIVABLE';
+UPDATE Defines SET Value = '80' WHERE Name = 'OPINION_THRESHOLD_ENEMY';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_THRESHOLD_COMPETITOR';
 
--- 40
-UPDATE Defines
-SET Value = '80'
-WHERE Name = 'OPINION_THRESHOLD_ENEMY';
-
--- 15
-UPDATE Defines
-SET Value = '30'
-WHERE Name = 'OPINION_THRESHOLD_COMPETITOR';
-
--- -15
-UPDATE Defines
-SET Value = '-30'
-WHERE Name = 'OPINION_THRESHOLD_FAVORABLE';
-
--- -40
-UPDATE Defines
-SET Value = '-80'
-WHERE Name = 'OPINION_THRESHOLD_FRIEND';
-
--- -80
-UPDATE Defines
-SET Value = '-160'
-WHERE Name = 'OPINION_THRESHOLD_ALLY';
+UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_THRESHOLD_FAVORABLE';
+UPDATE Defines SET Value = '-80' WHERE Name = 'OPINION_THRESHOLD_FRIEND';
+UPDATE Defines SET Value = '-160' WHERE Name = 'OPINION_THRESHOLD_ALLY';
 
 -- Base Opinion Weight (affects all AI players)
 -- Can be used to add an opinion bonus or penalty to human and/or AI players.
 -- Negative values add good opinion, positive values add bad opinion.
-INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_BASE_HUMAN', '0';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BASE_HUMAN', '0';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BASE_AI', '0';
 
-INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_BASE_AI', '0';
 
 -- Other Opinion Weights
 -- These values affects the many individual opinion modifiers.
