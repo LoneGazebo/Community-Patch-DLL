@@ -1054,7 +1054,7 @@ public:
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
 	
-	void DoAoEDamage(int iValue, const char* chText = NULL);
+	void DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
@@ -1286,6 +1286,8 @@ public:
 	int getNumAttacksMadeThisTurn() const;
 	void changeExtraAttacks(int iChange);
 
+	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
+
 #if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
@@ -1294,7 +1296,6 @@ public:
 	int GetHealEnemyTerritoryFromNearbyUnit() const;
 	int GetHealNeutralTerritoryFromNearbyUnit() const;
 	int GetHealFriendlyTerritoryFromNearbyUnit() const;
-	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;

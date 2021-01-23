@@ -1023,7 +1023,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 	int iDamage = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
 //	int iExperience = kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER);
 //	int iMaxXP = kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER);
-	bool bBarbarian = false;
 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
 	CvAssert_Debug(pkAttacker);
@@ -1045,40 +1044,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if (pkAttacker->getSplashDamage() != 0)
-					{
-						CvPlot* pAdjacentPlot = NULL;
-						CvPlot* pPlot = GC.getMap().plot(pkDefender->getX(), pkDefender->getY());
-
-						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pkAttacker->plot(), false))
-							{
-								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
-								{
-									CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-									if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(pkAttacker->getTeam()))
-									{
-										CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
-
-										if (pkAttacker->getSplashDamage() + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
-										{
-											// Earn bonuses for kills?
-											CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
-											kAttackingPlayer.DoYieldsFromKill(pkAttacker, pkDefender);
-										}
-
-										pEnemyUnit->changeDamage(pkAttacker->getSplashDamage(), pkAttacker->getOwner(), 0.0, &strAppendText);
-									}
-								}
-							}
-						}
-					}
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,pkAttacker->getSplashDamage(),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
-#endif
 
 					// Defender died
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
@@ -1203,7 +1170,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					bBarbarian = pCity->isBarbarian();
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,pkAttacker->getSplashDamage(),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+
 #if defined(MOD_BALANCE_CORE)
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
 					{

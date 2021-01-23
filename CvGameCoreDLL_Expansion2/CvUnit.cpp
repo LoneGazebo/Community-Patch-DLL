@@ -3251,7 +3251,7 @@ void CvUnit::doTurn()
 
 	// Only increase our Fortification level if we've actually been told to Fortify
 	if(IsFortified() && GetDamageAoEFortified() > 0)
-		DoAoEDamage(GetDamageAoEFortified(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
+		DoAdjacentPlotDamage(plot(), GetDamageAoEFortified(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
 
 	// Recon unit? If so, he sees what's around him
 	if(IsRecon())
@@ -15857,13 +15857,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	if (GetNearbyCityBonusCombatMod(pBattlePlot) != 0)
-	{
-		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
-	}
-#endif
-
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
@@ -16633,12 +16626,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	if (GetNearbyCityBonusCombatMod(pMyPlot) != 0)
+	// Siege bonus
+	if (bAttacking)
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
 	}
-#endif
 
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
@@ -19781,7 +19773,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		DoNearbyUnitPromotion(pNewPlot);
 		if(getAoEDamageOnMove() != 0)
-			DoAoEDamage(getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
+			DoAdjacentPlotDamage(pNewPlot, getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
 
 #endif
 		// Moving into a City (friend or foe)
@@ -21451,30 +21443,44 @@ void CvUnit::SetFortified(bool bValue)
 	}
 }
 
-void CvUnit::DoAoEDamage(int iValue, const char* chText)
+void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
 {
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		CvPlot* pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+	if (iValue < 1 || pWhere == NULL)
+		return;
 
-		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() > 0 && !pAdjacentPlot->isCity())
+	for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(pWhere, i);
+		if (!pPlot)
+			continue;
+
+		//splash damage only for adjacent plots and range-attackable plots
+		if (plotDistance(*plot(),*pPlot)>1 && !canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
+			continue;
+
+		//no splash damage in cities
+		if (pPlot->isCity())
+			continue;
+
+		for (int iJ = 0; iJ < pPlot->getNumUnits(); iJ++)
 		{
-			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+			CvUnit* pEnemyUnit = pPlot->getUnitByIndex(iJ);
+			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
 			{
-				CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iJ);
-				if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
+				if (iValue + pEnemyUnit->getDamage() >= pEnemyUnit->GetMaxHitPoints())
 				{
-					if (chText)
-					{
-						CvString strAppendText = GetLocalizedText(chText);
-						pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
-					}
-					else
-					{
-						CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
-						pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
-					}
+					// Earn bonuses for kills?
+					CvPlayer& kAttackingPlayer = GET_PLAYER(getOwner());
+					kAttackingPlayer.DoYieldsFromKill(this, pEnemyUnit);
 				}
+
+				if (chTextKey)
+				{
+					CvString strAppendText = GetLocalizedText(chTextKey);
+					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+				}
+				else
+					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0);
 			}
 		}
 	}
@@ -22766,6 +22772,42 @@ void CvUnit::changeExtraAttacks(int iChange)
 	}
 }
 
+int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
+	//this is not 100% accurate in case of ties ... but good enough
+	int iRange = GetNearbyUnitPromotionsRange();
+	if (GC.getGame().GetClosestCityDistanceInPlots(pAtPlot) > iRange)
+		return 0;
+
+	if (getNearbyCityCombatMod() != 0)
+	{
+		return getNearbyCityCombatMod();
+	}
+	else if (getNearbyFriendlyCityCombatMod() != 0)
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot);
+		if (pCity && pCity->plot()->IsFriendlyTerritory(getOwner()))
+			return getNearbyFriendlyCityCombatMod();
+	}
+	else if (getNearbyEnemyCityCombatMod() != 0)
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot);
+		if (pCity && isEnemy(pCity->getTeam()))
+			return getNearbyEnemyCityCombatMod();
+	}
+
+	return 0;
+}
+
+
 #if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 //	--------------------------------------------------------------------------------
 // Golden Age? And have a general near us that gives us additional Exp?
@@ -23001,42 +23043,6 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 		}
 	}
 	return iHeal;
-}
-
-int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
-{
-	VALIDATE_OBJECT
-	//the easy way out
-	if (getNearbyCityCombatMod() == 0 && getNearbyFriendlyCityCombatMod() == 0 && getNearbyEnemyCityCombatMod() == 0)
-		return 0;
-
-	int iRange = GetNearbyUnitPromotionsRange();
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-
-	//this is not 100% accurate in case of ties ... but good enough
-	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot,false);
-	if (!pCity || plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) > iRange)
-		return 0;
-
-	if (getNearbyCityCombatMod() != 0)
-	{
-		return getNearbyCityCombatMod();
-	}
-	else if (getNearbyFriendlyCityCombatMod() != 0 && pCity->plot()->IsFriendlyTerritory(getOwner()))
-	{
-		return getNearbyFriendlyCityCombatMod();
-	}
-	else if (getNearbyEnemyCityCombatMod() != 0 && isEnemy(pCity->getTeam()))
-	{
-		return getNearbyEnemyCityCombatMod();
-	}
-
-	return 0;
 }
 
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
