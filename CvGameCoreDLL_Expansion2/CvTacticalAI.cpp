@@ -1010,8 +1010,12 @@ void CvTacticalAI::ExecuteBarbarianTheft()
 	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (CvBarbarians::DoStealFromAdjacentCity(pUnit))
-			vUsedUnits.push_back(pUnit);
+		CvCity* pCity = pUnit->plot()->GetAdjacentCity();
+		if (pCity)
+		{
+			if (CvBarbarians::DoTakeOverCity(pCity) || CvBarbarians::DoStealFromCity(pUnit, pCity))
+				vUsedUnits.push_back(pUnit);
+		}
 	}
 	//have to do this in two steps to keep our iterator happy
 	for (size_t i=0; i<vUsedUnits.size(); i++)

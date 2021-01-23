@@ -545,7 +545,8 @@ public:
 
 	void DoIntrusion();
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	void DoTakeover();
+	void SetReadyForTakeOver();
+	bool IsReadyForTakeOver() const;
 	void DoDefection();
 #endif
 
@@ -806,6 +807,7 @@ private:
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;
+	int m_iTakeoverTurn; //not serialized
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iTurnLiberated;
