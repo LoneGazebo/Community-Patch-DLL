@@ -63,6 +63,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_STRONG', '20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_WEAK', '10';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_NONE', '-10';
 
+-- NOTE: If endgame aggression is enabled, victory dispute/block weights are multiplied by AIDeclareWarProb (DifficultyMod.xml) and then divided by 100 against players who are close to achieving any victory condition.
 -- They fear/suspect you are competing with them. / They know you are competing with them, and they hate it!
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
@@ -223,7 +224,7 @@ UPDATE Defines SET Value = '-18' WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ENEMY';
 -- AI asked player not to declare war on them
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD'; -- global penalty; applied if no personal penalty
-UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE';
+UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_IGNORED_MILITARY_PROMISE'; -- applied if no global or personal penalty
 
 -- AI asked player to stop settling near them
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_EXPANSION_PROMISE_BROKE_MAX';
@@ -236,7 +237,7 @@ UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_BORDER_PROMISE_IGNO
 -- AI asked player not to conquer their protected City-States
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD'; -- global penalty; applied if no personal penalty
-UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE';
+UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE'; -- applied if no global or personal penalty
 
 -- AI asked player not to bully their protected City-States
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BROKEN_BULLY_CITY_STATE_PROMISE', '20';
