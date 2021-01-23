@@ -1266,7 +1266,6 @@ public:
 	bool IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const;
 
 	bool IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBullying = false) const;
-	bool IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const;
 	
 	// Diplomacy AI Options
 	bool ShouldHideDisputeMods(PlayerTypes ePlayer) const;

@@ -25501,6 +25501,9 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 /// Should we ignore Social Policy differences with ePlayer?
 bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer) const
 {
+	if (!GetPlayer()->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv())
+		return true;
+
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
 
@@ -25536,8 +25539,12 @@ bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer) const
 	if (IsCityRecentlyLiberatedBy(ePlayer))
 		return true;
 
+	// The presence of a Diplomat smoothes over cultural (but not religious/ideological) differences.
+	if (GetPlayer()->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer) || GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
+		return true;
+
 	// If they're helping us go to war, we'll set aside our differences for now.
-	if (GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
+	if (GetCoopWarScore(ePlayer) > 0 || GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
 		return true;
 
 	return false;
@@ -25546,6 +25553,9 @@ bool CvDiplomacyAI::IsIgnorePolicyDifferences(PlayerTypes ePlayer) const
 /// Should we ignore religious differences with ePlayer?
 bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer) const
 {
+	if (!GetPlayer()->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv())
+		return true;
+
 	if (IsTeammate(ePlayer) || IsMaster(ePlayer))
 		return true;
 
@@ -25595,7 +25605,7 @@ bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer) const
 		return true;
 
 	// If they're helping us go to war, we'll set aside our differences for now.
-	if (GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
+	if (GetCoopWarScore(ePlayer) > 1 || GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
 		return true;
 
 	return false;
@@ -25604,6 +25614,9 @@ bool CvDiplomacyAI::IsIgnoreReligionDifferences(PlayerTypes ePlayer) const
 /// Should we ignore ideological differences with ePlayer?
 bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const
 {
+	if (!GetPlayer()->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv())
+		return true;
+
 	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
 		return true;
 
@@ -25630,7 +25643,7 @@ bool CvDiplomacyAI::IsIgnoreIdeologyDifferences(PlayerTypes ePlayer) const
 		return true;
 
 	// If they're helping us go to war, we'll set aside our differences for now.
-	if (GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
+	if (GetCoopWarScore(ePlayer) > 2 || GetGlobalCoopWarWithState(ePlayer) >= COOP_WAR_STATE_PREPARING)
 		return true;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
@@ -25676,46 +25689,6 @@ bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBull
 	{
 		if (IsAngryAboutProtectedMinorBullied(ePlayer) || IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsPlayerIgnoredBullyCityStatePromise(ePlayer))
 			return true;
-	}
-	
-	return false;
-}
-
-/// Is this player our prime competitor in the World Congress / United Nations by vote count?
-bool CvDiplomacyAI::IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const
-{
-	// We're not competing for victory, so we don't care.
-	if (!IsCompetingForVictory())
-		return false;
-	
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		
-	if (pLeague == NULL)
-		return false;
-
-	int iBestVotes = pLeague->GetCoreVotesForMember(GetID());
-	PlayerTypes eDiploLoopPlayer;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
-	
-		if (IsPlayerValid(eDiploLoopPlayer))
-		{
-			if (eDiploLoopPlayer == ePlayer)
-				continue;
-		
-			int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
-		
-			if (iVotes > iBestVotes)
-				iBestVotes = iVotes;
-		}
-	}
-	
-	// Prime competitor?
-	if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
-	{
-		return true;
 	}
 	
 	return false;
@@ -43028,17 +43001,18 @@ int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetDiplomatScore(PlayerTypes ePlayer)
 {
+	// No bonus for capitulated vassals
+	if (IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && !WasResurrectedBy(ePlayer))
+		return 0;
+
 	int iOpinionWeight = 0;
 
 	// They have a Spy as a Diplomat in our Capital
-	// Smaller bonus if it's from vassalage
-	bool bVassalReduction = (IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer));
-
-	if (IsVassal(ePlayer) || GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
+	if (GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
 	{
-		iOpinionWeight = bVassalReduction ? /*-10*/ GC.getOPINION_WEIGHT_DIPLOMAT_CAPITULATED_VASSAL() : /*-15*/ GC.getOPINION_WEIGHT_DIPLOMAT();
+		iOpinionWeight = /*-15*/ GC.getOPINION_WEIGHT_DIPLOMAT();
 
-		if (!bVassalReduction && IsDiplomat())
+		if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
 			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_DIPLOMAT_MOD();
 		}
@@ -43994,18 +43968,19 @@ int CvDiplomacyAI::GetOpenBordersScore(PlayerTypes ePlayer)
 
 	bool bTheyAllow = IsHasOpenBorders(ePlayer);
 	bool bWeAllow = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(GetID());
+	bool bVassal = IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && !WasResurrectedBy(ePlayer);
 
 	if (bWeAllow && bTheyAllow)
 	{
-		iOpinionWeight += /*-12*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_MUTUAL();
+		iOpinionWeight = bVassal ? /*-8*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_US() : /*-12*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_MUTUAL();
 	}
 	else if (bTheyAllow)
 	{
-		iOpinionWeight += /*-8*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_US();
+		iOpinionWeight = /*-8*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_US();
 	}
 	else if (bWeAllow)
 	{
-		iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_THEM();
+		iOpinionWeight = bVassal ? 0 : /*-4*/ GC.getOPINION_WEIGHT_OPEN_BORDERS_THEM();
 	}
 
 	return iOpinionWeight;

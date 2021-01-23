@@ -12593,7 +12593,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bHideDisputes = bShowAllModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowAllModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
-	bool bObserver = GET_PLAYER(ePlayer).isObserver();
+	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
@@ -14045,69 +14045,60 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		////////////////////////////////////
 
 		// Embassy?
-		iValue = pDiplo->GetEmbassyScore(ePlayer);
-		if (iValue != 0)
-		{
-			bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-			bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
-			if (bUsEmbassy && bThemEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bUsEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bThemEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
-		}
-		// Diplomat?
-		iValue = pDiplo->GetDiplomatScore(ePlayer);
-		if (iValue != 0)
+		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		if (bUsEmbassy && bThemEmbassy)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIPLOMAT");
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bUsEmbassy)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bThemEmbassy)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
 			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		iValue = pDiplo->GetOpenBordersScore(ePlayer);
-		if (iValue != 0)
+		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		if (bThemOpen && bUsOpen)
 		{
-			bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-			bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
-			if (bThemOpen && bUsOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bThemOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bUsOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
-				aOpinions.push_back(kOpinion);
-			}
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bThemOpen)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bUsOpen)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
+			aOpinions.push_back(kOpinion);
+		}
+		// Diplomat?
+		if (pkPlayer->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetDiplomatScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIPLOMAT");
+			aOpinions.push_back(kOpinion);
 		}
 
 		iValue = pDiplo->GetDPAcceptedScore(ePlayer);
