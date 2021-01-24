@@ -7832,20 +7832,16 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 int CvUnit::healTurns(const CvPlot* pPlot) const
 {
-	VALIDATE_OBJECT
-	int iHeal;
-	int iTurns;
-
 	if(!IsHurt())
 	{
 		return 0;
 	}
 
-	iHeal = healRate(pPlot);
+	int iHeal = healRate(pPlot);
 
 	if(iHeal > 0)
 	{
-		iTurns = (getDamage() / iHeal);
+		int iTurns = (getDamage() / iHeal);
 
 		if((getDamage() % iHeal) != 0)
 		{
@@ -7869,8 +7865,12 @@ void CvUnit::doHeal()
 	{
 		if (IsCanAttack())
 		{
+#if defined(MOD_BARBARIANS_HEAL_EVERYWHERE)
+			if (IsHurt() && !hasMoved() && getDomainType()==DOMAIN_LAND && isNativeDomain(plot()))
+#else
 			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 			if (IsHurt() && !hasMoved() && (plot()->getImprovementType() == eCamp || plot()->getOwner() == BARBARIAN_PLAYER))
+#endif
 			{
 				changeDamage(-GC.getBALANCE_BARBARIAN_HEAL_RATE());
 			}
@@ -21458,15 +21458,16 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chText
 		if (plotDistance(*plot(),*pPlot)>1 && !canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
 			continue;
 
-		//no splash damage in cities
-		if (pPlot->isCity())
-			continue;
-
 		for (int iJ = 0; iJ < pPlot->getNumUnits(); iJ++)
 		{
 			CvUnit* pEnemyUnit = pPlot->getUnitByIndex(iJ);
+			//logically we should damage non-enemy units as well? but that is too complex to consider ... 
 			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
 			{
+				//no splash damage in cities/forts
+				if (pPlot->isFriendlyCityOrPassableImprovement(pEnemyUnit->getOwner()))
+					continue;
+
 				if (iValue + pEnemyUnit->getDamage() >= pEnemyUnit->GetMaxHitPoints())
 				{
 					// Earn bonuses for kills?
