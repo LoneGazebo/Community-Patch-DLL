@@ -1553,13 +1553,7 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	int iScientistWeight = 0;
 
 	int ID = (int) GetID();
-	int iRandom = 4;
-
-	// Add more randomness if Random Personalities is active
-	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-	{
-		iRandom *= 2;
-	}
+	int iRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10;
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
 	int iSeed = 1;
@@ -1568,54 +1562,58 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 
 	// Weight for conquest
 	iConquerorWeight += GetBoldness();
+	iConquerorWeight += GetMeanness();
 	iConquerorWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	iConquerorWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetBoldness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) * iSeed) + ID));
+	iConquerorWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetBoldness() * GetMeanness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) * ID) + iSeed));
 	iSeed += (iConquerorWeight * iRandom * ID);
 	iSeed *= 2;
 
 	// Weight for diplomacy
-	iDiplomatWeight += GetDoFWillingness();
 	iDiplomatWeight += GetLoyalty();
+	iDiplomatWeight += GetDiploBalance();
+	iDiplomatWeight += GetMinorCivCompetitiveness();
 	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	iDiplomatWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDoFWillingness() * GetLoyalty() * iSeed) + ID));
+	iDiplomatWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetLoyalty() * GetDiploBalance() * GetMinorCivCompetitiveness() * ID) + iSeed));
 	iSeed += (iDiplomatWeight * iRandom * ID) + iConquerorWeight;
 	iSeed *= 2;
 
 	// Weight for culture
+	iCulturalWeight += GetDoFWillingness();
 	iCulturalWeight += GetWonderCompetitiveness();
 	iCulturalWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
 	iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 	iCulturalWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) * iSeed) + ID));
+	iCulturalWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDoFWillingness() * GetWonderCompetitiveness() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY) * ID) + iSeed));
 	iSeed += (iCulturalWeight * iRandom * ID) + iConquerorWeight + iDiplomatWeight;
 	iSeed *= 2;
 
 	// Weight for science
+	iScientistWeight += GetWarmongerHate();
 	iScientistWeight += GetDiploBalance();
 	iScientistWeight += GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL);
 	iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) * iSeed) + ID));
+	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetWarmongerHate() * GetDiploBalance() * GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_NEUTRAL) * ID) + iSeed));
 
 	// Add weight for leader traits
 	if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 	{
-		iConquerorWeight += 4;
+		iConquerorWeight += 5;
 	}
 	if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 	{
-		iDiplomatWeight += 4;
+		iDiplomatWeight += 5;
 	}
 	if (GetPlayer()->GetPlayerTraits()->IsTourism())
 	{
-		iCulturalWeight += 4;
+		iCulturalWeight += 5;
 	}
 	if (GetPlayer()->GetPlayerTraits()->IsNerd())
 	{
-		iScientistWeight += 4;
+		iScientistWeight += 5;
 	}
 	if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
 	{
@@ -1633,11 +1631,11 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	// Insufficient minor civs?
 	if (GC.getGame().GetNumMinorCivsEver() < GC.getGame().countMajorCivsEverAlive())
 	{
-		iDiplomatWeight -= 4;
+		iDiplomatWeight -= 5;
 
 		if (GC.getGame().GetNumMinorCivsEver() == 0)
 		{
-			iDiplomatWeight -= 4;
+			iDiplomatWeight -= 5;
 		}
 	}
 
@@ -27462,7 +27460,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 				if (eResponse == COOP_WAR_STATE_REJECTED)
 				{
-					int iAssistPenalty = 100 - (GetDifferenceFromAverageFlavorValue(GetForgiveness()) * 10);
+					int iAssistPenalty = 100 - (GetDifferenceFromAverageFlavorValue(GetNeediness()) * 10);
 					ChangeRecentAssistValue(ePlayer, iAssistPenalty);
 					ChangeCoopWarScore(ePlayer, -1);
 				}
@@ -35987,7 +35985,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL:
 	{
 		//If player is offended, AI should take note as penalty to assistance.
-		if (GetForgiveness() < 7 || GetNeediness() > 7)
+		if (GetNeediness() > 7)
 		{
 			ChangeRecentAssistValue(eFromPlayer, 150);
 		}
@@ -36966,7 +36964,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Small penalty for a normal refusal
 			if (iArg1 == 1)
 			{
-				int iAssistPenalty = 100 - (GetDifferenceFromAverageFlavorValue(GetForgiveness()) * 10);
+				int iAssistPenalty = 100 - (GetDifferenceFromAverageFlavorValue(GetNeediness()) * 10);
 				ChangeRecentAssistValue(eFromPlayer, iAssistPenalty);
 				ChangeCoopWarScore(eFromPlayer, -1);
 			}
@@ -41335,10 +41333,8 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 /// Returns the weight this AI has for denouncing ePlayer
 int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 {
-	int iWeight = 0;
-
 	// Base Personality value; ranges from 1 to 10
-	iWeight += GetDenounceWillingness();
+	int iWeight = GetDenounceWillingness();
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Vassal treatment view
