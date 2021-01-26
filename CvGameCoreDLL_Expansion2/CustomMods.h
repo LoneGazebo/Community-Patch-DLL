@@ -238,6 +238,9 @@
 // To turn off or on ships firing while in Cities
 #define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
 
+// Barbarians can heal outside of camps
+#define MOD_BARBARIANS_HEAL_EVERYWHERE
+
 // Ability to add new natural wonder features with graphics
 #define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 

@@ -1226,6 +1226,13 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 
 bool CvBarbarians::DoTakeOverCity(CvCity * pCity)
 {
+	if (!pCity)
+		return false;
+
+	CvPlayer& owner = GET_PLAYER(pCity->getOwner());
+	if (!owner.isMinorCiv() || !owner.GetMinorCivAI()->IsReadyForTakeOver())
+		return false;
+
 	// create a barbarian unit in the city, taking it over
 	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 	if (eUnit != NO_UNIT)
