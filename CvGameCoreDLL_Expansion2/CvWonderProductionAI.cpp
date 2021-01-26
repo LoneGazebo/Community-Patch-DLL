@@ -346,7 +346,6 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) const
 	return false;
 }
 
-#if defined(MOD_AI_SMART_V3)
 /// Check wonders excluding national wonders you can only have one of.
 bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const
 {
@@ -360,7 +359,6 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 	}
 	return false;
 }
-#endif
 
 // PRIVATE METHODS
 

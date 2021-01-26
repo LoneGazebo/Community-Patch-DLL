@@ -114,13 +114,14 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvAttackTarget
 {
-	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0), m_iApproachScore(0) {}
+	CvAttackTarget() : m_armyType(ARMY_TYPE_ANY), m_iMusterPlotIndex(-1), m_iStagingPlotIndex(-1), m_iTargetPlotIndex(-1), m_iPathLength(0), m_iApproachScore(0), m_bPreferred(false) {}
 	ArmyType m_armyType;
 	int m_iMusterPlotIndex;
 	int m_iStagingPlotIndex;
 	int m_iTargetPlotIndex;
 	int m_iPathLength;
 	int m_iApproachScore;
+	bool m_bPreferred;
 
 	void SetWaypoints(const SPath&);
 	CvPlot* GetMusterPlot() const;
@@ -128,6 +129,7 @@ struct CvAttackTarget
 	CvPlot* GetTargetPlot() const;
 	int GetPathLength() const;
 	bool IsValid() const;
+	bool IsPreferred() const;
 };
 
 FDataStream& operator<<(FDataStream&, const CvAttackTarget&);
@@ -172,7 +174,7 @@ public:
 	};
 
 	// Requests for specific military operations
-	bool RequestCityAttack(PlayerTypes eEnemy, int iNumUnitsWillingToBuild);
+	bool RequestCityAttack(PlayerTypes eEnemy, int iNumUnitsWillingToBuild, bool bCareful=true);
 	bool RequestPillageAttack(PlayerTypes eEnemy);
 	bool RequestNukeAttack(PlayerTypes eEnemy);
 	bool RequestBullyingOperation(PlayerTypes eEnemy);
@@ -182,38 +184,26 @@ public:
 	bool BuyEmergencyBuilding(CvCity* pCity);
 
 	// Finding best cities to target
-	bool HaveValidAttackTarget(PlayerTypes eEnemy);
-	bool IsCurrentAttackTarget(CvCity* pCity);
+	bool HavePossibleAttackTarget(PlayerTypes eEnemy) const;
+	bool HavePreferredAttackTarget(PlayerTypes eEnemy) const;
+	bool HaveCityExposedToEnemy(PlayerTypes eEnemy) const;
+	bool IsPossibleAttackTarget(CvCity* pCity) const;
+	bool IsPreferredAttackTarget(CvCity* pCity) const;
+	bool IsExposedToEnemy(CvCity* pCity, PlayerTypes eOtherPlayer) const;
 
-	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
-	bool IsPlayerValid(PlayerTypes eOtherPlayer);
+	bool IsPlayerValid(PlayerTypes eOtherPlayer) const;
 
-	size_t UpdateAttackTargets(size_t nMaxTargets);
-	const vector<CvAttackTarget>& GetBestTargetsGlobal() const;
-	void SelectBestTargetApproach(CvAttackTarget& target);
+	size_t UpdateAttackTargets();
 	int ScoreAttackTarget(const CvAttackTarget& target);
-	int EvaluateTargetApproach(const CvAttackTarget& target, ArmyType eArmyType);
 
 	// Accessors to provide military data to other AI subsystems
-	ThreatTypes GetHighestThreat();
-	int GetThreatTotal() const
-	{
-		return m_iTotalThreatWeight;
-	}
-	int GetBarbarianThreatTotal();
-	int GetThreatWeight(ThreatTypes eThreat);
+	bool ShouldFightBarbarians() const;
 	int GetNumberCivsAtWarWith(bool bIncludeMinor = true) const;
 	int GetRecommendedMilitarySize() const
 	{
-		return m_iRecommendedMilitarySize + m_iRecNavySize;
-	};
-	int GetLandReservesAvailable() const
-	{
-		//don't put all our units in armies. however, we may fall below our mandatory minimum
-		return max(0, m_iNumLandUnits - m_iNumLandUnitsInArmies - m_iMandatoryReserveSize/2);
+		return m_iRecDefensiveLandUnits + m_iRecOffensiveLandUnits + m_iRecOffensiveNavalUnits;
 	};
 
-	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
 	bool HasAirforce() const
 	{
@@ -259,9 +249,7 @@ public:
 	void LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogPeace(PlayerTypes eOpponent);
 	void LogPeace(TeamTypes eOpponentTeam);
-	void LogVassalFailure(TeamTypes eOpponentTeam);
 	void LogDeficitScrapUnit(CvUnit* pUnit);
-	void LogMilitarySummaryMessage(const CvString& strMsg);
 
 #if defined(MOD_BALANCE_CORE)
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
@@ -272,11 +260,11 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecommendLandArmySize() const
 	{
-		return m_iRecommendedMilitarySize;
+		return m_iRecOffensiveLandUnits;
 	};
 	int GetRecommendNavySize() const
 	{
-		return m_iRecNavySize;
+		return m_iRecOffensiveNavalUnits;
 	};
 	int GetNumLandUnits() const
 	{
@@ -301,12 +289,7 @@ private:
 	// Functions to process a turn
 	void UpdateBaseData();
 	void ScanForBarbarians();
-	void UpdateThreats();
-	void ThreatIncrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat);
-	void ThreatDecrease(ThreatTypes eNewThreat, ThreatTypes eOldThreat);
-	void UpdateWars();
 	void UpdateDefenseState();
-	void WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
 #if defined(MOD_BALANCE_CORE)
@@ -314,6 +297,7 @@ private:
 	void CheckLandDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoCityAttacks(PlayerTypes ePlayer);
+	void SetRecommendedArmyNavySize();
 #endif
 	void MakeEmergencyPurchases();
 	void DisbandObsoleteUnits();
@@ -335,19 +319,13 @@ private:
 	int* m_aiTempFlavors;
 	int* m_aiWarFocus;
 
-	// Archived state of threats/wars from last turn
-	int* m_paeLastTurnWarState;
-	int* m_paeLastTurnMilitaryThreat;
-	int* m_paeLastTurnMilitaryStrength;
-	int* m_paeLastTurnTargetValue;
-
 	// Internal calculated values - must be serialized
-	int m_iTotalThreatWeight;
 	int m_iNumberOfTimesOpsBuildSkippedOver;
 	int m_iNumberOfTimesSettlerBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	vector<CvAttackTarget> m_cachedTargets;
+	vector<CvAttackTarget> m_potentialAttackTargets; //enemy cities we might want to attack
+	vector<pair<PlayerTypes,int>> m_exposedCities; //those of our cities which might be tempting to the enemies
 #endif
 
 	// Data recomputed each turn (no need to serialize)
@@ -358,13 +336,13 @@ private:
 	int m_iNumNavalUnits;
 	int m_iNumLandUnitsInArmies;
 	int m_iNumNavalUnitsInArmies;
-	int m_iRecNavySize;
+	int m_iRecOffensiveNavalUnits;
 	int m_iNumAirUnits;
 	int m_iNumAntiAirUnits;
 	int m_iBarbarianCampCount;
 	int m_iVisibleBarbarianCount;
-	int m_iRecommendedMilitarySize;
-	int m_iMandatoryReserveSize;
+	int m_iRecOffensiveLandUnits;
+	int m_iRecDefensiveLandUnits;
 	int m_iNumFreeCarriers;
 
 	DefenseState m_eLandDefenseState;
@@ -383,18 +361,12 @@ bool IsTestStrategy_EnoughNavalUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedNavalUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedNavalUnitsCritical(CvPlayer* pPlayer);
 bool IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
 bool IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor = true);
-#else
-bool IsTestStrategy_AtWar(CvPlayer* pPlayer);
-#endif
 bool IsTestStrategy_MinorCivGeneralDefense();
 bool IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer);
 bool IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer);
 bool IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount);
-#if defined(MOD_BALANCE_CORE)
 bool IsTestStrategy_EradicateBarbariansCritical(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount);
-#endif
 bool IsTestStrategy_WinningWars(CvPlayer* pPlayer);
 bool IsTestStrategy_LosingWars(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughRangedUnits(CvPlayer* pPlayer, int iNumRanged, int iNumMelee);
@@ -409,13 +381,14 @@ bool IsTestStrategy_EnoughAntiAirUnits(CvPlayer* pPlayer, int iNumAA, int iNumMe
 bool IsTestStrategy_NeedAntiAirUnits(CvPlayer* pPlayer, int iNumAA, int iNumMelee);
 bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 
-// Functions that evaluate which operation to launch
-int ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSize);
-
 MultiunitFormationTypes GetCurrentBestFormationTypeForLandAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForCombinedAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
+
+bool ArmyPathIsGood(const SPath& path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy);
+int EvaluateTargetApproach(const CvAttackTarget& target, PlayerTypes ePlayer, ArmyType eArmyType);
+void SetBestTargetApproach(CvAttackTarget& target, PlayerTypes ePlayer);
 }
 
 #endif //CIV5_MILITARY_AI_H

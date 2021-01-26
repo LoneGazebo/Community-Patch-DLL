@@ -183,9 +183,6 @@ void CvRandom::read(FDataStream& kStream)
 	kStream >> m_ullRandomSeed;
 	kStream >> m_ulCallCount;
 	kStream >> m_ulResetCount;
-
-	bool dummy; //don't load m_bSync, it's true be default ...
-	kStream >> dummy;
 }
 
 
@@ -200,9 +197,6 @@ void CvRandom::write(FDataStream& kStream) const
 	kStream << m_ullRandomSeed;
 	kStream << m_ulCallCount;
 	kStream << m_ulResetCount;
-
-	bool dummy; //don't save m_bSync, it's always true ...
-	kStream << dummy;
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom)

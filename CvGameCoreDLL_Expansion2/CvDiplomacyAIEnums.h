@@ -55,18 +55,6 @@ enum MinorCivApproachTypes
 	NUM_MINOR_CIV_APPROACHES,
 };
 
-enum WarFaceTypes
-{
-	NO_WAR_FACE_TYPE = -1,
-
-	WAR_FACE_HOSTILE,
-	WAR_FACE_GUARDED,
-	WAR_FACE_NEUTRAL,
-	WAR_FACE_FRIENDLY,
-
-	NUM_WAR_FACES,
-};
-
 enum WarStateTypes
 {
 	NO_WAR_STATE_TYPE = -1,
@@ -199,17 +187,6 @@ enum BlockLevelTypes
 	NUM_BLOCK_LEVELS,
 };
 
-enum PromiseStates
-{
-	NO_PROMISE_STATE = -1,
-
-	PROMISE_STATE_MADE,
-	PROMISE_STATE_IGNORED,
-	PROMISE_STATE_BROKEN,
-
-	NUM_PROMISE_STATES,
-};
-
 enum DoFLevelTypes
 {
 	NO_DOF_TYPE = -1,
@@ -233,6 +210,40 @@ enum DiploPersonalityTypes
 	DIPLO_PERSONALITY_SCIENTIST,
 
 	NUM_DIPLO_PERSONALITY_TYPES,
+};
+
+enum VictoryFocusTypes
+{
+	NO_VICTORY_FOCUS_TYPE = -1,
+
+	VICTORY_FOCUS_DOMINATION,
+	VICTORY_FOCUS_DIPLOMATIC,
+	VICTORY_FOCUS_CULTURE,
+	VICTORY_FOCUS_SCIENCE,
+
+	NUM_VICTORY_FOCUS_TYPES,
+};
+
+enum PromiseStates
+{
+	NO_PROMISE_STATE = -1,
+
+	PROMISE_STATE_MADE,
+	PROMISE_STATE_IGNORED,
+	PROMISE_STATE_BROKEN,
+
+	NUM_PROMISE_STATES,
+};
+
+enum ModifierTypes
+{
+	NO_MODIFIER_TYPE = -1,
+
+	MODIFIER_TYPE_NORMAL,
+	MODIFIER_TYPE_STACKED,
+	MODIFIER_TYPE_DIMINISHING,
+
+	NUM_MODIFIER_TYPES,
 };
 
 enum TheftTypes
@@ -269,19 +280,6 @@ enum StateAllWars
 	NUM_STATES_ALL_WARS,
 };
 
-inline FDataStream& operator<<(FDataStream& saveTo, const StateAllWars& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, StateAllWars& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<StateAllWars>(v);
-	return loadFrom;
-}
-
 enum PeaceTreatyTypes
 {
 	NO_PEACE_TREATY_TYPE = -1,
@@ -298,32 +296,6 @@ enum PeaceTreatyTypes
 
 	NUM_PEACE_TREATY_TYPES,
 };
-
-inline FDataStream& operator<<(FDataStream& saveTo, const PeaceTreatyTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, PeaceTreatyTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PeaceTreatyTypes>(v);
-	return loadFrom;
-}
-
-inline FDataStream& operator<<(FDataStream& saveTo, const DiploStatementTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, DiploStatementTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<DiploStatementTypes>(v);
-	return loadFrom;
-}
 
 enum DealOfferResponseTypes
 {
@@ -387,19 +359,6 @@ enum PublicDeclarationTypes
 	NUM_PUBLIC_DECLARATION_TYPES,
 };
 
-inline FDataStream& operator<<(FDataStream& saveTo, const PublicDeclarationTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<PublicDeclarationTypes>(v);
-	return loadFrom;
-}
-
 enum CoopWarStates
 {
 	NO_COOP_WAR_STATE = -1,
@@ -412,6 +371,32 @@ enum CoopWarStates
 
 	NUM_COOP_WAR_STATES,
 };
+
+inline FDataStream& operator<<(FDataStream& saveTo, const DiploPersonalityTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, DiploPersonalityTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<DiploPersonalityTypes>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const VictoryFocusTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, VictoryFocusTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<VictoryFocusTypes>(v);
+	return loadFrom;
+}
 
 inline FDataStream& operator<<(FDataStream& saveTo, const CoopWarStates& readFrom)
 {
@@ -426,4 +411,55 @@ inline FDataStream& operator>>(FDataStream& loadFrom, CoopWarStates& writeTo)
 	return loadFrom;
 }
 
+inline FDataStream& operator<<(FDataStream& saveTo, const StateAllWars& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, StateAllWars& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<StateAllWars>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const PeaceTreatyTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, PeaceTreatyTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PeaceTreatyTypes>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const DiploStatementTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, DiploStatementTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<DiploStatementTypes>(v);
+	return loadFrom;
+}
+
+inline FDataStream& operator<<(FDataStream& saveTo, const PublicDeclarationTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<PublicDeclarationTypes>(v);
+	return loadFrom;
+}
 #endif	// DIPLOMACY_AI_ENUMS_H

@@ -1666,8 +1666,12 @@ function ActionToolTipHandler( control )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )
-			toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
-			toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+			if (unit:GetTradeInfluence(plot) ~= 0) then
+				toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
+			end
+			if (unit:GetTradeGold(plot) ~= 0) then
+				toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+			end
 		end
 
 	-- Great Writer

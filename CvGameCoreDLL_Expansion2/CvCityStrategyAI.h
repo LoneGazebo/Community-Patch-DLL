@@ -299,11 +299,7 @@ bool IsTestCityStrategy_NeedNavalTileImprovement(CvCity* pCity);
 bool IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity);
 #if defined(MOD_BALANCE_CORE)
 bool IsTestCityStrategy_EnoughSettlers(CvCity* pCity);
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity);
-#else
-bool IsTestCityStrategy_NewContinentFeeder(CvCity* pCity);
-#endif
 bool IsTestCityStrategy_PocketCity(CvCity* pCity);
 #endif
 bool IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield);

@@ -28,7 +28,8 @@ public:
 	static void DoUnits();
 	static void DoCampActivationNotice(CvPlot* pPlot);
 	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
-	static bool DoStealFromAdjacentCity(CvUnit* pUnit);
+	static bool DoStealFromCity(CvUnit* pUnit, CvCity* pCity);
+	static bool DoTakeOverCity(CvCity* pCity);
 
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();

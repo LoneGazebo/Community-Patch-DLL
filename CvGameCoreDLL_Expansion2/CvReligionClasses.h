@@ -235,6 +235,7 @@ public:
 #endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+	bool HasAnyDomesticCityFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
 #else
@@ -576,13 +577,22 @@ public:
 	{
 		return m_iStrength;
 	};
-	int GetSpreadsLeft() const
+	int GetMaxSpreads(const CvUnit* pUnit) const;
+	int GetSpreadsLeft(const CvUnit* pUnit) const
 	{
-		return m_iSpreadsLeft;
+		return GetMaxSpreads(pUnit) - m_iSpreadsUsed;
 	};
-	void SetSpreadsLeft(int iValue)
+	int GetSpreadsUsed() const
 	{
-		m_iSpreadsLeft = iValue;
+		return m_iSpreadsUsed;
+	};
+	void IncrementSpreadsUsed()
+	{
+		m_iSpreadsUsed++;
+	};
+	void SetSpreadsUsed(int iValue)
+	{
+		m_iSpreadsUsed = iValue;
 	};
 	void SetReligiousStrength(int iValue)
 	{
@@ -594,9 +604,8 @@ public:
 private:
 	ReligionTypes m_eReligion;
 	unsigned short m_iStrength;
-	unsigned short m_iSpreadsLeft;
+	unsigned short m_iSpreadsUsed;
 	unsigned short m_iMaxStrength;
-	unsigned short m_iMaxSpreads;
 
 	friend FDataStream& operator>>(FDataStream&, CvUnitReligion&);
 	friend FDataStream& operator<<(FDataStream&, const CvUnitReligion&);
@@ -651,6 +660,7 @@ public:
 private:
 #if defined(MOD_BALANCE_CORE)
 	bool DoFaithPurchasesInCities(CvCity* pCity);
+	bool DoReligionDefenseInCities();
 #endif
 	int GetSpreadScore() const;
 	bool DoFaithPurchases();

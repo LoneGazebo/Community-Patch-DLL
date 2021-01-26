@@ -147,7 +147,7 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 /// Choose a player's next tech research project
 TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 {
-	if (pPlayer->isMinorCiv())
+	if (!pPlayer->isMajorCiv())
 		return NO_TECH;
 
 	TechTypes rtnValue = NO_TECH;
@@ -181,13 +181,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	}
 
 	// Reweight our possible choices by their cost, but only if cost is actually a factor!
-#if defined(MOD_AI_SMART_V3)
-	if (MOD_AI_SMART_V3)
-		ReweightByCost(pPlayer, bFreeTech);
-	else
-#endif
-	if(!bFreeTech)
-		ReweightByCost(pPlayer);
+	ReweightByCost(pPlayer, bFreeTech);
 
 	m_ResearchableTechs.SortItems();
 	LogPossibleResearch();
@@ -221,9 +215,6 @@ TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		//if (m_pCurrentTechs->CanResearch((TechTypes) iTechLoop) &&
-		//	iTechLoop != eIgnoreTech &&
-		//	m_pCurrentTechs->GetTechs()->GetEntry(iTechLoop)->GetAdvisorType() != eIgnoreAdvisor)
 		if(m_pCurrentTechs->CanResearch((TechTypes) iTechLoop) && iTechLoop != eIgnoreTech)
 		{
 			m_ResearchableTechs.push_back(iTechLoop, m_TechAIWeights.GetWeight(iTechLoop));
@@ -356,23 +347,17 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 }
 
 /// Recompute weights taking into account tech cost
-#if defined(MOD_AI_SMART_V3)
 void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
-#else
-void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
-#endif
 {
 	TechTypes eTech;
 
 	// April 2014 Balance Patch: if lots of science overflow, want to pick an expensive tech
 	bool bNeedExpensiveTechs = pPlayer->getOverflowResearchTimes100() > (pPlayer->GetScienceTimes100() * 2);
 
-#if defined(MOD_AI_SMART_V3)
-	if (MOD_AI_SMART_V3 && bWantsExpensive)
+	if (bWantsExpensive)
 	{
 		bNeedExpensiveTechs = true;
 	}
-#endif
 
 	for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{

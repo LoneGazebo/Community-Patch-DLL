@@ -1205,12 +1205,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
-#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
 		if (EconomicAIHelpers::CannotMinorCiv(m_pCity->GetPlayer(), eCanSettle))
-#else
-		if(kPlayer.isMinorCiv())
-#endif
 		{
 			return 0;
 		}
@@ -1292,16 +1288,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iFlavorExpansion += 50;
 				bRunningEarlyExpand = true;
-			}
-		}
-
-		// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
-		EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-		if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
-		{
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
-			{
-				iFlavorExpansion += 50;
 			}
 		}
 

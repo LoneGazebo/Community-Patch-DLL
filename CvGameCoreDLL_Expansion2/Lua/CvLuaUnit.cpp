@@ -231,11 +231,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsDefending);
 	Method(IsInCombat);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_MAX_HP)
 	Method(GetMaxHitPointsBase);
 	Method(SetMaxHitPointsBase);
 	Method(ChangeMaxHitPointsBase);
-#endif
+
 	Method(GetMaxHitPoints);
 	Method(GetCurrHitPoints);
 	Method(IsHurt);
@@ -433,11 +432,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetExperience);
 	Method(SetExperience);
 	Method(ChangeExperience);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_XP_TIMES_100)
 	Method(GetExperienceTimes100);
 	Method(SetExperienceTimes100);
 	Method(ChangeExperienceTimes100);
-#endif
 	Method(GetLevel);
 	Method(SetLevel);
 	Method(ChangeLevel);
@@ -698,10 +695,7 @@ int CvLuaUnit::lConvert(lua_State* L)
 	bool bIsUpgrade = lua_toboolean(L, 3);
 	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
 
-#if defined(MOD_BUGFIX_MINOR)
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
-#endif
-
 	return 0;
 }
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -935,11 +929,7 @@ int CvLuaUnit::lCanMoveOrAttackInto(lua_State* L)
 	bool bResult = false;
 	if(pkPlot)
 	{
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_MINOR)
 		bResult = pkUnit->canMoveOrAttackInto(*pkPlot, iMoveFlags);
-#else
-		pkUnit->canMoveOrAttackInto(*pkPlot, iMoveFlags);
-#endif
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1939,37 +1929,50 @@ int CvLuaUnit::lGetGivePoliciesCulture(lua_State* L)
 int CvLuaUnit::lGetBlastTourism(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
+	int iResult = 0;
+	if (pkUnit)
 	{
-		CvPlayer &kUnitOwner = GET_PLAYER(pkUnit->getOwner());
-		PlayerTypes eOwner = pkUnit->plot()->getOwner();
+		iResult = pkUnit->getBlastTourism();
 
-		if (eOwner != NO_PLAYER)
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->getBlastTourism() > 0)
 		{
-			InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-			if(eLevel <= INFLUENCE_LEVEL_EXOTIC)
+			CvPlot* pPlot = pkUnit->plot();
+			if (pPlot && pkUnit->canBlastTourism(pPlot))
 			{
-				int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 2;
-				int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
-				int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
-				int iTourismDifference = 0;
+				CvPlayer& kUnitOwner = GET_PLAYER(pkUnit->getOwner());
+				PlayerTypes eOtherPlayer = pPlot->getOwner();
+				
 
-				//Get % needed for Familiarity
-				if (iTourismNeededForFamiliar > 0)
+				// below logic based on CvPlayerCulture::ChangeInfluenceOn()
+				if (eOtherPlayer != NO_PLAYER)
 				{
-					iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
+					// gamespeed modifier
+					iResult = iResult * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+
+					// player to player modifier (eg religion, open borders, ideology)
+					if (kUnitOwner.getCapitalCity())
+					{
+						int iModifier = kUnitOwner.getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
+						if (iModifier != 0)
+						{
+							iResult = iResult * (100 + iModifier) / 100;
+						}
+					}
+
+					// IsNoOpenTrade trait modifier (half tourism if trait owner does not send a trade route to the unit owner)
+					CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+					if (eOtherPlayer != pkUnit->getOwner() && kOtherPlayer.isMajorCiv() && kOtherPlayer.GetPlayerTraits()->IsNoOpenTrade())
+					{
+						if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, pkUnit->getOwner(), true))
+							iResult /= 2;
+					}
 				}
-				//Subtract existing %
-				iTourismDifference -= iInfluenceOn;
-				lua_pushinteger(L, iTourismDifference);
-				return 1;
 			}
 		}
-	}
 #endif
-
-	const int iResult = pkUnit->getBlastTourism();
+	}
+	
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -2602,7 +2605,6 @@ int CvLuaUnit::lIsInCombat(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_MAX_HP)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetMaxHitPointsBase(lua_State* L)
 {
@@ -2630,7 +2632,6 @@ int CvLuaUnit::lChangeMaxHitPointsBase(lua_State* L)
 	pkUnit->changeMaxHitPointsBase(iValue);
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 //int maxHitPoints();
 int CvLuaUnit::lGetMaxHitPoints(lua_State* L)
@@ -2706,7 +2707,9 @@ int CvLuaUnit::lGetBaseCombatStrength(lua_State* L)
 int CvLuaUnit::lIsCombatUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->IsCombatUnit();
+
+	//note: air units are neither civilians nor combat units ... this seems to be the convention
+	const bool bResult = pkUnit->IsCanAttack() && pkUnit->IsCanDefend();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3229,11 +3232,11 @@ int CvLuaUnit::lMaxFirstStrikes(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool isRanged();
+//bool IsCanAttackRanged();
 int CvLuaUnit::lIsRanged(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isRanged();
+	const bool bResult = pkUnit->IsCanAttackRanged();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -4517,11 +4520,7 @@ int CvLuaUnit::lGetExperience(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	const int iResult = pkUnit->getExperienceTimes100() / 100;
-#else
-	const int iResult = pkUnit->getExperience();
-#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4533,11 +4532,7 @@ int CvLuaUnit::lSetExperience(lua_State* L)
 	const int iNewValue = lua_tointeger(L, 2);
 	const int iMax = luaL_optint(L, 3, -1);
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	pkUnit->setExperienceTimes100(iNewValue * 100, iMax);
-#else
-	pkUnit->setExperience(iNewValue, iMax);
-#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -4551,14 +4546,9 @@ int CvLuaUnit::lChangeExperience(lua_State* L)
 	const bool bInBorders = luaL_optint(L, 5, 0);
 	const bool bUpdateGlobal = luaL_optint(L, 6, 0);
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 	pkUnit->changeExperienceTimes100(iChange * 100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
-#else
-	pkUnit->changeExperience(iChange, iMax, bFromCombat, bInBorders, bUpdateGlobal);
-#endif
 	return 0;
 }
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_XP_TIMES_100)
 //------------------------------------------------------------------------------
 //int getExperience();
 int CvLuaUnit::lGetExperienceTimes100(lua_State* L)
@@ -4594,7 +4584,6 @@ int CvLuaUnit::lChangeExperienceTimes100(lua_State* L)
 	pkUnit->changeExperienceTimes100(iChangeTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 //int getLevel();
 int CvLuaUnit::lGetLevel(lua_State* L)
@@ -5160,7 +5149,7 @@ int CvLuaUnit::lSetMadeAttack(lua_State* L)
 int CvLuaUnit::lisOutOfInterceptions(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isOutOfInterceptions();
+	const bool bResult = !pkUnit->canInterceptNow();
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -5447,12 +5436,8 @@ int CvLuaUnit::lGetGiveCombatModToUnit(lua_State* L)
 int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	const int bResult = pkUnit->GetNearbyCityBonusCombatMod();
 	lua_pushinteger(L, bResult);
-#else
-	lua_pushinteger(L, 0);
-#endif
 
 	return 1;
 }
@@ -5845,8 +5830,8 @@ int CvLuaUnit::lGetConversionStrength(lua_State* L)
 int CvLuaUnit::lGetSpreadsLeft(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	int iReligiousStrength = pkUnit->GetReligionData()->GetSpreadsLeft();
-	lua_pushinteger(L, iReligiousStrength);
+	int iResult = pkUnit->GetReligionData()->GetSpreadsLeft(pkUnit);
+	lua_pushinteger(L, iResult);
 
 	return 1;
 }
@@ -5905,9 +5890,12 @@ int CvLuaUnit::lSetConversionStrength(lua_State* L)
 int CvLuaUnit::lSetSpreadsLeft(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const int iSpreads = lua_tointeger(L, 2);
+	const int iSpreadsLeft = lua_tointeger(L, 2);
 
-	pkUnit->GetReligionData()->SetSpreadsLeft(iSpreads);
+	//need to do some gymnastics here
+	int iSpreadsUsed = pkUnit->GetReligionData()->GetMaxSpreads(pkUnit) - iSpreadsLeft;
+
+	pkUnit->GetReligionData()->SetSpreadsUsed(iSpreadsUsed);
 	return 0;
 }
 #endif

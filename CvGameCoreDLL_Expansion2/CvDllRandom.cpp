@@ -99,11 +99,7 @@ void CvDllRandom::CopyFrom(ICvRandom1* pOther)
 //------------------------------------------------------------------------------
 unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	return m_pRandom->get(usNum, pszLog) & USHRT_MAX;
-#else
-	return m_pRandom->get(usNum, pszLog);
-#endif
 }
 //------------------------------------------------------------------------------
 float CvDllRandom::GetFloat()

@@ -221,7 +221,7 @@ public:
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsBorderLand(PlayerTypes eDefendingPlayer) const;
 	bool IsChokePoint() const;
-	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
+	bool IsWaterAreaSeparator() const;
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
@@ -362,6 +362,8 @@ public:
 	void setArea(int iNewValue);
 
 	std::vector<int> getAllAdjacentAreas() const;
+
+	bool hasSharedAdjacentArea(const CvPlot* pOther) const;
 
 	inline int getLandmass() const
 	{
@@ -1076,7 +1078,6 @@ protected:
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSEFlowDirection; // flow direction on the SE edge (isNWofRiver)
 	char /*FlowDirectionTypes*/ m_eRiverSWFlowDirection; // flow direction on the SW edge (isNEofRiver)
-	char m_iDummy; //unused
 	char m_iNumMajorCivsRevealed;
 	char m_iCityRadiusCount;
 	char m_iReconCount;

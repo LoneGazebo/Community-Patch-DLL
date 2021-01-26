@@ -238,11 +238,10 @@ protected:
 	static int lIsDefending(lua_State* L);
 	static int lIsInCombat(lua_State* L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_MAX_HP)
 	LUAAPIEXTN(GetMaxHitPointsBase, int);
 	LUAAPIEXTN(SetMaxHitPointsBase, void, int);
 	LUAAPIEXTN(ChangeMaxHitPointsBase, void, int);
-#endif
+
 	static int lGetMaxHitPoints(lua_State* L);
 	static int lGetCurrHitPoints(lua_State* L);
 	static int lIsHurt(lua_State* L);
@@ -447,11 +446,9 @@ protected:
 	static int lGetExperience(lua_State* L);
 	static int lSetExperience(lua_State* L);
 	static int lChangeExperience(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_XP_TIMES_100)
 	LUAAPIEXTN(GetExperienceTimes100, int);
 	LUAAPIEXTN(SetExperienceTimes100, void, iExpTimes100, iMax);
 	LUAAPIEXTN(ChangeExperienceTimes100, void, iExpTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
-#endif
 	static int lGetLevel(lua_State* L);
 	static int lSetLevel(lua_State* L);
 	static int lChangeLevel(lua_State* L);

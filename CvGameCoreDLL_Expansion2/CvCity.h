@@ -252,6 +252,7 @@ public:
 	bool isTeamWondersMaxed() const;
 	bool isNationalWondersMaxed() const;
 	bool isBuildingsMaxed() const;
+	bool hasBuildingPrerequisites(BuildingTypes eBuilding) const;
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
@@ -471,7 +472,7 @@ public:
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
 #if defined(MOD_BALANCE_CORE)
-	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip = false);
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkipUpdate = false);
 #else
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 #endif
@@ -561,7 +562,6 @@ public:
 		return m_iID;
 	}
 
-	int getIndex() const;
 	IDInfo GetIDInfo() const;
 	void SetID(int iID);
 
@@ -582,7 +582,6 @@ public:
 	//(coastal) cities can be part of multiple areas
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isMatchingArea(const CvPlot* pTestPlot) const;
-	bool hasSharedAdjacentArea(const CvCity* pOtherCity) const;
 
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
@@ -970,13 +969,12 @@ public:
 	bool IsOwedCultureBuilding() const;
 	void SetOwedCultureBuilding(bool bNewValue);
 
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	bool IsOwedFoodBuilding() const;
 	void SetOwedFoodBuilding(bool bNewValue);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iNewValue);
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	void SetBorderObstacleCity(int iValue);
 
 	void ChangeBorderObstacleWater(int iNewValue);
@@ -1074,15 +1072,12 @@ public:
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetRank(int iRank);
-	int GetRank() const;
+	int GetEspionageRanking() const;
+	void SetEspionageRanking(int iRank, bool bNotify);
 
 	void SetTurnsSinceLastRankMessage(int iTurns);
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
 	int GetTurnsSinceLastRankMessage() const;
-
-	void DoRankIncreaseWarning(int iRank, bool bNotify);
-	void SetEspionageRanking(int iPotential, bool bNotify);
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
@@ -1467,6 +1462,10 @@ public:
 	bool isFreePromotion(PromotionTypes eIndex) const;
 	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	void SetRetroactivePromotion(PromotionTypes ePromotion);
+#endif
+
 	int getSpecialistFreeExperience() const;
 	void changeSpecialistFreeExperience(int iChange);
 
@@ -1635,6 +1634,7 @@ public:
 	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
 	bool HasAnyWonder() const;
 	bool HasWonder(BuildingTypes iBuildingType) const;
+	bool IsBuildingWorldWonder() const;
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;
 	bool HasWorkedFeature(FeatureTypes iFeatureType) const;
@@ -1990,7 +1990,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBlockUnrest;
 	FAutoVariable<int, CvCity> m_iBlockScience;
 	FAutoVariable<int, CvCity> m_iBlockGold;
-	FAutoVariable<int, CvCity> m_iCityRank;
+	FAutoVariable<int, CvCity> m_iCitySpyRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
 	FAutoVariable<int, CvCity> m_iEmpireNeedsModifier;
@@ -2093,10 +2093,7 @@ protected:
 	FAutoVariable<CvString, CvCity> m_strName;
 
 	FAutoVariable<bool, CvCity> m_bOwedCultureBuilding;
-
-#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	FAutoVariable<bool, CvCity> m_bOwedFoodBuilding;
-#endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
