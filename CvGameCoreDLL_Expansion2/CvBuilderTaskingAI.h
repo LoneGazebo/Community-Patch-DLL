@@ -93,8 +93,9 @@ public:
 
 	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
-	bool WantRouteAtPlot(const CvPlot* pPlot) const;
-	bool NeedRouteAtPlot(const CvPlot* pPlot) const;
+	bool WantRouteAtPlot(const CvPlot* pPlot) const; //build it
+	bool NeedRouteAtPlot(const CvPlot* pPlot) const; //keep it
+	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
@@ -125,6 +126,8 @@ protected:
 	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
 
+	void UpdateCanalPlots();
+
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
 	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
@@ -133,6 +136,7 @@ protected:
 	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
 	RoutePlotContainer m_routeWantedPlots; //serialized
 	RoutePlotContainer m_routeNeededPlots; //serialized
+	set<int> m_canalWantedPlots; //serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];

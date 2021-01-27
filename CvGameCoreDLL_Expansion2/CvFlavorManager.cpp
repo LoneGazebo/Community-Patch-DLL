@@ -443,7 +443,7 @@ int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
 
-	return m_piPersonalityFlavor[eType];
+	return range(m_piPersonalityFlavor[eType],0,30);
 }
 
 /// Retrieve the value of all Personality flavors
@@ -542,18 +542,13 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	{
 		iSeed = 0;
 	}
-	iSeed++;
 
+	iSeed += (iOriginalValue + iPlusMinus) * 200;
+
+	// Randomize!
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-	//for stupid settings, try to make it so that we don't cluster at the extreme values
-	if (iRtnValue < iMin)
-		iRtnValue = iMin + ((iMin - iRtnValue) % (iMax - iMin));
-	if (iRtnValue > iMax)
-		iRtnValue = iMax - ((iRtnValue - iMax) % (iMax - iMin));
-
-	//if that didn't help, clamp it down hard
 	return std::max(iMin, std::min(iMax, iRtnValue));
 }
 

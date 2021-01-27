@@ -272,7 +272,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 					{
 						if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
 						{
-							bSlowDown = (pCity->GetBorderObstacleCity() > 0);
+							bSlowDown = (pCity->GetBorderObstacleLand() > 0);
 						}
 						if (pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
 						{
@@ -377,7 +377,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCanAttack())
 				continue;
 
 			// Embarked units don't have ZOC
@@ -474,7 +474,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCanAttack())
 				continue;
 
 			// Embarked units don't have ZOC

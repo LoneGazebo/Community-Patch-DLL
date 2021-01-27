@@ -1723,7 +1723,7 @@ public:
 	virtual TeamTypes DLLCALL GetTeam() const = 0;
 	virtual DomainTypes DLLCALL GetDomainType() const = 0;
 
-	virtual bool DLLCALL IsCombatUnit() const = 0;
+	virtual bool DLLCALL IsCanAttack() const = 0;
 	virtual bool DLLCALL IsBarbarian() const = 0;
 	virtual bool DLLCALL IsHoveringUnit() const = 0;
 	virtual bool DLLCALL IsInvisible(TeamTypes eTeam, bool bDebug) const = 0;

@@ -13,7 +13,6 @@
 #define CIV5_GAME_H
 
 #include "CvRandom.h"
-#include "FFastVector.h"
 #include "FTimer.h"
 #include "CvPreGame.h"
 #include <CvLocalization.h>
@@ -344,6 +343,8 @@ public:
 	bool IsShowBaseHumanOpinion() const;
 
 	// Advanced Options
+	bool IsLumpGoldTradingHumanOnly() const;
+	bool IsLumpGoldTradingEnabled() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects humans
 	bool IsGiftOffersDisabled() const; // Only affects humans
 	bool IsCoopWarRequestsDisabled() const; // Only affects humans
@@ -530,7 +531,7 @@ public:
 	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetHighestPotential();
+	void SetHighestSpyPotential();
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
@@ -716,10 +717,6 @@ public:
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int GetLargestSpyPotential() { return m_iLargestBasePotential; }
-#endif
-
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
 	void RollOverAssetCounter() { m_iGlobalAssetCounterAllPreviousTurns += m_iGlobalAssetCounterCurrentTurn; m_iGlobalAssetCounterCurrentTurn = 0; }
@@ -748,15 +745,13 @@ public:
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
 	//------------------------------------------------------------
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+
 	bool isFirstActivationOfPlayersAfterLoad();
-#endif
 
 protected:
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	bool m_firstActivationOfPlayersAfterLoad;
-#endif
+
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	//for MP RNG we split this into two parts - everybody agrees on the previous turn but for the current turn races are possible
 	int m_iGlobalAssetCounterAllPreviousTurns;
@@ -935,9 +930,6 @@ protected:
 	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int		m_iLargestBasePotential;
-#endif
 	CvDistanceMapByTurns m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 

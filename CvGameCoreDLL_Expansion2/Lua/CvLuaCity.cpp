@@ -279,9 +279,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetYieldPerTurnFromTraits);
 	Method(GetYieldFromUnitsInCity);
 #endif
-#if defined(MOD_BUGFIX_LUA_API)
 	Method(ChangeJONSCulturePerTurnFromReligion);
-#endif
 	Method(GetJONSCulturePerTurnFromReligion);
 	Method(GetJONSCulturePerTurnFromLeagues);
 
@@ -320,9 +318,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromPolicies);
 	Method(GetFaithPerTurnFromTraits);
 	Method(GetFaithPerTurnFromReligion);
-#if defined(MOD_BUGFIX_LUA_API)
 	Method(ChangeFaithPerTurnFromReligion);
-#endif
 
 	Method(HasConvertedToReligionEver);
 	Method(IsReligionInCity);
@@ -1238,9 +1234,28 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 			// Requires Building
 			if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
 			{
-				const BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+				BuildingTypes ePrereqBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+				{
+					if (pkCity->HasBuildingClass(eBuildingClass))
+					{
+						ePrereqBuilding = pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+					}
+					else
+					{
+						ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+					}
+				}
+				else
+				{
+					ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+				}
 
-				if(pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+				if(ePrereqBuilding != NO_BUILDING && pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
 					if(pkBuildingInfo)
@@ -2497,8 +2512,22 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
-		const int iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		BuildingTypes eBuilding = NO_BUILDING;
+		int iResult = 0;
+#if defined(MOD_BALANCE_CORE)
+		bool bRome = GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			iResult = pkCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClassType);
+		}
+		else
+		{
+			eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
 		lua_pushinteger(L, iResult);
 	}
 	else
@@ -2515,10 +2544,22 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
-		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
-		const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		lua_pushboolean(L, bResult);
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			const bool bResult = pkCity->HasBuildingClass(eBuildingClassType);
+			lua_pushboolean(L, bResult);
+		}
+		else
+		{
+			const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
+			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
+			const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			lua_pushboolean(L, bResult);
+		}
 	}
 	else
 	{
@@ -5606,11 +5647,7 @@ int CvLuaCity::lGetOrderFromQueue(lua_State* L)
 		{
 			lua_pushinteger(L, pkOrder->eOrderType);
 			lua_pushinteger(L, pkOrder->iData1);
-#if defined(MOD_BUGFIX_LUA_API)
 			lua_pushinteger(L, pkOrder->iData2);
-#else
-			lua_pushinteger(L, pkOrder->iData1);
-#endif
 			lua_pushboolean(L, pkOrder->bSave);
 			lua_pushboolean(L, pkOrder->bRush);
 			return 5;

@@ -250,9 +250,6 @@
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE">
 			<Text>Oczywiście. Przyznamy wam niepodległość.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL">
-			<Text>Nie można wypowiadać wojny wasalowi innej cywilizacji (musisz wywołać wojnę ich seniorowi, {1_CivName[3]}).</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_VASSAL_BLOCKED_TT">
 			<Text>Nie można zawrzeć pokoju jako wasal innej cywilizacji. Pokój zostanie automatycznie zawarty w momencie zawarcia pokoju przez seniora.</Text>
 		</Row>

@@ -6,5 +6,3 @@ ALTER TABLE UnitPromotions
 
 ALTER TABLE UnitPromotions
   ADD MaxHitPointsModifier INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('UNITS_MAX_HP', 1);

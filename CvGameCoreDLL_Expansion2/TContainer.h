@@ -61,8 +61,7 @@ public:
 	void RemoveAll();
 
 	//generic ordering
-	void OrderShuffled();
-	void OrderByID();
+	void Shuffle();
 	template <class C>
 	void OrderByContent(const C& comparator);
 
@@ -76,8 +75,8 @@ private:
 	const TContainer& operator=(const TContainer& rhs) {}
 
 protected:
-	std::tr1::unordered_map<int,T*> m_items;
-	std::vector<int> m_order;
+	std::tr1::unordered_map<int,T*> m_items; //for lookup by id
+	std::vector<T*> m_order; //for iteration
 };
 
 template <class T>
@@ -108,12 +107,7 @@ template <class T>
 T* TContainer<T>::GetAt(int iIndex) const
 {
 	if (iIndex >= 0 && iIndex < (int)m_order.size())
-	{
-		std::tr1::unordered_map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
-
-		if (it != m_items.end())
-			return it->second;
-	}
+		return m_order[iIndex];
 
 	return NULL;
 }
@@ -121,13 +115,13 @@ T* TContainer<T>::GetAt(int iIndex) const
 template <class T>
 bool TContainer<T>::Remove(int iID)
 {
-	std::vector<int>::iterator it=std::find(m_order.begin(),m_order.end(),iID);
+	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
 
-	if (it!=m_order.end())
+	if (it!=m_items.end())
 	{
-		delete m_items[*it];
-		m_items.erase( *it);
-		m_order.erase( it );
+		delete m_items[it->first];
+		m_items.erase(it->first);
+		m_order.erase( std::remove(m_order.begin(), m_order.end(), it->second), m_order.end() );
 		return true;
 	}
 
@@ -139,8 +133,10 @@ bool TContainer<T>::RemoveAt(int iIndex)
 {
 	if (iIndex>=0 && iIndex < (int)m_order.size())
 	{
-		delete m_items[ m_order[iIndex] ];
-		m_items.erase( m_order[iIndex] );
+		std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( m_order[iIndex]->GetID() );
+		delete m_items[ it->first ];
+		m_items.erase( it->first );
+
 		m_order.erase( m_order.begin() + iIndex );
 		return true;
 	}
@@ -162,10 +158,13 @@ void TContainer<T>::RemoveAll()
 template <class T>
 int TContainer<T>::GetIndexForID(const int iID) const
 {
-	std::vector<int>::const_iterator it=std::find(m_order.begin(),m_order.end(),iID);
-
-	if (it!=m_order.end())
-		return (int)(it-m_order.begin());
+	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( iID );
+	if (it != m_items.end())
+	{
+		std::vector<T*>::const_iterator it2 = std::find(m_order.begin(), m_order.end(), it->second);
+		if (it2 != m_order.end())
+			return (int)(it2 - m_order.begin());
+	}
 
 	return -1;
 }
@@ -176,7 +175,8 @@ T* TContainer<T>::Add()
 	T* pNewItem = new T;
 	int iNewID = GetNextGlobalID();
 	pNewItem->SetID( iNewID );
-	m_order.push_back( iNewID );
+
+	m_order.push_back( pNewItem );
 	m_items[iNewID] = pNewItem;
 	return pNewItem;
 }
@@ -186,7 +186,7 @@ void TContainer<T>::Load(T* pExistingItem)
 {
 	if (pExistingItem)
 	{
-		m_order.push_back( pExistingItem->GetID() );
+		m_order.push_back( pExistingItem );
 		m_items[pExistingItem->GetID()] = pExistingItem;
 	}
 }
@@ -205,16 +205,10 @@ int TContainer<T>::GetIndexAfterLast() const
 }
 
 template <class T>
-void TContainer<T>::OrderShuffled()
+void TContainer<T>::Shuffle()
 {
 	//needs to be based on jonRand for reproducability
 	std::random_shuffle( m_order.begin(), m_order.end(), GetJonRand );
-}
-
-template <class T>
-void TContainer<T>::OrderByID()
-{
-	std::stable_sort( m_order.begin(), m_order.end() );
 }
 
 template <class T>

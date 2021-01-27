@@ -126,9 +126,9 @@ DomainTypes CvDllUnit::GetDomainType() const
 	return m_pUnit->getDomainType();
 }
 //------------------------------------------------------------------------------
-bool CvDllUnit::IsCombatUnit() const
+bool CvDllUnit::IsCanAttack() const
 {
-	return m_pUnit->IsCombatUnit();
+	return m_pUnit->IsCanAttack();
 }
 //------------------------------------------------------------------------------
 bool CvDllUnit::IsBarbarian() const

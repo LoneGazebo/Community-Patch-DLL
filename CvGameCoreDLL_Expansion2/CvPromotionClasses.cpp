@@ -97,10 +97,8 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	m_iMaxHitPointsChange(0),
 	m_iMaxHitPointsModifier(0),
-#endif
 	m_iUpgradeDiscount(0),
 	m_iExperiencePercent(0),
 	m_iAdjacentMod(0),
@@ -617,12 +615,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply = kResults.GetBool("NoSupply");
 #endif
-#if defined(MOD_UNITS_MAX_HP)
-	if (MOD_UNITS_MAX_HP) {
-		m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
-		m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
-	}
-#endif
+	m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
+	m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
 	m_iExperiencePercent = kResults.GetInt("ExperiencePercent");
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
@@ -1723,7 +1717,6 @@ bool CvPromotionEntry::IsNoSupply() const
 }
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
 /// Accessor: Absolute change of max hit points
 int CvPromotionEntry::GetMaxHitPointsChange() const
 {
@@ -1735,7 +1728,6 @@ int CvPromotionEntry::GetMaxHitPointsModifier() const
 {
 	return m_iMaxHitPointsModifier;
 }
-#endif
 
 /// Accessor: How much upgrading this unit is discounted
 int CvPromotionEntry::GetUpgradeDiscount() const

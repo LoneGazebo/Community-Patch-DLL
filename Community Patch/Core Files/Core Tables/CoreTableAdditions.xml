@@ -128,6 +128,15 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- PLOT: Allows a plot to gain yields depending on the adjacent features. IgnoreNaturalWonderPlots = true means that plots with natural wonders will not gain a bonus from an adjacent feature (useful for multi-tile natural wonders). -->
+	<Table name="Plot_AdjacentFeatureYieldChanges">
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+		<Column name="IgnoreNaturalWonderPlots" type="boolean" default="false"/>
+	</Table>
+
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. -->
 	<Table name="Belief_YieldPerPop">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -168,6 +177,7 @@
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
 	<!-- PANTHEON: Allows you to define any belief to grant x yield for every use of the faith healer ability, where X is the number below.-->
@@ -457,7 +467,42 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-	
+
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants free promotions to units trained in a city with the religion. -->
+	<Table name="Belief_FreePromotions">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="PromotionType" type="integer" reference="UnitPromotions(Type)"/>
+	</Table>
+
+	<!-- BELIEF: Founder only. Grants yields to the holy city when researching technology. Scales with number of followers. -->
+	<Table name="Belief_YieldFromTechUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!-- BELIEF: Intended as a Pantheon or Follower. Grants yields to the owning city, or capital, when finishing an improvement if religion is the player's majority. Note that roads are not considered improvements. -->
+	<Table name="Belief_YieldFromImprovementBuild">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
+	<!--
+	BELIEF: Grants yields when pillaging with units trained from any city if the religion is the player's majority. 
+			Intended as a Pantheon, in which case yields are granted at the capital or holy city.
+			Can work as a Follower, though beware of balance, as yields will be granted at every city where the majority religion has this belief.
+			Naming is to follow the Building versions of the table.
+	-->
+	<Table name="Belief_YieldFromPillageGlobal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
+	</Table>
+
 	<!-- POLICY: Allows you to define a resource gained from having a CS Ally) -->
 	<Table name="Policy_ResourcefromCSAlly">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>

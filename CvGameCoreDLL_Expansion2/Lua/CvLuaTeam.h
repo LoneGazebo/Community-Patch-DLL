@@ -187,6 +187,7 @@ protected:
 #endif
 	static int lIsAllowsOpenBordersToTeam(lua_State* L);
 	static int lIsForcePeace(lua_State* L);
+	static int lIsWarBlockedByPeaceTreaty(lua_State* L);
 	static int lIsDefensivePact(lua_State* L);
 	static int lGetRouteChange(lua_State* L);
 	static int lChangeRouteChange(lua_State* L);

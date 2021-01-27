@@ -1144,15 +1144,12 @@ int CvLuaGame::lIsNoNukes(lua_State* L)
 //void changeNoNukesCount(int iChange);
 int CvLuaGame::lChangeNoNukesCount(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNoNukesCount() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNoNukesCount() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNoNukesCount(iNumNukes);
 	return 1;
 }
@@ -1166,15 +1163,12 @@ int CvLuaGame::lGetNukesExploded(lua_State* L)
 //void changeNukesExploded(int iChange);
 int CvLuaGame::lChangeNukesExploded(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNukesExploded() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNukesExploded() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNukesExploded(iNumNukes);
 	return 1;
 }

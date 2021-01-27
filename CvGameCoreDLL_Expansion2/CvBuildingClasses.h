@@ -225,6 +225,7 @@ public:
 	int GetNumRequiredTier3Tenets() const;
 	bool IsNoWater() const;
 	bool IsNoRiver() const;
+	bool IsNoCoast() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
 	int GetReformationFollowerReduction() const;
@@ -378,7 +379,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
 	int GetCityAirStrikeDefense() const;
-	int GetBorderObstacleCity() const;
+	int GetBorderObstacleLand() const;
 	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
 	int GetEventTourism() const;
@@ -844,6 +845,7 @@ private:
 	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
 	bool m_bIsNoRiver;
+	bool m_bIsNoCoast;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
 	int m_iReformationFollowerReduction;
@@ -1122,8 +1124,11 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 	int GetNumBuilding(BuildingTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE) || defined(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 	int GetNumBuildingClass(BuildingClassTypes eIndex) const;
+	bool HasBuildingClass(BuildingClassTypes eIndex) const;
+	BuildingTypes GetBuildingTypeFromClass(BuildingClassTypes eIndex) const;
+	void RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex);
 #endif
 	int GetNumActiveBuilding(BuildingTypes eIndex) const;
 

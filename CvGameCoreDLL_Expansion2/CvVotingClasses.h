@@ -245,6 +245,7 @@ public:
 	int GetVotesCastForChoice(int iChoice);
 	int GetVotesMarginOfTopChoice();
 	int GetVotesCastByPlayer(PlayerTypes ePlayer);
+	int GetVotePercentageForOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost);
 	LeagueHelpers::PlayerList GetPlayersVotingForChoice(int iChoice);
 	void ProcessVote(PlayerTypes eVoter, int iNumVotes, int iChoice);
 	CvString GetVotesAsText(CvLeague* pLeague);
@@ -549,10 +550,10 @@ public:
 	bool CanEverPropose(PlayerTypes ePlayer);
 	int GetRemainingProposalsForMember(PlayerTypes ePlayer);
 	int GetNumProposalsByMember(PlayerTypes ePlayer);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice);
-	LeagueHelpers::PlayerList GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice);
-	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver);
+	LeagueHelpers::PlayerList GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen = false);
+	LeagueHelpers::PlayerList GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen = false);
 
 	// Host
 	bool HasHostMember() const;
@@ -914,7 +915,7 @@ public:
 	DesireLevels EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, ResolutionTypes eResolution, int iProposerChoice = LeagueHelpers::CHOICE_NONE);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, int iTargetResolutionID);
-	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer);
+	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false, bool bNoAutomaticMasterAlignment = false);
 
 	// Masked knowledge for other players
 	KnowledgeLevels GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);

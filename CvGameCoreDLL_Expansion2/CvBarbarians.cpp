@@ -83,17 +83,20 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 
 		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		if (pPlot)
 		{
-			CvPlot* pPlot = pLoopCity->plot();
-			if (pPlot)
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
-
-				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (pCityPlot)
 				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
+					iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+
+					if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+					{
+						iBestCityID = pLoopCity->GetID();
+						iBestCityDistance = iDistance;
+					}
 				}
 			}
 		}
@@ -181,9 +184,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	int iSpawnTurnAddition = 12;
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = iSpawnTurnAddition + iAddVal;
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -198,13 +199,12 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) {
-		// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -247,9 +247,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	//bumped a bit - too many barbs gets annoying.
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	bool isMP = kGame.isReallyNetworkMultiPlayer();
-	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
-	int iAddVal = isMP ? 5 : iRand;
+	int iAddVal = kGame.isReallyNetworkMultiPlayer() ? 5 : kGame.getSmallFakeRandNum(10, *pPlot);
 	int iNumTurnsToSpawn = 7 + iAddVal;
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
@@ -265,12 +263,11 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) {
+	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) 
+	{
 		return;
 	}
-#endif
-		
+
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -656,12 +653,9 @@ void CvBarbarians::DoCamps()
 				CvPlot* pLoopPlot = vRelevantPlots[iPlotIndex];
 
 				//now do some additional (expensive) checks we shouldn't do above
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
-				if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || 
-					(pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
+				if (pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType())))
 				{
-#endif
 					// Max Camps for this area
 					int iMaxCampsThisArea = iCampTargetNum * pLoopPlot->area()->getNumTiles() / iNumLandPlots + 1;
 
@@ -775,7 +769,6 @@ void CvBarbarians::DoCamps()
 
 						iNumCampsToAdd--;
 					}
-#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				}
 				else
 				{
@@ -784,7 +777,6 @@ void CvBarbarians::DoCamps()
 					vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
 #endif
 				}
-#endif
 			}
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
 		}
@@ -1050,7 +1042,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					pUnit->finishMoves();
 				}
 
-#if defined(MOD_BUGFIX_MINOR)
 				// Stop units from plundered trade routes ending up in the ocean
 				if(bIgnoreMaxBarbarians && pUnit)
 				{
@@ -1063,23 +1054,18 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					}
 #endif
 				}
-#endif
 			}
 		}
 	}
 }
 
 //return false if stealing is impossible and the unit should do something else instead
-bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
+bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 {
 	if (!MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		return false;
 
-	if (!pUnit || !pUnit->IsCanAttack())
-		return false;
-
-	CvCity* pCity = pUnit->plot()->GetAdjacentCity();
-	if (!pCity)
+	if (!pUnit || !pUnit->IsCanAttack() || !pCity)
 		return false;
 
 	//don't steal from ourselves
@@ -1109,7 +1095,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 	if(iYield <= 2)
 	{
-		int iGold = pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns;
+		int iGold = min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iGold > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
@@ -1133,7 +1119,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 4)
 	{
-		int iCulture = pCity->getJONSCulturePerTurn() * iTheftTurns;
+		int iCulture = min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iCulture > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
@@ -1160,7 +1146,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 		int iScience = 0;
 		if(eCurrentTech != NO_TECH)
 		{
-			iScience = pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns;
+			iScience = min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iScience > 0)
 			{
 				GET_TEAM(pCity->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
@@ -1185,7 +1171,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	else if(iYield <= 8)
 	{
-		int iFood = pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns;
+		int iFood = min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iFood > 0)
 		{
 			pCity->changeFood(-iFood);
@@ -1211,7 +1197,7 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	{
 		if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
 		{
-			int iProduction = pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns;
+			int iProduction = min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iProduction > 0)
 			{
 				pCity->changeProduction(-iProduction);
@@ -1236,4 +1222,24 @@ bool CvBarbarians::DoStealFromAdjacentCity(CvUnit * pUnit)
 	}
 	
 	return true;
+}
+
+bool CvBarbarians::DoTakeOverCity(CvCity * pCity)
+{
+	if (!pCity)
+		return false;
+
+	CvPlayer& owner = GET_PLAYER(pCity->getOwner());
+	if (!owner.isMinorCiv() || !owner.GetMinorCivAI()->IsReadyForTakeOver())
+		return false;
+
+	// create a barbarian unit in the city, taking it over
+	UnitTypes eUnit = GC.getGame().GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+	if (eUnit != NO_UNIT)
+	{
+		GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pCity->getX(), pCity->getY());
+		return true;
+	}
+
+	return false;
 }

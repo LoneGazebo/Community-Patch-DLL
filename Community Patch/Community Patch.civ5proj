@@ -200,21 +200,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/AiInXml.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/CONFIG/GameInXml.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/DIPLO/AIWarmongerAdjustments.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/EVENTS/CanMoveInto.sql</FileName>
       </Action>
       <Action>
@@ -356,16 +341,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/RELIGION/PolicyBranchFaithGp.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/SMART/XML/AISmart.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/SMART/SQL/AISmart.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -657,15 +632,10 @@
     <Folder Include="Core Files\PNM Mods DB\API\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
     <Folder Include="Core Files\PNM Mods DB\BUGFIX\" />
-    <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
     <Folder Include="Core Files\PNM Mods DB\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\GLOBAL\" />
-    <Folder Include="Core Files\PNM Mods DB\DIPLO" />
-    <Folder Include="Core Files\PNM Mods DB\SMART" />
     <Folder Include="Core Files\PNM Mods DB\PROMOTIONS\" />
     <Folder Include="Core Files\PNM Mods DB\RELIGION\" />
-    <Folder Include="Core Files\PNM Mods DB\SMART\SQL\" />
-    <Folder Include="Core Files\PNM Mods DB\SMART\XML\" />
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
@@ -1331,19 +1301,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\AiInXml.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\CONFIG\GameInXml.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\PNM Mods DB\CustomModTables.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\DIPLO\AIWarmongerAdjustments.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1464,14 +1422,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\RELIGION\PolicyBranchFaithGp.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\SMART\SQL\AISmart.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\SMART\XML\AISmart.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

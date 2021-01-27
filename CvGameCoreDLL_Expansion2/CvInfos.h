@@ -993,6 +993,7 @@ public:
 	int getAIStartingWorkerUnits() const;
 	int getAIStartingExploreUnits() const;
 	int getAIDeclareWarProb() const;
+	int getAIHumanStrengthMod() const;
 	int getAIWorkRateModifier() const;
 	int getAIUnhappinessPercent() const;
 	int getAIGrowthPercent() const;
@@ -1075,6 +1076,7 @@ protected:
 	int m_iAIStartingWorkerUnits;
 	int m_iAIStartingExploreUnits;
 	int m_iAIDeclareWarProb;
+	int m_iAIHumanStrengthMod;
 	int m_iAIWorkRateModifier;
 	int m_iAIUnhappinessPercent;
 	int m_iAIGrowthPercent;
@@ -1169,7 +1171,6 @@ public:
 	int getNumTurnIncrements() const;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int getShareOpinionDuration() const;
 	int getTechCostPerTurnMultiplier() const;
 	int getMinimumVoluntaryVassalTurns() const;
 	int getMinimumVassalTurns() const;
@@ -1227,7 +1228,6 @@ protected:
 	int m_iLeaguePercent;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int m_iShareOpinionDuration;
 	int m_iTechCostPerTurnMultiplier;
 	int m_iMinimumVoluntaryVassalTurns;
 	int m_iMinimumVassalTurns;
@@ -1344,10 +1344,8 @@ public:
 	int getTechTimeChange(int i) const;
 
 	bool isFeatureRemove(int i) const;
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	int getFeatureObsoleteTech(int i) const;
 	bool isFeatureRemoveOnly(int i) const;
-#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1383,10 +1381,8 @@ protected:
 	int* m_paiFeatureCost;
 	int* m_paiTechTimeChange;
 	bool* m_pabFeatureRemove;
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
 	int* m_paiFeatureObsoleteTech;
 	bool* m_pabFeatureRemoveOnly;
-#endif
 
 private:
 	CvBuildInfo(const CvBuildInfo&);
