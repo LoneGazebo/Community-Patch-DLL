@@ -42019,11 +42019,11 @@ int CvDiplomacyAI::AdjustModifierDuration(bool bGood, int iDuration, int iFlavor
 	{
 		if (bGood)
 		{
-			iTurnMod = (GetLoyalty() > GetDoFWillingness()) ? (GetLoyalty() - 5) : (GetDoFWillingness() - 5);
+			iTurnMod = GetLoyalty() - 5;
 		}
 		else
 		{
-			iTurnMod = (GetMeanness() > GetForgiveness()) ? (GetMeanness() - 5) : (-GetForgiveness() + 5);
+			iTurnMod = -GetForgiveness() + 5;
 		}
 	}
 
