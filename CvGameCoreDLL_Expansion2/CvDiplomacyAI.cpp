@@ -2317,11 +2317,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetHighestValueApproach(PlayerTypes ePlayer
 				{
 					eBestApproach = MAJOR_CIV_APPROACH_GUARDED;
 				}
-				else if (IsPlayerLiberatedCapital(ePlayer) && eBestApproach == MAJOR_CIV_APPROACH_HOSTILE)
+				else if (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0)
 				{
 					eBestApproach = MAJOR_CIV_APPROACH_GUARDED;
 				}
-				else if (IsCityRecentlyLiberatedBy(ePlayer) && !IsEndgameAggressiveTo(ePlayer) && GetPlayer()->getCitiesLost() > 0)
+				else if ((IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer)) && eBestApproach == MAJOR_CIV_APPROACH_HOSTILE)
 				{
 					eBestApproach = MAJOR_CIV_APPROACH_GUARDED;
 				}
@@ -8052,7 +8052,7 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 	else if (IsCloseToCultureVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
 		return;
 	}
 	else if (IsCloseToDiploVictory())
@@ -20099,13 +20099,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// RESURRECTION - Don't be HOSTILE to a player who resurrected us!
+	// LIBERATOR - Don't be HOSTILE to a player who's liberating us!
 	////////////////////////////////////
 
-	if ((bResurrectedUs && !bUntrustworthy) || bLiberatedCapital || IsCityRecentlyLiberatedBy(ePlayer))
+	if (!bUntrustworthy)
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-		vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		bool bRecentLiberation = IsCityRecentlyLiberatedBy(ePlayer) && GetPlayer()->getCitiesLost() > 0 && !IsEndgameAggressiveTo(ePlayer);
+
+		if (bResurrectedUs || bLiberatedCapital || IsPlayerLiberatedHolyCity(ePlayer) || bRecentLiberation)
+		{
+			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			vScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+
+			if (bResurrectedUs || bRecentLiberation)
+			{
+				vApproachScores[MAJOR_CIV_APPROACH_WAR] = 0;
+				vScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
+			}
+		}
 	}
 
 	////////////////////////////////////
