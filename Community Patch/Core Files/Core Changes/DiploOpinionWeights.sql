@@ -326,7 +326,7 @@ UPDATE Defines SET Value = '4' WHERE Name = 'RELIGION_DIPLO_HIT_THRESHOLD'; -- p
 UPDATE Defines SET Value = '-10' WHERE Name = 'OPINION_WEIGHT_SAME_LATE_POLICIES';
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_DIFFERENT_LATE_POLICIES';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WORLD_IDEOLOGY_MODIFIER', '150'; -- increases +/- opinion weights for the World Ideology
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WORLD_IDEOLOGY_VASSAL_DIVISOR', '200'; -- decreases +/- opinion weights if one player is a vassal (doesn't affect voluntary vassals' opinion towards their masters)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_IDEOLOGY_VASSAL_DIVISOR', '200'; -- decreases +/- opinion weights if one player is a vassal (doesn't affect voluntary vassals' opinion towards their masters)
 
 
 --	//////////////////////////////////////
@@ -359,7 +359,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_
 --	// DECLARATION OF FRIENDSHIP
 --	//////////////////////////////////////
 
--- We have made a public Declaration of Friendship!
+-- We have made a public Declaration of Friendship! / We were previously friends.
 UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_WEIGHT_DOF';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_MOST_VALUED_FRIEND', '-20'; -- additional bonus if player is AI's most valued friend
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DOF_TYPE_FRIENDS', '-10'; -- bonus for 1 previous DoF that wasn't ended early, without a denouncement/DoW in the interim (if not currently friends)

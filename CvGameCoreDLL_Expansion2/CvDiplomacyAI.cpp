@@ -42870,14 +42870,14 @@ int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
 	if (IsPlayerReturnedHolyCity(ePlayer, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR());
 	}
 
 	// If we're a well-treated capitulated vassal, halve the weight.
 	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
 	}
 	
 	return iOpinionWeight;
@@ -42896,14 +42896,14 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 	if (IsPlayerReturnedCapital(ePlayer, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_RETURNED_DIVISOR());
 	}
 
 	// If we're a well-treated capitulated vassal, halve the weight.
 	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer) && GetVassalTreatmentLevel(ePlayer) <= VASSAL_TREATMENT_DISAGREE)
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_CAPTURED_KEY_CITY_CAPITULATION_DIVISOR());
 	}
 	
 	return iOpinionWeight;
@@ -43032,14 +43032,14 @@ int CvDiplomacyAI::GetResurrectedScore(PlayerTypes ePlayer)
 	if (IsCapitalCapturedBy(ePlayer, false, true, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_CAPITAL_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_CAPITAL_DIVISOR());
 	}
 
 	// Halve the weight if they captured our Holy City.
 	if (IsHolyCityCapturedBy(ePlayer, false, true, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
 	}
 
 	return iOpinionWeight;
@@ -43065,7 +43065,7 @@ int CvDiplomacyAI::GetLiberatedCapitalScore(PlayerTypes ePlayer)
 	if (IsHolyCityCapturedBy(ePlayer, false, true, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
 	}
 
 	return iOpinionWeight;
@@ -43123,7 +43123,7 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 		if (IsHolyCityCapturedBy(ePlayer, false, true, true))
 		{
 			iOpinionWeight *= 100;
-			iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
+			iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
 		}
 
 		// Reduce the weight if they've been capturing more of our cities than they've been liberating
@@ -43154,7 +43154,7 @@ int CvDiplomacyAI::GetReturnedCapitalScore(PlayerTypes ePlayer)
 	if (IsHolyCityCapturedBy(ePlayer, false, true, true))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_LIBERATOR_CAPTURED_HOLY_CITY_DIVISOR());
 	}
 
 	return iOpinionWeight;
@@ -44175,18 +44175,18 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 	if (IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_WORLD_IDEOLOGY_VASSAL_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_IDEOLOGY_VASSAL_DIVISOR());
 	}
 	else if (!IsVassal(ePlayer) && GetPlayer()->IsVassalOfSomeone())
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_WORLD_IDEOLOGY_VASSAL_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_IDEOLOGY_VASSAL_DIVISOR());
 	}
 	// Care less about vassals' ideologies, for the same reason
 	else if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 	{
 		iOpinionWeight *= 100;
-		iOpinionWeight /= max(1, /*200*/ GC.getOPINION_WEIGHT_WORLD_IDEOLOGY_VASSAL_DIVISOR());
+		iOpinionWeight /= max(100, /*200*/ GC.getOPINION_WEIGHT_IDEOLOGY_VASSAL_DIVISOR());
 	}
 
 	return iOpinionWeight;
