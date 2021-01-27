@@ -966,17 +966,12 @@ void CvCitySpecializationAI::AssignSpecializations()
 			else
 			{
 				cityData.m_eID = pLoopCity->GetID();
-#if defined(MOD_BALANCE_CORE)
 				for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
 				{
 					if(iI == YIELD_SCIENCE)
 					{
 						cityData.m_iWeight[iI] = PlotValueForScience(pLoopCity->plot()); // -- BKW, looks like PlotValueForScience is making some assumptions that are no longer true
 					}
-#if defined(MOD_BALANCE_CORE)
 					else if (iI == YIELD_CULTURE)
 					{
 						cityData.m_iWeight[iI] = PlotValueForCulture(pLoopCity->plot()); 
@@ -985,18 +980,15 @@ void CvCitySpecializationAI::AssignSpecializations()
 					{
 						cityData.m_iWeight[iI] = PlotValueForFaith(pLoopCity->plot());
 					}
-#endif
 					else
 					{
 						cityData.m_iWeight[iI] = PlotValueForSpecificYield(pLoopCity->plot(), (YieldTypes)iI);
 					}
 					cityData.m_iWeight[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
-#if defined(MOD_BALANCE_CORE)
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
 						cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
 					}
-#endif
 					if(cityData.m_iWeight[iI] < 0)
 					{
 						cityData.m_iWeight[iI] = 0;
@@ -1059,11 +1051,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		for(; cityIter != cityIterEnd; ++cityIter)
 		{
 			cityData = *cityIter;
-#if defined(MOD_BALANCE_CORE)
 			for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-			for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
 			{
 				iCurrentDelta = cityData.m_iWeight[iI] - m_iBestValue[iI];
 				if(iCurrentDelta > iBestDelta[iI])
@@ -1074,13 +1062,8 @@ void CvCitySpecializationAI::AssignSpecializations()
 		}
 
 		// Save yield improvements in a vector we can sort
-#if defined(MOD_BALANCE_CORE)
 		CvWeightedVector<int, YIELD_FAITH, true> yieldImprovements;
 		for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-		CvWeightedVector<int, YIELD_SCIENCE+1, true> yieldImprovements;
-		for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
 		{
 			int iImprovementWithNewCity;
 			if(iBestDelta[iI] > 0)
@@ -1107,11 +1090,10 @@ void CvCitySpecializationAI::AssignSpecializations()
 			for(; it != iterEnd; ++it)
 			{
 				CitySpecializationTypes eType = *it;
-#if defined(MOD_BALANCE_CORE)
 				CvCitySpecializationXMLEntry* pkCitySpecializationEntry = GC.getCitySpecializationInfo(eType);
 				if(pkCitySpecializationEntry == NULL)
 					continue;
-#endif
+
 				YieldTypes eYield = GC.getCitySpecializationInfo(eType)->GetYieldType();
 				if(eYield == eMostImprovedYield)
 				{
@@ -1162,11 +1144,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 			{
 				// General economic is all yields added together
 				int iCityValue = 0;
-#if defined(MOD_BALANCE_CORE)
 				for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
 				{
 					iCityValue += cityData.m_iWeight[iI];
 				}

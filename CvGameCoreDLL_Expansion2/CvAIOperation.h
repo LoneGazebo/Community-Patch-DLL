@@ -28,7 +28,6 @@ enum AIOperationTypes
 	AI_OPERATION_TYPE_UNKNOWN = -1,
 
 	AI_OPERATION_FOUND_CITY,
-	AI_OPERATION_DESTROY_BARBARIAN_CAMP,
     AI_OPERATION_PILLAGE_ENEMY,
 
 	AI_OPERATION_CITY_ATTACK_LAND,
@@ -188,7 +187,6 @@ public:
 	virtual void OnSuccess() const {}
 	virtual void Reset();
 	virtual bool IsOffensive() const;
-	virtual bool IsShowOfForce() const { return false; }
 	virtual bool IsNeverEnding() const { return false; }
 
 	virtual int GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const;
@@ -286,7 +284,6 @@ public:
 	virtual int GetDeployRange() const { return 3; }
 	virtual int GetMaximumRecruitTurns() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-	virtual bool IsShowOfForce() const;
 
 	virtual bool CheckTransitionToNextStage();
 	virtual void OnSuccess() const;
@@ -369,7 +366,6 @@ public:
 		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_NUKE_ATTACK, ARMY_TYPE_AIR) {}
 	virtual ~CvAIOperationNukeAttack() {}
 	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
-	virtual int GetDeployRange() const { return 12; }
 	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -378,33 +374,6 @@ public:
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationAntiBarbarian
-//!  \brief		Send out a squad of units to take out a barbarian camp
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationAntiBarbarian : public CvAIOperationMilitary
-{
-public:
-
-	CvAIOperationAntiBarbarian(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
-		CvAIOperationMilitary(iID,eOwner,eEnemy,AI_OPERATION_DESTROY_BARBARIAN_CAMP,ARMY_TYPE_LAND), m_iUnitToRescue(-1) {}
-	virtual ~CvAIOperationAntiBarbarian() {}
-
-	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
-
-	virtual void Read(FDataStream& kStream);
-	virtual void Write(FDataStream& kStream) const;
-
-	virtual int GetDeployRange() const;
-	virtual int GetMaximumRecruitTurns() const;
-
-	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-
-protected:
-	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
-	int m_iUnitToRescue;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

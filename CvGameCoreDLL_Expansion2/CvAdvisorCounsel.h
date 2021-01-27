@@ -24,7 +24,6 @@ public:
 
 	void BuildCounselList(PlayerTypes ePlayer);
 	bool SetCounselEntry(uint uiIndex, AdvisorTypes eAdvisor, const char* strAdvisorCounsel, int iValue);
-	void SortCounselList(void);
 
 	struct Counsel
 	{
@@ -33,7 +32,7 @@ public:
 		int m_iValue;
 	};
 
-	FFastVector<Counsel, true, c_eCiv5GameplayDLL, 0> m_aCounsel;
+	vector<Counsel> m_aCounsel;
 };
 
 #endif	//CIV5_ADVISOR_COUNSEL_H

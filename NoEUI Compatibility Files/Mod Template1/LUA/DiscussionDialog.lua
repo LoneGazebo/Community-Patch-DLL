@@ -61,28 +61,32 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	local otherLeader = GameInfo.Leaders[player:GetLeaderType()];
 	
 	-- Mood
-	local iApproach = Players[iActivePlayer]:GetApproachTowardsUsGuess(g_iAIPlayer);
+	local iApproach = activePlayer:GetApproachTowardsUsGuess(g_iAIPlayer);
 	local strMoodText = Locale.ConvertTextKey("TXT_KEY_EMOTIONLESS");
 	
-	if (pActiveTeam:IsAtWar(g_iAITeam)) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" );
-	elseif (Players[g_iAIPlayer]:IsDenouncingPlayer(iActivePlayer)) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );	
-	elseif (Players[g_iAIPlayer]:WasResurrectedThisTurnBy(iActivePlayer)) then
-		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );
+	if (not activePlayer:IsAlive()) then
+		strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", otherLeader.Description  );
 	else
-		if( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_WAR_CAPS" );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_HOSTILE", otherLeader.Description );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_GUARDED", otherLeader.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_AFRAID", otherLeader.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_FRIENDLY", otherLeader.Description  );
-		elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL ) then
-			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", otherLeader.Description  );
+		if (pActiveTeam:IsAtWar(g_iAITeam)) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" );
+		elseif (Players[g_iAIPlayer]:IsDenouncingPlayer(iActivePlayer)) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING" );
+		elseif (Players[g_iAIPlayer]:WasResurrectedThisTurnBy(iActivePlayer)) then
+			strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED" );
+		else
+			if( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_WAR_CAPS" );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_HOSTILE", otherLeader.Description );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_GUARDED", otherLeader.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_AFRAID", otherLeader.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_FRIENDLY", otherLeader.Description  );
+			elseif( iApproach == MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL ) then
+				strMoodText = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL", otherLeader.Description  );
+			end
 		end
 	end
 	
@@ -225,10 +229,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	    
 		-- Human invoked discussion
 		if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
-			
+
 			-- Discussion Root Mode
 			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-				
+
 				local strLeaderName;
 				if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 					strLeaderName = pAIPlayer:GetNickName();
@@ -236,23 +240,22 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 					strLeaderName = pAIPlayer:GetName();
 				end
 
-				
 				--------------------
 				-- SHARE INTRIGUE --
 				--------------------
 
-				if (activePlayer:HasRecentIntrigueAbout(iPlayer) and not Players[iPlayer]:IsHuman()) then
+				if (activePlayer:HasRecentIntrigueAbout(iPlayer) and activePlayer:IsAlive() and (not Players[iPlayer]:IsHuman()) and (not pActiveTeam:IsAtWar(g_iAITeam))) then
 					local strLeaderName;
 					if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 						strLeaderName = pAIPlayer:GetNickName();
 					else
 						strLeaderName = pAIPlayer:GetName()
 					end
-								
+
 					strButton2Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE", strLeaderName);
 					strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_INTRIGUE_TT", strLeaderName);
 				end
-				
+
 				--------------------
 				--   STOP SPYING  --
 				--------------------
@@ -263,7 +266,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				if (not pAIPlayer:IsStopSpyingMessageTooSoon(iActivePlayer) and bHasAgents and (g_iAITeam ~= Game.GetActiveTeam())) then
 					strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPYING" );
 				end
-				
+
 				---------------------
 				--  STOP RELIGION  --
 				---------------------
@@ -274,7 +277,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 						strButton4Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_SPREADING_RELIGION");
 					end
 				end
-					
+
 				---------------------
 				--   DON'T SETTLE  --
 				---------------------
@@ -283,23 +286,23 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				if (not pAIPlayer:IsDontSettleMessageTooSoon(iActivePlayer)) then
 					strButton5Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DONT_SETTLE" );
 				end
-				
+
 				-----------------------
 				--	STOP ARCHAEOLOGY --
 				-----------------------
-				
+
 				-- Ask the AI player not to dig up my artifacts
 				if (activePlayer:GetNegativeArchaeologyPoints(g_iAIPlayer) > 0 and not pAIPlayer:IsAskedToStopDigging(iActivePlayer)) then
 					strButton6Text = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_STOP_DIGGING");
 				end
-				
+
 				-----------------------
 				--  DENOUNCE AND DOF --
 				-----------------------
 				-- If we're teammates, there's no need to work together or against anyone
 				if (pAIPlayer:GetTeam() ~= Players[iActivePlayer]:GetTeam()) then
 					-- Ask the AI player to work together
-					if (not pAIPlayer:IsDoF(iActivePlayer)) then
+					if (not pAIPlayer:IsDoFMessageTooSoon(iActivePlayer)) then
 						strButton7Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP" );
 						strButton7Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT" );
 -- CBP
@@ -308,21 +311,21 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 						strButton7Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US" );
 						strButton7Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT" );
 					end
--- END	
-					
+-- END
+
 					local strLeaderName;
 					if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 						strLeaderName = pAIPlayer:GetNickName();
 					else
 						strLeaderName = pAIPlayer:GetName();
 					end
-					
-					if(not activePlayer:IsDenouncedPlayer(iPlayer)) then
+
+					if(not pAIPlayer:IsDenounceMessageTooSoon(iActivePlayer)) then
 						strButton8Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE", strLeaderName );
 						strButton8Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DENOUNCE_TT" );
 					end
 				end
-		 		
+
 				-----------------
 				-- MOVE TROOPS --
 				-----------------
@@ -330,26 +333,23 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				print("Hello");
 				print(tostring(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer)));
 				print(AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM);
-				
+
 				if(not pAIPlayer:MoveRequestTooSoon(iActivePlayer)) then
 					if(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer) >= AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM) then
-						if(pAIPlayer:GetMajorCivApproach(iActivePlayer) == MAJOR_CIV_APPROACH_HOSTILE) then
+						if(Players[iActivePlayer]:GetApproachTowardsUsGuess(g_iAIPlayer) == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE) then
 							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE" );
 						else
 							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS" );
 						end
-						
+
 						strButton9Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_TT", strLeaderName);
 					end
 				end
-				
+
 				--------------------------------
 				--  DECLARE WAR (THIRD PARTY) --
 				--------------------------------
 				strButton10Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
--- CBP
-				strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
--- END
 				Controls.Button10:SetDisabled(true);
 
 				--------------------
@@ -357,13 +357,14 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--------------------
 				strButton11Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION" );
 				Controls.Button11:SetDisabled(true);
-				
+
 				-- Discussion buttons valid?
 				for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
 					-- War button: Button 10
 					if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
-						if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop)) then
+						if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
+							strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
 							Controls.Button10:SetDisabled(false);
 						end
 					end
@@ -374,7 +375,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 					end
 				end
 			end
-			
+
 		-- Human did something mean, AI responded, and human responds in turn with fluff
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SORRY" );
@@ -540,7 +541,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
  			
 			strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_CAUGHT_DECLARE_WAR", strLeaderName );
 			
-			if (pActiveTeam:IsForcePeace(g_iAITeam)) then
+			if (pActiveTeam:IsForcePeace(g_iAITeam) or pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
 				Controls.Button4:SetDisabled(true);
 				strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" );
 			end
@@ -1520,8 +1521,26 @@ function OnCloseLeaderPanelButton()
 	Controls.Button7:SetDisabled(false);
 	Controls.Button8:SetDisabled(false);
 	Controls.Button9:SetDisabled(false);
-	Controls.Button10:SetDisabled(false);
-	Controls.Button11:SetDisabled(false);
+	Controls.Button10:SetDisabled(true);
+	Controls.Button11:SetDisabled(true);
+
+	local pAIPlayer = Players[g_iAIPlayer];
+	local iActivePlayer = Game.GetActivePlayer();
+
+	-- Buttons 10 and 11 are a special case - only enabled if valid
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+
+		if (pAIPlayer:IsDoF(iActivePlayer) or pAIPlayer:GetTeam() == Players[iActivePlayer]:GetTeam()) then
+			if (IsWarAgainstThirdPartyPlayerValid(iPlayerLoop) and not pActiveTeam:IsAtWar(g_iAITeam)) then
+				Controls.Button10:SetDisabled(false);
+			end
+		end
+
+		-- Share Opinion button: Button 11
+		if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+			Controls.Button11:SetDisabled(false);
+		end
+	end
 	
     Controls.LeaderPanel:SetHide( true );
 end

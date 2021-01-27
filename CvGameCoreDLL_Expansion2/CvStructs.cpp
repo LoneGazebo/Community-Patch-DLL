@@ -308,7 +308,7 @@ void CvCombatInfo::setAttackIsRanged(bool bRanged)
 	m_bAttackIsRanged = bRanged;
 }
 
-bool CvCombatInfo::getAttackIsRanged() const
+bool CvCombatInfo::GetAttackIsRanged() const
 {
 	return m_bAttackIsRanged;
 }

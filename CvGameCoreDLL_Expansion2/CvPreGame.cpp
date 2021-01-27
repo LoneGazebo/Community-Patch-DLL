@@ -2594,15 +2594,8 @@ void setGameTurn(int turn)
 
 void setGameType(GameTypes g, GameStartTypes eStartType)
 {
-#if defined(MOD_BUGFIX_MINOR)
 	setGameType(g);
 	s_gameStartType = eStartType;
-#else
-	s_gameType = g;
-	s_gameStartType = eStartType;
-	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
-		s_isInternetGame = false;
-#endif
 }
 
 void setGameType(GameTypes g)
@@ -2627,13 +2620,6 @@ void setGameType(const CvString& g)
 		//CvAssertMsg(false, "Invalid game type in ini file!");
 		setGameType(GAME_TYPE_NONE);
 	}
-
-#if defined(MOD_BUGFIX_MINOR)
-	// Don't need this code as it's included in the setGameType() calls above
-#else
-	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
-		s_isInternetGame = false;
-#endif
 }
 
 #if defined(MOD_API_EXTENSIONS)

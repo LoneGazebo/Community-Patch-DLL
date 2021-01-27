@@ -105,9 +105,7 @@ public:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool IsNoSupply() const;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int GetMaxHitPoints() const;
-#endif
 	int GetXPValueAttack() const;
 	int GetXPValueDefense() const;
 	int GetSpecialCargo() const;
@@ -341,9 +339,7 @@ private:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int m_iMaxHitPoints;
-#endif
 	int m_iXPValueAttack;
 	int m_iXPValueDefense;
 	int m_iSpecialCargo;

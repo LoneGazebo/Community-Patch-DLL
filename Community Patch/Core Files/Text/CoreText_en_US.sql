@@ -51,6 +51,16 @@ WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 -- Units
 
+-- Movement
+
+UPDATE Language_en_US
+SET Text = 'MOVE UNIT'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
+
+UPDATE Language_en_US
+SET Text = 'Move a unit to a tile where it can end the turn.'
+WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
+
 -- Capture Chance
 UPDATE Language_en_US
 SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
@@ -436,6 +446,12 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 -- Trade
 
+-- Trade Deals
+
+UPDATE Language_en_US
+SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
+WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
+
 -- Trade Routes
 UPDATE Language_en_US
 SET Text = 'You must be at war with the trade route owner.'
@@ -631,6 +647,15 @@ UPDATE Language_en_US
 SET Text = 'Your spies were caught stealing from them.'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
+-- World Congress
+UPDATE Language_en_US
+SET Text = 'We passed their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL';
+
+UPDATE Language_en_US
+SET Text = 'We defeated their proposal in the World Congress.'
+WHERE Tag = 'TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL';
+
 -- Promises
 UPDATE Language_en_US
 SET Text = 'You made a promise not to conquer a City-State protected by them, and then broke it!'
@@ -667,6 +692,11 @@ WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
 UPDATE Language_en_US
 SET Text = 'You made a promise to stop excavating their artifacts, and then broke it!'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
+
+-- Denounced by Friend
+UPDATE Language_en_US
+SET Text = 'Other civs that they like more than you have denounced you!'
+WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
 
 -- Friend Betrayal
 UPDATE Language_en_US
@@ -1490,15 +1520,3 @@ WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
 UPDATE Language_en_US
 SET Text = 'Very well.'
 WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
-WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
-
-UPDATE Language_en_US
-SET Text = 'MOVE UNIT'
-WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
-
-UPDATE Language_en_US
-SET Text = 'Move a unit to a plot where it can end the turn'
-WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';

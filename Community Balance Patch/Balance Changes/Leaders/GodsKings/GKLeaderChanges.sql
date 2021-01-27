@@ -356,11 +356,11 @@ VALUES
 	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 3);
 
 INSERT INTO Belief_YieldPerBorderGrowth
-	(BeliefType, YieldType, Yield)
+	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_EPONA', 'YIELD_SCIENCE', 10),
-	('BELIEF_EPONA', 'YIELD_CULTURE', 10),
-	('BELIEF_EPONA', 'YIELD_FOOD', 10);
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 10, 1),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 10, 1),
+	('BELIEF_EPONA', 'YIELD_FOOD', 10, 1);
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)

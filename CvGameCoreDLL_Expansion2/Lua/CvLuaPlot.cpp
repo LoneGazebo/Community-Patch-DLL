@@ -1651,13 +1651,10 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L,3);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
 	const bool bOptional = luaL_optbool(L, 5, false);
-#if defined(MOD_BUGFIX_LUA_API)
+
 	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 6, NUM_ROUTE_TYPES);
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
-#else
-	const RouteTypes eRoute = (RouteTypes)luaL_optint(L, 5, NUM_ROUTE_TYPES);
-#endif
 
 	const int iResult = pkPlot->calculateImprovementYield(eImprovement, eYield, pkPlot->calculateBestNatureYield(eYield, ePlayer), ePlayer, bOptional, eRoute);
 	lua_pushinteger(L, iResult);
@@ -1746,11 +1743,7 @@ int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const TeamTypes eTeam = (TeamTypes)lua_tointeger(L, 2);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_LUA_CHANGE_VISIBILITY_COUNT)
 	const int iChange = lua_tointeger(L, 3);
-#else
-	const int iChange = lua_toboolean(L, 3);
-#endif
 	const int eSeeInvisible = lua_tointeger(L, 4);
 	const bool bInformExplorationTracking = lua_toboolean(L, 5);
 	const bool bAlwaysSeeInvisible = lua_toboolean(L, 6);

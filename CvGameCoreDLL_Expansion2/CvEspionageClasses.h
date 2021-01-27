@@ -88,9 +88,7 @@ class CvEspionageSpy
 public:
 	CvEspionageSpy();
 
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	const char* GetSpyName(CvPlayer* pPlayer);
-#endif
 
 #if defined(MOD_API_ESPIONAGE)
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
@@ -98,9 +96,7 @@ public:
 
 	// Public data
 	int m_iName;
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	CvString m_sName;
-#endif
 	int m_iCityX;
 	int m_iCityY;
 	CvSpyRank m_eRank;
@@ -225,11 +221,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex);
 #endif
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	void GetNextSpyName(CvEspionageSpy* pSpy);
-#else
-	int  GetNextSpyName(void);
-#endif
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);

@@ -53,12 +53,7 @@ public:
 	int GetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy) const;
 	void SetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iValue);
 	void ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iChange);
-
-#if defined(MOD_AI_SMART_V3)
 	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, bool bBoostGSMainFlavor = false);
-#else
-	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType);
-#endif
 
 	// **********
 	// Stuff relating to guessing what other Players are up to
@@ -69,9 +64,7 @@ public:
 	AIGrandStrategyTypes GetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer) const;
 	GuessConfidenceTypes GetGuessOtherPlayerActiveGrandStrategyConfidence(PlayerTypes ePlayer) const;
 	void SetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer, AIGrandStrategyTypes eGrandStrategy, GuessConfidenceTypes eGuessConfidence);
-#if defined(MOD_BALANCE_CORE)
 	bool OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGrandStrategyTypes eGrandStrategy);
-#endif
 
 	int GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, int iWorldMilitaryAverage);
 	int GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, int iWorldCultureAverage, int iWorldTourismAverage);
