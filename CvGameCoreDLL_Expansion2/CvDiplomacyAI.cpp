@@ -24959,6 +24959,11 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		return true;
 #endif
 
+	if (IsUntrustworthy(ePlayer))
+	{
+		return false;
+	}
+
 #if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 	//If they need influence over us, we don't want their OB, thanks.
 	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) >= INFLUENCE_TREND_STATIC))
@@ -25049,6 +25054,11 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	if (GetPlayer()->IsAITeammateOfHuman())
+	{
+		return false;
+	}
+
+	if (IsUntrustworthy(ePlayer))
 	{
 		return false;
 	}
