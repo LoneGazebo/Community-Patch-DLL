@@ -15995,9 +15995,6 @@ bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
-	if (iMinWaterSize==-1)
-		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
-
 	VALIDATE_OBJECT
 	return plot()->isCoastalLand(iMinWaterSize);
 }
@@ -32515,8 +32512,8 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires coast
 	if(pkBuildingInfo->IsWater())
 	{
-		//-1 is ocean (fast check), 1 is any lake (not cached, slower)
-		if(!isCoastal(-1) && !isCoastal(1))
+		//-1 is ocean (fast check)
+		if(!isCoastal(-1) && !isCoastal(pkBuildingInfo->GetMinAreaSize()))
 			return false;
 	}
 
