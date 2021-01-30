@@ -19032,20 +19032,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsPlayerRecklessExpander(ePlayer))
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		int iWarIncrease = vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+		int iHostileIncrease = vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		int iDeceptiveIncrease = vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
 
 		if (IsConqueror() || bConquerorTraits)
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+			iWarIncrease += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+			iHostileIncrease += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 		}
 
-		if (bEasyTarget || bWeHaveUUActive)
+		if ((bEasyTarget && bGoodAttackTarget) || bWeHaveUUActive)
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+			iWarIncrease += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 3;
 		}
+
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += iWarIncrease * GetBoldness() * DifficultyModifier / 1000;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += iHostileIncrease * GetBoldness() * DifficultyModifier / 1000;
+		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetBoldness() * DifficultyModifier / 1000;
 	}
 
 	////////////////////////////////////
@@ -19054,20 +19058,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsPlayerWonderSpammer(ePlayer))
 	{
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		int iWarIncrease = vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+		int iHostileIncrease = vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		int iDeceptiveIncrease = vApproachBias[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
 
 		if (IsCultural() || IsConqueror() || bCulturalTraits || bConquerorTraits)
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
-			vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+			iWarIncrease += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+			iHostileIncrease += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 		}
 
-		if (bEasyTarget || bWeHaveUUActive)
+		if ((bEasyTarget && bGoodAttackTarget) || bWeHaveUUActive)
 		{
-			vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 2;
+			iWarIncrease += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 3;
 		}
+
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += iWarIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += iHostileIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
+		vApproachScores[MAJOR_CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
 	}
 
 	////////////////////////////////////
