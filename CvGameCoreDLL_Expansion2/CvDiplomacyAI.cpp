@@ -9448,7 +9448,6 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 {
 	int iBase = /*30*/ GC.getMILITARY_STRENGTH_BASE();
 	int iMilitaryStrength = iBase + GetPlayer()->GetMilitaryMight();
-	int iHumanStrengthMod = GetPlayer()->isHuman() ? 0 : max(0, GC.getGame().getHandicapInfo().getAIHumanStrengthMod()); // Ranges from 0 (Settler) to 80 (Deity)
 
 	// Modify our strength based on military rating (combat skill)
 	iMilitaryStrength *= ComputeRatingStrengthAdjustment(GetID());
@@ -9464,9 +9463,9 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			int iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
 
 			// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
-			if (!GetPlayer()->isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
+			if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 			{
-				iOtherPlayerMilitaryStrength *= GET_PLAYER(ePlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+				iOtherPlayerMilitaryStrength *= (100 + max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod()));
 				iOtherPlayerMilitaryStrength /= 100;
 			}
 
@@ -9498,9 +9497,9 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-							if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+							if (!GetPlayer()->IsHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+								iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
 								iLoopPlayerStrength /= 100;
 							}
 
@@ -9525,9 +9524,9 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 						// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-						if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+						if (!GetPlayer()->IsHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 						{
-							iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+							iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
 							iLoopPlayerStrength /= 100;
 						}
 
@@ -9552,9 +9551,9 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 								// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-								if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+								if (!GetPlayer()->IsHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 								{
-									iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+									iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
 									iLoopPlayerStrength /= 100;
 								}
 
@@ -9570,9 +9569,9 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-							if (!GetPlayer()->isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+							if (!GetPlayer()->IsHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								iLoopPlayerStrength *= GET_PLAYER(eLoopPlayer).isHuman() ? (100 + iHumanStrengthMod) : 100;
+								iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
 								iLoopPlayerStrength /= 100;
 							}
 
@@ -9725,7 +9724,6 @@ void CvDiplomacyAI::DoUpdateMilitaryThreats()
 	iMyMilitaryStrength /= 100;
 
 	int iCityLoop;
-	int iHumanStrengthMod = GetPlayer()->isHuman() ? 0 : max(0, GC.getGame().getHandicapInfo().getAIHumanStrengthMod()); // Ranges from 0 (Settler) to 80 (Deity)
 	int iNumMajorsEver = max(1, GC.getGame().countMajorCivsEverAlive());
 	int iNumMinorsEver = max(1, GC.getGame().GetNumMinorCivsEver());
 
@@ -9769,11 +9767,11 @@ void CvDiplomacyAI::DoUpdateMilitaryThreats()
 			int iMilitaryThreat = GET_PLAYER(ePlayer).GetMilitaryMight();
 
 			// Human? Strength perception is modified...
-			if (GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
+			if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
 			{
 				if (!IsAtWar(ePlayer) || GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 				{
-					iMilitaryThreat *= (100 + iHumanStrengthMod);
+					iMilitaryThreat *= (100 + max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod()));
 					iMilitaryThreat /= 100;
 				}
 			}
@@ -10075,8 +10073,6 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
 	if (eComparedToPlayer < 0 || eComparedToPlayer >= MAX_CIV_PLAYERS) return 0;
 
-	int iHumanStrengthMod = max(0, GC.getGame().getHandicapInfo().getAIHumanStrengthMod()); // Ranges from 0 (Settler) to 80 (Deity)
-
 	// First calculate this power's military power
 	int iStrengthEstimate = GET_PLAYER(ePlayer).GetMilitaryMight();
 
@@ -10085,7 +10081,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	{
 		if (!GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 		{
-			iStrengthEstimate *= (100 + iHumanStrengthMod);
+			iStrengthEstimate *= (100 + max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod()));
 			iStrengthEstimate /= 100;
 		}
 	}
@@ -10272,12 +10268,15 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				int iMight = GET_PLAYER(*it).GetMilitaryMight();
 
 				// Human? Strength perception is modified...
-				if (GET_PLAYER(*it).isHuman() && !GET_PLAYER(*it).IsVassalOfSomeone())
+				if (!bSelfEvaluation || !GET_PLAYER(ePlayer).isHuman())
 				{
-					if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
+					if (GET_PLAYER(*it).isHuman() && !GET_PLAYER(*it).IsVassalOfSomeone())
 					{
-						iMight *= (100 + iHumanStrengthMod);
-						iMight /= 100;
+						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
+						{
+							iMight *= (100 + max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod()));
+							iMight /= 100;
+						}
 					}
 				}
 
