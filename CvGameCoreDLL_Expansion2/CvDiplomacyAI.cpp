@@ -8307,8 +8307,20 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 				}
 			}
 
+			int iDifficultyMod = 0;
+
+			// AI a bit less aggressive about this on lower difficulties
+			if (GET_PLAYER(ePlayer).isHuman())
+			{
+				int AIDeclareWarProb = GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+				if (AIDeclareWarProb < 150)
+					iDifficultyMod = 2;
+				else if (AIDeclareWarProb < 200)
+					iDifficultyMod = 1;
+			}
+
 			// Must have built several more Wonders than the median player in this game
-			if (iNumWonders > (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
+			if (iNumWonders > (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD() + iDifficultyMod))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
 				if (iNumWonders >= (fAverageNumWonders * 1.5))
@@ -44801,9 +44813,21 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		// For scaling, go with whichever value is smaller
 		int iWonderDifference = min(iCivDifference, iMedianDifference);
 
-		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1))
+		int iDifficultyMod = 0;
+
+		// AI a bit less aggressive about this on lower difficulties
+		if (GET_PLAYER(ePlayer).isHuman())
 		{
-			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*5*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
+			int AIDeclareWarProb = GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+			if (AIDeclareWarProb < 150)
+				iDifficultyMod = 2;
+			else if (AIDeclareWarProb < 200)
+				iDifficultyMod = 1;
+		}
+
+		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + iDifficultyMod + 1))
+		{
+			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + iDifficultyMod + 1)) * /*5*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
 
 			if (iOpinionWeight > /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP())
 			{
