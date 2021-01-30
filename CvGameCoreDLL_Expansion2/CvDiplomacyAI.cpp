@@ -3715,11 +3715,6 @@ void CvDiplomacyAI::SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal)
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
 	if (eWarGoal < NO_WAR_GOAL_TYPE || eWarGoal >= NUM_WAR_GOALS) return;
 	m_aeWarGoal[(int)ePlayer] = eWarGoal;
-
-	if (eWarGoal == WAR_GOAL_PEACE)
-		ChangeWantPeaceCounter(ePlayer, 1);
-	else
-		SetWantPeaceCounter(ePlayer, 0);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -11641,7 +11636,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// Phony war - we want peace
-	if (IsPhonyWar(ePlayer))
+	if (IsPhonyWar(ePlayer) && iTheirDanger == 0)
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
@@ -11857,22 +11852,26 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 	}
 
-	if (GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
+	switch (GetWarState(ePlayer))
 	{
-		iWantPeace -= 2;
-	}
-	else if (GetWarProjection(ePlayer) <= WAR_PROJECTION_UNKNOWN)
-	{
-		iWantPeace += 2;
-	}
-
-	if (GetWarState(ePlayer) <= WAR_STATE_STALEMATE)
-	{
-		iWantPeace += 2;
-	}
-	else if (GetWarState(ePlayer) >= WAR_STATE_CALM)
-	{
-		iWantPeace -= 2;
+	case WAR_STATE_NEARLY_WON:
+		iWantPeace -= bReadyForVassalage ? 0 : 10 * iOurMultiplier;
+		break;
+	case WAR_STATE_OFFENSIVE:
+		iWantPeace -= 5 * iOurMultiplier;
+		break;
+	case WAR_STATE_CALM:
+		iWantPeace -= 2 * iOurMultiplier;
+		break;
+	case WAR_STATE_STALEMATE:
+		iWantPeace += 2 * iTheirMultiplier;
+		break;
+	case WAR_STATE_DEFENSIVE:
+		iWantPeace += 5 * iTheirMultiplier;
+		break;
+	case WAR_STATE_NEARLY_DEFEATED:
+		iWantPeace += 10 * iTheirMultiplier;
+		break;
 	}
 
 	iWantPeace += GetWantPeaceCounter(ePlayer);
@@ -24167,12 +24166,22 @@ void CvDiplomacyAI::DoCounters()
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
 				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
 				SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+
+				if (GetWarGoal(eLoopPlayer) == WAR_GOAL_PEACE)
+				{
+					ChangeWantPeaceCounter(eLoopPlayer, 1);
+				}
+				else
+				{
+					SetWantPeaceCounter(eLoopPlayer, 0);
+				}
 			}
 			else
 			{
 				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
 				SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
 				ChangePlayerNumTurnsAtPeace(eLoopPlayer, 1);
+				SetWantPeaceCounter(eLoopPlayer, 0);
 			}
 
 			///////////////////////////////
@@ -25278,8 +25287,8 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
 		return false;
 
-	// Our cities are threatened by them
-	if (GetPlayer()->GetDiplomacyAI()->GetNumberOfThreatenedCities(ePlayer) > 0)
+	// Our cities are threatened by them or vice versa
+	if (GetPlayer()->GetDiplomacyAI()->GetNumberOfThreatenedCities(ePlayer) > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumberOfThreatenedCities(GetPlayer()->GetID()) > 0)
 		return false;
 
 	// They're too close or have a lot of soldiers nearby
@@ -42595,6 +42604,11 @@ int CvDiplomacyAI::GetBaseOpinionScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iEra = (int)GetPlayer()->GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
 
 	switch (GetLandDisputeLevel(ePlayer))
 	{
@@ -42632,19 +42646,41 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	{
 		if (IsConqueror())
 		{
-			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER() * iEra;
 		}
-		if (GetPlayer()->GetCurrentEra() <= 1)
+		else if (iEra <= 1)
 		{
 			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
 		}
 	}
 
-	if (iOpinionWeight > 0)
+	// Scale based on flavors and difficulty level
+	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetBoldness();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+
+		if (iOpinionWeight > 0)
+		{
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			iOpinionWeight /= 1000;
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else
+			{
+				iOpinionWeight /= 5;
+			}
+		}
 	}
 	
 	return iOpinionWeight;
@@ -42653,6 +42689,11 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iEra = (int)GetPlayer()->GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
 
 	switch (GetWonderDisputeLevel(ePlayer))
 	{
@@ -42678,23 +42719,50 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		}
 		else if (!IsPlayerWonderSpammer(ePlayer))
 		{
-			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
+			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL() * iEra;
 		}
 	}
 
-	if (iOpinionWeight > 0)
+	// Scale based on flavors and difficulty level
+	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetWonderCompetitiveness();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+
+		if (iOpinionWeight > 0)
+		{
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			iOpinionWeight /= 1000;
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else
+			{
+				iOpinionWeight /= 5;
+			}
+		}
 	}
-	
+
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iEra = (int)GetPlayer()->GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
 	
 	if (GetPlayer()->HasMetValidMinorCiv())
 	{
@@ -42722,15 +42790,37 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			}
 			else if (!IsMinorCivTroublemaker(ePlayer, true))
 			{
-				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
+				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT() * iEra;
 			}
 		}
 
-		if (iOpinionWeight > 0)
+		// Scale based on flavors and difficulty level
+		if (iOpinionWeight != 0)
 		{
 			iOpinionWeight *= GetMinorCivCompetitiveness();
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1000;
+
+			if (iOpinionWeight > 0)
+			{
+				iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else
+			{
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+					iOpinionWeight /= 1000;
+				}
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+					iOpinionWeight /= 1000;
+				}
+				else
+				{
+					iOpinionWeight /= 5;
+				}
+			}
 		}
 	}
 
@@ -42740,6 +42830,11 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iEra = (int)GetPlayer()->GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
 
 	if (!IsScientist())
 		return 0;
@@ -42756,15 +42851,37 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_TECH_WEAK();
 		break;
 	case BLOCK_LEVEL_NONE:
-		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_TECH_NONE();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_TECH_NONE() * iEra;
 		break;
 	}
 
-	if (iOpinionWeight > 0)
+	// Scale based on flavors and difficulty level
+	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetDiploBalance();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+
+		if (iOpinionWeight > 0)
+		{
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			iOpinionWeight /= 1000;
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else
+			{
+				iOpinionWeight /= 5;
+			}
+		}
 	}
 	
 	return iOpinionWeight;
@@ -42773,6 +42890,11 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iEra = (int)GetPlayer()->GetCurrentEra();
+	if (iEra <= 0)
+	{
+		iEra = 1;
+	}
 
 	if (!IsCultural())
 		return 0;
@@ -42789,15 +42911,37 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_POLICY_WEAK();
 		break;
 	case BLOCK_LEVEL_NONE:
-		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_POLICY_NONE();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_POLICY_NONE() * iEra;
 		break;
 	}
 
-	if (iOpinionWeight > 0)
+	// Scale based on flavors and difficulty level
+	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetDiploBalance();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+
+		if (iOpinionWeight > 0)
+		{
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			iOpinionWeight /= 1000;
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			{
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				iOpinionWeight /= 1000;
+			}
+			else
+			{
+				iOpinionWeight /= 5;
+			}
+		}
 	}
 	
 	return iOpinionWeight;
