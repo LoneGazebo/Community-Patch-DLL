@@ -33,7 +33,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_ANCIENT_ERA', '10'
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_CLASSICAL_ERA', '5';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_EARLY_GAME', '-5';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_WARMONGER', '10'; -- penalty for Conqueror AIs
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-5'; -- bonus for Conqueror AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-10'; -- bonus for Conqueror AIs
 
 -- You are (not) competing for World Wonders.
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_WONDER_FIERCE';
