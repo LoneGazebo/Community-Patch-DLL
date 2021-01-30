@@ -8311,7 +8311,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 			if (iNumWonders > (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
-				if (iNumWonders > (fAverageNumWonders * 1.5))
+				if (iNumWonders >= (fAverageNumWonders * 1.5))
 				{
 					SetPlayerWonderSpammer(ePlayer, true);
 					continue;
@@ -18136,7 +18136,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						bThinkingAboutDogpiling = true;
 					}
-					else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) > 50)
+
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40)
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[MAJOR_CIV_APPROACH_AFRAID] -= vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 5;
@@ -18159,10 +18160,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_DEFEAT && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer) && GetCoopWarState(eLoopPlayer, ePlayer) < COOP_WAR_STATE_PREPARING)
 					{
 						bAllowDogpiling = false;
-						break;
 					}
 
-					if (bThinkingAboutDogpiling)
+					if (bThinkingAboutDogpiling && bAllowDogpiling)
 					{
 						int iBonusMod = (int)GetVictoryBlockLevel(ePlayer) + (int)GetVictoryDisputeLevel(ePlayer) + (int)GetWarProjection(ePlayer) + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarProjection(ePlayer);
 
