@@ -30709,7 +30709,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = iTemp * (iFlavorMobile * 2 + iFlavorNavalRecon);
 		iExtra *= 45;
-		iExtra *= 4 / ( 6 + baseMoves(false));
+		iExtra *= 4 / (max (1, 6 + baseMoves(false)));
 		iExtra *= max(1,getNumAttacks());
 		if (IsGainsXPFromScouting())
 			iExtra *= 3;
