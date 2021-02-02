@@ -19858,32 +19858,6 @@ void CvPlayer::DoWarVictoryBonuses()
 		// Player modifier
 		int iLengthModifier = getGoldenAgeModifier();
 
-		// Trait modifier
-		iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		// Do we get increased Golden Ages from a resource monopoly?
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if(eResourceLoop != NO_RESOURCE)
-				{
-					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-					if (pInfo && pInfo->isMonopoly())
-					{
-						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-						{
-							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GetMonopolyModPercent();
-							iLengthModifier += iTemp;
-						}
-					}
-				}
-			}
-		}
-#endif
 		if(iLengthModifier != 0)
 		{
 			iTurns = iTurns * (100 + iLengthModifier) / 100;
@@ -25552,32 +25526,6 @@ int CvPlayer::getGoldenAgeLength() const
 	// Player modifier
 	int iLengthModifier = getGoldenAgeModifier();
 
-	// Trait modifier
-	iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Do we get increased Golden Ages from a resource monopoly?
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
-			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-					{
-						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += GetMonopolyModPercent();
-						iLengthModifier += iTemp;
-					}
-				}
-			}
-		}
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	if(iLengthModifier != 0)
 #else
@@ -25589,46 +25537,6 @@ int CvPlayer::getGoldenAgeLength() const
 
 	return iTurns;
 }
-
-//	--------------------------------------------------------------------------------
-
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::getGoldenAgeLengthModifier() const // JJ: A way to get the golden age modifier only, in case your iTurn is not GC.getGame().goldenAgeLength()
-{
-
-	// Player modifier
-	int iLengthModifier = getGoldenAgeModifier();
-
-	// Trait modifier
-	iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Do we get increased Golden Ages from a resource monopoly?
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
-			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-					{
-						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += GetMonopolyModPercent();
-						iLengthModifier += iTemp;
-					}
-				}
-			}
-		}
-	}
-#endif
-
-	return iLengthModifier;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitGoldenAges() const
@@ -25661,9 +25569,39 @@ void CvPlayer::changeStrikeTurns(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getGoldenAgeModifier() const
+int CvPlayer::getGoldenAgeModifier(bool bCheckMonopolies) const
 {
-	return m_iGoldenAgeModifier;
+	// Player modifier, eg policies and buildings
+	int iModifier = m_iGoldenAgeModifier; 
+
+	// Trait modifier
+	iModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Resource monopolies (not cached, so give an option to skip this check)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && bCheckMonopolies)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes)iResourceLoop;
+			if (eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if (HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp += GetMonopolyModPercent();
+						iModifier += iTemp;
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	return iModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -44473,31 +44411,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		// Player modifier
 		int iLengthModifier = getGoldenAgeModifier();
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		// Do we get increased Golden Ages from a resource monopoly?
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if(eResourceLoop != NO_RESOURCE)
-				{
-					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-					if (pInfo && pInfo->isMonopoly())
-					{
-						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-						{
-							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GetMonopolyModPercent();
-							iLengthModifier += iTemp;
-						}
-					}
-				}
-			}
-		}
-#endif
-		// Trait modifier
-		iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
 
 		if(iLengthModifier > 0)
 		{

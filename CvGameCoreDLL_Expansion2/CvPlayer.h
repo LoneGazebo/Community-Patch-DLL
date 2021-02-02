@@ -982,17 +982,13 @@ public:
 #endif
 	int getGoldenAgeLength() const;
 
-#if defined(MOD_BALANCE_CORE)
-	int getGoldenAgeLengthModifier() const;
-#endif
-
 	int getNumUnitGoldenAges() const;
 	void changeNumUnitGoldenAges(int iChange);
 
 	int getStrikeTurns() const;
 	void changeStrikeTurns(int iChange);
 
-	int getGoldenAgeModifier() const;
+	int getGoldenAgeModifier(bool bCheckMonopolies = true) const;
 	void changeGoldenAgeModifier(int iChange);
 
 	// Great People Stuff

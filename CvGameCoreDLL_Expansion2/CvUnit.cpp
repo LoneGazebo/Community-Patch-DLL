@@ -1291,14 +1291,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
 		if (pPlayer)
 		{
-			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // JJ: Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
-			if (iGATurnsfromGPBirth > 0) // JJ: If someone defined a positive value (no such thing as negative GA turns!)
+			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
+			if (iGATurnsfromGPBirth > 0) // If someone defined a positive value (no such thing as negative GA turns!)
 			{
-				iGATurnsfromGPBirth = iGATurnsfromGPBirth * (100 + pPlayer->getGoldenAgeLengthModifier()) / 100; // Adjust for in-game modifiers (eg Persia, GA monopoly, etc)
-				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // JJ: Adjust for game speed
+				iGATurnsfromGPBirth = iGATurnsfromGPBirth * (100 + pPlayer->getGoldenAgeModifier()) / 100; // Adjust for in-game modifiers (eg Persia, GA monopoly, etc)
+				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // Adjust for game speed
 				iGATurnsfromGPBirth /= 100;
 				int iValue = pPlayer->GetGoldenAgeProgressMeter();
-				int bFree = 1; // JJ: Does not increase the cost of the next GA
+				int bFree = 1; // Does not increase the cost of the next GA
 				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, bFree);
 			}
 		}
@@ -6068,7 +6068,22 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		}
 	}
 
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+	if (atWar(pPlot->getTeam(), getTeam()))
+		return false;
+
+	if (MOD_EVENTS_MINORS_INTERACTION)
+	{
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftUnit, getOwner(), GET_PLAYER(pPlot->getOwner()), GetID()) == GAMEEVENTRETURN_FALSE)
+		{
+			return false;
+		}
+	}
+
+	return true;
+#else
 	return !atWar(pPlot->getTeam(), getTeam());
+#endif
 }
 
 
@@ -10387,12 +10402,12 @@ bool CvUnit::pillage()
 					if (iEra <= 0)
 						iEra = 1;
 
-					iPillageGold = 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
+					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 				else
 				{
-					iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
+					iPillageGold += GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -13077,31 +13092,6 @@ int CvUnit::GetGoldenAgeTurns() const
 	// Player mod
 	int iLengthModifier = kPlayer.getGoldenAgeModifier();
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Do we get increased Golden Ages from a resource monopoly?
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
-			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-					{
-						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += kPlayer.GetMonopolyModPercent();
-						iLengthModifier += iTemp;
-					}
-				}
-			}
-		}
-	}
-#endif
-	// Trait mod
-	iLengthModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
 	if(iLengthModifier > 0)
 		iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
 

@@ -5594,7 +5594,7 @@ bool CvPlayerPolicies::CanAdoptIdeology(PolicyBranchTypes eIdeology) const
 {
 #if defined(MOD_EVENTS_IDEOLOGIES)
 	if (MOD_EVENTS_IDEOLOGIES) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptTenet, m_pPlayer->GetID(), eIdeology) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptIdeology, m_pPlayer->GetID(), eIdeology) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}

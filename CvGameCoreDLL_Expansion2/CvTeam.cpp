@@ -8705,16 +8705,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(GetCurrentEra());
-			
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
-		}
 #if defined(MOD_BALANCE_CORE)
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
