@@ -7859,7 +7859,7 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposalPlayer(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
 	}
 #endif
 

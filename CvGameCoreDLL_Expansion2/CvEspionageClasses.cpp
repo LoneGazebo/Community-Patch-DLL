@@ -89,7 +89,7 @@ void CvEspionageSpy::SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyStat
 
 #if defined(MOD_EVENTS_ESPIONAGE)
 	if (MOD_EVENTS_ESPIONAGE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageResult, (int) eSpyOwner, iSpyIndex, (int) eSpyState, m_iCityX, m_iCityY);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageState, (int) eSpyOwner, iSpyIndex, (int) eSpyState, m_iCityX, m_iCityY);
 	}
 #endif
 }
