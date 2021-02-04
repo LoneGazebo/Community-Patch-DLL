@@ -25,6 +25,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BASE_AI', '0';
 --	//////////////////////////////////////
 
 -- Territorial disputes strain your relationship. / You have no contested borders.
+-- NOTE: This modifier scales based on the AI's Boldness flavor and the player's difficulty level.
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_LAND_FIERCE';
 UPDATE Defines SET Value = '25' WHERE Name = 'OPINION_WEIGHT_LAND_STRONG';
 UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_LAND_WEAK';
@@ -33,35 +34,39 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_ANCIENT_ERA', '10'
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_CLASSICAL_ERA', '5';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_EARLY_GAME', '-5';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_WARMONGER', '10'; -- penalty for Conqueror AIs
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-5'; -- bonus for Conqueror AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-5'; -- bonus for Conqueror AIs (increases based on Neediness flavor)
 
 -- You are (not) competing for World Wonders.
+-- NOTE: This modifier scales based on the AI's WonderCompetitiveness flavor and the player's difficulty level.
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_WONDER_FIERCE';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_WONDER_STRONG';
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_WONDER_WEAK';
 UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_WONDER_NONE';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_CULTURAL', '10'; -- penalty for Cultural AIs
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_NONE_CULTURAL', '-10'; -- bonus for Cultural AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_NONE_CULTURAL', '-5'; -- bonus for Cultural AIs (increases based on Neediness flavor)
 
 -- You are (not) competing for the favor of the same City-States!
+-- NOTE: This modifier scales based on the AI's MinorCivCompetitiveness flavor and the player's difficulty level.
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_MINOR_CIV_FIERCE';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_MINOR_CIV_STRONG';
 UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_MINOR_CIV_WEAK';
 UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_MINOR_CIV_NONE';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MINOR_CIV_DIPLOMAT', '10'; -- penalty for Diplomat AIs
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT', '-10'; -- bonus for Diplomat AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT', '-5'; -- bonus for Diplomat AIs (increases based on Neediness flavor)
 
 -- You are (not) competing for technological advancement. (only for Scientific AIs)
+-- NOTE: This modifier scales based on the AI's DiploBalance flavor and the player's difficulty level.
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_TECH_FIERCE', '30';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_TECH_STRONG', '20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_TECH_WEAK', '10';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_TECH_NONE', '-10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_TECH_NONE', '-5'; -- increases based on Neediness flavor
 
 -- You are (not) competing for cultural advancement. (only for Cultural AIs)
+-- NOTE: This modifier scales based on the AI's DiploBalance flavor and the player's difficulty level.
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_FIERCE', '30';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_STRONG', '20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_WEAK', '10';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_NONE', '-10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_NONE', '-5'; -- increases based on Neediness flavor
 
 -- NOTE: Values are multiplied by VictoryCompetitiveness flavor and then divided by 5.
 -- NOTE: If endgame aggression is enabled, victory dispute/block weights are multiplied by AIDeclareWarProb (DifficultyMod.xml) and then divided by 100 against players who are close to achieving any victory condition.
@@ -449,6 +454,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RESURRECTOR_ATTACKED_US
 
 -- Reckless Expander: Too many cities/land without enough military to back it up
 -- AI only applies this if nearby, competing for victory, and you have more land/cities than they do
+-- NOTE: This penalty scales based on the AI's Boldness flavor and the player's difficulty level.
 
 INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_CITIES_THRESHOLD', '200'; -- must have at least this % city count compared to the median
 INSERT INTO Defines (Name, Value) SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- OR must have at least this % tile count compared to the median
@@ -463,6 +469,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRAT
 -- Wonder Spammer: Too many World Wonders compared to other civs
 -- AI only applies this if nearby or Cultural, they're competing for victory, and you have more Wonders than they do
 -- Captured Wonders, Corporations and World Congress Wonders do not count for this penalty!
+-- NOTE: This penalty scales based on the AI's WonderCompetitiveness flavor and the player's difficulty level. At lower difficulties the AI is also slightly more tolerant of Wonder spamming.
 
 INSERT INTO Defines (Name, Value) SELECT 'WONDER_SPAMMER_THRESHOLD', '3'; -- must have constructed this many more Wonders than the median (only counting Wonder-building civs); must also have at least 50% more than the global average
 

@@ -94,7 +94,7 @@ FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);
 
 
-typedef FStaticVector< PlayerTypes, MAX_PLAYERS, true, c_eCiv5GameplayDLL > CivsList;
+typedef vector<PlayerTypes> CivsList;
 typedef CvWeightedVector< PlayerTypes, MAX_PLAYERS, true > WeightedCivsList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

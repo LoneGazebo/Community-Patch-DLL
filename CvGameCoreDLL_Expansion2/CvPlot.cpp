@@ -735,7 +735,7 @@ void CvPlot::updateCenterUnit()
 //	--------------------------------------------------------------------------------
 void CvPlot::verifyUnitValidPlot()
 {
-	FStaticVector<IDInfo, 50, true, c_eCiv5GameplayDLL, 0> oldUnitList;
+	vector<IDInfo> oldUnitList;
 
 	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)

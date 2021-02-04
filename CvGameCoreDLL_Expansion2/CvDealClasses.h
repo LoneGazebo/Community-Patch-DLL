@@ -97,6 +97,7 @@ public:
 	CvDeal(const CvDeal& source);
 	virtual ~CvDeal();
 	CvDeal& operator=(const CvDeal& source);
+	bool operator==(const CvDeal& other) const;
 
 	// Public data
 	PlayerTypes m_eFromPlayer;
@@ -279,7 +280,7 @@ FDataStream& OldLoad(FDataStream&, CvDeal&);
 FDataStream& operator>>(FDataStream&, CvDeal&);
 FDataStream& operator<<(FDataStream&, const CvDeal&);
 
-typedef FStaticVector<CvDeal, 20, false, c_eCiv5GameplayDLL > DealList;
+typedef vector<CvDeal> DealList;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvGameDeals
 //!  \brief All the information about deals made between players

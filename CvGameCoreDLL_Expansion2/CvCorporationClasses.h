@@ -137,7 +137,7 @@ FDataStream& operator<<(FDataStream&, const CorporationTypes&);
 
 class CvPlayerCorporations;
 
-typedef FStaticVector<CvCorporation, 16, false, c_eCiv5GameplayDLL > CorporationList;
+typedef vector<CvCorporation> CorporationList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameCorporations

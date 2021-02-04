@@ -73,8 +73,8 @@ public:
 
 private:
 
-	void LogGrandStrategies(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities);
-	void LogGuessOtherPlayerGrandStrategy(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities, PlayerTypes ePlayer);
+	void LogGrandStrategies(const vector<int>& vGrandStrategyPriorities);
+	void LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer);
 
 	CvPlayer* m_pPlayer;
 	CvAIGrandStrategyXMLEntries* m_pAIGrandStrategies;

@@ -367,7 +367,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{
-				FStaticVector<LeagueProjectRewardTypes, 4, true, c_eCiv5GameplayDLL> veRewards;
+				vector<LeagueProjectRewardTypes> veRewards;
 				veRewards.push_back(pInfo->GetRewardTier3());
 				veRewards.push_back(pInfo->GetRewardTier2());
 				veRewards.push_back(pInfo->GetRewardTier1());

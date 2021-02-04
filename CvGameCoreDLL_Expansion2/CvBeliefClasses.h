@@ -413,7 +413,7 @@ private:
 	std::vector<CvBeliefEntry*> m_paBeliefEntries;
 };
 
-typedef FStaticVector<int, 5, false, c_eCiv5GameplayDLL >BeliefList;
+typedef vector<int>BeliefList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvReligionBeliefs

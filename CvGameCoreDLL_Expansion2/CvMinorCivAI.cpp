@@ -5481,7 +5481,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 		// Pick and add a unique luxury
 		if (bAddUniqueLuxury)
 		{
-			FStaticVector< ResourceTypes, 64, true, c_eCiv5GameplayDLL > veUniqueLuxuries;
+			vector<ResourceTypes> veUniqueLuxuries;
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
 				const ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
@@ -6032,7 +6032,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// Pick a valid quest
-	FStaticVector<MinorCivQuestTypes, NUM_MINOR_CIV_QUEST_TYPES, true, c_eCiv5GameplayDLL, 0> veValidQuests;
+	vector<MinorCivQuestTypes> veValidQuests;
 	MinorCivQuestTypes eQuest;
 	PlayerTypes ePlayer;
 	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -6117,7 +6117,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	FStaticVector<MinorCivQuestTypes, NUM_MINOR_CIV_QUEST_TYPES, true, c_eCiv5GameplayDLL, 0> veValidQuests;
+	vector<MinorCivQuestTypes> veValidQuests;
 
 	int iCount, iCountLoop;
 
@@ -9208,7 +9208,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	{
 		CvArea* pPlayerArea = GC.getMap().getArea(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
 
-		FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veValidResources; // 64 resources should be way more than enough
+		vector<ResourceTypes> veValidResources; // 64 resources should be way more than enough
 		TechTypes eRevealTech;
 		TechTypes eConnectTech;
 
@@ -9290,7 +9290,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestWonder;
 
-	FStaticVector<BuildingTypes, 50, true, c_eCiv5GameplayDLL, 0> veValidBuildings; // 50 wonders should be overkill
+	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9375,7 +9375,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestNationalWonder;
 
-	FStaticVector<BuildingTypes, 15, true, c_eCiv5GameplayDLL, 0> veValidBuildings; // 50 wonders should be overkill
+	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9472,7 +9472,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 
 	PlayerTypes eBestCityStateLiberate = NO_PLAYER;
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
 	int iTargetLoop;
@@ -9553,7 +9553,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
-	FStaticVector<UnitTypes, 8, true, c_eCiv5GameplayDLL, 0> veValidUnits;
+	vector<UnitTypes> veValidUnits;
 
 	// Loop through all Units and see if they're useful
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9896,7 +9896,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestBuilding;
 
-	FStaticVector<BuildingTypes, 128, true, c_eCiv5GameplayDLL, 0> veValidBuildings;
+	vector<BuildingTypes> veValidBuildings;
 
 	// Have nowhere to build.
 	if(GET_PLAYER(ePlayer).getNumCities() <= 3 || GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
@@ -10075,7 +10075,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	// First, loop through the Majors in the game to what the closest proximity is to any of the players
 	PlayerTypes eTarget;
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(uint iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10399,7 +10399,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam* pTeam = &GET_TEAM(eTeam);
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// First, loop through majors and see if the player has met them
 	PlayerTypes eTargetMajor;
@@ -10519,7 +10519,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 		return NO_PLAYER;
 	}
 
-	FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
+	vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -14591,7 +14591,7 @@ void CvMinorCivAI::DoMarriage(PlayerTypes eMajor)
 
 	// Pay the cost
 	const int iBuyoutCost = GetMarriageCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost, 6);
 	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 
 	SetMajorMarried(eMajor, true);
@@ -14779,7 +14779,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 
 	// Pay the cost
 	const int iBuyoutCost = GetBuyoutCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iBuyoutCost,6);
 	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 
 	int iNumUnits = 0;
@@ -14842,7 +14842,7 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 	SetDisableNotifications(true);
 	iCapitalX = -1;
 	iCapitalY = -1;
-	FStaticVector<CvCity*, 16, false, c_eCiv5GameplayDLL, 0> vpCitiesToAcquire;
+	vector<CvCity*> vpCitiesToAcquire;
 	int iLoopCity;
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity, true))
 	{
@@ -16642,7 +16642,7 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 	{
 		int iFriendshipChange = GetFriendshipFromGoldGift(ePlayer, iGold);
 		if(iFriendshipChange > 0)
-			GET_PLAYER(ePlayer).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iGold,4);
+			GET_PLAYER(ePlayer).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iGold,4);
 
 		GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(-iGold);
 		
@@ -16977,7 +16977,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	gDLL->GameplayDoFX(pDllPlot.get());
 
 	const int iCost = GetGiftTileImprovementCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iCost,5);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iCost,5);
 	pPlayer->GetTreasury()->ChangeGold(-iCost);
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
@@ -17866,7 +17866,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 
 				// Build Resource info
 				int iNumResourceTypes = 0;
-				FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veResources;
+				vector<ResourceTypes> veResources;
 				ResourceTypes eResource;
 				ResourceUsageTypes eUsage;
 				int iResourceQuantity;

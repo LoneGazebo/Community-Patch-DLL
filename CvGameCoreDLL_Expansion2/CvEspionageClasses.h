@@ -178,18 +178,18 @@ struct IntrigueNotificationMessage
 	int iSpyID;
 	bool m_bShared;
 };
-typedef FStaticVector<CvEspionageSpy, 14, false, c_eCiv5GameplayDLL > SpyList;
-typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
-typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
+typedef vector<CvEspionageSpy> SpyList;
+typedef vector<TechTypes> TechList;
+typedef vector<TechList> PlayerTechList;
+typedef vector<int> NumTechsToStealList;
 #if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumGWToStealList;
-typedef Firaxis::Array<std::vector<GWList>, MAX_MAJOR_CIVS> GreatWorkStealList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumSpyActionsDone;
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxGWCost;
+typedef vector<int> NumGWToStealList;
+typedef vector<vector<GWList>> GreatWorkStealList;
+typedef vector<int> NumSpyActionsDone;
+typedef vector<int> MaxGWCost;
 #endif
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
-typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
+typedef vector<int> MaxTechCost;
+typedef vector<vector<HeistLocation>> HeistLocationList;
 
 class CvPlayerEspionage
 {
@@ -397,13 +397,13 @@ FDataStream& operator<<(FDataStream&, const CvCityEspionage&);
 //!  Key Attributes:
 //!  - Object is in the player class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfTechTurnList;
+typedef vector<int> EspionageAIOutOfTechTurnList;
 #if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfGWTurnList;
+typedef vector<int> EspionageAIOutOfGWTurnList;
 #endif
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAILastTurns;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAICount;
-typedef std::vector<CvCity*> EspionageCityList;
+typedef vector<int> EspionageAILastTurns;
+typedef vector<int> EspionageAICount;
+typedef vector<CvCity*> EspionageCityList;
 
 class CvEspionageAI
 {

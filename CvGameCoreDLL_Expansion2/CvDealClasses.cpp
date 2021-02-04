@@ -202,6 +202,11 @@ CvDeal::~CvDeal()
 {
 }
 
+bool CvDeal::operator==(const CvDeal& other) const
+{
+	return (this == &other);
+}
+
 /// Overloaded assignment operator
 CvDeal& CvDeal::operator=(const CvDeal& source)
 {
@@ -2688,12 +2693,9 @@ bool CvGameDeals::RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 		return false;
 
 	if (pDealOut)
-	{
 		*pDealOut = *pDeal;
-	}
 
-	m_ProposedDeals.erase(pDeal);
-
+	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
 	return true;
 }
 

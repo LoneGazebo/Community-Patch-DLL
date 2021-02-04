@@ -418,9 +418,10 @@ void CvHomelandAI::FindHomelandTargets()
 			if (!pLoopPlot->isWater() &&
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
-				pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
+				pLoopPlot->isRevealedFortification(eTeam))
 			{
-				if (pLoopPlot->isRevealedFortification(eTeam))
+				//this check is a bit expensive
+				if (pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 				{
 					int iWeight = 100000 + pLoopPlot->defenseModifier(eTeam, false, false);
 

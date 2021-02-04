@@ -291,22 +291,17 @@ void CvPlayerEspionage::Reset()
 	m_aSpyList.clear();
 	m_aiSpyListNameOrder.clear();
 	m_iSpyListNameOrderIndex = -1;
+	m_aSpyNotificationMessages.clear();
+
 	m_aiNumTechsToStealList.clear();
-#if defined(MOD_BALANCE_CORE)
 	m_aiNumGWToStealList.clear();
-	m_aiNumSpyActionsDone.clear();
-#endif
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
-	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		m_aHeistLocations[ui].clear();
-#if defined(MOD_BALANCE_CORE)
-		m_aiNumSpyActionsDone[ui] = 0;
-		m_aPlayerStealableGWList[ui].clear();
-		m_aiMaxGWCost[ui] = -1;
-#endif
-	}
+
+	m_aiNumSpyActionsDone = NumSpyActionsDone(MAX_MAJOR_CIVS, 0);
+	m_aPlayerStealableGWList = GreatWorkStealList(MAX_MAJOR_CIVS, vector<GWList>());
+	m_aiMaxGWCost = MaxGWCost(MAX_MAJOR_CIVS, -1);
+	m_aHeistLocations = HeistLocationList(MAX_MAJOR_CIVS,vector<HeistLocation>());
 }
 
 
