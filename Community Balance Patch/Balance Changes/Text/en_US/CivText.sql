@@ -344,7 +344,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE_STRATEGY' AND EXISTS (SELECT * F
 -- Ethiopia
 --------------------
 UPDATE Language_en_US
-SET Text = 'When you complete a Policy Branch, adopt a Belief, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources.'
+SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources.'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1127,7 +1127,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY' AND EXISTS (SELECT * FROM COMMUNI
 -- Sweden
 --------------------
 UPDATE Language_en_US
-SET Text = 'Land melee Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
+SET Text = 'Land Melee Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
