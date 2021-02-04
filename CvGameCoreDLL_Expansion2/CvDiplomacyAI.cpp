@@ -11771,7 +11771,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		{
 			iTheirMultiplier++;
 		}
-		if (GetPlayer()->GetMilitaryAI()->HaveCityExposedToEnemy(ePlayer))
+		if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer))
 		{
 			iTheirMultiplier++;
 		}
@@ -16034,7 +16034,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		iAttackMultiplier++;
 	}
-	if (GetPlayer()->GetMilitaryAI()->HaveCityExposedToEnemy(ePlayer))
+	if (GetPlayer()->GetMilitaryAI()->IsExposedToEnemy(NULL, ePlayer))
 	{
 		iTheirAttackMultiplier++;
 	}

@@ -49860,7 +49860,7 @@ int CvPlayer::GetNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExclu
 			}
 			else if (bExcludePhonyWars && GetDiplomacyAI()->IsPhonyWar(*it))
 				continue;
-			else if (bExcludeIfNoTarget && !GetMilitaryAI()->HaveCityExposedToEnemy(*it))
+			else if (bExcludeIfNoTarget && !GetMilitaryAI()->IsExposedToEnemy(NULL, *it))
 				continue;
 
 			iCount++;

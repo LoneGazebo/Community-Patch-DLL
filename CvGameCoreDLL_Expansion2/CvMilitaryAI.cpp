@@ -784,20 +784,6 @@ bool CvMilitaryAI::HavePossibleAttackTarget(PlayerTypes eEnemy) const
 	return false;
 }
 
-bool CvMilitaryAI::HaveCityExposedToEnemy(PlayerTypes eEnemy) const
-{
-	if (eEnemy == NO_PLAYER)
-		return false;
-
-	for (size_t i= 0; i < m_exposedCities.size(); i++)
-	{
-		if (m_exposedCities[i].first == eEnemy)
-			return true;
-	}
-
-	return false;
-}
-
 //override the diplo AI method so that it returns a sensible result for barbarians
 bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer) const
 {
