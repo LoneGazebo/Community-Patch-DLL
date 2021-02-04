@@ -29886,10 +29886,10 @@ void CvUnit::AI_promote()
 					iValue = iValue * (iLevel - 1);
 					iValue /= iLevel + 1;
 					// At level 2 has 1/3 chance of picking base promotion again, chance increases back towards 1 as leveled further.
-					// Is it corrext that a unit doesn't level up until the promotion is chosen?
 				}
 			}
 			
+			int iNextValue = 0;
 			int iBestNextValue = 0;
 
 			for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
@@ -29910,7 +29910,7 @@ void CvUnit::AI_promote()
 					|| pkNextPromotionEntry->GetPrereqOrPromotion8() == ePromotion
 					|| pkNextPromotionEntry->GetPrereqOrPromotion9() == ePromotion)
 				{
-					int iNextValue = AI_promotionValue(eNextPromotion) / 2;
+					iNextValue = AI_promotionValue(eNextPromotion);
 					if (iNextValue > iBestNextValue)
 					{
 						iBestNextValue = iNextValue;
@@ -29919,7 +29919,7 @@ void CvUnit::AI_promote()
 
 			}
 			
-			iValue += iBestNextValue;
+			iValue += iBestNextValue / 2;
 	
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -30007,25 +30007,25 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")));
+	int iFlavorOffense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
 
-	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")));
+	int iFlavorDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
 	
-	int iFlavorCityDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")));
+	int iFlavorCityDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
 	
-	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")));
+	int iFlavorRanged = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
 
-	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")));
+	int iFlavorRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
 
-	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")));
+	int iFlavorMobile = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
 
-	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")));
+	int iFlavorNaval = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
 
-	int iFlavorNavalRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")));
+	int iFlavorNavalRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
 	
-	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")));
+	int iFlavorAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
 	
-	int iFlavorAntiAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")));
+	int iFlavorAntiAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())
@@ -30091,11 +30091,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// M + mM + nM + R + mR + Scout: -10 Medic 1 - 2.
 	if(iTemp != 0)
 	{
-		iExtra = getDefenseModifier() + getExtraRangedDefenseModifier();
-		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
+		iExtra = (iTemp) * (2 * iFlavorOffense + iFlavorDefense);
 		if (IsCanAttackRanged())
 		{
-			iExtra *= 0.3f;		
+			iExtra *= 0.35f;		
 		}
 		else
 			iExtra *= 0.7f;
@@ -30123,7 +30122,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 		{
 			iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 1.2; 	
+			iExtra *= 1; 	
 		}
 		iValue += iExtra;
 		
@@ -30136,20 +30135,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// nM: -10 Minelayer.
 	if(iTemp != 0)
 	{
-		iExtra = getDefenseModifier() + getExtraRangedDefenseModifier();
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 0.5;
-		if(noDefensiveBonus())
-		{
-			iExtra *= 0.5;
-		}
+		iExtra /= max(1,baseMoves(false));
 		if ( IsCanAttackRanged() )
 		{
 			iExtra /= max(1,GetRange());
 		}
 		iValue += iExtra;
-	
-
 	}
 
 			// Terrain modifiers
@@ -30178,7 +30170,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraOpenRangedAttackMod();
 		iExtra = (iTemp + iExtra) * (iFlavorOffense + iFlavorDefense + iFlavorMobile);
-		iExtra *= 0.25;
+		iExtra *= 0.35;
 		if(getUnitInfo().IsMounted())
 		{
 			iExtra *= 2;
@@ -30194,7 +30186,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraOpenDefensePercent();
 		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 0.4;	
+		iExtra *= 0.3;	
 		iValue += iExtra;	
 	}
 
@@ -30219,7 +30211,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraRoughRangedAttackMod();
 		iExtra = (iTemp + iExtra) * (iFlavorOffense + 2 * iFlavorDefense);
-		iExtra *= 0.3;
+		iExtra *= 0.35;
 		iValue += iExtra;
 	}
 
@@ -30229,7 +30221,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraRoughDefensePercent();
 		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 0.4;
+		iExtra *= 0.3;
 		if(getUnitInfo().IsMounted())
 		{
 			iExtra *= 0.5;
@@ -30245,6 +30237,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getOutsideFriendlyLandsModifier();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorMobile + 2 * iFlavorOffense );
 		iExtra *= 0.7;
+		if (bWarTimePromotion)
+			iExtra *= 1.5;
 		iValue += iExtra;
 	}
 
@@ -30261,9 +30255,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackAboveHealthMod();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorDefense + 2 * iFlavorCityDefense);
 		if (IsCanAttackRanged())
-			iExtra *= 0.5;
+			iExtra *= 0.45;
 		else
-			iExtra *= 0.3;
+			iExtra *= 0.2;
 		iValue += iExtra;
 	}
 	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
@@ -30271,10 +30265,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// mR: +30 Coup De Grace (skirmisher power)
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackBelowHealthMod();
+		iExtra = getExtraAttackBelowHealthMod() + getHPHealedIfDefeatEnemy();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorDefense + 2 * iFlavorOffense);
 		if (IsCanAttackRanged())
-			iExtra *= 0.3;		
+			iExtra *= 0.25;		
 		else
 			iExtra *= 0.4;
 		if (getUnitInfo().IsMounted())
@@ -30291,7 +30285,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if (IsCanAttackRanged())
 			iExtra *= 0.5;
 		else
+		{
 			iExtra *= 0.4;
+			if (getUnitInfo().IsMounted())
+			{
+				iExtra *= 1.6;
+			}
+		}
 		iValue += iExtra;
 	}
 
@@ -30299,12 +30299,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// R + mR + S: -15 Infiltrators (barrage 4).
 	if (iTemp != 0)
 	{
-		iExtra = GetAdjacentModifier();
-		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
-		if (IsCanAttackRanged())
-			iExtra *= 0.5;
-		else
-			iExtra *= 1.5;	
+		iExtra = (iTemp) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iExtra *= 1.6;
+		iExtra /= max(1, baseMoves(false));
 		iValue += iExtra;
 	}
 
@@ -30316,9 +30313,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp > 0)
 	{
 
-		iExtra  = GetFlankAttackModifier();
-		iExtra  = (iTemp + iExtra) * ( iFlavorDefense + iFlavorOffense + iFlavorMobile);
-		iExtra *= 0.6;
+		iExtra  = (iTemp) * ( iFlavorDefense + iFlavorOffense + iFlavorMobile);
+		iExtra *= 100 + GetFlankAttackModifier();
+		iExtra /= 100;
+		iExtra *= 0.5;
 		iExtra *= (2 + baseMoves(false)) / 2;    		// gives max moves, false = not embarked	
 		iValue += iExtra;
 	}
@@ -30350,8 +30348,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraAttackBelowHealthMod();
 		iExtra = (iTemp + iExtra) * (iFlavorOffense + 2 * iFlavorDefense);
-		iExtra *= 2;
+		iExtra *= 1.5;
 		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iValue += iExtra;
+
+	}
+
+	iTemp = pkPromotionInfo->GetAOEDamageOnKill();
+	// M, mM: +10 Shock 4.		nM: +15 Breacher
+	if (iTemp != 0)
+	{
+		iExtra = getExtraAttackBelowHealthMod();
+		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorMobile);
 		iValue += iExtra;
 
 	}
@@ -30390,11 +30398,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	
 	iTemp = pkPromotionInfo->GetAdjacentEnemySapMovement();
-	// nM: +120 Minelayer.                                        // Why is this 120??
+	// nM: +120 Minelayer.                                       
 	if (iTemp != 0)
 	{
 		iExtra = iTemp * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 0.1;
+		if (IsCanAttackRanged())
+		{
+			iExtra /= max(1, GetRange());
+		}
 		iValue += iExtra;
 	}
 
@@ -30411,14 +30423,21 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	
 
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
-	// M + mM: +25 Drill 1-3, +50 siege.	S: +15 siege 1-3, +50 Volley.	nM: +75 Naval Siege, + 100(125) Vanguard (coastal terror).
+	// M + mM: +25 Drill 1-3, +33 siege.	S: +15 siege 1-3, +50 Volley.	nM: +75 Naval Siege, + 100(125) Vanguard (coastal terror).
 	// nR: +30 Bombardment 1-3, +40 Broadside (bombardment 4).	aB: +33 Air Siege 1-3.			
 	if(iTemp != 0)
 	{	
-		iTemp *= getNumAttacks();
-		iExtra = GetDamageReductionCityAssault() + GetCityAttackPlunderModifier();
-		iExtra = (iTemp + iExtra)  * ( 3 * iFlavorOffense);
+		iExtra = (iTemp)  * ( 3 * iFlavorOffense);
+		iExtra *= 100 + getExtraCityAttackPercent();
+		iExtra /= 100;
+		iExtra *= 100 + GetDamageReductionCityAssault();
+		iExtra /= 100;
+		iExtra *= 100 + GetCityAttackPlunderModifier();
+		iExtra /= 100;
+		iExtra *= max(1, getNumAttacks());
 		iExtra *= 0.2;
+		if (bWarTimePromotion)
+			iExtra *= 2;
 		iValue += iExtra;
 	}
 
@@ -30426,21 +30445,30 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// nM: +100 Blockade (coastal raider 4).
 	if (iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent();
-		iExtra = (iTemp + iExtra) * ( 3 * iFlavorOffense);
-		iExtra *= 0.05;
-		iExtra *= getNumAttacks();
+		iExtra = (iTemp) * ( 3 * iFlavorOffense);
+		iExtra *= 100 + getExtraCityAttackPercent();
+		iExtra /= 100;
+		iExtra *= max(1, getNumAttacks());
+		iExtra *= 0.08;
+		if (bWarTimePromotion)
+			iExtra *= 2;
 		iValue += iExtra;
 
 	}
 
 	iTemp = pkPromotionInfo->GetDamageReductionCityAssault();
-	// M: +50 Siege.	nM: +50 Vanguard (coastal terror). 
+	// M: +33 Siege.	nM: +50 Vanguard (coastal terror). 
 	if (iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent();
-		iExtra = (iExtra + iTemp) * ( 3 * iFlavorOffense);
-		iExtra *= 0.15;
+
+		iExtra = (iTemp) * ( 3 * iFlavorOffense);
+		iExtra *= 100 + getExtraCityAttackPercent();
+		iExtra /= 100;
+		iExtra *= 100 + GetDamageReductionCityAssault();
+		iExtra /= 100;
+		iExtra *= 0.25;
+		if (bWarTimePromotion)
+			iExtra *= 2;
 		iValue += iExtra;
 	}
 	
@@ -30458,13 +30486,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if (IsCanAttackRanged())
 			{
 			iExtra = iTemp * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
-			iExtra *= 80;
+			iExtra *= 20;
 			}
 		else
 			{
 			iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 40;
+			iExtra *= 10;
 			}
+		iExtra *= baseMoves(false);
 		iValue += iExtra;
 	}
 
@@ -30477,7 +30506,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0 && IsCanAttackRanged())
 	{
 		iExtra = iTemp * ( 3 * iFlavorRanged );
-		iExtra *= 120;
+		iExtra *= 100;
 		iExtra /= max(1,GetRange());
 		iValue += iExtra;
 	
@@ -30487,7 +30516,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// R + S: Indirect Fire.
 	{
 		iExtra = (iFlavorRanged * 2 + iFlavorOffense);
-		iExtra *= 30;
+		iExtra *= 20;
 		iExtra *= GetRange();
 		iValue += iExtra;
 	}
@@ -30544,8 +30573,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(pkPromotionInfo->IsCanMoveAfterAttacking())
 	// M + mM + nM: Blitz.	
 	{
-		// This should be covered in extra attacks
-		iValue += 0;
+		iExtra = (2 * iFlavorMobile + iFlavorOffense);
+		iExtra *= 5;
+		iExtra *= baseMoves(false);
+		iValue += iExtra;
+
 	}
 
 			// Healing
@@ -30559,12 +30591,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + iFlavorOffense + iFlavorDefense);
-		iExtra *= 2;
 		if (isAlwaysHeal())
-			iExtra *= 4;
+			iExtra *= 6;
 		if (bWarTimePromotion)
 			iExtra *= 1.5;
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3* getDamage() / max(1,GetMaxHitPoints());
 		iValue += iExtra;
 	}
 	
@@ -30572,9 +30603,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// M + mM + nM + Scout + R + mR: +5 Medic 1 - 2.
 	if (iTemp != 0)
 	{
-		iExtra = getAdjacentTileHeal();
+		iExtra = 3 * getAdjacentTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + iFlavorOffense + iFlavorDefense);
-		iExtra *= 4;
+		iExtra *= 1.8;
 		if (bWarTimePromotion)
 			iExtra *= 1.5;
 		iValue += iExtra;
@@ -30587,9 +30618,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraEnemyHeal() + getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + 2 * iFlavorOffense);
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.5;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
-			iExtra *= 4;
+			iExtra *= 6;
 		if (bWarTimePromotion)
 			iExtra *= 2;
 		iValue += iExtra;
@@ -30602,9 +30634,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraNeutralHeal() + getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + iFlavorOffense + iFlavorDefense);
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.5;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
-			iExtra *= 4;
+			iExtra *= 6;
 		iValue += iExtra;
 	}
 
@@ -30618,8 +30651,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = 10 + getSameTileHeal();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorMobile;
-		iExtra *= 2;
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 4;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
 			iExtra *= 0;
 		iValue += iExtra;
@@ -30631,8 +30664,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = 10 + getSameTileHeal();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorNaval;
-		iExtra *= 1;
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.5;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		if (bWarTimePromotion)
+			iExtra *= 2;
+		if (isAlwaysHeal())
+			iExtra *= 5;
 		if (isHealOutsideFriendly())
 			iExtra *= 0;
 		iValue += iExtra;
@@ -30644,8 +30681,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{	
 		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
-		iExtra *= 15;		
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 8;
+		if (bWarTimePromotion)
+			iExtra *= 2;
 		iValue += iExtra;
 	}
 
@@ -30654,8 +30693,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorMobile);
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
-		iExtra *= 30;		
+		iExtra *= 0.2 + 0.8 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 25;		
+		if (bWarTimePromotion)
+			iExtra *= 2;
 		iValue += iExtra;
 	}	
 	
@@ -30671,31 +30712,36 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp > 0)
 	{
 		iExtra = iTemp * (iFlavorMobile * 2 + iFlavorNavalRecon);
-		iExtra *= 15;
+		iExtra *= 45;
+		iExtra *= 4 / (max (1, 6 + baseMoves(false)));
 		iExtra *= max(1,getNumAttacks());
 		if (IsGainsXPFromScouting())
-			iExtra *= 2;
+			iExtra *= 3;
 		iValue += iExtra;
 
 	}
 
 
-			// What is going on here?
 
 	if(pkPromotionInfo->IsAmphib())     
 	// M: Amphibious.
 	{
 		iExtra = (iFlavorNaval * 2 + iFlavorOffense);
-		iExtra *= 8;
-		iValue += iExtra;		
+		iExtra *= 6;
+		if (isAmphibious())
+			iExtra *= 0;
+		iValue += iExtra;
 	}
 
 	if(pkPromotionInfo->IsRiver())
 	// M: Amphibious.
 	{
 		iExtra = (iFlavorMobile * 2 + iFlavorOffense);
-		iExtra *= 4;
-		iExtra *= baseMoves(false);
+		iExtra *= 15;
+		if (isRiverCrossingNoPenalty())
+			iExtra *= 0;
+		if (ignoreTerrainCost())
+			iExtra *= 0;
 		iValue += iExtra;	
 	}
 
@@ -30710,7 +30756,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = iTemp * (2 * iFlavorRecon + iFlavorNavalRecon);
 		iExtra *= 5;
 		if (IsGainsXPFromScouting())
-			iExtra *= 4;
+			iExtra *= 5;
 		iValue += iExtra;
 	}
 
@@ -30749,9 +30795,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// aF: +33 Ace Pilot (Interception) 2 - 3, +34 Ace Pilot 4.
 	if (iTemp != 0 && canAirPatrol(NULL) || getInterceptChance() > 0)		// not sure about this
 	{
-		iExtra = getInterceptChance() * 5;
-		iExtra += (iTemp + iExtra) * (iFlavorDefense + 2 * iFlavorAntiAir);
-		iExtra *= 0.2;
+
+		iExtra = (iTemp) * (iFlavorDefense + 2 * iFlavorAntiAir);
+		iExtra *= getInterceptChance() + 100;
+		iExtra /= 100;
+		iExtra *= GetInterceptionCombatModifier() + 100;
+		iExtra /= 100;
+		iExtra *= max(1,GetNumInterceptions());
+		iExtra *= 0.5;
 		iValue += iExtra;
 	}
 
@@ -30759,9 +30810,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// AA + aF + nM + C: +25 Interceptor (interception) I - IV, +25 Ace Pilot (interception) 1 - 3.
 	if (iTemp != 0 && GetAirInterceptRange() > 0 || getInterceptChance() > 0)
 	{
-		iExtra = getInterceptChance() * 5;
-		iExtra += iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
-		iExtra *= 0.1;
+		iExtra = iTemp * (2 * iFlavorAntiAir + iFlavorDefense);
+		iExtra *= getInterceptChance() + 100;
+		iExtra /= 100;
+		iExtra *= GetInterceptionCombatModifier() + 100;
+		iExtra /= 100;
+		iExtra *= max(1, GetNumInterceptions());
+		iExtra *= 0.2;
 		iExtra *= GetAirInterceptRange();
 		iValue += iExtra;
 	}
@@ -30798,7 +30853,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// aF: +1 Ace Pilot 4,
 	if(iTemp != 0)
 	{
-		iExtra = getInterceptChance();
+		iExtra = getInterceptChance() + GetInterceptionCombatModifier();
 		iExtra = iExtra * (2 * iFlavorAntiAir + iFlavorDefense);
 		iExtra *= GetAirInterceptRange();
 		iExtra *= 0.2;
@@ -30861,10 +30916,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			if(pkPromotionInfo->GetTerrainDoubleMove(iI))
 				// Scout: Snow/Desert Woodland Trailblazer 2.
 			{
-				iExtra = (iFlavorMobile * 3);
-				iExtra *= 5;
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 8;
 				if (IsGainsXPFromScouting())
-					iExtra *= 1.8;
+					iExtra *= 3;
+				if (ignoreTerrainCost())
+					iExtra *= 0.5;
 				iValue += iExtra;
 			}
 
@@ -30881,9 +30938,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			if (pkPromotionInfo->GetTerrainExtraMove(iI))		// Don't know how this is different from DoubleMove
 			{
 				iExtra = (iFlavorMobile * 3);
-				iExtra *= 8;
+				iExtra *= 5;
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 #endif
@@ -30934,9 +30991,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			// Scout: Forest/Jungle Woodland Trailblazer 1.		M: Forest/Junlge Woodsman.
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
-				iExtra *= 5;
+				iExtra *= 8;
 				if (IsGainsXPFromScouting())
-					iExtra *= 1.8;
+					iExtra *= 3;
+				if (ignoreTerrainCost())
+					iExtra *= 0.5;
 				iValue += iExtra;
 			}
 
@@ -30957,7 +31016,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iExtra *= 5;
 				iExtra *= max(1,getNumAttacks());
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 1.8;
 				iValue += iExtra;
 			}
 #endif
@@ -30989,13 +31048,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				continue;
 
 			iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 0.5;
+			iExtra *= 0.3;
 			if (IsCanAttackRanged())
-				iExtra *= 0.4;
+				iExtra *= 0.6;
 			if (getDomainType() == DOMAIN_SEA)	// required for balance
-				iExtra *= 0.5;
+				iExtra *= 0.8;
 			if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
-				iExtra *= 1;
+				iExtra *= 1.5;
 			iValue += iExtra;
 
 		}
@@ -31017,6 +31076,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else if (DomainTypes(iI) == DOMAIN_LAND)
 		{
 			iExtra = iTemp * (iFlavorDefense + iFlavorOffense + iFlavorCityDefense);
+			iExtra *= 0.5;
+			iValue += iExtra;
+		}
+		else if (DomainTypes(iI) == DOMAIN_AIR)
+		{
+			iExtra = iTemp * (3 * iFlavorAntiAir);
 			iExtra *= 0.5;
 			iValue += iExtra;
 		}
