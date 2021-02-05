@@ -303,193 +303,192 @@ void CvCityCitizens::DoTurn()
 			bForceCheck |= SetForcedAvoidGrowth(false);
 	}
 
-	//nothing else to do ...
-	if (thisPlayer.isHuman())
-		return;
-
-	// Are we running at a deficit?
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-	bool bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-
-	EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
-	bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-	bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
-
-	//---------------
-	// note that GetPlotValue already considers wonder/settler building so we don't do that here
-	//---------------
-
-	if (bInDeficit && !bNeedFood)
+	if (!thisPlayer.isHuman())
 	{
-		bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-	}
-	else if (bInDeficit && bNeedFood)
-	{
-		bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-	}
-	else if (m_pCity->getProductionProcess() != NO_PROCESS || m_pCity->getProductionProject() != NO_PROJECT)
-	{
-		bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-	}
-	else // no special cases? Alright, let's pick a function to follow...
-	{
-		AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
-		bool bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP) || thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
+		// Are we running at a deficit?
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		bool bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
-		bool bCultureBlock = false;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
+		bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
+
+		//---------------
+		// note that GetPlotValue already considers wonder/settler building so we don't do that here
+		//---------------
+
+		if (bInDeficit && !bNeedFood)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+		}
+		else if (bInDeficit && bNeedFood)
+		{
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+		}
+		else if (m_pCity->getProductionProcess() != NO_PROCESS || m_pCity->getProductionProject() != NO_PROJECT)
+		{
+			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+		}
+		else // no special cases? Alright, let's pick a function to follow...
+		{
+			AICityStrategyTypes eGoodGP = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+			bool bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP) || thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 
-			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			bool bCultureBlock = false;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					bCultureBlock = true;
-					break;
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+					{
+						bCultureBlock = true;
+						break;
+					}
 				}
 			}
-		}
 
-		if (bCultureBlock)
-		{
-			bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-		}
-		else
-		{
-			CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
-			if (eSpecialization != NO_CITY_SPECIALIZATION)
+			if (bCultureBlock)
 			{
-				if (m_pCity->GetCityStrategyAI()->GetDefaultSpecialization() == eSpecialization)
+				bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+			}
+			else
+			{
+				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
+				if (eSpecialization != NO_CITY_SPECIALIZATION)
 				{
-					bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-				}
-				else
-				{
-					CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
-					if (pCitySpecializationEntry)
+					if (m_pCity->GetCityStrategyAI()->GetDefaultSpecialization() == eSpecialization)
 					{
-						YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
-						if (eYield == YIELD_FOOD && !IsAvoidGrowth()) //should really make sure the specialization is sane ...
+						bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					}
+					else
+					{
+						CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
+						if (pCitySpecializationEntry)
 						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-						}
-						else if (eYield == YIELD_PRODUCTION && bNeedFood)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-						}
-						else if (eYield == YIELD_PRODUCTION && !bNeedFood)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-						}
-						else if (eYield == YIELD_GOLD && bNeedFood)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-						}
-						else if (eYield == YIELD_GOLD && !bNeedFood)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-						}
-						else if (eYield == YIELD_SCIENCE)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-						}
-						else if (eYield == YIELD_FAITH)
-						{
-							if (bBuildingReligion)
+							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+							if (eYield == YIELD_FOOD && !IsAvoidGrowth()) //should really make sure the specialization is sane ...
 							{
-								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+							}
+							else if (eYield == YIELD_PRODUCTION && bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+							}
+							else if (eYield == YIELD_PRODUCTION && !bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							}
+							else if (eYield == YIELD_GOLD && bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+							}
+							else if (eYield == YIELD_GOLD && !bNeedFood)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+							}
+							else if (eYield == YIELD_SCIENCE)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+							}
+							else if (eYield == YIELD_FAITH)
+							{
+								if (bBuildingReligion)
+								{
+									bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+								}
+								else
+								{
+									bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+								}
+							}
+							else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+							}
+							else if (eYield == YIELD_CULTURE && bGPCity)
+							{
+								bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
 							}
 							else
 							{
 								bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 							}
 						}
-						else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-						}
-						else if (eYield == YIELD_CULTURE && bGPCity)
-						{
-							bForceCheck |= SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
-						}
 						else
 						{
 							bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 						}
 					}
+				}
+				else
+				{
+					bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+				}
+			}
+
+			int iLoop = 0;
+			int iUnhappyAverage = 0;
+			for (CvCity* pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
+			{
+				int iDelta = pLoopCity->getHappinessDelta();
+
+				//now crazyness - this is how we cache the value
+				pLoopCity->setHappinessDelta(iDelta);
+
+				//mind the sign change
+				if (iDelta < 0)
+					iUnhappyAverage -= iDelta;
+			}
+
+			if (thisPlayer.getNumCities() > 0)
+				iUnhappyAverage /= thisPlayer.getNumCities();
+
+			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+			bool bWantSettlers = thisPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
+
+			int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal();
+			if (iPotentialUnhappiness > 0 && thisPlayer.IsEmpireUnhappy())
+			{
+				//default value for vanilla happiness
+				int iLockThreshold = -20;
+				if (MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if (bWantSettlers)
+						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
+						iLockThreshold = GC.getUNHAPPY_THRESHOLD();
 					else
-					{
-						bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-					}
+						//later on tolerate some more unhappiness
+						iLockThreshold = GC.getVERY_UNHAPPY_THRESHOLD();
+				}
+
+				//lock the city if it's net negative and would take us over the threshold
+				int iExcessHappiness = thisPlayer.GetExcessHappiness();
+				if (iExcessHappiness - iPotentialUnhappiness <= iLockThreshold && m_pCity->getHappinessDelta() < 1)
+				{
+					bForceCheck |= SetForcedAvoidGrowth(true);
+				}
+				//unlock only one city per turn, recheck next turn
+				else if (IsForcedAvoidGrowth() && thisPlayer.unlockedGrowthAnywhereThisTurn())
+				{
+					thisPlayer.setUnlockedGrowthAnywhereThisTurn(true);
+					bForceCheck |= SetForcedAvoidGrowth(false);
 				}
 			}
 			else
 			{
-				bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-			}
-		}
-
-		int iLoop = 0;
-		int iUnhappyAverage = 0;
-		for (CvCity* pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
-		{
-			int iDelta = pLoopCity->getHappinessDelta();
-
-			//now crazyness - this is how we cache the value
-			pLoopCity->setHappinessDelta(iDelta);
-
-			//mind the sign change
-			if (iDelta < 0)
-				iUnhappyAverage -= iDelta;
-		}
-
-		if (thisPlayer.getNumCities() > 0)
-			iUnhappyAverage /= thisPlayer.getNumCities();
-
-		EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-		bool bWantSettlers = thisPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-
-		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal();
-		if (iPotentialUnhappiness > 0 && thisPlayer.IsEmpireUnhappy())
-		{
-			//default value for vanilla happiness
-			int iLockThreshold = -20;
-			if (MOD_BALANCE_CORE_HAPPINESS)
-			{
-				if (bWantSettlers)
-					//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
-					iLockThreshold = GC.getUNHAPPY_THRESHOLD();
-				else
-					//later on tolerate some more unhappiness
-					iLockThreshold = GC.getVERY_UNHAPPY_THRESHOLD();
-			}
-
-			//lock the city if it's net negative and would take us over the threshold
-			int iExcessHappiness = thisPlayer.GetExcessHappiness();
-			if (iExcessHappiness - iPotentialUnhappiness <= iLockThreshold && m_pCity->getHappinessDelta() < 1)
-			{
-				bForceCheck |= SetForcedAvoidGrowth(true);
-			}
-			//unlock only one city per turn, recheck next turn
-			else if (IsForcedAvoidGrowth() && thisPlayer.unlockedGrowthAnywhereThisTurn())
-			{
-				thisPlayer.setUnlockedGrowthAnywhereThisTurn(true);
 				bForceCheck |= SetForcedAvoidGrowth(false);
 			}
 		}
-		else
-		{
-			bForceCheck |= SetForcedAvoidGrowth(false);
-		}
-	}
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 #else
-	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+		CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 #endif
-	DoReallocateCitizens(bForceCheck);
+		DoReallocateCitizens(bForceCheck);
+	}
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
