@@ -3965,18 +3965,12 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
+	loadFrom >> writeTo.m_eMinor;
+	loadFrom >> writeTo.m_eAssignedPlayer;
 	loadFrom >> writeTo.m_eType;
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_iData1;
 	loadFrom >> writeTo.m_iData2;
-	if (uiVersion >= 2)
-	{
-		loadFrom >> writeTo.m_bHandled;
-	}
-	else
-	{
-		writeTo.m_bHandled = false;
-	}
 #if defined(MOD_BALANCE_CORE)
 	loadFrom >> writeTo.m_iData3;
 	loadFrom >> writeTo.m_iInfluence;
@@ -4007,6 +4001,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
+	saveTo << readFrom.m_eMinor;
+	saveTo << readFrom.m_eAssignedPlayer;
 	saveTo << readFrom.m_eType;
 	saveTo << readFrom.m_iStartTurn;
 	saveTo << readFrom.m_iData1;

@@ -4773,28 +4773,17 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(!isConvertUnit())
+		if(isConvertUnit())
+		{
+			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
+				return false;
+		}
+		else
 		{
 			bool bNoEnemy = IsCanAttack() && !(iMoveFlags & MOVEFLAG_ATTACK);
 			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
 				return false;
-#else
-		bool bNoEnemy = IsCanAttack() && !(iMoveFlags & MOVEFLAG_ATTACK);
-		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
-			return false;
-#endif
-#if defined(MOD_BALANCE_CORE)
 		}
-		else
-		{
-			if(isConvertUnit())
-			{
-				if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
-					return false;
-			}
-		}
-#endif
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)

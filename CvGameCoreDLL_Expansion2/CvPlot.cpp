@@ -7775,6 +7775,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 #endif
+
+			//remember this to improve pathfinding performance
+			SetImprovementPassable(newImprovementEntry.IsMakesPassable());
+
 			// If this improvement can add culture to nearby improvements, update them as well
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
@@ -7913,9 +7917,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #endif
-				//remember this to improve pathfinding performance
-				SetImprovementPassable(newImprovementEntry.IsMakesPassable());
-
 				// Maintenance
 				if(MustPayMaintenanceHere(owningPlayerID))
 				{

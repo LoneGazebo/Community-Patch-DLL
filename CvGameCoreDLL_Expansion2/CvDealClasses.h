@@ -92,8 +92,7 @@ public:
 	    DEAL_SUPPLEMENTAL
 	};
 
-	CvDeal();
-	CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	CvDeal(PlayerTypes eFromPlayer=NO_PLAYER, PlayerTypes eToPlayer=NO_PLAYER);
 	CvDeal(const CvDeal& source);
 	virtual ~CvDeal();
 	CvDeal& operator=(const CvDeal& source);
@@ -116,7 +115,6 @@ public:
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
-	bool m_bRealDeal;
 	bool m_bIsGift;
 	bool m_bDoNotModifyFrom;
 	bool m_bDoNotModifyTo;

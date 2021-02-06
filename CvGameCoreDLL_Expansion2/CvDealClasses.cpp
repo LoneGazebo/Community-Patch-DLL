@@ -130,34 +130,23 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTradedItem& readFrom)
 // CvDeal
 //=====================================
 
-/// Constructor
-CvDeal::CvDeal()
-{
-	m_eFromPlayer = NO_PLAYER;
-	m_eToPlayer = NO_PLAYER;
-	m_ePeaceTreatyType = NO_PEACE_TREATY_TYPE;
-	m_eSurrenderingPlayer = NO_PLAYER;
-	m_eDemandingPlayer = NO_PLAYER;
-	m_eRequestingPlayer = NO_PLAYER;
-	m_TradedItems.clear();
-	m_iStartTurn = 0;
-	m_bConsideringForRenewal = false;
-	m_bCheckedForRenewal = false;
-	m_bRealDeal = false;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_bIsGift = false;
-#endif
-}
-
 /// Constructor with typical parameters
 CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 	m_eFromPlayer = eFromPlayer;
 	m_eToPlayer = eToPlayer;
-	m_TradedItems.clear();
+
+	m_ePeaceTreatyType = NO_PEACE_TREATY_TYPE;
+	m_eSurrenderingPlayer = NO_PLAYER;
+	m_eDemandingPlayer = NO_PLAYER;
+	m_eRequestingPlayer = NO_PLAYER;
+	m_iStartTurn = 0;
+	m_iFinalTurn = 0;
+	m_iDuration = 0;
+
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-	m_bRealDeal = false;
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
@@ -181,7 +170,6 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-	m_bRealDeal = source.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
@@ -189,12 +177,7 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_iFromPlayerValue = source.m_iFromPlayerValue;
 	m_iToPlayerValue = source.m_iToPlayerValue;
 #endif
-	m_TradedItems.clear();
-	TradedItemList::const_iterator it;
-	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
-	{
-		m_TradedItems.push_back(*it);
-	}
+	m_TradedItems = source.m_TradedItems;
 }
 
 /// Destructor
@@ -204,7 +187,26 @@ CvDeal::~CvDeal()
 
 bool CvDeal::operator==(const CvDeal& other) const
 {
-	return (this == &other);
+	return
+		m_eFromPlayer == other.m_eFromPlayer &&
+		m_eToPlayer == other.m_eToPlayer &&
+		m_iDuration == other.m_iDuration &&
+		m_iFinalTurn == other.m_iFinalTurn &&
+		m_iStartTurn == other.m_iStartTurn &&
+		m_ePeaceTreatyType == other.m_ePeaceTreatyType &&
+		m_eSurrenderingPlayer == other.m_eSurrenderingPlayer &&
+		m_eDemandingPlayer == other.m_eDemandingPlayer &&
+		m_eRequestingPlayer == other.m_eRequestingPlayer &&
+		m_bConsideringForRenewal == other.m_bConsideringForRenewal &&
+		m_bCheckedForRenewal == other.m_bCheckedForRenewal &&
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		m_bIsGift == other.m_bIsGift &&
+		m_bDoNotModifyFrom == other.m_bDoNotModifyFrom &&
+		m_bDoNotModifyTo == other.m_bDoNotModifyTo &&
+		m_iFromPlayerValue == other.m_iFromPlayerValue &&
+		m_iToPlayerValue == other.m_iToPlayerValue &&
+#endif
+		m_TradedItems == other.m_TradedItems;
 }
 
 /// Overloaded assignment operator
@@ -221,7 +223,6 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_eRequestingPlayer = source.m_eRequestingPlayer;
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
-	m_bRealDeal = source.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = source.m_bIsGift;
 	m_bDoNotModifyFrom = source.m_bDoNotModifyFrom;
@@ -229,13 +230,7 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_iFromPlayerValue = source.m_iFromPlayerValue;
 	m_iToPlayerValue = source.m_iToPlayerValue;
 #endif
-	m_TradedItems.clear();
-	TradedItemList::const_iterator it;
-	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
-	{
-		m_TradedItems.push_back(*it);
-	}
-
+	m_TradedItems = source.m_TradedItems;
 	return (*this);
 }
 
@@ -249,7 +244,6 @@ void CvDeal::ClearItems()
 	m_iStartTurn = -1;
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
-	m_bRealDeal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
 	m_bDoNotModifyFrom = false;
@@ -2386,7 +2380,6 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_iDuration;
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_bConsideringForRenewal;
-	loadFrom >> writeTo.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	loadFrom >> writeTo.m_bIsGift;
 #endif
@@ -2420,15 +2413,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_iDuration;
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_bConsideringForRenewal;
-	if (uiVersion >= 3)
-	{
-		loadFrom >> writeTo.m_bCheckedForRenewal;
-	}
-	else
-	{
-		writeTo.m_bCheckedForRenewal = false;
-	}
-	loadFrom >> writeTo.m_bRealDeal;
+	loadFrom >> writeTo.m_bCheckedForRenewal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	loadFrom >> writeTo.m_bIsGift;
 #endif
@@ -2468,7 +2453,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_iStartTurn;
 	saveTo << readFrom.m_bConsideringForRenewal;
 	saveTo << readFrom.m_bCheckedForRenewal;
-	saveTo << readFrom.m_bRealDeal;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	saveTo << readFrom.m_bIsGift;
 #endif
@@ -2695,7 +2679,7 @@ bool CvGameDeals::RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 	if (pDealOut)
 		*pDealOut = *pDeal;
 
-	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
+//	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
 	return true;
 }
 
