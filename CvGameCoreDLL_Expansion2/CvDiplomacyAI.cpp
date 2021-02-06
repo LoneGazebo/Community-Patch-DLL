@@ -21003,9 +21003,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	{
 		vector<PlayerTypes> vWarExclusions;
 		vector<PlayerTypes> vHostileExclusions;
-		vector<PlayerTypes> vAfraidExclusions;
 		vector<PlayerTypes> vDeceptiveExclusions;
 		vector<PlayerTypes> vGuardedExclusions;
+		vector<PlayerTypes> vAfraidExclusions;
 
 		PlayerTypes eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_WAR, vWarExclusions);
 		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
@@ -21035,20 +21035,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 		}
 
-		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_AFRAID, vAfraidExclusions);
-		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
-		{
-			if (GetMajorCivStrategicApproach(eCandidate) < MAJOR_CIV_APPROACH_FRIENDLY && !WasResurrectedBy(eCandidate))
-			{
-				eBiggestCompetitor = eCandidate;
-			}
-			else
-			{
-				vAfraidExclusions.push_back(eCandidate);
-				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_AFRAID, vAfraidExclusions);
-			}
-		}
-
 		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_DECEPTIVE, vDeceptiveExclusions);
 		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
 		{
@@ -21074,6 +21060,20 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			{
 				vGuardedExclusions.push_back(eCandidate);
 				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_GUARDED, vGuardedExclusions);
+			}
+		}
+
+		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_AFRAID, vAfraidExclusions);
+		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
+		{
+			if (GetMajorCivStrategicApproach(eCandidate) < MAJOR_CIV_APPROACH_FRIENDLY && !WasResurrectedBy(eCandidate))
+			{
+				eBiggestCompetitor = eCandidate;
+			}
+			else
+			{
+				vAfraidExclusions.push_back(eCandidate);
+				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_AFRAID, vAfraidExclusions);
 			}
 		}
 	}
