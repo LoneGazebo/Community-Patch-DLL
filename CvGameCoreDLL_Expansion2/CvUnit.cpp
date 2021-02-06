@@ -18702,14 +18702,22 @@ int CvUnit::withdrawalProbability() const
 /// How many enemy Units are adjacent to this guy?
 int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
-	return plot()->GetNumEnemyUnitsAdjacent( getTeam(), plot()->getDomain(), pUnitToExclude);
+	if (plot() != NULL)
+	{
+		return plot()->GetNumEnemyUnitsAdjacent(getTeam(), plot()->getDomain(), pUnitToExclude);
+	}
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
 /// How many friendly Units are adjacent to this guy?
 int CvUnit::GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
-	return plot()->GetNumFriendlyUnitsAdjacent(getTeam(), plot()->getDomain(), pUnitToExclude);
+	if (plot() != NULL)
+	{
+		return plot()->GetNumFriendlyUnitsAdjacent(getTeam(), plot()->getDomain(), pUnitToExclude);
+	}
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18717,20 +18725,32 @@ int CvUnit::GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 {
 	CvAssertMsg(pSpecifyCity, "City is NULL when checking if it is adjacent to a unit");
-	return plot()->IsEnemyCityAdjacent(getTeam(), pSpecifyCity);
+	if (plot() != NULL)
+	{
+		return plot()->IsEnemyCityAdjacent(getTeam(), pSpecifyCity);
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
 {
-	return plot()->GetNumSpecificPlayerUnitsAdjacent(getOwner(), pUnitToExclude, pExampleUnitType, bCombatOnly);
+	if (plot() != NULL)
+	{
+		return plot()->GetNumSpecificPlayerUnitsAdjacent(getOwner(), pUnitToExclude, pExampleUnitType, bCombatOnly);
+	}
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is there a friendly Unit adjacent to us?
 bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 {
-	return plot()->IsFriendlyUnitAdjacent(getTeam(), bCombatUnit);
+	if (plot() != NULL)
+	{
+		return plot()->IsFriendlyUnitAdjacent(getTeam(), bCombatUnit);
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31420,114 +31440,210 @@ bool CvUnit::IsUnitClass(UnitClassTypes iUnitClassType) const
 
 bool CvUnit::IsOnFeature(FeatureTypes iFeatureType) const
 {
-	return plot()->HasFeature(iFeatureType);
+	if (plot() != NULL)
+	{
+		return plot()->HasFeature(iFeatureType);
+	}
+	return false;
 }
 
 bool CvUnit::IsAdjacentToFeature(FeatureTypes iFeatureType) const
 {
-	return plot()->IsAdjacentToFeature(iFeatureType);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToFeature(iFeatureType);
+	}
+	return false;
 }
 
 bool CvUnit::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const
 {
-	return plot()->IsWithinDistanceOfFeature(iFeatureType, iDistance);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfFeature(iFeatureType, iDistance);
+	}
+	return false;
 }
 #if defined(MOD_BALANCE_CORE)
 bool CvUnit::IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsWithinDistanceOfUnit(getOwner(), eOtherUnit, iDistance, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfUnit(getOwner(), eOtherUnit, iDistance, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsWithinDistanceOfCity(int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsWithinDistanceOfCity(this, iDistance, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfCity(this, iDistance, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsWithinDistanceOfUnitClass(getOwner(), eUnitClass, iDistance, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfUnitClass(getOwner(), eUnitClass, iDistance, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsWithinDistanceOfUnitCombatType(getOwner(), eUnitCombat, iDistance, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfUnitCombatType(getOwner(), eUnitCombat, iDistance, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsWithinDistanceOfUnitPromotion(getOwner(), eUnitPromotion, iDistance, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfUnitPromotion(getOwner(), eUnitPromotion, iDistance, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsAdjacentToUnit(UnitTypes eOtherUnit, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsAdjacentToUnit(getOwner(), eOtherUnit, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToUnit(getOwner(), eOtherUnit, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsAdjacentToUnitClass(UnitClassTypes eUnitClass, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsAdjacentToUnitClass(getOwner(), eUnitClass, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToUnitClass(getOwner(), eUnitClass, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsAdjacentToUnitCombatType(UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsAdjacentToUnitCombatType(getOwner(), eUnitCombat, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToUnitCombatType(getOwner(), eUnitCombat, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 bool CvUnit::IsAdjacentToUnitPromotion(PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const
 {
-	return plot()->IsAdjacentToUnitPromotion(getOwner(), eUnitPromotion, bIsFriendly, bIsEnemy);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToUnitPromotion(getOwner(), eUnitPromotion, bIsFriendly, bIsEnemy);
+	}
+	return false;
 }
 #endif
 bool CvUnit::IsOnImprovement(ImprovementTypes iImprovementType) const
 {
-	return plot()->HasImprovement(iImprovementType);
+	if (plot() != NULL)
+	{
+		return plot()->HasImprovement(iImprovementType);
+	}
+	return false;
 }
 
 bool CvUnit::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const
 {
-	return plot()->IsAdjacentToImprovement(iImprovementType);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToImprovement(iImprovementType);
+	}
+	return false;
 }
 
 bool CvUnit::IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const
 {
-	return plot()->IsWithinDistanceOfImprovement(iImprovementType, iDistance);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfImprovement(iImprovementType, iDistance);
+	}
+	return false;
 }
 
 bool CvUnit::IsOnPlotType(PlotTypes iPlotType) const
 {
-	return plot()->HasPlotType(iPlotType);
+	if (plot() != NULL)
+	{
+		return plot()->HasPlotType(iPlotType);
+	}
+	return false;
 }
 
 bool CvUnit::IsAdjacentToPlotType(PlotTypes iPlotType) const
 {
-	return plot()->IsAdjacentToPlotType(iPlotType);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToPlotType(iPlotType);
+	}
+	return false;
 }
 
 bool CvUnit::IsWithinDistanceOfPlotType(PlotTypes iPlotType, int iDistance) const
 {
-	return plot()->IsWithinDistanceOfPlotType(iPlotType, iDistance);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfPlotType(iPlotType, iDistance);
+	}
+	return false;
 }
 
 bool CvUnit::IsOnResource(ResourceTypes iResourceType) const
 {
-	return plot()->HasResource(iResourceType);
+	if (plot() != NULL)
+	{
+		return plot()->HasResource(iResourceType);
+	}
+	return false;
 }
 
 bool CvUnit::IsAdjacentToResource(ResourceTypes iResourceType) const
 {
-	return plot()->IsAdjacentToResource(iResourceType);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToResource(iResourceType);
+	}
+	return false;
 }
 
 bool CvUnit::IsWithinDistanceOfResource(ResourceTypes iResourceType, int iDistance) const
 {
-	return plot()->IsWithinDistanceOfResource(iResourceType, iDistance);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfResource(iResourceType, iDistance);
+	}
+	return false;
 }
 
 bool CvUnit::IsOnTerrain(TerrainTypes iTerrainType) const
 {
-	return plot()->HasTerrain(iTerrainType);
+	if (plot() != NULL)
+	{
+		return plot()->HasTerrain(iTerrainType);
+	}
+	return false;
 }
 
 bool CvUnit::IsAdjacentToTerrain(TerrainTypes iTerrainType) const
 {
-	return plot()->IsAdjacentToTerrain(iTerrainType);
+	if (plot() != NULL)
+	{
+		return plot()->IsAdjacentToTerrain(iTerrainType);
+	}
+	return false;
 }
 
 bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const
 {
-	return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+	if (plot() != NULL)
+	{
+		return plot()->IsWithinDistanceOfTerrain(iTerrainType, iDistance);
+	}
+	return false;
 }
 #endif
 
