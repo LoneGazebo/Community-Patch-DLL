@@ -391,7 +391,6 @@ void CvDiplomacyAI::Reset()
 
 		// Dispute Levels
 		m_aeLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
-		m_aeLastTurnLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 
 		// Strength Assessments
 		m_aeMilitaryStrengthComparedToUs[iI] = NO_STRENGTH_VALUE;
@@ -549,7 +548,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_abRecklessExpander;
 	kStream >> m_abWonderSpammer;
 	kStream >> m_aeLandDisputeLevel;
-	kStream >> m_aeLastTurnLandDisputeLevel;
 	kStream >> m_aeVictoryDisputeLevel;
 	kStream >> m_aeVictoryBlockLevel;
 	kStream >> m_aeWonderDisputeLevel;
@@ -844,7 +842,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_abRecklessExpander;
 	kStream << m_abWonderSpammer;
 	kStream << m_aeLandDisputeLevel;
-	kStream << m_aeLastTurnLandDisputeLevel;
 	kStream << m_aeVictoryDisputeLevel;
 	kStream << m_aeVictoryBlockLevel;
 	kStream << m_aeWonderDisputeLevel;
@@ -4455,21 +4452,6 @@ int CvDiplomacyAI::GetTotalLandDisputeLevel()
 		}
 	}
 	return iRtnValue;
-}
-
-/// What was our level of Dispute with a player over Land last turn?
-DisputeLevelTypes CvDiplomacyAI::GetLastTurnLandDisputeLevel(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_DISPUTE_LEVEL;
-	return (DisputeLevelTypes) m_aeLastTurnLandDisputeLevel[(int)ePlayer];
-}
-
-/// Sets what our level of Dispute was with a player over Land last turn
-void CvDiplomacyAI::SetLastTurnLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	if (eDisputeLevel < 0 || eDisputeLevel >= NUM_DISPUTE_LEVELS) return;
-	m_aeLastTurnLandDisputeLevel[(int)ePlayer] = eDisputeLevel;
 }
 
 /// What is our level of Dispute with a player over Victory?
@@ -12395,7 +12377,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 
 		// Update last turn's values
 		DisputeLevelTypes eCurrentDisputeLevel = GetLandDisputeLevel(ePlayer);
-		SetLastTurnLandDisputeLevel(ePlayer, eCurrentDisputeLevel);
 
 		if (IsPlayerValid(ePlayer))
 		{
@@ -12516,7 +12497,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		else
 		{
 			SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-			SetLastTurnLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 		}
 	}
 
@@ -19467,10 +19447,21 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eIndustry) ? 2 : 1;
 			iMultiplier += GetPlayer()->GetPlayerTraits()->IsExpansionist() ? 2 : 0; // Larger civs care more, since they have more trade resources
-			iMultiplier += GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() ? 2 : 0; // The Netherlands REALLY likes strategic trade partners if they've chosen Industry
 			iMultiplier += bDiplomatTraits ? 2 : 0;
 			iMultiplier += IsDiplomat() ? 1 : 0;
 			iMultiplier += IsMajorCompetitor(ePlayer) ? -1 : 1;
+			iMultiplier += GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() ? 2 : 0; // The Netherlands REALLY likes strategic trade partners if they've chosen Industry
+			iMultiplier += GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0 ? 2 : 0; // ditto for Venice
+			iMultiplier += GetPlayer()->GetPlayerTraits()->GetTradeRouteResourceModifier() > 0 ? 2 : 0; // ditto for Carthage
+			for (int i = 0; i < NUM_YIELD_TYPES; i++)
+			{
+				YieldTypes e = (YieldTypes) i;
+				if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
+				{
+					iMultiplier += 2; // ditto for Morocco
+					break;
+				}
+			}
 
 			// Strategic trade partner that we're getting trade value from?
 			if (!bUntrustworthy && IsStrategicTradePartner(ePlayer) && iTradeDelta > 0)
@@ -21013,8 +21004,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		vector<PlayerTypes> vWarExclusions;
 		vector<PlayerTypes> vHostileExclusions;
 		vector<PlayerTypes> vAfraidExclusions;
-		vector<PlayerTypes> vGuardedExclusions;
 		vector<PlayerTypes> vDeceptiveExclusions;
+		vector<PlayerTypes> vGuardedExclusions;
 
 		PlayerTypes eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_WAR, vWarExclusions);
 		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
@@ -21058,20 +21049,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 		}
 
-		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_GUARDED, vGuardedExclusions);
-		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
-		{
-			if (GetMajorCivStrategicApproach(eCandidate) < MAJOR_CIV_APPROACH_FRIENDLY && !WasResurrectedBy(eCandidate))
-			{
-				eBiggestCompetitor = eCandidate;
-			}
-			else
-			{
-				vGuardedExclusions.push_back(eCandidate);
-				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_GUARDED, vGuardedExclusions);
-			}
-		}
-
 		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_DECEPTIVE, vDeceptiveExclusions);
 		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
 		{
@@ -21083,6 +21060,20 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			{
 				vDeceptiveExclusions.push_back(eCandidate);
 				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_DECEPTIVE, vDeceptiveExclusions);
+			}
+		}
+
+		eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_GUARDED, vGuardedExclusions);
+		while (eCandidate != NO_PLAYER && eBiggestCompetitor == NO_PLAYER)
+		{
+			if (GetMajorCivStrategicApproach(eCandidate) < MAJOR_CIV_APPROACH_FRIENDLY && !WasResurrectedBy(eCandidate))
+			{
+				eBiggestCompetitor = eCandidate;
+			}
+			else
+			{
+				vGuardedExclusions.push_back(eCandidate);
+				eCandidate = GetPlayerWithHighestStrategicApproachValue(MAJOR_CIV_APPROACH_GUARDED, vGuardedExclusions);
 			}
 		}
 	}
@@ -21099,7 +21090,23 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	bool bGoingForConquest = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
 	PolicyBranchTypes eIndustry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true);
 	bool bTradeBonus = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry);
+
+	// Certain unique abilities give trade bonuses
 	bTradeBonus |= GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies();
+	bTradeBonus |= GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0;
+	bTradeBonus |= GetPlayer()->GetPlayerTraits()->GetTradeRouteResourceModifier() > 0;
+	if (!bTradeBonus)
+	{
+		for (int i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			YieldTypes e = (YieldTypes) i;
+			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
+			{
+				bTradeBonus = true;
+				break;
+			}
+		}
+	}
 
 	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
 	{
@@ -31102,30 +31109,18 @@ void CvDiplomacyAI::DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatem
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		bool bSendStatement = false;
 		if (GET_PLAYER(ePlayer).GetTurnsSinceSettledLastCity() < GC.getEXPANSION_BICKER_TIMEOUT() && !EverMadeExpansionPromise(ePlayer) && GetPlayerExpansionPromiseState(ePlayer) == NO_PROMISE_STATE)
 		{
-			// We're fiercely opposed to their expansion
-			if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_FIERCE)
-				bSendStatement = true;
-
-			// Have a strong dispute over land now, and didn't last turn
-			else if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetLastTurnLandDisputeLevel(ePlayer) < DISPUTE_LEVEL_STRONG)
+			if (GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetExpansionAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
 			{
-				if(GetExpansionAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM)
-					bSendStatement = true;
+				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXPANSION_WARNING;
+				int iTurnsBetweenStatements = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+
+				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					eStatement = eTempStatement;
 			}
-		}
-
-		if(bSendStatement)
-		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXPANSION_WARNING;
-			int iTurnsBetweenStatements = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
-
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-				eStatement = eTempStatement;
 		}
 	}
 }

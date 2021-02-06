@@ -390,7 +390,6 @@ CvPlayer::CvPlayer() :
 	, m_aiResearchAgreementCounter("CvPlayer::m_aiResearchAgreementCounter", m_syncArchive)
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
 	, m_aiIncomingUnitCountdowns("CvPlayer::m_aiIncomingUnitCountdowns", m_syncArchive, true)
-	, m_aiMinorFriendshipAnchors("CvPlayer::m_aiMinorFriendshipAnchors", m_syncArchive, true)
 	, m_aiSiphonLuxuryCount("CvPlayer::m_aiSiphonLuxuryCount", m_syncArchive)
 	, m_aiGreatWorkYieldChange("CvPlayer::m_aiGreatWorkYieldChange", m_syncArchive)
 	, m_aOptions("CvPlayer::m_aOptions", m_syncArchive, true)
@@ -1930,9 +1929,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiIncomingUnitCountdowns.clear();
 	m_aiIncomingUnitCountdowns.resize(MAX_PLAYERS, -1);
-
-	m_aiMinorFriendshipAnchors.clear();
-	m_aiMinorFriendshipAnchors.resize(MAX_PLAYERS, 0);
 
 	m_aiSiphonLuxuryCount.clear();
 	m_aiSiphonLuxuryCount.resize(MAX_PLAYERS, 0);
@@ -18857,27 +18853,12 @@ int CvPlayer::GetJONSCulturePerTurnForFree() const
 /// Culture per turn player starts with for free
 void CvPlayer::ChangeJONSCulturePerTurnForFree(int iChange)
 {
-	if(iChange != 0)
-		m_iJONSCulturePerTurnForFree += iChange;
+	m_iJONSCulturePerTurnForFree += iChange;
 
-	if(GC.getGame().getActivePlayer() == GetID())
+	if (GC.getGame().getActivePlayer() == GetID())
 	{
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
-}
-
-//	--------------------------------------------------------------------------------
-/// DEPRECATED, use GetCulturePerTurnFromMinorCivs() instead
-int CvPlayer::GetJONSCulturePerTurnFromMinorCivs() const
-{
-	return GetCulturePerTurnFromMinorCivs();
-}
-
-//	--------------------------------------------------------------------------------
-/// DEPRECATED, value is now changed within CvMinorCivAI
-void CvPlayer::ChangeJONSCulturePerTurnFromMinorCivs(int /*iChange*/)
-{
-	CvAssertMsg(false, "ChangeJONSCulturePerTurnFromMinorCivs called, but Anton meant to disable it");
 }
 
 //	--------------------------------------------------------------------------------
@@ -18885,10 +18866,9 @@ void CvPlayer::ChangeJONSCulturePerTurnFromMinorCivs(int /*iChange*/)
 int CvPlayer::GetCulturePerTurnFromMinorCivs() const
 {
 	int iAmount = 0;
-	PlayerTypes eMinor;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		eMinor = (PlayerTypes) iMinorLoop;
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 		iAmount += GetCulturePerTurnFromMinor(eMinor);
 	}
 
@@ -18901,7 +18881,7 @@ int CvPlayer::GetCulturePerTurnFromMinor(PlayerTypes eMinor) const
 {
 	int iAmount = 0;
 
-	if(GET_PLAYER(eMinor).isAlive())
+	if (GET_PLAYER(eMinor).isAlive())
 	{
 		// Includes flat bonus and any bonus from cultural buildings
 		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentCultureBonus(GetID());

@@ -254,8 +254,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetJONSCulturePerTurnForFree);
 	Method(ChangeJONSCulturePerTurnForFree);
 
-	Method(GetJONSCulturePerTurnFromMinorCivs);
-	Method(ChangeJONSCulturePerTurnFromMinorCivs);
 	Method(GetCulturePerTurnFromMinorCivs);
 	Method(GetCulturePerTurnFromMinor);
 
@@ -2982,20 +2980,6 @@ int CvLuaPlayer::lGetJONSCulturePerTurnForFree(lua_State* L)
 int CvLuaPlayer::lChangeJONSCulturePerTurnForFree(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeJONSCulturePerTurnForFree);
-}
-//------------------------------------------------------------------------------
-// DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-//int getJONSCulturePerTurnFromMinorCivs();
-int CvLuaPlayer::lGetJONSCulturePerTurnFromMinorCivs(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromMinorCivs);
-}
-//------------------------------------------------------------------------------
-// DEPRECATED, does nothing
-//void changeJONSCulturePerTurnFromMinorCivs(int iChange);
-int CvLuaPlayer::lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::ChangeJONSCulturePerTurnFromMinorCivs);
 }
 //------------------------------------------------------------------------------
 //int GetCulturePerTurnFromMinorCivs();

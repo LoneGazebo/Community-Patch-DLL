@@ -479,8 +479,6 @@ public:
 	int GetJONSCulturePerTurnForFree() const;
 	void ChangeJONSCulturePerTurnForFree(int iChange);
 
-	int GetJONSCulturePerTurnFromMinorCivs() const; // DEPRECATED, use GetCulturePerTurnFromMinorCivs() instead
-	void ChangeJONSCulturePerTurnFromMinorCivs(int iChange); // DEPRECATED, does nothing
 	int GetCulturePerTurnFromMinorCivs() const;
 	int GetCulturePerTurnFromMinor(PlayerTypes eMinor) const;
 
@@ -3480,7 +3478,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiMinorFriendshipAnchors; // DEPRECATED
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSiphonLuxuryCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGreatWorkYieldChange;
 

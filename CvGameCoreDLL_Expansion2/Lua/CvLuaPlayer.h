@@ -240,8 +240,6 @@ protected:
 	static int lGetJONSCulturePerTurnForFree(lua_State* L);
 	static int lChangeJONSCulturePerTurnForFree(lua_State* L);
 
-	static int lGetJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-	static int lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, does nothing
 	static int lGetCulturePerTurnFromMinorCivs(lua_State* L);
 	static int lGetCulturePerTurnFromMinor(lua_State* L);
 

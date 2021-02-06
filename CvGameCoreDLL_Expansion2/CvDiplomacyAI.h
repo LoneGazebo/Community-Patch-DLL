@@ -556,8 +556,6 @@ public:
 	DisputeLevelTypes GetLandDisputeLevel(PlayerTypes ePlayer) const;
 	void SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	int GetTotalLandDisputeLevel();
-	DisputeLevelTypes GetLastTurnLandDisputeLevel(PlayerTypes ePlayer) const;
-	void SetLastTurnLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 
 	// Victory Dispute
 	DisputeLevelTypes GetVictoryDisputeLevel(PlayerTypes ePlayer) const;
@@ -1983,7 +1981,6 @@ private:
 	bool m_abRecklessExpander[MAX_MAJOR_CIVS];
 	bool m_abWonderSpammer[MAX_MAJOR_CIVS];
 	char m_aeLandDisputeLevel[MAX_CIV_PLAYERS];
-	char m_aeLastTurnLandDisputeLevel[MAX_CIV_PLAYERS];
 	char m_aeVictoryDisputeLevel[MAX_MAJOR_CIVS];
 	char m_aeVictoryBlockLevel[MAX_MAJOR_CIVS];
 	char m_aeWonderDisputeLevel[MAX_MAJOR_CIVS];
