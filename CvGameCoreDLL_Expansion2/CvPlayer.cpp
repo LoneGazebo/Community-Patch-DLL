@@ -27233,6 +27233,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							iValue += MAX(pReligion->m_Beliefs.GetYieldFromImprovementBuild(eYield, bEraScale, GetID(), pLoopCity), 0);
 						}
 					}
+
+					break;
+				}
+				case INSTANT_YIELD_TYPE_LUA:
+				{
+					if (ePassYield == eYield)
+					{
+						iValue += iPassYield;
+					}
+
+					break;
 				}
 			}
 			//Now, let's apply these yields here as total yields.
@@ -28121,6 +28132,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				return;
 			}
 			case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:
+			{
 				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD");
@@ -28136,6 +28148,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				return;
+			}
+			case INSTANT_YIELD_TYPE_LUA:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_INSTANT");
+				localizedText << totalyieldString;
+				break;
+			}
 		}
 		if(pCity == NULL)
 		{

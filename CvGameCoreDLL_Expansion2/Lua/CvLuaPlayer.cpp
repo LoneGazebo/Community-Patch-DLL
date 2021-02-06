@@ -1477,8 +1477,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_BALANCE_CORE)
+	Method(DoInstantYield);
 	Method(GetInstantYieldHistoryTooltip);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
@@ -16667,7 +16670,40 @@ int CvLuaPlayer::lDisbandContractUnits(lua_State* L)
 	return 0;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lDoInstantYield(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iYield = lua_tointeger(L, 3);
+	const bool bSuppress = luaL_optbool(L, 4, false);
+	int iCity = luaL_optint(L, 5, -1);
+
+	CvCity* pkCity = NULL;
+	if (iCity != -1)
+	{
+		pkCity = pkPlayer->getCity(iCity);
+
+		//sometimes Lua city IDs are actually sequential indices
+		//global IDs start at 1000
+		if (!pkCity && iCity < 1000)
+		{
+			if (iCity > 0)
+			{
+				iCity--;
+				pkCity = pkPlayer->nextCity(&iCity);
+			}
+			else
+			{
+				pkCity = pkPlayer->firstCity(&iCity);
+			}
+		}
+	}
+
+	pkPlayer->doInstantYield(INSTANT_YIELD_TYPE_LUA, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, bSuppress, pkCity, false, true, false, eYield);
+
+	return 1;
+}
 int CvLuaPlayer::lGetInstantYieldHistoryTooltip(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -16677,6 +16713,8 @@ int CvLuaPlayer::lGetInstantYieldHistoryTooltip(lua_State* L)
 	lua_pushstring(L, string.c_str());
 	return 1;
 }
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 int CvLuaPlayer::lGetDisabledTooltip(lua_State* L)
 {
 	CvString DisabledTT = "";

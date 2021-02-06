@@ -1472,8 +1472,11 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_BALANCE_CORE)
+	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);
