@@ -1113,6 +1113,7 @@ enum BattleTypeTypes
 //Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
 #define GAMEEVENT_CityEndsWLTKD				"CityEndsWLTKD", "iiii"
+#define GAMEEVENT_CityExtendsWLTKD			"CityExtendsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"

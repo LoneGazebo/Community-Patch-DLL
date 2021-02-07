@@ -23511,6 +23511,12 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
 #endif
 	}
+	else if (iChange > 0)
+	{
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityExtendsWLTKD, getOwner(), getX(), getY(), iChange);
+#endif
+	}
 	if (iChange > 0 && bUATrigger)
 	{
 		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
