@@ -42931,12 +42931,16 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 {
+	if (!IsScientist())
+		return 0;
+
 	int iOpinionWeight = 0;
 	int iEra = (int)GetPlayer()->GetCurrentEra();
 	if (iEra < 0)
 		iEra = 0;
 
-	if (!IsScientist())
+	// Don't do this until the Classical Era.
+	if (iEra == 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
 		return 0;
 	
 	switch (GetTechBlockLevel(ePlayer))
@@ -42989,12 +42993,16 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 {
+	if (!IsCultural())
+		return 0;
+
 	int iOpinionWeight = 0;
 	int iEra = (int)GetPlayer()->GetCurrentEra();
 	if (iEra < 0)
 		iEra = 0;
 
-	if (!IsCultural())
+	// Don't do this until the Classical Era.
+	if (iEra == 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
 		return 0;
 	
 	switch (GetPolicyBlockLevel(ePlayer))
