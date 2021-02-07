@@ -17059,8 +17059,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		break;
 	}
 
-	if (IsCompetingForVictory())
+	if (IsCompetingForVictory() && (iMyEra > 0 || iTheirEra > 0))
 	{
+		int iBlockEra = max(0, max(iMyEra, iTheirEra) - 1);
+
 		////////////////////////////////////
 		// TECH BLOCK
 		////////////////////////////////////
@@ -17120,7 +17122,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (eBlockLevel > BLOCK_LEVEL_NONE)
 		{
 			fModifier = (float)(iMultiplier * GetDiploBalance() * DifficultyModifier);
-			fModifier /= max(1000, 2000 - (iMyEra * 200));
+			fModifier /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
@@ -17219,7 +17221,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (eBlockLevel > BLOCK_LEVEL_NONE)
 		{
 			fModifier = (float)(iMultiplier * GetDiploBalance() * DifficultyModifier);
-			fModifier /= max(1000, 2000 - (iMyEra * 200));
+			fModifier /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
@@ -42938,10 +42940,11 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 	int iEra = (int)GetPlayer()->GetCurrentEra();
 	if (iEra < 0)
 		iEra = 0;
+	int iTheirEra = (int)GET_PLAYER(ePlayer).GetCurrentEra();
+	if (iTheirEra < 0)
+		iTheirEra = 0;
 
-	// Don't do this until the Classical Era.
-	if (iEra == 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
-		return 0;
+	int iBlockEra = max(0, max(iEra, iTheirEra) - 1);
 	
 	switch (GetTechBlockLevel(ePlayer))
 	{
@@ -42967,7 +42970,7 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(1000, 2000 - (iEra * 200));
+			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else
 		{
@@ -42997,14 +43000,16 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 		return 0;
 
 	int iOpinionWeight = 0;
+
 	int iEra = (int)GetPlayer()->GetCurrentEra();
 	if (iEra < 0)
 		iEra = 0;
+	int iTheirEra = (int)GET_PLAYER(ePlayer).GetCurrentEra();
+	if (iTheirEra < 0)
+		iTheirEra = 0;
 
-	// Don't do this until the Classical Era.
-	if (iEra == 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
-		return 0;
-	
+	int iBlockEra = max(0, max(iEra, iTheirEra) - 1);
+
 	switch (GetPolicyBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
@@ -43029,7 +43034,7 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(1000, 2000 - (iEra * 200));
+			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else
 		{
