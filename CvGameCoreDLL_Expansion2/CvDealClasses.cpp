@@ -2679,7 +2679,7 @@ bool CvGameDeals::RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 	if (pDealOut)
 		*pDealOut = *pDeal;
 
-//	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
+	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
 	return true;
 }
 

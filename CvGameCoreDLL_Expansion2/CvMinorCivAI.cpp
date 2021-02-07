@@ -3971,6 +3971,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_iData1;
 	loadFrom >> writeTo.m_iData2;
+	loadFrom >> writeTo.m_bHandled;
 #if defined(MOD_BALANCE_CORE)
 	loadFrom >> writeTo.m_iData3;
 	loadFrom >> writeTo.m_iInfluence;

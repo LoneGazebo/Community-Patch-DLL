@@ -1288,7 +1288,6 @@ public:
 
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
@@ -1299,7 +1298,6 @@ public:
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
-#endif
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 
 	// Great General Stuff

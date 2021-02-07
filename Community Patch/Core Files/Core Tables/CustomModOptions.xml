@@ -975,6 +975,8 @@
 	  <Row Class="6" Name="BALANCE_CORE_INQUISITOR_TWEAKS" Value="0"/>
 	<!-- If true, no lua hooks are called from the game core, increasing performance and stability -->
 	<Row Class="6" Name="CORE_DISABLE_LUA_HOOKS" Value="0"/>
+	<!-- If true, additional promotions are enabled which may cause a significant slowdown if there are many units in the game -->
+	<Row Class="6" Name="CORE_AREA_EFFECT_PROMOTIONS" Value="0"/>
 	<!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->

@@ -7641,15 +7641,16 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	CvPlot* pLoopPlot;
 
 	int iExtraHeal = 0;
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	int iExtraFriendlyHeal = getExtraFriendlyHeal() + GetHealFriendlyTerritoryFromNearbyUnit();
-	int iExtraNeutralHeal = getExtraNeutralHeal() + GetHealNeutralTerritoryFromNearbyUnit();
-	int iExtraEnemyHeal = getExtraEnemyHeal() + GetHealEnemyTerritoryFromNearbyUnit();
-#else
 	int iExtraFriendlyHeal = getExtraFriendlyHeal();
 	int iExtraNeutralHeal = getExtraNeutralHeal();
 	int iExtraEnemyHeal = getExtraEnemyHeal();
-#endif
+
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+	{
+		iExtraFriendlyHeal += GetHealFriendlyTerritoryFromNearbyUnit();
+		iExtraNeutralHeal += GetHealNeutralTerritoryFromNearbyUnit();
+		iExtraEnemyHeal += GetHealEnemyTerritoryFromNearbyUnit();
+	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int iReligionMod = 0;
@@ -15885,33 +15886,20 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if (!bQuickAndDirty)
 	{
 		// Reverse Great General nearby
-		int iReverseGGModifier = GetReverseGreatGeneralModifier(pFromPlot);
-		if (iReverseGGModifier != 0)
-		{
-			iModifier += iReverseGGModifier;
-		}
+		iModifier += GetReverseGreatGeneralModifier(pFromPlot);
 
 		// Improvement with combat bonus (from trait) nearby
-		int iNearbyImprovementModifier = GetNearbyImprovementModifier(pFromPlot);
-		if (iNearbyImprovementModifier != 0)
-		{
-			iModifier += iNearbyImprovementModifier;
-		}
+		iModifier += GetNearbyImprovementModifier(pFromPlot);
+
 		// UnitClass grants a combat bonus if nearby
-		int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pBattlePlot);
-		if (iNearbyUnitClassModifier != 0)
+		iModifier += GetNearbyUnitClassModifierFromUnitClass(pBattlePlot);
+
+		// NearbyUnit gives a Combat Modifier?
+		if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
 		{
-			iModifier += iNearbyUnitClassModifier;
+			iModifier += GetGiveCombatModToUnit(pFromPlot);
 		}
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-		// NearbyUnit gives a Combat Modifier?
-		int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
-		if (iGetGiveCombatModifier != 0)
-		{
-			iModifier += iGetGiveCombatModifier;
-		}
-#endif
 		// Adjacent Friendly military Unit?
 		if (!bIgnoreUnitAdjacencyBoni && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
@@ -18411,11 +18399,10 @@ int CvUnit::getHealOnPillageCount() const
 int CvUnit::getHPHealedIfDefeatEnemy() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	return m_iHPHealedIfDefeatEnemy + GetGiveHPIfEnemyKilledToUnit();
-#else
-	return m_iHPHealedIfDefeatEnemy;
-#endif
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return m_iHPHealedIfDefeatEnemy + GetGiveHPIfEnemyKilledToUnit();
+	else
+		return m_iHPHealedIfDefeatEnemy;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18847,11 +18834,10 @@ void CvUnit::changeAttackModifier(int iValue)
 int CvUnit::getDefenseModifier() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	return m_iDefenseModifier + GetGiveDefenseModToUnit();
-#else
-	return m_iDefenseModifier;
-#endif
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return m_iDefenseModifier + GetGiveDefenseModToUnit();
+	else
+		return m_iDefenseModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -22752,12 +22738,12 @@ void CvUnit::changeExtraRoughFromPercent(int iChange)
 int CvUnit::getNumAttacks() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	return m_iNumAttacks + GetGiveExtraAttacksToUnit();
-#else
-	return m_iNumAttacks;
-#endif
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return m_iNumAttacks + GetGiveExtraAttacksToUnit();
+	else
+		return m_iNumAttacks;
 }
+
 int CvUnit::getNumAttacksMadeThisTurn() const
 {
 	VALIDATE_OBJECT
@@ -22812,7 +22798,6 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 }
 
 
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
 //	--------------------------------------------------------------------------------
 // Golden Age? And have a general near us that gives us additional Exp?
 int CvUnit::GetGoldenAgeGeneralExpPercent() const
@@ -23051,6 +23036,9 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
+	if (!MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return false;
+
 	VALIDATE_OBJECT
 	int iRange = 0;
 	if (pAtPlot == NULL)
@@ -23182,12 +23170,7 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 	}
 	return iHP;
 }
-#else
-bool CvUnit::IsHiddenByNearbyUnit(const CvPlot*) const
-{
-	return false;
-}
-#endif
+
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -24291,11 +24274,10 @@ void CvUnit::changeFriendlyLandsAttackModifier(int iChange)
 int CvUnit::getOutsideFriendlyLandsModifier() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	return m_iOutsideFriendlyLandsModifier + GetGiveOutsideFriendlyLandsModifierToUnit();
-#else
-	return m_iOutsideFriendlyLandsModifier;
-#endif
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return m_iOutsideFriendlyLandsModifier + GetGiveOutsideFriendlyLandsModifierToUnit();
+	else
+		return m_iOutsideFriendlyLandsModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -24350,11 +24332,10 @@ void CvUnit::changeUpgradeDiscount(int iChange)
 int CvUnit::getExperiencePercent() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS)
-	return m_iExperiencePercent + GetGoldenAgeGeneralExpPercent() + GetGiveExperiencePercentToUnit();
-#else
-	return m_iExperiencePercent;
-#endif
+	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+		return m_iExperiencePercent + GetGoldenAgeGeneralExpPercent() + GetGiveExperiencePercentToUnit();
+	else
+		return m_iExperiencePercent;
 }
 
 //	--------------------------------------------------------------------------------
@@ -30093,7 +30074,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = (iTemp) * (2 * iFlavorOffense + iFlavorDefense);
 		if (IsCanAttackRanged())
 		{
-			iExtra *= 0.35f;		
+			iExtra *= 0.35f;
 		}
 		else
 			iExtra *= 0.7f;
@@ -30185,7 +30166,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraOpenDefensePercent();
 		iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 0.3;	
+		iExtra *= 0.3;
 		iValue += iExtra;	
 	}
 
