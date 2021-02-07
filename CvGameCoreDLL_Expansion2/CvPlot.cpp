@@ -2510,6 +2510,25 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	if (MOD_IMPROVEMENTS_EXTENSIONS)
+	{
+		// Check resource requirements
+		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
+		{
+			ResourceTypes eResource = (ResourceTypes)iI;
+			if (eResource != NO_RESOURCE)
+			{
+				int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iI);
+				if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
+				{
+					return false;
+				}
+			}
+		}
+	}
+#endif
+
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlotCanImprove, getX(), getY(), eImprovement) == GAMEEVENTRETURN_FALSE) {
@@ -2808,6 +2827,25 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						return false;
 					}
 				}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					// Check resource requirements
+					for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+					{
+						ResourceTypes eResource = (ResourceTypes)iI;
+						if (eResource != NO_RESOURCE)
+						{
+							int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
+							if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
+					}
+				}
+#endif
 			}
 		}
 
