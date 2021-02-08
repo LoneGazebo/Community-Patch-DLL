@@ -3101,14 +3101,22 @@ int CvDiplomacyAI::GetRecentTradeValue(PlayerTypes ePlayer)
 void CvDiplomacyAI::SetRecentTradeValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	int iMaxOpinionValue = min(USHRT_MAX,(/*5*/ GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * /*40*/ -GC.getOPINION_WEIGHT_TRADE_MAX()));
+	int iMaxOpinionValue = min(USHRT_MAX,(/*5*/ GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * /*40*/ -GC.getOPINION_WEIGHT_TRADE_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100));
 	m_aiTradeValue[(int)ePlayer] = range(iValue, 0, iMaxOpinionValue);
 }
 
 /// Changes the value of recent trades
 void CvDiplomacyAI::ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange)
 {
-	SetRecentTradeValue(ePlayer, GetRecentTradeValue(ePlayer) + iChange);
+	if (iChange > 0)
+	{
+		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
+		SetRecentTradeValue(ePlayer, GetRecentTradeValue(ePlayer) + iScaledAmount);
+	}
+	else
+	{
+		SetRecentTradeValue(ePlayer, GetRecentTradeValue(ePlayer) + iChange);
+	}
 }
 
 /// Returns the value of combat damage inflicted on a common enemy
@@ -3122,7 +3130,7 @@ int CvDiplomacyAI::GetCommonFoeValue(PlayerTypes ePlayer)
 void CvDiplomacyAI::SetCommonFoeValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	int iMaxOpinionValue = min(USHRT_MAX, (GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT() * -GC.getOPINION_WEIGHT_COMMON_FOE_MAX()));
+	int iMaxOpinionValue = min(USHRT_MAX, (GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT() * -GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100));
 	m_aiCommonFoeValue[(int)ePlayer] = range(iValue, 0, iMaxOpinionValue);
 }
 
@@ -3140,9 +3148,14 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 		{
 			return;
 		}
-	}
 
-	SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iChange);
+		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
+		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iScaledAmount);
+	}
+	else
+	{
+		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iChange);
+	}
 }
 
 /// Returns the value of diplomatic assistance given
@@ -3156,14 +3169,22 @@ int CvDiplomacyAI::GetRecentAssistValue(PlayerTypes ePlayer)
 void CvDiplomacyAI::SetRecentAssistValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	int iMaxOpinionValue = min(SHRT_MAX,(GC.getASSIST_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_ASSIST_MAX()));
+	int iMaxOpinionValue = min(SHRT_MAX,(GC.getASSIST_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_ASSIST_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100));
 	m_aiAssistValue[(int)ePlayer] = range(iValue, -iMaxOpinionValue, iMaxOpinionValue);
 }
 
 /// Changes the value of diplomatic assistance given
-void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay)
 {
-	SetRecentAssistValue(ePlayer, GetRecentAssistValue(ePlayer) + iChange);
+	if (!bDecay)
+	{
+		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
+		SetRecentAssistValue(ePlayer, GetRecentAssistValue(ePlayer) + iScaledAmount);
+	}
+	else
+	{
+		SetRecentAssistValue(ePlayer, GetRecentAssistValue(ePlayer) + iChange);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -3207,6 +3228,7 @@ void CvDiplomacyAI::SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 					{
 						GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetWantsDoFWithPlayer(vTargetTeam[j], false);
 						GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetWantsDefensivePactWithPlayer(vTargetTeam[j], false);
+						GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetWantsResearchAgreementWithPlayer(vTargetTeam[j], false);
 					}
 				}
 			}
@@ -3232,20 +3254,6 @@ bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer) const
 	CoopWarStates eCoopWarState = GetGlobalCoopWarAgainstState(ePlayer);
 	if (eCoopWarState == COOP_WAR_STATE_PREPARING || eCoopWarState == COOP_WAR_STATE_READY)
 		return true;
-
-/*
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// Vassals will never want peace with a player if their master is at war with a player.
-	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->IsVassalOfSomeone())
-	{
-		TeamTypes eMasterTeam = GET_TEAM(GetTeam()).GetMaster();
-		if (eMasterTeam != NO_TEAM && GET_TEAM(eMasterTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-		{
-			return true;
-		}
-	}
-#endif
-*/
 
 	return false;
 }
@@ -7232,13 +7240,21 @@ int CvDiplomacyAI::GetVassalProtectValue(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetVassalProtectValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	int iMaxOpinionValue = min(SHRT_MAX, (GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT() * -GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX()));
+	int iMaxOpinionValue = min(SHRT_MAX, (GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT() * -GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100));
 	m_aiPlayerVassalageProtectValue[(int)ePlayer] = range(iValue, 0, iMaxOpinionValue);
 }
 
 void CvDiplomacyAI::ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange)
 {
-	SetVassalProtectValue(ePlayer, GetVassalProtectValue(ePlayer) + iChange);
+	if (iChange > 0)
+	{
+		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
+		SetVassalProtectValue(ePlayer, GetVassalProtectValue(ePlayer) + iScaledAmount);
+	}
+	else
+	{
+		SetVassalProtectValue(ePlayer, GetVassalProtectValue(ePlayer) + iChange);
+	}
 }
 
 /// Returns value of failed vassal protection
@@ -7251,13 +7267,21 @@ int CvDiplomacyAI::GetVassalFailedProtectValue(PlayerTypes ePlayer) const
 void CvDiplomacyAI::SetVassalFailedProtectValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	int iMaxOpinionValue = min(SHRT_MAX, (GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX()));
+	int iMaxOpinionValue = min(SHRT_MAX, (GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100));
 	m_aiPlayerVassalageFailedProtectValue[(int)ePlayer] = range(iValue, 0, iMaxOpinionValue);
 }
 
 void CvDiplomacyAI::ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange)
 {
-	SetVassalFailedProtectValue(ePlayer, GetVassalFailedProtectValue(ePlayer) + iChange);
+	if (iChange > 0)
+	{
+		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
+		SetVassalFailedProtectValue(ePlayer, GetVassalProtectValue(ePlayer) + iScaledAmount);
+	}
+	else
+	{
+		SetVassalFailedProtectValue(ePlayer, GetVassalFailedProtectValue(ePlayer) + iChange);
+	}
 }
 
 bool CvDiplomacyAI::IsMasterLiberatedMeFromVassalage(PlayerTypes ePlayer) const
@@ -24214,12 +24238,12 @@ void CvDiplomacyAI::DoCounters()
 				if (GetRecentAssistValue(eLoopPlayer) > 0)
 				{
 					int iMin = MIN(GetRecentAssistValue(eLoopPlayer), /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY());
-					ChangeRecentAssistValue(eLoopPlayer, -iMin);
+					ChangeRecentAssistValue(eLoopPlayer, -iMin, true);
 				}
 				else if (GetRecentAssistValue(eLoopPlayer) < 0)
 				{
 					int iMin = MIN(-GetRecentAssistValue(eLoopPlayer), /*3*/ GC.getASSIST_VALUE_PER_TURN_DECAY());
-					ChangeRecentAssistValue(eLoopPlayer, iMin);
+					ChangeRecentAssistValue(eLoopPlayer, iMin, true);
 				}
 				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
@@ -43176,63 +43200,79 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 // Player has done nice stuff
 //////////////////////////////////////
 
-//todo
 int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
 	if (GetRecentTradeValue(ePlayer) > 0)
 	{
-		int iWeightChange = -1 * GetRecentTradeValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
-		if (iWeightChange < /*-40*/ GC.getOPINION_WEIGHT_TRADE_MAX())
-		{
-			iWeightChange = GC.getOPINION_WEIGHT_TRADE_MAX();
-		}
-		iOpinionWeight += iWeightChange;
-	}
+		int iMaxValue = GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_TRADE_MAX();
+		int iCurrentValuePercent = min(GetRecentTradeValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
 
-	if (IsStrategicTradePartner(ePlayer))
-	{
-		iOpinionWeight *= /*150*/ GC.getOPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER();
-		iOpinionWeight /= 100;
+		if (iCurrentValuePercent > 0)
+		{
+			iOpinionWeight = /*-40*/ GC.getOPINION_WEIGHT_TRADE_MAX() * iCurrentValuePercent / 100;
+		}
+
+		if (IsStrategicTradePartner(ePlayer))
+		{
+			iOpinionWeight *= /*150*/ GC.getOPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER();
+			iOpinionWeight /= 100;
+		}
 	}
 
 	return iOpinionWeight;
 }
 
-//todo
 int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
 	if (GetRecentAssistValue(ePlayer) != 0)
 	{
-		int iWeightChange = GetRecentAssistValue(ePlayer) / GC.getASSIST_VALUE_PER_OPINION_WEIGHT();
-		if (iWeightChange < /*-30*/ -GC.getOPINION_WEIGHT_ASSIST_MAX())
+		int iMaxValue = GC.getASSIST_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_ASSIST_MAX();
+		int iCurrentValuePercent = 0;
+
+		if (GetRecentAssistValue(ePlayer) > 0)
 		{
-			iWeightChange = -GC.getOPINION_WEIGHT_ASSIST_MAX();
+			iCurrentValuePercent = min(GetRecentAssistValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
 		}
-		else if (iWeightChange > /*30*/ GC.getOPINION_WEIGHT_ASSIST_MAX())
+		else
 		{
-			iWeightChange = GC.getOPINION_WEIGHT_ASSIST_MAX();
+			iCurrentValuePercent = max(GetRecentAssistValue(ePlayer), -iMaxValue) * 100 / min(-iMaxValue, -1);
 		}
-		iOpinionWeight += iWeightChange;
+
+		if (iCurrentValuePercent > 0)
+		{
+			if (GetRecentAssistValue(ePlayer) > 0)
+			{
+				iOpinionWeight = /*30*/ GC.getOPINION_WEIGHT_ASSIST_MAX() * iCurrentValuePercent / 100;
+			}
+			else
+			{
+				iOpinionWeight = /*-30*/ -GC.getOPINION_WEIGHT_ASSIST_MAX() * iCurrentValuePercent / 100;
+			}
+		}
 	}
 	
 	return iOpinionWeight;
 }
 
-//todo
 int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
 	if (GetCommonFoeValue(ePlayer) > 0)
 	{
-		int iWeightChange = -1 * GetCommonFoeValue(ePlayer) / GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT();
-		if (iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX())
+		int iMaxValue = GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_COMMON_FOE_MAX();
+		int iCurrentValuePercent = min(GetCommonFoeValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+
+		if (iCurrentValuePercent > 0)
 		{
-			iWeightChange = GC.getOPINION_WEIGHT_COMMON_FOE_MAX();
+			iOpinionWeight = /*-50*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * iCurrentValuePercent / 100;
 		}
-		iOpinionWeight += iWeightChange;
-	}	
+	}
+
 	return iOpinionWeight;
 }
 
@@ -45381,16 +45421,18 @@ int CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer) const
 
 int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 {
+	if (!IsVassal(ePlayer)) return 0;
 	int iOpinionWeight = 0;
 
-	if (IsVassal(ePlayer))
+	if (GetVassalProtectValue(ePlayer) > 0)
 	{
-		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT());
-		if (iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX())
+		int iMaxValue = GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
+		int iCurrentValuePercent = min(GetVassalProtectValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+
+		if (iCurrentValuePercent > 0)
 		{
-			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
+			iOpinionWeight = /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX() * iCurrentValuePercent / 100;
 		}
-		iOpinionWeight +=  iWeightChange;
 	}
 
 	return iOpinionWeight;
@@ -45398,16 +45440,18 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 
 int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 {
+	if (!IsVassal(ePlayer)) return 0;
 	int iOpinionWeight = 0;
 
-	if (IsVassal(ePlayer))
+	if (GetVassalFailedProtectValue(ePlayer) > 0)
 	{
-		int iWeightChange = GetVassalFailedProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT());
-		if (iWeightChange > /*50*/ GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX())
+		int iMaxValue = GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();
+		int iCurrentValuePercent = min(GetVassalFailedProtectValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+
+		if (iCurrentValuePercent > 0)
 		{
-			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();
+			iOpinionWeight = /*50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX() * iCurrentValuePercent / 100;
 		}
-		iOpinionWeight += iWeightChange;
 	}
 
 	return iOpinionWeight;

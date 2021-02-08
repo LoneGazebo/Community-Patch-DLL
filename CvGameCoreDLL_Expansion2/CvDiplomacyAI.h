@@ -344,7 +344,7 @@ public:
 	
 	int GetRecentAssistValue(PlayerTypes ePlayer);
 	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
-	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
+	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay = false);
 
 	// ------------------------------------
 	// Coop Wars
