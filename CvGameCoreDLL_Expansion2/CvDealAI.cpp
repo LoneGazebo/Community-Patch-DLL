@@ -2776,14 +2776,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		return INT_MAX;
 	}
 
-	// Denouncement in either direction?
-	if (pDiploAI->IsDenouncedPlayer(eOtherPlayer) || pDiploAI->IsDenouncedByPlayer(eOtherPlayer))
-		return INT_MAX;
-
-	// No peace deals with backstabbers - it's a trap!
-	if (pDiploAI->IsUntrustworthy(eOtherPlayer))
-		return INT_MAX;
-
 	bool bMinor = false;
 
 	// Minor
@@ -2802,7 +2794,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 
 		bMinor = true;
 	}
-
 
 	// if we're at war with the opponent, then this must be a peace deal. In this case we should evaluate vassal civ peace deals as zero
 	if (MOD_DIPLOMACY_CIV4_FEATURES && (GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GetPlayer()->getTeam())))
@@ -2854,6 +2845,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		return INT_MAX;
 	}
 #endif
+
 	//Things blocking their peace?
 	if(!bFromMe)
 	{
@@ -2882,6 +2874,13 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 	}
 
+	// Denouncement in either direction?
+	if (pDiploAI->IsDenouncedPlayer(eOtherPlayer) || pDiploAI->IsDenouncedByPlayer(eOtherPlayer))
+		return INT_MAX;
+
+	// No peace deals with backstabbers - it's a trap!
+	if (pDiploAI->IsUntrustworthy(eOtherPlayer))
+		return INT_MAX;
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
 
