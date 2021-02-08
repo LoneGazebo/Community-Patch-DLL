@@ -144,7 +144,6 @@ CvPlayer::CvPlayer() :
 	, m_iTotalLand("CvPlayer::m_iTotalLand", m_syncArchive)
 	, m_iTotalLandScored("CvPlayer::m_iTotalLandScored", m_syncArchive)
 	, m_iJONSCulturePerTurnForFree("CvPlayer::m_iJONSCulturePerTurnForFree", m_syncArchive)
-	, m_iJONSCulturePerTurnFromMinorCivs("CvPlayer::m_iJONSCulturePerTurnFromMinorCivs", m_syncArchive)
 	, m_iJONSCultureCityModifier("CvPlayer::m_iJONSCultureCityModifier", m_syncArchive)
 	, m_iJONSCulture("CvPlayer::m_iJONSCulture", m_syncArchive, true)
 	, m_iJONSCultureEverGenerated("CvPlayer::m_iJONSCultureEverGenerated", m_syncArchive)
@@ -1232,7 +1231,6 @@ void CvPlayer::uninit()
 	m_iTotalLandScored = 0;
 	m_iCityConnectionHappiness = 0;
 	m_iJONSCulturePerTurnForFree = 0;
-	m_iJONSCulturePerTurnFromMinorCivs = 0;
 	m_iJONSCultureCityModifier = 0;
 	m_iJONSCulture = 0;
 	m_iJONSCultureEverGenerated = 0;

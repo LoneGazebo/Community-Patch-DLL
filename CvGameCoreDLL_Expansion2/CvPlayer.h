@@ -2934,7 +2934,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTotalLand;
 	FAutoVariable<int, CvPlayer> m_iTotalLandScored;
 	FAutoVariable<int, CvPlayer> m_iJONSCulturePerTurnForFree;
-	FAutoVariable<int, CvPlayer> m_iJONSCulturePerTurnFromMinorCivs;
 	FAutoVariable<int, CvPlayer> m_iJONSCultureCityModifier;
 	FAutoVariable<int, CvPlayer> m_iJONSCulture;
 	FAutoVariable<int, CvPlayer> m_iJONSCultureEverGenerated;
