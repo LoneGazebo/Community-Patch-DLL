@@ -385,6 +385,9 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
+	, m_aiPlayerNumTurnsAtPeace("CvPlayer::m_aiPlayerNumTurnsAtPeace", m_syncArchive)
+	, m_aiPlayerNumTurnsAtWar("CvPlayer::m_aiPlayerNumTurnsAtWar", m_syncArchive)
+	, m_aiPlayerNumTurnsSinceCityCapture("CvPlayer::m_aiPlayerNumTurnsSinceCityCapture", m_syncArchive)
 	, m_aiProximityToPlayer("CvPlayer::m_aiProximityToPlayer", m_syncArchive, true)
 	, m_aiResearchAgreementCounter("CvPlayer::m_aiResearchAgreementCounter", m_syncArchive)
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
@@ -1916,6 +1919,15 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
 
+	m_aiPlayerNumTurnsAtPeace.clear();
+	m_aiPlayerNumTurnsAtPeace.resize(MAX_PLAYERS, 0);
+
+	m_aiPlayerNumTurnsAtWar.clear();
+	m_aiPlayerNumTurnsAtWar.resize(MAX_PLAYERS, 0);
+
+	m_aiPlayerNumTurnsSinceCityCapture.clear();
+	m_aiPlayerNumTurnsSinceCityCapture.resize(MAX_PLAYERS, 0);
+
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
 
@@ -2953,6 +2965,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+
+	if (bConquest || isBarbarian())
+	{
+		SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
+	}
+
 	if(bConquest)
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -2998,8 +3016,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		if (!isBarbarian() && !pOldCity->isBarbarian())
 		{
 			// Notify Diplo AI that damage has been done
-			GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
-
 			int iCityValue = /*175*/ GC.getWAR_DAMAGE_LEVEL_CITY_WEIGHT();
 			iCityValue += (pOldCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
 			iCityValue += (pOldCity->getNumWorldWonders() * /*200*/ GC.getWAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER());
@@ -11429,8 +11445,6 @@ void CvPlayer::doTurn()
 	}
 #endif
 
-	DoMilitaryRatingDecay();
-
 	//note that this isn't actually the end of the turn - AI_unitUpdate is called later
 	AI_doTurnPost();
 
@@ -11442,6 +11456,13 @@ void CvPlayer::doTurn()
 
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerDoTurn", args.get(), bResult);
+	}
+
+	// Certain counters update now
+	if (isMajorCiv())
+	{
+		DoUpdateWarPeaceTurnCounters();
+		DoMilitaryRatingDecay();
 	}
 
 	m_kPlayerAchievements.StartTurn();
@@ -11488,6 +11509,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			CvBarbarians::DoCampSpawnCounter();
 			CvBarbarians::DoCamps();
 			CvBarbarians::DoUnits();
+			DoUpdateWarPeaceTurnCounters();
 		}
 
 		if(isMinorCiv())
@@ -33123,9 +33145,6 @@ void CvPlayer::ChangeMilitaryRating(int iChange)
 
 void CvPlayer::DoMilitaryRatingDecay()
 {
-	if (!isMajorCiv())	
-		return;
-
 	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (1000 * GC.getGame().getStartEra()) : 1000;
 	int iCurrentRating = GetMilitaryRating();
 	float fDecay = 2.000f;
@@ -33909,9 +33928,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				SetIncomingUnitCountdown(eLoopPlayer, -1);
 				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
 #if defined(MOD_BALANCE_CORE)
-				// forget any denouncing
-				GetDiplomacyAI()->SetDenouncedPlayer(eLoopPlayer, false);
-				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetID(), false);
 				GET_PLAYER(eLoopPlayer).recomputeGreatPeopleModifiers(); //if we are getting any modifiers from denouncement
 #endif
 			}
@@ -33925,14 +33941,17 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
 			}
 
-			// Reset war weariness
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (isMajorCiv())
 			{
-				GetCulture()->SetWarWeariness(0);
+				// Military rating drops to 0
+				SetMilitaryRating(0);
+
+				// Reset war weariness
+				if (MOD_BALANCE_CORE_HAPPINESS)
+					GetCulture()->SetWarWeariness(0);
 			}
 
-			// Military rating drops to 0
-			SetMilitaryRating(0);
+			ResetWarPeaceTurnCounters();
 
 			setTurnActive(false);
 
@@ -36763,6 +36782,116 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 				}
 			}
 		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+// WAR/PEACE COUNTERS
+
+int CvPlayer::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
+{
+	return m_aiPlayerNumTurnsAtPeace[ePlayer];
+}
+
+void CvPlayer::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
+	m_aiPlayerNumTurnsAtPeace.setAt(ePlayer, iValue);
+}
+
+void CvPlayer::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange)
+{
+	SetPlayerNumTurnsAtPeace(ePlayer, GetPlayerNumTurnsAtPeace(ePlayer) + iChange);
+}
+
+int CvPlayer::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
+{
+	return m_aiPlayerNumTurnsAtWar[ePlayer];
+}
+
+void CvPlayer::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
+	m_aiPlayerNumTurnsAtWar.setAt(ePlayer, iValue);
+}
+
+void CvPlayer::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
+{
+	SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
+}
+
+int CvPlayer::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
+{
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;
+
+	int iMaxTurns = 0;
+
+	vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
+	for (size_t i = 0; i < vTeamPlayers.size(); i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) vTeamPlayers[i];
+		if (GET_PLAYER(ePlayer).isAlive() && GetPlayerNumTurnsAtWar(ePlayer) > iMaxTurns)
+		{
+			iMaxTurns = GetPlayerNumTurnsAtWar(ePlayer);
+		}
+	}
+	
+	return iMaxTurns;
+}
+
+int CvPlayer::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
+{
+	return m_aiPlayerNumTurnsSinceCityCapture[ePlayer];
+}
+
+void CvPlayer::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
+	m_aiPlayerNumTurnsSinceCityCapture.setAt(ePlayer, iValue);
+}
+
+void CvPlayer::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange)
+{
+	SetPlayerNumTurnsSinceCityCapture(ePlayer, GetPlayerNumTurnsSinceCityCapture(ePlayer) + iChange);
+}
+
+void CvPlayer::DoUpdateWarPeaceTurnCounters()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iI;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()) && getTeam() != GET_PLAYER(ePlayer).getTeam())
+		{
+			if (IsAtWarWith(ePlayer))
+			{
+				ChangePlayerNumTurnsAtWar(ePlayer, 1);
+				ChangePlayerNumTurnsSinceCityCapture(ePlayer, 1);
+				SetPlayerNumTurnsAtPeace(ePlayer, 0);
+			}
+			else
+			{
+				ChangePlayerNumTurnsAtPeace(ePlayer, 1);
+				SetPlayerNumTurnsAtWar(ePlayer, 0);
+				SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
+			}
+		}
+	}
+}
+
+void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iI;
+
+		SetPlayerNumTurnsAtPeace(ePlayer, 0);
+		SetPlayerNumTurnsAtWar(ePlayer, 0);
+		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
+
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtPeace(ePlayer, 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 	}
 }
 

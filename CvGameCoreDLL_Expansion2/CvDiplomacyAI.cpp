@@ -371,8 +371,6 @@ void CvDiplomacyAI::Reset()
 		m_abPotentialWarTarget[iI] = false;
 		m_abArmyInPlaceForAttack[iI] = false;
 		m_abAggressor[iI] = false;
-		m_aiPlayerNumTurnsAtWar[iI] = 0;
-		m_aiPlayerNumTurnsSinceCityCapture[iI] = 0;
 		m_aiNumWarsFought[iI] = 0;
 		m_aiNumCitiesCaptured[iI] = 0;
 		m_aiWarValueLost[iI] = 0;
@@ -382,7 +380,6 @@ void CvDiplomacyAI::Reset()
 		m_aeWarGoal[iI] = NO_WAR_GOAL_TYPE;
 
 		// Peace
-		m_aiPlayerNumTurnsAtPeace[iI] = 0;
 		m_aiWantPeaceCounter[iI] = 0;
 
 		// Aggressive Postures
@@ -506,8 +503,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_abWantsSneakAttack;
 	kStream >> m_abArmyInPlaceForAttack;
 	kStream >> m_abAggressor;
-	kStream >> m_aiPlayerNumTurnsAtWar;
-	kStream >> m_aiPlayerNumTurnsSinceCityCapture;
 	kStream >> m_aiNumWarsFought;
 	kStream >> m_aiNumWarsDeclaredOnUs;
 	kStream >> m_aiNumCitiesCaptured;
@@ -518,7 +513,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aeWarGoal;
 
 	// Peace
-	kStream >> m_aiPlayerNumTurnsAtPeace;
 	kStream >> m_aePeaceTreatyWillingToOffer;
 	kStream >> m_aePeaceTreatyWillingToAccept;
 	kStream >> m_aiWantPeaceCounter;
@@ -800,8 +794,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_abWantsSneakAttack;
 	kStream << m_abArmyInPlaceForAttack;
 	kStream << m_abAggressor;
-	kStream << m_aiPlayerNumTurnsAtWar;
-	kStream << m_aiPlayerNumTurnsSinceCityCapture;
 	kStream << m_aiNumWarsFought;
 	kStream << m_aiNumWarsDeclaredOnUs;
 	kStream << m_aiNumCitiesCaptured;
@@ -812,7 +804,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aeWarGoal;
 
 	// Peace
-	kStream << m_aiPlayerNumTurnsAtPeace;
 	kStream << m_aePeaceTreatyWillingToOffer;
 	kStream << m_aePeaceTreatyWillingToAccept;
 	kStream << m_aiWantPeaceCounter;
@@ -3466,66 +3457,6 @@ void CvDiplomacyAI::SetAggressor(PlayerTypes ePlayer, bool bValue)
 	m_abAggressor[(int)ePlayer] = bValue;
 }
 
-/// How many turns have we been at war with this player?
-int CvDiplomacyAI::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiPlayerNumTurnsAtWar[(int)ePlayer];
-}
-
-/// Sets how many turns we've been at war with this player
-void CvDiplomacyAI::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiPlayerNumTurnsAtWar[(int)ePlayer] = max(iValue, 0);
-}
-
-/// Sets how many turns we've been at war with this player
-void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
-}
-
-/// How many turns have we been at war with this Team?
-int CvDiplomacyAI::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
-{
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;
-
-	int iMaxTurns = 0;
-
-	vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
-	for (size_t i = 0; i < vTeamPlayers.size(); i++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) vTeamPlayers[i];
-		if (GET_PLAYER(ePlayer).isAlive() && GetPlayerNumTurnsAtWar(ePlayer) > iMaxTurns)
-		{
-			iMaxTurns = GetPlayerNumTurnsAtWar(ePlayer);
-		}
-	}
-	
-	return iMaxTurns;
-}
-
-/// How many turns have passed since we captured a city from this player?
-int CvDiplomacyAI::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiPlayerNumTurnsSinceCityCapture[(int)ePlayer];
-}
-
-/// Sets how many turns have passed since we captured a city from this player
-void CvDiplomacyAI::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiPlayerNumTurnsSinceCityCapture[(int)ePlayer] = max(iValue, 0);
-}
-
-/// Sets how many turns have passed since we captured a city from this player
-void CvDiplomacyAI::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsSinceCityCapture(ePlayer, GetPlayerNumTurnsSinceCityCapture(ePlayer) + iChange);
-}
-
 /// How many times have we gone to war with ePlayer?
 int CvDiplomacyAI::GetNumWarsFought(PlayerTypes ePlayer) const
 {
@@ -3720,26 +3651,6 @@ void CvDiplomacyAI::SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal)
 // ------------------------------------
 // Peace
 // ------------------------------------
-
-/// How many turns have we been at peace with this player?
-int CvDiplomacyAI::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiPlayerNumTurnsAtPeace[(int)ePlayer];
-}
-
-/// Sets how many turns we've been at peace with this player
-void CvDiplomacyAI::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiPlayerNumTurnsAtPeace[(int)ePlayer] = max(iValue, 0);
-}
-
-/// Updates how many turns we've been at peace with this player
-void CvDiplomacyAI::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange)
-{
-	SetPlayerNumTurnsAtPeace(ePlayer, GetPlayerNumTurnsAtPeace(ePlayer) + iChange);
-}
 
 /// What are we willing to give up to ePlayer to make peace?
 PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToOffer(PlayerTypes ePlayer) const
@@ -7903,8 +7814,8 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 				GET_PLAYER(eAllyPlayer).GetMilitaryAI()->RequestCityAttack(eTargetPlayer, 3, GET_PLAYER(eAllyPlayer).HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer));
 			}
 
-			int iMyTurnsAtWar = GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
-			int iTheirTurnsAtWar = GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
+			int iMyTurnsAtWar = GetPlayer()->GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
+			int iTheirTurnsAtWar = GET_PLAYER(eAllyPlayer).GetTeamNumTurnsAtWar(GET_PLAYER(eTargetPlayer).getTeam());
 			int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH() - max(iMyTurnsAtWar, iTheirTurnsAtWar);
 
 			if (iLockedTurns > 0)
@@ -9056,7 +8967,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			//Exceptions?
 
 			//If low warscore and it has been a while since either side captured a city, let's bring it down to calm.
-			if ((GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetID()) >= 10))
+			if ((GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) >= 10))
 			{
 				if (WarScore <= 15 && WarScore >= -15)
 					eWarState = WAR_STATE_CALM;
@@ -9323,8 +9234,8 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculatio
 
 		if (iAverageScore != 0)
 		{
-			int iWarDurationUs = (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 5);
-			int iWarDurationThem = (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetID()) / 5);
+			int iWarDurationUs = (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) / 5);
+			int iWarDurationThem = (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) / 5);
 
 			if (iAverageScore > 0)
 			{
@@ -10581,7 +10492,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			}
 
 			// If we've been at war for a while without capturing any of their cities, they can't be an easy target
-			if (GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
+			if (GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
 			{
 				SetEasyTarget(ePlayer, false);
 				continue;
@@ -10831,8 +10742,8 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 			bConsiderPeace |= bReadyForVassalage;
 			bConsiderPeace |= GetStateAllWars() == STATE_ALL_WARS_LOSING;
 			bConsiderPeace |= GetPlayer()->IsEmpireVeryUnhappy();
-			bConsiderPeace |= GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30;
-			bConsiderPeace |= bMajor && GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayerNumTurnsAtWar(ePlayer);
+			bConsiderPeace |= GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30;
+			bConsiderPeace |= bMajor && GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer);
 			bConsiderPeace |= bMajor && bPhonyWar;
 
 			bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy();
@@ -11008,7 +10919,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				if (iWarScore <= 0)
 				{
 					int iWarScoreWeWantPeace = (GetMeanness() * -9);
-					iWarScoreWeWantPeace += GetPlayerNumTurnsAtWar(ePlayer);
+					iWarScoreWeWantPeace += GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer);
 
 					if (iWarScoreWeWantPeace >= iWarScore)
 					{
@@ -11020,7 +10931,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				else
 				{
 					int iWarScoreWeWantPeace = ((10 - GetDiploBalance()) * 9); // 10 minus because higher value = more likely status quo
-					iWarScoreWeWantPeace += GetPlayerNumTurnsAtWar(ePlayer) * -1;
+					iWarScoreWeWantPeace += GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) * -1;
 
 					if (iWarScoreWeWantPeace <= iWarScore)
 					{
@@ -11083,17 +10994,17 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	}
 
 	// Too soon to make peace
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 	{
 		return 3;
 	}
-	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
+	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
 	{
 		return 3;
 	}
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
+	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 	{
 		return 4;
 	}
@@ -11774,7 +11685,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	// They're in danger and we're not? Let's hold out longer!
 	if (iOurDanger == 0 && iTheirDanger > 0)
 	{
-		if (GetPlayerNumTurnsSinceCityCapture(ePlayer) < 30 || iOurMultiplier > 2 || bSeriousDangerThem)
+		if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) < 30 || iOurMultiplier > 2 || bSeriousDangerThem)
 		{
 			iWantPeace -= (5 * iTheirDanger * iOurMultiplier);
 		}
@@ -11839,7 +11750,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 
 	// Was a city recently captured?
-	if (GetPlayerNumTurnsSinceCityCapture(ePlayer) < 3 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetID()) < 3)
+	if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) < 3 || GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) < 3)
 	{
 		iWantPeace -= 10;
 	}
@@ -11848,11 +11759,11 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		// Lack of progress in war increases desire for peace (doubly so if far away).
 		if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
 		{
-			iWantPeace += max(0, (GetPlayerNumTurnsSinceCityCapture(ePlayer) * 2) - 12);
+			iWantPeace += max(0, (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) * 2) - 12);
 		}
 		else
 		{
-			iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12);
+			iWantPeace += max(0, GetPlayer()->GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12);
 		}
 	}
 
@@ -24275,15 +24186,9 @@ void CvDiplomacyAI::DoCounters()
 
 		if (IsPlayerValid(eLoopPlayer))
 		{
-			bool bAtWar = IsAtWar(eLoopPlayer);
-			
-			// War Counter
-			if (bAtWar)
+			// Want Peace Counter
+			if (IsAtWar(eLoopPlayer))
 			{
-				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
-				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
-				SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
-
 				if (GetWarGoal(eLoopPlayer) == WAR_GOAL_PEACE)
 				{
 					ChangeWantPeaceCounter(eLoopPlayer, 1);
@@ -24295,9 +24200,6 @@ void CvDiplomacyAI::DoCounters()
 			}
 			else
 			{
-				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
-				SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
-				ChangePlayerNumTurnsAtPeace(eLoopPlayer, 1);
 				SetWantPeaceCounter(eLoopPlayer, 0);
 			}
 
@@ -24341,7 +24243,6 @@ void CvDiplomacyAI::DoCounters()
 						SetDiploLogStatementTurnForIndex(eLoopPlayer, iItem, 0);
 				}
 
-#if defined(MOD_BALANCE_CORE)
 				if(!IsAtWar(eLoopPlayer))
 				{
 					if(GetNumTimesRazed(eLoopPlayer) > 0)
@@ -24364,7 +24265,7 @@ void CvDiplomacyAI::DoCounters()
 						}
 					}
 				}
-#endif
+
 				// Are we ready to forget our denunciation?
 				if (IsDenouncedPlayer(eLoopPlayer) && GetTurnsSinceDenouncedPlayer(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
 				{
@@ -35772,7 +35673,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else
 			{
 				// Player declared war and wants peace right away.  Uh huh, right.
-				if (GetPlayerNumTurnsAtWar(eFromPlayer) <= 1)
+				if (GetPlayer()->GetPlayerNumTurnsAtWar(eFromPlayer) <= 1)
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_NO_PEACE);
 				// Don't want peace for some other reason
 				else
@@ -49268,9 +49169,9 @@ void CvDiplomacyAI::LogWarStatus()
 					LogWarPeaceWillingToAccept(strOutBuf, eLoopPlayer);
 
 					// # of turns at War
-					if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
+					if(GetPlayer()->GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
 					{
-						strTemp.Format("%d", GetPlayerNumTurnsAtWar(eLoopPlayer));
+						strTemp.Format("%d", GetPlayer()->GetPlayerNumTurnsAtWar(eLoopPlayer));
 						strOutBuf += ", " + strTemp;
 					}
 					else

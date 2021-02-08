@@ -392,15 +392,6 @@ public:
 	bool IsAggressor(PlayerTypes ePlayer) const;
 	void SetAggressor(PlayerTypes ePlayer, bool bValue);
 
-	// Num Turns At War
-	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
-	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
-	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
-
 	// How many times have we gone to war?
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
@@ -443,10 +434,6 @@ public:
 	// ------------------------------------
 	// Peace
 	// ------------------------------------
-
-	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange);
 
 	// What are we willing to give up to ePlayer to make peace?
 	PeaceTreatyTypes GetTreatyWillingToOffer(PlayerTypes ePlayer) const;
@@ -1939,8 +1926,6 @@ private:
 	bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 	bool m_abArmyInPlaceForAttack[MAX_CIV_PLAYERS];
 	bool m_abAggressor[MAX_CIV_PLAYERS];
-	short m_aiPlayerNumTurnsAtWar[MAX_CIV_PLAYERS]; //todo
-	short m_aiPlayerNumTurnsSinceCityCapture[MAX_CIV_PLAYERS]; //todo
 	unsigned char m_aiNumWarsFought[MAX_CIV_PLAYERS];
 	unsigned char m_aiNumWarsDeclaredOnUs[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
@@ -1951,7 +1936,6 @@ private:
 	char m_aeWarGoal[MAX_PLAYERS];
 
 	// Peace
-	short m_aiPlayerNumTurnsAtPeace[MAX_CIV_PLAYERS]; //todo
 	char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
 	char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 	short m_aiWantPeaceCounter[MAX_CIV_PLAYERS]; //todo

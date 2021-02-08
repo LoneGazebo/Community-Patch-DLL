@@ -1034,20 +1034,20 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
-						if(pFromPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(eLoopPlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						if(pFromPlayer->GetPlayerNumTurnsAtWar(eLoopPlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
-						if(pOtherPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						if(pOtherPlayer->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
 
 						//Either side can't make peace yet because of city capture?
-						if(pOtherPlayer->GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1)
+						if(pOtherPlayer->GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1)
 							return false;
 
-						if(pFromPlayer->GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+						if(pFromPlayer->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
 							return false;
 
 						//Can't force third party peace with a loser. Has to be a sizeable difference

@@ -2094,6 +2094,22 @@ public:
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
 
+	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange);
+
+	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
+	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
+
+	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+
+	void DoUpdateWarPeaceTurnCounters();
+	void ResetWarPeaceTurnCounters();
+
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
 	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
@@ -3473,6 +3489,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtPeace;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtWar;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsSinceCityCapture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;

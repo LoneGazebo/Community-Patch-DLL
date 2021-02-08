@@ -5809,7 +5809,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 					iWarDamage /= 100;
 				}
 
-				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID()) - GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+				int iWarTurns = m_pPlayer->GetPlayerNumTurnsAtWar(kPlayer.GetID()) - GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
 				if (iWarTurns <= 0)
 					continue;
 
@@ -5827,7 +5827,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 			}
 			else
 			{
-				int iPeaceTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
+				int iPeaceTurns = m_pPlayer->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
 				iLeastPeaceTurns = min(iLeastPeaceTurns, iPeaceTurns);
 			}
 		}

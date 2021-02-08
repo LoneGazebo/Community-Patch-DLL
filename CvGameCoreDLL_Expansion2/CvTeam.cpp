@@ -1507,6 +1507,30 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	GC.getMap().verifyUnitValidPlot();
 #endif
 
+	// Set initial war counters for all players
+	for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
+
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+		{
+			for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+			{
+				PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
+
+				if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
+				{
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+				}
+			}
+		}
+	}
+
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
 
@@ -1915,7 +1939,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 //	--------------------------------------------------------------------------------
 void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 {
-
 #if defined(MOD_BALANCE_CORE)
 	ClearWarDeclarationCache();
 #endif
@@ -1923,29 +1946,25 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 	// Major is at war with a minor
 	if(isMinorCiv())
 	{
-		PlayerTypes eMinor;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			eMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
 
 			if(GET_PLAYER(eMinor).getTeam() == GetID())
 			{
 				if(GET_PLAYER(eMinor).isAlive())
 				{
-					if(bWar)
-#if defined(MOD_BALANCE_CORE)
+					if (bWar)
 					{
 						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != NO_PLAYER)
 						{
 							if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly()).getTeam()))
 							{
-#endif
-						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
-#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
 							}
 						}
-						}
-#endif
+					}
+
 					else
 						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowPeaceWithTeam(eTeam);
 				}
@@ -1955,13 +1974,10 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 
 	if(bWar)
 	{
-		PlayerTypes eMinor;
-		PlayerTypes ePlayer;
-
 		// Loop through players on this team
 		for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_MAJOR_CIVS; iPlayerCivLoop++)
 		{
-			ePlayer = (PlayerTypes) iPlayerCivLoop;
+			PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
 
 			if(!GET_PLAYER(ePlayer).isAlive())
 				continue;
@@ -1979,7 +1995,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			vector<PlayerTypes> veMinorAllies;
 			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				eMinor = (PlayerTypes) iMinorCivLoop;
+				PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
 
 				// Must be alive
 				if (!GET_PLAYER(eMinor).isAlive())
@@ -2023,7 +2039,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 
 					for(uint iMinorCivLoop = 0; iMinorCivLoop < veMinorAllies.size(); iMinorCivLoop++)
 					{
-						eMinor = veMinorAllies[iMinorCivLoop];
+						PlayerTypes eMinor = veMinorAllies[iMinorCivLoop];
 						strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
 						strOurAlliesMessage = strOurAlliesMessage + "[NEWLINE]" + strTemp.toUTF8();
 						strTheirEnemiesMessage = strTheirEnemiesMessage + "[NEWLINE]" + strTemp.toUTF8();
@@ -2071,6 +2087,30 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	{
 		setAtWar(eTeam, false, bPacifier);
 		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
+
+		// Set initial peace counters for all players
+		for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+			{
+				for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+				{
+					PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
+
+					if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
+					{
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+					}
+				}
+			}
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		//Secondary major declarations
