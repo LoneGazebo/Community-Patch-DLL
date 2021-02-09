@@ -12946,7 +12946,7 @@ void CvDiplomacyAI::DoTestBackstabbingPenalties()
 			if (IsFriendDenouncedUs(eLoopPlayer))
 			{
 				int iTurnDifference = iTurn - GetFriendDenouncedUsTurn(eLoopPlayer);
-				int iTimeOutTurns = (/*75*/ GC.getFRIEND_DENOUNCED_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100; //todo: globals
+				int iTimeOutTurns = (/*75*/ GC.getFRIEND_DENOUNCED_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 
 				// Expired?
 				if (iTurnDifference >= iTimeOutTurns)
@@ -12959,7 +12959,7 @@ void CvDiplomacyAI::DoTestBackstabbingPenalties()
 			if (IsFriendDeclaredWarOnUs(eLoopPlayer))
 			{
 				int iTurnDifference = iTurn - GetFriendDeclaredWarOnUsTurn(eLoopPlayer);
-				int iTimeOutTurns = (/*100*/ GC.getFRIEND_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100; //todo: globals
+				int iTimeOutTurns = (/*100*/ GC.getFRIEND_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 
 				// Expired?
 				if (iTurnDifference >= iTimeOutTurns)
@@ -12972,7 +12972,7 @@ void CvDiplomacyAI::DoTestBackstabbingPenalties()
 			if (MOD_DIPLOMACY_CIV4_FEATURES && IsPlayerBrokenVassalAgreement(eLoopPlayer))
 			{
 				int iTurnDifference = iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer);
-				int iTimeOutTurns = (/*100*/ GC.getMASTER_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100; //todo: globals
+				int iTimeOutTurns = (/*100*/ GC.getMASTER_DECLARED_WAR_ON_US_TURNS_UNTIL_FORGIVEN() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
 
 				// Expired?
 				if (iTurnDifference >= iTimeOutTurns)
@@ -15052,7 +15052,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bCapturedTheirHolyCity = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer, true, false);
 	bool bEverCapturedKeyCity = IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer); // this also checks teammates
 
-	// Evaluations - Todo: Consolidate
+	// Evaluations
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	bool bUntrustworthy = IsUntrustworthy(ePlayer);
