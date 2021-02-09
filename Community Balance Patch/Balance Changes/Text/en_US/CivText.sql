@@ -1027,7 +1027,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Gaining tiles generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, scaling with Era. [ICON_INQUISITOR] Inquisitors are stronger, unlock earlier and gain a free [ICON_INQUISITOR] Inquisitor whenever you conquer a City. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = 'Gaining tiles generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, scaling with Era. [ICON_INQUISITOR] Inquisitors are stronger, unlock earlier, and a free [ICON_INQUISITOR] Inquisitor appears every time a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
