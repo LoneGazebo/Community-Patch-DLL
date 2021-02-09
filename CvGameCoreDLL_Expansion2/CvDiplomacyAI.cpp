@@ -42083,7 +42083,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		// First we reduce our value counters!
 		ChangeRecentTradeValue(ePlayer, /*-2*/ -GC.getDEAL_VALUE_PER_TURN_DECAY());
 		ChangeCommonFoeValue(ePlayer, /*-25*/ -GC.getCOMMON_FOE_VALUE_PER_TURN_DECAY());
-		ChangeCivilianKillerValue(ePlayer, /*-10*/ -GC.getCIVILIAN_KILLER_VALUE_PER_TURN_DECAY());
+		ChangeCivilianKillerValue(ePlayer, /*-100*/ -GC.getCIVILIAN_KILLER_VALUE_PER_TURN_DECAY());
 		ChangeVassalProtectValue(ePlayer, /*-25*/ -GC.getVASSALAGE_PROTECTED_PER_TURN_DECAY());
 		ChangeVassalFailedProtectValue(ePlayer, /*-25*/ -GC.getVASSALAGE_FAILED_PROTECT_PER_TURN_DECAY());
 

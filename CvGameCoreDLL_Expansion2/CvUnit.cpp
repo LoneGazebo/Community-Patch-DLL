@@ -2406,15 +2406,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 				if (IsGreatPerson())
 				{
-					iCivValue = 50 * iEraFactor;
+					iCivValue = 500 * iEraFactor;
 				}
 				else if (isFound() || IsFoundAbroad())
 				{
-					iCivValue = 30 * iEraFactor;
+					iCivValue = 300 * iEraFactor;
 				}
 				else
 				{
-					iCivValue = 10 * iEraFactor;
+					iCivValue = 100 * iEraFactor;
 				}
 
 				if (GC.getGame().getGameTurn() <= 100)

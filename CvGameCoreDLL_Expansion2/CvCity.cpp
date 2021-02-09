@@ -20758,7 +20758,7 @@ bool CvCity::DoRazingTurn()
 					iEra = 1;
 				}
 
-				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (50 * iEra));
+				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
 			}
 
 			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())

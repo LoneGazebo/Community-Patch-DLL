@@ -95,8 +95,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PLUNDERED_TRADE_ROUTE',
 
 -- You killed or captured their civilians! / You killed or captured civilians during war!
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_MAX', '50'; -- maximum opinion penalty
-INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_OPINION_WEIGHT', '10'; -- increase this to reach the maximum more quickly
-INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_TURN_DECAY', '10'; -- how fast this penalty decays per turn
+INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_OPINION_WEIGHT', '100'; -- increase this to reach the maximum more quickly
+INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_TURN_DECAY', '100'; -- how fast this penalty decays per turn
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD_THRESHOLD', '25'; -- threshold for global penalty; penalty score must be at least this high with another civ that they don't hate
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', '20'; -- global penalty if you're at max with any civ; higher of the two is used
 
