@@ -4634,8 +4634,8 @@ int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer) const
 		pUnitNode = m_units.next(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==eType)
-			if(ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer)
-				++iCount;
+		if(ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer)
+			++iCount;
 	}
 
 	return iCount;

@@ -8880,6 +8880,10 @@ ImprovementTypes CvGame::GetBarbarianCampImprovementType()
 	return (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 }
 
+int CvGame::GetBarbarianReleaseTurn() const
+{ 
+	return (m_iEarliestBarbarianReleaseTurn * GC.getGame().getGameSpeedInfo().getTrainPercent()) / 100;
+}
 
 //	--------------------------------------------------------------------------------
 void CvGame::SetBarbarianReleaseTurn(int iValue)

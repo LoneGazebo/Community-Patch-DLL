@@ -5074,9 +5074,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	*/
 
 	// Barbarians have special restrictions early in the game
-	if(isBarbarian() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn() && plot.isOwned())
+	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 	{
-		return false;
+		//do not capture settlers early in the game ...
+		if (plot.isOwned() || plot.getNumUnitsOfAIType(UNITAI_SETTLE)>0)
+		{
+			return false;
+		}
 	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type

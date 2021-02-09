@@ -5015,7 +5015,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				continue;
 
 			//other players' units are also a bad sign
-			if (pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,NO_PLAYER)>0)
+			if (pTest->isVisible(pUnit->getTeam()) && pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,NO_PLAYER)>0)
 			{
 				bIgnore = true;
 				break;
@@ -5034,6 +5034,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 			{
 				continue;
 			}
+
 			if(pTarget->getImprovementType() != NO_IMPROVEMENT && pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST)
 			{
 				if(GC.getImprovementInfo((ImprovementTypes) pTarget->getImprovementType())->IsCreatedByGreatPerson())
