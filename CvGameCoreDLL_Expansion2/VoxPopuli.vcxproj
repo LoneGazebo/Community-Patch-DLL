@@ -713,6 +713,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CvGameCoreDLL.def" />
+    <None Include="NatvisFile.natvis" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />

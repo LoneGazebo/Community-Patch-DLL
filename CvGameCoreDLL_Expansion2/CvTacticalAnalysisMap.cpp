@@ -686,7 +686,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 /// Calculate military presences in each owned dominance zone
 void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 {
-	TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
+	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
+	TeamTypes eTeam = thisPlayer.getTeam();
 
 	//weigh units close to the center of the zone higher - assume unit mobility increases over time
 	int iMaxDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) / 2;	
@@ -718,7 +719,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		{
 			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
-			bool bFriendly = (eTeam==kPlayer.getTeam());
+			bool bFriendly =
+				(eTeam == kPlayer.getTeam()) || //on the same team
+				(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
+				(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
 
 			int iLoop;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))

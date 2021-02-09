@@ -267,7 +267,6 @@ public:
 
 	bool IsWantsResearchAgreementWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsResearchAgreementWithPlayer(PlayerTypes ePlayer, bool bValue);
-	int GetNumResearchAgreementsWanted() const;
 
 	// Key Players
 	PlayerTypes GetMostValuableFriend() const;
@@ -344,7 +343,7 @@ public:
 	
 	int GetRecentAssistValue(PlayerTypes ePlayer);
 	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
-	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
+	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bool bDecay = false);
 
 	// ------------------------------------
 	// Coop Wars
@@ -392,15 +391,6 @@ public:
 	bool IsAggressor(PlayerTypes ePlayer) const;
 	void SetAggressor(PlayerTypes ePlayer, bool bValue);
 
-	// Num Turns At War
-	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
-	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
-	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
-
 	// How many times have we gone to war?
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
@@ -409,6 +399,11 @@ public:
 	int GetNumWarsDeclaredOnUs(PlayerTypes ePlayer) const;
 	void SetNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
+
+	// How much do we hate them for killing or capturing our civilians?
+	int GetCivilianKillerValue(PlayerTypes ePlayer) const;
+	void SetCivilianKillerValue(PlayerTypes ePlayer, int iValue);
+	void ChangeCivilianKillerValue(PlayerTypes ePlayer, int iChange);
 
 	// How many of our cities have they captured?
 	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
@@ -443,10 +438,6 @@ public:
 	// ------------------------------------
 	// Peace
 	// ------------------------------------
-
-	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
-	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
-	void ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange);
 
 	// What are we willing to give up to ePlayer to make peace?
 	PeaceTreatyTypes GetTreatyWillingToOffer(PlayerTypes ePlayer) const;
@@ -556,8 +547,6 @@ public:
 	DisputeLevelTypes GetLandDisputeLevel(PlayerTypes ePlayer) const;
 	void SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	int GetTotalLandDisputeLevel();
-	DisputeLevelTypes GetLastTurnLandDisputeLevel(PlayerTypes ePlayer) const;
-	void SetLastTurnLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 
 	// Victory Dispute
 	DisputeLevelTypes GetVictoryDisputeLevel(PlayerTypes ePlayer) const;
@@ -771,10 +760,6 @@ public:
 	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
 
-	int GetNumTimesRazed(PlayerTypes ePlayer) const;
-	void SetNumTimesRazed(PlayerTypes ePlayer, int iValue);
-	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
-
 	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
 	void SetNumTradeRoutesPlundered(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
@@ -896,6 +881,9 @@ public:
 	int GetPerformedCoupTurn(PlayerTypes ePlayer) const;
 	void SetPerformedCoupTurn(PlayerTypes ePlayer, int iTurn);
 
+	int GetStoleArtifactTurn(PlayerTypes ePlayer) const;
+	void SetStoleArtifactTurn(PlayerTypes ePlayer, int iTurn);
+
 	int GetWeLikedTheirProposalTurn(PlayerTypes ePlayer) const;
 	void SetWeLikedTheirProposalTurn(PlayerTypes ePlayer, int iTurn);
 
@@ -944,8 +932,8 @@ public:
 	bool IsShareOpinionAccepted(PlayerTypes ePlayer) const;
 	void SetShareOpinionAccepted(PlayerTypes ePlayer, bool bValue);
 
-	bool IsShareOpinionEverAsked(PlayerTypes ePlayer) const;
-	void SetShareOpinionEverAsked(PlayerTypes ePlayer, bool bValue);
+	bool IsShareOpinionRefused(PlayerTypes ePlayer) const;
+	void SetShareOpinionRefused(PlayerTypes ePlayer, bool bValue);
 
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -1587,8 +1575,8 @@ public:
 	// War Stuff
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
-	int GetCitiesRazedScore(PlayerTypes ePlayer);
-	int GetCitiesRazedGlobalScore(PlayerTypes ePlayer);
+	int GetCivilianKillerScore(PlayerTypes ePlayer);
+	int GetCivilianKillerGlobalScore(PlayerTypes ePlayer);
 	int GetNukedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
@@ -1615,7 +1603,7 @@ public:
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
 	int GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer);
 	int GetTimesPerformedCoupScore(PlayerTypes ePlayer);
-	int GetDugUpMyYardScore(PlayerTypes ePlayer);
+	int GetStoleArtifactsScore(PlayerTypes ePlayer);
 
 	// Player has asked us to do things we don't like
 	int GetNoSettleRequestScore(PlayerTypes ePlayer);
@@ -1941,10 +1929,9 @@ private:
 	bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 	bool m_abArmyInPlaceForAttack[MAX_CIV_PLAYERS];
 	bool m_abAggressor[MAX_CIV_PLAYERS];
-	short m_aiPlayerNumTurnsAtWar[MAX_CIV_PLAYERS]; //todo
-	short m_aiPlayerNumTurnsSinceCityCapture[MAX_CIV_PLAYERS]; //todo
 	unsigned char m_aiNumWarsFought[MAX_CIV_PLAYERS];
 	unsigned char m_aiNumWarsDeclaredOnUs[MAX_MAJOR_CIVS];
+	unsigned short m_aiCivilianKillerValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumCitiesCaptured[MAX_CIV_PLAYERS];
 	int m_aiWarValueLost[MAX_CIV_PLAYERS];
 	unsigned short m_aiWarDamageValue[MAX_CIV_PLAYERS];
@@ -1953,7 +1940,6 @@ private:
 	char m_aeWarGoal[MAX_PLAYERS];
 
 	// Peace
-	short m_aiPlayerNumTurnsAtPeace[MAX_CIV_PLAYERS]; //todo
 	char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
 	char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 	short m_aiWantPeaceCounter[MAX_CIV_PLAYERS]; //todo
@@ -1983,7 +1969,6 @@ private:
 	bool m_abRecklessExpander[MAX_MAJOR_CIVS];
 	bool m_abWonderSpammer[MAX_MAJOR_CIVS];
 	char m_aeLandDisputeLevel[MAX_CIV_PLAYERS];
-	char m_aeLastTurnLandDisputeLevel[MAX_CIV_PLAYERS];
 	char m_aeVictoryDisputeLevel[MAX_MAJOR_CIVS];
 	char m_aeVictoryBlockLevel[MAX_MAJOR_CIVS];
 	char m_aeWonderDisputeLevel[MAX_MAJOR_CIVS];
@@ -2063,7 +2048,6 @@ private:
 	unsigned char m_aiNumTimesIntrigueSharedBy[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumLandmarksBuiltForMe[MAX_MAJOR_CIVS];
 	unsigned char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
-	unsigned short m_aiNumTimesRazed[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumTradeRoutesPlundered[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumWondersBeatenTo[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumTimesCultureBombed[MAX_MAJOR_CIVS];
@@ -2077,7 +2061,7 @@ private:
 	char m_aiLikedTheirProposalValue[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurProposalValue[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurHostingValue[MAX_MAJOR_CIVS];
-	unsigned short m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
+	unsigned char m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 	unsigned char m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 
@@ -2097,6 +2081,7 @@ private:
 	int m_aiReligiousConversionTurn[MAX_MAJOR_CIVS];
 	int m_aiTimesRobbedTurn[MAX_MAJOR_CIVS];
 	int m_aiPerformedCoupTurn[MAX_MAJOR_CIVS];
+	int m_aiStoleArtifactTurn[MAX_MAJOR_CIVS];
 	int m_aiWeLikedTheirProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiWeDislikedTheirProposalTurn[MAX_MAJOR_CIVS];
 	int m_aiTheySupportedOurProposalTurn[MAX_MAJOR_CIVS];
@@ -2117,7 +2102,7 @@ private:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// C4DF Values
 	bool m_abShareOpinionAccepted[MAX_MAJOR_CIVS];
-	bool m_abShareOpinionEverAsked[MAX_MAJOR_CIVS];
+	bool m_abShareOpinionRefused[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];

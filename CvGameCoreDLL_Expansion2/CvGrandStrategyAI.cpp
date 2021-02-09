@@ -308,7 +308,7 @@ void CvGrandStrategyAI::DoTurn()
 			SetGrandStrategyPriority(eGrandStrategy, max(1, iPriority));
 		}
 		// Now look at what we think the other players in the game are up to - we might have an opportunity to capitalize somewhere
-		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viNumGrandStrategiesAdopted;
+		vector<int> viNumGrandStrategiesAdopted;
 		int iNumPlayers = 0;
 
 		// Init vector
@@ -341,7 +341,7 @@ void CvGrandStrategyAI::DoTurn()
 			viNumGrandStrategiesAdopted.push_back(iNumPlayers);
 		}
 
-		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viGrandStrategyChangeForLogging;
+		vector<int> viGrandStrategyChangeForLogging;
 
 		int iChange;
 
@@ -1682,7 +1682,7 @@ void CvGrandStrategyAI::ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 {
 	CvWeightedVector<int, 5, true> vGrandStrategyPriorities;
-	FStaticVector< int, 5, true, c_eCiv5GameplayDLL >  vGrandStrategyPrioritiesForLogging;
+	vector<int>  vGrandStrategyPrioritiesForLogging;
 
 	GuessConfidenceTypes eGuessConfidence = NO_GUESS_CONFIDENCE_TYPE;
 
@@ -2161,7 +2161,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 // PRIVATE METHODS
 
 /// Log GrandStrategy state: what are the Priorities and who is Active?
-void CvGrandStrategyAI::LogGrandStrategies(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vModifiedGrandStrategyPriorities)
+void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStrategyPriorities)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -2218,7 +2218,7 @@ void CvGrandStrategyAI::LogGrandStrategies(const FStaticVector< int, 5, true, c_
 }
 
 /// Log our guess as to other Players' Active Grand Strategy
-void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities, PlayerTypes ePlayer)
+void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

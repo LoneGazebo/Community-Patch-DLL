@@ -1507,6 +1507,30 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	GC.getMap().verifyUnitValidPlot();
 #endif
 
+	// Set initial war counters for all players
+	for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
+
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+		{
+			for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+			{
+				PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
+
+				if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
+				{
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+					GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+				}
+			}
+		}
+	}
+
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
 
@@ -1554,6 +1578,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CUSTOMLOG("Cancelling TRIGGERED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName(), GET_PLAYER(eLoopDefender).getName());
 									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, NO_COOP_WAR_STATE);
 								}
@@ -1598,6 +1623,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
+									CUSTOMLOG("Cancelling TRIGGERED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName(), GET_PLAYER(eLoopAttacker).getName());
 									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, NO_COOP_WAR_STATE);									
 								}
@@ -1913,7 +1939,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 //	--------------------------------------------------------------------------------
 void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 {
-
 #if defined(MOD_BALANCE_CORE)
 	ClearWarDeclarationCache();
 #endif
@@ -1921,29 +1946,25 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 	// Major is at war with a minor
 	if(isMinorCiv())
 	{
-		PlayerTypes eMinor;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			eMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
 
 			if(GET_PLAYER(eMinor).getTeam() == GetID())
 			{
 				if(GET_PLAYER(eMinor).isAlive())
 				{
-					if(bWar)
-#if defined(MOD_BALANCE_CORE)
+					if (bWar)
 					{
 						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != NO_PLAYER)
 						{
 							if(GET_TEAM(eTeam).isAtWar(GET_PLAYER(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly()).getTeam()))
 							{
-#endif
-						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
-#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER(eMinor).GetMinorCivAI()->DoNowAtWarWithTeam(eTeam);
 							}
 						}
-						}
-#endif
+					}
+
 					else
 						GET_PLAYER(eMinor).GetMinorCivAI()->DoNowPeaceWithTeam(eTeam);
 				}
@@ -1953,13 +1974,10 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 
 	if(bWar)
 	{
-		PlayerTypes eMinor;
-		PlayerTypes ePlayer;
-
 		// Loop through players on this team
 		for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_MAJOR_CIVS; iPlayerCivLoop++)
 		{
-			ePlayer = (PlayerTypes) iPlayerCivLoop;
+			PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
 
 			if(!GET_PLAYER(ePlayer).isAlive())
 				continue;
@@ -1974,10 +1992,10 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			// Our minor civ allies declare war on eTeam
 			// ******************************
 
-			FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veMinorAllies;
+			vector<PlayerTypes> veMinorAllies;
 			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				eMinor = (PlayerTypes) iMinorCivLoop;
+				PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
 
 				// Must be alive
 				if (!GET_PLAYER(eMinor).isAlive())
@@ -2021,7 +2039,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 
 					for(uint iMinorCivLoop = 0; iMinorCivLoop < veMinorAllies.size(); iMinorCivLoop++)
 					{
-						eMinor = veMinorAllies[iMinorCivLoop];
+						PlayerTypes eMinor = veMinorAllies[iMinorCivLoop];
 						strTemp = Localization::Lookup(GET_TEAM(GET_PLAYER(eMinor).getTeam()).getName().GetCString());
 						strOurAlliesMessage = strOurAlliesMessage + "[NEWLINE]" + strTemp.toUTF8();
 						strTheirEnemiesMessage = strTheirEnemiesMessage + "[NEWLINE]" + strTemp.toUTF8();
@@ -2069,6 +2087,30 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	{
 		setAtWar(eTeam, false, bPacifier);
 		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
+
+		// Set initial peace counters for all players
+		for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+			{
+				for (int iLoop2 = 0; iLoop2 < MAX_PLAYERS; iLoop2++)
+				{
+					PlayerTypes eLoopPlayer2 = (PlayerTypes) iLoop2;
+
+					if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == eTeam)
+					{
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtWar(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer).SetPlayerNumTurnsAtPeace(eLoopPlayer2, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+						GET_PLAYER(eLoopPlayer2).SetPlayerNumTurnsAtPeace(eLoopPlayer, 0);
+					}
+				}
+			}
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		//Secondary major declarations
@@ -2193,7 +2235,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 					if(GET_PLAYER(eOurPlayer).getTeam() != GetID())
 						continue;
 
-					FStaticVector<PlayerTypes, MAX_CIV_PLAYERS, true, c_eCiv5GameplayDLL, 0> veMinorAllies;
+					vector<PlayerTypes> veMinorAllies;
 
 					// Loop through minors to see if they're allied with us
 					for(iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -4415,7 +4457,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 
 #if defined(MOD_BALANCE_CORE)
 	//Check for bad units, and capture them!
-	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
+	vector<CvUnitCaptureDefinition> kCaptureUnitList;
 
 	vector<PlayerTypes> vOurTeam = getPlayers();
 	for(size_t i=0; i<vOurTeam.size(); i++)
@@ -4922,6 +4964,8 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 
 					if (GET_PLAYER(eDPLoopPlayer).isAlive() && GET_PLAYER(eDPLoopPlayer).getTeam() == eIndex)
 					{
+						CUSTOMLOG("Cancelling all coop wars for Player %s against Player %s because they made a Defensive Pact.", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eDPLoopPlayer).getName());
+
 						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 						{
 							PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
@@ -8705,16 +8749,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(GetCurrentEra());
-			
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
-		}
 #if defined(MOD_BALANCE_CORE)
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

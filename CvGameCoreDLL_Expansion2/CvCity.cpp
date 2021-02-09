@@ -9416,7 +9416,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	VALIDATE_OBJECT
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoPickResourceDemanded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Create the list of invalid Luxury Resources
-	FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veInvalidLuxuryResources;
+	vector<ResourceTypes> veInvalidLuxuryResources;
 	CvPlot* pLoopPlot;
 	ResourceTypes eResource;
 
@@ -9442,7 +9442,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	}
 
 	// Create list of valid Luxuries
-	FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veValidLuxuryResources;
+	vector<ResourceTypes> veValidLuxuryResources;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
@@ -15995,9 +15995,6 @@ bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
-	if (iMinWaterSize==-1)
-		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
-
 	VALIDATE_OBJECT
 	return plot()->isCoastalLand(iMinWaterSize);
 }
@@ -20761,7 +20758,7 @@ bool CvCity::DoRazingTurn()
 					iEra = 1;
 				}
 
-				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeNumTimesRazed(getOwner(), (5 * iEra));
+				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
 			}
 
 			if (MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).IsNoPartisans())
@@ -23512,6 +23509,12 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 	{
 #if defined(MOD_BALANCE_CORE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
+#endif
+	}
+	else if (iChange > 0)
+	{
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityExtendsWLTKD, getOwner(), getX(), getY(), iChange);
 #endif
 	}
 	if (iChange > 0 && bUATrigger)
@@ -32515,8 +32518,8 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires coast
 	if(pkBuildingInfo->IsWater())
 	{
-		//-1 is ocean (fast check), 1 is any lake (not cached, slower)
-		if(!isCoastal(-1) && !isCoastal(1))
+		//-1 is ocean (fast check)
+		if(!isCoastal(-1) && !isCoastal(pkBuildingInfo->GetMinAreaSize()))
 			return false;
 	}
 
@@ -34720,8 +34723,7 @@ bool CvCity::isInDangerOfFalling() const
 
 bool CvCity::isUnderSiege() const
 {
-	//or maybe count enemy units?
-	return m_iDamageTakenLastTurn > 0;
+	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(),NO_DOMAIN)>0;
 }
 #endif
 

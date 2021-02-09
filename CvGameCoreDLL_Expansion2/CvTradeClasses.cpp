@@ -3021,18 +3021,17 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 					}
 				}
 
-				int iModifer = 100 + GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetTradeRouteResourceModifier() + pOriginCity->GetResourceDiversityModifier();
+				int iModifier = 100 + GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetTradeRouteResourceModifier() + pOriginCity->GetResourceDiversityModifier();
 				if (iValue > 0)
 				{
-					iValue *= iModifer;
+					iValue *= iModifier;
 					iValue /= 100;
 				}
 				else
 				{
 					iValue *= 100;
-					iValue /= max(1, iModifer);
+					iValue /= max(1, iModifier);
 				}
-
 
 				return iValue;
 			}

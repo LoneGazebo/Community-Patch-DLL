@@ -479,8 +479,6 @@ public:
 	int GetJONSCulturePerTurnForFree() const;
 	void ChangeJONSCulturePerTurnForFree(int iChange);
 
-	int GetJONSCulturePerTurnFromMinorCivs() const; // DEPRECATED, use GetCulturePerTurnFromMinorCivs() instead
-	void ChangeJONSCulturePerTurnFromMinorCivs(int iChange); // DEPRECATED, does nothing
 	int GetCulturePerTurnFromMinorCivs() const;
 	int GetCulturePerTurnFromMinor(PlayerTypes eMinor) const;
 
@@ -982,17 +980,13 @@ public:
 #endif
 	int getGoldenAgeLength() const;
 
-#if defined(MOD_BALANCE_CORE)
-	int getGoldenAgeLengthModifier() const;
-#endif
-
 	int getNumUnitGoldenAges() const;
 	void changeNumUnitGoldenAges(int iChange);
 
 	int getStrikeTurns() const;
 	void changeStrikeTurns(int iChange);
 
-	int getGoldenAgeModifier() const;
+	int getGoldenAgeModifier(bool bCheckMonopolies = true) const;
 	void changeGoldenAgeModifier(int iChange);
 
 	// Great People Stuff
@@ -2100,6 +2094,22 @@ public:
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
 
+	int GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange);
+
+	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
+	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
+
+	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+
+	void DoUpdateWarPeaceTurnCounters();
+	void ResetWarPeaceTurnCounters();
+
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
 	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
@@ -2940,7 +2950,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTotalLand;
 	FAutoVariable<int, CvPlayer> m_iTotalLandScored;
 	FAutoVariable<int, CvPlayer> m_iJONSCulturePerTurnForFree;
-	FAutoVariable<int, CvPlayer> m_iJONSCulturePerTurnFromMinorCivs;
 	FAutoVariable<int, CvPlayer> m_iJONSCultureCityModifier;
 	FAutoVariable<int, CvPlayer> m_iJONSCulture;
 	FAutoVariable<int, CvPlayer> m_iJONSCultureEverGenerated;
@@ -3480,11 +3489,13 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtPeace;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsAtWar;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiPlayerNumTurnsSinceCityCapture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiMinorFriendshipAnchors; // DEPRECATED
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSiphonLuxuryCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGreatWorkYieldChange;
 

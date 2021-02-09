@@ -1256,7 +1256,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 		{
-			iFlavorExpansion += 70;
+			iFlavorExpansion += 120;
 			bRunningEarlyExpand = true;
 		}
 
@@ -1277,11 +1277,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 		{
 			iFlavorExpansion += kPlayer.getCapitalSettlerProductionModifier();
-		}
-		int iEraDifference = ((GC.getGame().getCurrentEra()+1) * 2) - kPlayer.getNumCities();
-		if (iEraDifference > 0 && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
-		{
-			iFlavorExpansion += 100 * iEraDifference;
 		}
 
 		//don't settle while at war
@@ -1312,7 +1307,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			iFlavorExpansion -= 25;
+			iFlavorExpansion -= 50;
 		}
 
 		//check victory conditions

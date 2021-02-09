@@ -2837,7 +2837,7 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 				LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(iResolutionID, eProposer, true);
 			}
 
-			CvRepealProposal proposal(it, eProposer);
+			CvRepealProposal proposal(&(*it), eProposer);
 			m_vRepealProposals.push_back(proposal);
 			iFound++;
 
@@ -3898,7 +3898,7 @@ CvEnactProposal* CvLeague::GetEnactProposal(int iResolutionID)
 	{
 		if (it->GetID() == iResolutionID)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 	return NULL;
@@ -3920,7 +3920,7 @@ CvRepealProposal* CvLeague::GetRepealProposal(int iResolutionID)
 	{
 		if (it->GetID() == iResolutionID)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 	return NULL;
@@ -3943,9 +3943,9 @@ CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID, int iValue)
 		if (it->GetType() == iResolutionID)
 		{
 			if (iValue == -1)
-				return it;
+				return &(*it);
 			else if (iValue == it->GetProposerDecision()->GetDecision())
-				return it;
+				return &(*it);
 		}
 	}
 	return NULL;
@@ -5926,10 +5926,10 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	{
 		eDecision = RESOLUTION_DECISION_REPEAL;
 	}
-	std::vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
+	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
 
 	// Discover what choices we can of the other players
-	FStaticVector< std::pair<PlayerTypes, int>, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> vMemberOpinions;
+	vector<pair<PlayerTypes, int>> vMemberOpinions;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
 		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
@@ -5943,13 +5943,13 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 			{
 				iMemberChoice = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, GetRepealProposal(iResolutionID));
 			}
-			std::pair<PlayerTypes, int> pair = std::pair<PlayerTypes, int>(it->ePlayer, iMemberChoice);
-			vMemberOpinions.push_back(pair);
+			std::pair<PlayerTypes, int> pr = std::pair<PlayerTypes, int>(it->ePlayer, iMemberChoice);
+			vMemberOpinions.push_back(pr);
 		}
 	}
 
-	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
-	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
+	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
+	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
 	{
 		int iChoice = vChoices[iChoiceIndex];
@@ -6237,11 +6237,11 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 			s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_OPINIONS_VOTES").toUTF8();
 			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 			{
-				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, it, &s);
+				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, &(*it), &s);
 			}
 			for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); ++it)
 			{
-				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, it, &s);
+				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, &(*it), &s);
 			}
 		}
 		
@@ -6473,12 +6473,12 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 	// Ongoing resolution effects
 	ReligionTypes eWorldReligion = NO_RELIGION;
 	PolicyBranchTypes eWorldIdeology = NO_POLICY_BRANCH_TYPE;
-	FStaticVector<PlayerTypes, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> veEmbargoedPlayers;
-	FStaticVector<ResourceTypes, 32, true, c_eCiv5GameplayDLL> veBannedResources;
+	vector<PlayerTypes> veEmbargoedPlayers;
+	vector<ResourceTypes> veBannedResources;
 	CvResolutionEffects effects;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	FStaticVector<PlayerTypes, MAX_MINOR_CIVS, true, c_eCiv5GameplayDLL> veOpenMinors;
-	FStaticVector<PlayerTypes, MAX_MINOR_CIVS, true, c_eCiv5GameplayDLL> vePermanentMinors;
+	vector<PlayerTypes> veOpenMinors;
+	vector<PlayerTypes> vePermanentMinors;
 #endif
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
@@ -7276,7 +7276,7 @@ void CvLeague::FinishSession()
 				GET_PLAYER(eProposer).doInstantYield(INSTANT_YIELD_TYPE_PROPOSAL);
 			}
 
-			DoRepealResolution(it);
+			DoRepealResolution(&(*it));
 		}
 		else
 		{
@@ -7300,7 +7300,7 @@ void CvLeague::FinishSession()
 			}
 		}
 
-		LogProposalResolved(it);
+		LogProposalResolved(&(*it));
 	}
 	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
 	{
@@ -7334,7 +7334,7 @@ void CvLeague::FinishSession()
 				GET_PLAYER(eProposer).doInstantYield(INSTANT_YIELD_TYPE_PROPOSAL);
 			}
 
-			DoEnactResolution(it);
+			DoEnactResolution(&(*it));
 
 			// Host is grateful to people who helped him keep/gain his position
 			PlayerTypes eNewHost = GetHostMember();
@@ -7406,9 +7406,8 @@ void CvLeague::FinishSession()
 			}
 		}
 
-		LogProposalResolved(it);
+		LogProposalResolved(&(*it));
 	}
-
 	PlayerTypes eNewHost = GetHostMember();
 
 	// Update number of sessions held by consecutively by host
@@ -7479,7 +7478,7 @@ void CvLeague::AssignProposalPrivileges()
 		if (CanEverPropose(it->ePlayer))
 		{
 			int iVotes = CalculateStartingVotesForMember(it->ePlayer);
-			vpPossibleProposers.push_back(it, iVotes);
+			vpPossibleProposers.push_back(&(*it), iVotes);
 		}
 		else
 		{
@@ -7701,11 +7700,11 @@ void CvLeague::NotifySessionDone()
 {
 	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
 	{
-		NotifyProposalResult(it);
+		NotifyProposalResult(&(*it));
 	}
 	for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); it++)
 	{
-		NotifyProposalResult(it);
+		NotifyProposalResult(&(*it));
 	}
 }
 
@@ -7860,7 +7859,7 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposalPlayer(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
 	}
 #endif
 
@@ -8112,7 +8111,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 	
 	// Which rewards do we get?
 	//antonjs: A switch statement in its natural habitat without break statements...a rare sight indeed
-	FStaticVector<LeagueProjectRewardTypes, NUM_CONTRIBUTION_TIERS, true, c_eCiv5GameplayDLL> veRewards;
+	vector<LeagueProjectRewardTypes> veRewards;
 	switch (eTier)
 	{
 	case CONTRIBUTION_TIER_3:
@@ -8371,30 +8370,26 @@ void CvLeague::LogProposalResolved(CvRepealProposal* pProposal)
 
 CvLeague::Member* CvLeague::GetMember(PlayerTypes ePlayer)
 {
-	Member* pFound = NULL;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
 		if (it->ePlayer == ePlayer)
 		{
-			pFound = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pFound != NULL, "Could not retrieve member based on player ID. Please send Anton your save file and version.");
-	return pFound;
+	return NULL;
 }
 
 CvLeague::Project* CvLeague::GetProject(LeagueProjectTypes eLeagueProject)
 {
-	Project* pFound = NULL;
 	for (ProjectList::iterator it = m_vProjects.begin(); it != m_vProjects.end(); it++)
 	{
 		if (it->eType == eLeagueProject)
 		{
-			pFound = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pFound != NULL, "Could not retrieve project based on project type. Please send Anton your save file and version.");
-	return pFound;
+	return NULL;
 }
 
 // Serialization Read
@@ -8851,14 +8846,14 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 						
 						if (!bAllUsed)
 #endif
-						kPlayer.GetLeagueAI()->DoProposals(it);
+						kPlayer.GetLeagueAI()->DoProposals(&(*it));
 					}
 				}
 				// Call for Votes and other Session actions
 				else if (it->IsInSession())
 				{
 					// Honor vote commitments made in deals before spending any other votes
-					kPlayer.GetLeagueAI()->DoVoteCommitments(it);
+					kPlayer.GetLeagueAI()->DoVoteCommitments(&(*it));
 
 					// Allocate free votes
 					if (it->CanVote(kPlayer.GetID()))
@@ -8893,12 +8888,12 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 								if (!bAllUsed)
 #endif
 								
-								kPlayer.GetLeagueAI()->DoVotes(it);
+								kPlayer.GetLeagueAI()->DoVotes(&(*it));
 							}
 						}
 						else
 						{
-							kPlayer.GetLeagueAI()->DoAbstainAllVotes(it);
+							kPlayer.GetLeagueAI()->DoAbstainAllVotes(&(*it));
 						}
 					}
 				}
@@ -9059,27 +9054,22 @@ void CvGameLeagues::SetLastEraTrigger(EraTypes eEraTrigger)
 
 CvLeague* CvGameLeagues::GetLeague(LeagueTypes eLeague)
 {
-	CvLeague* pLeague = NULL;
 	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
 	{
 		if (it->GetID() == eLeague)
 		{
-			pLeague = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pLeague != NULL, "CvLeague is NULL. Please send Anton your save file and version.");
-	return pLeague;
+	return NULL;
 }
 
 CvLeague* CvGameLeagues::GetActiveLeague()
 {
-	CvLeague* pLeague = NULL;
-	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
-	{
-		pLeague = it;
-	}
-	CvAssertMsg(GetNumActiveLeagues() == 0 || GetNumActiveLeagues() == 1, "Unexpected number of active leagues. Please send Anton your save file and version.");
-	return pLeague;
+	if (m_vActiveLeagues.empty())
+		return NULL;
+	else
+		return &m_vActiveLeagues.front();
 }
 
 int CvGameLeagues::GenerateResolutionUniqueID()
@@ -10109,7 +10099,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(it, iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
 							break;
 						}
 					}
@@ -10122,7 +10112,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(it, iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
 							break;
 						}
 					}
@@ -10163,7 +10153,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateProposalForProposer(CvLeague* pLeag
 	{
 		if (it->GetID() == iTargetResolutionID)
 		{
-			eDesire = EvaluateDesire(ScoreProposal(pLeague, it));
+			eDesire = EvaluateDesire(ScoreProposal(pLeague, &(*it)));
 			bFound = true;
 			break;
 		}
@@ -11059,7 +11049,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			iOurResolutionID = it->GetID();
 		}
 
-		FindBestVoteChoices(it, vConsiderations);
+		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 	RepealProposalList vRepealProposals = pLeague->GetRepealProposals();
 	for (RepealProposalList::iterator it = vRepealProposals.begin(); it != vRepealProposals.end(); ++it)
@@ -11070,7 +11060,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			iFocusResolutionID = it->GetID();
 		}
 
-		FindBestVoteChoices(it, vConsiderations);
+		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 
 	if (vConsiderations.size() > 0)

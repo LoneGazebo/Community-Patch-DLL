@@ -240,8 +240,6 @@ protected:
 	static int lGetJONSCulturePerTurnForFree(lua_State* L);
 	static int lChangeJONSCulturePerTurnForFree(lua_State* L);
 
-	static int lGetJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-	static int lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, does nothing
 	static int lGetCulturePerTurnFromMinorCivs(lua_State* L);
 	static int lGetCulturePerTurnFromMinor(lua_State* L);
 
@@ -1474,8 +1472,11 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_BALANCE_CORE)
+	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);

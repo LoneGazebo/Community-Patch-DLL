@@ -2250,10 +2250,18 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 50;
-
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
+	
+	// Denouncement in either direction?
+	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		return INT_MAX;
+
+	// Backstabber?
+	if (bFromMe && GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(eOtherPlayer))
+		return INT_MAX;
+
+	int iItemValue = 50;
 
 	// Scale up or down by deal duration at this game speed
 	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GC.getSTANDARD_GAMESPEED());
@@ -2261,12 +2269,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 	{
 		iItemValue *= GC.getGame().getGameSpeedInfo().GetDealDuration();
 		iItemValue /= pkStdSpeedInfo->GetDealDuration();
-	}
-	
-	// Denouncement in either direction?
-	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
-	{
-		return INT_MAX;
 	}
 
 	if (bFromMe)  // giving the other player an embassy in my capital
@@ -2442,8 +2444,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		// Add 200 Gold for each of our artifacts they've stolen
 		if (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) > 0)
 		{
-			iItemValue += (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200);
+			iItemValue += pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200;
 		}
+
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 		// Does open borders make their production siphon trait stronger?
 		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
@@ -2793,7 +2796,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		bMinor = true;
 	}
 
-
 	// if we're at war with the opponent, then this must be a peace deal. In this case we should evaluate vassal civ peace deals as zero
 	if (MOD_DIPLOMACY_CIV4_FEATURES && (GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GetPlayer()->getTeam())))
 	{
@@ -2844,6 +2846,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		return INT_MAX;
 	}
 #endif
+
 	//Things blocking their peace?
 	if(!bFromMe)
 	{
@@ -2872,6 +2875,13 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 	}
 
+	// Denouncement in either direction?
+	if (pDiploAI->IsDenouncedPlayer(eOtherPlayer) || pDiploAI->IsDenouncedByPlayer(eOtherPlayer))
+		return INT_MAX;
+
+	// No peace deals with backstabbers - it's a trap!
+	if (pDiploAI->IsUntrustworthy(eOtherPlayer))
+		return INT_MAX;
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
 
@@ -3239,16 +3249,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 #endif
 
-	// Don't offer or accept a war bribe against someone we agreed to go on a coop war with.
-	if (pDiploAI->GetGlobalCoopWarWithState(eWithPlayer) >= COOP_WAR_STATE_PREPARING)
-	{
+	// Denouncement in either direction?
+	if (pDiploAI->IsDenouncedPlayer(eOtherPlayer) || pDiploAI->IsDenouncedByPlayer(eOtherPlayer))
 		return INT_MAX;
-	}
-	// Ditto if they resurrected us or liberated our capital
-	if (pDiploAI->WasResurrectedBy(eWithPlayer) || pDiploAI->IsPlayerLiberatedCapital(eWithPlayer))
-	{
+
+	// No war deals with backstabbers - it's a trap!
+	if (pDiploAI->IsUntrustworthy(eOtherPlayer))
 		return INT_MAX;
-	}
 
 	//Already moving on asker?
 	if(bFromMe && pDiploAI->IsArmyInPlaceForAttack(eOtherPlayer))

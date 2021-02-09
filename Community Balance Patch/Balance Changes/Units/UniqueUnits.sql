@@ -175,6 +175,8 @@ INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUIL
 INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUILD_MINE');
 INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUILD_BRAZILWOOD_CAMP');
 INSERT INTO Unit_Builds (UnitType, BuildType) VALUES ('UNIT_BANDEIRANTES', 'BUILD_QUARRY');
+
+UPDATE Units SET ObsoleteTech = 'TECH_FLIGHT' WHERE Type = 'UNIT_BANDEIRANTES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 ---------------------------
 -- Byzantines
 ---------------------------

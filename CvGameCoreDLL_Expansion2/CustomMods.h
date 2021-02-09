@@ -247,9 +247,6 @@
 // Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
-// Enables support for some promotions affecting nearby units, but with a significant performance impact
-//#define MOD_BALANCE_CORE_AREA_EFFECT_PROMOTIONS
-
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
@@ -326,6 +323,7 @@
 #define MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_RANGED_ATTACK_PENALTY())
 #define MOD_BALANCE_CORE_INQUISITOR_TWEAKS	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_INQUISITOR_TWEAKS())
 #define MOD_CORE_DISABLE_LUA_HOOKS				(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DISABLE_LUA_HOOKS())
+#define MOD_CORE_AREA_EFFECT_PROMOTIONS			(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_AREA_EFFECT_PROMOTIONS())
 #define MOD_YIELD_MODIFIER_FROM_UNITS			(MOD_COMMUNITY_PATCH && gCustomMods.isYIELD_MODIFIER_FROM_UNITS())
 #endif
 
@@ -1115,6 +1113,7 @@ enum BattleTypeTypes
 //Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
 #define GAMEEVENT_CityEndsWLTKD				"CityEndsWLTKD", "iiii"
+#define GAMEEVENT_CityExtendsWLTKD			"CityExtendsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
@@ -1361,6 +1360,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_RANGED_ATTACK_PENALTY); //this controls whether defense against ranged attacks is weaker when the defender is damaged
 	MOD_OPT_DECL(BALANCE_CORE_INQUISITOR_TWEAKS);
 	MOD_OPT_DECL(CORE_DISABLE_LUA_HOOKS);
+	MOD_OPT_DECL(CORE_AREA_EFFECT_PROMOTIONS);
 	MOD_OPT_DECL(YIELD_MODIFIER_FROM_UNITS);
 
 	MOD_OPT_DECL(CIV6_WORKER);

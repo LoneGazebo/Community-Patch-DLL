@@ -737,7 +737,7 @@ CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 	{
 		if(it->m_eContract == eContract)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 
@@ -753,7 +753,7 @@ CvContract* CvGameContracts::GetInactiveContract(ContractTypes eContract)
 	{
 		if(it->m_eContract == eContract)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 

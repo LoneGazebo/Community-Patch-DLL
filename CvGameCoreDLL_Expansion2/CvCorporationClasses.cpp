@@ -1857,7 +1857,7 @@ CvCorporation* CvGameCorporations::GetCorporation(CorporationTypes eCorporation)
 	{
 		if(it->m_eCorporation == eCorporation)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 

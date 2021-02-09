@@ -128,8 +128,8 @@ public:
 	int m_iTemp;
 };
 
-typedef FStaticVector<CvReligion, 16, false, c_eCiv5GameplayDLL > ReligionList;
-typedef FStaticVector<CvReligionInCity, 8, false, c_eCiv5GameplayDLL > ReligionInCityList;
+typedef vector<CvReligion> ReligionList;
+typedef vector<CvReligionInCity> ReligionInCityList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameReligions

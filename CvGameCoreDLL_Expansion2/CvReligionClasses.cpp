@@ -2039,12 +2039,12 @@ const CvReligion* CvGameReligions::GetReligion(ReligionTypes eReligion, PlayerTy
 		{
 			if(it->m_eFounder == ePlayer)
 			{
-				return it;
+				return &(*it);
 			}
 		}
 		else if(it->m_eReligion == eReligion)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 
@@ -6010,7 +6010,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	// Assign out the remainder
 	for (int iI = 0; iI < iUnassignedFollowers; iI++)
 	{
-		ReligionInCityList::iterator itLargestRemainder = NULL;
+		ReligionInCityList::iterator itLargestRemainder;
 		int iLargestRemainder = 0;
 
 		for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
@@ -6022,7 +6022,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 			}
 		}
 
-		if (itLargestRemainder && iLargestRemainder > 0)
+		if (iLargestRemainder > 0)
 		{
 			itLargestRemainder->m_iFollowers++;
 			itLargestRemainder->m_iTemp = 0;
@@ -6085,7 +6085,7 @@ void CvCityReligions::SimulateFollowers()
 	// Assign out the remainder
 	for (int iI = 0; iI < iUnassignedFollowers; iI++)
 	{
-		ReligionInCityList::iterator itLargestRemainder = NULL;
+		ReligionInCityList::iterator itLargestRemainder;
 		int iLargestRemainder = 0;
 
 		for (it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
@@ -6097,7 +6097,7 @@ void CvCityReligions::SimulateFollowers()
 			}
 		}
 
-		if (itLargestRemainder && iLargestRemainder > 0)
+		if (iLargestRemainder > 0)
 		{
 			itLargestRemainder->m_iFollowers++;
 			itLargestRemainder->m_iTemp = 0;

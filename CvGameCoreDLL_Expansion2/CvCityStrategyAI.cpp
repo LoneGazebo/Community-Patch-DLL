@@ -5052,19 +5052,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0)
 	{
 		iModifier += pkBuildingInfo->GetGoldenAgeYieldMod(eYield);
-		if (kPlayer.getGoldenAgeModifier() != 0)
+		if (kPlayer.getGoldenAgeModifier(false) != 0)
 		{
-			iModifier *= (100 + kPlayer.getGoldenAgeModifier());
+			iModifier *= (100 + kPlayer.getGoldenAgeModifier(false));
 			iModifier /= 100;
 		}
 		if (kPlayer.GetGoldenAgeTourism() > 0)
 		{
 			iModifier *= 125;
-			iModifier /= 100;
-		}
-		if (kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
-		{
-			iModifier *= (100 + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier());
 			iModifier /= 100;
 		}
 		if (kPlayer.GetPlayerTraits()->GetWonderProductionModGA() > 0)
@@ -5836,7 +5831,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	if(pkBuildingInfo->GetGoldenAgeModifier() > 0 || pkBuildingInfo->IsGoldenAge())
 	{
-		iValue += (kPlayer.getGoldenAgeModifier() + kPlayer.GetGoldenAgeTourism() + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() + pkBuildingInfo->GetGoldenAgeModifier());
+		iValue += (kPlayer.getGoldenAgeModifier(false) + kPlayer.GetGoldenAgeTourism() + pkBuildingInfo->GetGoldenAgeModifier());
 
 		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
 		{

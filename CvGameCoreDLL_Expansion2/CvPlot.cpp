@@ -735,7 +735,7 @@ void CvPlot::updateCenterUnit()
 //	--------------------------------------------------------------------------------
 void CvPlot::verifyUnitValidPlot()
 {
-	FStaticVector<IDInfo, 50, true, c_eCiv5GameplayDLL, 0> oldUnitList;
+	vector<IDInfo> oldUnitList;
 
 	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
@@ -2510,6 +2510,25 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	if (MOD_IMPROVEMENTS_EXTENSIONS)
+	{
+		// Check resource requirements
+		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
+		{
+			ResourceTypes eResource = (ResourceTypes)iI;
+			if (eResource != NO_RESOURCE)
+			{
+				int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iI);
+				if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
+				{
+					return false;
+				}
+			}
+		}
+	}
+#endif
+
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlotCanImprove, getX(), getY(), eImprovement) == GAMEEVENTRETURN_FALSE) {
@@ -2808,6 +2827,25 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						return false;
 					}
 				}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					// Check resource requirements
+					for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+					{
+						ResourceTypes eResource = (ResourceTypes)iI;
+						if (eResource != NO_RESOURCE)
+						{
+							int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
+							if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
+					}
+				}
+#endif
 			}
 		}
 
@@ -7775,6 +7813,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 #endif
+
+			//remember this to improve pathfinding performance
+			SetImprovementPassable(newImprovementEntry.IsMakesPassable());
+
 			// If this improvement can add culture to nearby improvements, update them as well
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
@@ -7913,9 +7955,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #endif
-				//remember this to improve pathfinding performance
-				SetImprovementPassable(newImprovementEntry.IsMakesPassable());
-
 				// Maintenance
 				if(MustPayMaintenanceHere(owningPlayerID))
 				{

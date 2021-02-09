@@ -548,36 +548,19 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... defensive bastion?
-				if (m_pPlayer->GetID() == pLoopPlot->getOwner() && pLoopPlot->IsBorderLand( m_pPlayer->GetID() ) &&
+				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
 					)
 				{
 					CvCity* pDefenseCity = pLoopPlot->getOwningCity();
-					if ((pDefenseCity && (pDefenseCity->isBorderCity() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
+					if (pDefenseCity && pDefenseCity->isBorderCity())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-						if (pDefenseCity)
-						{
-							int iValue = pDefenseCity->getThreatValue() + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
-							if (pDefenseCity->isUnderSiege())
-							{
-								iValue *= 5;
-							}
-							if (pLoopPlot->IsChokePoint() || pDefenseCity->isInDangerOfFalling())
-							{
-								iValue *= 10;
-							}
-							newTarget.SetAuxIntData(iValue);
-						}
-						else
-						{
-							int iValue = pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
-							if (pLoopPlot->IsChokePoint())
-							{
-								iValue *= 10;
-							}
-							newTarget.SetAuxIntData(iValue);
-						}
+						int iValue = pDefenseCity->getThreatValue() + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
+						if (pDefenseCity->isUnderSiege() || pLoopPlot->IsChokePoint())
+							iValue *= 5;
+
+						newTarget.SetAuxIntData(iValue);
 						m_AllTargets.push_back(newTarget);
 					}
 				}
@@ -3421,13 +3404,13 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
 				UnitProcessed(m_CurrentAirSweepUnits[iI].GetID());
+			}
 
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
-					LogTacticalMessage(strMsg);
-				}
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Starting air sweep with %s %d before attack on X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
+				LogTacticalMessage(strMsg);
 			}
 		}
 	}
@@ -4764,6 +4747,10 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 
 		//if it's a fighter plane, don't use it here, we need it for interceptions / sweeps
 		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
+			continue;
+
+		//don't pull out garrisons when we need them - they have separate moves
+		if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->isUnderSiege())
 			continue;
 
 		bool bCanReach = false;
@@ -9544,7 +9531,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
 				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
-					initialPosition->addTacticalPlot(pPlot,ourUnits);
+					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
 	}
@@ -9798,7 +9785,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget, i);
 		if (pPlot && pPlot->isVisible(ourTeam))
-			initialPosition->addTacticalPlot(pPlot, ourUnits);
+			initialPosition->addTacticalPlot(pPlot,ourUnits);
 	}
 
 	//find out which plot is frontline, second line etc
