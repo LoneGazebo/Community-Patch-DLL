@@ -94,8 +94,10 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA',
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PLUNDERED_TRADE_ROUTE', '5'; -- x2 for origin civ
 
 -- You killed or captured their civilians! / You killed or captured civilians during war!
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE', '1'; -- increase this to reach the maximum more quickly
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_MAX', '50'; -- maximum opinion penalty
+INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_OPINION_WEIGHT', '10'; -- increase this to reach the maximum more quickly
+INSERT INTO Defines (Name, Value) SELECT 'CIVILIAN_KILLER_VALUE_PER_TURN_DECAY', '10'; -- how fast this penalty decays per turn
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD_THRESHOLD', '25'; -- threshold for global penalty; penalty score must be at least this high with another civ that they don't hate
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CIVILIAN_KILLER_WORLD', '20'; -- global penalty if you're at max with any civ; higher of the two is used
 
 -- You nuked them!
@@ -112,21 +114,21 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_CAPTURED_KEY_CITY_CAPIT
 --	// Player has done nice stuff
 --	//////////////////////////////////////
 
--- We are trade partners.  (n.b. maximum recent trade value = OPINION_WEIGHT_TRADE_MAX * DEAL_VALUE_PER_OPINION_WEIGHT * -1)
+-- We are trade partners.  (n.b. maximum recent trade value = OPINION_WEIGHT_TRADE_MAX * DEAL_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
 UPDATE Defines SET Value = '-40' WHERE Name = 'OPINION_WEIGHT_TRADE_MAX'; -- maximum opinion bonus from recent trade value
 UPDATE Defines SET Value = '5' WHERE Name = 'DEAL_VALUE_PER_OPINION_WEIGHT'; -- how much recent trade value equals -1 opinion weight
 UPDATE Defines SET Value = '2' WHERE Name = 'DEAL_VALUE_PER_TURN_DECAY'; -- how fast recent trade value decays
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', '150'; -- increases current and maximum trade bonus if player is considered a strategic trade partner
 
--- Your recent diplomatic actions please/disappoint them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT)
+-- Your recent diplomatic actions please/disappoint them. (n.b. maximum recent assist value = OPINION_WEIGHT_ASSIST_MAX * ASSIST_VALUE_PER_OPINION_WEIGHT; scales with game speed)
 UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_ASSIST_MAX'; -- maximum opinion bonus/penalty from recent assist value
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', '5'; -- how much recent assist value equals 1/-1 opinion weight
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_TURN_DECAY', '3'; -- how fast recent assist value decays
 
--- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1)
+-- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
 UPDATE Defines SET Value = '-50' WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
-UPDATE Defines SET Value = '50' WHERE Name = 'COMMON_FOE_VALUE_PER_OPINION_WEIGHT';
-UPDATE Defines SET Value = '25' WHERE Name = 'COMMON_FOE_VALUE_PER_TURN_DECAY';
+UPDATE Defines SET Value = '50' WHERE Name = 'COMMON_FOE_VALUE_PER_OPINION_WEIGHT'; -- how much common foe value equals -1 opinion weight
+UPDATE Defines SET Value = '25' WHERE Name = 'COMMON_FOE_VALUE_PER_TURN_DECAY'; -- how fast common foe value decays
 
 -- You freed their captured citizens!
 UPDATE Defines SET Value = '-10' WHERE Name = 'OPINION_WEIGHT_RETURNED_CIVILIAN';
@@ -192,10 +194,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PLOTTED_AGAINST_US_SUBS
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PERFORMED_COUP', '30';
 
 -- You excavated their cultural artifacts!
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EXCAVATED_THREE_ARTIFACTS', '40';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EXCAVATED_TWO_ARTIFACTS', '30';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EXCAVATED_ONE_ARTIFACT', '20';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_NO_DIGGING_PROMISE_REDUCTION', '-10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EXCAVATED_ARTIFACT', '30';
 
 
 --	//////////////////////////////////////

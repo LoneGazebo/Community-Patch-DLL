@@ -9907,19 +9907,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 						pDiploAI->SetCoopWarScore(ePlayer, 0);
 					}
 					
-					if (pDiploAI->GetRecentAssistValue(eMyTeamPlayer) > 0)
-					{
-						pDiploAI->SetRecentAssistValue(eMyTeamPlayer, 0);
-					}
-					
 					// Forget war history
 					pDiploAI->SetNumWarsDeclaredOnUs(eMyTeamPlayer, 0);
 					pDiploAI->SetNumCitiesCapturedBy(eMyTeamPlayer, 0);
-					pDiploAI->SetNumTimesRazed(eMyTeamPlayer, 0);
 					pDiploAI->SetNumTradeRoutesPlundered(eMyTeamPlayer, 0);
 					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetNumWarsDeclaredOnUs(ePlayer, 0);
 					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetNumCitiesCapturedBy(ePlayer, 0);
-					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetNumTimesRazed(ePlayer, 0);
 					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetNumTradeRoutesPlundered(ePlayer, 0);
 					
 					pDiploAI->SetNumArtifactsEverDugUp(eMyTeamPlayer, 0);
@@ -33949,6 +33942,29 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				// Reset war weariness
 				if (MOD_BALANCE_CORE_HAPPINESS)
 					GetCulture()->SetWarWeariness(0);
+
+				// Reset certain diplo modifiers
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if (eLoopPlayer != m_eID)
+					{
+						GetDiplomacyAI()->SetRecentTradeValue(eLoopPlayer, 0);
+						GetDiplomacyAI()->SetRecentAssistValue(eLoopPlayer, 0);
+						GetDiplomacyAI()->SetCommonFoeValue(eLoopPlayer, 0);
+						GetDiplomacyAI()->SetCivilianKillerValue(eLoopPlayer, 0);
+						GetDiplomacyAI()->SetVassalProtectValue(eLoopPlayer, 0);
+						GetDiplomacyAI()->SetVassalFailedProtectValue(eLoopPlayer, 0);
+
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetRecentTradeValue(m_eID, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetRecentAssistValue(m_eID, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCommonFoeValue(m_eID, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCivilianKillerValue(m_eID, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetVassalProtectValue(m_eID, 0);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetVassalFailedProtectValue(m_eID, 0);
+					}
+				}
 			}
 
 			ResetWarPeaceTurnCounters();

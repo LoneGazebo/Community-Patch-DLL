@@ -12985,7 +12985,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 			// Killed or captured our civilians?
-			iValue = pDiplo->GetCitiesRazedScore(ePlayer);
+			iValue = pDiplo->GetCivilianKillerScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
@@ -13680,8 +13680,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		// Civilians killed/captured
-		iValue = pDiplo->GetCitiesRazedScore(ePlayer);
-		iTempValue = pDiplo->GetCitiesRazedGlobalScore(ePlayer);
+		iValue = pDiplo->GetCivilianKillerScore(ePlayer);
+		iTempValue = pDiplo->GetCivilianKillerGlobalScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
@@ -14395,6 +14395,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetStoleArtifactsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOLEN_ARTIFACTS");
 			aOpinions.push_back(kOpinion);
 		}
 

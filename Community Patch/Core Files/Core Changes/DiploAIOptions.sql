@@ -69,6 +69,12 @@ SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 
 -- Advanced Options
 
+-- [DISABLE FLAVOR RANDOMIZATION]
+-- If set to 1, diplomacy flavors for AI players will not be randomized by +/- 2. They will instead always be set to their base XML value.
+-- NOTE: This only affects AI flavors related to diplomacy, not other flavors. Also, changing this setting will have no effect if you load a saved game; you must start a new game!
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
+
 -- [ENABLE LUMP SUM GOLD TRADES]
 -- If set to 1, enables human players to trade/demand lump sum Gold with AI players at all times.
 -- If set to 2, enables all players to trade/demand lump sum Gold with each other at all times.

@@ -2406,15 +2406,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 				if (IsGreatPerson())
 				{
-					iCivValue = 5 * iEraFactor;
+					iCivValue = 50 * iEraFactor;
 				}
 				else if (isFound() || IsFoundAbroad())
 				{
-					iCivValue = 3 * iEraFactor;
+					iCivValue = 30 * iEraFactor;
 				}
 				else
 				{
-					iCivValue = iEraFactor;
+					iCivValue = 10 * iEraFactor;
 				}
 
 				if (GC.getGame().getGameTurn() <= 100)
@@ -2428,7 +2428,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				// Diplo penalty for killing civilians (doesn't apply if stationed in a city, since civilians aren't being targeted in particular)
 				if (pPlot && !pPlot->isCity() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
 				{
-					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeCivilianKillerValue(ePlayer, iCivValue);
 				}
 			}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

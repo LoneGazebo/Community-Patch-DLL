@@ -2444,8 +2444,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		// Add 200 Gold for each of our artifacts they've stolen
 		if (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) > 0)
 		{
-			iItemValue += (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200);
+			iItemValue += pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200;
 		}
+
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 		// Does open borders make their production siphon trait stronger?
 		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
