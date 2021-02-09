@@ -471,7 +471,7 @@ UPDATE Leaders SET Loyalty = 8 						WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Neediness = 8 					WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Forgiveness = 1 					WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Chattiness = 4 					WHERE Type = 'LEADER_GENGHIS_KHAN';
-UPDATE Leaders SET Meanness = 8 					WHERE Type = 'LEADER_GENGHIS_KHAN';
+UPDATE Leaders SET Meanness = 10 					WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
