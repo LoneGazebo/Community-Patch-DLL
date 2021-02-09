@@ -84,7 +84,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT' AND EXISTS (SELECT * FROM COMMUNITY
 -- Austria
 --------------------
 UPDATE Language_en_US
-SET Text = '+50% rewards from [ICON_CITY_STATE] City-State Quests. May arrange Marriages with Allied [ICON_CITY_STATE] City-States using [ICON_GOLD] Gold. While at peace with the City-State, Marriages halt [ICON_INFLUENCE] Influence decay, grant 1 [COLOR_POSITIVE_TEXT]Extra[ENDCOLOR] [ICON_DIPLOMAT] World Congress Delegate, and boost [ICON_GREAT_PEOPLE] Great People generation in the [ICON_CAPITAL] Capital by 15%.'
+SET Text = '+50% rewards from [ICON_CITY_STATE] City-State Quests. May arrange Marriages with Allied City-States using [ICON_GOLD] Gold. While at peace with the City-State, Marriages halt [ICON_INFLUENCE] Influence decay, grant 1 [COLOR_POSITIVE_TEXT]Extra[ENDCOLOR] [ICON_DIPLOMAT] World Congress Delegate, and boost [ICON_GREAT_PEOPLE] Great People generation in the [ICON_CAPITAL] Capital by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
