@@ -897,7 +897,7 @@ public:
 	void ChangeAirSweepCombatModifier(int iValue);
 	int getAttackModifier() const;
 	void changeAttackModifier(int iValue);
-	int getDefenseModifier() const;
+	int getDefenseModifier(bool bQuick = false) const;
 	void changeDefenseModifier(int iValue);
 
 	int getGroundAttackDamage() const;

@@ -9971,6 +9971,9 @@ void CvGame::updateMoves()
 					{
 						for(pLoopUnit = player.firstUnit(&iLoop); pLoopUnit; pLoopUnit = player.nextUnit(&iLoop))
 						{
+							if (pLoopUnit->isDelayedDeath() || pLoopUnit->plot() == NULL)
+								continue;
+
 							bool bMoveMe  = false;
 							IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
 							while(pUnitNodeInner != NULL && !bMoveMe)
