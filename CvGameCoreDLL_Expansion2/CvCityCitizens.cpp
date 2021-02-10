@@ -3070,7 +3070,27 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
 
 		if (bUpdateNow)
+		{
+			//we probably just removed a citizen from a plot, need to update the yields if this a manual change
+			if (bForced)
+			{
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					//Simplification - errata yields not worth considering.
+					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						break;
+
+					YieldTypes eYield = (YieldTypes)iI;
+					GetCity()->UpdateCityYields(eYield);
+					GetCity()->UpdateSpecialReligionYields(eYield);
+				}
+
+				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				GetCity()->GetCityCulture()->CalculateBaseTourism();
+			}
+
 			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+		}
 
 		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		pkIFace->setDirty(GameData_DIRTY_BIT, true);
