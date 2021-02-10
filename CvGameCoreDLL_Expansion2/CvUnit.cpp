@@ -5074,9 +5074,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	*/
 
 	// Barbarians have special restrictions early in the game
-	if(isBarbarian() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn() && plot.isOwned())
+	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 	{
-		return false;
+		//do not capture settlers early in the game ...
+		if (plot.isOwned() || plot.getNumUnitsOfAIType(UNITAI_SETTLE)>0)
+		{
+			return false;
+		}
 	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
@@ -16337,7 +16341,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	int iModifier = GetGenericMeleeStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pFromPlot, bQuickAndDirty);
 
 	// Generic Defense Bonus
-	iModifier += getDefenseModifier();
+	iModifier += getDefenseModifier(bQuickAndDirty);
 
 	// Defense against Ranged
 	if (bFromRangedAttack)
@@ -16901,7 +16905,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	else
 	{
 		// Regular defense modifier
-		iModifier += getDefenseModifier();
+		iModifier += getDefenseModifier(bQuickAndDirty);
 
 		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
@@ -18831,10 +18835,10 @@ void CvUnit::changeAttackModifier(int iValue)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getDefenseModifier() const
+int CvUnit::getDefenseModifier(bool bQuick) const
 {
 	VALIDATE_OBJECT
-	if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
+	if (!bQuick && MOD_CORE_AREA_EFFECT_PROMOTIONS)
 		return m_iDefenseModifier + GetGiveDefenseModToUnit();
 	else
 		return m_iDefenseModifier;

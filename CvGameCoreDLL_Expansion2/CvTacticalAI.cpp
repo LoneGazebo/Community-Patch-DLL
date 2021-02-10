@@ -368,8 +368,7 @@ void CvTacticalAI::FindTacticalTargets()
 	m_AllTargets.clear();
 	m_ZoneTargets.clear();
 
-	int iReleaseTurn = (GC.getGame().GetBarbarianReleaseTurn() * GC.getGame().getGameSpeedInfo().getTrainPercent()) / 100;
-	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < iReleaseTurn;
+	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn();
 
 	// Look at every tile on map
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)

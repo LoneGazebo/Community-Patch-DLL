@@ -1284,6 +1284,23 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	return iCost;
 }
 
+bool NeedToCheckStacking(const CvAStarNode* node, int iTurnsOverride = -1)
+{
+	//sometimes the turns stored in the node are not up to date
+	int iTurns = (iTurnsOverride >= 0) ? iTurnsOverride : node->m_iTurns;
+
+	//ignore what happens next turn
+	if (iTurns > 0)
+		return false;
+
+	//always check stacking for neutral units
+	if (node->m_kCostCacheData.bIsVisibleNeutralCombatUnit)
+		return true;
+
+	//now look at the flag
+	return (node->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0;
+}
+
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a move
 int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder)
@@ -1304,7 +1321,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 	bool bIsPathDest = finder->IsPathDest(iToPlotX, iToPlotY);
 	bool bCheckZOC =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ZOC);
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kToNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pUnitDataCache->pUnit;
@@ -1378,8 +1394,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 				return -1; //forbidden
 		}
 
-		// check stacking (if visible)
-		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bUnitStackingLimitReached && iTurns==0)
+		// check stacking on the next plot (if visible)
+		if (kToNodeCacheData.bPlotVisibleToTeam && kToNodeCacheData.bUnitStackingLimitReached && NeedToCheckStacking(node,iTurns))
 			return -1; //forbidden
 
 		//extra cost for ending the turn on various types of undesirable plots
@@ -1458,7 +1474,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kFromNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
@@ -1489,7 +1504,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			}
 
 			// check stacking (if visible)
-			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bUnitStackingLimitReached)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && NeedToCheckStacking(parent) && kFromNodeCacheData.bUnitStackingLimitReached)
 				return FALSE;
 		}
 	}
@@ -2338,7 +2353,7 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
-		if ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0 || temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit) //never ignore stacking for neutral units
+		if (NeedToCheckStacking(temp))
 			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 

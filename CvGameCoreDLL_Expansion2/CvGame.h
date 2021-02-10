@@ -571,7 +571,7 @@ public:
 	void DoUpdateIndustrialRoute();
 
 	ImprovementTypes GetBarbarianCampImprovementType();
-	int GetBarbarianReleaseTurn() const { return m_iEarliestBarbarianReleaseTurn; }
+	int GetBarbarianReleaseTurn() const;
 	void SetBarbarianReleaseTurn(int iValue);
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);

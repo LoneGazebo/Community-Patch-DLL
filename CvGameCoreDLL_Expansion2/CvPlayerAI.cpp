@@ -1822,63 +1822,115 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			return 0;
 	}
 
-	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
-	bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
-	bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
-
-	// **************************
-	// Approaches
-	// **************************
-
 	int iScore = 100;
-	MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
-
-	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
-		iScore /= 5;
-
-	// **************************
-	// Benefits to Us!
-	// **************************
-
-	//DIPLOMACY - We want all of them the same!
-	if (GetDiplomacyAI()->IsGoingForDiploVictory())
+	if (!isHuman())
 	{
-		iScore *= 2;
-	}
+		EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
+		EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+		bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
+		bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
-	//MILITARY - We want units and happiness!!
-	else if (GetDiplomacyAI()->IsGoingForWorldConquest())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		// **************************
+		// Approaches
+		// **************************
+
+		MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
+		if (eApproach == MINOR_CIV_APPROACH_IGNORE)
+			iScore /= 5;
+
+		// **************************
+		// Benefits to Us!
+		// **************************
+
+		//DIPLOMACY - We want all of them the same!
+		if (GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
 			iScore *= 2;
 		}
-	}
 
-	//SCIENCE - We want happiness and growth!!
-	else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		//MILITARY - We want units and happiness!!
+		else if (GetDiplomacyAI()->IsGoingForWorldConquest())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+			{
+				iScore *= 2;
+			}
 		}
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-		{
-			iScore *= 2;
-		}
-	}
 
-	//CULTURE - We want culture and religion!!
-	else if (GetDiplomacyAI()->IsGoingForCultureVictory())
-	{
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		//SCIENCE - We want happiness and growth!!
+		else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+			{
+				iScore *= 2;
+			}
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			{
+				iScore *= 2;
+			}
 		}
-		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+
+		//CULTURE - We want culture and religion!!
+		else if (GetDiplomacyAI()->IsGoingForCultureVictory())
 		{
-			iScore *= 2;
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+			{
+				iScore *= 2;
+			}
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+			{
+				iScore *= 2;
+			}
+		}
+
+		// Do they have a resource we lack?
+		int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(GetID());
+		if (iResourcesWeLack > 0)
+		{
+			if (bNeedHappiness)
+			{
+				iScore *= 3;
+			}
+			else if (bNeedHappinessCritical)
+			{
+				iScore *= 4;
+			}
+			else
+			{
+				iScore *= 2;
+			}
+		}
+
+		//Will they give us a WLTKD for their resource?
+		CvCity* pLoopCity;
+		int iCityLoop;
+		for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+				if (eResourceDemanded != NO_RESOURCE)
+				{
+					//Will we get a WLTKD from this? We want it a bit more, please.
+					if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
+					{
+						iScore *= 3;
+						iScore /= 2;
+					}
+				}
+			}
+		}
+
+		//Nobody likes hostile city-states.
+		if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+		{
+			iScore /= 2;
+		}
+
+		//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
+		if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < -20)
+		{
+			iScore /= 5;
 		}
 	}
 
@@ -1886,56 +1938,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_INFLUENCE))
 	{
 		iScore *= 5;
-	}
-
-	// Do they have a resource we lack?
-	int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(GetID());
-	if (iResourcesWeLack > 0)
-	{
-		if (bNeedHappiness)
-		{
-			iScore *= 3;
-		}
-		else if (bNeedHappinessCritical)
-		{
-			iScore *= 4;
-		}
-		else
-		{
-			iScore *= 2;
-		}
-	}
-
-	//Will they give us a WLTKD for their resource?
-	CvCity* pLoopCity;
-	int iCityLoop;
-	for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
-	{
-		if (pLoopCity != NULL)
-		{
-			ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
-			if (eResourceDemanded != NO_RESOURCE)
-			{
-				//Will we get a WLTKD from this? We want it a bit more, please.
-				if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
-				{
-					iScore *= 3;
-					iScore /= 2;
-				}
-			}
-		}
-	}
-
-	//Nobody likes hostile city-states.
-	if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-	{
-		iScore /= 2;
-	}
-
-	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < -20)
-	{
-		iScore /= 5;
 	}
 
 	// **************************

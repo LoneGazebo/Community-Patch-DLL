@@ -1578,7 +1578,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
-									CUSTOMLOG("Cancelling TRIGGERED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName(), GET_PLAYER(eLoopDefender).getName());
 									pDiplo->SetCoopWarState(eThirdParty, eLoopDefender, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopDefender, NO_COOP_WAR_STATE);
 								}
@@ -1623,7 +1622,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
-									CUSTOMLOG("Cancelling TRIGGERED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName(), GET_PLAYER(eLoopAttacker).getName());
 									pDiplo->SetCoopWarState(eThirdParty, eLoopAttacker, NO_COOP_WAR_STATE);
 									GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(eLoopPlayer, eLoopAttacker, NO_COOP_WAR_STATE);									
 								}
@@ -4964,8 +4962,6 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 
 					if (GET_PLAYER(eDPLoopPlayer).isAlive() && GET_PLAYER(eDPLoopPlayer).getTeam() == eIndex)
 					{
-						CUSTOMLOG("Cancelling all coop wars for Player %s against Player %s because they made a Defensive Pact.", GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eDPLoopPlayer).getName());
-
 						for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 						{
 							PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
