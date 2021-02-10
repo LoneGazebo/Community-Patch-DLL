@@ -2758,7 +2758,6 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 			}
 
 			// Cancel any coop wars against the player we've befriended
-			CUSTOMLOG("Cancelling all coop wars for Player %s against Player %s because they made a Declaration of Friendship.", GetPlayer()->getName(), GET_PLAYER(ePlayer).getName());
 			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 			{
 				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
@@ -7595,15 +7594,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 			{
 				if (iTurnDifference >= 30)
 				{
-					if (eCoopWarState == COOP_WAR_STATE_REJECTED)
-					{
-						CUSTOMLOG("Cancelling coop war for Player %s with Player %s against Player %s: error in DoUpdateCoopWarStates (REJECTED)!", GetPlayer()->getName(), GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName());
-					}
-					else
-					{
-						CUSTOMLOG("Cancelling coop war for Player %s with Player %s against Player %s: error in DoUpdateCoopWarStates (WARNED)!", GetPlayer()->getName(), GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName());
-					}
-
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
 				}
 			}
@@ -7620,7 +7610,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				}
 				else
 				{
-					CUSTOMLOG("Cancelling PREPARING coop war for Player %s with Player %s against Player %s: unable to start coop war!", GetPlayer()->getName(), GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName());
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
 				}
@@ -7634,7 +7623,6 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				}
 				else
 				{
-					CUSTOMLOG("Cancelling READY coop war for Player %s with Player %s against Player %s: unable to start coop war!", GetPlayer()->getName(), GET_PLAYER(eLoopPlayer).getName(), GET_PLAYER(eThirdParty).getName());
 					SetCoopWarState(eLoopPlayer, eThirdParty, NO_COOP_WAR_STATE);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
 				}
@@ -7708,7 +7696,6 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		}
 		else
 		{
-			CUSTOMLOG("Cancelling STARTED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GetPlayer()->getName(), GET_PLAYER(eAllyPlayer).getName(), GET_PLAYER(eTargetPlayer).getName());
 			CvAssertMsg(false, "ERROR: Unable to start coop war!");
 			SetCoopWarState(eAllyPlayer, eTargetPlayer, NO_COOP_WAR_STATE);
 			GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, NO_COOP_WAR_STATE);
@@ -7716,7 +7703,6 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	}
 	else
 	{
-		CUSTOMLOG("Cancelling STARTED coop war for Player %s with Player %s against Player %s: unable to start coop war!", GetPlayer()->getName(), GET_PLAYER(eAllyPlayer).getName(), GET_PLAYER(eTargetPlayer).getName());
 		CvAssertMsg(false, "ERROR: Unable to start coop war!");
 		SetCoopWarState(eAllyPlayer, eTargetPlayer, NO_COOP_WAR_STATE);
 		GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eTargetPlayer, NO_COOP_WAR_STATE);
@@ -25716,7 +25702,6 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 
 			if (GET_PLAYER(ePeacePlayer).isMajorCiv())
 			{
-				CUSTOMLOG("Cancelling all coop wars for Player %s against Player %s because they made peace.", GetPlayer()->getName(), GET_PLAYER(ePeacePlayer).getName());
 				CancelCoopWarsAgainstPlayer(ePeacePlayer);
 			}
 			else if (GET_PLAYER(ePeacePlayer).isMinorCiv())
@@ -25799,7 +25784,6 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, false);
 
 				// End all coop war agreements with this player
-				CUSTOMLOG("Cancelling all coop wars for Player %s WITH Player %s because war was declared!", GetPlayer()->getName(), GET_PLAYER(ePlayer).getName());
 				CancelCoopWarsWithPlayer(ePlayer, !bDefensivePact);
 
 				// Reset various promises for both of us...all is fair in war!
@@ -27152,7 +27136,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 		
 		// End all coop war agreements with this player
-		CUSTOMLOG("Cancelling all coop wars for Player %s WITH Player %s because we ended the DoF early.", GetPlayer()->getName(), GET_PLAYER(ePlayer).getName());
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->CancelCoopWarsWithPlayer(eMyPlayer, true);
 		
 		// End any Defensive Pact
@@ -36548,7 +36531,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
 			
 			// End all coop war agreements with this player
-			CUSTOMLOG("Cancelling all coop wars for Player %s WITH Player %s because we ended the DoF early (human).", GET_PLAYER(eFromPlayer).getName(), GetPlayer()->getName());
 			CancelCoopWarsWithPlayer(eFromPlayer, true);
 
 			if (GetMajorCivApproach(eFromPlayer) > MAJOR_CIV_APPROACH_GUARDED)
@@ -38777,10 +38759,6 @@ bool CvDiplomacyAI::IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bIgnore
 	if (eMyTeam == eTargetTeam)
 		return false;
 
-	// Can't be already at war with the target
-	if (IsAtWar(eTargetPlayer))
-		return false;
-
 	// Can't declare war on an unmet player
 	if (!IsHasMet(eTargetPlayer))
 		return false;
@@ -40921,7 +40899,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(eMyTeam);
 	
 	// End all coop war agreements with this player
-	CUSTOMLOG("Cancelling all coop wars for Player %s WITH Player %s because of a denouncement!", GetPlayer()->getName(), GET_PLAYER(ePlayer).getName());
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->CancelCoopWarsWithPlayer(eMyPlayer, true);
 
 	bool bBackstabTimer = (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFBroken(eMyPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetTurnsSinceDoFBroken(eMyPlayer) < /*10*/ GC.getDOF_BROKEN_BACKSTAB_TIMER());
@@ -46964,7 +46941,6 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 {
 	// clear out coop war agreements
-	CUSTOMLOG("Cancelling all coop wars for Player %s against Player %s because they were killed.", GetPlayer()->getName(), GET_PLAYER(eKilledPlayer).getName());
 	CancelCoopWarsAgainstPlayer(eKilledPlayer);
 
 	// reset locked war turns
@@ -53455,7 +53431,6 @@ void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered
 void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVoluntary)
 {
 	// Cancel all war plans
-	CUSTOMLOG("Cancelling all coop wars involving Player %s because they became someone's vassal.", GetPlayer()->getName());
 	CancelAllCoopWars();
 	SetBackstabber(false);
 	SetDemandTargetPlayer(NO_PLAYER);

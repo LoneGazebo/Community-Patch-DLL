@@ -34651,7 +34651,6 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			}
 
 			// Cancel all coop wars this player is involved in
-			CUSTOMLOG("Cancelling all coop wars involving Player %s because they died.", kPossibleVictimPlayer.getName());
 			kPossibleVictimPlayer.GetDiplomacyAI()->CancelAllCoopWars();
 
 			for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
