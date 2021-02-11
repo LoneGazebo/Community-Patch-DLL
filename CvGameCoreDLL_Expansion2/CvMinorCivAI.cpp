@@ -14330,7 +14330,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 				else
 				{
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
+					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, pMinorCapital->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true);
 #endif
