@@ -203,6 +203,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanBuildRoute);
 	Method(GetBuildType);
 	Method(WorkRate);
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetImprovementBuildType);
+	Method(GetRouteBuildType);
+#endif
 #if defined(MOD_CIV6_WORKER)
 	Method(GetBuilderStrength);
 #endif
@@ -2419,6 +2424,40 @@ int CvLuaUnit::lWorkRate(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetImprovementBuildType(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const BuildTypes eBuild = pkUnit->getBuildType();
+	const CvBuildInfo* pBuild = GC.getBuildInfo(eBuild);
+	int iImprovement = (int)NO_IMPROVEMENT;
+	if (pBuild)
+	{
+		iImprovement = pBuild->getImprovement();
+	}
+
+
+	lua_pushinteger(L, iImprovement);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetRouteBuildType(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const BuildTypes eBuild = pkUnit->getBuildType();
+	const CvBuildInfo* pBuild = GC.getBuildInfo(eBuild);
+	int iRoute = (int)NO_ROUTE;
+	if (pBuild)
+	{
+		iRoute = pBuild->getRoute();
+	}
+
+
+	lua_pushinteger(L, iRoute);
+	return 1;
+}
+#endif
 #if defined(MOD_CIV6_WORKER)
 //------------------------------------------------------------------------------
 //int getBuilderStrength();

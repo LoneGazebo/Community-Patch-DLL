@@ -449,7 +449,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
 		if(pResourceTypes == NULL)
 		{
-			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Resources.ID, ResourceType, ResourceMakesValid, ResourceTrade, DiscoveryRand from Improvement_ResourceTypes inner join Resources on ResourceType = Resources.Type where ImprovementType = ?");
+			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select Resources.ID, ResourceType, ResourceMakesValid, ResourceTrade, DiscoveryRand, QuantityRequirement from Improvement_ResourceTypes inner join Resources on ResourceType = Resources.Type where ImprovementType = ?");
 		}
 
 		std::string strYieldResultsKey = "Improvements - YieldResults";

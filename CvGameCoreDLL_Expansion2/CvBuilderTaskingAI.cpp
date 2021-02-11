@@ -2344,56 +2344,80 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			switch(eYield)
 			{
 				case YIELD_FOOD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_PRODUCTION:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_GOLD:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_SCIENCE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_CULTURE:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;
 				case YIELD_FAITH:
-					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pImprovement->GetYieldChange(iI);
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
-						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+						if (pFeature)
+						{
+							iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * pFeature->getYieldChange(iI);
+						}
 					}
 #endif
 					break;

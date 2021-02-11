@@ -1112,6 +1112,10 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_paiTotalImprovementsBuilt.clear();
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	m_piResponsibleForRouteCount.clear();
+	m_piResponsibleForImprovementCount.clear();
+#endif
 	m_paiFreeBuildingCount.clear();
 	m_paiFreePromotionCount.clear();
 	m_paiUnitCombatProductionModifiers.clear();
@@ -1991,6 +1995,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiTotalImprovementsBuilt.clear();
 		m_paiTotalImprovementsBuilt.resize(GC.getNumImprovementInfos(), 0);
+#endif
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+		m_piResponsibleForRouteCount.clear();
+		m_piResponsibleForImprovementCount.clear();
 #endif
 
 		m_paiUnitCombatProductionModifiers.clear();
@@ -17562,7 +17571,50 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				return false;
 			}
 		}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+		if (MOD_IMPROVEMENTS_EXTENSIONS && pkEntry && !bTestVisible)
+		{
+			// Check resource requirements
+			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iI;
+				if (eResource != NO_RESOURCE)
+				{
+					int iNumResource = pkEntry->GetResourceQuantityRequirement(iI);
+					if (iNumResource > 0 && getNumResourceAvailable(eResource) < iNumResource)
+					{
+						return false;
+					}
+				}
+			}
+		}
+#endif
 	}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	if (MOD_IMPROVEMENTS_EXTENSIONS && !bTestVisible)
+	{
+		RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+		if (eRoute != NO_ROUTE)
+		{
+			CvRouteInfo* pkBuildRoute = GC.getRouteInfo(eRoute);
+			// Check resource requirements
+			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iI;
+				if (eResource != NO_RESOURCE)
+				{
+					int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
+					if (iNumResource > 0 && getNumResourceAvailable(eResource) < iNumResource)
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	if(!bTestVisible)
 	{
@@ -39251,6 +39303,70 @@ void CvPlayer::changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange
 }
 #endif
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResponsibleForRouteCount(RouteTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumRouteInfos() , "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<RouteTypes, int>::const_iterator it = m_piResponsibleForRouteCount.find(eIndex);
+	if (it != m_piResponsibleForRouteCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResponsibleForRouteCount(RouteTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	
+	m_piResponsibleForRouteCount[eIndex] += iChange;
+
+	if (m_piResponsibleForRouteCount[eIndex] == 0) // no point allocating memory since we assume 0 by default
+	{
+		m_piResponsibleForRouteCount.erase(eIndex);
+	}
+
+	CvAssert(getResponsibleForRouteCount(eIndex) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResponsibleForImprovementCount(ImprovementTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<ImprovementTypes, int>::const_iterator it = m_piResponsibleForImprovementCount.find(eIndex);
+	if (it != m_piResponsibleForImprovementCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	m_piResponsibleForImprovementCount[eIndex] += iChange;
+
+	if (m_piResponsibleForImprovementCount[eIndex] == 0) // no point allocating memory since we assume 0 by default
+	{
+		m_piResponsibleForImprovementCount.erase(eIndex);
+	}
+
+	CvAssert(getResponsibleForImprovementCount(eIndex) >= 0);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatPersonImprovementCount()
@@ -45891,6 +46007,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piNumBuildings;
 	kStream >> m_piNumBuildingsInPuppets;
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	kStream >> m_piResponsibleForRouteCount;
+	kStream >> m_piResponsibleForImprovementCount;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		int iNumEntries;
@@ -46081,6 +46201,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piCityFeatures;
 	kStream << m_piNumBuildings;
 	kStream << m_piNumBuildingsInPuppets;
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	kStream << m_piResponsibleForRouteCount;
+	kStream << m_piResponsibleForImprovementCount;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{

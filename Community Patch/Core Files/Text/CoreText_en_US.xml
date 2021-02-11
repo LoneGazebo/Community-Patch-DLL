@@ -7742,6 +7742,10 @@
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
 			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
 		</Row>
+		<!-- Build blocked -->
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED">
+			<Text>{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} is required to construct {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@4_ImprovementName:textkey}}.</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

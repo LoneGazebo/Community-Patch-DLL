@@ -1797,6 +1797,22 @@ function ActionToolTipHandler( control )
 
 			end
 
+			-- Insufficient resource count?
+			if improvement or route then
+				for resource in GameInfo.Resources() do
+					local resourceID = resource.ID
+					local numResource = 0
+					if improvement then
+						numResource = Game.GetNumResourceRequiredForImprovement(improvementID, resourceID)
+					elseif route then
+						numResource = Game.GetNumResourceRequiredForRoute(routeID, resourceID)
+					end
+					if numResource > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED", numResource, resource.IconString, resource.Description, strImpRouteKey )
+					end
+				end
+			end
+
 		-- Not a Worker build, use normal disabled help from XML
 		else
 

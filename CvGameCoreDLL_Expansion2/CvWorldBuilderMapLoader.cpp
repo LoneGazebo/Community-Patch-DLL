@@ -1209,22 +1209,6 @@ bool CvWorldBuilderMapLoader::InitMap()
 				eRoute = ROUTE_RAILROAD;
 
 			pkPlot->setRouteType(eRoute);
-
-			const PlayerTypes eOwner = GetPlayerType(kPlotData.m_byRouteOwner);
-			if(eOwner != NO_PLAYER && !pkPlot->isOwned())
-			{
-				// Mark the player as responsible for this route and update the treasury
-				CvTreasury* pkTreasury = GET_PLAYER(eOwner).GetTreasury();
-				const CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-				if(pkTreasury != NULL && pkRouteInfo != NULL)
-				{
-					if(pkPlot->MustPayMaintenanceHere(eOwner))
-					{
-						pkTreasury->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-					}
-					pkPlot->SetPlayerResponsibleForRoute(eOwner);
-				}
-			}
 		}
 
 		const CvWorldBuilderMap::City* pkCity = sg_kSave.m_kCities[kPlotData.m_hCity];

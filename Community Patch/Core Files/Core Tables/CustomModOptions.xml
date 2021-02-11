@@ -208,8 +208,9 @@
 		- Column 'RandResourceChance' in 'Improvements'.
 		- Column 'NewOwner' in 'Improvements'.
 		- Column 'RemoveWhenComplete' in 'Improvements'.
+		- Column 'QuantityRequirement' in 'Improvement_ResourceTypes'.
 	-->
-    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0"/>
 	
     <!-- 
 	Various new tables and logics for plots. Currently, this is required to activate:

@@ -2219,6 +2219,14 @@ public:
 	void changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange);
 #endif
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	int getResponsibleForRouteCount(RouteTypes eIndex) const;
+	void changeResponsibleForRouteCount(RouteTypes eIndex, int iChange);
+
+	int getResponsibleForImprovementCount(ImprovementTypes eIndex) const;
+	void changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange);
+#endif
+
 	int getGreatPersonImprovementCount();
 
 	int getFreeBuildingCount(BuildingTypes eIndex) const;
@@ -3518,6 +3526,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiTotalImprovementsBuilt;
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	std::map<RouteTypes, int> m_piResponsibleForRouteCount;
+	std::map<ImprovementTypes, int> m_piResponsibleForImprovementCount;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;
