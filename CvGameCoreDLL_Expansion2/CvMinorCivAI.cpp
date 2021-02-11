@@ -14212,6 +14212,10 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 	if(!GET_PLAYER(ePlayer).isAlive())
 		return false;
 
+	// They must allow unit spawning
+	if (IsUnitSpawningDisabled(ePlayer))
+		return false;
+
 	return true;
 }
 
@@ -14355,30 +14359,54 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			}
 #endif
 		}
-
+		// Is unit naval?
+		bool bCoastalUnit = false;
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		bCoastalUnit = pkUnitInfo->GetDomainType() == DOMAIN_SEA;
 		//where to put the unit?
 		int iX = pSpawnCity->getX();
 		int iY = pSpawnCity->getY();
+		bool bCoastalCity = false;
 		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapitalPlot);
-
+		// is City Coastal?
+		bCoastalCity = pMajorCity->plot()->isCoastalLand();
 #if defined(MOD_GLOBAL_CS_GIFTS)
 		if(!bLocal && pMajorCity != NULL)
 #else
 		if(pMajorCity != NULL)
 #endif
 		{
-			CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
-			if (pUnitPlot)
+			// naval unit but non-coastal city?
+			if (bCoastalUnit && !bCoastalCity)
 			{
-				iX = pUnitPlot->getX();
-				iY = pUnitPlot->getY();
+				// Spawn in minor capital
+				CvPlot* pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
+				if (pUnitPlot)
+				{
+					iX = pUnitPlot->getX();
+					iY = pUnitPlot->getY();
+				}
+				else
+				{
+					iX = pMinorCapital->getX();
+					iY = pMinorCapital->getY();
+				}
 			}
 			else
 			{
-				iX = pMajorCity->getX();
-				iY = pMajorCity->getY();
+				// else spawn in major's city
+				CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
+				if (pUnitPlot)
+				{
+					iX = pUnitPlot->getX();
+					iY = pUnitPlot->getY();
+				}
+				else
+				{
+					iX = pMajorCity->getX();
+					iY = pMajorCity->getY();
+				}
 			}
-			
 #if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
 			pSpawnCity = pMajorCity;
 #endif
