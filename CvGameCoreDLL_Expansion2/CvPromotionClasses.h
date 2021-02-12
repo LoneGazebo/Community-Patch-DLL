@@ -180,6 +180,7 @@ public:
 	int GetNearbyUnitClassBonus() const;
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
+	bool IsFightWellDamaged() const;
 	bool IsMountainsDoubleMove() const;
 	bool IsEmbarkFlatCost() const;
 	bool IsDisembarkFlatCost() const;
@@ -491,6 +492,7 @@ protected:
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;
 	bool m_bStrongerDamaged;
+	bool m_bFightWellDamaged;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;

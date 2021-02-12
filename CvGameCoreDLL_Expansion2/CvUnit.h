@@ -1373,6 +1373,8 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsFightWellDamaged() const;
+	void ChangeIsFightWellDamaged(int iChange);
 
 	int GetGoodyHutYieldBonus() const;
 	void ChangeGoodyHutYieldBonus(int iChange);
@@ -2171,7 +2173,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
 	FAutoVariable<int, CvUnit> m_iNumInterceptions;
-#if defined(MOD_BALANCE_CORE) // JJ: NEW
+#if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iExtraAirInterceptRange;
 #endif
 	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
@@ -2180,6 +2182,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
+	FAutoVariable<int, CvUnit> m_iFightWellDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iWorkRateMod;

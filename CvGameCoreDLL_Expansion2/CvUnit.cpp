@@ -398,6 +398,7 @@ CvUnit::CvUnit() :
 	, m_iWorkRateMod("CvUnit::m_iWorkRateMod", m_syncArchive)
 	, m_iDamageReductionCityAssault("CvUnit::m_iDamageReductionCityAssault", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
+	, m_iFightWellDamaged("CvUnit::m_iFightWellDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
 #endif
@@ -1589,6 +1590,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWorkRateMod = 0;
 	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
+	m_iFightWellDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
 #endif
@@ -15789,15 +15791,18 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	int iDamageValueToUse = (iAssumedDamage > 0) ? iAssumedDamage : getDamage();
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
-	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+	// Units that fight well damaged do not take a penalty from being wounded
+	if ((bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY) || IsFightWellDamaged())
+	{
 		return iRtnValue;
+	}
 
 	// How much does damage weaken the effectiveness of the Unit?
 	if (iDamageValueToUse > 0)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		//If Japan, you should get stronger as you lose health.
-		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged()) // this trait should really be called IsStrongerDamaged instead
 			iRtnValue += (iDamageValueToUse / 5);
 
 		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
@@ -24143,6 +24148,8 @@ void CvUnit::ChangeSapperCount(int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
+// No penalty when wounded, on top of that gain a combat bonus the more wounded the unit is
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsStrongerDamaged() const
 {
 	return m_iStrongerDamaged> 0;
@@ -24152,6 +24159,19 @@ bool CvUnit::IsStrongerDamaged() const
 void CvUnit::ChangeIsStrongerDamaged(int iChange)
 {
 	m_iStrongerDamaged += iChange;
+}
+
+// No penalty from being wounded, no combat bonus
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsFightWellDamaged() const
+{
+	return m_iFightWellDamaged > 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeIsFightWellDamaged(int iChange)
+{
+	m_iFightWellDamaged += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26632,6 +26652,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+		ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
 		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
 		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
 #endif
@@ -27834,7 +27855,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	//we might lack a resource for healing
 	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 	int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
-	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || isBarbarian();
+	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 	//sometimes we should heal but we have to fight instead
 	int iHpLimit = GetMaxHitPoints() / 10;
