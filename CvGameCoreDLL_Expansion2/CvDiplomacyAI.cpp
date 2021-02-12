@@ -39833,8 +39833,8 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 			}
 		}
 
-		SetCoopWarState(eThirdParty, ePlayer, NO_COOP_WAR_STATE);
-		GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetCoopWarState(GetID(), ePlayer, NO_COOP_WAR_STATE);
+		SetCoopWarState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarState(GetID(), eThirdParty, NO_COOP_WAR_STATE);
 	}
 }
 
