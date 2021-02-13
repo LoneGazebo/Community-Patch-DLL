@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2577,7 +2577,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
-	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessChange");
+	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessTraitMod");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
