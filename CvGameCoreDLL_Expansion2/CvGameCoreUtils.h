@@ -239,6 +239,7 @@ bool isUnitLimitPerCity(UnitClassTypes eUnitClass);
 
 bool isWorldProject(ProjectTypes eProject);
 bool isTeamProject(ProjectTypes eProject);
+bool isPlayerProject(ProjectTypes eProject);
 bool isLimitedProject(ProjectTypes eProject);
 
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer);

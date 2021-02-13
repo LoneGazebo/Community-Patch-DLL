@@ -30285,6 +30285,13 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	CvTeam& thisTeam = GET_TEAM(getTeam());
 	thisTeam.changeProjectCount(eProjectType, 1);
 
+#if defined(MOD_PROJECTS_EXTENSIONS)
+	if (MOD_PROJECTS_EXTENSIONS && eProjectType != NO_PROJECT)
+	{
+		thisPlayer.ChangeProjectCount(eProjectType, 1);
+	}
+#endif
+
 	changeProjectCount(eProjectType, 1);
 
 	ProjectTypes ApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();

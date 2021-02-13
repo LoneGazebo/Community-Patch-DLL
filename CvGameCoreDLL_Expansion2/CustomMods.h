@@ -478,6 +478,14 @@
 // Enables the various tables related to production cost modifiers triggered by access to resources
 #define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
 
+// Enables the various tables related to projects
+#define MOD_PROJECTS_EXTENSIONS						gCustomMods.isPROJECTS_EXTENSIONS()
+
+// Enables the column CivilizationType in Processes, allowing civilizations to have unique processes
+#define MOD_CIVILIZATIONS_UNIQUE_PROCESSES			gCustomMods.isCIVILIZATIONS_UNIQUE_PROCESSES()
+// Enables the column CivilizationType in Projects, allowing civilizations to have unique projects
+#define MOD_CIVILIZATIONS_UNIQUE_PROJECTS			gCustomMods.isCIVILIZATIONS_UNIQUE_PROJECTS()
+
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
 // Events sent when terraforming occurs (v33)
@@ -1437,6 +1445,11 @@ public:
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
+
+	MOD_OPT_DECL(PROJECTS_EXTENSIONS);
+
+	MOD_OPT_DECL(CIVILIZATIONS_UNIQUE_PROCESSES);
+	MOD_OPT_DECL(CIVILIZATIONS_UNIQUE_PROJECTS);
 
 	MOD_OPT_DECL(EVENTS_TERRAFORMING);
 	MOD_OPT_DECL(EVENTS_TILE_IMPROVEMENTS);

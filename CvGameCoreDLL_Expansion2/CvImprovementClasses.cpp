@@ -335,7 +335,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 #endif
 #if defined(MOD_BALANCE_CORE)
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
-	m_iGetObsoleteTech = (CivilizationTypes)GC.getInfoTypeForString(szObsoleteTech, true);
+	m_iGetObsoleteTech = GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bAdjacentLake = kResults.GetBool("Lakeside");
 	m_bAdjacentCity = kResults.GetBool("Cityside");
 	m_iGrantsVision = kResults.GetInt("GrantsVisionXTiles");

@@ -7581,6 +7581,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvSeaLevelInfo& writeTo)
 CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iDefenseValue(0),
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	m_eRequiredCivilization(NO_CIVILIZATION),
+#endif
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
 {
@@ -7602,6 +7605,14 @@ int CvProcessInfo::getDefenseValue() const
 {
 	return m_iDefenseValue;
 }
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+//------------------------------------------------------------------------------
+CivilizationTypes CvProcessInfo::GetRequiredCivilization() const
+{
+	return m_eRequiredCivilization;
+}
+#endif
 
 //------------------------------------------------------------------------------
 int CvProcessInfo::getProductionToYieldModifier(int i) const
@@ -7630,6 +7641,11 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	const char* szCivilizationType = kResults.GetText("CivilizationType");
+	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
+#endif
 
 	const char* szProcessType = GetType();
 

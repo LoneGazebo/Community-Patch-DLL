@@ -1127,6 +1127,9 @@ void CvPlayer::uninit()
 	m_paiProjectMaking.clear();
 	m_paiHurryCount.clear();
 	m_paiHurryModifier.clear();
+#if defined(MOD_PROJECTS_EXTENSIONS)
+	m_piProjectCount.clear();
+#endif
 #if defined(MOD_BALANCE_CORE)
 	m_paiNumCitiesFreeChosenBuilding.clear();
 	m_aistrInstantYield.clear();
@@ -2034,6 +2037,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
+
+#if defined(MOD_PROJECTS_EXTENSIONS)
+		m_piProjectCount.clear();
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 		m_paiJFDPoliticPercent.clear();
 		m_paiJFDPoliticPercent.resize(MAX_CIV_PLAYERS, 0);
@@ -15934,6 +15942,18 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		return false;
 	}
 
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
+	// Is this a project that is only useable by a specific civ?
+	if (MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
+	{
+		CivilizationTypes eCivilization = pkProjectInfo->GetRequiredCivilization();
+		if (eCivilization != NO_CIVILIZATION && eCivilization != getCivilizationType())
+		{
+			return false;
+		}
+	}
+#endif
+
 	// Tech requirement
 	if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pProjectInfo.GetTechPrereq()))))
 	{
@@ -15979,6 +15999,13 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			return false;
 		}
+
+#if defined(MOD_PROJECTS_EXTENSIONS)
+		if (MOD_PROJECTS_EXTENSIONS && IsProjectMaxedOut(eProject))
+		{
+			return false;
+		}
+#endif
 	}
 
 	if (pProjectInfo.GetNumRequiredTier3Tenets())
@@ -16036,6 +16063,13 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			{
 				return false;
 			}
+
+#if defined(MOD_PROJECTS_EXTENSIONS)
+			if (MOD_PROJECTS_EXTENSIONS && IsProjectMaxedOut(eProject, getProjectMaking(eProject) + ((bContinue) ? -1 : 0)))
+			{
+				return false;
+			}
+#endif
 		}
 
 		// Nukes disabled? (by UN or something)
@@ -16135,6 +16169,18 @@ bool CvPlayer::canMaintain(ProcessTypes eProcess, bool) const
 	{
 		return false;
 	}
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	// Is this a process that is only useable by a specific civ?
+	if (MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	{
+		CivilizationTypes eCivilization = pkProcessInfo->GetRequiredCivilization();
+		if (eCivilization != NO_CIVILIZATION && eCivilization != getCivilizationType())
+		{
+			return false;
+		}
+	}
+#endif
 
 	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
 	{
@@ -33688,6 +33734,16 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 			thisTeam.changeProjectCount((ProjectTypes) GC.getSPACESHIP_STASIS(), -1 * thisTeam.getProjectCount((ProjectTypes) GC.getSPACESHIP_STASIS()));
 			thisTeam.changeProjectCount((ProjectTypes) GC.getSPACESHIP_ENGINE(), -1 * thisTeam.getProjectCount((ProjectTypes) GC.getSPACESHIP_ENGINE()));
 
+#if defined(MOD_PROJECTS_EXTENSIONS)
+			if (MOD_PROJECTS_EXTENSIONS)
+			{
+				ChangeProjectCount((ProjectTypes)GC.getSPACESHIP_CAPSULE(), -1 * GetProjectCount((ProjectTypes)GC.getSPACESHIP_CAPSULE()));
+				ChangeProjectCount((ProjectTypes)GC.getSPACESHIP_BOOSTER(), -1 * GetProjectCount((ProjectTypes)GC.getSPACESHIP_BOOSTER()));
+				ChangeProjectCount((ProjectTypes)GC.getSPACESHIP_STASIS(), -1 * GetProjectCount((ProjectTypes)GC.getSPACESHIP_STASIS()));
+				ChangeProjectCount((ProjectTypes)GC.getSPACESHIP_ENGINE(), -1 * GetProjectCount((ProjectTypes)GC.getSPACESHIP_ENGINE()));
+			}
+#endif
+
 			if (pPlot) {
 				CUSTOMLOG("Removing launch pad at (%i, %i)", pPlot->getX(), pPlot->getY());
 				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
@@ -39756,6 +39812,62 @@ int CvPlayer::getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const
 	return (getBuildingClassCount(eIndex) + getBuildingClassMaking(eIndex));
 }
 
+#if defined(MOD_PROJECTS_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetProjectCount(ProjectTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<ProjectTypes, int>::const_iterator it = m_piProjectCount.find(eIndex);
+	if (it != m_piProjectCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeProjectCount(ProjectTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	m_piProjectCount[eIndex] += iChange;
+
+	if (m_piProjectCount[eIndex] == 0) // no point allocating memory since we assume 0 by default
+	{
+		m_piProjectCount.erase(eIndex);
+	}
+
+	CvAssert(GetProjectCount(eIndex) >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eIndex);
+	if (pkProjectInfo == NULL)
+	{
+		CvAssertMsg(false, "This should never happen...");
+		return false;
+	}
+
+	if (!isPlayerProject(eIndex))
+	{
+		return false;
+	}
+
+	CvAssertMsg(GetProjectCount(eIndex) <= GC.getProjectInfo(eIndex)->GetMaxPlayerInstances(), "Current Project count is expected to not exceed the maximum number of instances for this project");
+
+	return ((GetProjectCount(eIndex) + iExtra) >= GC.getProjectInfo(eIndex)->GetMaxPlayerInstances());
+}
+#endif
+
 
 //	--------------------------------------------------------------------------------
 // The following two functions are only used to keep track of how many Projects are in progress so we know what each player's Resource situation is
@@ -39818,6 +39930,13 @@ void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCi
 	}
 }
 
+#if defined(MOD_PROJECTS_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetProjectCountPlusMaking(ProjectTypes eIndex) const
+{
+	return (GetProjectCount(eIndex) + getProjectMaking(eIndex));
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getHurryCount(HurryTypes eIndex) const
@@ -46011,6 +46130,23 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piResponsibleForRouteCount;
 	kStream >> m_piResponsibleForImprovementCount;
 #endif
+#if defined(MOD_PROJECTS_EXTENSIONS)
+	{
+		int iNumEntries;
+		kStream >> iNumEntries;
+		m_piProjectCount.clear();
+		for (int iI = 0; iI < iNumEntries; iI++)
+		{
+			int iProject;
+			int iCount;
+
+			kStream >> iProject;
+			kStream >> iCount;
+
+			m_piProjectCount[(ProjectTypes)iProject] = iCount;
+		}
+	}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		int iNumEntries;
@@ -46205,6 +46341,20 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	kStream << m_piResponsibleForRouteCount;
 	kStream << m_piResponsibleForImprovementCount;
+#endif
+#if defined(MOD_PROJECTS_EXTENSIONS)
+	kStream << m_piProjectCount;
+	{
+		int iSize = m_piProjectCount.size();
+		kStream << iSize;
+		for (std::map<ProjectTypes, int>::const_iterator it = m_piProjectCount.begin(); it != m_piProjectCount.end(); ++it)
+		{
+			int iProject = (int)it->first;
+			int iCount = (int)it->second;
+			kStream << iProject;
+			kStream << iCount;
+		}
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{

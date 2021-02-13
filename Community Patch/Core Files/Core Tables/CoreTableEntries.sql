@@ -100,9 +100,6 @@ ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
 
--- Adds ability to turn production into defense/healing in a city for a process
-ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
-
 -- Belief - increases pressure from trade routes
 
 ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
@@ -1124,6 +1121,15 @@ ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 
+-- Processes
+
+-- Adds ability to turn production into defense/healing in a city for a process
+ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
+
+-- Unique processes, requires CIVILIZATIONS_UNIQUE_PROCESSES in CustomModOptions
+ALTER TABLE Processes ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
+
+
 -- Projects
 ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
@@ -1136,6 +1142,12 @@ ALTER TABLE Projects ADD COLUMN 'EmpireMod' INTEGER DEFAULT 0;
 
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
+
+-- Requires PROJECTS_EXTENSIONS in CustomModOptions
+ALTER TABLE Projects ADD COLUMN 'MaxPlayerInstances' INTEGER DEFAULT -1;
+
+-- Unique projects, requires CIVILIZATIONS_UNIQUE_PROJECTS in CustomModOptions
+ALTER TABLE Projects ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
 
 -- require x tier 3 tenets prior to construction
 ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;

@@ -852,9 +852,19 @@ bool isTeamProject(ProjectTypes eProject)
 	return false;
 }
 
+bool isPlayerProject(ProjectTypes eProject)
+{
+	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+	if (pkProjectInfo)
+	{
+		return (pkProjectInfo->GetMaxPlayerInstances() != -1);
+	}
+	return false;
+}
+
 bool isLimitedProject(ProjectTypes eProject)
 {
-	return (isWorldProject(eProject) || isTeamProject(eProject));
+	return (isWorldProject(eProject) || isTeamProject(eProject) || isPlayerProject(eProject));
 }
 
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)

@@ -2377,6 +2377,10 @@ public:
 	int getTechPrereq() const;
 	int getDefenseValue() const;
 
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	CivilizationTypes GetRequiredCivilization() const;
+#endif
+
 	// Arrays
 	int getProductionToYieldModifier(int i) const;
 	int GetFlavorValue(int i) const;
@@ -2386,6 +2390,10 @@ public:
 protected:
 	int m_iTechPrereq;
 	int m_iDefenseValue;
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	CivilizationTypes m_eRequiredCivilization;
+#endif
 
 	// Arrays
 	int* m_paiProductionToYieldModifier;
