@@ -17576,7 +17576,7 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 
 //	--------------------------------------------------------------------------------
 /// Can we eBuild on pPlot?
-bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner) const
+bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
 	if(!(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
 	{
@@ -17628,9 +17628,23 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				if (eResource != NO_RESOURCE)
 				{
 					int iNumResource = pkEntry->GetResourceQuantityRequirement(iI);
-					if (iNumResource > 0 && getNumResourceAvailable(eResource) < iNumResource)
+					if (iNumResource > 0)
 					{
-						return false;
+						if (pUnit && pUnit->getBuildType() == eBuild)
+						{
+							// If a unit is checking while building the improvement, we just need to see if the resource count is negative
+							if (getNumResourceAvailable(eResource) < 0)
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
 					}
 				}
 			}
@@ -17652,9 +17666,23 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				if (eResource != NO_RESOURCE)
 				{
 					int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
-					if (iNumResource > 0 && getNumResourceAvailable(eResource) < iNumResource)
+					if (iNumResource > 0)
 					{
-						return false;
+						if (pUnit && pUnit->getBuildType() == eBuild)
+						{
+							// If a unit is checking while building the route, we just need to see if the resource count is negative
+							if (getNumResourceAvailable(eResource) < 0)
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
 					}
 				}
 			}
@@ -46343,7 +46371,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piResponsibleForImprovementCount;
 #endif
 #if defined(MOD_PROJECTS_EXTENSIONS)
-	kStream << m_piProjectCount;
 	{
 		int iSize = m_piProjectCount.size();
 		kStream << iSize;

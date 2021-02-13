@@ -13454,28 +13454,28 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 #if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && (!m_pUnitInfo->GetBuilds(eBuild) || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild)))
 #else
-	if(!(m_pUnitInfo->GetBuilds(eBuild)))
+	if (!(m_pUnitInfo->GetBuilds(eBuild)))
 #endif
 	{
 		return false;
 	}
 
-	CvBuildInfo *pkBuildInfo = GC.getBuildInfo(eBuild);
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if (!pkBuildInfo)
 	{
 		return false;
 	}
 
 	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion())
+	if (m_pUnitInfo->IsSpreadReligion())
 	{
-		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed()>0)
+		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed() > 0)
 		{
 			return false;
 		}
 	}
 
-	if(!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold)))
+	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
 	{
 		return false;
 	}
