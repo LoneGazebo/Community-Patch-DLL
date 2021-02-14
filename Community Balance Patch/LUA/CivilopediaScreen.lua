@@ -4147,6 +4147,11 @@ function SelectBuildingOrWonderArticle( buildingID )
 				end
 			end
 		end
+		-- Are we only buildable for a certain civilization, but are not an override?
+		if thisCiv == nil and thisBuilding.CivilizationRequired ~= nil and thisBuilding.CivilizationRequired ~= "CIVILIZATION_BARBARIAN" and thisBuilding.CivilizationRequired ~= "CIVILIZATION_MINOR" then
+			thisCiv = GameInfo.Civilizations[thisBuilding.CivilizationRequired];
+		end
+
 		if defaultBuilding then
 			local thisBuildingInstance = g_ReplacesManager:GetInstance();
 			if thisBuildingInstance then
