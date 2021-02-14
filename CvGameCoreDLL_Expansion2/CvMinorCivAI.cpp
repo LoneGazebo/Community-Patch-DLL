@@ -14402,8 +14402,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			}
 			else
 			{
-				iX = pClosestCoastalCity->getX();
-				iY = pClosestCoastalCity->getY();
+				iX = pMajorCity->getX();
+				iY = pMajorCity->getY();
 			}
 		}
 	}
