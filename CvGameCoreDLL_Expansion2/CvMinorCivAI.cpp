@@ -14244,6 +14244,9 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
 
+	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
+		return NULL;
+
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
 	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
 		return NULL;
@@ -14266,9 +14269,6 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	CvCity* pClosestCoastalCity = NULL;
 	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal();
-
-	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
-		bExplore = false;
 
 	// If they have at least one coastal city, allow spawning naval units
 	if (bBoatsAllowed)
@@ -14404,7 +14404,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			{
 				iX = pClosestCoastalCity->getX();
 				iY = pClosestCoastalCity->getY();
-			}			
+			}
 		}
 	}
 
