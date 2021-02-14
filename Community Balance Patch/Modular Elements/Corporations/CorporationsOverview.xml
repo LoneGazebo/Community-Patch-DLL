@@ -6,9 +6,9 @@
 		</Box>
 	</Instance>
 	<Instance Name="AvailableCorporationInstance">
-		<Box ID="AvailableCorporationBox" Offset="0,0" Anchor="L,T" Size="955,140" Color="255,255,255,0">
+		<Box ID="AvailableCorporationBox" Offset="0,0" Anchor="L,T" Size="955,180" Color="255,255,255,0">
 			<Stack ID="RowStack" Anchor="L,T" StackGrowth="Right" Padding="13">
-				<Box ID="NameBox" Offset="0,0" Anchor="R,C" Size="340,140" Color="White.0">
+				<Box ID="NameBox" Offset="0,0" Anchor="R,C" Size="340,180" Color="White.0">
 					<Button Anchor="L,T" Offset="0,0" Size="128,128" ID="PortraitButton">
 						<Image Anchor="L,T" Offset="0,0" Texture="CorpAtlas128.dds" Size="128.128" ID="CorporationPortrait"/>
 						<Box Size="64,64" Anchor="R,B" Offset="0,2" Color="0,0,0,0" ID="CorporationFounderBox">
@@ -22,8 +22,8 @@
 					<Stack ID="MonopolyResourceStack" Anchor="L,T" StackGrowth="Right" Offset="128,84" Padding="6">
 					</Stack>						   
 				</Box>
-				<Box ID="DetailsBox" Offset="0,0" Anchor="R,C" Size="620,140" Color="White.0">
-					<Label Anchor="L,C" Offset="0,0" WrapWidth="550" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CorporationBonus"/>
+				<Box ID="DetailsBox" Offset="0,0" Anchor="R,C" Size="620,180" Color="White.0">
+					<Label Anchor="L,T" Offset="0,10" WrapWidth="550" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CorporationBonus"/>
 				</Box>
 			</Stack>
 			<Image Anchor="C,B" Offset="0,1" Texture="bar900x2.dds" Size="900,1"/>
