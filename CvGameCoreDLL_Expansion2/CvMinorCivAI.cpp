@@ -14267,33 +14267,38 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	if (pMajorCapital->plot() == NULL)
 		return NULL;
 
+	CvCity* pClosestCity = NULL;
 	CvCity* pClosestCoastalCity = NULL;
 	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal();
 
-	// If they have at least one coastal city, allow spawning naval units
-	if (bBoatsAllowed)
+	// What's their closest city? If they have at least one coastal city, allow spawning naval units
+	int iLowestDistance = 1000;
+	int iLowestCoastalDistance = 1000;
+	int iCityLoop;
+	for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 	{
-		int iLowestDistance = 1000;
-		int iCityLoop;
-		for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
-		{
-			if (pLoopCity->plot() == NULL)
-				continue;
+		if (pLoopCity->plot() == NULL)
+			continue;
 
-			if (pLoopCity->isCoastal())
+		int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
+		if (iDistance < iLowestDistance)
+		{
+			iLowestDistance = iDistance;
+			pClosestCity = pLoopCity;
+
+			if (pLoopCity->isCoastal() && iDistance < iLowestCoastalDistance)
 			{
-				int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
-				if (iDistance < iLowestDistance)
-				{
-					iLowestDistance = iDistance;
-					pClosestCoastalCity = pLoopCity;
-				}
+				iLowestCoastalDistance = iDistance;
+				pClosestCoastalCity = pLoopCity;
 			}
 		}
-
-		if (pClosestCoastalCity == NULL)
-			bBoatsAllowed = false;
 	}
+
+	if (!pClosestCity)
+		pClosestCity = pMajorCapital;
+
+	if (pClosestCoastalCity == NULL)
+		bBoatsAllowed = false;
 
 	// Which Unit to choose?
 	UnitTypes eUnit = NO_UNIT;
@@ -14332,16 +14337,10 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	if (eUnit == NO_UNIT)
 	{
-		// Is this a free exploration unit? (First contact bonus)
-		if (bExplore)
-		{
+		if (bExplore) // Free exploration unit (First contact bonus)
 			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
-		}
-		// Normal unit, pick something competitive
 		else
-		{
 			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed);
-		}
 	}
 
 	if (eUnit == NO_UNIT)
@@ -14388,13 +14387,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		}
 		else
 		{
-			CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapital->plot());
-			// failsafe
-			if (!pMajorCity)
-				pMajorCity = pMajorCapital;
-
-			pXPCity = pMajorCity;
-			CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
+			pXPCity = pClosestCity;
+			CvPlot* pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
 			if (pUnitPlot)
 			{
 				iX = pUnitPlot->getX();
@@ -14402,8 +14396,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			}
 			else
 			{
-				iX = pMajorCity->getX();
-				iY = pMajorCity->getY();
+				iX = pClosestCity->getX();
+				iY = pClosestCity->getY();
 			}
 		}
 	}
