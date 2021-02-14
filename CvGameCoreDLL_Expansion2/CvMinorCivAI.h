@@ -637,15 +637,10 @@ public:
 	bool IsUnitSpawningAllowed(PlayerTypes ePlayer);
 	bool IsUnitSpawningDisabled(PlayerTypes ePlayer) const;
 	void SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue);
-#if defined(MOD_GLOBAL_CS_GIFTS)
 	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false);
-#else
-	void DoSpawnUnit(PlayerTypes eMajor);
-#endif
 	void DoUnitSpawnTurn();
 	int GetSpawnBaseTurns(PlayerTypes ePlayer);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
-
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsMarried(PlayerTypes eMajor) const;

@@ -14212,6 +14212,10 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 	if(!GET_PLAYER(ePlayer).isAlive())
 		return false;
 
+	// They must allow unit spawning
+	if (IsUnitSpawningDisabled(ePlayer))
+		return false;
+
 	return true;
 }
 
@@ -14236,137 +14240,160 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Create a unit
-#if defined(MOD_GLOBAL_CS_GIFTS)
 CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore)
-#else
-void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
-#endif
 {
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	CvUnit* pSpawnUnit = NULL;
-#endif
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
 
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
-#else
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-#endif
+	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
+	if (IsUnitSpawningDisabled(eMajor) || GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() > 0)
+		return NULL;
 
-	if(!IsUnitSpawningDisabled(eMajor) && GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() <= 0)
+	// Minor has no capital
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	if (!pMinorCapital)
+		return NULL;
+
+	if (pMinorCapital->plot() == NULL)
+		return NULL;
+
+	// Major has no capital
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMajorCapital)
+		return NULL;
+
+	if (pMajorCapital->plot() == NULL)
+		return NULL;
+
+	CvCity* pClosestCoastalCity = NULL;
+	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal();
+
+	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
+		bExplore = false;
+
+	// If they have at least one coastal city, allow spawning naval units
+	if (bBoatsAllowed)
 	{
-		// Minor must have Capital
-		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-		if(pMinorCapital == NULL)
+		int iLowestDistance = 1000;
+		int iCityLoop;
+		for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 		{
-			FAssertMsg(false, "MINOR CIV AI: Trying to spawn a Unit for a major civ but the minor has no capital. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			return NULL;
-#else
-			return;
-#endif
-		}
+			if (pLoopCity->plot() == NULL)
+				continue;
 
-		CvPlot* pMinorCapitalPlot = pMinorCapital->plot();
-		if(pMinorCapitalPlot == NULL)
-		{
-			CvAssertMsg(false, "MINOR CIV AI: Trying to spawn a Unit for a major civ but the minor's capital has no plot. Please send Anton your save file and version.");
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			return NULL;
-#else
-			return;
-#endif
-		}
-
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-		CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
-		CvCity* pSpawnCity = pMajorCapital ? pMajorCapital : pMinorCapital;
-#endif
-
-		// Pick Unit type
-		UnitTypes eUnit = NO_UNIT;
-		if (GetAlly() == eMajor)
-		{	
-			// Should we give our unique unit?
-			bool bUseUniqueUnit = false;
-			UnitTypes eUniqueUnit = GetUniqueUnit();
-			if (eUniqueUnit != NO_UNIT)
+			if (pLoopCity->isCoastal())
 			{
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUniqueUnit);
-				if (pkUnitInfo)
+				int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
+				if (iDistance < iLowestDistance)
 				{
-					// Ally must have unit's prereq tech
-					TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-					if (ePrereqTech == NO_TECH || GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+					iLowestDistance = iDistance;
+					pClosestCoastalCity = pLoopCity;
+				}
+			}
+		}
+
+		if (pClosestCoastalCity == NULL)
+			bBoatsAllowed = false;
+	}
+
+	// Which Unit to choose?
+	UnitTypes eUnit = NO_UNIT;
+
+	// If they're our ally, should we give our unique unit?
+	if (GetAlly() == eMajor)
+	{
+		UnitTypes eUniqueUnit = GetUniqueUnit();
+		if (eUniqueUnit != NO_UNIT)
+		{
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUniqueUnit);
+			if (pkUnitInfo)
+			{
+				// If naval, major must have a coastal city
+				if (bBoatsAllowed || pkUnitInfo->GetDomainType() != DOMAIN_SEA)
+				{
+					// If scout, must be a scout
+					if (!bExplore || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
 					{
-						// Ally must NOT have unit's obsolete tech
-						TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
-						if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+						// Ally must have unit's prereq tech
+						TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
+						if (ePrereqTech == NO_TECH || GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 						{
-							bUseUniqueUnit = true;
+							// Ally must NOT have unit's obsolete tech
+							TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
+							if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+							{
+								eUnit = eUniqueUnit;
+							}
 						}
 					}
 				}
 			}
-			
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			if (bExplore) {
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
-#endif
-			} else {
-#endif
-				if (bUseUniqueUnit)
-				{
-					eUnit = eUniqueUnit;
-				}
-				else
-				{
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-					eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true);
-#endif
-				}
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			}
-#endif
+		}
+	}
+
+	if (eUnit == NO_UNIT)
+	{
+		// Is this a free exploration unit? (First contact bonus)
+		if (bExplore)
+		{
+			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
+		}
+		// Normal unit, pick something competitive
+		else
+		{
+			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed);
+		}
+	}
+
+	if (eUnit == NO_UNIT)
+		return NULL;
+
+	// Where to put the Unit?
+	int iX = 0;
+	int iY = 0;
+	CvCity* pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pMajorCapital : pMinorCapital;
+
+	// Local units spawn in the minor's capital
+	if (bLocal)
+	{
+		CvPlot* pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
+		if (pUnitPlot)
+		{
+			iX = pUnitPlot->getX();
+			iY = pUnitPlot->getY();
 		}
 		else
 		{
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			if (bExplore) {
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
-#endif
-			} else {
-#endif
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true, MOD_GLOBAL_CS_GIFT_SHIPS);
-#else
-				eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/true);
-#endif
-#if defined(MOD_GLOBAL_CS_GIFTS)
-			}
-#endif
+			iX = pMinorCapital->getX();
+			iY = pMinorCapital->getY();
 		}
-
-		//where to put the unit?
-		int iX = pSpawnCity->getX();
-		int iY = pSpawnCity->getY();
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapitalPlot);
-
-#if defined(MOD_GLOBAL_CS_GIFTS)
-		if(!bLocal && pMajorCity != NULL)
-#else
-		if(pMajorCity != NULL)
-#endif
+	}
+	else
+	{
+		// Is this a naval unit? Spawn it in their closest coastal city
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 		{
+			pXPCity = pClosestCoastalCity;
+			CvPlot* pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
+			if (pUnitPlot)
+			{
+				iX = pUnitPlot->getX();
+				iY = pUnitPlot->getY();
+			}
+			else
+			{
+				iX = pClosestCoastalCity->getX();
+				iY = pClosestCoastalCity->getY();
+			}
+		}
+		else
+		{
+			CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByPathLength(pMinorCapital->plot());
+			// failsafe
+			if (!pMajorCity)
+				pMajorCity = pMajorCapital;
+
+			pXPCity = pMajorCity;
 			CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
 			if (pUnitPlot)
 			{
@@ -14375,88 +14402,71 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			}
 			else
 			{
-				iX = pMajorCity->getX();
-				iY = pMajorCity->getY();
-			}
-			
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-			pSpawnCity = pMajorCity;
-#endif
-		}
-
-		// Spawn Unit
-		if(eUnit != NO_UNIT)
-		{
-			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, iX, iY);
-
-			// If player trait is to enhance minor bonuses, give this unit some free experience
-			if(GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
-			{
-				pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
-			}
-
-			if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
-			{
-				// We tested for "GetPlayer()->getCapitalCity() != NULL" way, way up there!!!
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-				if (MOD_GLOBAL_CS_GIFTS_LOCAL_XP) 
-					pSpawnCity->addProductionExperience(pNewUnit);
-				else
-#endif
-				pMinorCapital->addProductionExperience(pNewUnit);
-
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-				strMessage << GetPlayer()->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-				strSummary << GetPlayer()->getNameKey();
-
-				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
-
-#if defined(MOD_GLOBAL_CS_GIFTS)
-				pSpawnUnit = pNewUnit;
-#endif
-			}
-			else
-				pNewUnit->kill(false);	// Could not find a spot!
+				iX = pClosestCoastalCity->getX();
+				iY = pClosestCoastalCity->getY();
+			}			
 		}
 	}
 
-	// Reseed counter
-	DoSeedUnitSpawnCounter(eMajor);
+	// Now actually spawn the Unit
+	CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, iX, iY);
+	if (!pNewUnit)
+		return NULL;
 
-#if defined(MOD_GLOBAL_CS_GIFTS)
-	return pSpawnUnit;
-#endif
+	if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
+	{
+		// Bonus experience for CS Units (Siam UA)
+		if (GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+			pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
+
+		pXPCity->addProductionExperience(pNewUnit);
+
+		// Reseed counter
+		DoSeedUnitSpawnCounter(eMajor);
+
+		// Notify the player
+		if (GET_PLAYER(eMajor).GetNotifications())
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+			strSummary << GetPlayer()->getNameKey();
+
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+		}
+	}
+	else
+	{
+		pNewUnit->kill(false); // Could not find a spot!
+		return NULL;
+	}
+
+	return pNewUnit;
 }
 
 /// Time to spawn a Unit?
 void CvMinorCivAI::DoUnitSpawnTurn()
 {
 	// Loop through all players and see if we should give them a Unit
-	PlayerTypes eMajor;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
 
-		if(IsUnitSpawningAllowed(eMajor))
+		if (IsUnitSpawningAllowed(eMajor))
 		{
 			// Tick down
-			if(GetUnitSpawnCounter(eMajor) > 0)
-			{
+			if (GetUnitSpawnCounter(eMajor) > 0)
 				ChangeUnitSpawnCounter(eMajor, -1);
-			}
 
 			// Time to spawn!
-			if(GetUnitSpawnCounter(eMajor) == 0)
+			if (GetUnitSpawnCounter(eMajor) == 0)
 			{
-#if defined(MOD_EVENTS_MINORS_GIFTS)
 				CvUnit* pSpawnUnit = DoSpawnUnit(eMajor);
+
+#if defined(MOD_EVENTS_MINORS_GIFTS)
 				// Send an event with the details
 				if (MOD_EVENTS_MINORS_GIFTS && pSpawnUnit != NULL)
-					// GameEvents.MinorGiftUnit.Add(function(iMinor, iMajor, iUnitType) end)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGiftUnit, GetPlayer()->GetID(), eMajor, pSpawnUnit->getUnitType());
-#else
-				DoSpawnUnit(eMajor);
 #endif
 			}
 		}
