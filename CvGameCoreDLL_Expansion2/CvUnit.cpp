@@ -15792,7 +15792,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
 	// Units that fight well damaged do not take a penalty from being wounded
-	if ((bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY) || IsFightWellDamaged())
+	if ((bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY))
 	{
 		return iRtnValue;
 	}
@@ -15810,7 +15810,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 #endif
 
 		//default behavior
-		if (iRtnValue == 0)
+		if (iRtnValue == 0 && !IsFightWellDamaged())
 		{
 			int iWoundedDamageMultiplier = GC.getWOUNDED_DAMAGE_MULTIPLIER() + GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
 			if (IsStrongerDamaged())

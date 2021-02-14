@@ -22,9 +22,6 @@ CvProjectEntry::CvProjectEntry(void):
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 #endif
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
-	m_eRequiredCivilization(NO_CIVILIZATION),
-#endif
 	m_piFlavorValue(NULL)
 {
 }
@@ -46,9 +43,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
-#endif
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iNukeInterception = kResults.GetInt("NukeInterception");
 	m_iCultureBranchesRequired = kResults.GetInt("CultureBranchesRequired");
@@ -79,11 +73,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
-#endif
-
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
-	const char* szCivilizationType = kResults.GetText("CivilizationType");
-	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
 #endif
 
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
@@ -176,14 +165,6 @@ int CvProjectEntry::GetMaxTeamInstances() const
 {
 	return m_iMaxTeamInstances;
 }
-
-#if defined(MOD_PROJECTS_EXTENSIONS)
-/// Is there a maximum number of these for one player?
-int CvProjectEntry::GetMaxPlayerInstances() const
-{
-	return m_iMaxPlayerInstances;
-}
-#endif
 
 /// Shields to construct the building
 int CvProjectEntry::GetProductionCost() const
@@ -306,13 +287,6 @@ int CvProjectEntry::GetHappiness() const
 int CvProjectEntry::GetEmpireMod() const
 {
 	return m_iEmpireMod;
-}
-#endif
-
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
-CivilizationTypes CvProjectEntry::GetRequiredCivilization() const
-{
-	return m_eRequiredCivilization;
 }
 #endif
 

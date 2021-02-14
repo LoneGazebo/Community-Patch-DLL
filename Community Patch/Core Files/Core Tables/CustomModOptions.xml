@@ -462,18 +462,8 @@
 	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
 	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
-    <!-- 
-	Various new tables and logics for projects. Currently, this is required to activate:
-		- Column 'MaxPlayerInstances' in 'Projects'.
-		- Table 'Project_BuildingClassProductionCostModifiers'.
-	-->
-	<Row Class="6" Name="PROJECTS_EXTENSIONS" Value="0"/>
-
     <!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
     <Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
-
-    <!-- Enables the column CivilizationType in Projects, allowing civilizations to have unique projects -->
-    <Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROJECTS" Value="0"/>
 
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

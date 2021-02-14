@@ -2256,18 +2256,8 @@ public:
 	void changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange);
 	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const;
 
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	int GetProjectCount(ProjectTypes eIndex) const;
-	void ChangeProjectCount(ProjectTypes eIndex, int iChange);
-	bool IsProjectMaxedOut(ProjectTypes eIndex, int iExtra = 0) const;
-#endif
-
 	int getProjectMaking(ProjectTypes eIndex) const;
 	void changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity = NULL);
-
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	int GetProjectCountPlusMaking(ProjectTypes eIndex) const;
-#endif
 
 	int getHurryCount(HurryTypes eIndex) const;
 	bool IsHasAccessToHurry(HurryTypes eIndex) const;
@@ -3552,10 +3542,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiProjectMaking;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiHurryCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiHurryModifier;
-
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	std::map<ProjectTypes, int> m_piProjectCount;
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	FAutoVariable<bool, CvPlayer> m_bVassalLevy;

@@ -5953,20 +5953,6 @@ void CvTeam::resetVictoryProgress()
 						if(pkProjectInfo->GetVictoryMinThreshold(eVictory) > 0)
 						{
 							changeProjectCount(eProject, -getProjectCount(eProject));
-
-#if defined(MOD_PROJECTS_EXTENSIONS)
-							if (MOD_PROJECTS_EXTENSIONS)
-							{
-								for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-								{
-									PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-									if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == GetID())
-									{
-										GET_PLAYER(ePlayer).ChangeProjectCount(eProject, -GET_PLAYER(ePlayer).GetProjectCount(eProject));
-									}
-								}
-							}
-#endif
 						}
 					}
 				}

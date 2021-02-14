@@ -1143,12 +1143,6 @@ ALTER TABLE Projects ADD COLUMN 'EmpireMod' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
 
--- Requires PROJECTS_EXTENSIONS in CustomModOptions
-ALTER TABLE Projects ADD COLUMN 'MaxPlayerInstances' INTEGER DEFAULT -1;
-
--- Unique projects, requires CIVILIZATIONS_UNIQUE_PROJECTS in CustomModOptions
-ALTER TABLE Projects ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
-
 -- require x tier 3 tenets prior to construction
 ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;

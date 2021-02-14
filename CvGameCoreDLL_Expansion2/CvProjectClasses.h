@@ -33,9 +33,6 @@ public:
 	void SetAnyoneProjectPrereq(int i);
 	int GetMaxGlobalInstances() const;
 	int GetMaxTeamInstances() const;
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	int GetMaxPlayerInstances() const;
-#endif
 	int GetProductionCost() const;
 	int GetNukeInterception() const;
 	int GetCultureBranchesRequired() const;
@@ -60,10 +57,6 @@ public:
 	int GetEmpireMod() const;
 #endif
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
-	CivilizationTypes GetRequiredCivilization() const;
-#endif
-
 	const char* GetMovieArtDef() const;
 
 	const char* GetCreateSound() const;
@@ -81,9 +74,6 @@ protected:
 	int m_iAnyoneProjectPrereq;
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
-#if defined(MOD_PROJECTS_EXTENSIONS)
-	int m_iMaxPlayerInstances;
-#endif
 	int m_iProductionCost;
 	int m_iNukeInterception;
 	int m_iCultureBranchesRequired;
@@ -106,10 +96,6 @@ protected:
 	int* m_piHappinessNeedModifier;
 	int m_iHappiness;
 	int m_iEmpireMod;
-#endif
-
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROJECTS)
-	CivilizationTypes m_eRequiredCivilization;
 #endif
 
 	CvString m_strCreateSound;
