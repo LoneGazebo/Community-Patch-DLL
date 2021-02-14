@@ -52,7 +52,15 @@ function GatherInfoAboutUniqueStuff( civType )
 
 	-- put in the default buildings for any civ
 	for thisBuildingClass in GameInfo.BuildingClasses() do
-		validBuildingBuilds[thisBuildingClass.Type]	= thisBuildingClass.DefaultBuilding;	
+		if thisBuildingClass.DefaultBuilding then
+			local thisBuilding = GameInfo.Buildings[thisBuildingClass.DefaultBuilding or -1];
+			-- check the 'CivilizationRequired' column in table 'Buildings'
+			if thisBuilding then
+				if not thisBuilding.CivilizationRequired or thisBuilding.CivilizationRequired == civType then
+					validBuildingBuilds[thisBuildingClass.Type] = thisBuildingClass.DefaultBuilding;
+				end
+			end
+		end
 	end
 
 	-- put in my overrides
