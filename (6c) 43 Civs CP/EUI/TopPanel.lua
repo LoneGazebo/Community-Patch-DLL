@@ -2374,7 +2374,7 @@ local function ResourcesToolTip( control )
 				if numResource > 0 then
 					-- count how many such buildings player has
 					local numExisting = g_activePlayer:CountNumBuildings( buildingID )
-					-- count how many such units player is building
+					-- count how many such buildings player is building
 					local numBuilds = 0
 					for city in g_activePlayer:Cities() do
 						for i=0, city:GetOrderQueueLength()-1 do
@@ -2383,6 +2383,7 @@ local function ResourcesToolTip( control )
 								numBuilds = numBuilds + 1
 							end
 						end
+						numExisting = numExisting - city:GetNumFreeBuilding( buildingID ) -- free buildings do not consume resources
 					end
 					-- can player build this building someday ?
 					local canBuildSomeday
