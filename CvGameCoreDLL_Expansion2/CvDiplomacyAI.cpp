@@ -26225,7 +26225,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 		return 0;
 
 	if (GetPlayer()->isHuman())
-		return iReturnValue / 3;
+		return iReturnValue / 2;
 
 	// Modify warmonger amount based on current diplomatic status with this player
 	bool bUntrustworthy = false;
@@ -26276,7 +26276,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	}
 
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
-	iReturnValue /= 15;
+	iReturnValue /= 10;
 
 	return iReturnValue;
 }
