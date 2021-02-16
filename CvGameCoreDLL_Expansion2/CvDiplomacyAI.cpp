@@ -51265,7 +51265,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 	}
 
 	// No strength-based reductions if it's our loss...
-	if (bHisLossIsOurOwn && iWarmongerStrengthModifier > 0)
+	if (bHisLossIsOurOwn && iWarmongerStrengthModifier < 0)
 		iWarmongerStrengthModifier = 0;
 
 	if (!bHisLossIsOurOwn)
