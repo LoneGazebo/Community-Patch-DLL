@@ -52470,6 +52470,18 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	{
 		iCapitulationScore += 10;
 	}
+	// No? How about them?
+	else
+	{
+		iCapitulationScore -= GetPlayer()->IsEmpireUnhappy() ? 5 : 10;
+
+		// Their cities might revolt! Resist!
+		if (GET_PLAYER(ePlayer).IsEmpireSuperUnhappy())
+			return false;
+		// If they're very unhappy, hold out for longer...
+		else if (GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
+			iCapitulationScore -= 10;
+	}
 
 	// Are any of our cities about to be lost? Try to maintain as many of our cities as we can if we're going to lose anyway.
 	int iCityLoop;
