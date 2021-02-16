@@ -4097,7 +4097,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MINOR_ATTACKED) * 100;
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), eAttackedTeam, WARMONGER_MINOR_ATTACKED) * 100;
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
@@ -4208,78 +4208,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MAJOR_ATTACKED) * 100;
-
-	// Do any additional factors affect this amount?
-	if (GetTeam() != eAttackedTeam && !GET_TEAM(eAttackedTeam).IsVassal(GetTeam()) && !GET_TEAM(GetTeam()).IsVassal(eAttackedTeam) && !GET_TEAM(GetTeam()).IsHasDefensivePact(eAttackedTeam))
-	{
-		bool bSanctioned = false;
-		StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		vector<PlayerTypes> vAttackedTeam = GET_TEAM(eAttackedTeam).getPlayers();
-
-		for (size_t i=0; i<vAttackedTeam.size(); i++)
-		{
-			if (!GET_PLAYER(vAttackedTeam[i]).isAlive())
-				continue;
-
-			StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(vAttackedTeam[i]);
-			if (eStrength > eHighestStrength)
-			{
-				eHighestStrength = eStrength;
-			}
-
-			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(GetPlayer()->GetID(), vAttackedTeam[i]))
-			{
-				bSanctioned = true;
-			}
-		}
-
-		// DECREASE if opponent is big and nasty.
-		switch (eHighestStrength)
-		{
-		case STRENGTH_IMMENSE:
-			iWarmongerValueTimes100 *= 100 + /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
-			iWarmongerValueTimes100 /= 100;
-			break;
-		case STRENGTH_POWERFUL:
-			iWarmongerValueTimes100 *= 100 + /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
-			iWarmongerValueTimes100 /= 100;
-			break;
-		case STRENGTH_STRONG:
-			iWarmongerValueTimes100 *= 100 + /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
-			iWarmongerValueTimes100 /= 100;
-			break;
-		case STRENGTH_AVERAGE:
-			iWarmongerValueTimes100 *= 100 + /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
-			iWarmongerValueTimes100 /= 100;
-			break;
-		}
-
-		// DECREASE if opponent is sanctioned.
-		if (bSanctioned)
-		{
-			iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
-			iWarmongerValueTimes100 /= 100;
-		}
-
-		if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		{
-			// Casus Belli?
-			if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
-			{
-				iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-				iWarmongerValueTimes100 /= 100;
-			}
-			// Global Peace Accords?
-			else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
-			{
-				iWarmongerValueTimes100 *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-				iWarmongerValueTimes100 /= 100;
-			}
-		}
-	}
-
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), eAttackedTeam, WARMONGER_MAJOR_ATTACKED) * 100;
 	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 
 	DoUpdateWarmongerThreats(true);
@@ -6429,12 +6358,9 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	{
 		SetBackstabbedBy(ePlayer, true);
 
-		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_NUKED_PLAYER) * 100;
+		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), GetTeam(), WARMONGER_NUKED_PLAYER) * 100;
 		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 		DoUpdateWarmongerThreats(true);
-
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		vector<PlayerTypes> vAttackedTeam = GET_TEAM(GetTeam()).getPlayers();
 
 		// Global warmongering penalty for this!
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6447,76 +6373,7 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 			if (!IsHasMet(eLoopPlayer) || !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer))
 				continue;
 
-			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, eLoopPlayer, WARMONGER_NUKED_PLAYER) * 100;
-
-			// Do any additional factors affect this amount?
-			if (!IsTeammate(eLoopPlayer) && !IsVassal(eLoopPlayer) && !IsMaster(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer))
-			{
-				bool bSanctioned = false;
-				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
-
-				for (size_t i=0; i<vAttackedTeam.size(); i++)
-				{
-					if (!GET_PLAYER(vAttackedTeam[i]).isAlive())
-						continue;
-
-					StrengthTypes eStrength = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vAttackedTeam[i]);
-					if (eStrength > eHighestStrength)
-					{
-						eHighestStrength = eStrength;
-					}
-
-					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(eLoopPlayer, vAttackedTeam[i]))
-					{
-						bSanctioned = true;
-					}
-				}
-
-				// DECREASE if we are big and nasty.
-				switch (eHighestStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iWarmongerValueTimes100 *= 100 + /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
-					iWarmongerValueTimes100 /= 100;
-					break;
-				case STRENGTH_POWERFUL:
-					iWarmongerValueTimes100 *= 100 + /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
-					iWarmongerValueTimes100 /= 100;
-					break;
-				case STRENGTH_STRONG:
-					iWarmongerValueTimes100 *= 100 + /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
-					iWarmongerValueTimes100 /= 100;
-					break;
-				case STRENGTH_AVERAGE:
-					iWarmongerValueTimes100 *= 100 + /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
-					iWarmongerValueTimes100 /= 100;
-					break;
-				}
-
-				// DECREASE if we are sanctioned.
-				if (bSanctioned)
-				{
-					iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
-					iWarmongerValueTimes100 /= 100;
-				}
-
-				if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-				{
-					// Casus Belli?
-					if (GC.getGame().GetGameLeagues()->IsWorldWar(eLoopPlayer) > 0)
-					{
-						iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-						iWarmongerValueTimes100 /= 100;
-					}
-					// Global Peace Accords?
-					else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eLoopPlayer) > 0)
-					{
-						iWarmongerValueTimes100 *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-						iWarmongerValueTimes100 /= 100;
-					}
-				}
-			}
-
+			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, eLoopPlayer, GetTeam(), WARMONGER_NUKED_PLAYER) * 100;
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
 		}
@@ -50864,7 +50721,7 @@ FDataStream& operator>>(FDataStream& loadFrom, DeclarationLogData& writeTo)
 
 // AI HELPER ROUTINES
 
-int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmonger, PlayerTypes ePlayer, WarmongerTriggerTypes eWarmongerTrigger)
+int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmonger, PlayerTypes ePlayer, TeamTypes eDefendingTeam, WarmongerTriggerTypes eWarmongerTrigger)
 {
 	switch (eWarmongerTrigger)
 	{
@@ -50904,8 +50761,76 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			// Do any additional factors affect this amount?
+			bool bSanctioned = false;
+			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
+			if (eTeam != eDefendingTeam && !GET_TEAM(eDefendingTeam).IsVassal(eTeam) && !GET_TEAM(eTeam).IsVassal(eDefendingTeam) && !GET_TEAM(eTeam).IsHasDefensivePact(eDefendingTeam))
+			{
+				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
+				vector<PlayerTypes> vDefendingTeam = GET_TEAM(eDefendingTeam).getPlayers();
+
+				for (size_t i=0; i<vDefendingTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vDefendingTeam[i]).isAlive())
+						continue;
+
+					StrengthTypes eStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vDefendingTeam[i]);
+					if (eStrength > eHighestStrength)
+					{
+						eHighestStrength = eStrength;
+					}
+
+					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(ePlayer, vDefendingTeam[i]))
+					{
+						bSanctioned = true;
+					}
+				}
+
+				// DECREASE if opponent is big and nasty.
+				switch (eHighestStrength)
+				{
+				case STRENGTH_IMMENSE:
+					iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+					break;
+				case STRENGTH_POWERFUL:
+					iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+					break;
+				case STRENGTH_STRONG:
+					iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+					break;
+				case STRENGTH_AVERAGE:
+					iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+					break;
+				}
+			}
+
+			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
 			iWarmongerValue /= 100;
+
+			// DECREASE if opponent is sanctioned.
+			if (bSanctioned)
+			{
+				iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+				iWarmongerValue /= 100;
+			}
+
+			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			{
+				// Casus Belli?
+				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+					iWarmongerValue /= 100;
+				}
+				// Global Peace Accords?
+				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+					iWarmongerValue /= 100;
+				}
+			}
 
 			int iPersonalityMod = 0;
 
@@ -50981,8 +50906,25 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
 			iWarmongerValue /= 100;
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			{
+				// Casus Belli?
+				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+					iWarmongerValue /= 100;
+				}
+				// Global Peace Accords?
+				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+					iWarmongerValue /= 100;
+				}
+			}
 
 			int iPersonalityMod = 0;
 
@@ -51058,8 +51000,76 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				break;
 			}
 
-			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			// Do any additional factors affect this amount?
+			bool bSanctioned = false;
+			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
+			if (eTeam != eDefendingTeam && !GET_TEAM(eDefendingTeam).IsVassal(eTeam) && !GET_TEAM(eTeam).IsVassal(eDefendingTeam) && !GET_TEAM(eTeam).IsHasDefensivePact(eDefendingTeam))
+			{
+				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
+				vector<PlayerTypes> vDefendingTeam = GET_TEAM(eDefendingTeam).getPlayers();
+
+				for (size_t i=0; i<vDefendingTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vDefendingTeam[i]).isAlive())
+						continue;
+
+					StrengthTypes eStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vDefendingTeam[i]);
+					if (eStrength > eHighestStrength)
+					{
+						eHighestStrength = eStrength;
+					}
+
+					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(ePlayer, vDefendingTeam[i]))
+					{
+						bSanctioned = true;
+					}
+				}
+
+				// DECREASE if opponent is big and nasty.
+				switch (eHighestStrength)
+				{
+				case STRENGTH_IMMENSE:
+					iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+					break;
+				case STRENGTH_POWERFUL:
+					iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+					break;
+				case STRENGTH_STRONG:
+					iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+					break;
+				case STRENGTH_AVERAGE:
+					iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+					break;
+				}
+			}
+
+			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
 			iWarmongerValue /= 100;
+
+			// DECREASE if opponent is sanctioned.
+			if (bSanctioned)
+			{
+				iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+				iWarmongerValue /= 100;
+			}
+
+			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			{
+				// Casus Belli?
+				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+					iWarmongerValue /= 100;
+				}
+				// Global Peace Accords?
+				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
+				{
+					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+					iWarmongerValue /= 100;
+				}
+			}
 
 			int iPersonalityMod = 0;
 
@@ -51227,34 +51237,39 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 	}
 
 	int iWarmongerStrengthModifier = 0;
+
+	// INCREASE if he's big and nasty, DECREASE if he's not.
+	switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityTaker))
+	{
+	case STRENGTH_IMMENSE:
+		iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+		break;
+	case STRENGTH_POWERFUL:
+		iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+		break;
+	case STRENGTH_STRONG:
+		iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
+		break;
+	case STRENGTH_AVERAGE:
+		iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
+		break;
+	case STRENGTH_POOR:
+		iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+		break;
+	case STRENGTH_WEAK:
+		iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+		break;
+	case STRENGTH_PATHETIC:
+		iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
+		break;
+	}
+
+	// No strength-based reductions if it's our loss...
+	if (bHisLossIsOurOwn && iWarmongerStrengthModifier > 0)
+		iWarmongerStrengthModifier = 0;
+
 	if (!bHisLossIsOurOwn)
 	{
-		// INCREASE if he's big and nasty, DECREASE if he's not.
-		switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityTaker))
-		{
-		case STRENGTH_IMMENSE:
-			iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
-			break;
-		case STRENGTH_POWERFUL:
-			iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
-			break;
-		case STRENGTH_STRONG:
-			iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
-			break;
-		case STRENGTH_AVERAGE:
-			iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
-			break;
-		case STRENGTH_POOR:
-			iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
-			break;
-		case STRENGTH_WEAK:
-			iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
-			break;
-		case STRENGTH_PATHETIC:
-			iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
-			break;
-		}
-
 		// DECREASE if opponent is big and nasty.
 		switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityOwner))
 		{
