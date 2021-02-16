@@ -8827,7 +8827,7 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo != NULL)
 		{
-			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->getCivilizationInfo().getCivilizationUnits((int)eUnitClass)));
+			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->GetSpecificUnitType(eUnitClass)));
 			if(eUnit != NO_UNIT)
 			{
 				lua_pushinteger(L, eUnit);

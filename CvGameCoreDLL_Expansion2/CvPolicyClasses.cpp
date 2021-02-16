@@ -380,6 +380,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	m_piUnitClassReplacements(),
+#endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
@@ -470,6 +473,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
 #endif 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	m_piUnitClassReplacements.clear();
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
@@ -1190,6 +1196,35 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
+#endif
+
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	{
+		m_piUnitClassReplacements.clear();
+
+		std::string strKey("Policy_UnitClassReplacements");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select A.ID as ReplacedUnitClassID, B.ID as ReplacenentUnitClassID from Policy_UnitClassReplacements inner join UnitClasses A on A.Type = ReplacedUnitClassType inner join UnitClasses B on B.Type = ReplacementUnitClassType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while (pResults->Step())
+		{
+			const UnitClassTypes iReplaced = (UnitClassTypes)pResults->GetInt(0);
+			const UnitClassTypes iReplacement = (UnitClassTypes)pResults->GetInt(1);
+
+			m_piUnitClassReplacements[iReplaced] = iReplacement;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<UnitClassTypes, UnitClassTypes>(m_piUnitClassReplacements).swap(m_piUnitClassReplacements);
+	}
 #endif
 
 	//ImprovementCultureChanges
@@ -2603,6 +2638,18 @@ int* CvPolicyEntry::GetInternationalRouteYieldModifiersArray()
 	return m_piInternationalRouteYieldModifiers;
 }
 
+#endif
+
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+/// Replace a unit class (unless unique unit) with another
+bool CvPolicyEntry::IsUnitClassReplacements() const
+{
+	return !m_piUnitClassReplacements.empty();
+}
+std::map<UnitClassTypes, UnitClassTypes> CvPolicyEntry::GetUnitClassReplacements() const
+{
+	return m_piUnitClassReplacements;
+}
 #endif
 
 /// Change to yield in every City by type

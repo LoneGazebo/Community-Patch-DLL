@@ -11089,7 +11089,7 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 
 	return true;
 }
-/// Can we buy a non-Faith generating building?
+/// Can we buy a non-Faith generating unit?
 bool CvReligionAI::CanBuyNonFaithUnit() const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
@@ -11100,7 +11100,7 @@ bool CvReligionAI::CanBuyNonFaithUnit() const
 	{
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
-			UnitTypes eUnit = (UnitTypes)m_pPlayer->getCivilizationInfo().getCivilizationUnits(iI);
+			UnitTypes eUnit = m_pPlayer->GetSpecificUnitType((UnitClassTypes)iI);
 			if(eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.GetGameUnits()->GetEntry(eUnit);

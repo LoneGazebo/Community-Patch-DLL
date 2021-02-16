@@ -15401,7 +15401,7 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
 	if(pkUnitClassInfo != NULL)
 	{
-		eUnitType = ((UnitTypes)(GetPlayer()->getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
+		eUnitType = (GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType));
 	}
 	if(eUnitType == NO_UNIT)
 	{

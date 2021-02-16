@@ -9038,6 +9038,28 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		if (pkUnitInfo->GetCombat() <= 0)
 			continue;
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+		if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+		{
+			// Is the unit's class replaced by another?
+			UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+			if (eUnitClass != NO_UNITCLASS && GET_PLAYER(ePlayer).GetUnitClassReplacement(eUnitClass) != NO_UNITCLASS)
+			{
+				if (bIncludeUUs)
+				{
+					if (GET_PLAYER(ePlayer).getCivilizationInfo().isCivilizationUnitOverridden((int)eUnitClass) == false)
+					{
+						continue;
+					}
+				}
+				else
+				{
+					continue;
+				}
+			}
+		}
+#endif
+
 		bool bValid = true;
 
 		if(bNoResource)
@@ -12873,7 +12895,7 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	UnitTypes eUnitType = NO_UNIT;
 	if(pkUnitClassInfo != NULL)
 	{
-		eUnitType = ((UnitTypes)(GET_PLAYER(eMinor).getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
+		eUnitType = ((GET_PLAYER(eBully).GetSpecificUnitType(eUnitClassType)));
 	}
 	if(eUnitType != NO_UNIT)
 	{

@@ -375,6 +375,8 @@
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
 #define MOD_POLICIES_CITY_AUTOMATON_WORKERS         gCustomMods.isPOLICIES_CITY_AUTOMATON_WORKERS()
+// Enables Policy_UnitClassReplacements
+#define MOD_POLICIES_UNIT_CLASS_REPLACEMENTS		gCustomMods.isPOLICIES_UNIT_CLASS_REPLACEMENTS()
 
 // If defined city yields can be influenced by the presence of units with special abilities
 // This is a performance hit, so it's disabled by default
@@ -1389,6 +1391,7 @@ public:
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 	MOD_OPT_DECL(POLICIES_CITY_AUTOMATON_WORKERS);
+	MOD_OPT_DECL(POLICIES_UNIT_CLASS_REPLACEMENTS);
 	MOD_OPT_DECL(ERA_RESTRICTION);
 	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);

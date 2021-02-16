@@ -780,10 +780,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				continue;
 			}
-			UnitTypes eUnit = ((UnitTypes)(thisCiv.getCivilizationUnits(eUnitClass)));
-			if (eUnit != NO_UNIT)
+			if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
 			{
-				if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
+				UnitTypes eUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
+				if (eUnit != NO_UNIT)
 				{
 					CvUnit* pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
 					bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
@@ -6499,37 +6499,32 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				{
 					if(pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI) <= 0)
 						continue;
-
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 		
-					if (pCivilizationInfo != NULL)
+					const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
+					if(eLoopUnit != NO_UNIT)
 					{
-						const UnitTypes eLoopUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(iI);
-						if(eLoopUnit != NO_UNIT)
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+						if(pkUnitEntry)
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitEntry)
+							for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 							{
-								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+
+								if (iResult != -1)
 								{
-									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-									int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
-
-									CvAssertMsg(iResult != -1, "Unable to create unit");
-
-									if (iResult != -1)
+									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 									{
-										CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-										if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
-										{
-											pUnit->kill(false);	// Could not find a valid spot!
-										}
-										else
-										{
-											pUnit->finishMoves();
-											//Lua Hook
-											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
-										}
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+									else
+									{
+										pUnit->finishMoves();
+										//Lua Hook
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
 									}
 								}
 							}
@@ -7597,8 +7592,6 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	bUpgradeAvailable = false;
 	bUpgradeUnavailable = false;
 
-	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
-
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -7607,7 +7600,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 		{
 			if(pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
-				const UnitTypes eLoopUnit = (UnitTypes) thisCiv.getCivilizationUnits(iI);
+				const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 				if(eLoopUnit != NO_UNIT)
 				{
@@ -7628,7 +7621,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 			}
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, eUnit))
 			{
-				const UnitTypes eLoopUnit = (UnitTypes)thisCiv.getCivilizationUnits(eUnitClass);
+				const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 				if (eLoopUnit != NO_UNIT)
 				{
@@ -11223,7 +11216,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
 			if (eUnitClass != NO_UNITCLASS)
 			{
-				const UnitTypes eThisPlayersUnitType = (UnitTypes)kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+				const UnitTypes eThisPlayersUnitType = kPlayer.GetSpecificUnitType(eUnitClass);
 
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 				{
@@ -13435,7 +13428,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					for(iFreeUnitLoop = 0; iFreeUnitLoop < pBuildingInfo->GetNumFreeUnits(iUnitLoop); iFreeUnitLoop++)
 					{
 						// Get the right unit of this class for this civ
-						const UnitTypes eFreeUnitType = (UnitTypes)thisCiv.getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+						const UnitTypes eFreeUnitType = owningPlayer.GetSpecificUnitType((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 #if defined(MOD_BALANCE_CORE)
 						//Test for forbidden or locked units.
 						if(eFreeUnitType == NO_UNIT)
@@ -13464,7 +13457,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										CvUnitClassInfo* pkVeniceUnitClassInfo = GC.getUnitClassInfo(eVeniceUnitClass);
 										if(pkVeniceUnitClassInfo)
 										{
-											const UnitTypes eMerchantOfVeniceUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eVeniceUnitClass);
+											const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
 											if (eMerchantOfVeniceUnit != NO_UNIT)
 											{
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
@@ -13780,7 +13773,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										CvUnitClassInfo* pkVeniceUnitClassInfo = GC.getUnitClassInfo(eVeniceUnitClass);
 										if(pkVeniceUnitClassInfo)
 										{
-											const UnitTypes eMerchantOfVeniceUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eVeniceUnitClass);
+											const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
 											if (eMerchantOfVeniceUnit != NO_UNIT)
 											{
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);

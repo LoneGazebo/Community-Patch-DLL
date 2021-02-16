@@ -774,6 +774,19 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- POLICY: Replaces all units of ReplacedUnitClassType with ReplacementUnitClassType. Does a few things: -->
+	<!--         - Converts all of the player's existing units of the replaced class with the appropriate unit of the replacement class. -->
+	<!--         - Units normally upgrading to the replaced unit class will upgrade to the replacement instead, unless the replaced is a unique unit. -->
+	<!--         - The replaced unit will no longer be buildable, unless the replaced is a unique unit. -->
+	<!--         - Anything that normally spawns the replaced class now spawns the replacement class. Example: events, city razing, city state gifts. Again, unless the replaced is a unique unit. -->
+	<!--         Requires POLICIES_UNIT_CLASS_REPLACEMENTS in CustomModOptions. -->
+	<!--         Multiple policies (or other sources in the future) giving a replacement will result in the last policy only taking effect. -->
+	<!--         After that, undoing the replacement will not return the effect of previous policies. -->
+	<Table name="Policy_UnitClassReplacements">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ReplacedUnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="ReplacementUnitClassType" type="text" reference="UnitClasses(Type)"/>
+	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
 	Yield here is maximum yield for mountain clusters. All mountains have a minimum of 1 yield from the value below, so the yield will be somewhere between 1 and x, where x is the maximum value or # of adjacent mountains. -->

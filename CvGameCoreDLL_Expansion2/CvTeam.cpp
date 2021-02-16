@@ -1700,8 +1700,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
 							for(int iJ = 0; iJ < iUnitAttackerClass != NULL; iJ++)
 							{
-								const CvCivilizationInfo& playerCivilization = kAttackingPlayer.getCivilizationInfo();
-								eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+								eLoopUnit = kAttackingPlayer.GetSpecificUnitType(eUnitClass);
 								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
 								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
@@ -1724,8 +1723,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							}
 							for(int iK = 0; iK < iUnitDefenderClass != NULL; iK++)
 							{
-								const CvCivilizationInfo& playerCivilization = kDefendingPlayer.getCivilizationInfo();
-								eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+								eLoopUnit = kDefendingPlayer.GetSpecificUnitType(eUnitClass);
 								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
 								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
@@ -6895,7 +6893,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
-								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).getCivilizationInfo().getCivilizationUnits(GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
+								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
 
 								if (eFreeUnit != NULL)
 								{
@@ -7900,8 +7898,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			int iUnitClass = kPlayer.GetPlayerTraits()->GetFirstFreeUnit(eTech);
 			while(iUnitClass != NO_UNITCLASS)
 			{
-				const CvCivilizationInfo& playerCivilization = kPlayer.getCivilizationInfo();
-				eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(iUnitClass);
+				eLoopUnit = kPlayer.GetSpecificUnitType((UnitClassTypes)iUnitClass);
 				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 

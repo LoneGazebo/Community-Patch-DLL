@@ -187,6 +187,7 @@ public:
 	void killUnits();
 
 	UnitTypes GetSpecificUnitType(const char* szUnitClass, bool hideAssert = false);
+	UnitTypes GetSpecificUnitType(UnitClassTypes eUnitCass) const;
 	BuildingTypes GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert = false);
 
 	CvPlot *GetGreatAdmiralSpawnPlot (CvUnit *pUnit);
@@ -2059,6 +2060,11 @@ public:
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	UnitClassTypes GetUnitClassReplacement(UnitClassTypes eUnitClass) const;
+	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
+#endif
+
 	bool IsCSResourcesCountMonopolies() const;
 	void changeCSResourcesCountMonopolies(int iChange);
 
@@ -3206,6 +3212,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iPuppetYieldPenaltyMod;
 	FAutoVariable<int, CvPlayer> m_iNeedsModifierFromAirUnits;
 	FAutoVariable<int, CvPlayer> m_iFlatDefenseFromAirUnits;
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;

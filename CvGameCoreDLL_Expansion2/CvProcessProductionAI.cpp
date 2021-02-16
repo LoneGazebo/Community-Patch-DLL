@@ -465,7 +465,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Free unit class
 					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+						UnitTypes eUnit = kPlayer.GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
 						if (eUnit != NO_UNIT)
 						{
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);

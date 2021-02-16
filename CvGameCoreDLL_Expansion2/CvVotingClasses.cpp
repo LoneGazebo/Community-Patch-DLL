@@ -8218,7 +8218,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		// Free unit class
 		if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
 		{
-			UnitTypes eUnit = (UnitTypes) GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+			UnitTypes eUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
 			if (eUnit != NO_UNIT)
 			{
 				CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();

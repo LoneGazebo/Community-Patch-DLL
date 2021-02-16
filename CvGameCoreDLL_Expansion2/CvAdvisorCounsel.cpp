@@ -371,7 +371,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					if(pUnitEntry->GetPrereqAndTech() == eTech && pUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT)
 					{
-						UnitTypes eCivUnit = ((UnitTypes)(GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(pUnitEntry->GetUnitClassType())));
+						UnitTypes eCivUnit = ((GET_PLAYER(ePlayer).GetSpecificUnitType((UnitClassTypes)pUnitEntry->GetUnitClassType())));
 						if(eUnitType != eCivUnit)
 						{
 							continue;

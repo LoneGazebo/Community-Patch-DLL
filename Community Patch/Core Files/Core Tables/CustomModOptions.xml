@@ -309,6 +309,9 @@
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="POLICIES_CITY_AUTOMATON_WORKERS" Value="0"/>
 
+    <!-- Enables Policy_UnitClassReplacements -->
+    <Row Class="4" Name="POLICIES_UNIT_CLASS_REPLACEMENTS" Value="0"/>
+
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>

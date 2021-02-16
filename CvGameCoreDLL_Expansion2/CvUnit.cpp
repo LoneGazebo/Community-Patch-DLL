@@ -13651,7 +13651,7 @@ bool CvUnit::build(BuildTypes eBuild)
 						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 						if(pkUnitClassInfo)
 						{
-							const UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							const UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
 							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 							if(pUnitEntry)
 							{
@@ -14610,8 +14610,6 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 	VALIDATE_OBJECT
 	UnitTypes eUpgradeUnitType = NO_UNIT;
 
-	const CvCivilizationInfo& kCiv = GET_PLAYER(getOwner()).getCivilizationInfo();
-
 	// Determine what we're going to upgrade into
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
@@ -14621,7 +14619,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 		{
 			if(m_pUnitInfo->GetUpgradeUnitClass(iI))
 			{
-				eUpgradeUnitType = (UnitTypes) kCiv.getCivilizationUnits(iI);
+				eUpgradeUnitType = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {
@@ -14671,7 +14669,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 		{
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, getUnitType()))
 			{
-				eUpgradeUnitType = (UnitTypes)kCiv.getCivilizationUnits(eUnitClass);
+				eUpgradeUnitType = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 				break;
 			}
 		}
@@ -14946,7 +14944,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 	}
 #endif
 
-	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : (UnitTypes)pkCivilizationInfo->getCivilizationUnits(getUnitInfo().GetUnitCaptureClassType()));
+	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
 }
 
 
@@ -23784,7 +23782,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 					if(pkUnitClassInfo)
 					{
-						const UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+						const UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
 						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 						if(pUnitEntry)
 						{
