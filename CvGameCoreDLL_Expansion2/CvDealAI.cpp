@@ -1317,7 +1317,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
 		iItemValue = GetTechValue(/*TechType*/ (TechTypes) iData1, bFromMe, eOtherPlayer);
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
-		iItemValue = GetVassalageValue(bFromMe, eOtherPlayer, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
+		iItemValue = GetVassalageValue(bFromMe, eOtherPlayer);
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE_REVOKE)
 		iItemValue = GetRevokeVassalageValue(bFromMe, eOtherPlayer, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
 #endif
@@ -5821,7 +5821,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
+	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer);
 	bool bRevokeMyVassals = false;
 	// Reduce war score if losing player wants to become winning player's vassal
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
@@ -7785,7 +7785,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 }
 
 /// How much is Vassalage worth?
-int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar)
+int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -7798,7 +7798,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWa
 
 	if (bFromMe)
 	{
-		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
+		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
 		{
 			return INT_MAX;
 		}
@@ -7806,7 +7806,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWa
 		// Initial Vassalage deal value at 2000
 		iItemValue = 2000;
 
-		if (bWar)
+		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
 			return (iItemValue / 2);
 		}
@@ -7838,7 +7838,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWa
 		case STRENGTH_WEAK:
 		case STRENGTH_PATHETIC:
 		default:
-			if (bWar)
+			if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 			{
 				iItemValue *= 100;
 			}
@@ -7903,7 +7903,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWa
 	else
 	{
 		//they don't want to do it?
-		if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(m_pPlayer->GetID(), bWar))
+		if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(m_pPlayer->GetID()))
 		{
 			return INT_MAX;
 		}
@@ -7911,7 +7911,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWa
 		// Initial Vassalage deal value at 1000
 		iItemValue = 1000;
 
-		if (bWar)
+		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
 			return (iItemValue / 2);
 		}
@@ -8395,7 +8395,12 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return false;
 	}
 
-	if(!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
+	if (m_pPlayer->IsAtWarWith(eOtherPlayer))
+	{
+		return false;
+	}
+
+	if(!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID()))
 	{
 		return false;
 	}
@@ -8429,7 +8434,12 @@ bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal
 		return false;
 	}
 
-	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, false))
+	if (m_pPlayer->IsAtWarWith(eOtherPlayer))
+	{
+		return false;
+	}
+
+	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer))
 	{
 		return false;
 	}

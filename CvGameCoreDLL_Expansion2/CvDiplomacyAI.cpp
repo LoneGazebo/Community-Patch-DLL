@@ -52315,155 +52315,241 @@ void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 		}
 	}
 }
-///	Do we want to capitulate to ePlayer? (bWar: is this a wartime assessment?)
-bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
+
+/// Do we want to become the vassal of ePlayer?
+bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// We can't become ePlayer's vassal
-	if(!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
 	// Human teams can capitulate, but the AI can't do it for him and he must accept on the trade screen
-	if(GET_TEAM(GetTeam()).isHuman() || GetPlayer()->IsAITeammateOfHuman())
+	if (GET_TEAM(GetTeam()).isHuman())
 		return false;
 
-	// Split this function into two evaluations, capitulation (war) and voluntary (peace)
-	if(bWar)
+	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+	int iNumTeamMembersInFavor = 0;
+	int iNumTeamMembersAgainst = 0;
+
+	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
-		return IsCapitulationAcceptable(ePlayer);
+		if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+			continue;
+
+		bool bYes = false;
+
+		for (size_t j=0; j<vTheirTeam.size(); j++)
+		{
+			if (!GET_PLAYER(vTheirTeam[j]).isAlive() || GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
+				continue;
+
+			// If we're at war, this is capitulation - otherwise, it's voluntary vassalage
+			// If we agree to become the vassal of any of their team members, then we agree to become the vassal of all of them
+			if (IsAtWar(ePlayer))
+			{
+				if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsCapitulationAcceptable(vTheirTeam[j]))
+				{
+					bYes = true;
+					iNumTeamMembersInFavor++;
+					break;
+				}
+			}
+			else
+			{
+				if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsVoluntaryVassalageAcceptable(vTheirTeam[j]))
+				{
+					bYes = true;
+					iNumTeamMembersInFavor++;
+					break;
+				}
+			}
+		}
+
+		if (!bYes)
+			iNumTeamMembersAgainst++;
 	}
-	else
-	{
-		return IsVoluntaryVassalageAcceptable(ePlayer);
-	}
+
+	// More team members must agree than refuse
+	if (iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst)
+		return true;
+
+	return false;
 }
 
 /// Do we want to capitulate to ePlayer due to war?
 bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
-	TeamTypes eOurTeam = GetTeam();
-	CvTeam& kOurTeam = GET_TEAM(eOurTeam);
-	
-	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
-	CvTeam& kTheirTeam = GET_TEAM(eTheirTeam);
-
-	if(!kOurTeam.isAtWar(eTheirTeam))
+	// Can't capitulate if we have vassals
+	if (GetPlayer()->GetNumVassals() > 0)
 		return false;
 
-	// Check war score
-	if (GetWarScore(ePlayer) == -100)
+	// We've totally lost...
+	int iWarScore = GetWarScore(ePlayer);
+	if (iWarScore <= -95)
 		return true;
 
-	// How's the war going?
-	WarStateTypes eWarState = GetWarState(ePlayer);
-	if(eWarState >= WAR_STATE_STALEMATE ||
-		eWarState == NO_WAR_STATE_TYPE)
+	// Not defensive
+	if (GetWarState(ePlayer) > WAR_STATE_DEFENSIVE)
 		return false;
 
-	// We have vassals
-	if(GET_TEAM(GetTeam()).GetNumVassals() > 0)
-	{
+	// War score must be at least -75 to even consider it
+	if (iWarScore > -75)
 		return false;
-	}
 
-	int iWantVassalageScore = 0;
-
-	int iWarScore = GetWarScore(ePlayer);
-
-	// Check war score
-	if (GetWarScore(ePlayer) > -80)
-		return false;
+	int iCapitulationScore = iWarScore * -1;
 	
-	if(iWarScore < -80)
-		iWantVassalageScore = 75;
-	else
-		iWantVassalageScore = 100;
-
-	// Mod based on distance
-	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
+	// How strong are they militarily? (must be stronger!)
+	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
-		case PLAYER_PROXIMITY_DISTANT:
-			iWantVassalageScore *= 33;
-			iWantVassalageScore /= 100;
-			break;
-		case PLAYER_PROXIMITY_FAR:
-			iWantVassalageScore *= 66;
-			iWantVassalageScore /= 100;
-			break;
-		case PLAYER_PROXIMITY_CLOSE:
-			iWantVassalageScore *= 100;
-			iWantVassalageScore /= 100;
-			break;
-		case PLAYER_PROXIMITY_NEIGHBORS:
-			iWantVassalageScore *= 150;
-			iWantVassalageScore /= 100;
-			break;
+	case STRENGTH_IMMENSE:
+		iCapitulationScore += 20;
+		break;
+	case STRENGTH_POWERFUL:
+		iCapitulationScore += 10;
+		break;
+	case STRENGTH_STRONG:
+		iCapitulationScore += 5;
+		break;
+	default:
+		return false;
+		break;
 	}
 
-	// Factor in this guy's military strength
-	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	// Are they threatening us with military?
+	switch (GetMilitaryAggressivePosture(ePlayer))
 	{
-		case STRENGTH_IMMENSE:
-			iWantVassalageScore *= 250;
-			iWantVassalageScore /= 100;
-			break;
-		case STRENGTH_POWERFUL:
-			iWantVassalageScore *= 150;
-			iWantVassalageScore /= 100;
-			break;
-		case STRENGTH_STRONG:
-			iWantVassalageScore *= 125;
-			iWantVassalageScore /= 100;
-			break;
-		default:
-			return false;
-			break;
+	case AGGRESSIVE_POSTURE_INCREDIBLE:
+		iCapitulationScore += 10;
+		break;
+	case AGGRESSIVE_POSTURE_HIGH:
+		iCapitulationScore += 5;
+		break;
+	case AGGRESSIVE_POSTURE_MEDIUM:
+		iCapitulationScore += 0;
+		break;
+	default:
+		return false;
+		break;
 	}
 
-	// We're going for conquest...
-	if(IsGoingForWorldConquest())
+	// How close are they to us?
+	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()))
 	{
-		iWantVassalageScore *= 50;
-		iWantVassalageScore /= 100;
+	case PLAYER_PROXIMITY_NEIGHBORS:
+		iCapitulationScore += 10;
+		break;
+	case PLAYER_PROXIMITY_CLOSE:
+		iCapitulationScore += 0;
+		break;
+	case PLAYER_PROXIMITY_FAR:
+		iCapitulationScore -= 10;
+		break;
+	case PLAYER_PROXIMITY_DISTANT:
+		iCapitulationScore -= 20;
+		break;
 	}
 
-	// Lost our capital?
-	if(GetPlayer()->IsHasLostCapital())
-	{
-		iWantVassalageScore *= 150;
-		iWantVassalageScore /= 100;
+	// We're going for conquest
+	if (IsGoingForWorldConquest())
+		iCapitulationScore -= 20;
 
-		// to this player?
-		CvPlot* pOriginalCapitalPlot = GC.getMap().plot(GET_PLAYER(ePlayer).GetOriginalCapitalX(), GET_PLAYER(ePlayer).GetOriginalCapitalY());
-		if(pOriginalCapitalPlot != NULL)
+	// We're close to victory? Resist!
+	if (IsCloseToAnyVictoryCondition())
+		iCapitulationScore -= 20;
+
+	// Are we very unhappy?
+	if (GetPlayer()->IsEmpireSuperUnhappy())
+	{
+		iCapitulationScore += 20;
+	}
+	else if (GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		iCapitulationScore += 10;
+	}
+
+	// Are any of our cities about to be lost? Try to maintain as many of our cities as we can if we're going to lose anyway.
+	int iCityLoop;
+	int iNumCitiesInDanger = 0;
+	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iCityLoop))
+	{
+		if (!pLoopCity->IsInDanger(ePlayer))
+			continue;
+
+		iNumCitiesInDanger++;
+
+		if (pLoopCity->isInDangerOfFalling() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
 		{
-			if(pOriginalCapitalPlot->isCity())
-			{
-				if(GET_PLAYER(pOriginalCapitalPlot->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
-				{
-					iWantVassalageScore *= 150;
-					iWantVassalageScore /= 100;
-				}
-			}
+			// Our last city about to fall?
+			if (GetPlayer()->getNumCities() == 1)
+				return true;
+
+			iCapitulationScore += 20;
+		}
+		else if (pLoopCity->IsBlockadedWaterAndLand() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+		{
+			iCapitulationScore += 10;
 		}
 	}
 
-	//// They have more civs than us!
-	if(kOurTeam.getAliveCount() < kTheirTeam.getAliveCount())
+	// Are any of THEIR cities in danger? Try to grab any cities we can from them.
+	int iNumTheirCitiesInDanger = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
-		iWantVassalageScore *= 200;
-		iWantVassalageScore /= 100;
+		if (!pLoopCity->IsInDanger(GetPlayer()->GetID()))
+			continue;
+
+		iNumTheirCitiesInDanger++;
+
+		if (pLoopCity->isInDangerOfFalling() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
+		{
+			return false;
+		}
+		else if (pLoopCity->IsBlockadedWaterAndLand())
+		{
+			// Don't surrender if we could get our capital or Holy City back!
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetPlayer()->GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+				return false;
+
+			iCapitulationScore -= 15;
+		}
+		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+		{
+			// Don't surrender if we could get our capital or Holy City back!
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetPlayer()->GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+				return false;
+
+			iCapitulationScore -= 10;
+		}
 	}
-	else if (kOurTeam.getAliveCount() > kTheirTeam.getAliveCount())
+
+	// Have we lost our capital?
+	if (GetPlayer()->IsHasLostCapital())
 	{
-		iWantVassalageScore *= 50;
-		iWantVassalageScore /= 100;
+		iCapitulationScore += 20;
+
+		// To them?
+		if (IsCapitalCapturedBy(ePlayer, true, true))
+		{
+			iCapitulationScore += 20;
+		}
+	}
+	// No cities in danger and we still have our capital? Resist!
+	else if (iNumCitiesInDanger == 0)
+	{
+		return false;
+	}
+	// At least as many of their cities are endangered as ours? Resist!
+	else if (iNumTheirCitiesInDanger >= iNumCitiesInDanger)
+	{
+		return false;
 	}
 
 	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
-	return (iWantVassalageScore > iThreshold);
+	return (iCapitulationScore > iThreshold);
 }
 
 /// Do we want to voluntarily become ePlayer's vassal?

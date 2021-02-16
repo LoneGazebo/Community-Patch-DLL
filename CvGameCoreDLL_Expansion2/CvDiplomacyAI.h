@@ -1512,7 +1512,7 @@ public:
 	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
-	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar = false);
+	bool IsVassalageAcceptable(PlayerTypes ePlayer);
 
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
 	bool IsEndVassalageRequestAcceptable(PlayerTypes eHuman);

@@ -156,7 +156,7 @@ public:
 	// How much is item worth to AI?
 	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
+	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
 
 	// Does AI want to make offer for X?
