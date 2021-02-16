@@ -4216,7 +4216,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 		bool bSanctioned = false;
 		StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		vector<PlayerTypes> vAttackedTeam = GET_TEAM(GetTeam()).getPlayers();
+		vector<PlayerTypes> vAttackedTeam = GET_TEAM(eAttackedTeam).getPlayers();
 
 		for (size_t i=0; i<vAttackedTeam.size(); i++)
 		{
