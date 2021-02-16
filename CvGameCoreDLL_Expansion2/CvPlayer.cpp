@@ -3538,39 +3538,34 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 
 	// slewis - warmonger calculations
-	if (bConquest)
+	if (bConquest && isMajorCiv())
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(!isMinorCiv() && !isBarbarian())
-#else
-		if(!isMinorCiv())
-#endif
-		{
-			bool bDoWarmonger = true;
+		bool bDoWarmonger = true;
+		pOldCity->SetNoWarmonger(false); // Reset this value!
 
-			// Don't award warmongering if you're conquering a city you owned back
-			if (pOldCity->getOriginalOwner() == GetID())
-			{
-				bDoWarmonger = false;
-			}
-#if defined(MOD_BALANCE_CORE)
-			// Don't award warmongering if you're conquering a city that you were the last to own.
-			if (pOldCity->getPreviousOwner() == GetID())
-			{
-				bDoWarmonger = false;
-			}
-			//Captured a city from barbs? Everyone likes that!
-			if(GET_PLAYER(pOldCity->getOwner()).isBarbarian())
-			{
-				bDoWarmonger = false;
-			}
+		// Don't award warmongering if you're conquering a city you owned back
+		if (pOldCity->getOriginalOwner() == GetID())
+			bDoWarmonger = false;
+
+		// Don't award warmongering if you're conquering a city that you were the last to own.
+		if (pOldCity->getPreviousOwner() == GetID())
+			bDoWarmonger = false;
+
+		//Captured a city from barbs? Everyone likes that!
+		if (GET_PLAYER(pOldCity->getOwner()).isBarbarian())
+			bDoWarmonger = false;
+
+		if (bDoWarmonger)
+		{
 			PlayerTypes eLiberatedPlayer = NO_PLAYER;
 
 			// Captured someone's city that didn't originally belong to us - Liberate a player?
 			eOldOwner = pOldCity->getOwner();
-			if(pOldCity->getOriginalOwner() != eOldOwner && pOldCity->getOriginalOwner() != GetID())
+			if (pOldCity->getOriginalOwner() != eOldOwner && pOldCity->getOriginalOwner() != GetID())
 			{
 				eLiberatedPlayer = pOldCity->getOriginalOwner();
+
+				// If we're at war with the original owner and the last owner was a City-State, liberate them instead
 				if (IsAtWarWith(eLiberatedPlayer) && pOldCity->getOriginalOwner() != pOldCity->getPreviousOwner() && pOldCity->getPreviousOwner() != NO_PLAYER)
 				{
 					if (GET_PLAYER(pOldCity->getPreviousOwner()).isMinorCiv())
@@ -3578,7 +3573,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 						eLiberatedPlayer = pOldCity->getPreviousOwner();
 					}
 				}
-				if(eLiberatedPlayer != NO_PLAYER)
+
+				if (eLiberatedPlayer != NO_PLAYER)
 				{
 					if (CanLiberatePlayerCity(eLiberatedPlayer))
 					{
@@ -3587,17 +3583,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					}
 				}
 			}
-#endif
+		}
 
-			if (bDoWarmonger)
-			{
-				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity);
-#if defined(MOD_BALANCE_CORE)
-				pOldCity->SetNoWarmonger(false);
-#endif
-			}
+		if (bDoWarmonger)
+		{
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity);
 		}
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	//Let's not slaughter citizens in a city we've owned before.
 	bool bSlaughter = true;
@@ -10074,20 +10067,23 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 	if (!bForced)
 	{
-		// Reduce our war weariness for liberating a city
+		// Reduce liberator's war weariness
 		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
 
-		// Reduce this player's warmongering penalties (if any)
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		// Reduce liberator's warmongering penalties (if any), unless this is their own team's city
+		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
-			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
+			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				// Only with players who have met us
-				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+				if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
 				{
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
-					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+					// Only with players who have met us
+					if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+					{
+						int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
+						GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+					}
 				}
 			}
 		}
@@ -12921,17 +12917,16 @@ void CvPlayer::raze(CvCity* pCity)
 
 	CalculateNetHappiness();
 
-#if defined(MOD_BALANCE_CORE)
-	if(pCity->IsNoWarmongerYet())
+	if (pCity->IsNoWarmongerYet())
 	{
 		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
-		if(eFormerOwner != NO_PLAYER)
+		if (eFormerOwner != NO_PLAYER)
 		{
 			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity);
 			pCity->SetNoWarmonger(false);
 		}
 	}
-#endif
+
 	int iPopulationDrop = 1;
 	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier() + GetRazingSpeedBonus());
 	iPopulationDrop /= 100;

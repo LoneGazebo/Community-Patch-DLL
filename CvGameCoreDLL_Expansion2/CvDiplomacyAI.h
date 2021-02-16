@@ -2146,7 +2146,7 @@ namespace CvDiplomacyAIHelpers
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
-	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
+	int GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerTypes eCityOwner, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

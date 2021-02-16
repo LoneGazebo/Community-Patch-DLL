@@ -20893,26 +20893,22 @@ bool CvCity::IsPuppet() const
 void CvCity::SetPuppet(bool bValue)
 {
 	VALIDATE_OBJECT
-	if(IsPuppet() != bValue)
-	{
-		m_bPuppet = bValue;
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(bValue)
+	m_bPuppet = bValue;
+
+	if (bValue)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPuppeted, getOwner(), GetID());
-	}
 
-	if(bValue && IsNoWarmongerYet())
-	{
-		PlayerTypes eFormerOwner = getPreviousOwner();
-		if(eFormerOwner != NO_PLAYER)
+		if (IsNoWarmongerYet())
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, this);
-			SetNoWarmonger(false);
+			PlayerTypes eFormerOwner = getPreviousOwner();
+			if (eFormerOwner != NO_PLAYER)
+			{
+				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, this);
+				SetNoWarmonger(false);
+			}
 		}
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -20987,32 +20983,29 @@ void CvCity::DoAnnex()
 {
 	VALIDATE_OBJECT
 
-	// Turn this off - used to display info for annex/puppet/raze popup
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
-		if(!IsPuppet())
-		{
+		if (!IsPuppet())
 			SetPuppet(true);
-		}
 		return;
 	}
+
+	// Turn this off - used to display info for annex/puppet/raze popup
 	if (!isHuman())
-	{
 		clearOrderQueue();
-	}
-#endif
+
 	SetIgnoreCityForHappiness(false);
-#if defined(MOD_BALANCE_CORE)
-	if(IsNoWarmongerYet())
+
+	if (IsNoWarmongerYet())
 	{
 		PlayerTypes eFormerOwner = getPreviousOwner();
-		if(eFormerOwner != NO_PLAYER)
+		if (eFormerOwner != NO_PLAYER)
 		{
 			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, this);
 			SetNoWarmonger(false);
 		}
 	}
+
 	//Immediate Annex? Bonus for Courthouse
 	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !IsPuppet())
 	{
@@ -21037,7 +21030,7 @@ void CvCity::DoAnnex()
 			ChangeResistanceTurns(-iResistanceTurns);
 		}
 	}				
-#endif
+
 	SetPuppet(false);
 
 	DoUpdateCheapestPlotInfluenceDistance();  // fix for extremly high cost of the first tile

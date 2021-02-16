@@ -4097,8 +4097,26 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MINOR_ATTACKED);
-	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValue * 100);
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MINOR_ATTACKED) * 100;
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		// Casus Belli?
+		if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
+		{
+			iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+			iWarmongerValueTimes100 /= 100;
+		}
+		// Global Peace Accords?
+		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
+		{
+			iWarmongerValueTimes100 *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+			iWarmongerValueTimes100 /= 100;
+		}
+	}
+
+	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 
 	DoUpdateWarmongerThreats(true);
 }
@@ -4190,8 +4208,79 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MAJOR_ATTACKED);
-	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValue * 100);
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_MAJOR_ATTACKED) * 100;
+
+	// Do any additional factors affect this amount?
+	if (GetTeam() != eAttackedTeam && !GET_TEAM(eAttackedTeam).IsVassal(GetTeam()) && !GET_TEAM(GetTeam()).IsVassal(eAttackedTeam) && !GET_TEAM(GetTeam()).IsHasDefensivePact(eAttackedTeam))
+	{
+		bool bSanctioned = false;
+		StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		vector<PlayerTypes> vAttackedTeam = GET_TEAM(GetTeam()).getPlayers();
+
+		for (size_t i=0; i<vAttackedTeam.size(); i++)
+		{
+			if (!GET_PLAYER(vAttackedTeam[i]).isAlive())
+				continue;
+
+			StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(vAttackedTeam[i]);
+			if (eStrength > eHighestStrength)
+			{
+				eHighestStrength = eStrength;
+			}
+
+			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(GetPlayer()->GetID(), vAttackedTeam[i]))
+			{
+				bSanctioned = true;
+			}
+		}
+
+		// DECREASE if opponent is big and nasty.
+		switch (eHighestStrength)
+		{
+		case STRENGTH_IMMENSE:
+			iWarmongerValueTimes100 *= 100 + /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+			iWarmongerValueTimes100 /= 100;
+			break;
+		case STRENGTH_POWERFUL:
+			iWarmongerValueTimes100 *= 100 + /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+			iWarmongerValueTimes100 /= 100;
+			break;
+		case STRENGTH_STRONG:
+			iWarmongerValueTimes100 *= 100 + /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+			iWarmongerValueTimes100 /= 100;
+			break;
+		case STRENGTH_AVERAGE:
+			iWarmongerValueTimes100 *= 100 + /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+			iWarmongerValueTimes100 /= 100;
+			break;
+		}
+
+		// DECREASE if opponent is sanctioned.
+		if (bSanctioned)
+		{
+			iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+			iWarmongerValueTimes100 /= 100;
+		}
+
+		if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+		{
+			// Casus Belli?
+			if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
+			{
+				iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+				iWarmongerValueTimes100 /= 100;
+			}
+			// Global Peace Accords?
+			else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
+			{
+				iWarmongerValueTimes100 *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+				iWarmongerValueTimes100 /= 100;
+			}
+		}
+	}
+
+	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 
 	DoUpdateWarmongerThreats(true);
 }
@@ -6340,11 +6429,14 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	{
 		SetBackstabbedBy(ePlayer, true);
 
-		int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_NUKED_PLAYER);
-		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValue * 100);
-
+		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), WARMONGER_NUKED_PLAYER) * 100;
+		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 		DoUpdateWarmongerThreats(true);
 
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		vector<PlayerTypes> vAttackedTeam = GET_TEAM(GetTeam()).getPlayers();
+
+		// Global warmongering penalty for this!
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -6355,8 +6447,77 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 			if (!IsHasMet(eLoopPlayer) || !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer))
 				continue;
 
-			int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, eLoopPlayer, WARMONGER_NUKED_PLAYER);
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValue * 100);
+			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, eLoopPlayer, WARMONGER_NUKED_PLAYER) * 100;
+
+			// Do any additional factors affect this amount?
+			if (!IsTeammate(eLoopPlayer) && !IsVassal(eLoopPlayer) && !IsMaster(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer))
+			{
+				bool bSanctioned = false;
+				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
+
+				for (size_t i=0; i<vAttackedTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vAttackedTeam[i]).isAlive())
+						continue;
+
+					StrengthTypes eStrength = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vAttackedTeam[i]);
+					if (eStrength > eHighestStrength)
+					{
+						eHighestStrength = eStrength;
+					}
+
+					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(eLoopPlayer, vAttackedTeam[i]))
+					{
+						bSanctioned = true;
+					}
+				}
+
+				// DECREASE if we are big and nasty.
+				switch (eHighestStrength)
+				{
+				case STRENGTH_IMMENSE:
+					iWarmongerValueTimes100 *= 100 + /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+					iWarmongerValueTimes100 /= 100;
+					break;
+				case STRENGTH_POWERFUL:
+					iWarmongerValueTimes100 *= 100 + /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+					iWarmongerValueTimes100 /= 100;
+					break;
+				case STRENGTH_STRONG:
+					iWarmongerValueTimes100 *= 100 + /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+					iWarmongerValueTimes100 /= 100;
+					break;
+				case STRENGTH_AVERAGE:
+					iWarmongerValueTimes100 *= 100 + /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+					iWarmongerValueTimes100 /= 100;
+					break;
+				}
+
+				// DECREASE if we are sanctioned.
+				if (bSanctioned)
+				{
+					iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+					iWarmongerValueTimes100 /= 100;
+				}
+
+				if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+				{
+					// Casus Belli?
+					if (GC.getGame().GetGameLeagues()->IsWorldWar(eLoopPlayer) > 0)
+					{
+						iWarmongerValueTimes100 *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+						iWarmongerValueTimes100 /= 100;
+					}
+					// Global Peace Accords?
+					else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eLoopPlayer) > 0)
+					{
+						iWarmongerValueTimes100 *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+						iWarmongerValueTimes100 /= 100;
+					}
+				}
+			}
+
+			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
 		}
 	}
@@ -9702,23 +9863,29 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 			{
 				int iDecayModifier = 100;
 
-				// INCREASE if he's big and nasty, less so if he's not.
+				// Decay slower if he's stronger than us, decay faster if he's not.
 				switch (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer))
 				{
 				case STRENGTH_IMMENSE:
+					iDecayModifier = /*50*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_IMMENSE();
+					break;
 				case STRENGTH_POWERFUL:
-					iDecayModifier = /*75*/ GC.getWARMONGER_THREAT_APPROACH_DECAY_SMALL();
+					iDecayModifier = /*75*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_POWERFUL();
+					break;
+				case STRENGTH_STRONG:
+					iDecayModifier = /*100*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_STRONG();
 					break;
 				case STRENGTH_AVERAGE:
-				case STRENGTH_STRONG:
-					iDecayModifier = /*150*/ GC.getWARMONGER_THREAT_APPROACH_DECAY_MEDIUM();
+					iDecayModifier = /*150*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_AVERAGE();
+					break;
+				case STRENGTH_POOR:
+					iDecayModifier = /*200*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_POOR();
 					break;
 				case STRENGTH_WEAK:
-				case STRENGTH_POOR:
-				case STRENGTH_PATHETIC:
-					iDecayModifier = /*225*/ GC.getWARMONGER_THREAT_APPROACH_DECAY_LARGE();
+					iDecayModifier = /*250*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_WEAK();
 					break;
-				default:
+				case STRENGTH_PATHETIC:
+					iDecayModifier = /*300*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_PATHETIC();
 					break;
 				}
 
@@ -9745,24 +9912,24 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 			int iThreatValue = GetOtherPlayerWarmongerScore(eLoopPlayer);
 
 			// Now do the final assessment
-			if (iThreatValue >= /*160*/ GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD())
+			if (iThreatValue >= /*200*/ GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD())
 				eThreatType = THREAT_CRITICAL;
-			else if (iThreatValue >= /*80*/ GC.getWARMONGER_THREAT_SEVERE_THRESHOLD())
+			else if (iThreatValue >= /*140*/ GC.getWARMONGER_THREAT_SEVERE_THRESHOLD())
 				eThreatType = THREAT_SEVERE;
-			else if (iThreatValue >= /*40*/ GC.getWARMONGER_THREAT_MAJOR_THRESHOLD())
+			else if (iThreatValue >= /*80*/ GC.getWARMONGER_THREAT_MAJOR_THRESHOLD())
 				eThreatType = THREAT_MAJOR;
-			else if (iThreatValue >= /*10*/ GC.getWARMONGER_THREAT_MINOR_THRESHOLD())
+			else if (iThreatValue >= /*20*/ GC.getWARMONGER_THREAT_MINOR_THRESHOLD())
 				eThreatType = THREAT_MINOR;
 
-			// Also test % of players killed (in case we're on a map with very few players or something)
+			// Also test % of players killed
 			int iNumPlayersEver = GC.getGame().countMajorCivsEverAlive();
 			int iNumPlayersKilled = GetPlayerNumMajorsConquered(eLoopPlayer) + (GetPlayerNumMinorsConquered(eLoopPlayer)/2);
 
-			if (eThreatType != THREAT_CRITICAL && iNumPlayersEver <= 4 && iNumPlayersKilled > 0)
+			if (eThreatType != THREAT_CRITICAL)
 			{
 				int iPlayersKilledPercent = iNumPlayersKilled * 100 / max(1, iNumPlayersEver);
 
-				if (iPlayersKilledPercent >= /*40*/ GC.getWARMONGER_THREAT_CRITICAL_PERCENT_THRESHOLD())
+				if (iPlayersKilledPercent >= /*33*/ GC.getWARMONGER_THREAT_CRITICAL_PERCENT_THRESHOLD())
 					eThreatType = THREAT_CRITICAL;
 
 				else if (iPlayersKilledPercent >= /*25*/ GC.getWARMONGER_THREAT_SEVERE_PERCENT_THRESHOLD())
@@ -26058,11 +26225,9 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 		return 0;
 
 	if (GetPlayer()->isHuman())
-	{
-		return (iReturnValue * 6) / 15;
-	}
+		return iReturnValue / 3;
 
-	// Modify warmonger amount based on diplomatic view of this player
+	// Modify warmonger amount based on current diplomatic status with this player
 	bool bUntrustworthy = false;
 
 	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
@@ -26110,31 +26275,10 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 		iReturnValue /= 2;
 	}
 
-	// Religion/ideology should impact this.
-	if (IsPlayerSameReligion(ePlayer))
-	{
-		iReturnValue *= 75;
-		iReturnValue /= 100;
-	}
-	else if (IsPlayerOpposingReligion(ePlayer) && !IsIgnoreReligionDifferences(ePlayer))
-	{
-		iReturnValue *= 125;
-		iReturnValue /= 100;
-	}
-
-	if (IsPlayerSameIdeology(ePlayer))
-	{
-		iReturnValue *= 50;
-		iReturnValue /= 100;
-	}
-	else if (IsPlayerOpposingIdeology(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer))
-	{
-		iReturnValue *= 150;
-		iReturnValue /= 100;
-	}
-
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
-	return iReturnValue / 15;
+	iReturnValue /= 15;
+
+	return iReturnValue;
 }
 
 /////////////////////////////////////////////////////////
@@ -50727,31 +50871,73 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 		case WARMONGER_MAJOR_ATTACKED:
 		{
 			int iWarmongerValue = /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT();
+			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT() / 2;
 
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * 10);
+			int iWarmongerStrengthModifier = 0;
 
-			// INCREASE if he's big and nasty, less so if he's not.
+			// INCREASE if he's big and nasty, DECREASE if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
 			{
 			case STRENGTH_IMMENSE:
+				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+				break;
 			case STRENGTH_POWERFUL:
+				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+				break;
 			case STRENGTH_STRONG:
-				iWarmongerModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
 				break;
 			case STRENGTH_AVERAGE:
-			case STRENGTH_WEAK:
-			case STRENGTH_POOR:
-			case STRENGTH_PATHETIC:
-				iWarmongerModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
 				break;
-			default:
+			case STRENGTH_POOR:
+				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+				break;
+			case STRENGTH_WEAK:
+				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+				break;
+			case STRENGTH_PATHETIC:
+				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
 				break;
 			}
 
-			iWarmongerValue *= iWarmongerModifier;
+			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			iWarmongerValue /= 100;
+
+			int iPersonalityMod = 0;
+
+			// AI? WarmongerHate flavor should matter.
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
+			}
+			// Human? UA should matter.
+			else
+			{
+				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
+
+				// Venice always applies the maximum penalty
+				if (pTraits->IsNoAnnexing())
+					iPersonalityMod = 5;
+				else // Otherwise, based on categories...
+				{
+					if (pTraits->IsWarmonger())
+						iPersonalityMod -= 2;
+					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
+						iPersonalityMod += 2;
+
+					if (pTraits->IsExpansionist())
+						iPersonalityMod -= 2;
+
+					if (pTraits->IsSmaller())
+						iPersonalityMod += 2;
+				}
+			}
+
+			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
@@ -50762,31 +50948,73 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 		case WARMONGER_MINOR_ATTACKED:
 		{
 			int iWarmongerValue = /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT();
+			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT() / 2;
 
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * 10);
+			int iWarmongerStrengthModifier = 0;
 
-			// INCREASE if he's big and nasty, less so if he's not.
+			// INCREASE if he's big and nasty, DECREASE if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
 			{
 			case STRENGTH_IMMENSE:
+				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+				break;
 			case STRENGTH_POWERFUL:
+				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+				break;
 			case STRENGTH_STRONG:
-				iWarmongerModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
 				break;
 			case STRENGTH_AVERAGE:
-			case STRENGTH_WEAK:
-			case STRENGTH_POOR:
-			case STRENGTH_PATHETIC:
-				iWarmongerModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
 				break;
-			default:
+			case STRENGTH_POOR:
+				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+				break;
+			case STRENGTH_WEAK:
+				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+				break;
+			case STRENGTH_PATHETIC:
+				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
 				break;
 			}
 
-			iWarmongerValue *= iWarmongerModifier;
+			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			iWarmongerValue /= 100;
+
+			int iPersonalityMod = 0;
+
+			// AI? WarmongerHate flavor should matter.
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
+			}
+			// Human? UA should matter.
+			else
+			{
+				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
+
+				// Venice always applies the maximum penalty
+				if (pTraits->IsNoAnnexing())
+					iPersonalityMod = 5;
+				else // Otherwise, based on categories...
+				{
+					if (pTraits->IsWarmonger())
+						iPersonalityMod -= 2;
+					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
+						iPersonalityMod += 2;
+
+					if (pTraits->IsExpansionist())
+						iPersonalityMod -= 2;
+
+					if (pTraits->IsSmaller())
+						iPersonalityMod += 2;
+				}
+			}
+
+			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
@@ -50796,32 +51024,74 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 		}
 		case WARMONGER_NUKED_PLAYER:
 		{
-			int iWarmongerValue = /*20*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT() * 2;
+			int iWarmongerValue = /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
+			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
 
 			if (iWarmongerValue <= 0)
 				return 0;
 
-			int iWarmongerModifier = 100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * 25);
+			int iWarmongerStrengthModifier = 0;
 
-			// INCREASE if he's big and nasty, less so if he's not.
+			// INCREASE if he's big and nasty, DECREASE if he's not.
 			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
 			{
 			case STRENGTH_IMMENSE:
+				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+				break;
 			case STRENGTH_POWERFUL:
+				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+				break;
 			case STRENGTH_STRONG:
-				iWarmongerModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
 				break;
 			case STRENGTH_AVERAGE:
-			case STRENGTH_WEAK:
-			case STRENGTH_POOR:
-			case STRENGTH_PATHETIC:
-				iWarmongerModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
 				break;
-			default:
+			case STRENGTH_POOR:
+				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+				break;
+			case STRENGTH_WEAK:
+				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+				break;
+			case STRENGTH_PATHETIC:
+				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
 				break;
 			}
 
-			iWarmongerValue *= iWarmongerModifier;
+			iWarmongerValue *= 100 + iWarmongerStrengthModifier;
+			iWarmongerValue /= 100;
+
+			int iPersonalityMod = 0;
+
+			// AI? WarmongerHate flavor should matter.
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
+			}
+			// Human? UA should matter.
+			else
+			{
+				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
+
+				// Venice always applies the maximum penalty
+				if (pTraits->IsNoAnnexing())
+					iPersonalityMod = 5;
+				else // Otherwise, based on categories...
+				{
+					if (pTraits->IsWarmonger())
+						iPersonalityMod -= 2;
+					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
+						iPersonalityMod += 2;
+
+					if (pTraits->IsExpansionist())
+						iPersonalityMod -= 2;
+
+					if (pTraits->IsSmaller())
+						iPersonalityMod += 2;
+				}
+			}
+
+			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
@@ -50842,9 +51112,12 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 	//cities rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
 	iWarmongerWeight = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
 
+	iWarmongerWeight *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
+	iWarmongerWeight /= 100;
+
 	if (pCity->IsOriginalCapitalForPlayer(ePlayer))
 	{
-		iWarmongerWeight *= /*125*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
+		iWarmongerWeight *= /*150*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
 		iWarmongerWeight /= 100;
 	}
 
@@ -50852,23 +51125,14 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 	if (eWarmonger != NO_PLAYER)
 	{
 		int iNumTimesOwned(pCity->GetNumTimesOwned(eWarmonger));
-		if (iNumTimesOwned > 1)
+
+		if (pCity->IsNoWarmongerYet())
+			iNumTimesOwned--;
+
+		if (iNumTimesOwned > 0)
 		{
-			iWarmongerWeight -= (iNumTimesOwned * 10);
+			iWarmongerWeight -= (iNumTimesOwned * 20);
 		}
-	}
-
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-
-	if ((pLeague != NULL && pLeague->IsTradeEmbargoed(eWarmonger, ePlayer)) || GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
-	{
-		iWarmongerWeight *= GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-		iWarmongerWeight /= 100;
-	}
-	else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
-	{
-		iWarmongerWeight *= GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-		iWarmongerWeight /= 100;
 	}
 
 	if (iWarmongerWeight <= 0)
@@ -50876,6 +51140,402 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 
 	CUSTOMLOG("GetWarmongerOffset = %i for %s, Turn %i", iWarmongerWeight, pCity->getNameKey(), GC.getGame().getGameTurn());
 	return iWarmongerWeight;
+}
+
+int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerTypes eCityOwner, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation)
+{
+	if (!GET_PLAYER(eCaringPlayer).isAlive() || !GET_PLAYER(eCaringPlayer).isMajorCiv() || GET_PLAYER(eCaringPlayer).getTeam() == GET_PLAYER(eCityTaker).getTeam())
+		return 0;
+
+	CvPlayer& kCityTaker = GET_PLAYER(eCityTaker);
+	CvPlayer& kCityOwner = GET_PLAYER(eCityOwner);
+	CvPlayer &kCaringPlayer = GET_PLAYER(eCaringPlayer);
+	CvDiplomacyAI* pCarerDiplo = GET_PLAYER(eCaringPlayer).GetDiplomacyAI();
+	CvTeam &kCaringTeam = GET_TEAM(GET_PLAYER(eCaringPlayer).getTeam());
+
+	// Must have met the conqueror/liberator - no cheating!
+	if (!kCaringTeam.isHasMet(kCityTaker.getTeam()))
+		return 0;
+
+	// Vassals ignore their master's warmongering.
+	if (pCarerDiplo->IsVassal(eCityTaker))
+		return 0;
+
+	// Vassals receive no warmongering penalties, they have no rights.
+	if (kCityTaker.IsVassalOfSomeone())
+		return 0;
+
+	// Did they liberate a city that we previously owned by giving it to someone else? No bonuses!
+	if (bLiberation && pCity->GetNumTimesOwned(eCaringPlayer) > 0 && eCaringPlayer != eCityOwner)
+		return 0;
+	
+	// Am I at war with the owner of the conquered/liberated city?
+	if (kCaringTeam.isAtWar(kCityOwner.getTeam()))
+	{
+		// No bonuses for liberation if we're at war with the liberated player!
+		if (bLiberation)
+			return 0;
+
+		// If our warscore with the conquered player is negative, ignore warmongering.
+		vector<PlayerTypes> vCaringTeam = kCaringTeam.getPlayers();
+		for (size_t i=0; i<vCaringTeam.size(); i++)
+		{
+			if (GET_PLAYER(vCaringTeam[i]).isAlive() && GET_PLAYER(vCaringTeam[i]).GetDiplomacyAI()->GetWarScore(eCityOwner) < 0)
+				return 0;
+		}
+	}
+
+	int iWarmongerStatusModifier = 100;
+	bool bHisLossIsOurOwn = false;
+
+	// Vassalage?
+	if (pCarerDiplo->IsVassal(eCityOwner) || pCarerDiplo->IsMaster(eCityOwner))
+	{
+		iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+		bHisLossIsOurOwn = true;
+	}
+	// Alliances? Unmet defender?
+	else
+	{
+		// The affected player is in a co-op war with the attacker against the defender - this trumps everything!
+		if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetCoopWarState(eCityTaker, eCityOwner) == COOP_WAR_STATE_ONGOING)
+		{
+			iWarmongerStatusModifier = /*10*/ GC.getWARMONGER_THREAT_COOP_WAR_PERCENT();
+		}
+		// The affected player is in a co-op war with the defender against the attacker, or has a Defensive Pact/is a teammate - his loss is our own!
+		else if (pCarerDiplo->GetCoopWarState(eCityOwner, eCityTaker) == COOP_WAR_STATE_ONGOING || pCarerDiplo->IsHasDefensivePact(eCityOwner) || kCaringPlayer.getTeam() == kCityOwner.getTeam())
+		{
+			iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+			bHisLossIsOurOwn = true;
+
+			// A city? For me? Thanks!!
+			if (bLiberation && kCaringPlayer.getTeam() == kCityOwner.getTeam())
+			{
+				iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT();
+			}
+		}
+		// Do we not know the defender?
+		else if (!kCaringTeam.isHasMet(kCityOwner.getTeam()))
+		{
+			iWarmongerStatusModifier = /*50*/ GC.getWARMONGER_THREAT_KNOWS_ATTACKER_PERCENT();
+		}
+		// Care less if we're also at war with the city owner
+		else if (pCarerDiplo->IsAtWar(eCityOwner))
+		{
+			iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+		}
+	}
+
+	int iWarmongerStrengthModifier = 0;
+	if (!bHisLossIsOurOwn)
+	{
+		// INCREASE if he's big and nasty, DECREASE if he's not.
+		switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityTaker))
+		{
+		case STRENGTH_IMMENSE:
+			iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+			break;
+		case STRENGTH_POWERFUL:
+			iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+			break;
+		case STRENGTH_STRONG:
+			iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
+			break;
+		case STRENGTH_AVERAGE:
+			iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
+			break;
+		case STRENGTH_POOR:
+			iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+			break;
+		case STRENGTH_WEAK:
+			iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+			break;
+		case STRENGTH_PATHETIC:
+			iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
+			break;
+		}
+
+		// DECREASE if opponent is big and nasty.
+		switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityOwner))
+		{
+		case STRENGTH_IMMENSE:
+			iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+			break;
+		case STRENGTH_POWERFUL:
+			iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+			break;
+		case STRENGTH_STRONG:
+			iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+			break;
+		case STRENGTH_AVERAGE:
+			iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+			break;
+		}
+	}
+
+	int iWarmongerPoliticalModifier = 0;
+	if (kCaringPlayer.getTeam() != kCityOwner.getTeam())
+	{
+		// City-State
+		if (kCityOwner.isMinorCiv())
+		{
+			// Allies?
+			if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) >= GC.getFRIENDSHIP_THRESHOLD_ALLIES() || kCityOwner.GetMinorCivAI()->GetPermanentAlly() == eCaringPlayer)
+			{
+				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+			}
+			else if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) >= GC.getFRIENDSHIP_THRESHOLD_FRIENDS())
+			{
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+			}
+			else
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+			}
+
+			if (kCityOwner.GetMinorCivAI()->IsProtectedByMajor(eCaringPlayer))
+			{
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+			}
+			else if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) < GC.getFRIENDSHIP_THRESHOLD_ALLIES())
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+			}
+		}
+		// Major Civ
+		else
+		{
+			// Are we friends with the city owner?
+			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDoFAccepted(eCityOwner) || GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsHasDefensivePact(eCityOwner))
+			{
+				switch (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetDoFType(eCityOwner))
+				{
+				case DOF_TYPE_FRIENDS:
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+					break;
+				case DOF_TYPE_ALLIES:
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					break;
+				case DOF_TYPE_BATTLE_BROTHERS:
+					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+					break;
+				}
+			}
+			else if (!bLiberation)
+			{
+				// Have we denounced the city owner?
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+				// Have we BEEN denounced by the city owner?
+				if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->IsDenouncedPlayer(eCaringPlayer))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+
+				// Is this a backstabber?
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsUntrustworthy(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+				}
+			}
+
+			// Are we friends with the city taker?
+			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDoFAccepted(eCityTaker) || GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsHasDefensivePact(eCityTaker))
+			{
+				switch (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetDoFType(eCityTaker))
+				{
+				case DOF_TYPE_FRIENDS:
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+					break;
+				case DOF_TYPE_ALLIES:
+				case DOF_TYPE_BATTLE_BROTHERS:
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+					break;
+				}
+			}
+			else if (!bLiberation)
+			{
+				// Have we denounced the city taker?
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eCityTaker))
+				{
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				}
+				// Have we BEEN denounced by the city taker?
+				if (GET_PLAYER(eCityTaker).GetDiplomacyAI()->IsDenouncedPlayer(eCaringPlayer))
+				{
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				}
+
+				// Is this a backstabber?
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsUntrustworthy(eCityTaker))
+				{
+					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+				}
+			}
+
+			// Religious brothers/sisters should turn a blind eye to war conducted on different faiths.
+			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameReligion(eCityTaker))
+			{
+				// Reduced penalties for religious friends.
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+
+				// We don't mind when you war on enemies of the faith.
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingReligion(eCityOwner) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreReligionDifferences(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+			}
+			// Religious enemies will not be allowed to expand!
+			else if (!bLiberation && GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingReligion(eCityTaker) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreReligionDifferences(eCityTaker))
+			{
+				// Increased penalties for religious enemies.
+				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+
+				// We don't like it when you war on brothers of the faith.
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameReligion(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				}
+			}
+
+			// Are the city taker and I of the same ideology?
+			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eCityTaker))
+			{
+				// Reduced penalties for ideological companions.
+				iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+
+				// We overlook war on our ideological opponents!
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingIdeology(eCityOwner) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+				}
+			}
+			// Are the city taker and I of different ideologies? We shall not overlook this!
+			else if (!bLiberation && GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingIdeology(eCityTaker) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eCityTaker))
+			{
+				// Increased penalties for ideological enemies.
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+
+				// If they're warring our ideological companions, this will really irritate us.
+				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eCityOwner))
+				{
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				}
+			}
+
+			// Proximity should matter.
+			switch (GET_PLAYER(eCityTaker).GetProximityToPlayer(eCaringPlayer))
+			{
+			case PLAYER_PROXIMITY_DISTANT:
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				break;
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+				break;
+			}
+		}
+	}
+
+	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(pCity, eCityTaker, eCityOwner);
+
+	//this is the big one - geopolitics etc.
+	iWarmongerOffset *= 100 + max(-75, iWarmongerPoliticalModifier);
+	iWarmongerOffset /= 100;
+
+	//this one mainly deals with relative power - with liberation it applies in reverse
+	iWarmongerOffset *= bLiberation ? max(25, 100 - iWarmongerStrengthModifier) : max(0, 100 + iWarmongerStrengthModifier);
+	iWarmongerOffset /= 100;
+
+	//this one mainly deals with defensive pacts and vassalage
+	iWarmongerOffset *= iWarmongerStatusModifier;
+	iWarmongerOffset /= 100;
+
+	//global warmongering modifiers
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bHisLossIsOurOwn)
+	{
+		if (!bLiberation && pLeague->IsTradeEmbargoed(eCaringPlayer, eCityOwner))
+		{
+			iWarmongerOffset *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+			iWarmongerOffset /= 100;
+		}
+		// Casus Belli? Warmongering and liberation are worth half.
+		if (GC.getGame().GetGameLeagues()->IsWorldWar(eCaringPlayer) > 0)
+		{
+			iWarmongerOffset *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+			iWarmongerOffset /= 100;
+		}
+		// Global Peace Accords? Warmongering and liberation are worth double.
+		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eCaringPlayer) > 0)
+		{
+			iWarmongerOffset *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+			iWarmongerOffset /= 100;
+		}
+	}
+
+	int iPersonalityMod = 0;
+
+	// AI? WarmongerHate flavor should matter.
+	if (!GET_PLAYER(eCaringPlayer).isHuman())
+	{
+		iPersonalityMod = GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
+	}
+	// Human? UA should matter.
+	else
+	{
+		CvPlayerTraits* pTraits = GET_PLAYER(eCaringPlayer).GetPlayerTraits();
+
+		// Venice always applies the maximum penalty
+		if (pTraits->IsNoAnnexing())
+			iPersonalityMod = 5;
+		else // Otherwise, based on categories...
+		{
+			if (pTraits->IsWarmonger())
+				iPersonalityMod -= 2;
+			else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
+				iPersonalityMod += 2;
+
+			if (pTraits->IsExpansionist())
+				iPersonalityMod -= 2;
+
+			if (pTraits->IsSmaller())
+				iPersonalityMod += 2;
+		}
+	}
+
+	iWarmongerOffset *= 100 + (iPersonalityMod * 10);
+	iWarmongerOffset /= 100;
+
+	// scale the final amount by era
+	iWarmongerOffset *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
+	iWarmongerOffset /= 100;
+
+	return iWarmongerOffset;
+}
+
+void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity)
+{
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
+		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
+		{
+			int iWarmonger = GetPlayerCaresValue(eConqueror, eConquered, pCity, eMajor);
+			if (iWarmonger > 0)
+			{
+				CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
+				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmonger * 100);
+			}
+		}
+	}
 }
 
 CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwner, CvCity* pCity, PlayerTypes eActivePlayer)
@@ -50896,10 +51556,6 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 			{
 				// Ignore unmet players
 				if (!GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
-					continue;
-
-				// Ignore humans
-				if (GET_PLAYER((PlayerTypes)iPlayerLoop).isHuman())
 					continue;
 
 				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eCurrentOwner, pCity, (PlayerTypes)iPlayerLoop);
@@ -51012,10 +51668,6 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 				if (!GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
 					continue;
 				
-				// Ignore humans
-				if (GET_PLAYER((PlayerTypes)iPlayerLoop).isHuman())
-					continue;
-				
 				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eOriginalOwner, pCity, (PlayerTypes)iPlayerLoop, true);
 
 				if (iWarmongerCare > 0)
@@ -51101,389 +51753,6 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 	}
 
 	return szRtnValue;
-}
-
-void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity)
-{
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
-		{
-			int iWarmonger = GetPlayerCaresValue(eConqueror, eConquered, pCity, eMajor);
-			if (iWarmonger > 0)
-			{
-				iWarmonger *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
-				iWarmonger /= 100;
-
-				CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmonger * 100);
-			}
-		}
-	}
-}
-
-int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eMajor, bool bLiberation)
-{
-	CvPlayer &kConqueringPlayer = GET_PLAYER(eConqueror);
-	CvPlayer &kConqueredPlayer = GET_PLAYER(eConquered);
-	
-	//Don't consider ourselves, teammates or dead dudes.
-	if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
-	{
-		CvTeam &kAffectedTeam = GET_TEAM(GET_PLAYER(eMajor).getTeam());
-		
-		// Don't apply warmongering or liberation if we haven't met the conqueror (otherwise that's cheating)
-		if(!kAffectedTeam.isHasMet(kConqueringPlayer.getTeam()))
-			return 0;
-		
-		// Am I at war with the owner of the conquered/liberated city? How's the war going?
-		if (kAffectedTeam.isAtWar(kConqueredPlayer.getTeam()))
-		{
-			// If our warscore with the owner is negative, ignore warmongering AND liberation.
-			if (GET_PLAYER(eMajor).GetDiplomacyAI()->GetWarScore(eConquered) < 0)
-			{
-				return 0;
-			}
-			
-			// Loop through all other players on our team and perform the same check
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				
-				if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != eMajor && GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMajor).getTeam())
-				{
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarScore(eConquered) < 0)
-					{
-						return 0;
-					}
-				}
-			}
-		}
-
-		int iWarmongerModifier = 100;
-		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
-
-		if (eMajor == eConquered && !bLiberation)
-		{
-			// The conquered city owner ALWAYS gets the full warmonger value
-		}
-		//Our city? Only we should care.
-		else if (eConqueror == eConquered && bLiberation)
-		{
-			return 0;
-		}
-		else if (bLiberation && eFormerOwner == eMajor && GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(kConqueringPlayer.getTeam()))
-		{
-			return 0;
-		}
-		//At war with the civ that formerly owned the city? No liberation bonuses for this.
-		else if (kConqueredPlayer.isAlive() && bLiberation && GET_TEAM(kConqueredPlayer.getTeam()).isAtWar(GET_PLAYER(eConqueror).getTeam()))
-		{
-			return 0;
-		}
-		//At war with the civ that owns the city now? No liberation bonus for this.
-		else if (bLiberation && eMajor == pCity->getOwner() && GET_TEAM(kConqueringPlayer.getTeam()).isAtWar(pCity->getTeam()))
-		{
-			return 0;
-		}
-		//At war with the conquering civ? No liberation bonus for this.
-		else if (bLiberation && GET_TEAM(kConqueredPlayer.getTeam()).isAtWar(pCity->getTeam()))
-		{
-			return 0;
-		}
-
-		else
-		{
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !bLiberation)
-			{
-				// Our master?
-				if (kAffectedTeam.IsVassal(kConqueringPlayer.getTeam()))
-				{
-					return 0;
-				}
-				// Vassals receive no warmongering penalties, they have no rights.
-				if (kConqueringPlayer.IsVassalOfSomeone())
-				{
-					return 0;
-				}
-				if (kAffectedTeam.IsVassal(GET_PLAYER(eConquered).getTeam()))
-				{
-					iWarmongerModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-				}
-				else if (GET_TEAM(kConqueredPlayer.getTeam()).IsVassal(GET_PLAYER(eMajor).getTeam()))
-				{
-					iWarmongerModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-				}
-			}
-
-			int iWarmongerCoopWarPercent = /*10*/ GC.getWARMONGER_THREAT_COOP_WAR_PERCENT();
-			bool bCoopWarWithAttacker = (GET_PLAYER(eMajor).GetDiplomacyAI()->GetCoopWarState(eConqueror, eConquered) == COOP_WAR_STATE_ONGOING);
-
-			// The affected player is in a co-op war with the attacker against the defender - this trumps everything!
-			if (bCoopWarWithAttacker)
-			{
-				iWarmongerModifier = iWarmongerCoopWarPercent;
-			}
-			// Do we not know the defender?
-			else if (!kAffectedTeam.isHasMet(kConqueredPlayer.getTeam()))
-			{
-				iWarmongerModifier *= /*50*/ GC.getWARMONGER_THREAT_KNOWS_ATTACKER_PERCENT();
-				iWarmongerModifier /= 100;
-			}
-		}
-
-		int iWarmongerApproachModifier = 0;
-		if (!bLiberation)
-		{
-			if (eMajor == eConquered || GET_PLAYER(eMajor).getTeam() == GET_PLAYER(eConquered).getTeam() || kAffectedTeam.IsHasDefensivePact(kConqueredPlayer.getTeam()))
-			{
-				iWarmongerApproachModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-			}
-			else
-			{
-				// INCREASE if he's big and nasty, less so if he's not.
-				switch (GET_PLAYER(eMajor).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eConqueror))
-				{
-					case STRENGTH_IMMENSE:
-					case STRENGTH_POWERFUL:
-						iWarmongerApproachModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-						break;
-					case STRENGTH_STRONG:
-					case STRENGTH_AVERAGE:
-						iWarmongerApproachModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-						break;
-					case STRENGTH_WEAK:
-					case STRENGTH_POOR:
-					case STRENGTH_PATHETIC:
-						iWarmongerApproachModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-						break;
-					default:
-						break;
-				}
-
-				// DECREASE if opponent is big and nasty, less so if he's not.
-				switch (GET_PLAYER(eMajor).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eConquered))
-				{
-				case STRENGTH_IMMENSE:
-				case STRENGTH_POWERFUL:
-				case STRENGTH_STRONG:
-					iWarmongerApproachModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
-					break;
-				case STRENGTH_AVERAGE:
-				case STRENGTH_WEAK:
-				case STRENGTH_POOR:
-				case STRENGTH_PATHETIC:
-					iWarmongerApproachModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		int iWarmongerStatusModifier = 0;
-		
-		if (eMajor == eConquered)
-		{
-			iWarmongerStatusModifier += /*150*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 2;
-		}
-
-		if (eMajor != eConquered)
-		{
-			//penalty if I'm also at war with conquered civ
-			if (kAffectedTeam.isAtWar(GET_PLAYER(eConquered).getTeam()))
-			{
-				iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-			}
-
-			if (!bLiberation)
-			{
-				//Minor
-				if (kConqueredPlayer.isMinorCiv())
-				{
-					if (kConqueredPlayer.GetMinorCivAI()->IsAllies(eMajor))
-					{
-						iWarmongerStatusModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-					}
-					else if (kConqueredPlayer.GetMinorCivAI()->IsFriends(eMajor))
-					{
-						iWarmongerStatusModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					}
-					else
-					{
-						iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					}
-
-					if (kConqueredPlayer.GetMinorCivAI()->IsProtectedByMajor(eMajor))
-					{
-						iWarmongerStatusModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-					}
-					else
-					{
-						iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					}
-				}
-
-				//RELIGION
-
-				//Religious brothers/sisters should turn a blind eye to war conducted on different faiths.
-				if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerSameReligion(eConqueror))
-				{
-					//Reduced penalties for religious friends.
-					iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-
-					//We don't mind when you war on enemies of the faith.
-					if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingReligion(eConquered) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreReligionDifferences(eConquered))
-					{
-						//If everything is true, halve the standard warmonger amount for this player.
-						iWarmongerStatusModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
-					}
-				}
-				//Religious enemies will not be allowed to expand!
-				else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingReligion(eConqueror) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreReligionDifferences(eConqueror))
-				{
-					//Increased penalties for religious enemies.
-					iWarmongerStatusModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-
-					//We don't like it when you war on brothers of the faith.
-					if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerSameReligion(eConquered))
-					{
-						//If everything is true, double the standard warmonger amount for this player.
-						iWarmongerStatusModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					}
-				}
-
-				//IDEOLOGY
-
-				//Are the conqueror and I of the same ideology? We overlook war on our ideological opponents.
-				if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerSameIdeology(eConqueror))
-				{
-					//Reduced penalties for ideological companions.
-					iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					//We overlook war on our ideological opponents!
-					if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingIdeology(eConquered) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eConquered))
-					{
-						//If everything is true, halve the standard warmonger amount for this player.
-						iWarmongerStatusModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
-					}
-				}
-				//Are the conqueror and I of different ideologies? We shall not overlook this (especially if they're fighting an ideological ally)!
-				else if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerOpposingIdeology(eConqueror) && !GET_PLAYER(eMajor).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eConqueror))
-				{
-					//Increased penalties for ideological enemies.
-					iWarmongerStatusModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-
-					if (GET_PLAYER(eMajor).GetDiplomacyAI()->IsPlayerSameIdeology(eConquered))
-					{
-						//If the conquered player and I are of the same ideology, this will really irritate us.
-						iWarmongerStatusModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					}
-				}
-
-				//SANCTIONED
-
-				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-
-				//Is the conquered player embargoed (i.e. sanctioned)? If so, half warmonger penalties against this civ.
-				if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMajor, eConquered))
-				{
-					iWarmongerStatusModifier -= /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-				}
-
-				// Is the Casus Belli resolution enabled? If so, greatly reduce warmonger penalties.
-				if (MOD_DIPLOMACY_CITYSTATES && GC.getGame().GetGameLeagues()->IsWorldWar(eMajor) > 0)
-				{
-					iWarmongerStatusModifier -= /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-				}
-
-				// Is the Global Peace Accords resolution enabled? If so, greatly increase warmonger penalties.
-				if (MOD_DIPLOMACY_CITYSTATES && GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eMajor) > 0)
-				{
-					iWarmongerStatusModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-				}
-
-				// Personality should also matter
-				if (!GET_PLAYER(eMajor).isHuman())
-				{
-					int iPersonality = GET_PLAYER(eMajor).GetDiplomacyAI()->GetDiploBalance() * GET_PLAYER(eMajor).GetDiplomacyAI()->GetWarmongerHate();
-					iWarmongerStatusModifier *= (100 + iPersonality);
-					iWarmongerStatusModifier /= 100;
-				}
-				// Humans we assume average.
-				else
-				{
-					iWarmongerStatusModifier *= 136;
-					iWarmongerStatusModifier /= 100;
-				}
-			}
-			// Liberation bonuses/penalties
-			else
-			{
-				//If the conqueror is at war, liberating cities matters way less to them.
-				if (GET_TEAM(kConqueringPlayer.getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
-				{
-					iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-				}
-				//Is this a city for me? Yay!
-				if (eMajor == eConquered)
-				{
-					iWarmongerStatusModifier += /*150*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 2;
-				}
-
-				//Minor
-				if (kConqueredPlayer.isMinorCiv())
-				{
-					if (kConqueredPlayer.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor) >= GC.getFRIENDSHIP_THRESHOLD_ALLIES())
-					{
-						iWarmongerStatusModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-					}
-					else if (kConqueredPlayer.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor) >= GC.getFRIENDSHIP_THRESHOLD_FRIENDS())
-					{
-						iWarmongerStatusModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					}
-					else
-					{
-						iWarmongerStatusModifier -= /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-					}
-				}
-			}
-			//Proximity should matter.
-			if (GET_PLAYER(eMajor).GetProximityToPlayer(eConquered) == PLAYER_PROXIMITY_DISTANT)
-			{
-				iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-			}
-			else if (GET_PLAYER(eMajor).GetProximityToPlayer(eConquered) == PLAYER_PROXIMITY_FAR)
-			{
-				iWarmongerStatusModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-			}
-			else if (GET_PLAYER(eMajor).GetProximityToPlayer(eConquered) == PLAYER_PROXIMITY_CLOSE)
-			{
-				iWarmongerStatusModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-			}
-			else if (GET_PLAYER(eMajor).GetProximityToPlayer(eConquered) == PLAYER_PROXIMITY_NEIGHBORS)
-			{
-				iWarmongerStatusModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-			}
-		}
-
-		int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(pCity, eConqueror, eMajor);
-
-		//this is the big one - geopolitics etc.
-		iWarmongerOffset *= 100 + max(-75, iWarmongerStatusModifier);
-		iWarmongerOffset /= 100;
-
-		//this one mainly deals with relative power
-		iWarmongerOffset *= 100 + iWarmongerApproachModifier;
-		iWarmongerOffset /= 100;
-
-		//this one mainly deals with defensive pacts and vassalage
-		iWarmongerOffset *= max(1, iWarmongerModifier);
-		iWarmongerOffset /= 100;
-
-		return iWarmongerOffset;
-	}
-	return 0;
 }
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

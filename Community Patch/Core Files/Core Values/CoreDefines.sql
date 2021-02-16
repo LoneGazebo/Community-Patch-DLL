@@ -51,29 +51,61 @@ INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
 
 
 -- Whoward Warmonger Adjustments
-UPDATE Defines SET Value = '5' WHERE Name = 'WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT';
-UPDATE Defines SET Value = '10' WHERE Name = 'WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT';
-UPDATE Defines SET Value = '20' WHERE Name = 'WARMONGER_THREAT_MINOR_THRESHOLD';
-UPDATE Defines SET Value = '40' WHERE Name = 'WARMONGER_THREAT_MAJOR_THRESHOLD';
-UPDATE Defines SET Value = '60' WHERE Name = 'WARMONGER_THREAT_SEVERE_THRESHOLD';
-UPDATE Defines SET Value = '80' WHERE Name = 'WARMONGER_THREAT_CRITICAL_THRESHOLD';
+-- Decay rate
 UPDATE Defines SET Value = '-2' WHERE Name = 'WARMONGER_THREAT_PER_TURN_DECAY';
 
--- Multiplicative modifiers which increase or decrease warmonger penalty per turn decay rate
-INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_APPROACH_DECAY_LARGE', '225';
-INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_APPROACH_DECAY_MEDIUM', '150';
-INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_APPROACH_DECAY_SMALL', '75';
+-- Weight of warmonger triggers
+UPDATE Defines SET Value = '5' WHERE Name = 'WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT';
+UPDATE Defines SET Value = '10' WHERE Name = 'WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_USED_NUKE_WEIGHT', '20';
 
--- Multiplicative modifier for how much more the capital is worth
-INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_CAPITAL_CITY_PERCENT', '125';
+UPDATE Defines SET Value = '100' WHERE Name = 'WARMONGER_THREAT_CITY_VALUE_MULTIPLIER'; -- > 100: each city is worth more ... < 100: each city is worth less (multiplicative)
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_CAPITAL_CITY_PERCENT', '150'; -- how much more the capital is worth (multiplicative)
+
+-- Thresholds for warmonger threat levels (must have this much opinion penalty)
+UPDATE Defines SET Value = '20' WHERE Name = 'WARMONGER_THREAT_MINOR_THRESHOLD';
+UPDATE Defines SET Value = '80' WHERE Name = 'WARMONGER_THREAT_MAJOR_THRESHOLD';
+UPDATE Defines SET Value = '140' WHERE Name = 'WARMONGER_THREAT_SEVERE_THRESHOLD';
+UPDATE Defines SET Value = '200' WHERE Name = 'WARMONGER_THREAT_CRITICAL_THRESHOLD';
+UPDATE Defines SET Value = '25' WHERE Name = 'WARMONGER_THREAT_SEVERE_PERCENT_THRESHOLD'; -- if you have conquered (killed, vassalized or captured capital) this % of major civs, threat is set to severe regardless of score. city-states count as half a major.
+UPDATE Defines SET Value = '33' WHERE Name = 'WARMONGER_THREAT_CRITICAL_PERCENT_THRESHOLD'; -- if you have conquered (killed, vassalized or captured capital) this % of major civs, threat is set to critical regardless of score. city-states count as half a major.
+
+-- Multiplicative modifiers which increase or decrease warmonger penalty per turn decay rate
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_IMMENSE', '50';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_POWERFUL', '75';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_STRONG', '100';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_AVERAGE', '150';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_POOR', '200';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_WEAK', '250';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_STRENGTH_DECAY_PATHETIC', '300';
+
+-- Multiplicative modifier for when the bystander is on the same team as the defender, has a coop war with the defender against the attacker, or has a Defensive Pact with the defender
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_SHARED_FATE_PERCENT', '200';
+
+-- Multiplicative modifier to the bonus for liberating a city owned by this player's team (added on top of SHARED_FATE_PERCENT)
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT', '200';
 
 -- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT', '50';
 
--- Multiplicative modifier for when the bystander is in a coop war with the attacker against the defender
+-- Multiplicative modifier for when the bystander is in a coop war with the attacker against the defender (huge reduction!)
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_COOP_WAR_PERCENT', '10';
 
--- Additive modifiers for warmonger penalty based on various conditions
+-- Additive modifiers which increase or decrease warmonger penalty based on how strong the attacker and defender are, compared to the bystander
+-- Not applied if SHARED_FATE_PERCENT is applicable; values are inverted when liberating a city
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE', '100';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL', '75';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_STRONG', '50';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE', '33';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_POOR', '0';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_WEAK', '-25';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC', '-50';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE', '-75';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL', '-50';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_DEFENDER_STRENGTH_STRONG', '-25';
+INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE', '0';
+
+-- Additive modifiers for warmonger penalty based on various other conditions
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_MODIFIER_LARGE', '75';
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_MODIFIER_MEDIUM', '50';
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_MODIFIER_SMALL', '25';
