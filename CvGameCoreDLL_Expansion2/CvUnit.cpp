@@ -13833,43 +13833,6 @@ bool CvUnit::build(BuildTypes eBuild)
 				eRoute = (RouteTypes) pkBuildInfo->getRoute();
 			}
 
-			int iNumResource = 0;
-
-			// Update the amount of a Resource used up by popped Build
-			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				if(eImprovement != NO_IMPROVEMENT)
-				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-					if(pkImprovementInfo)
-					{
-						iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
-					}
-				}
-#if defined(GLOBAL_ALPINE_PASSES)
-				// Can be both an improvement and a route
-				if(eRoute != NO_ROUTE)
-#else
-				else if(eRoute != NO_ROUTE)
-#endif
-				{
-					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-					if(pkRouteInfo)
-					{
-#if defined(GLOBAL_ALPINE_PASSES)
-						iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-#else
-						iNumResource = pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-#endif
-					}
-				}
-
-				if(iNumResource > 0)
-				{
-					kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, -iNumResource);
-				}
-			}
-
 			if(pkBuildInfo->isKill())
 			{
 				if (pPlot->isActiveVisible(false))
