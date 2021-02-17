@@ -20976,6 +20976,18 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			continue;
 		}
 
+		if (GetMajorCivOpinion(eLoopPlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		{
+			SetStrategicTradePartner(eLoopPlayer, false);
+			continue;
+		}
+
+		if (GetWarmongerThreat(eLoopPlayer) >= THREAT_SEVERE)
+		{
+			SetStrategicTradePartner(eLoopPlayer, false);
+			continue;
+		}
+
 		if (IsUntrustworthy(eLoopPlayer))
 		{
 			SetStrategicTradePartner(eLoopPlayer, false);
@@ -52329,6 +52341,10 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	if (GET_TEAM(GetTeam()).isHuman())
 		return false;
 
+	// Can't capitulate if we have vassals
+	if (GetPlayer()->GetNumVassals() > 0)
+		return false;
+
 	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
 	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
 
@@ -52383,25 +52399,22 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 /// Do we want to capitulate to ePlayer due to war?
 bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
-	// Can't capitulate if we have vassals
-	if (GetPlayer()->GetNumVassals() > 0)
-		return false;
+	int iWarScore = GetWarScore(ePlayer);
 
 	// We've totally lost...
-	int iWarScore = GetWarScore(ePlayer);
 	if (iWarScore <= -95)
 		return true;
-
-	// Not defensive
-	if (GetWarState(ePlayer) > WAR_STATE_DEFENSIVE)
-		return false;
 
 	// War score must be at least -75 to even consider it
 	if (iWarScore > -75)
 		return false;
 
+	// Not defensive
+	if (GetWarState(ePlayer) > WAR_STATE_DEFENSIVE)
+		return false;
+
 	int iCapitulationScore = iWarScore * -1;
-	
+
 	// How strong are they militarily? (must be stronger!)
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
@@ -52437,7 +52450,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	}
 
 	// How close are they to us?
-	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()))
+	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
 	{
 	case PLAYER_PROXIMITY_NEIGHBORS:
 		iCapitulationScore += 10;
@@ -52511,7 +52524,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	int iNumTheirCitiesInDanger = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
-		if (!pLoopCity->IsInDanger(GetPlayer()->GetID()))
+		if (!pLoopCity->IsInDanger(GetID()))
 			continue;
 
 		iNumTheirCitiesInDanger++;
@@ -52531,7 +52544,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		else if (pLoopCity->isUnderSiege() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 		{
 			// Don't surrender if we could get our capital or Holy City back!
-			if (pLoopCity->IsOriginalCapitalForPlayer(GetPlayer()->GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
+			if (pLoopCity->IsOriginalCapitalForPlayer(GetID()) || pLoopCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetCurrentReligion(false)))
 				return false;
 
 			iCapitulationScore -= 10;
@@ -52560,299 +52573,383 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		return false;
 	}
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
-	return (iCapitulationScore > iThreshold);
+	int iOurCivs = GET_TEAM(GetTeam()).getAliveCount();
+	int iTheirCivs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAliveCount();
+
+	// Harder if we have more civs on our team
+	if (iOurCivs > iTheirCivs)
+	{
+		iCapitulationScore -= min(30, 10 * (iOurCivs - iTheirCivs));
+	}
+	// Easier if they have more civs on their team
+	else if (iTheirCivs > iOurCivs)
+	{
+		iCapitulationScore += min(30, 10 * (iTheirCivs - iOurCivs));
+	}
+
+	return (iCapitulationScore > /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD());
 }
 
 /// Do we want to voluntarily become ePlayer's vassal?
 bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 {
-	TeamTypes eOurTeam = GetTeam();
-	CvTeam& kOurTeam = GET_TEAM(eOurTeam);
-
-	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
-	CvTeam& kTheirTeam = GET_TEAM(eTheirTeam);
-
-	// No cities
-	if(kTheirTeam.getNumCities() == 0)
+	// No voluntary capitulation if there's less than 50% of the players ever alive
+	if (GC.getGame().countMajorCivsAlive() < (GC.getGame().countMajorCivsEverAlive() / 2))
 		return false;
+
+	int iOurCivs = GET_TEAM(GetTeam()).getAliveCount();
+	int iTheirCivs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAliveCount();
 
 	// We have more members - no
-	if(kOurTeam.getAliveCount() > kTheirTeam.getAliveCount())
+	if (iOurCivs > iTheirCivs)
 		return false;
 
-	// Vassalage never acceptable if I have vassals already
-	if(GET_TEAM(GetTeam()).GetNumVassals() > 0)
+	// They're too far away - no
+	if (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE)
 		return false;
 
-	//cannot voluntary become a vassal if at war.
-	if (GetPlayer()->IsAtWar())
+	// Refuse if we have different ideologies; we'll lose our ideology!
+	if (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && !IsPlayerSameIdeology(ePlayer))
 		return false;
-	
-	// Don't become vassal if we're going for diplo victory and UN is available
-	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+
+	// if we're hostile with this player, don't want to be his voluntary vassal
+	if (GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || AvoidExchangesWithPlayer(ePlayer, false))
+		return false;
+
+	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
+		return false;
+
+	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		return false;
+
+	// Unacceptable if they're untrustworthy (this includes if they captured our capital/Holy City; that's what capitulation is for...)
+	if (IsUntrustworthy(ePlayer))
+		return false;
+
+	// Don't become a vassal if we're close to winning!
+	if (IsCloseToAnyVictoryCondition())
+		return false;
+
+	// The point of vassalage is protection, so they must be stronger than us
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
+		return false;
+
+	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
+		return false;
+
+	if (IsEasyTarget(ePlayer))
+		return false;
+
+	// If we're going for world conquest, they must be at least 2x stronger than us for us to consider this
+	if (IsGoingForWorldConquest() && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POWERFUL)
+		return false;
+
+	// Are we dominating them culturally?
+	if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
 	{
-		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
+		if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) == INFLUENCE_LEVEL_INFLUENTIAL || GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) != INFLUENCE_TREND_FALLING)
+			return false;
+	}
+
+	// Do we own more capitals than they do?
+	int iOurCapitals = 0;
+	int iTheirCapitals = 0;
+	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+	for (size_t i=0; i<vOurTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+			continue;
+
+		// Teammate is close to winning?
+		if (IsTeammate(vOurTeam[i]) && GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			return false;
+
+		if (!GET_PLAYER(vOurTeam[i]).IsHasLostCapital())
+			iOurCapitals++;
+
+		iOurCapitals += GET_PLAYER(vOurTeam[i]).GetNumCapitalCities();
+
+		// while we're at it, let's check to see if any of our teammates hate any of their teammates
+		for (size_t j=0; j<vTheirTeam.size(); j++)
 		{
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL)
+			if (!GET_PLAYER(vTheirTeam[j]).isAlive() || GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
+				continue;
+
+			if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->GetMajorCivApproach(vTheirTeam[j]) <= MAJOR_CIV_APPROACH_GUARDED)
+				return false;
+
+			if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->GetMajorCivOpinion(vTheirTeam[j]) <= MAJOR_CIV_OPINION_ENEMY)
+				return false;
+		}
+	}
+	for (size_t i=0; i<vTheirTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
+			continue;
+
+		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
+			iTheirCapitals++;
+
+		iTheirCapitals += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
+	}
+
+	// No voluntary capitulation if we have more capitals than they do
+	if (iOurCapitals > iTheirCapitals)
+		return false;
+
+	// ...or if we have more capitals than team members
+	if (iOurCapitals > iOurCivs)
+		return false;
+
+	// If we got down here, then vassalage is possible - let's evaluate
+	int iWantVassalageScore = 0;
+
+	// What do we think about them?
+	switch (GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_ALLY:
+		iWantVassalageScore += 25;
+		break;
+	case MAJOR_CIV_OPINION_FRIEND:
+		iWantVassalageScore += 15;
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+		iWantVassalageScore += 10;
+		break;
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		iWantVassalageScore -= 10;
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		iWantVassalageScore -= 50;
+		break;
+	}
+
+	switch (GetMajorCivApproach(ePlayer))
+	{
+	case MAJOR_CIV_APPROACH_FRIENDLY:
+		iWantVassalageScore += 5;
+		break;
+	case MAJOR_CIV_APPROACH_NEUTRAL:
+		iWantVassalageScore -= 10;
+		break;
+	case MAJOR_CIV_APPROACH_AFRAID:
+		iWantVassalageScore += 20;
+		break;
+	}
+
+	// How strong are they compared to us? Military strength is twice as important...
+	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	{
+	case STRENGTH_IMMENSE:
+		iWantVassalageScore += 100;
+		break;
+	case STRENGTH_POWERFUL:
+		iWantVassalageScore += 50;
+		break;
+	case STRENGTH_STRONG:
+		iWantVassalageScore += 20;
+		break;
+	}
+
+	switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
+	{
+	case STRENGTH_IMMENSE:
+		iWantVassalageScore += 50;
+		break;
+	case STRENGTH_POWERFUL:
+		iWantVassalageScore += 25;
+		break;
+	case STRENGTH_STRONG:
+		iWantVassalageScore += 10;
+		break;
+	}
+
+	// Are they a warmonger?
+	switch (GetWarmongerThreat(ePlayer))
+	{
+	case THREAT_CRITICAL:
+		iWantVassalageScore -= 150;
+		break;
+	case THREAT_SEVERE:
+		iWantVassalageScore -= 75;
+		break;
+	case THREAT_MAJOR:
+		iWantVassalageScore -= 30;
+		break;
+	case THREAT_MINOR:
+		iWantVassalageScore -= 10;
+		break;
+	case THREAT_NONE:
+		iWantVassalageScore += 10;
+		break;
+	}
+
+	int iTechPercent = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown() / max(1, GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown());
+
+	if (iTechPercent >= 95) // We are at a similar tech level!
+		iWantVassalageScore -= 10;
+	else if (iTechPercent >= 85) // Lagging behind!
+		iWantVassalageScore += 10;
+	else if (iTechPercent >= 75)
+		iWantVassalageScore += 20;
+	else if (iTechPercent >= 65) // Really far behind!
+		iWantVassalageScore += 30;
+	else
+		iWantVassalageScore += 40;
+
+	// Unhappy?
+	if (GetPlayer()->IsEmpireUnhappy())
+		iWantVassalageScore += 10;
+
+	// Unique abilities influence this...
+	if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+	{
+		iWantVassalageScore -= 20;
+	}
+	else if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetPlayerTraits()->IsSmaller())
+	{
+		iWantVassalageScore += 20;
+	}
+
+	// Adjust score based on civ flavors
+	iWantVassalageScore += (GetDoFWillingness() + GetLoyalty()) * 2;
+	iWantVassalageScore -= (GetBoldness() + GetDiploBalance()) * 2;
+
+	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
+	iWantVassalageScore += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) * -2;
+	iWantVassalageScore += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) * -2;
+	iWantVassalageScore += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
+	iWantVassalageScore += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	iWantVassalageScore += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+
+	// Evaluate current wars
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			// At war with a common foe?
+			if (IsAtWar(eLoopPlayer) && GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
 			{
-				if (pLeague->IsUnitedNations())
+				WarStateTypes eOurWarState = GetWarState(eLoopPlayer);
+				WarStateTypes eTheirWarState = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer);
+
+				// Are they doing better than us?
+				if (eOurWarState < WAR_STATE_OFFENSIVE && eTheirWarState > WAR_STATE_DEFENSIVE && eTheirWarState > eOurWarState)
 				{
-					if(IsGoingForDiploVictory())
-						return false;
+					iWantVassalageScore += ((int)eTheirWarState - (int)eOurWarState) * 30;
+				}
+				// Are they doing worse than us?
+				else if (eTheirWarState < WAR_STATE_OFFENSIVE && eOurWarState > eTheirWarState)
+				{
+					iWantVassalageScore -= ((int)eOurWarState - (int)eTheirWarState) * 30;
+				}
+			}
+			// We're at war and they're not?
+			else if (IsAtWar(eLoopPlayer) && !GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+			{
+				int iStrengthFactor = (int)GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 3;
+
+				switch (GetWarState(eLoopPlayer))
+				{
+				case WAR_STATE_NEARLY_WON:
+					iWantVassalageScore -= 80;
+					break;
+				case WAR_STATE_OFFENSIVE:
+					iWantVassalageScore -= 30;
+					break;
+				case WAR_STATE_CALM:
+					iWantVassalageScore -= 10;
+					break;
+				case WAR_STATE_STALEMATE:
+					iWantVassalageScore += 10 * iStrengthFactor;
+					break;
+				case WAR_STATE_DEFENSIVE:
+					iWantVassalageScore += 30 * iStrengthFactor;
+					break;
+				case WAR_STATE_NEARLY_DEFEATED:
+					iWantVassalageScore += 80 * iStrengthFactor;
+					break;
+				}
+			}
+			// They're at war and we're not?
+			else if (!IsAtWar(eLoopPlayer) && GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+			{
+				// At war with our friends or trade partners? Grr...
+				if (IsFriendOrAlly(eLoopPlayer) || GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FRIEND || (IsStrategicTradePartner(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FAVORABLE))
+				{
+					iWantVassalageScore -= 100;
+				}
+				// With someone close to us?
+				else if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+				{
+					int iStrengthFactor = (int)GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 3;
+					int iOpinionFactor = GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY ? 1 : 2;
+
+					// How's the war going?
+					switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer))
+					{
+					case WAR_STATE_NEARLY_DEFEATED:
+						iWantVassalageScore -= 100 * iStrengthFactor * iOpinionFactor; // eep! No thanks!
+						break;
+					case WAR_STATE_DEFENSIVE:
+						iWantVassalageScore -= 30 * iStrengthFactor * iOpinionFactor; // should probably bail!
+						break;
+					case WAR_STATE_STALEMATE:
+						iWantVassalageScore -= 10 * iStrengthFactor * iOpinionFactor; // bail if they're too strong or we don't dislike them enough
+						break;
+					case WAR_STATE_CALM:
+						iWantVassalageScore -= 5 * iStrengthFactor * iOpinionFactor;
+						break;
+					case WAR_STATE_OFFENSIVE:
+						iWantVassalageScore += 5 * iStrengthFactor * iOpinionFactor; // may want to become a voluntary vassal if they're going to conquer our neighbors, especially if we don't like them...
+						break;
+					case WAR_STATE_NEARLY_WON:
+						iWantVassalageScore += 10 * iStrengthFactor * iOpinionFactor; // ditto, but moreso!
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	std::vector<PlayerTypes> aOurTeam;
-	std::vector<PlayerTypes> aTheirTeam;
-	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iI;
-		if(GET_PLAYER(eLoopPlayer).isAlive())
-		{
-			if(GET_PLAYER(eLoopPlayer).getTeam() == eOurTeam)
-				aOurTeam.push_back(eLoopPlayer);
-			if(GET_PLAYER(eLoopPlayer).getTeam() == eTheirTeam)
-				aTheirTeam.push_back(eLoopPlayer);
-		}
-	}
+	// Modify score based on global politics - are they likely to support our interests?
+	iWantVassalageScore += GetNumMutualFriends(ePlayer) * 10;
+	iWantVassalageScore += GetNumEnemiesDenounced(ePlayer) * 10;
+	iWantVassalageScore += GetNumMutualDefensePacts(ePlayer) * 20;
+	iWantVassalageScore -= GetNumEnemyFriends(ePlayer) * 20;
+	iWantVassalageScore -= GetNumEnemyDefensePacts(ePlayer) * 20;
+	iWantVassalageScore -= GetNumFriendsDenounced(ePlayer) * 20;
 
-	int iAverageOpinionScore = 0;
-	int iOurCapitals = 0;
-	int iTheirCapitals = 0;
-	for(std::vector<PlayerTypes>::iterator it = aOurTeam.begin(); it != aOurTeam.end(); it++)
-	{
-		iOurCapitals += GET_PLAYER(*it).GetNumCapitalCities();
-		iAverageOpinionScore += (int) GET_PLAYER(*it).GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-		if (GET_PLAYER(*it).IsHasLostCapital())
-			iOurCapitals--;
-	}
-	for(std::vector<PlayerTypes>::iterator it = aTheirTeam.begin(); it != aTheirTeam.end(); it++)
-	{
-		iTheirCapitals += GET_PLAYER(*it).GetNumCapitalCities();
-		if (GET_PLAYER(*it).IsHasLostCapital())
-			iTheirCapitals--;
-	}
-	iAverageOpinionScore /= std::max(1, (int)aOurTeam.size());
-	MajorCivOpinionTypes eOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
+	// Increase score if they've liberated us
+	if (WasResurrectedBy(ePlayer))
+		iWantVassalageScore += 100;
 
-	// We possess more capitals than them AND we have more than one city
-	if(iOurCapitals >= iTheirCapitals && GetPlayer()->getNumCities() > 1)
-		return false;
-
-	// We're going for world conquest?
-	if(IsGoingForWorldConquest())
-	{
-		if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_STRONG)
-			return false;
-	}
-
-	// If this guy is a backstabber, don't want to be his voluntary vassal
-	if (IsUntrustworthy(ePlayer))
-		return false;
-
-	// if we're hostile with this player, don't want to be his voluntary vassal
-	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
-		return false;
-
-	//Denouncement in either direction?
-	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
-		return false;
-
-	// Don't accept vassalage from players too far away
-	if(GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
-		return false;
-
-	// Player is not a threat
-	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
-		return false;
-
-	// Player is not a threat
-	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
-		return false;
-
-	// Player is significantly weaker than we are
-	if (IsEasyTarget(ePlayer))
-		return false;
-
-	// Are we dominating them in some way?
-	InfluenceLevelTypes eInfluence = GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer);
-	if(eInfluence >= INFLUENCE_LEVEL_POPULAR)
-		return false;
-
-	// No voluntary capitulation if there's less than 50% of the players ever alive
-	if(GC.getGame().countMajorCivsAlive() < (GC.getGame().countMajorCivsEverAlive() / 2 ))
-		return false;
-
-	// Has this player a military promise against us?
-	if(IsPlayerBrokenMilitaryPromise(ePlayer))
-		return false;
-
-	// Differing ideologies?
-	if(GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE &&
-		GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE &&
-		GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
-		return false;
-
-	// If we got down here, then vassalage is possible - let's evaluate
-	int iWantVassalageScore = -10;
-
-	// Small bonus for voluntary vassalage depending on opinion
-	if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
-		iWantVassalageScore += -50;
-	else if(eOpinion == MAJOR_CIV_OPINION_NEUTRAL)
-		iWantVassalageScore += -10;
-	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
-		iWantVassalageScore += 10;
-	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
-		iWantVassalageScore += 15;
-	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
-		iWantVassalageScore += 25;
-	else
-		iWantVassalageScore += -25;
-
-	// If they are economically strong, consider vassalage
-	StrengthTypes eEconomyStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
-	if(eEconomyStrength == STRENGTH_IMMENSE)
+	if (IsPlayerLiberatedCapital(ePlayer))
 		iWantVassalageScore += 50;
-	else if(eEconomyStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 25;
-	else if(eEconomyStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 10;
-	else if(eEconomyStrength == STRENGTH_AVERAGE)
-		iWantVassalageScore += 0;
-	else if(eEconomyStrength == STRENGTH_POOR)
-		iWantVassalageScore += -15;
-	else if(eEconomyStrength == STRENGTH_WEAK)
-		iWantVassalageScore += -30;
-	else
-		iWantVassalageScore += -100;
-
-	// If they are militarily strong, consider vassalage
-	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
-	if(eMilitaryStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 50;
-	else if(eMilitaryStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 30;
-	else if(eMilitaryStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 10;
-	else if (eMilitaryStrength == STRENGTH_AVERAGE)
-		iWantVassalageScore += 5;
-	else
-		iWantVassalageScore += -100;
-
-	// Small bonus for being a threat to us
-	ThreatTypes eMilitaryThreat = GetMilitaryThreat(ePlayer);
-	if(eMilitaryThreat == THREAT_CRITICAL)
-		iWantVassalageScore += 40;
-	else if(eMilitaryThreat == THREAT_SEVERE)
-		iWantVassalageScore += 30;
-	else if(eMilitaryThreat == THREAT_MAJOR)
+	else if (IsPlayerReturnedCapital(ePlayer))
 		iWantVassalageScore += 20;
-	else if(eMilitaryThreat <= THREAT_MINOR)
-		iWantVassalageScore += 10;
-	else
-		iWantVassalageScore += -10;
 
-	int iOurTechs = kOurTeam.GetTeamTechs()->GetNumTechsKnown();
-	int iTheirTechs = kTheirTeam.GetTeamTechs()->GetNumTechsKnown();
-	int iTechPercent = 0;
-	if(iTheirTechs == 0)
-		iTechPercent = INT_MAX;
-	else
-		iTechPercent = iOurTechs * 100 / iTheirTechs;
-
-	// We are at a similar tech level!
-	if (iTechPercent > 95)
-		iWantVassalageScore -= 10;
-
-	// Lagging behind
-	if(iTechPercent >= 85)
-		iWantVassalageScore += 10;
-	else if(iTechPercent >= 75)
-		iWantVassalageScore += 20;
-	// Really far behind!
-	else if(iTechPercent >= 65)
+	if (IsPlayerLiberatedHolyCity(ePlayer))
 		iWantVassalageScore += 30;
-	else
-		iWantVassalageScore += 40;
-
-	int iVal = MOD_BALANCE_CORE_HAPPINESS ? 50 : 0;
-	// Small mod based on happiness
-	if (GetPlayer()->GetExcessHappiness() < iVal)
+	else if (IsPlayerReturnedHolyCity(ePlayer))
 		iWantVassalageScore += 10;
 
-	// Account for this player's flavors
-	
-	// If the player has deleted the EXPANSION Flavor we have to account for that
-	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
-	int iExpansionFlavor = iDefaultFlavorValue;
-	int iOffenseFlavor = iDefaultFlavorValue;
-	int iMilitaryTrainingFlavor = iDefaultFlavorValue;
-	int iDefenseFlavor = iDefaultFlavorValue;
-	int iCultureFlavor = iDefaultFlavorValue;
-	int iWonderFlavor = iDefaultFlavorValue;
+	if (GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
+		iWantVassalageScore += (GetNumCitiesLiberatedBy(ePlayer) - GetNumCitiesCapturedBy(ePlayer)) * 10;
 
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_EXPANSION")			iExpansionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_OFFENSE")			iOffenseFlavor =  GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")	iMilitaryTrainingFlavor =  GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DEFENSE")			iDefenseFlavor =  GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_CULTURE")			iCultureFlavor =  GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")				iWonderFlavor =  GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-	}
+	// Reduce score based on past aggression towards us
+	iWantVassalageScore -= GetNumWarsDeclaredOnUs(ePlayer) * 10;
+	iWantVassalageScore -= GetNumCitiesCapturedBy(ePlayer) * 30;
 
-	// Adjust score based on civ flavors
-	iWantVassalageScore += (iExpansionFlavor - iDefaultFlavorValue) * -3;	// expansionist civs don't like vassalage too much
-	iWantVassalageScore += (iOffenseFlavor - iDefaultFlavorValue) * -3;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iMilitaryTrainingFlavor - iDefaultFlavorValue)	* -3;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iDefenseFlavor - iDefaultFlavorValue);	// defensive civs like vassalage a lot
-	iWantVassalageScore += (iCultureFlavor - iDefaultFlavorValue);	// cultural civs prefer vassalage
-	iWantVassalageScore += (iWonderFlavor - iDefaultFlavorValue);	// wonder civs don't mind vassalage
+	// Reduce score based on number of his vassals
+	iWantVassalageScore -= 20 * GET_PLAYER(ePlayer).GetNumVassals();
 
-	// Modifier based on proximity
-	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
-	{
-		case PLAYER_PROXIMITY_NEIGHBORS:
-			iWantVassalageScore *= 125;
-			iWantVassalageScore /= 100;
-			break;
-		case PLAYER_PROXIMITY_CLOSE:
-			iWantVassalageScore *= 105;
-			iWantVassalageScore /= 100;
-			break;
-		default:
-			return false;
-	}
-
-	// Are they threatening us with military?
-	AggressivePostureTypes eAggressivePosture = GetMilitaryAggressivePosture(ePlayer);
-	if(eAggressivePosture == AGGRESSIVE_POSTURE_INCREDIBLE)
-	{
-		iWantVassalageScore *= 125;
-		iWantVassalageScore /= 100;
-	}
-	else if(eAggressivePosture == AGGRESSIVE_POSTURE_HIGH)
-	{
-		iWantVassalageScore *= 110;
-		iWantVassalageScore /= 100;
-	}
-	else if(eAggressivePosture == AGGRESSIVE_POSTURE_MEDIUM)
-	{
-		iWantVassalageScore *= 100;
-		iWantVassalageScore /= 100;
-	}
-
-	// We're bigger than him? Bail!
-	if (GET_PLAYER(ePlayer).getTotalPopulation() < GET_PLAYER(GetID()).getTotalPopulation())
-	{
-		iWantVassalageScore *= 75;
-		iWantVassalageScore /= 100;
-	}
+	if (iWantVassalageScore <= 0)
+		return false;
 
 	// Modifier based on culture
 	int iCulturalDominanceOverUs = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer);
@@ -52860,15 +52957,40 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	iWantVassalageScore *= (100 + 10 * iCulturalDominanceOverUs);
 	iWantVassalageScore /= 100;
 
-	// Reduce score based on at war count
-	iWantVassalageScore -= 10 * kTheirTeam.getAtWarCount(true);
+	// Modifier based on population
+	int iOurPopulation = GetPlayer()->getTotalPopulation();
+	int iTheirPopulation = GET_PLAYER(ePlayer).getTotalPopulation();
+	int iPopulationPercentMod = 0;
 
-	// Reduce score based on number of his vassals
-	iWantVassalageScore -= 15 * kTheirTeam.GetNumVassals();
+	if (iOurPopulation > iTheirPopulation)
+	{
+		iPopulationPercentMod = iOurPopulation * 100 / max(1, iTheirPopulation);
+		iPopulationPercentMod -= 100;
+		iPopulationPercentMod *= -1;
+	}
+	else if (iTheirPopulation > iOurPopulation)
+	{
+		iPopulationPercentMod = iTheirPopulation * 100 / max(1, iOurPopulation);
+		iPopulationPercentMod -= 100;
+	}
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+	iWantVassalageScore *= max(0, 100 + iPopulationPercentMod);
+	iWantVassalageScore /= 100;
 
-	return (iWantVassalageScore >= iThreshold);
+	// Modifier based on proximity
+	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
+	{
+	case PLAYER_PROXIMITY_NEIGHBORS:
+		iWantVassalageScore *= 125;
+		iWantVassalageScore /= 100;
+		break;
+	case PLAYER_PROXIMITY_CLOSE:
+		iWantVassalageScore *= 100;
+		iWantVassalageScore /= 100;
+		break;
+	}
+
+	return (iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD());
 }
 
 /// Are we done being ePlayer's vassal, and now want to end it?
