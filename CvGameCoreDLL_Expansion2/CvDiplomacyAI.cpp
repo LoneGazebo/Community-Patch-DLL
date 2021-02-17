@@ -52597,6 +52597,10 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if (GC.getGame().countMajorCivsAlive() < (GC.getGame().countMajorCivsEverAlive() / 2))
 		return false;
 
+	// Never acceptable if they've refused to give us independence!
+	if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
+		return false;
+
 	int iOurCivs = GET_TEAM(GetTeam()).getAliveCount();
 	int iTheirCivs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAliveCount();
 
@@ -52704,7 +52708,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// If we got down here, then vassalage is possible - let's evaluate
-	int iWantVassalageScore = 0;
+	int iWantVassalageScore = -10;
 
 	// What do we think about them?
 	switch (GetMajorCivOpinion(ePlayer))
@@ -52716,10 +52720,10 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		iWantVassalageScore += 15;
 		break;
 	case MAJOR_CIV_OPINION_FAVORABLE:
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 5;
 		break;
 	case MAJOR_CIV_OPINION_NEUTRAL:
-		iWantVassalageScore -= 10;
+		iWantVassalageScore -= 25;
 		break;
 	case MAJOR_CIV_OPINION_COMPETITOR:
 		iWantVassalageScore -= 50;
