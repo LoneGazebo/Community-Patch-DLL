@@ -52,7 +52,6 @@ WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 -- Units
 
 -- Movement
-
 UPDATE Language_en_US
 SET Text = 'MOVE UNIT'
 WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
@@ -60,6 +59,10 @@ WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT';
 UPDATE Language_en_US
 SET Text = 'Move a unit to a tile where it can end the turn.'
 WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
+
+UPDATE Language_en_US
+SET Text = 'Allows land units to embark and cross water tiles.'
+WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 -- Capture Chance
 UPDATE Language_en_US
