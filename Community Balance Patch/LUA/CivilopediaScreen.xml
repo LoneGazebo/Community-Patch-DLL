@@ -1061,7 +1061,7 @@
 					<!-- Local Resources Required -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LocalResourcesFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LocalResourcesInnerFrame">
-							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LOCAL_RESRC_LABEL"/>
+							<Label ID="LocalResourcesLabel" Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LOCAL_RESRC_LABEL"/>
 						</Grid>
 					</Grid>
 					<!-- CBP -->
