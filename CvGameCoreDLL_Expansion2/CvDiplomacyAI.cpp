@@ -26138,6 +26138,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 		iReturnValue *= 125;
 		iReturnValue /= 100;
 	}
+
 	// Large reduction if either of us resurrected the other
 	if (WasResurrectedBy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
 	{
@@ -30866,7 +30867,7 @@ void CvDiplomacyAI::DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatem
 	{
 		if (GET_PLAYER(ePlayer).GetTurnsSinceSettledLastCity() < GC.getEXPANSION_BICKER_TIMEOUT() && !EverMadeExpansionPromise(ePlayer) && GetPlayerExpansionPromiseState(ePlayer) == NO_PROMISE_STATE)
 		{
-			if (GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetExpansionAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
+			if (GetExpansionAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_HIGH)
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_EXPANSION_WARNING;
 				int iTurnsBetweenStatements = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
@@ -52337,8 +52338,8 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
-	// Human teams can capitulate, but the AI can't do it for him and he must accept on the trade screen
-	if (GET_TEAM(GetTeam()).isHuman())
+	// Shadow AI does not make decisions for human!
+	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
 	// Can't capitulate if we have vassals
@@ -52587,7 +52588,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		iCapitulationScore += min(30, 10 * (iTheirCivs - iOurCivs));
 	}
 
-	return (iCapitulationScore > /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD());
+	return iCapitulationScore > /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 }
 
 /// Do we want to voluntarily become ePlayer's vassal?
@@ -52994,27 +52995,22 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		break;
 	}
 
-	return (iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD());
+	return iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 }
 
 /// Are we done being ePlayer's vassal, and now want to end it?
 bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 {
-	CvAssertMsg(IsVassal(ePlayer), "Diplomacy AI: Testing whether we should End Vassalage with someone, but we aren't right now. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	
 	// If we actually can't end Vassalage with ePlayer (conditions not satisfied) then abort
-	if(!GET_TEAM(GetTeam()).canEndVassal(GET_PLAYER(ePlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).canEndVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 	
 	// Shadow AI does not make decisions for human!
-	if(GetPlayer()->IsAITeammateOfHuman())
+	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
 	// don't do this in anarchy
-	if(m_pPlayer->IsAnarchy())
-		return false;
-
-	if (!IsVoluntaryVassalage(ePlayer) && GET_PLAYER(ePlayer).IsVassalsNoRebel())
+	if (m_pPlayer->IsAnarchy())
 		return false;
 
 	// If UN is in session, end vassalage ASAP if going for diplo victory
