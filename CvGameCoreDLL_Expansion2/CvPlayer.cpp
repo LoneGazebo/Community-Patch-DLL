@@ -9884,7 +9884,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					pDiploAI->SetTechBlockLevel(eMyTeamPlayer, BLOCK_LEVEL_NONE);
 					pDiploAI->SetPolicyBlockLevel(eMyTeamPlayer, BLOCK_LEVEL_NONE);
 
-					pDiploAI->SetMilitaryThreat(eMyTeamPlayer, THREAT_NONE);
 					pDiploAI->SetWarmongerThreat(eMyTeamPlayer, THREAT_NONE);
 					pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMyTeamPlayer, 0);
 					

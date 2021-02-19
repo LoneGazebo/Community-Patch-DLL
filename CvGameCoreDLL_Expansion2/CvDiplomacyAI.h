@@ -576,9 +576,6 @@ public:
 	// Threat Levels
 	// ------------------------------------
 
-	ThreatTypes GetMilitaryThreat(PlayerTypes ePlayer) const;
-	void SetMilitaryThreat(PlayerTypes ePlayer, ThreatTypes eMilitaryThreat);
-
 	ThreatTypes GetWarmongerThreat(PlayerTypes ePlayer) const;
 	void SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat);
 
@@ -1055,8 +1052,6 @@ public:
 	int ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer = NO_PLAYER);
 
 	void DoUpdatePlayerEconomicStrengths();
-
-	void DoUpdateMilitaryThreats();
 
 	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);
 
@@ -1807,7 +1802,6 @@ private:
 	void LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes eQuestType);
 	void LogOpinion(CvString& strString, PlayerTypes ePlayer);
 	void LogWarmongerThreat(CvString& strString, PlayerTypes ePlayer);
-	void LogMilitaryThreat(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer);
 	void LogTargetValue(CvString& strString, PlayerTypes ePlayer);
 	void LogEconomicStrength(CvString& strString, PlayerTypes ePlayer);
@@ -1977,7 +1971,6 @@ private:
 	char m_aePolicyBlockLevel[MAX_MAJOR_CIVS];
 
 	// Threat Levels
-	char m_aeMilitaryThreat[MAX_MAJOR_CIVS];
 	char m_aeWarmongerThreat[MAX_MAJOR_CIVS];
 
 	// Strength Assessments
