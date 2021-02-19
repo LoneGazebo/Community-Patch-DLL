@@ -52030,6 +52030,10 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
+	// We are already ePlayer's vassal
+	if (IsVassal(ePlayer))
+		return false;
+
 	// We can't become ePlayer's vassal
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
@@ -52298,6 +52302,10 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
 		return false;
 
+	// They failed to protect us before!
+	if (GetVassalFailedProtectScore(ePlayer) > 0 && GetVassalFailedProtectScore(ePlayer) > (GetVassalProtectScore(ePlayer) * -1))
+		return false;
+
 	int iOurCivs = GET_TEAM(GetTeam()).getAliveCount();
 	int iTheirCivs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAliveCount();
 
@@ -52314,13 +52322,13 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// if we're hostile with this player, don't want to be his voluntary vassal
-	if (GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || AvoidExchangesWithPlayer(ePlayer, false))
-		return false;
-
 	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
 		return false;
 
 	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		return false;
+
+	if (GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || AvoidExchangesWithPlayer(ePlayer, false))
 		return false;
 
 	// Unacceptable if they're untrustworthy (this includes if they captured our capital/Holy City; that's what capitulation is for...)
@@ -52338,6 +52346,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
 
+	if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+		return false;
+
 	if (IsEasyTarget(ePlayer))
 		return false;
 
@@ -52348,7 +52359,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// Are we dominating them culturally?
 	if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
 	{
-		if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) == INFLUENCE_LEVEL_INFLUENTIAL || GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) != INFLUENCE_TREND_FALLING)
+		if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_INFLUENTIAL || GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) != INFLUENCE_TREND_FALLING)
 			return false;
 	}
 
@@ -52658,25 +52669,15 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	iWantVassalageScore *= (100 + 10 * iCulturalDominanceOverUs);
 	iWantVassalageScore /= 100;
 
-	// Modifier based on population
-	int iOurPopulation = GetPlayer()->getTotalPopulation();
-	int iTheirPopulation = GET_PLAYER(ePlayer).getTotalPopulation();
-	int iPopulationPercentMod = 0;
-
-	if (iOurPopulation > iTheirPopulation)
+	// If they aren't bigger than us, they probably can't protect us
+	if (GetPlayer()->getNumCities() >= GET_PLAYER(ePlayer).getNumCities())
 	{
-		iPopulationPercentMod = iOurPopulation * 100 / max(1, iTheirPopulation);
-		iPopulationPercentMod -= 100;
-		iPopulationPercentMod *= -1;
+		iWantVassalageScore /= 2;
 	}
-	else if (iTheirPopulation > iOurPopulation)
+	if (GetPlayer()->getTotalPopulation() >= GET_PLAYER(ePlayer).getTotalPopulation())
 	{
-		iPopulationPercentMod = iTheirPopulation * 100 / max(1, iOurPopulation);
-		iPopulationPercentMod -= 100;
+		iWantVassalageScore /= 2;
 	}
-
-	iWantVassalageScore *= max(0, 100 + iPopulationPercentMod);
-	iWantVassalageScore /= 100;
 
 	// Modifier based on proximity
 	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
@@ -52697,10 +52698,13 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 /// Are we done being ePlayer's vassal, and now want to end it?
 bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 {
+	if (!IsVassal(ePlayer))
+		return false;
+
 	// If we actually can't end Vassalage with ePlayer (conditions not satisfied) then abort
 	if (!GET_TEAM(GetTeam()).canEndVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
-	
+
 	// Shadow AI does not make decisions for human!
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
@@ -52709,134 +52713,258 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if (m_pPlayer->IsAnarchy())
 		return false;
 
-	// If UN is in session, end vassalage ASAP if going for diplo victory
-	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES) && !WasResurrectedBy(ePlayer))
+	// if we're close to winning, we want out
+	if (IsCloseToAnyVictoryCondition())
+		return true;
+
+	int iOurCivs = 0;
+	int iTheirCivs = 0;
+	int iOurCapitals = 0;
+	int iTheirCapitals = 0;
+	int iMastersWantIndependenceFrom = 0;
+	int iMastersWantToRemainWith = 0;
+	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
-		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
-		{
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL)
-			{
-				if (pLeague->IsUnitedNations())
-				{
-					if(IsGoingForDiploVictory())
-						return true;
-				}
-			}
-		}
+		if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+			continue;
+
+		// Teammate is close to winning?
+		if (IsTeammate(vOurTeam[i]) && GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			return true;
+
+		if (!GET_PLAYER(vOurTeam[i]).IsHasLostCapital())
+			iOurCapitals++;
+
+		iOurCivs++;
+		iOurCapitals += GET_PLAYER(vOurTeam[i]).GetNumCapitalCities();
+	}
+	for (size_t i=0; i<vTheirTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
+			continue;
+
+		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
+			iTheirCapitals++;
+
+		iTheirCivs++;
+		iTheirCapitals += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
+
+		if (IsEndVassalageWithPlayerAcceptable(ePlayer))
+			iMastersWantIndependenceFrom++;
+		else
+			iMastersWantToRemainWith++;
 	}
 
-	int iChance = WasResurrectedBy(ePlayer) ? -100 : 0;
+	// If we have more capitals than they do or more capitals than civs, we want out
+	if (iOurCapitals > iTheirCapitals)
+		return true;
 
-	// How are we being treated?
-	VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
-	if(eVassalTreatment == VASSAL_TREATMENT_ENSLAVED)
-		iChance += 80;
-	else if(eVassalTreatment == VASSAL_TREATMENT_UNHAPPY)
-		iChance += 60;
-	else if(eVassalTreatment == VASSAL_TREATMENT_MISTREATED)
-		iChance += 40;
-	else if(eVassalTreatment == VASSAL_TREATMENT_DISAGREE)
-		iChance += 20;
-	else
-		iChance += 0;
+	if (iOurCapitals > iOurCivs)
+		return true;
 
-	// More likely to break vassals off with distant players than close neighbors
-	PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-	if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChance += 30;
-	else if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChance += 15;
+	// Don't want independence from anyone?
+	if (iMastersWantIndependenceFrom == 0)
+		return false;
 
-	// if the current approach is a dangerous approach
+	// Want to remain with more masters than we want to abandon?
+	if (iMastersWantToRemainWith > 0 && iMastersWantToRemainWith > iMastersWantIndependenceFrom)
+		return false;
+
+	// If a single member on the team wants independence, all other members must accept it to give their teammate a shot at winning.
+	return true;
+}
+
+bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
+{
+	int iIndependenceScore = GetBoldness();
+
+	// How are we being treated? This is a major factor!
+	switch (GetVassalTreatmentLevel(ePlayer))
+	{
+	case VASSAL_TREATMENT_CONTENT:
+		iIndependenceScore -= 20;
+		break;
+	case VASSAL_TREATMENT_DISAGREE:
+		iIndependenceScore += 20;
+		break;
+	case VASSAL_TREATMENT_MISTREATED:
+		iIndependenceScore += 50;
+		break;
+	case VASSAL_TREATMENT_UNHAPPY:
+		iIndependenceScore += 70;
+		break;
+	case VASSAL_TREATMENT_ENSLAVED:
+		iIndependenceScore += 100;
+		break;
+	}
+
+	// Double this for voluntary vassalage.
+	if (IsVoluntaryVassalage(ePlayer))
+		iIndependenceScore *= 2;
+
+	// How strong are they compared to us? Military strength is a huge factor.
+	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	{
+	case STRENGTH_IMMENSE:
+		iIndependenceScore -= 200;
+		break;
+	case STRENGTH_POWERFUL:
+		iIndependenceScore -= 100;
+		break;
+	case STRENGTH_STRONG:
+		iIndependenceScore -= 50;
+		break;
+	case STRENGTH_AVERAGE:
+		iIndependenceScore += 30;
+		break;
+	case STRENGTH_POOR:
+		iIndependenceScore += 70;
+		break;
+	case STRENGTH_WEAK:
+		iIndependenceScore += 150;
+		break;
+	case STRENGTH_PATHETIC:
+		iIndependenceScore += 300;
+		break;
+	}
+
+	// How far are they from us? More likely to request independence from neighbors
+	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
+	{
+	case PLAYER_PROXIMITY_NEIGHBORS:
+		iIndependenceScore -= 50;
+		break;
+	case PLAYER_PROXIMITY_CLOSE:
+		iIndependenceScore -= 30;
+		break;
+	case PLAYER_PROXIMITY_FAR:
+		iIndependenceScore += 15;
+		break;
+	case PLAYER_PROXIMITY_DISTANT:
+		iIndependenceScore += 30;
+		break;
+	}
+
+	// What do we think of them?
+	switch (GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_UNFORGIVABLE:
+		iIndependenceScore += 50;
+		break;
+	case MAJOR_CIV_OPINION_ENEMY:
+		iIndependenceScore += 30;
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		iIndependenceScore += 15;
+		break;
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		iIndependenceScore -= 10;
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+		iIndependenceScore -= 20;
+		break;
+	case MAJOR_CIV_OPINION_FRIEND:
+		iIndependenceScore -= 30;
+		break;
+	case MAJOR_CIV_OPINION_ALLY:
+		iIndependenceScore -= 50;
+		break;
+	}
+
 	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
 	{
-		iChance += 25;
+		iIndependenceScore += 25;
 	}
 	else if (GetMajorCivApproach(ePlayer) == MAJOR_CIV_APPROACH_AFRAID)
 	{
-		iChance -= 25;
+		iIndependenceScore -= 50;
 	}
 
-	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
-	if(eMilitaryStrength == STRENGTH_PATHETIC)
-		iChance += 100;
-	else if(eMilitaryStrength == STRENGTH_WEAK)
-		iChance += 60;
-	else if(eMilitaryStrength == STRENGTH_POOR)
-		iChance += 40;
-	else if(eMilitaryStrength == STRENGTH_AVERAGE)
-		iChance += 10;
-	else if(eMilitaryStrength == STRENGTH_STRONG)
-		iChance += -40;
-	else if(eMilitaryStrength == STRENGTH_POWERFUL)
-		iChance += -60;
-	else
-		iChance += -40;
-
-	// How will a war against ePlayer go?
-	WarProjectionTypes eWarProjection = GetWarProjection(ePlayer);
-	if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-		iChance += 40;
-	else if(eWarProjection == WAR_PROJECTION_GOOD)
-		iChance += 30;
-	if(eWarProjection == WAR_PROJECTION_STALEMATE)
-		iChance += 5;
-	else if(eWarProjection == WAR_PROJECTION_DEFEAT)
-		iChance += -20;
-	else if(eWarProjection == WAR_PROJECTION_DESTRUCTION)
-		iChance += -50;
-	else
-		iChance += 0;
-
-	// Are we culturally dominant over hem?
-	int iCulturalDominanceOverUs = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer);
-	if(iCulturalDominanceOverUs <= 0)
+	// Are we unhappy?
+	if (GetPlayer()->IsEmpireSuperUnhappy())
 	{
-		iChance *= 150;
-		iChance /= 100;
+		iIndependenceScore -= 200;
+	}
+	else if (GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		iIndependenceScore -= 80;
+	}
+	else if (GetPlayer()->IsEmpireUnhappy())
+	{
+		iIndependenceScore -= 20;
+	}
+	else
+	{
+		iIndependenceScore += 10;
 	}
 
-	// Modifier based on number of wars currently fighting
-	iChance *= (100 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true) * 20);
-	iChance /= 100;
+	if (iIndependenceScore <= 0)
+		return false;
 
-	// Master is losing all of our wars at the moment - not protecting us
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	// Modifier based on number of wars currently fighting - don't like lots of conflict
+	iIndependenceScore *= (100 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true) * 20);
+	iIndependenceScore /= 100;
+
+	// Are we culturally dominant over them?
+	int iCulturalDominanceOverUs = (int)GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetID()) - (int)GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer);
+	if (iCulturalDominanceOverUs <= 0)
 	{
-		iChance *= 500;
-		iChance /= 100;
+		iIndependenceScore *= 150;
+		iIndependenceScore /= 100;
+	}
+
+	// Master is failing to protect us
+	if (GetVassalFailedProtectScore(ePlayer) > 0 && GetVassalFailedProtectScore(ePlayer) > (GetVassalProtectScore(ePlayer) * -1))
+	{
+		iIndependenceScore *= 200;
+		iIndependenceScore /= 100;
 	}
 
 	// We're bigger than him? Bail!
-	if (GET_PLAYER(ePlayer).getTotalPopulation() < GET_PLAYER(GetID()).getTotalPopulation())
+	if (GetPlayer()->getNumCities() > GET_PLAYER(ePlayer).getNumCities())
 	{
-		iChance *= 500;
-		iChance /= 100;
+		iIndependenceScore *= 200;
+		iIndependenceScore /= 100;
 	}
 
-	// Master is aggressive against us
-	if(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM)
+	if (GetPlayer()->getTotalPopulation() > GET_PLAYER(ePlayer).getTotalPopulation())
 	{
-		iChance *= 80;
-		iChance /= 100;
+		iIndependenceScore *= 200;
+		iIndependenceScore /= 100;
 	}
 
 	// if we're a warmonger
-	if(IsGoingForWorldConquest())
+	if (IsGoingForWorldConquest() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
 	{
-		iChance *= 500;
-		iChance /= 100;
+		iIndependenceScore *= 200;
+		iIndependenceScore /= 100;
 	}
 
-	// Master in anarchy?
-	if(GET_PLAYER(ePlayer).IsAnarchy())
+	// Master is threatening us with military near our borders
+	switch (GetMilitaryAggressivePosture(ePlayer))
 	{
-		iChance *= 500;
-		iChance /= 100;
+	case AGGRESSIVE_POSTURE_INCREDIBLE:
+		iIndependenceScore *= 40;
+		iIndependenceScore /= 100;
+		break;
+	case AGGRESSIVE_POSTURE_HIGH:
+		iIndependenceScore *= 60;
+		iIndependenceScore /= 100;
+		break;
+	case AGGRESSIVE_POSTURE_MEDIUM:
+		iIndependenceScore *= 80;
+		iIndependenceScore /= 100;
+		break;
+	case AGGRESSIVE_POSTURE_LOW:
+		iIndependenceScore *= 90;
+		iIndependenceScore /= 100;
+		break;
 	}
 
-	return (iChance >= 100); // todo: global define
+	return iIndependenceScore >= 100; // todo: global define
 }
 
 /// Player ended vassalage with us, is that acceptable?

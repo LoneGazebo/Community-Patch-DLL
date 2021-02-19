@@ -1509,7 +1509,9 @@ public:
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer);
 
-	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // evaluates all masters
+	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // evaluates one master
+
 	bool IsEndVassalageRequestAcceptable(PlayerTypes eHuman);
 	void DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
