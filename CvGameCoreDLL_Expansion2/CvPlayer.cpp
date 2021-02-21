@@ -8955,6 +8955,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			//Let's see if it even happens.
 			if(pkEventChoiceInfo->getEventChance() > 0)
 			{
+
 				int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 				int iLimit = pkEventChoiceInfo->getEventChance();
 				if(iRandom > iLimit)
@@ -9014,6 +9015,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			}
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
 			{
+
 				BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventChoiceInfo->getEventBuilding();
 				if(eBuildingClass != NO_BUILDINGCLASS)
 				{
@@ -9025,6 +9027,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 		
 						if (pCivilizationInfo != NULL)
 						{
+
 							BuildingTypes eBuildingType = NO_BUILDING;
 							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
 							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
@@ -9037,6 +9040,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 								int iLoop;
 								for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
+
 									if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 									{
 										continue;
@@ -9049,7 +9053,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 
 									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 									{
-										eBuildingType = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+										eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
 										if (eBuildingType == NO_BUILDING)
 										{
 											continue;
