@@ -1508,11 +1508,13 @@ public:
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
 	bool IsVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
+	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
 
-	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // evaluates all masters
-	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // evaluates one master
+	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // can be called in either direction, for the master or the vassal
+	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // vassal only, evaluates one master
+	bool IsEndVassalageRequestAcceptable(PlayerTypes ePlayer); // master only, evaluates one vassal
 
-	bool IsEndVassalageRequestAcceptable(PlayerTypes eHuman);
 	void DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -1530,12 +1532,6 @@ public:
 
 	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
-
-	//GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
-	//void SetGlobalState(PlayerTypes ePlayer, GlobalStateTypes eGlobalState);
-
-	//void DoUpdateGlobalStates();
-	//void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
@@ -1826,12 +1822,6 @@ private:
 	void LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eMessage);
 
 	CvPlayer* m_pPlayer;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
-	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
-	//void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
-#endif
 
 	// ************************************
 	// Memory Values

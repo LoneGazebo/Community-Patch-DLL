@@ -14514,6 +14514,84 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			}
 		}
 
+		// If they're strong enough, consider being AFRAID
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
+		{
+			int iAfraidScore = GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_AFRAID) + (GetNumCitiesCapturedBy(ePlayer)*2) - GetBoldness();
+
+			// If friendly or hostile, less likely to be afraid
+			if (eApproach == MAJOR_CIV_APPROACH_FRIENDLY || eApproach == MAJOR_CIV_APPROACH_HOSTILE)
+				iAfraidScore -= 10;
+
+			// If conqueror, less likely to be afraid
+			if (IsGoingForWorldConquest() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
+				iAfraidScore -= 10;
+
+			// Factor in military strength
+			switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+			{
+			case STRENGTH_IMMENSE:
+				iAfraidScore += 30;
+				break;
+			case STRENGTH_POWERFUL:
+				iAfraidScore += 20;
+				break;
+			case STRENGTH_STRONG:
+				iAfraidScore += 10;
+				break;
+			case STRENGTH_AVERAGE:
+			case STRENGTH_POOR:
+			case STRENGTH_WEAK:
+			case STRENGTH_PATHETIC:
+				iAfraidScore -= 1000;
+				break;
+			}
+
+			// Factor in proximity
+			switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
+			{
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iAfraidScore += 10;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iAfraidScore += 5;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iAfraidScore -= 10;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iAfraidScore -= 20;
+				break;
+			}
+
+			// Factor in military posturing
+			switch (GetMilitaryAggressivePosture(ePlayer))
+			{
+			case AGGRESSIVE_POSTURE_INCREDIBLE:
+				iAfraidScore += 20;
+				break;
+			case AGGRESSIVE_POSTURE_HIGH:
+				iAfraidScore += 10;
+				break;
+			case AGGRESSIVE_POSTURE_MEDIUM:
+				iAfraidScore += 5;
+				break;
+			case AGGRESSIVE_POSTURE_LOW:
+				iAfraidScore -= 5;
+				break;
+			case AGGRESSIVE_POSTURE_NONE:
+				iAfraidScore -= 10;
+				break;
+			}
+
+			// Easy target? Nope!
+			if (IsEasyTarget(ePlayer) || GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+				iAfraidScore -= 1000;
+
+			if (iAfraidScore >= 25)
+				eApproach = MAJOR_CIV_APPROACH_AFRAID;
+		}
+
 		// Grab the old approach and scratch values for logging
 		MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer);
 		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
@@ -28235,9 +28313,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	//We want to declare independence from our master
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_REVOKE_VASSALAGE)
 	{
-		if(bHuman)
+		if (bHuman)
 		{
-			if(IsActHostileTowardsHuman(ePlayer))
+			if (IsActHostileTowardsHuman(ePlayer))
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_REVOKE_VASSALAGE_HOSTILE);
 			else
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_REVOKE_VASSALAGE);
@@ -28247,34 +28325,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI resolution
 		else
 		{
-			// Do we accept or make war?
-			// How do we think war with ePlayer will go?
-
-			////War will go well? We should get free peacefully!
-			//if(GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN)
-			//{
-			//	bPeaceful = true;
-			//}
-			//// For stalemates, we do a 50/50 roll
-			//else if(GetWarProjection(ePlayer) == WAR_PROJECTION_STALEMATE || GetWarProjection(ePlayer) == WAR_PROJECTION_UNKNOWN)
-			//{
-			//	int iChance = GC.getGame().getJonRandNum(2, "Diplomacy AI: Is AI request to end vassalage acceptable?");
-			//	if(iChance == 1)
-			//		bPeaceful = true;
-			//	else
-			//		bPeaceful = false;
-			//}
-			//// War Projection was bad, so our master isn't letting go without a fight.
-			//else
-			//{
-			//	bPeaceful = false;
-			//}
-
 			CvPlayer& kVassalPlayer = GET_PLAYER(GetID());
 			CvPlayer& kMasterPlayer = GET_PLAYER(ePlayer);
 
-			// AIs now use same evaluation as humans (for some reason I didn't do this before???)
-			bool bPeaceful = kMasterPlayer.GetDiplomacyAI()->IsEndVassalageRequestAcceptable(kVassalPlayer.GetID());
+			bool bPeaceful = kMasterPlayer.GetDiplomacyAI()->IsEndVassalageAcceptable(kVassalPlayer.GetID());
 			GET_TEAM(kVassalPlayer.getTeam()).DoEndVassal(kMasterPlayer.getTeam(), bPeaceful, false);
 		}
 	}
@@ -37223,9 +37277,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else if (GET_TEAM(eFromTeam).IsVassal(GetTeam()))
 			{
 				bHumanWasMyVassal = true;
-
-				bAcceptable = IsEndVassalageRequestAcceptable(eFromPlayer);
-
+				bAcceptable = IsEndVassalageAcceptable(eFromPlayer);
 				GET_TEAM(eFromTeam).DoEndVassal(GetTeam(), bAcceptable, false);
 			}
 
@@ -51992,7 +52044,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	// The longer they've been our vassal, give a very small boost toward liberation
 	iScoreForLiberate += 3 * (kVassalTeam.GetNumTurnsIsVassal() / 50);	// 3% per 50 turns
 
-	return (iScoreForLiberate > 100);
+	return iScoreForLiberate > 100;
 }
 
 /// Possible Contact Statement - Third-party offer for ePlayer to liberate their vassals
@@ -52695,18 +52747,51 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	return iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 }
 
-/// Are we done being ePlayer's vassal, and now want to end it?
+/// Is it acceptable for us to terminate the vassalage agreement with ePlayer?
 bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 {
+	// Shadow AI does not make decisions for human!
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return false;
+
+	// We are the MASTER receiving the request
+	if (IsMaster(ePlayer))
+	{
+		int iPeaceful = 0;
+		int iForceful = 0;
+		vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+		vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+
+		for (size_t i=0; i<vOurTeam.size(); i++)
+		{
+			if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+				continue;
+
+			for (size_t j=0; j<vTheirTeam.size(); j++)
+			{
+				if (!GET_PLAYER(vTheirTeam[j]).isAlive() || GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
+					continue;
+
+				if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsEndVassalageRequestAcceptable(vTheirTeam[j]))
+					iPeaceful++;
+				else
+					iForceful++;
+			}
+		}
+
+		if (iPeaceful > 0 && iPeaceful > iForceful)
+			return true;
+
+		return false;
+	}
+
 	if (!IsVassal(ePlayer))
 		return false;
 
+	// We are the VASSAL sending the request
+
 	// If we actually can't end Vassalage with ePlayer (conditions not satisfied) then abort
 	if (!GET_TEAM(GetTeam()).canEndVassal(GET_PLAYER(ePlayer).getTeam()))
-		return false;
-
-	// Shadow AI does not make decisions for human!
-	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
 	// don't do this in anarchy
@@ -52831,14 +52916,14 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 		break;
 	}
 
-	// How far are they from us? More likely to request independence from neighbors
+	// How far are they from us? More likely to request independence from distant players than neighbors
 	switch (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()))
 	{
 	case PLAYER_PROXIMITY_NEIGHBORS:
-		iIndependenceScore -= 50;
+		iIndependenceScore -= 30;
 		break;
 	case PLAYER_PROXIMITY_CLOSE:
-		iIndependenceScore -= 30;
+		iIndependenceScore -= 15;
 		break;
 	case PLAYER_PROXIMITY_FAR:
 		iIndependenceScore += 15;
@@ -52900,6 +52985,10 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	{
 		iIndependenceScore += 10;
 	}
+
+	// Did they resurrect us?
+	if (WasResurrectedBy(ePlayer))
+		iIndependenceScore -= 50;
 
 	if (iIndependenceScore <= 0)
 		return false;
@@ -52970,99 +53059,158 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 /// Player ended vassalage with us, is that acceptable?
 bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 {
-//	CvAssertMsg(GET_PLAYER(eHuman).GetDiplomacy()->IsVassal(GetID()), "CvDiplomacyAI: Human ending vassalage with us, but he's not our vassal.");
+	if (!IsMaster(ePlayer))
+		return false;
+
+	// We hate him - war!
+	if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		return false;
+
+	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_GUARDED)
+		return false;
+
+	// We're afraid - give in
+	if (GetMajorCivApproach(ePlayer) == MAJOR_CIV_APPROACH_AFRAID)
+		return true;
+
+	// We're a backstabber - too bad!
+	if (IsBackstabber())
+		return false;
+
+	// Player has original capitals and we're going for world conquest - not a chance!
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		if (!GET_PLAYER(ePlayer).IsHasLostCapital() || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+			return false;
+	}
+	// We're close to other victory conditions and they're not a threat - let them go
+	else if (IsCloseToAnyVictoryCondition() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
+	{
+		return true;
+	}
 
 	int iChanceToGiveIn = 0;
 
-	MajorCivApproachTypes eTrueApproach = (GetMajorCivApproach(ePlayer));
-	MajorCivOpinionTypes eOpinion = (GetMajorCivOpinion(ePlayer));
-
-	// We hate him - war!
-	if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE ||
-		eOpinion == MAJOR_CIV_OPINION_ENEMY)
-		return false;
-
-	// We hate him - war!
-	if(eTrueApproach == MAJOR_CIV_APPROACH_WAR ||
-		eTrueApproach == MAJOR_CIV_APPROACH_DECEPTIVE ||
-		eTrueApproach == MAJOR_CIV_APPROACH_HOSTILE)
-		return false;
-
-	// We're afraid - give in 
-	if(eTrueApproach == MAJOR_CIV_APPROACH_AFRAID)
-		return true;
-
 	// Do we like him?
-	if(eOpinion == MAJOR_CIV_OPINION_ALLY)
+	switch (GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_ALLY:
 		iChanceToGiveIn += 25;
-	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
+		break;
+	case MAJOR_CIV_OPINION_FRIEND:
 		iChanceToGiveIn += 15;
-	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
 		iChanceToGiveIn += 8;
-	else if(eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
-		iChanceToGiveIn += -20;		
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		iChanceToGiveIn -= 20;
+		break;
+	}
 
-	// How will a war against eHuman go?
-	WarProjectionTypes eWarProjection = GetWarProjection(ePlayer);
-	if(eWarProjection == WAR_PROJECTION_DESTRUCTION)
-		iChanceToGiveIn += 33;
-	else if(eWarProjection == WAR_PROJECTION_DEFEAT)
+	// How will a war against ePlayer go?
+	switch (GetWarProjection(ePlayer))
+	{
+	case WAR_PROJECTION_VERY_GOOD:
+		iChanceToGiveIn -= 33;
+		break;
+	case WAR_PROJECTION_GOOD:
+		iChanceToGiveIn -= 18;
+		break;
+	case WAR_PROJECTION_STALEMATE:
+		iChanceToGiveIn += 0;
+		break;
+	case WAR_PROJECTION_DEFEAT:
 		iChanceToGiveIn += 18;
-	else if(eWarProjection == WAR_PROJECTION_STALEMATE)
-		iChanceToGiveIn += 0;
-	else if(eWarProjection == WAR_PROJECTION_GOOD)
-		iChanceToGiveIn += -18;
-	else if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-		iChanceToGiveIn += -33;
-	else 
-		iChanceToGiveIn += 0;
+		break;
+	case WAR_PROJECTION_DESTRUCTION:
+		iChanceToGiveIn += 33;
+		break;
+	}
 
-	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
-	if(eMilitaryStrength == STRENGTH_IMMENSE)
+	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	{
+	case STRENGTH_IMMENSE:
 		iChanceToGiveIn += 50;
-	else if(eMilitaryStrength == STRENGTH_POWERFUL)
+		break;
+	case STRENGTH_POWERFUL:
 		iChanceToGiveIn += 33;
-	else if(eMilitaryStrength == STRENGTH_STRONG)
+		break;
+	case STRENGTH_STRONG:
 		iChanceToGiveIn += 18;
-	else if(eMilitaryStrength == STRENGTH_AVERAGE)
+		break;
+	case STRENGTH_AVERAGE:
 		iChanceToGiveIn += 0;
-	else if(eMilitaryStrength == STRENGTH_POOR)
-		iChanceToGiveIn += -20;
-	else if(eMilitaryStrength == STRENGTH_WEAK)
-		iChanceToGiveIn += -40;
-	else 
-		iChanceToGiveIn += 0;
+		break;
+	case STRENGTH_POOR:
+		iChanceToGiveIn -= 20;
+		break;
+	case STRENGTH_WEAK:
+		iChanceToGiveIn -= 40;
+		break;
+	case STRENGTH_PATHETIC:
+		iChanceToGiveIn -= 60;
+		break;
+	}
 
 	// How much money are we making off this vassal and his team?
 	int iTaxIncome = GET_PLAYER(ePlayer).GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();
 	int iOurGPT = m_pPlayer->calculateGoldRateTimes100();
 	
-	// Tax is 50% of our income, heavily reliant on it
-	if(iTaxIncome * 50 > iOurGPT)
+	if (iTaxIncome * 50 >= iOurGPT) // Tax is 50% or more of our income, heavily reliant on it
 		iChanceToGiveIn += -25;
-	else if(iTaxIncome * 20 > iOurGPT)
+	else if (iTaxIncome * 20 >= iOurGPT) // Tax is 20% or more of our income
 		iChanceToGiveIn += -10;
 	else
 		iChanceToGiveIn += 0;
 
-	PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-	if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChanceToGiveIn *= 120;
-	else if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChanceToGiveIn *= 110;
-	else
+	// Resurrection in either direction?
+	if (WasResurrectedBy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
+		iChanceToGiveIn += 150;
+
+	// Liberator?
+	if (IsPlayerLiberatedCapital(ePlayer) || IsPlayerLiberatedHolyCity(ePlayer))
+		iChanceToGiveIn += 50;
+	else if (IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer))
+		iChanceToGiveIn += 25;
+
+	if (GetNumCitiesLiberatedBy(ePlayer) > GetNumCitiesCapturedBy(ePlayer))
+		iChanceToGiveIn += 10 * GetNumCitiesLiberatedBy(ePlayer);
+
+	// We're close to or going for Diplomatic Victory - we want their league votes
+	if (IsGoingForDiploVictory() || IsCloseToDiploVictory())
+	{
+		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
+		{
+			iChanceToGiveIn -= 25;
+		}
+	}
+
+	if (iChanceToGiveIn <= 0)
+		return false;
+
+	switch (GetPlayer()->GetProximityToPlayer(ePlayer))
+	{
+	case PLAYER_PROXIMITY_NEIGHBORS:
+		iChanceToGiveIn *= 80;
+		break;
+	case PLAYER_PROXIMITY_CLOSE:
 		iChanceToGiveIn *= 100;
+		break;
+	case PLAYER_PROXIMITY_FAR:
+		iChanceToGiveIn *= 110;
+		break;
+	case PLAYER_PROXIMITY_DISTANT:
+		iChanceToGiveIn *= 120;
+		break;
+	}
 
 	iChanceToGiveIn /= 1000;
 
 	if (iChanceToGiveIn <= 3)
-	{
 		iChanceToGiveIn = 3;
-	}
 
-	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-	if(iRand < iChanceToGiveIn)
+	if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < iChanceToGiveIn)
 		return true;
 
 	return false;
@@ -53073,6 +53221,10 @@ void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementT
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// Don't send this to an AI teammate of a human
+	if (GET_PLAYER(ePlayer).IsAITeammateOfHuman())
+		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{

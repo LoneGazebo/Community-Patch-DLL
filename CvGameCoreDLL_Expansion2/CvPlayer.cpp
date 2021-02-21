@@ -3121,7 +3121,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			
 			// increment captured city counter
-			pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
+			if (pOldCity->GetNumTimesOwned(GetID()) < 1)
+				pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
 		}
 
 		GetMilitaryAI()->LogCityCaptured(pOldCity, pOldCity->getOwner());
