@@ -619,6 +619,7 @@ INSERT INTO Defines (Name, Value) SELECT 'FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTT
 INSERT INTO Defines (Name, Value) SELECT 'SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'ROBBED_US_TURNS_UNTIL_FORGIVEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN', '19'; -- scales based on perceived threat level of the plotter; does not scale with game speed
+INSERT INTO Defines (Name, Value) SELECT 'LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN', '50'; -- no direct penalty from this, but it affects MinorCivDisputeLevel
 INSERT INTO Defines (Name, Value) SELECT 'PERFORMED_COUP_TURNS_UNTIL_FORGIVEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN', '50';
 INSERT INTO Defines (Name, Value) SELECT 'MADE_DEMAND_TURNS_UNTIL_FORGIVEN', '50';

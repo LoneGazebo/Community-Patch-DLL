@@ -853,6 +853,9 @@ public:
 	int GetPlunderedTradeRouteTurn(PlayerTypes ePlayer) const;
 	void SetPlunderedTradeRouteTurn(PlayerTypes ePlayer, int iTurn);
 
+	int GetLoweredOurInfluenceTurn(PlayerTypes ePlayer) const;
+	void SetLoweredOurInfluenceTurn(PlayerTypes ePlayer, int iTurn);
+
 	int GetOtherPlayerSidedWithProtectedMinorTurn(PlayerTypes ePlayer) const;
 	void SetOtherPlayerSidedWithProtectedMinorTurn(PlayerTypes ePlayer, int iTurn);
 	bool IsAngryAboutSidedWithProtectedMinor(PlayerTypes ePlayer) const;
@@ -2059,6 +2062,7 @@ private:
 	int m_aiLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
 	int m_aiPlottedAgainstUsTurn[MAX_MAJOR_CIVS];
 	int m_aiPlunderedTradeRouteTurn[MAX_MAJOR_CIVS];
+	int m_aiLoweredOurInfluenceTurn[MAX_MAJOR_CIVS];
 	int m_aiSidedWithProtectedMinorTurn[MAX_MAJOR_CIVS];
 	int m_aiBulliedProtectedMinorTurn[MAX_MAJOR_CIVS];
 	int m_aiAttackedProtectedMinorTurn[MAX_MAJOR_CIVS];
