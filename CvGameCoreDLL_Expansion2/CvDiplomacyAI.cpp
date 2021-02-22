@@ -1349,9 +1349,9 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 /// Returns a personality weight with a small random element
 int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 {
-	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
-	int iPlusMinus = /*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE();
+	int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+	int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
+	int iPlusMinus = max(/*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE(), 0);
 
 	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
 	{
@@ -1360,32 +1360,6 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, int& iSeed)
 
 	// Player ID (used for randomization below)
 	int ID = (int) GetID();
-
-	// Error handling to prevent out of bounds values
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 10;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-	if (iPlusMinus < 0)
-	{
-		iPlusMinus *= -1;
-	}
-	if (iOriginalValue < iMin)
-	{
-		iOriginalValue = iMin;
-	}
-	else if (iOriginalValue > iMax)
-	{
-		iOriginalValue = iMax;
-	}
 
 	// Diplo AI Option: Disable this randomization!
 	if (GC.getDIPLOAI_NO_FLAVOR_RANDOMIZATION() > 0)
@@ -1446,6 +1420,14 @@ void CvDiplomacyAI::DoInitializePersonality()
 	// Human player
 	else
 	{
+		// Warmonger hate has special handling, since it is used in anti-warmonger fervor calculations
+		// Use the AI's base XML value
+		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
+		int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+		int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
+		m_iWarmongerHate = range(playerLeaderInfo.GetWarmongerHate(), iMin, iMax);
+
+		// For all other flavors, just assign the default value
 		int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 		m_iVictoryCompetitiveness = iDefaultFlavorValue;
@@ -1453,7 +1435,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 		m_iMinorCivCompetitiveness = iDefaultFlavorValue;
 		m_iBoldness = iDefaultFlavorValue;
 		m_iDiploBalance = iDefaultFlavorValue;
-		m_iWarmongerHate = iDefaultFlavorValue;
 		m_iDenounceWillingness = iDefaultFlavorValue;
 		m_iDoFWillingness = iDefaultFlavorValue;
 		m_iLoyalty = iDefaultFlavorValue;
@@ -50593,35 +50574,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				}
 			}
 
-			int iPersonalityMod = 0;
-
-			// AI? WarmongerHate flavor should matter.
-			if (!GET_PLAYER(ePlayer).isHuman())
-			{
-				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-			}
-			// Human? UA should matter.
-			else
-			{
-				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
-
-				// Venice always applies the maximum penalty
-				if (pTraits->IsNoAnnexing())
-					iPersonalityMod = 5;
-				else // Otherwise, based on categories...
-				{
-					if (pTraits->IsWarmonger())
-						iPersonalityMod -= 2;
-					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
-						iPersonalityMod += 2;
-
-					if (pTraits->IsExpansionist())
-						iPersonalityMod -= 2;
-
-					if (pTraits->IsSmaller())
-						iPersonalityMod += 2;
-				}
-			}
+			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
 
 			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
@@ -50687,35 +50640,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				}
 			}
 
-			int iPersonalityMod = 0;
-
-			// AI? WarmongerHate flavor should matter.
-			if (!GET_PLAYER(ePlayer).isHuman())
-			{
-				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-			}
-			// Human? UA should matter.
-			else
-			{
-				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
-
-				// Venice always applies the maximum penalty
-				if (pTraits->IsNoAnnexing())
-					iPersonalityMod = 5;
-				else // Otherwise, based on categories...
-				{
-					if (pTraits->IsWarmonger())
-						iPersonalityMod -= 2;
-					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
-						iPersonalityMod += 2;
-
-					if (pTraits->IsExpansionist())
-						iPersonalityMod -= 2;
-
-					if (pTraits->IsSmaller())
-						iPersonalityMod += 2;
-				}
-			}
+			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
 
 			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
@@ -50832,35 +50757,7 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				}
 			}
 
-			int iPersonalityMod = 0;
-
-			// AI? WarmongerHate flavor should matter.
-			if (!GET_PLAYER(ePlayer).isHuman())
-			{
-				iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-			}
-			// Human? UA should matter.
-			else
-			{
-				CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
-
-				// Venice always applies the maximum penalty
-				if (pTraits->IsNoAnnexing())
-					iPersonalityMod = 5;
-				else // Otherwise, based on categories...
-				{
-					if (pTraits->IsWarmonger())
-						iPersonalityMod -= 2;
-					else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
-						iPersonalityMod += 2;
-
-					if (pTraits->IsExpansionist())
-						iPersonalityMod -= 2;
-
-					if (pTraits->IsSmaller())
-						iPersonalityMod += 2;
-				}
-			}
+			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
 
 			iWarmongerValue *= 100 + (iPersonalityMod * 10);
 			iWarmongerValue /= 100;
@@ -51257,35 +51154,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 		}
 	}
 
-	int iPersonalityMod = 0;
-
-	// AI? WarmongerHate flavor should matter.
-	if (!GET_PLAYER(eCaringPlayer).isHuman())
-	{
-		iPersonalityMod = GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-	}
-	// Human? UA should matter.
-	else
-	{
-		CvPlayerTraits* pTraits = GET_PLAYER(eCaringPlayer).GetPlayerTraits();
-
-		// Venice always applies the maximum penalty
-		if (pTraits->IsNoAnnexing())
-			iPersonalityMod = 5;
-		else // Otherwise, based on categories...
-		{
-			if (pTraits->IsWarmonger())
-				iPersonalityMod -= 2;
-			else if (pTraits->IsNerd() || pTraits->IsTourism() || pTraits->IsDiplomat())
-				iPersonalityMod += 2;
-
-			if (pTraits->IsExpansionist())
-				iPersonalityMod -= 2;
-
-			if (pTraits->IsSmaller())
-				iPersonalityMod += 2;
-		}
-	}
+	int iPersonalityMod = GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
 
 	iWarmongerOffset *= 100 + (iPersonalityMod * 10);
 	iWarmongerOffset /= 100;

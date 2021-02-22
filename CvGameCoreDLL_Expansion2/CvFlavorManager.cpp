@@ -467,23 +467,10 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 	}
 
 	// Must be within upper and lower bounds
-	int iMin = /*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE();
+	int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+	int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
 
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 20;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-
-	return std::max(iMin, std::min(iMax, iValue));
+	return range(iValue, iMin, iMax);
 }
 
 // PRIVATE METHODS
@@ -491,9 +478,9 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 /// Make a random adjustment to each flavor value for this leader so they don't play exactly the same
 void CvFlavorManager::RandomizeWeights()
 {
-	int iMin = /*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE();
-	int iMax = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
-	int iPlusMinus = /*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE();
+	int iMax = range(/*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
+	int iMin = range(/*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
+	int iPlusMinus = max(/*2*/ GC.getFLAVOR_RANDOMIZATION_RANGE(), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
 	int iSeed = 0;
@@ -511,37 +498,9 @@ void CvFlavorManager::RandomizeWeights()
 /// Add a random plus/minus to an integer (but keep it in range)
 int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
 {
-	// Error handling to prevent out of bounds values
-	if (iMin < 1 || iMin > 20)
-	{
-		iMin = 1;
-	}
-	if (iMax < 1 || iMax > 20)
-	{
-		iMax = 10;
-	}
-	if (iMin > iMax)
-	{
-		iMin = iMax;
-	}
-	if (iPlusMinus < 0)
-	{
-		iPlusMinus *= -1;
-	}
-	if (iOriginalValue < iMin)
-	{
-		iOriginalValue = iMin;
-	}
-	else if (iOriginalValue > iMax)
-	{
-		iOriginalValue = iMax;
-	}
-
 	// Increment the random seed (and make sure it's > 0)
 	if (iSeed < 0)
-	{
 		iSeed = 0;
-	}
 
 	iSeed += (iOriginalValue + iPlusMinus) * 200;
 
@@ -549,7 +508,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-	return std::max(iMin, std::min(iMax, iRtnValue));
+	return range(iRtnValue, iMin, iMax);
 }
 
 /// Sends current flavor settings to all recipients
