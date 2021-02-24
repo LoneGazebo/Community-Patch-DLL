@@ -444,7 +444,7 @@ UPDATE Leaders SET Neediness = 5 					WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET Forgiveness = 7 					WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET Chattiness = 4 					WHERE Type = 'LEADER_GANDHI';
 UPDATE Leaders SET Meanness = 4 					WHERE Type = 'LEADER_GANDHI';
-UPDATE Leader_MajorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
+UPDATE Leader_MajorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 4 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_GANDHI' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
