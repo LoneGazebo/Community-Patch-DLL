@@ -9014,11 +9014,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
-#else
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged)
-#endif
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -9062,33 +9058,38 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 		bool bValid = true;
 
-		if(bNoResource)
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			int iNumResourceInfos= GC.getNumResourceInfos();
-			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
 			{
-				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if(pkResourceInfo)
+				int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+
+				if (iResourceRequirement > 0)
 				{
-					if(pkUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+					if (bNoResource)
 					{
 						bValid = false;
 						break;
 					}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(eResource) > 0)
+
+					// If a major civ, must have enough strategic resources to build this unit!
+					if (GET_PLAYER(ePlayer).isMajorCiv() && iResourceRequirement > GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, true))
 					{
 						bValid = false;
 						break;
 					}
-#endif
 				}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(eResource) > 0)
+				{
+					bValid = false;
+					break;
+				}
+#endif
 			}
-		}
-		if (pkUnitInfo->GetResourceType() != NO_RESOURCE)
-		{
-			continue;
 		}
 
 		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
@@ -9135,13 +9136,13 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			{
 				continue;
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			//Skip own player if to include own UUs.
 			else if(bIncludeOwnUUsOnly && ((UnitTypes)GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass) != eLoopUnit))
 			{
 				continue;
 			}
-#endif
+
 			else
 			{
 				// Cannot be a UU from a civ that is in our game
@@ -9172,12 +9173,8 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 			continue;
 
-		// Must be land Unit
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
+		// Must be land Unit, or Naval Units must be allowed
 		if(!(pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips && (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore) != 0)))
-#else
-		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-#endif
 			continue;
 
 		// Must be able to train this thing
@@ -9199,11 +9196,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 #if defined(MOD_GLOBAL_CS_GIFTS)
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to recon units available to ePlayer's technology
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips)
-#else
-UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
-#endif
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");

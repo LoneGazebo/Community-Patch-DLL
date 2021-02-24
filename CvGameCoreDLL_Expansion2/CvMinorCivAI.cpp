@@ -14326,7 +14326,27 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 							TechTypes eObsoleteTech = (TechTypes) pkUnitInfo->GetObsoleteTech();
 							if (eObsoleteTech == NO_TECH || !GET_TEAM(GET_PLAYER(eMajor).getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
 							{
-								eUnit = eUniqueUnit;
+								bool bFailedResourceCheck = false;
+
+								// Ally must meet this unit's strategic resource requirements
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+									CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+									if (pkResourceInfo)
+									{
+										int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+
+										if (iResourceRequirement > 0 && iResourceRequirement > GET_PLAYER(eMajor).getNumResourceAvailable(eResource, true))
+										{
+											bFailedResourceCheck = true;
+											break;
+										}
+									}
+								}
+
+								if (!bFailedResourceCheck)
+									eUnit = eUniqueUnit;
 							}
 						}
 					}
@@ -14347,24 +14367,15 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		return NULL;
 
 	// Where to put the Unit?
-	int iX = 0;
-	int iY = 0;
+	CvPlot* pUnitPlot = NULL;
 	CvCity* pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pMajorCapital : pMinorCapital;
 
 	// Local units spawn in the minor's capital
 	if (bLocal)
 	{
-		CvPlot* pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
-		if (pUnitPlot)
-		{
-			iX = pUnitPlot->getX();
-			iY = pUnitPlot->getY();
-		}
-		else
-		{
-			iX = pMinorCapital->getX();
-			iY = pMinorCapital->getY();
-		}
+		pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
+		if (!pUnitPlot)
+			pUnitPlot = pMinorCapital->plot();
 	}
 	else
 	{
@@ -14374,36 +14385,20 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		{
 			pXPCity = pClosestCoastalCity;
 			CvPlot* pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
-			if (pUnitPlot)
-			{
-				iX = pUnitPlot->getX();
-				iY = pUnitPlot->getY();
-			}
-			else
-			{
-				iX = pClosestCoastalCity->getX();
-				iY = pClosestCoastalCity->getY();
-			}
+			if (!pUnitPlot)
+				pUnitPlot = pClosestCoastalCity->plot();
 		}
 		else
 		{
 			pXPCity = pClosestCity;
 			CvPlot* pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
-			if (pUnitPlot)
-			{
-				iX = pUnitPlot->getX();
-				iY = pUnitPlot->getY();
-			}
-			else
-			{
-				iX = pClosestCity->getX();
-				iY = pClosestCity->getY();
-			}
+			if (!pUnitPlot)
+				pUnitPlot = pClosestCity->plot();
 		}
 	}
 
 	// Now actually spawn the Unit
-	CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, iX, iY);
+	CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, pUnitPlot->getX(), pUnitPlot->getY());
 	if (!pNewUnit)
 		return NULL;
 
