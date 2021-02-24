@@ -2033,12 +2033,7 @@ bool CvGameTrade::StepUnit (int iIndex)
 					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(autoBuildRoadType);
 					if (pkRouteInfo)
 					{
-						pPlot->setRouteType(autoBuildRoadType);
-						// Unowned plot, someone has to foot the bill
-						if (pPlot->getOwner() == NO_PLAYER)
-						{
-							pPlot->SetPlayerResponsibleForRoute(kTradeConnection.m_eOriginOwner);
-						}
+						pPlot->setRouteType(autoBuildRoadType, kTradeConnection.m_eOriginOwner);
 					}
 				}
 			}

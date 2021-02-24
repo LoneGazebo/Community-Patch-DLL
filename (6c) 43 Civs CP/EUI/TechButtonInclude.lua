@@ -185,7 +185,15 @@ function GatherInfoAboutUniqueStuff( civType )
 
 	-- put in the default buildings for any civ
 	for thisBuildingClass in GameInfo.BuildingClasses() do
-		validBuildingBuilds[thisBuildingClass.Type] = thisBuildingClass.DefaultBuilding
+		if thisBuildingClass.DefaultBuilding then
+			local thisBuilding = GameInfo.Buildings[thisBuildingClass.DefaultBuilding or -1]
+			-- check the 'CivilizationRequired' column in table 'Buildings'
+			if thisBuilding then
+				if not thisBuilding.CivilizationRequired or thisBuilding.CivilizationRequired == civType then
+					validBuildingBuilds[thisBuildingClass.Type] = thisBuildingClass.DefaultBuilding
+				end
+			end
+		end
 	end
 
 	-- put in my overrides
@@ -606,8 +614,28 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if tech.CorporationsEnabled then
 			addSmallActionButton( GameInfo.Missions.MISSION_BUY_CITY_STATE, "", "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" )			
 			for row in GameInfo.Corporations() do
-				if not addSmallArtButton( AdjustArtOnGrantedCorpButton, row ) then
-					break
+				local headquartersBuildingClass = GameInfo.BuildingClasses[ row.HeadquartersBuildingClass or -1 ]
+				if headquartersBuildingClass then
+					local building = nil
+					-- First check if the civ has an override
+					local isOverride = false
+					for thisOverride in GameInfo.Civilization_BuildingClassOverrides() do
+						if thisOverride.CivilizationType == civType and thisOverride.BuildingClassType == row.HeadquartersBuildingClass then
+							building = GameInfo.Buildings[ thisOverride.BuildingType or -1 ]
+							isOverride = true
+							break
+						end
+					end
+					-- If no override, look for the default building
+					if not isOverride then
+						building = GameInfo.Buildings[ headquartersBuildingClass.DefaultBuilding or -1 ] -- modders may put in nil as the default building
+					end
+					-- Is the headquarters only allowed for a certain civilization?
+					if building and (not building.CivilizationRequired or building.CivilizationRequired == civType) then
+						if not addSmallArtButton( AdjustArtOnGrantedCorpButton, row ) then
+							break
+						end
+					end
 				end
 			end
 		end

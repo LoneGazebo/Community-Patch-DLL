@@ -375,6 +375,8 @@
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
 // Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
 #define MOD_POLICIES_CITY_AUTOMATON_WORKERS         gCustomMods.isPOLICIES_CITY_AUTOMATON_WORKERS()
+// Enables Policy_UnitClassReplacements
+#define MOD_POLICIES_UNIT_CLASS_REPLACEMENTS		gCustomMods.isPOLICIES_UNIT_CLASS_REPLACEMENTS()
 
 // If defined city yields can be influenced by the presence of units with special abilities
 // This is a performance hit, so it's disabled by default
@@ -477,6 +479,9 @@
 
 // Enables the various tables related to production cost modifiers triggered by access to resources
 #define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
+
+// Enables the column CivilizationType in Processes, allowing civilizations to have unique processes
+#define MOD_CIVILIZATIONS_UNIQUE_PROCESSES			gCustomMods.isCIVILIZATIONS_UNIQUE_PROCESSES()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1386,6 +1391,7 @@ public:
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 	MOD_OPT_DECL(POLICIES_CITY_AUTOMATON_WORKERS);
+	MOD_OPT_DECL(POLICIES_UNIT_CLASS_REPLACEMENTS);
 	MOD_OPT_DECL(ERA_RESTRICTION);
 	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
@@ -1437,6 +1443,11 @@ public:
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
+
+	MOD_OPT_DECL(PROJECTS_EXTENSIONS);
+
+	MOD_OPT_DECL(CIVILIZATIONS_UNIQUE_PROCESSES);
+	MOD_OPT_DECL(CIVILIZATIONS_UNIQUE_PROJECTS);
 
 	MOD_OPT_DECL(EVENTS_TERRAFORMING);
 	MOD_OPT_DECL(EVENTS_TILE_IMPROVEMENTS);

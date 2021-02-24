@@ -1649,7 +1649,7 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 				if (iRate > iBestRate)
 				{
 					eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					eGreatUnit = (UnitTypes)pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+					eGreatUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 					if (eGreatUnit != NO_UNIT)
 					{
 						iBestRate = iRate;
@@ -1986,7 +1986,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 					pCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, (iSetback * -1));
 
 					UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					UnitTypes eGreatUnit = (UnitTypes)pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+					UnitTypes eGreatUnit = GET_PLAYER(pCity->getOwner()).GetSpecificUnitType(eUnitClass);
 
 					//For tooltip.
 					iSetback /= 100;
@@ -3629,7 +3629,7 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 int CvPlayerEspionage::GetSpyIndexInCity(CvCity* pCity)
 {
 	CvAssertMsg(pCity, "pCity is null. Can't do much with this");
-	if(!pCity || !m_pPlayer->isMinorCiv())
+	if(!pCity)
 	{
 		return -1;
 	}

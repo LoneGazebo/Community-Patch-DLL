@@ -2510,25 +2510,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
-	if (MOD_IMPROVEMENTS_EXTENSIONS)
-	{
-		// Check resource requirements
-		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
-		{
-			ResourceTypes eResource = (ResourceTypes)iI;
-			if (eResource != NO_RESOURCE)
-			{
-				int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iI);
-				if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
-				{
-					return false;
-				}
-			}
-		}
-	}
-#endif
-
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlotCanImprove, getX(), getY(), eImprovement) == GAMEEVENTRETURN_FALSE) {
@@ -2827,25 +2808,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						return false;
 					}
 				}
-
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
-				if (MOD_IMPROVEMENTS_EXTENSIONS)
-				{
-					// Check resource requirements
-					for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
-					{
-						ResourceTypes eResource = (ResourceTypes)iI;
-						if (eResource != NO_RESOURCE)
-						{
-							int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
-							if (iNumResource > 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) < iNumResource)
-							{
-								return false;
-							}
-						}
-					}
-				}
-#endif
 			}
 		}
 
@@ -4308,8 +4270,11 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 	return false;
 }
 
-bool CvPlot::MeleeAttackerAdvances(TeamTypes eAttackerTeam) const
+bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 {
+	if (isCity())
+		return true;
+
 #if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
@@ -4318,18 +4283,16 @@ bool CvPlot::MeleeAttackerAdvances(TeamTypes eAttackerTeam) const
 		static const  ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 		static const  ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
-		if (isCity())
-			return false;
-
-		if (getTeam() == eAttackerTeam && !IsImprovementPillaged())
+		if (getTeam() == eDefenderTeam && !IsImprovementPillaged())
 		{
 			ImprovementTypes eImprovement = getImprovementType();
 			if (eImprovement == eImprovementFort || eImprovement == eImprovementCitadel || eImprovement == eImprovementCamp)
-				return false;
+				return true;
 		}
 	}
 #endif
-	return true;
+
+	return false;
 }
 
 bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
@@ -5974,6 +5937,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 #endif
+
 			// Plot was owned by someone else
 			if(isOwned())
 			{
@@ -6115,21 +6079,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						setResourceType(NO_RESOURCE, 0);
 					}
 #endif
-					// Maintenance change!
-					if(MustPayMaintenanceHere(getOwner()))
-					{
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
-					}
-				}
-
-				// Route is here
-				if(getRouteType() != NO_ROUTE && !isCity())
-				{
-					// Maintenance change!
-					if(MustPayMaintenanceHere(getOwner()))
-					{
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-					}
 				}
 
 				// Remove Resource Quantity from total
@@ -6166,28 +6115,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 				}
 			}
-			// Plot is unowned
-			else
-			{
-				// Someone paying for this improvement
-				if(GetPlayerResponsibleForImprovement() != NO_PLAYER)
-				{
-					if(MustPayMaintenanceHere(GetPlayerResponsibleForImprovement()))
-					{
-						GET_PLAYER(GetPlayerResponsibleForImprovement()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
-					}
-					SetPlayerResponsibleForImprovement(NO_PLAYER);
-				}
-				// Someone paying for this Route
-				if(GetPlayerResponsibleForRoute() != NO_PLAYER)
-				{
-					if(MustPayMaintenanceHere(GetPlayerResponsibleForRoute()))
-					{
-						GET_PLAYER(GetPlayerResponsibleForRoute()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-					}
-					SetPlayerResponsibleForRoute(NO_PLAYER);
-				}
-			}
 
 			// This plot is ABOUT TO BE owned. Pop Goody Huts/remove barb camps, etc. Otherwise it will try to reduce the # of Improvements we have in our borders, and these guys shouldn't apply to that count
 			if(eNewValue != NO_PLAYER)
@@ -6206,6 +6133,31 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					SetPlayerThatClearedBarbCampHere(eNewValue);
 
 					// Don't give gold for Camps cleared by settling
+				}
+
+				// Transfer responsibility of routes and improvements if the plot is now owned by someone else
+				if (getImprovementType() != NO_IMPROVEMENT)
+				{
+					SetPlayerResponsibleForImprovement(eNewValue);
+				}
+				if (getRouteType() != NO_ROUTE && !isCity())
+				{
+					SetPlayerResponsibleForRoute(eNewValue);
+				}
+			}
+			else
+			{
+				// Transfer responsibility of improvements back to the original builder if the plot is now unowned, and the improvement can be built outside of borders
+				// If the improvement is not supposed to function outside borders, then no one is responsible for it
+				// Original builder of route is not stored in memory, so the responsible player remains the previous owner
+				if (getImprovementType() != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(getImprovementType());
+					if (pkImprovementInfo && pkImprovementInfo->IsOutsideBorders())
+					{
+						SetPlayerResponsibleForImprovement(GetPlayerThatBuiltImprovement());
+					}
+					SetPlayerResponsibleForImprovement(NO_PLAYER);
 				}
 			}
 
@@ -6342,11 +6294,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						setResourceType(eResourceFromImprovement, iQuantity);
 					}
 #endif
-					// Maintenance change!
-					if(MustPayMaintenanceHere(eNewValue))
-					{
-						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
-					}
 				}
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -6374,15 +6321,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 				}
 #endif
-				// Route is here
-				if(getRouteType() != NO_ROUTE && !isCity())
-				{
-					// Maintenance change!
-					if(MustPayMaintenanceHere(eNewValue))
-					{
-						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-					}
-				}
 
 				if(getResourceType() != NO_RESOURCE)
 				{
@@ -7554,12 +7492,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eOldImprovement, -1);
 
-				// Maintenance change!
-				if(MustPayMaintenanceHere(owningPlayerID))
-				{
-					GET_PLAYER(owningPlayerID).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
-				}
-
 				// Siphon resource changes
 				PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
 				if(oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor() > 0 && eOldBuilder != NO_PLAYER)
@@ -7605,15 +7537,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 #endif
 
-				// Update the amount of a Resource used up by the previous Improvement that is being removed
-				int iNumResourceInfos= GC.getNumResourceInfos();
-				for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
-				{
-					if(oldImprovementEntry.GetResourceQuantityRequirement(iResourceLoop) > 0)
-					{
-						owningPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, -oldImprovementEntry.GetResourceQuantityRequirement(iResourceLoop));
-					}
-				}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy extra vote in WC mod
 				if(MOD_DIPLOMACY_CITYSTATES && oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
@@ -7636,17 +7559,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 #endif
-			// Someone had built something here in an unowned plot, remove effects of the old improvement
-			if(GetPlayerResponsibleForImprovement() != NO_PLAYER)
-			{
-				// Maintenance change!
-				if(MustPayMaintenanceHere(GetPlayerResponsibleForImprovement()))
-				{
-					GET_PLAYER(GetPlayerResponsibleForImprovement()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
-				}
-
-				SetPlayerResponsibleForImprovement(NO_PLAYER);
-			}
+			// Maintenance change!
+			// Remove maintenance of the old improvement while we can still easily fetch the cost
+			SetPlayerResponsibleForImprovement(NO_PLAYER);
 		}
 
 		m_eImprovementType = eNewValue;
@@ -7956,10 +7871,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 #endif
 				// Maintenance
-				if(MustPayMaintenanceHere(owningPlayerID))
-				{
-					GET_PLAYER(owningPlayerID).GetTreasury()->ChangeBaseImprovementGoldMaintenance(newImprovementEntry.GetGoldMaintenance());
-				}
+				// If plot is owned, the plot owner is responsible for the improvement
+				SetPlayerResponsibleForImprovement(owningPlayerID);
 
 				// Siphon resource changes
 				if(newImprovementEntry.GetLuxuryCopiesSiphonedFromMinor() > 0 && eBuilder != NO_PLAYER)
@@ -8088,6 +8001,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					setOwner(eBuilder, iBestCityID);
 				}
 #endif
+				// Maintenance
+				// If plot is unowned, and the improvement can be built outside of borders, the builder is responsible for the improvement
+				// If improvement is not usually allowed to be built outside of borders, then no one is responsible
+				if (newImprovementEntry.IsOutsideBorders())
+				{
+					SetPlayerResponsibleForImprovement(eBuilder);
+				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -8404,20 +8324,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 #endif
 
-		// Update the amount of a Resource used up by this Improvement
-		if(isOwned() && eNewValue != NO_IMPROVEMENT)
-		{
-			CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
-			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
-			int iNumResourceInfos = GC.getNumResourceInfos();
-			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
-			{
-				if(newImprovementEntry.GetResourceQuantityRequirement(iResourceLoop) > 0)
-				{
-					owningPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, newImprovementEntry.GetResourceQuantityRequirement(iResourceLoop));
-				}
-			}
-		}
 
 		// Update the most recent builder
 		if (GetPlayerThatBuiltImprovement() != eBuilder)
@@ -8713,7 +8619,7 @@ RouteTypes CvPlot::getRouteType() const
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setRouteType(RouteTypes eNewValue)
+void CvPlot::setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder)
 {
 	RouteTypes eOldRoute = getRouteType();
 	int iI;
@@ -8726,74 +8632,26 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 		// Remove old effects
 		if(eOldRoute != NO_ROUTE && !isCity())
 		{
-			// Owned by someone
-			if(isOwned())
-			{
-				CvRouteInfo& oldRouteInfo = *GC.getRouteInfo(eOldRoute);
-				CvPlayer& owningPlayer = GET_PLAYER(getOwner());
-
-				// Maintenance change!
-				if(MustPayMaintenanceHere(getOwner()))
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-				}
-
-				// Update the amount of a Resource used up by a Route which was previously here
-				int iNumResourceInfos = GC.getNumResourceInfos();
-				for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
-				{
-					int iRequiredResources = oldRouteInfo.getResourceQuantityRequirement(iResourceLoop);
-					if(iRequiredResources > 0)
-					{
-						owningPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, -iRequiredResources);
-					}
-				}
-			}
-
-			// Someone built a route here in an unowned plot, remove the effects of it (since we're changing it to something else)
-			if(GetPlayerResponsibleForRoute() != NO_PLAYER)
-			{
-				// Maintenance change!
-				if(MustPayMaintenanceHere(GetPlayerResponsibleForRoute()))
-				{
-					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(getRouteType());
-					if(pkRouteInfo)
-					{
-						GET_PLAYER(GetPlayerResponsibleForRoute()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-pkRouteInfo->GetGoldMaintenance());
-					}
-				}
-
-				SetPlayerResponsibleForRoute(NO_PLAYER);
-			}
+			// Maintenance change!
+			// Remove maintenance while we can still easily access the cost
+			SetPlayerResponsibleForRoute(NO_PLAYER);
 		}
 
 		// Route switch here!
 		m_eRouteType = eNewValue;
 
-		// Apply new effects
-		if(isOwned() && eNewValue != NO_ROUTE && !isCity())
+		// Apply new effects (maintenance and resource usage)
+		if(eNewValue != NO_ROUTE && !isCity())
 		{
-			CvRouteInfo* newRouteInfo = GC.getRouteInfo(eNewValue);
-			if(newRouteInfo)
+			if (isOwned())
 			{
-				CvPlayer& owningPlayer = GET_PLAYER(getOwner());
-
-				// Maintenance
-				if(MustPayMaintenanceHere(getOwner()))
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(newRouteInfo->GetGoldMaintenance());
-				}
-
-				// Update the amount of a Resource used up by this Route
-				int iNumResourceInfos = GC.getNumResourceInfos();
-				for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
-				{
-					int iRequiredResources = newRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-					if(iRequiredResources > 0)
-					{
-						owningPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, iRequiredResources);
-					}
-				}
+				// If plot is owned, the plot owner is responsible for the route maintenance
+				SetPlayerResponsibleForRoute(getOwner());
+			}
+			else
+			{
+				// If plot is unowned, the builder is responsible for the route maintenance
+				SetPlayerResponsibleForRoute(eBuilder);
 			}
 		}
 
@@ -8885,7 +8743,7 @@ void CvPlot::updateCityRoute()
 			eCityRoute = ((RouteTypes)(GC.getINITIAL_CITY_ROUTE_TYPE()));
 		}
 
-		setRouteType(eCityRoute);
+		setRouteType(eCityRoute, getOwner());
 	}
 }
 
@@ -8914,8 +8772,74 @@ PlayerTypes CvPlot::GetPlayerResponsibleForImprovement() const
 /// Who pays maintenance for this Improvement?
 void CvPlot::SetPlayerResponsibleForImprovement(PlayerTypes eNewValue)
 {
-	if(GetPlayerResponsibleForImprovement() != eNewValue)
+	PlayerTypes eOldValue = GetPlayerResponsibleForImprovement();
+	if(eOldValue != eNewValue)
 	{
+		ImprovementTypes eImprovement = getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+			if (pkImprovementInfo)
+			{
+				if (eOldValue != NO_PLAYER)
+				{
+					// Old owner no longer needs to pay maintenance
+					if (MustPayMaintenanceHere(eOldValue))
+					{
+						GET_PLAYER(eOldValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-pkImprovementInfo->GetGoldMaintenance());
+					}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						// Remember how many improvements we are responsible for (for UI)
+						GET_PLAYER(eOldValue).changeResponsibleForImprovementCount(eImprovement, -1);
+					}
+#endif
+				}
+
+				if (eNewValue != NO_PLAYER)
+				{
+					// New owner needs to pay maintenance
+					if (MustPayMaintenanceHere(eNewValue))
+					{
+						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkImprovementInfo->GetGoldMaintenance());
+					}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						// Remember how many improvements we are responsible for (for UI)
+						GET_PLAYER(eNewValue).changeResponsibleForImprovementCount(eImprovement, 1);
+					}
+#endif
+				}
+
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					// Change resource quantity used
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);;
+
+						if (iNumResource > 0)
+						{
+							if (eOldValue != NO_PLAYER)
+							{
+								GET_PLAYER(eOldValue).changeNumResourceUsed((ResourceTypes)iResourceLoop, -iNumResource);
+							}
+							if (eNewValue != NO_PLAYER)
+							{
+								GET_PLAYER(eNewValue).changeNumResourceUsed((ResourceTypes)iResourceLoop, iNumResource);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Transfer responsibility
 		m_ePlayerResponsibleForImprovement = eNewValue;
 	}
 }
@@ -8931,8 +8855,74 @@ PlayerTypes CvPlot::GetPlayerResponsibleForRoute() const
 /// Who pays maintenance for this Route?
 void CvPlot::SetPlayerResponsibleForRoute(PlayerTypes eNewValue)
 {
-	if(GetPlayerResponsibleForRoute() != eNewValue)
+	PlayerTypes eOldValue = GetPlayerResponsibleForRoute();
+	if (eOldValue != eNewValue)
 	{
+		RouteTypes eRoute = getRouteType();
+		if (eRoute != NO_ROUTE)
+		{
+			CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+
+			if (pkRouteInfo)
+			{
+				if (eOldValue != NO_PLAYER)
+				{
+					// Old owner no longer needs to pay maintenance
+					if (MustPayMaintenanceHere(eOldValue))
+					{
+						GET_PLAYER(eOldValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-pkRouteInfo->GetGoldMaintenance());
+					}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						// Remember how many routes we are responsible for (for UI)
+						GET_PLAYER(eOldValue).changeResponsibleForRouteCount(eRoute, -1);
+					}
+#endif
+				}
+
+				if (eNewValue != NO_PLAYER)
+				{
+					// New owner needs to pay maintenance
+					if (MustPayMaintenanceHere(eNewValue))
+					{
+						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
+					}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						// Remember how many routes we are responsible for (for UI)
+						GET_PLAYER(eNewValue).changeResponsibleForRouteCount(eRoute, 1);
+					}
+#endif
+				}
+
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					// Change resource quantity used
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						int iNumResource = pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);;
+
+						if (iNumResource > 0)
+						{
+							if (eOldValue != NO_PLAYER)
+							{
+								GET_PLAYER(eOldValue).changeNumResourceUsed((ResourceTypes)iResourceLoop, -iNumResource);
+							}
+							if (eNewValue != NO_PLAYER)
+							{
+								GET_PLAYER(eNewValue).changeNumResourceUsed((ResourceTypes)iResourceLoop, iNumResource);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Transfer responsibility
 		m_ePlayerResponsibleForRoute = eNewValue;
 	}
 }
@@ -9125,10 +9115,7 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 			if(getRouteType() != NO_ROUTE && getPlotCity()->getOwner() == getOwner())
 			{
 				// Maintenance change!
-				if(MustPayMaintenanceHere(getOwner()))
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-				}
+				SetPlayerResponsibleForRoute(getOwner());
 			}
 
 
@@ -9181,14 +9168,11 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 				setImprovementType(eMachuPichu);
 			}
 #endif
-			// Is a route is here?  If we already owned this plot, then we were paying maintenance, now we don't have to.
+			// Is a route is here?  If we already own this plot, then we were paying maintenance, now we don't have to.
 			if(getRouteType() != NO_ROUTE && getPlotCity()->getOwner() == getOwner())
 			{
 				// Maintenance change!
-				if(MustPayMaintenanceHere(getOwner()))
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-GC.getRouteInfo(getRouteType())->GetGoldMaintenance());
-				}
+				SetPlayerResponsibleForRoute(NO_PLAYER);
 			}
 
 		}
@@ -11915,20 +11899,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 #endif
 				}
 
-				// Unowned plot, someone has to foot the bill
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
-				if(getOwner() == NO_PLAYER && !(MOD_IMPROVEMENTS_EXTENSIONS && GC.getImprovementInfo(eImprovement)->IsRemovesSelf()))
-#else
-				if(getOwner() == NO_PLAYER)
-#endif
-				{
-					if(MustPayMaintenanceHere(ePlayer))
-					{
-						kPlayer.GetTreasury()->ChangeBaseImprovementGoldMaintenance(GC.getImprovementInfo(eImprovement)->GetGoldMaintenance());
-					}
-					SetPlayerResponsibleForImprovement(ePlayer);
-				}
-
 				CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eImprovement);
 
 				// If this improvement removes the underlying resource, do that
@@ -12015,17 +11985,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
 				if(pkRouteInfo)
 				{
-					setRouteType(eRoute);
-
-					// Unowned plot, someone has to foot the bill
-					if(getOwner() == NO_PLAYER)
-					{
-						if(MustPayMaintenanceHere(ePlayer))
-						{
-							kPlayer.GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-						}
-						SetPlayerResponsibleForRoute(ePlayer);
-					}
+					setRouteType(eRoute, ePlayer);
 				}
 			}
 
@@ -12067,7 +12027,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 			if(pkBuildInfo->IsRemoveRoute())
 			{
-				setRouteType(NO_ROUTE);
+				setRouteType(NO_ROUTE, ePlayer);
 			}
 
 			bFinished = true;
@@ -14075,7 +14035,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 			if (isDeepWater() && GET_PLAYER(ePlayer).CanCrossOcean())
 				bCanPassBecauseOfPlayerTrait = true;
 			//and shallow water... (this is necessary because of scenarios and tech situations where units can embark before techs, and vice-versa.
-			if (isShallowWater() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+			if (isShallowWater() && GET_PLAYER(ePlayer).CanEmbark())
 				bCanPassBecauseOfPlayerTrait = true;
 
 			if (!bCanPassBecauseOfPlayerTrait)

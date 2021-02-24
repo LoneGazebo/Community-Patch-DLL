@@ -431,6 +431,10 @@ public:
 	int GetInternationalRouteYieldModifier(int i) const;
 	int* GetInternationalRouteYieldModifiersArray();
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	bool IsUnitClassReplacements() const;
+	std::map<UnitClassTypes, UnitClassTypes> GetUnitClassReplacements() const;
+#endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
 	int GetFlavorValue(int i) const;
@@ -845,6 +849,9 @@ private:
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
 #endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;

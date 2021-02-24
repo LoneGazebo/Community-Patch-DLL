@@ -2813,7 +2813,7 @@ void CvEconomicAI::UpdateExplorePlotsFromScratch()
 	m_vPlotsToExploreSea.clear();
 
 	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
-	bool bCanEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
+	bool bCanEmbark = m_pPlayer->CanEmbark();
 
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
@@ -2878,7 +2878,7 @@ void CvEconomicAI::UpdateExplorePlotsLocally(CvPlot* pPlot)
 
 	//then add them again with their new valuation
 	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
-	bool bCanEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
+	bool bCanEmbark = m_pPlayer->CanEmbark(); 
 	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
 		CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
@@ -3176,14 +3176,12 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 			}
 			return true;
 		}
-		else if(GET_TEAM(pPlayer->getTeam()).canEmbark())  // get a trireme out there NOW!
+		else if(pPlayer->CanEmbark())  // get a trireme out there NOW!
 		{
-			CvUnit* pLoopUnit;
-			CvCity* pLoopCity;
 			int iLoop;
 
 			// Current Units
-			for(pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
+			for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
 			{
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 				{
@@ -3192,7 +3190,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 			}
 
 			// Units being trained now
-			for(pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+			for(CvCity* pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
 			{
 				if(pLoopCity->isProductionUnit())
 				{
@@ -3241,7 +3239,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 		return true;
 	}
 #endif
-
 	return (pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_ENOUGH);
 }
 
@@ -4021,8 +4018,6 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 /// Did we start the game on a small continent (50 tiles or less)?
 bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	int iStartArea;
-	CvPlot* pLoopPlot;
 	int iCoastalTiles = 0;
 	int iRevealedCoastalTiles = 0;
 
@@ -4031,14 +4026,14 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 	// Only kick off this strategy in the first 25 turns of the game (though it will last 50 turns once selected)
 	if(GC.getGame().getGameTurn() < 25 && pPlayer->getStartingPlot())
 	{
-		if(GET_TEAM(pPlayer->getTeam()).getCanEmbarkCount() < 1)
+		if(!pPlayer->CanEmbark())
 		{
-			iStartArea = pPlayer->getStartingPlot()->getArea();
+			int iStartArea = pPlayer->getStartingPlot()->getArea();
 
 			// Have we revealed a high enough percentage of the coast of our landmass?
 			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			{
-				pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 				if(pLoopPlot->getArea() == iStartArea)
 				{
 					if(pLoopPlot->isCoastalLand())
@@ -4076,7 +4071,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 		return false;
 	}
 
-	if(!GET_TEAM(pPlayer->getTeam()).canEmbark())
+	if(!pPlayer->CanEmbark())
 	{
 		return false;
 	}

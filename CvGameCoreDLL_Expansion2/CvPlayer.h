@@ -187,6 +187,7 @@ public:
 	void killUnits();
 
 	UnitTypes GetSpecificUnitType(const char* szUnitClass, bool hideAssert = false);
+	UnitTypes GetSpecificUnitType(UnitClassTypes eUnitCass) const;
 	BuildingTypes GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert = false);
 
 	CvPlot *GetGreatAdmiralSpawnPlot (CvUnit *pUnit);
@@ -369,7 +370,7 @@ public:
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL) const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
 	int getImprovementUpgradeRate() const;
@@ -2059,6 +2060,11 @@ public:
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	UnitClassTypes GetUnitClassReplacement(UnitClassTypes eUnitClass) const;
+	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
+#endif
+
 	bool IsCSResourcesCountMonopolies() const;
 	void changeCSResourcesCountMonopolies(int iChange);
 
@@ -2170,9 +2176,9 @@ public:
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
 
-	int getResourceOverValue(ResourceTypes eIndex) const;
-	void changeResourceOverValue(ResourceTypes eIndex, int iChange);
-	void setResourceOverValue(ResourceTypes eIndex, int iChange);
+	int getResourceShortageValue(ResourceTypes eIndex) const;
+	void changeResourceShortageValue(ResourceTypes eIndex, int iChange);
+	void setResourceShortageValue(ResourceTypes eIndex, int iChange);
 
 	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
 	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
@@ -2217,6 +2223,14 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
 	void changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange);
+#endif
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	int getResponsibleForRouteCount(RouteTypes eIndex) const;
+	void changeResponsibleForRouteCount(RouteTypes eIndex, int iChange);
+
+	int getResponsibleForImprovementCount(ImprovementTypes eIndex) const;
+	void changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange);
 #endif
 
 	int getGreatPersonImprovementCount();
@@ -2677,6 +2691,7 @@ public:
 	bool GetEverTrainedBuilder(void);
 	// end Tutorial functions
 
+	bool CanEmbark() const;
 	bool CanCrossOcean() const;
 	bool CanCrossMountain() const;
 	bool CanCrossIce() const;
@@ -3199,6 +3214,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNeedsModifierFromAirUnits;
 	FAutoVariable<int, CvPlayer> m_iFlatDefenseFromAirUnits;
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
+#endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxPlayerBuildingProductionModifier;
@@ -3450,7 +3468,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiJFDPoliticPercent;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromCSAlliances;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceShortageValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
@@ -3518,6 +3536,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiTotalImprovementsBuilt;
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	std::map<RouteTypes, int> m_piResponsibleForRouteCount;
+	std::map<ImprovementTypes, int> m_piResponsibleForImprovementCount;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;

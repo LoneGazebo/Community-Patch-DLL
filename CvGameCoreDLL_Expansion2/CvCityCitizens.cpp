@@ -2961,11 +2961,9 @@ void CvCityCitizens::DoSpecialists()
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					const CivilizationTypes eCivilization = GetCity()->getCivilizationType();
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if (pCivilizationInfo != NULL)
+					if (eUnitClass != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
+						UnitTypes eUnit = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						DoSpawnGreatPerson(eUnit, true, false, false);
@@ -3422,17 +3420,17 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 
 					// Now... actually create the GP!
 					const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-					const CivilizationTypes eCivilization = GetCity()->getCivilizationType();
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if (pCivilizationInfo != NULL)
+					if (eUnitClass != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
-
+						UnitTypes eUnit = GET_PLAYER(GetOwner()).GetSpecificUnitType(eUnitClass);
+						if (eUnit != NO_UNIT)
+						{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-						DoSpawnGreatPerson(eUnit, true, false, false);
+							DoSpawnGreatPerson(eUnit, true, false, false);
 #else
-						DoSpawnGreatPerson(eUnit, true, false);
+							DoSpawnGreatPerson(eUnit, true, false);
 #endif
+						}
 					}
 				}
 			}
@@ -3563,7 +3561,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
-	const UnitTypes eThisPlayersUnitType = (UnitTypes)GET_PLAYER(GetCity()->getOwner()).getCivilizationInfo().getCivilizationUnits(eUnitClass);
+	const UnitTypes eThisPlayersUnitType = GET_PLAYER(GetCity()->getOwner()).GetSpecificUnitType(eUnitClass);
 	if (eThisPlayersUnitType != NO_UNIT)
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eThisPlayersUnitType);

@@ -4147,6 +4147,11 @@ function SelectBuildingOrWonderArticle( buildingID )
 				end
 			end
 		end
+		-- Are we only buildable for a certain civilization, but are not an override?
+		if thisCiv == nil and thisBuilding.CivilizationRequired ~= nil and thisBuilding.CivilizationRequired ~= "CIVILIZATION_BARBARIAN" and thisBuilding.CivilizationRequired ~= "CIVILIZATION_MINOR" then
+			thisCiv = GameInfo.Civilizations[thisBuilding.CivilizationRequired];
+		end
+
 		if defaultBuilding then
 			local thisBuildingInstance = g_ReplacesManager:GetInstance();
 			if thisBuildingInstance then
@@ -5813,21 +5818,23 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			g_ImprovementsManager:ResetInstances();
 			buttonAdded = 0;
 			for row in GameInfo.Improvement_ResourceTypes( condition ) do
-				local thisImprovement = GameInfo.Improvements[row.ImprovementType];
-				if thisImprovement then
-					local thisImprovementInstance = g_ImprovementsManager:GetInstance();
-					if thisImprovementInstance then
-						local textureOffset, textureSheet = IconLookup( thisImprovement.PortraitIndex, buttonSize, thisImprovement.IconAtlas );				
-						if textureOffset == nil then
-							textureSheet = defaultErrorTextureSheet;
-							textureOffset = nullOffset;
-						end				
-						UpdateSmallButton( buttonAdded, thisImprovementInstance.ImprovementImage, thisImprovementInstance.ImprovementButton, textureSheet, textureOffset, CategoryImprovements, Locale.ConvertTextKey( thisImprovement.Description ), thisImprovement.ID );
-						buttonAdded = buttonAdded + 1;
+				if (row.ResourceTrade or 0) ~= 0 then
+					local thisImprovement = GameInfo.Improvements[row.ImprovementType];
+					if thisImprovement then
+						local thisImprovementInstance = g_ImprovementsManager:GetInstance();
+						if thisImprovementInstance then
+							local textureOffset, textureSheet = IconLookup( thisImprovement.PortraitIndex, buttonSize, thisImprovement.IconAtlas );				
+							if textureOffset == nil then
+								textureSheet = defaultErrorTextureSheet;
+								textureOffset = nullOffset;
+							end				
+							UpdateSmallButton( buttonAdded, thisImprovementInstance.ImprovementImage, thisImprovementInstance.ImprovementButton, textureSheet, textureOffset, CategoryImprovements, Locale.ConvertTextKey( thisImprovement.Description ), thisImprovement.ID );
+							buttonAdded = buttonAdded + 1;
+						end
 					end
 				end
 			end
-			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 	  
+			UpdateButtonFrame( buttonAdded, Controls.ImprovementsInnerFrame, Controls.ImprovementsFrame );	 		  
 			
 			--CBP
 			numYields = 0;
@@ -6220,21 +6227,46 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			g_RequiredResourcesManager:ResetInstances();
 			buttonAdded = 0;
 			for row in GameInfo.Improvement_ResourceTypes( condition ) do
-				local requiredResource = GameInfo.Resources[row.ResourceType];
-				if requiredResource then
-					local thisRequiredResourceInstance = g_RequiredResourcesManager:GetInstance();
-					if thisRequiredResourceInstance then
-						local textureOffset, textureSheet = IconLookup( requiredResource.PortraitIndex, buttonSize, requiredResource.IconAtlas );				
-						if textureOffset == nil then
-							textureSheet = defaultErrorTextureSheet;
-							textureOffset = nullOffset;
-						end				
-						UpdateSmallButton( buttonAdded, thisRequiredResourceInstance.RequiredResourceImage, thisRequiredResourceInstance.RequiredResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( requiredResource.Description ), requiredResource.ID );
-						buttonAdded = buttonAdded + 1;
+				if (row.ResourceTrade or 0) ~= 0 then
+					local requiredResource = GameInfo.Resources[row.ResourceType];
+					if requiredResource then
+						local thisRequiredResourceInstance = g_RequiredResourcesManager:GetInstance();
+						if thisRequiredResourceInstance then
+							local textureOffset, textureSheet = IconLookup( requiredResource.PortraitIndex, buttonSize, requiredResource.IconAtlas );				
+							if textureOffset == nil then
+								textureSheet = defaultErrorTextureSheet;
+								textureOffset = nullOffset;
+							end				
+							UpdateSmallButton( buttonAdded, thisRequiredResourceInstance.RequiredResourceImage, thisRequiredResourceInstance.RequiredResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( requiredResource.Description ), requiredResource.ID );
+							buttonAdded = buttonAdded + 1;
+						end
 					end
-				end		
+				end
 			end
 			UpdateButtonFrame( buttonAdded, Controls.RequiredResourcesInnerFrame, Controls.RequiredResourcesFrame );
+
+			-- Resources required (using the local resources frame)
+			Controls.LocalResourcesLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_PEDIA_REQ_RESRC_LABEL" ) );
+			g_LocalResourcesManager:ResetInstances();
+			buttonAdded = 0;
+			for row in GameInfo.Improvement_ResourceTypes( condition ) do
+				if (row.QuantityRequirement or 0) ~= 0 then
+					local requiredResource = GameInfo.Resources[row.ResourceType];
+					if requiredResource then
+						local thisRequiredResourceInstance = g_LocalResourcesManager:GetInstance();
+						if thisRequiredResourceInstance then
+							local textureOffset, textureSheet = IconLookup( requiredResource.PortraitIndex, buttonSize, requiredResource.IconAtlas );				
+							if textureOffset == nil then
+								textureSheet = defaultErrorTextureSheet;
+								textureOffset = nullOffset;
+							end				
+							UpdateSmallButton( buttonAdded, thisRequiredResourceInstance.LocalResourceImage, thisRequiredResourceInstance.LocalResourceButton, textureSheet, textureOffset, CategoryResources, Locale.ConvertTextKey( requiredResource.Description ), requiredResource.ID );
+							buttonAdded = buttonAdded + 1;
+						end
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.LocalResourcesInnerFrame, Controls.LocalResourcesFrame );
 
 			-- update the game info
 			if (thisImprovement.Help) then

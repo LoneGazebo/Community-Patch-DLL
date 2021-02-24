@@ -232,7 +232,7 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool MeleeAttackerAdvances(TeamTypes eAttackerTeam) const;
+	bool isFortification(TeamTypes eDefenderTeam) const;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
@@ -610,7 +610,7 @@ public:
 	void SetWorldAnchor(GenericWorldAnchorTypes eAnchor, int iData1 = -1);
 
 	RouteTypes getRouteType() const;
-	void setRouteType(RouteTypes eNewValue);
+	void setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
 	void updateCityRoute();
 
 	bool IsRoutePillaged() const;

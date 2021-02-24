@@ -398,6 +398,7 @@ CvUnit::CvUnit() :
 	, m_iWorkRateMod("CvUnit::m_iWorkRateMod", m_syncArchive)
 	, m_iDamageReductionCityAssault("CvUnit::m_iDamageReductionCityAssault", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
+	, m_iFightWellDamaged("CvUnit::m_iFightWellDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
 #endif
@@ -992,7 +993,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	// Give embark promotion for free?
-	if(GET_TEAM(getTeam()).canEmbark() || kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
+	if(kPlayer.CanEmbark())
 	{
 		PromotionTypes ePromotionEmbarkation = kPlayer.GetEmbarkationPromotion();
 
@@ -1589,6 +1590,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWorkRateMod = 0;
 	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
+	m_iFightWellDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
 #endif
@@ -2025,7 +2027,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				//Can't embark yet, or the unit should auto get it?
 				if (pUnit->isHasPromotion(ePromotion) || getUnitInfo().GetFreePromotions(ePromotion))
 				{
-					if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage())
+					if(!GET_PLAYER(getOwner()).CanCrossOcean())
 					{
 						bGivePromotion = true;
 					}
@@ -13452,28 +13454,28 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 #if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && (!m_pUnitInfo->GetBuilds(eBuild) || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild)))
 #else
-	if(!(m_pUnitInfo->GetBuilds(eBuild)))
+	if (!(m_pUnitInfo->GetBuilds(eBuild)))
 #endif
 	{
 		return false;
 	}
 
-	CvBuildInfo *pkBuildInfo = GC.getBuildInfo(eBuild);
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if (!pkBuildInfo)
 	{
 		return false;
 	}
 
 	// If prophet has  started spreading religion, can't do other functions
-	if(m_pUnitInfo->IsSpreadReligion())
+	if (m_pUnitInfo->IsSpreadReligion())
 	{
-		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed()>0)
+		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed() > 0)
 		{
 			return false;
 		}
 	}
 
-	if(!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold)))
+	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
 	{
 		return false;
 	}
@@ -13649,7 +13651,7 @@ bool CvUnit::build(BuildTypes eBuild)
 						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 						if(pkUnitClassInfo)
 						{
-							const UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							const UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
 							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 							if(pUnitEntry)
 							{
@@ -13829,43 +13831,6 @@ bool CvUnit::build(BuildTypes eBuild)
 #endif
 			{
 				eRoute = (RouteTypes) pkBuildInfo->getRoute();
-			}
-
-			int iNumResource = 0;
-
-			// Update the amount of a Resource used up by popped Build
-			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				if(eImprovement != NO_IMPROVEMENT)
-				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-					if(pkImprovementInfo)
-					{
-						iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
-					}
-				}
-#if defined(GLOBAL_ALPINE_PASSES)
-				// Can be both an improvement and a route
-				if(eRoute != NO_ROUTE)
-#else
-				else if(eRoute != NO_ROUTE)
-#endif
-				{
-					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-					if(pkRouteInfo)
-					{
-#if defined(GLOBAL_ALPINE_PASSES)
-						iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-#else
-						iNumResource = pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
-#endif
-					}
-				}
-
-				if(iNumResource > 0)
-				{
-					kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, -iNumResource);
-				}
 			}
 
 			if(pkBuildInfo->isKill())
@@ -14608,8 +14573,6 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 	VALIDATE_OBJECT
 	UnitTypes eUpgradeUnitType = NO_UNIT;
 
-	const CvCivilizationInfo& kCiv = GET_PLAYER(getOwner()).getCivilizationInfo();
-
 	// Determine what we're going to upgrade into
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
@@ -14619,7 +14582,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 		{
 			if(m_pUnitInfo->GetUpgradeUnitClass(iI))
 			{
-				eUpgradeUnitType = (UnitTypes) kCiv.getCivilizationUnits(iI);
+				eUpgradeUnitType = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {
@@ -14669,7 +14632,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 		{
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, getUnitType()))
 			{
-				eUpgradeUnitType = (UnitTypes)kCiv.getCivilizationUnits(eUnitClass);
+				eUpgradeUnitType = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 				break;
 			}
 		}
@@ -14944,7 +14907,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 	}
 #endif
 
-	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : (UnitTypes)pkCivilizationInfo->getCivilizationUnits(getUnitInfo().GetUnitCaptureClassType()));
+	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
 }
 
 
@@ -15789,8 +15752,11 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	int iDamageValueToUse = (iAssumedDamage > 0) ? iAssumedDamage : getDamage();
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
-	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+	// Units that fight well damaged do not take a penalty from being wounded
+	if ((bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY))
+	{
 		return iRtnValue;
+	}
 
 	// How much does damage weaken the effectiveness of the Unit?
 	if (iDamageValueToUse > 0)
@@ -15805,7 +15771,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 #endif
 
 		//default behavior
-		if (iRtnValue == 0)
+		if (iRtnValue == 0 && !IsFightWellDamaged())
 		{
 			int iWoundedDamageMultiplier = GC.getWOUNDED_DAMAGE_MULTIPLIER() + GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
 			if (IsStrongerDamaged())
@@ -21443,22 +21409,22 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chText
 
 	for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 	{
-		CvPlot* pPlot = iterateRingPlots(pWhere, i);
-		if (!pPlot)
+		CvPlot* pSplashPlot = iterateRingPlots(pWhere, i);
+		if (!pSplashPlot)
 			continue;
 
-		//splash damage only for adjacent plots and range-attackable plots
-		if (plotDistance(*plot(),*pPlot)>1 && !canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
+		//splash damage only for range-attackable plots
+		if (!canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
 			continue;
 
-		for (int iJ = 0; iJ < pPlot->getNumUnits(); iJ++)
+		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)
 		{
-			CvUnit* pEnemyUnit = pPlot->getUnitByIndex(iJ);
+			CvUnit* pEnemyUnit = pSplashPlot->getUnitByIndex(iJ);
 			//logically we should damage non-enemy units as well? but that is too complex to consider ... 
 			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
 			{
 				//no splash damage in cities/forts
-				if (pPlot->isFriendlyCityOrPassableImprovement(pEnemyUnit->getOwner()))
+				if (pSplashPlot->isFortification(pEnemyUnit->getTeam()))
 					continue;
 
 				if (iValue + pEnemyUnit->getDamage() >= pEnemyUnit->GetMaxHitPoints())
@@ -23779,7 +23745,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 					if(pkUnitClassInfo)
 					{
-						const UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+						const UnitTypes eUnit = kPlayer.GetSpecificUnitType(eUnitClass);
 						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 						if(pUnitEntry)
 						{
@@ -24143,6 +24109,8 @@ void CvUnit::ChangeSapperCount(int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
+// No penalty when wounded, on top of that gain a combat bonus the more wounded the unit is
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsStrongerDamaged() const
 {
 	return m_iStrongerDamaged> 0;
@@ -24152,6 +24120,19 @@ bool CvUnit::IsStrongerDamaged() const
 void CvUnit::ChangeIsStrongerDamaged(int iChange)
 {
 	m_iStrongerDamaged += iChange;
+}
+
+// No penalty from being wounded, no combat bonus
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsFightWellDamaged() const
+{
+	return m_iFightWellDamaged > 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeIsFightWellDamaged(int iChange)
+{
+	m_iFightWellDamaged += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26632,6 +26613,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+		ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
 		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
 		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
 #endif
@@ -27834,7 +27816,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	//we might lack a resource for healing
 	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 	int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
-	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || isBarbarian();
+	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 	//sometimes we should heal but we have to fight instead
 	int iHpLimit = GetMaxHitPoints() / 10;
@@ -30106,7 +30088,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 		{
 			iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 1; 	
+			iExtra *= 1;
 		}
 		iValue += iExtra;
 		
@@ -30252,7 +30234,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackBelowHealthMod() + getHPHealedIfDefeatEnemy();
 		iExtra = ( iTemp + iExtra ) * ( iFlavorDefense + 2 * iFlavorOffense);
 		if (IsCanAttackRanged())
-			iExtra *= 0.25;		
+			iExtra *= 0.25;
 		else
 			iExtra *= 0.4;
 		if (getUnitInfo().IsMounted())

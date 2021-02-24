@@ -208,6 +208,11 @@ protected:
 	static int lGetBuildType(lua_State* L);
 	static int lWorkRate(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	static int lGetImprovementBuildType(lua_State* L);
+	static int lGetRouteBuildType(lua_State* L);
+#endif
+
 #if defined(MOD_CIV6_WORKER)
 	static int lGetBuilderStrength(lua_State* L);
 #endif

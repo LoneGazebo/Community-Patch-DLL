@@ -645,7 +645,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiJFDPoliticPercent("CvPlayer::m_paiJFDPoliticPercent", m_syncArchive)
 	, m_paiResourceFromCSAlliances("CvPlayer::m_paiResourceFromCSAlliances", m_syncArchive)
-	, m_paiResourceOverValue("CvPlayer::m_paiResourceOverValue", m_syncArchive)
+	, m_paiResourceShortageValue("CvPlayer::m_paiResourceShortageValue", m_syncArchive)
 	, m_aiGlobalTourismAlreadyReceived("CvPlayer::m_aiGlobalTourismAlreadyReceived", m_syncArchive)
 	, m_aiYieldFromMinors("CvPlayer::m_aiYieldFromMinors", m_syncArchive)
 	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
@@ -717,6 +717,9 @@ CvPlayer::CvPlayer() :
 	, m_iPuppetYieldPenaltyMod("CvPlayer::m_iPuppetYieldPenaltyMod", m_syncArchive)
 	, m_iNeedsModifierFromAirUnits("CvPlayer::m_iNeedsModifierFromAirUnits", m_syncArchive)
 	, m_iFlatDefenseFromAirUnits("CvPlayer::m_iFlatDefenseFromAirUnits", m_syncArchive)
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	, m_piUnitClassReplacements()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
@@ -1111,6 +1114,10 @@ void CvPlayer::uninit()
 	m_paiImprovementCount.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_paiTotalImprovementsBuilt.clear();
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	m_piResponsibleForRouteCount.clear();
+	m_piResponsibleForImprovementCount.clear();
 #endif
 	m_paiFreeBuildingCount.clear();
 	m_paiFreePromotionCount.clear();
@@ -1601,6 +1608,9 @@ void CvPlayer::uninit()
 	m_iNeedsModifierFromAirUnits = 0;
 	m_iFlatDefenseFromAirUnits = 0;
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	m_piUnitClassReplacements.clear();
+#endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
 	m_iCapitalCityID = -1;
@@ -1907,6 +1917,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_piDomainFreeExperience.clear();
 #endif
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	m_piUnitClassReplacements.clear();
+#endif
+
 	m_aiCapitalYieldRateModifier.clear();
 	m_aiCapitalYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
 
@@ -1993,6 +2007,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiTotalImprovementsBuilt.resize(GC.getNumImprovementInfos(), 0);
 #endif
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+		m_piResponsibleForRouteCount.clear();
+		m_piResponsibleForImprovementCount.clear();
+#endif
+
 		m_paiUnitCombatProductionModifiers.clear();
 		m_paiUnitCombatProductionModifiers.resize(GC.getNumUnitCombatClassInfos(), 0);
 
@@ -2025,6 +2044,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
+
 #if defined(MOD_BALANCE_CORE)
 		m_paiJFDPoliticPercent.clear();
 		m_paiJFDPoliticPercent.resize(MAX_CIV_PLAYERS, 0);
@@ -2032,8 +2052,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiResourceFromCSAlliances.clear();
 		m_paiResourceFromCSAlliances.resize(GC.getNumResourceInfos(), 0);
 
-		m_paiResourceOverValue.clear();
-		m_paiResourceOverValue.resize(GC.getNumResourceInfos(), 0);
+		m_paiResourceShortageValue.clear();
+		m_paiResourceShortageValue.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiNumCitiesFreeChosenBuilding.clear();
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
@@ -2559,14 +2579,13 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestValue = 0;
 
-	const CvCivilizationInfo& playerCivilzationInfo = getCivilizationInfo();
 	for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			UnitTypes eLoopUnit = (UnitTypes)playerCivilzationInfo.getCivilizationUnits(iI);
+			UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
 			if(eLoopUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitInfo = GC.getUnitInfo(eLoopUnit);
@@ -2670,7 +2689,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 					if(pkUnitClassInfo)
 					{
-						const UnitTypes eLocalUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+						const UnitTypes eLocalUnit = GetSpecificUnitType(eUnitClass);
 						if (eLocalUnit != NO_UNIT)
 						{
 							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eLocalUnit);
@@ -9043,7 +9062,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 
 									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 									{
-										eBuildingType = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+										eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
 										if (eBuildingType == NO_BUILDING)
 										{
 											continue;
@@ -9468,48 +9487,42 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					if(pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI) <= 0)
 						continue;
 
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
-		
-					if (pCivilizationInfo != NULL)
+					const UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
+					if(eLoopUnit != NO_UNIT)
 					{
-						const UnitTypes eLoopUnit = (UnitTypes) pCivilizationInfo->getCivilizationUnits(iI);
-						if(eLoopUnit != NO_UNIT)
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+						if(pkUnitEntry)
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitEntry)
+							int iLoop;
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								CvCity *pLoopCity;
-								int iLoop;
-								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 								{
-									if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-									{
-										continue;
-									}
-									if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									{
-										continue;
-									}
-									for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
-									{
-										UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-										int iResult = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+									continue;
+								}
+								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
+								{
+									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+									int iResult = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
 
-										CvAssertMsg(iResult != -1, "Unable to create unit");
+									CvAssertMsg(iResult != -1, "Unable to create unit");
 
-										if (iResult != -1)
+									if (iResult != -1)
+									{
+										CvUnit* pUnit = getUnit(iResult);
+										if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 										{
-											CvUnit* pUnit = getUnit(iResult);
-											if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
-											{
-												pUnit->kill(false);	// Could not find a valid spot!
-											}
-											else
-											{
-												pUnit->finishMoves();
-												//Lua Hook
-												GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
-											}
+											pUnit->kill(false);	// Could not find a valid spot!
+										}
+										else
+										{
+											pUnit->finishMoves();
+											//Lua Hook
+											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
 										}
 									}
 								}
@@ -9530,9 +9543,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI); iJ++)
 					{
 						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						CvCity *pLoopCity;
 						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 						{
 							if(pLoopCity != NULL)
 							{
@@ -10078,7 +10090,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
 				if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
 				{
-					// Only with players who have met us
+					// Only with players who have met them
 					if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 					{
 						int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
@@ -10377,6 +10389,7 @@ void CvPlayer::disbandUnit(bool)
 				{
 					{
 						iValue = (10000 + GC.getGame().getSmallFakeRandNum(1000, pLoopUnit->GetID() + iLoop));
+
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 						iValue += (pLoopUnit->getExperienceTimes100() / 100 * 20);
 						iValue += (pLoopUnit->getLevel() * 100);
@@ -10542,30 +10555,47 @@ void CvPlayer::killUnits()
 // Given a unit class, get the players specific unit of that class
 UnitTypes CvPlayer::GetSpecificUnitType(const char* szUnitClass, bool hideAssert)
 {
-	UnitTypes eUnitType = NO_UNIT;
-	UnitClassTypes eUnitClassType = (UnitClassTypes) GC.getInfoTypeForString(szUnitClass, hideAssert);
+	UnitClassTypes eUnitClassType = (UnitClassTypes)GC.getInfoTypeForString(szUnitClass, hideAssert);
+	return GetSpecificUnitType(eUnitClassType);
+}
 
-	const CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
-	
-	if (pkUnitClassInfo)
+//	--------------------------------------------------------------------------------
+// Given a unit class, get the players specific unit of that class
+UnitTypes CvPlayer::GetSpecificUnitType(UnitClassTypes eUnitClassType) const
+{
+	UnitTypes eUnitType = NO_UNIT;
+
+	if (eUnitClassType != NO_UNITCLASS)
 	{
-		CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
-		
-		if (pCivilizationInfo != NULL)
+		const CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
+
+		if (pkUnitClassInfo)
 		{
-			eUnitType = (UnitTypes) pCivilizationInfo->getCivilizationUnits(eUnitClassType);
-		}
-		else
-		{
-			eUnitType = (UnitTypes) pkUnitClassInfo->getDefaultUnitIndex();
-		}
-	}
-	
-	if (!isMinorCiv() && !isBarbarian()) {
-		if (eUnitType == NO_UNIT) {
-			CUSTOMLOG("GetSpecificUnitType for player %s: %s is UNKNOWN!!!", getName(), szUnitClass);
-		} else {
-			// CUSTOMLOG("GetSpecificUnitType for player %s: %s is %s", getName(), szUnitClass, GC.getUnitInfo(eUnitType)->GetType());
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (pCivilizationInfo != NULL)
+			{
+				eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClassType);
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+				if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && GetUnitClassReplacement(eUnitClassType) != NO_UNITCLASS && (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex() == eUnitType)
+				{
+					eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits(GetUnitClassReplacement(eUnitClassType));
+				}
+#endif
+			}
+			else
+			{
+				eUnitType = (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex();
+			}
+
+			if (!isMinorCiv() && !isBarbarian()) {
+				if (eUnitType == NO_UNIT) {
+					CUSTOMLOG("GetSpecificUnitType for player %s: %s is UNKNOWN!!!", getName(), pkUnitClassInfo->GetType());
+				}
+				else {
+					// CUSTOMLOG("GetSpecificUnitType for player %s: %s is %s", getName(), szUnitClass, GC.getUnitInfo(eUnitType)->GetType());
+				}
+			}
 		}
 	}
 
@@ -13347,7 +13377,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 
-		UnitTypes eUpgradeUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUpgradeUnitClass);
+		UnitTypes eUpgradeUnit = GetSpecificUnitType(eUpgradeUnitClass);
 
 		if(eUpgradeUnit == NO_UNIT)
 		{
@@ -13419,7 +13449,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 
 	if(kGoodyInfo.getUnitClassType() != NO_UNITCLASS)
 	{
-		eUnit = ((UnitTypes)(getCivilizationInfo().getCivilizationUnits(kGoodyInfo.getUnitClassType())));
+		eUnit = GetSpecificUnitType((UnitClassTypes)kGoodyInfo.getUnitClassType());
 
 		if(eUnit == NO_UNIT)
 		{
@@ -14109,7 +14139,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if(pUnit != NULL)
 		{
 			eUpgradeUnitClass = (UnitClassTypes) pUnit->getUnitInfo().GetGoodyHutUpgradeUnitClass();
-			eUpgradeUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUpgradeUnitClass);
+			eUpgradeUnit = GetSpecificUnitType(eUpgradeUnitClass);
 		}
 		
 		if(eUpgradeUnit != NO_UNIT)
@@ -14257,7 +14287,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Units
 	if(kGoodyInfo.getUnitClassType() != NO_UNITCLASS)
 	{
-		eUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits(kGoodyInfo.getUnitClassType());
+		eUnit = GetSpecificUnitType((UnitClassTypes)kGoodyInfo.getUnitClassType());
 
 		if(eUnit != NO_UNIT)
 		{
@@ -14877,6 +14907,17 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		}
 	}
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	// If there is a replacement for the unit class, and this unit is not a unique unit
+	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && !bIgnoreUniqueUnitStatus && GetUnitClassReplacement(eUnitClass) != NO_UNITCLASS)
+	{
+		if (eUnit == (UnitTypes)pkUnitClassInfo->getDefaultUnitIndex())
+		{
+			return false;
+		}
+	}
+#endif
+
 	if(!bIgnoreCost)
 	{
 		if(pUnitInfo.GetProductionCost() == -1)
@@ -15237,7 +15278,7 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 	// Should we check whether this Unit has been blocked out by the civ XML?
 	if (!bIgnoreUniqueUnitStatus)
 	{
-		UnitTypes eThisPlayersUnitType = (UnitTypes)getCivilizationInfo().getCivilizationUnits(eUnitClass);
+		UnitTypes eThisPlayersUnitType = GetSpecificUnitType(eUnitClass);
 
 		// If the player isn't allowed to train this Unit (via XML) then return false
 		if (eThisPlayersUnitType != eUnit)
@@ -16121,6 +16162,18 @@ bool CvPlayer::canMaintain(ProcessTypes eProcess, bool) const
 	{
 		return false;
 	}
+
+#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	// Is this a process that is only useable by a specific civ?
+	if (MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
+	{
+		CivilizationTypes eCivilization = pkProcessInfo->GetRequiredCivilization();
+		if (eCivilization != NO_CIVILIZATION && eCivilization != getCivilizationType())
+		{
+			return false;
+		}
+	}
+#endif
 
 	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
 	{
@@ -17516,7 +17569,7 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 
 //	--------------------------------------------------------------------------------
 /// Can we eBuild on pPlot?
-bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner) const
+bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
 	if(!(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
 	{
@@ -17557,7 +17610,78 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				return false;
 			}
 		}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+		if (MOD_IMPROVEMENTS_EXTENSIONS && pkEntry && !bTestVisible)
+		{
+			// Check resource requirements
+			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iI;
+				if (eResource != NO_RESOURCE)
+				{
+					int iNumResource = pkEntry->GetResourceQuantityRequirement(iI);
+					if (iNumResource > 0)
+					{
+						if (pUnit && pUnit->getBuildType() == eBuild)
+						{
+							// If a unit is checking while building the improvement, we just need to see if the resource count is negative
+							if (getNumResourceAvailable(eResource) < 0)
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	if (MOD_IMPROVEMENTS_EXTENSIONS && !bTestVisible)
+	{
+		RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+		if (eRoute != NO_ROUTE)
+		{
+			CvRouteInfo* pkBuildRoute = GC.getRouteInfo(eRoute);
+			// Check resource requirements
+			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iI;
+				if (eResource != NO_RESOURCE)
+				{
+					int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
+					if (iNumResource > 0)
+					{
+						if (pUnit && pUnit->getBuildType() == eBuild)
+						{
+							// If a unit is checking while building the route, we just need to see if the resource count is negative
+							if (getNumResourceAvailable(eResource) < 0)
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (getNumResourceAvailable(eResource) < iNumResource)
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	if(!bTestVisible)
 	{
@@ -28628,11 +28752,9 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 
 						// Now... actually create the GP!
 						const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
-						const CivilizationTypes eCivilization = pLoopCity->getCivilizationType();
-						CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-						if (pCivilizationInfo != NULL)
+						if (eUnitClass != NO_UNITCLASS)
 						{
-							UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
+							UnitTypes eUnit = GetSpecificUnitType(eUnitClass);
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 							pLoopCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true, false, false);
@@ -33398,7 +33520,7 @@ void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100)
 										if(pkUnitInfo->GetFreePromotions(eLoopPromotion))
 										{
 											// Is this the right unit of this class for this civ?
-											const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+											const UnitTypes eUnit = GetSpecificUnitType((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 
 											if(eUnit == eLoopUnit)
 											{
@@ -33542,7 +33664,7 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 										if(pkUnitInfo->GetFreePromotions(eLoopPromotion))
 										{
 											// Is this the right unit of this class for this civ?
-											const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+											const UnitTypes eUnit = GetSpecificUnitType((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 
 											if(eUnit == eLoopUnit)
 											{
@@ -36327,7 +36449,71 @@ void CvPlayer::changeAdmiralLuxuryBonus(int iChange)
 	m_iAdmiralLuxuryBonus += iChange;
 }
 
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+//	--------------------------------------------------------------------------------
+UnitClassTypes CvPlayer::GetUnitClassReplacement(UnitClassTypes eUnitClass) const
+{
+	CvAssertMsg((int)eUnitClass >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	std::map<UnitClassTypes, UnitClassTypes>::const_iterator it = m_piUnitClassReplacements.find(eUnitClass);
+	if (it != m_piUnitClassReplacements.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		if (it->second != eUnitClass) // replacing yourself makes no sense
+		{
+			return it->second;
+		}
+	}
+
+	return NO_UNITCLASS;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass)
+{
+	CvAssertMsg((int)eReplacedUnitClass >= 0, "eReplacedUnitClass is expected to be non-negative (invalid Index)");
+	CvAssertMsg((int)eReplacedUnitClass < GC.getNumUnitClassInfos(), "eReplacedUnitClass is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg((int)eReplacementUnitClass >= 0, "eReplacementUnitClass is expected to be non-negative (invalid Index)");
+	CvAssertMsg((int)eReplacementUnitClass < GC.getNumUnitClassInfos(), "eReplacementUnitClass is expected to be within maximum bounds (invalid Index)");
+
+	if (eReplacedUnitClass != NO_UNITCLASS)
+	{
+		if (eReplacementUnitClass != NO_UNITCLASS)
+		{
+			// store into memory
+			m_piUnitClassReplacements[eReplacedUnitClass] = eReplacementUnitClass;
+
+			// replace all current units with the replaced class with the replacement class (unless the unit is a unique unit)
+			UnitTypes eReplacedClassDefault = (UnitTypes)GC.getUnitClassInfo(eReplacedUnitClass)->getDefaultUnitIndex();
+			UnitTypes eReplacementUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((int)eReplacementUnitClass);
+			int iLoop;
+
+			for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			{
+				if (pLoopUnit->getUnitClassType() == eReplacedUnitClass && pLoopUnit->getUnitType() == eReplacedClassDefault)
+				{
+#if defined(MOD_BALANCE_CORE)
+					CvUnit* pNewUnit = initUnit(eReplacementUnit, pLoopUnit->getX(), pLoopUnit->getY(), NO_UNITAI, REASON_UPGRADE, false, false, 0, 0, NO_CONTRACT, true, pLoopUnit);
+#else
+					CvUnit* pNewUnit = initUnit(eReplacementUnit, pLoopUnit->getX(), pLoopUnit->getY(), NO_UNITAI, REASON_UPGRADE, false, false);
+#endif
+					if (pNewUnit != NULL)
+					{
+						pNewUnit->convert(pLoopUnit, true);
+						pNewUnit->setupGraphical();
+						pLoopUnit->kill(true);
+					}
+				}
+			}
+		}
+		else
+		{
+			// erase from memory
+			m_piUnitClassReplacements.erase(eReplacedUnitClass);
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCSResourcesCountMonopolies() const
@@ -37014,7 +37200,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
 
 	//can't embark? non-continent members are distant.
-	if (!GET_TEAM(getTeam()).canEmbark())
+	if (!CanEmbark())
 	{
 		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
@@ -37043,7 +37229,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	}
 
 	//can embark, but not oceanic? non-continent members are one pip less.
-	if (GET_TEAM(getTeam()).canEmbark() && !GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+	if (CanEmbark() && !CanCrossOcean())
 	{
 		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
@@ -38317,39 +38503,39 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
-int CvPlayer::getResourceOverValue(ResourceTypes eIndex) const
+int CvPlayer::getResourceShortageValue(ResourceTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiResourceOverValue[eIndex];
+	return m_paiResourceShortageValue[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeResourceOverValue(ResourceTypes eIndex, int iChange)
+void CvPlayer::changeResourceShortageValue(ResourceTypes eIndex, int iChange)
 {
 	CvAssert(eIndex >= 0);
 	CvAssert(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
-		m_paiResourceOverValue.setAt(eIndex, m_paiResourceOverValue[eIndex] + iChange);
+		m_paiResourceShortageValue.setAt(eIndex, m_paiResourceShortageValue[eIndex] + iChange);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	CvAssert(m_paiResourceOverValue[eIndex] >= 0);
+	CvAssert(m_paiResourceShortageValue[eIndex] >= 0);
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::setResourceOverValue(ResourceTypes eIndex, int iChange)
+void CvPlayer::setResourceShortageValue(ResourceTypes eIndex, int iChange)
 {
 	CvAssert(eIndex >= 0);
 	CvAssert(eIndex < GC.getNumResourceInfos());
 
-	m_paiResourceOverValue.setAt(eIndex, iChange);
+	m_paiResourceShortageValue.setAt(eIndex, iChange);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	CvAssert(m_paiResourceOverValue[eIndex] >= 0);
+	CvAssert(m_paiResourceShortageValue[eIndex] >= 0);
 }
 
 
@@ -38970,7 +39156,7 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 	{
 #if defined(MOD_BALANCE_CORE)
 		//Flip the amount available as our drain pool - helper for cities to prevent empire wide drop.
-		setResourceOverValue(eIndex, (getNumResourceAvailable(eIndex, true) * -1));
+		setResourceShortageValue(eIndex, (getNumResourceAvailable(eIndex, true) * -1));
 		int iUnitLoop;
 		CvUnit* pLoopUnit = NULL;
 
@@ -39246,6 +39432,70 @@ void CvPlayer::changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange
 }
 #endif
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResponsibleForRouteCount(RouteTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumRouteInfos() , "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<RouteTypes, int>::const_iterator it = m_piResponsibleForRouteCount.find(eIndex);
+	if (it != m_piResponsibleForRouteCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResponsibleForRouteCount(RouteTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	
+	m_piResponsibleForRouteCount[eIndex] += iChange;
+
+	if (m_piResponsibleForRouteCount[eIndex] == 0) // no point allocating memory since we assume 0 by default
+	{
+		m_piResponsibleForRouteCount.erase(eIndex);
+	}
+
+	CvAssert(getResponsibleForRouteCount(eIndex) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResponsibleForImprovementCount(ImprovementTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<ImprovementTypes, int>::const_iterator it = m_piResponsibleForImprovementCount.find(eIndex);
+	if (it != m_piResponsibleForImprovementCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	m_piResponsibleForImprovementCount[eIndex] += iChange;
+
+	if (m_piResponsibleForImprovementCount[eIndex] == 0) // no point allocating memory since we assume 0 by default
+	{
+		m_piResponsibleForImprovementCount.erase(eIndex);
+	}
+
+	CvAssert(getResponsibleForImprovementCount(eIndex) >= 0);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatPersonImprovementCount()
@@ -39696,7 +39946,6 @@ void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCi
 		}
 	}
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getHurryCount(HurryTypes eIndex) const
@@ -43891,6 +44140,26 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeAdmiralLuxuryBonus(pPolicy->GetAdmiralLuxuryBonus() * iChange);
 
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS && pPolicy->IsUnitClassReplacements() && iChange != 0) // let's not execute the loop unless we need it
+	{
+		std::map<UnitClassTypes, UnitClassTypes> piUnitClassReplacements = pPolicy->GetUnitClassReplacements();
+		for (std::map<UnitClassTypes, UnitClassTypes>::const_iterator it = piUnitClassReplacements.begin(); it != piUnitClassReplacements.end(); it++)
+		{
+			UnitClassTypes eReplacedUnitClass = it->first;
+			UnitClassTypes eReplacementUnitClass = it->second;
+
+			if (iChange > 0)
+			{
+				SetUnitClassReplacement(eReplacedUnitClass, eReplacementUnitClass);
+			}
+			else
+			{
+				SetUnitClassReplacement(eReplacedUnitClass, NO_UNITCLASS);
+			}
+		}
+	}
+#endif
 	if(pPolicy->IsOneShot())
 	{
 		if(m_pPlayerPolicies->HasOneShotPolicyFired(ePolicy))
@@ -44617,7 +44886,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						int iNumFreeUnits = pPolicy->GetNumFreeUnitsByClass(eUnitClass);
 						if(iNumFreeUnits > 0)
 						{
-							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							const UnitTypes eUnit = GetSpecificUnitType(eUnitClass);
 							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 							if (isHuman() && pUnitEntry != NULL && pUnitEntry->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 							{
@@ -44638,7 +44907,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										CvUnitClassInfo* pkVeniceUnitClassInfo = GC.getUnitClassInfo(eVeniceUnitClass);
 										if(pkVeniceUnitClassInfo)
 										{
-											const UnitTypes eMerchantOfVeniceUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eVeniceUnitClass);
+											const UnitTypes eMerchantOfVeniceUnit = GetSpecificUnitType(eVeniceUnitClass);
 											if (eMerchantOfVeniceUnit != NO_UNIT)
 											{
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
@@ -45886,6 +46155,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piNumBuildings;
 	kStream >> m_piNumBuildingsInPuppets;
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	kStream >> m_piResponsibleForRouteCount;
+	kStream >> m_piResponsibleForImprovementCount;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		int iNumEntries;
@@ -45926,6 +46199,10 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
 	kStream >> m_piDomainFreeExperience;
+#endif
+
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	kStream >> m_piUnitClassReplacements;
 #endif
 
 	kStream >> m_pabHasGlobalMonopoly;
@@ -46077,6 +46354,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piNumBuildings;
 	kStream << m_piNumBuildingsInPuppets;
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	kStream << m_piResponsibleForRouteCount;
+	kStream << m_piResponsibleForImprovementCount;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		int iSize = 0;
@@ -46122,6 +46403,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_aistrInstantGreatPersonProgress;
 	kStream << m_piDomainFreeExperience;
+#endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	kStream << m_piUnitClassReplacements;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
@@ -47844,7 +48128,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
-	bool bCanEmbark = GET_TEAM(getTeam()).canEmbark() || GetPlayerTraits()->IsEmbarkedAllWater();
+	bool bCanEmbark = CanEmbark();
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -48465,6 +48749,10 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	return true;
 }
 
+bool CvPlayer::CanEmbark() const
+{
+	return GET_TEAM(getTeam()).canEmbark() || GetPlayerTraits()->IsEmbarkedAllWater();
+}
 bool CvPlayer::CanCrossOcean() const
 {
 	return GET_TEAM(getTeam()).canEmbarkAllWaterPassage() || GetPlayerTraits()->IsEmbarkedAllWater();

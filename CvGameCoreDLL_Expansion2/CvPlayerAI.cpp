@@ -1344,7 +1344,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	//failsafe (wait until embarkation for barbarian-besieged venice)
-	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && GET_TEAM(getTeam()).canEmbark())
+	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && CanEmbark())
 		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
@@ -1810,7 +1810,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (pCity->getArea() != pUnit->plot()->getArea() && !GET_TEAM(getTeam()).canEmbark())
+	if (pCity->getArea() != pUnit->plot()->getArea() && !CanEmbark())
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!

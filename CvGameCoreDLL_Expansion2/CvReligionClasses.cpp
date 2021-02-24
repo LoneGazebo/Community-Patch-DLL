@@ -9394,7 +9394,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
 			{
 				iNumNeighbors++;
-				if (GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage() && m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach((PlayerTypes)iPlayerLoop) <= MAJOR_CIV_APPROACH_GUARDED)
+				if (m_pPlayer->CanCrossOcean() && m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach((PlayerTypes)iPlayerLoop) <= MAJOR_CIV_APPROACH_GUARDED)
 				{
 					iNumNeighbors++;
 				}
@@ -11089,18 +11089,17 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 
 	return true;
 }
-/// Can we buy a non-Faith generating building?
+/// Can we buy a non-Faith generating unit?
 bool CvReligionAI::CanBuyNonFaithUnit() const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
 	int iLoop;
-	CvCity* pLoopCity;
-	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
-			UnitTypes eUnit = (UnitTypes)m_pPlayer->getCivilizationInfo().getCivilizationUnits(iI);
+			UnitTypes eUnit = m_pPlayer->GetSpecificUnitType((UnitClassTypes)iI);
 			if(eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.GetGameUnits()->GetEntry(eUnit);

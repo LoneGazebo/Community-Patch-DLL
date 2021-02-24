@@ -1472,6 +1472,10 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	static int lGetResponsibleForRouteCount(lua_State* L);
+	static int lGetResponsibleForImprovementCount(lua_State* L);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);

@@ -44,6 +44,11 @@ UPDATE Policies
 SET ExpInBorderModifier = '50'
 WHERE Type = 'POLICY_PATRIOTIC_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+INSERT INTO Policy_UnitClassReplacements
+	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
+VALUES
+	('POLICY_PATRIOTIC_WAR', 'UNITCLASS_INFANTRY', 'UNITCLASS_SKI_INFANTRY');
+
 -- Resettlement
 
 UPDATE Policies

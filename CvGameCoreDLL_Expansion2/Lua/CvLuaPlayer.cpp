@@ -1477,6 +1477,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 #endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	Method(GetResponsibleForRouteCount);
+	Method(GetResponsibleForImprovementCount);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	Method(DoInstantYield);
 	Method(GetInstantYieldHistoryTooltip);
@@ -8823,7 +8827,7 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo != NULL)
 		{
-			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->getCivilizationInfo().getCivilizationUnits((int)eUnitClass)));
+			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->GetSpecificUnitType(eUnitClass)));
 			if(eUnit != NO_UNIT)
 			{
 				lua_pushinteger(L, eUnit);
@@ -15839,6 +15843,26 @@ LUAAPIIMPL(Player, CountAllResource)
 LUAAPIIMPL(Player, CountAllWorkedResource)
 LUAAPIIMPL(Player, CountAllTerrain)
 LUAAPIIMPL(Player, CountAllWorkedTerrain)
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetResponsibleForRouteCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const RouteTypes eRoute = (RouteTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getResponsibleForRouteCount(eRoute);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetResponsibleForImprovementCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getResponsibleForImprovementCount(eImprovement);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
 //-------------------------------------------------------------------------

@@ -384,7 +384,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = true;
 		}
 
-		if (!kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
+		if (kAttacker.plot()->isFortification(kAttacker.getTeam()))
 			bAdvance = false;
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
@@ -1044,7 +1044,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,pkAttacker->getSplashDamage(),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 					// Defender died
@@ -1170,7 +1170,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,pkAttacker->getSplashDamage(),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 
 #if defined(MOD_BALANCE_CORE)
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
@@ -3559,7 +3559,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		eFireSupportResult = AttackRanged(kAttacker, pDefender->getX(), pDefender->getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 		if (pDefender->isDelayedDeath())
 		{
-			if (kAttacker.plot()->MeleeAttackerAdvances(kAttacker.getTeam()))
+			if (!kAttacker.plot()->isFortification(kAttacker.getTeam()))
 			{
 				// Killed him, move to the plot if we can.
 				if (targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)

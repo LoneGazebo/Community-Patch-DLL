@@ -2577,7 +2577,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
-	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessChange");
+	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessTraitMod");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
@@ -6263,7 +6263,7 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes) m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 			if(pUnitEntry)
 			{
@@ -7064,7 +7064,7 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes)m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			if (eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);

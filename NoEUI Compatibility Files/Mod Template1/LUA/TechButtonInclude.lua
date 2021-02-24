@@ -52,7 +52,15 @@ function GatherInfoAboutUniqueStuff( civType )
 
 	-- put in the default buildings for any civ
 	for thisBuildingClass in GameInfo.BuildingClasses() do
-		validBuildingBuilds[thisBuildingClass.Type]	= thisBuildingClass.DefaultBuilding;	
+		if thisBuildingClass.DefaultBuilding then
+			local thisBuilding = GameInfo.Buildings[thisBuildingClass.DefaultBuilding or -1];
+			-- check the 'CivilizationRequired' column in table 'Buildings'
+			if thisBuilding then
+				if not thisBuilding.CivilizationRequired or thisBuilding.CivilizationRequired == civType then
+					validBuildingBuilds[thisBuildingClass.Type] = thisBuildingClass.DefaultBuilding;
+				end
+			end
+		end
 	end
 
 	-- put in my overrides
@@ -449,14 +457,34 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" ) );
 			buttonNum = buttonNum + 1;
 		end
+		 -- if this tech grants this player the ability to build this corp
 		for thisCorpInfo in GameInfo.Corporations() do
- 			-- if this tech grants this player the ability to build this corp
-			local buttonName = "B"..tostring(buttonNum);
-			local thisButton = thisTechButtonInstance[buttonName];
- 			if thisButton then
-				AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize );
- 				buttonNum = buttonNum + 1;
- 			end
+			local headquartersBuildingClass = GameInfo.BuildingClasses[ thisCorpInfo.HeadquartersBuildingClass or -1 ]
+			if headquartersBuildingClass then
+				local building = nil
+				-- First check if the civ has an override
+				local isOverride = false
+				for thisOverride in GameInfo.Civilization_BuildingClassOverrides() do
+					if thisOverride.CivilizationType == civType and thisOverride.BuildingClassType == thisCorpInfo.HeadquartersBuildingClass then
+						building = GameInfo.Buildings[ thisOverride.BuildingType or -1 ]
+						isOverride = true
+						break
+					end
+				end
+				-- If no override, look for the default building
+				if not isOverride then
+					building = GameInfo.Buildings[ headquartersBuildingClass.DefaultBuilding or -1 ] -- modders may put in nil as the default building
+				end
+				-- Is the headquarters only allowed for a certain civilization?
+				if building and (not building.CivilizationRequired or building.CivilizationRequired == civType) then
+					local buttonName = "B"..tostring(buttonNum);
+					local thisButton = thisTechButtonInstance[buttonName];
+					if thisButton then
+						AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize );
+						buttonNum = buttonNum + 1;
+					end
+				end
+			end
 		end
 	end
 

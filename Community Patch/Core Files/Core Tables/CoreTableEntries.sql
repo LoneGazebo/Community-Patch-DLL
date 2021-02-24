@@ -100,9 +100,6 @@ ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
 
--- Adds ability to turn production into defense/healing in a city for a process
-ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
-
 -- Belief - increases pressure from trade routes
 
 ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
@@ -902,7 +899,8 @@ ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 
 -- Promotion grants the same bonus as the Japan UA
-ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;  -- No wounded penalty, instead gains a combat bonus the more damage the unit has
+ALTER TABLE UnitPromotions ADD COLUMN 'FightWellDamaged' BOOLEAN DEFAULT 0; -- No wounded penalty, no additional bonus
 
 -- Great General gives extra XP% during a golden age (Persia)
 ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
@@ -1122,6 +1120,15 @@ ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 -- C4DF Function
 
 ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
+
+-- Processes
+
+-- Adds ability to turn production into defense/healing in a city for a process
+ALTER TABLE Processes ADD COLUMN 'DefenseValue' INTEGER DEFAULT 0;
+
+-- Unique processes, requires CIVILIZATIONS_UNIQUE_PROCESSES in CustomModOptions
+ALTER TABLE Processes ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
+
 
 -- Projects
 ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;

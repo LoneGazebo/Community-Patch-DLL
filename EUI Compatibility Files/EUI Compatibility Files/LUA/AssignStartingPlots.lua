@@ -2101,7 +2101,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 								jungleCount = jungleCount + 1;
 							elseif featureType == FeatureTypes.FEATURE_MARSH then
 								marshCount = marshCount + 1;
-							elseif featureType == FeatureTypes.FEATURE_FLOODPLAIN then
+							elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
 								floodplainCount = floodplainCount + 1;
 							elseif featureType == FeatureTypes.FEATURE_OASIS then
 								oasisCount = oasisCount + 1;
@@ -2139,7 +2139,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 								jungleCount = jungleCount + 1;
 							elseif featureType == FeatureTypes.FEATURE_MARSH then
 								marshCount = marshCount + 1;
-							elseif featureType == FeatureTypes.FEATURE_FLOODPLAIN then
+							elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
 								floodplainCount = floodplainCount + 1;
 							elseif featureType == FeatureTypes.FEATURE_OASIS then
 								oasisCount = oasisCount + 1;

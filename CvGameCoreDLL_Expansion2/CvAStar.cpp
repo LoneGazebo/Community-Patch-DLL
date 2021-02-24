@@ -1186,7 +1186,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
-	if(pUnit->IsCanAttack())
+	if(pUnit->IsCanDefend())
 	{
 		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
@@ -1916,7 +1916,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+		if (!kPlayer.CanCrossOcean())
 			return FALSE;
 	}
 
@@ -2009,7 +2009,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+		if (!kPlayer.CanCrossOcean())
 			return FALSE;
 	}
 
@@ -3019,7 +3019,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_ePlayer = data.ePlayer;
 		pCacheData->m_eTeam = kPlayer.getTeam();
 		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
-		pCacheData->m_bCanEmbark = GET_TEAM(kPlayer.getTeam()).canEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
+		pCacheData->m_bCanEmbark = kPlayer.CanEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();

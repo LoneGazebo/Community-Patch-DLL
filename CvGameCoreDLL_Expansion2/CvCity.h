@@ -1510,6 +1510,7 @@ public:
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
+	bool IsEnemyInRange(int iRange, bool bMustBeAbleToAttack);
 	void DoNearbyEnemy();
 
 	bool IsInDanger(PlayerTypes eEnemy) const;

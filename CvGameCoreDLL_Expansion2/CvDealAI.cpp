@@ -2015,7 +2015,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//greatly increase this if we're at a deficit of resources.
-			iItemValue *= max(1, GetPlayer()->getResourceOverValue(eResource));
+			iItemValue *= max(1, GetPlayer()->getResourceShortageValue(eResource));
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity*iNumTurns);
@@ -6344,8 +6344,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 	// Don't ask for a Luxury if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer);
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE ||
-	        eApproach == MAJOR_CIV_APPROACH_WAR)
+	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
 	{
 		return false;
 	}
@@ -6354,17 +6353,23 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 	// precalculate, it's expensive
 	int iCurrentNetGoldOfReceivingPlayer = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+
 	// See if the other player has a Resource to trade
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
-		// Only look at Strats
+		// Only look at strategic resources here
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
 			continue;
 
-		if (GetPlayer()->getNumResourceAvailable(eResource, false) > 2)
+		// If we have some to spare, don't get more
+		if (GetPlayer()->getNumResourceAvailable(eResource, true) > 2)
+			continue;
+		
+		// If we use a lot already, don't get more
+		if (GetPlayer()->getNumResourceUsed(eResource) > GetPlayer()->getNumCities()*2)
 			continue;
 
 		//don't buy more if we're already exporting it
@@ -6391,7 +6396,8 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
 		int iDesired = min(4,max(1,iAvailable/2));
 		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
-		iDesired += GetPlayer()->getResourceOverValue(eStratFromThem);
+		//if we are in the red we want more!
+		iDesired += GetPlayer()->getResourceShortageValue(eStratFromThem);
 		iDesired = min(iAvailable, iDesired);
 
 		// Can we actually complete this deal?

@@ -208,8 +208,9 @@
 		- Column 'RandResourceChance' in 'Improvements'.
 		- Column 'NewOwner' in 'Improvements'.
 		- Column 'RemoveWhenComplete' in 'Improvements'.
+		- Column 'QuantityRequirement' in 'Improvement_ResourceTypes'.
 	-->
-    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0"/>
 	
     <!-- 
 	Various new tables and logics for plots. Currently, this is required to activate:
@@ -307,6 +308,9 @@
     <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
     <!-- See also: "Global - City Automaton Workers" -->
     <Row Class="2" Name="POLICIES_CITY_AUTOMATON_WORKERS" Value="0"/>
+
+    <!-- Enables Policy_UnitClassReplacements -->
+    <Row Class="4" Name="POLICIES_UNIT_CLASS_REPLACEMENTS" Value="0"/>
 
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
@@ -460,6 +464,9 @@
 
 	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
 	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
+
+    <!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
+    <Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
 
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

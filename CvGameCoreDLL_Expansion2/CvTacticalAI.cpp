@@ -945,7 +945,7 @@ void CvTacticalAI::PlotGrabGoodyMoves()
 
 	//allow a fairly big range so we can clear islands as well unless we're at war and need the units otherwise
 	//note the barbarians are excluded from that check
-	int iRange = m_pPlayer->IsAtWarAnyMajor() ? 4 : 11;
+	int iRange = m_pPlayer->IsAtWarAnyMajor() ? 6 : 11;
 
 	//ruins first
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_GOODY); pTarget!=NULL; pTarget = GetNextZoneTarget())
@@ -2082,6 +2082,10 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 
 				// Carriers have special moves
 				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+					continue;
+
+				// Do not move siege units into enemy dominated zones ... wait until we have some cover!
+				if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 					continue;
 
 				// Proper domain of unit?
@@ -5988,41 +5992,6 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 	}
 }
 
-///Returns false if insufficient free plots around the target
-int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp)
-{
-	int iNumDeployPlotsFound = 0;
-	bool bAllowDeepWater = GET_TEAM(eTeam).canEmbarkAllWaterPassage();
-
-	iRange = max(1, min(5, iRange));
-	for (int i = 0; i < RING_PLOTS[iRange]; i++)
-	{
-		CvPlot* pPlot = iterateRingPlots(pTarget, i);
-		if (!pPlot)
-			continue;
-
-		if(pPlot->isImpassable(eTeam))
-			continue;
-
-		if (pPlot->isOwned() && pPlot->getTeam() != eTeam)
-			continue;
-
-		if (pPlot->isWater())
-		{
-			if (!bForNavalOp)
-				continue;
-			else if(!bAllowDeepWater && pPlot->isDeepWater())
-				continue;
-		}
-		else if (bForNavalOp)
-			continue;
-
-		iNumDeployPlotsFound++;
-	}
-
-	return iNumDeployPlotsFound;
-}
-
 CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderSwap, bool bConsiderPush)
 {
 	vector<OptionWithScore<CvPlot*>> aCityList;
@@ -6915,10 +6884,10 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 				result.eAssignmentType = A_RANGEKILL;
 			else
 			{
-				if (pUnitPlot->MeleeAttackerAdvances(pUnit->getTeam()))
-					result.eAssignmentType = A_MELEEKILL;
-				else
+				if (pUnitPlot->isFortification(pUnit->getTeam()))
 					result.eAssignmentType = A_MELEEKILL_NO_ADVANCE;
+				else
+					result.eAssignmentType = A_MELEEKILL;
 			}
 		}
 	}
@@ -9173,12 +9142,12 @@ vector<CvTacticalPlot>::const_iterator CvTacticalPosition::findTactPlot(int iPlo
 	return tactPlots.end();
 }
 
-bool CvTacticalPosition::haveTacticalPlot(int iPlotIndex) const
+bool CvTacticalPosition::findTactPlotRecursive(int iPlotIndex) const
 {
 	if (findTactPlot(iPlotIndex) != tactPlots.end())
 		return true;
 
-	if (parentPosition && parentPosition->haveTacticalPlot(iPlotIndex))
+	if (parentPosition && parentPosition->findTactPlotRecursive(iPlotIndex))
 		return true;
 
 	return false;
@@ -9190,7 +9159,7 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 	if (!pPlot)
 		return;
 
-	if (haveTacticalPlot(pPlot->GetPlotIndex()))
+	if (findTactPlotRecursive(pPlot->GetPlotIndex()))
 		return; //nothing to do
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
@@ -9414,7 +9383,7 @@ void CvTacticalPosition::cacheAllTactPlotsLocally()
 		for (vector<CvTacticalPlot>::const_iterator it = current->tactPlots.begin(); it != current->tactPlots.end(); ++it)
 		{
 			int iIndex = it->getPlotIndex();
-			if (!haveTacticalPlot(iIndex))
+			if (findTactPlot(iIndex) == tactPlots.end())
 			{
 				pair<int, size_t> newEntry(iIndex, tactPlots.size());
 				tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);

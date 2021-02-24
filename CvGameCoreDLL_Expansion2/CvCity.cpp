@@ -780,10 +780,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				continue;
 			}
-			UnitTypes eUnit = ((UnitTypes)(thisCiv.getCivilizationUnits(eUnitClass)));
-			if (eUnit != NO_UNIT)
+			if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
 			{
-				if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
+				UnitTypes eUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
+				if (eUnit != NO_UNIT)
 				{
 					CvUnit* pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
 					bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
@@ -2544,24 +2544,23 @@ void CvCity::doTurn()
 		int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
 		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
 		iBuildingDefense /= 100;
+
 		iHitsHealed += iBuildingDefense / 1000;
 
 #if defined(MOD_BALANCE_CORE)
-		if(!GET_PLAYER(getOwner()).IsAtWar())
+		if (!IsEnemyInRange(AVG_CITY_RADIUS,false))
 		{
-			iHitsHealed *= 3;
+			iHitsHealed += 2 * GC.getCITY_HIT_POINTS_HEALED_PER_TURN();
 		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
 				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
-				iPile /= 100;
 
-				iHitsHealed += iPile;
+				iHitsHealed += iPile / 100;
 			}
 		}
 #endif
@@ -2716,7 +2715,7 @@ void CvCity::doTurn()
 					if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 					{		
 						// See if there are any BuildingClass requirements
-						if(GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop) > 0)
+						if(GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop) > 0)
 						{
 							const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 							const CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
@@ -2750,9 +2749,9 @@ void CvCity::doTurn()
 									{
 										int iResourceDelta = 0;
 										//If amount we're under is less than resource quantity, take the lesser value.
-										if(GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop) < pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop))
+										if(GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop) < pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop))
 										{
-											iResourceDelta = GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop);
+											iResourceDelta = GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop);
 										}
 										//Otherwise, take the building's full value.
 										else
@@ -2762,10 +2761,10 @@ void CvCity::doTurn()
 										if(iResourceDelta > 0)
 										{
 											iBad += (iResourceDelta * 2);
-											GET_PLAYER(getOwner()).changeResourceOverValue(eResourceLoop, -iResourceDelta);
-											if(GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop) < 0)
+											GET_PLAYER(getOwner()).changeResourceShortageValue(eResourceLoop, -iResourceDelta);
+											if(GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop) < 0)
 											{
-												GET_PLAYER(getOwner()).setResourceOverValue(eResourceLoop, 0);
+												GET_PLAYER(getOwner()).setResourceShortageValue(eResourceLoop, 0);
 											}
 											CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 											if(pNotifications)
@@ -6499,37 +6498,32 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				{
 					if(pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI) <= 0)
 						continue;
-
-					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 		
-					if (pCivilizationInfo != NULL)
+					const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
+					if(eLoopUnit != NO_UNIT)
 					{
-						const UnitTypes eLoopUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(iI);
-						if(eLoopUnit != NO_UNIT)
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+						if(pkUnitEntry)
 						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitEntry)
+							for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 							{
-								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+
+								if (iResult != -1)
 								{
-									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-									int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
-
-									CvAssertMsg(iResult != -1, "Unable to create unit");
-
-									if (iResult != -1)
+									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 									{
-										CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-										if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
-										{
-											pUnit->kill(false);	// Could not find a valid spot!
-										}
-										else
-										{
-											pUnit->finishMoves();
-											//Lua Hook
-											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
-										}
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+									else
+									{
+										pUnit->finishMoves();
+										//Lua Hook
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
 									}
 								}
 							}
@@ -7597,8 +7591,6 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	bUpgradeAvailable = false;
 	bUpgradeUnavailable = false;
 
-	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
-
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -7607,7 +7599,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 		{
 			if(pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
-				const UnitTypes eLoopUnit = (UnitTypes) thisCiv.getCivilizationUnits(iI);
+				const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 				if(eLoopUnit != NO_UNIT)
 				{
@@ -7628,7 +7620,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 			}
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, eUnit))
 			{
-				const UnitTypes eLoopUnit = (UnitTypes)thisCiv.getCivilizationUnits(eUnitClass);
+				const UnitTypes eLoopUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
 
 				if (eLoopUnit != NO_UNIT)
 				{
@@ -11223,7 +11215,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
 			if (eUnitClass != NO_UNITCLASS)
 			{
-				const UnitTypes eThisPlayersUnitType = (UnitTypes)kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+				const UnitTypes eThisPlayersUnitType = kPlayer.GetSpecificUnitType(eUnitClass);
 
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 				{
@@ -13435,7 +13427,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					for(iFreeUnitLoop = 0; iFreeUnitLoop < pBuildingInfo->GetNumFreeUnits(iUnitLoop); iFreeUnitLoop++)
 					{
 						// Get the right unit of this class for this civ
-						const UnitTypes eFreeUnitType = (UnitTypes)thisCiv.getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+						const UnitTypes eFreeUnitType = owningPlayer.GetSpecificUnitType((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 #if defined(MOD_BALANCE_CORE)
 						//Test for forbidden or locked units.
 						if(eFreeUnitType == NO_UNIT)
@@ -13464,7 +13456,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										CvUnitClassInfo* pkVeniceUnitClassInfo = GC.getUnitClassInfo(eVeniceUnitClass);
 										if(pkVeniceUnitClassInfo)
 										{
-											const UnitTypes eMerchantOfVeniceUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eVeniceUnitClass);
+											const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
 											if (eMerchantOfVeniceUnit != NO_UNIT)
 											{
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
@@ -13780,7 +13772,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										CvUnitClassInfo* pkVeniceUnitClassInfo = GC.getUnitClassInfo(eVeniceUnitClass);
 										if(pkVeniceUnitClassInfo)
 										{
-											const UnitTypes eMerchantOfVeniceUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eVeniceUnitClass);
+											const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
 											if (eMerchantOfVeniceUnit != NO_UNIT)
 											{
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
@@ -28057,7 +28049,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	if (pTargetPlot->isDeepWater())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+		if (!kPlayer.CanCrossOcean())
 			return false;
 	}
 
@@ -33219,6 +33211,31 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		return iBaseValue;
 }
 
+bool CvCity::IsEnemyInRange(int iRange, bool bMustBeAbleToAttack)
+{
+	iRange = range(iRange, 1, 5);
+	for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(plot(), i);
+		if (!pLoopPlot)
+			continue;
+
+		if (bMustBeAbleToAttack)
+		{
+			if (canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+				return true;
+		}
+		else
+		{
+			if (pLoopPlot->isEnemyUnit(getOwner(), true, true))
+				return true;
+		}
+		
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 void CvCity::DoNearbyEnemy()
 {
@@ -33237,47 +33254,19 @@ void CvCity::DoNearbyEnemy()
 #else
 	int iSearchRange = GC.getCITY_ATTACK_RANGE();
 #endif
-	CvPlot* pBestPlot = NULL;
 
-	bool bFoundEnemy = false;
-
-	for(int iDX = -(iSearchRange); iDX <= iSearchRange && !pBestPlot; iDX++)
+	if (IsEnemyInRange(iSearchRange,true))
 	{
-		for(int iDY = -(iSearchRange); iDY <= iSearchRange && !pBestPlot; iDY++)
+		// Notification
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if(pNotifications)
 		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iSearchRange);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->isVisibleEnemyUnit(getOwner()))
-				{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()) && rangedStrikeTarget(pLoopPlot)!=NULL)
-#else
-					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
-#endif
-					{
-						bFoundEnemy = true;
-
-						// Notification
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_CAN_SHOOT");
-							strText << getNameKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_CAN_SHOOT");
-							strSummary << getNameKey();
-							pNotifications->Add(NOTIFICATION_CITY_RANGE_ATTACK, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID());
-						}
-
-						break;
-					}
-				}
-			}
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_CAN_SHOOT");
+			strText << getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_CAN_SHOOT");
+			strSummary << getNameKey();
+			pNotifications->Add(NOTIFICATION_CITY_RANGE_ATTACK, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID());
 		}
-
-		if(bFoundEnemy)
-			break;
 	}
 }
 
