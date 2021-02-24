@@ -476,7 +476,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER', '20'; 
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER', '5'; -- penalty for each wonder above WONDER_SPAMMER_THRESHOLD (unless your Wonders - their Wonders = a smaller value, in which case that one is used)
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_CAP', '60'; -- max. opinion penalty from Wonders constructed count
 
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror and Cultural AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD', '20'; -- extra penalty for Conqueror AIs
 
 
 --	//////////////////////////////////////

@@ -44762,7 +44762,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 				iOpinionWeight = /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP();
 			}
 		}
-		if (IsCultural() || IsConqueror() || GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (IsConqueror() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
 			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD();
 		}
