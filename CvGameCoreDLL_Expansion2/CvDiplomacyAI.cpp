@@ -311,6 +311,7 @@ void CvDiplomacyAI::Reset()
 		m_aiLandmarksBuiltForMeTurn[iI] = -1;
 		m_aiPlottedAgainstUsTurn[iI] = -1;
 		m_aiPlunderedTradeRouteTurn[iI] = -1;
+		m_aiBeatenToWonderTurn[iI] = -1;
 		m_aiLoweredOurInfluenceTurn[iI] = -1;
 		m_aiSidedWithProtectedMinorTurn[iI] = -1;
 		m_aiBulliedProtectedMinorTurn[iI] = -1;
@@ -648,6 +649,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_aiLandmarksBuiltForMeTurn;
 	kStream >> m_aiPlottedAgainstUsTurn;
 	kStream >> m_aiPlunderedTradeRouteTurn;
+	kStream >> m_aiBeatenToWonderTurn;
 	kStream >> m_aiLoweredOurInfluenceTurn;
 	kStream >> m_aiSidedWithProtectedMinorTurn;
 	kStream >> m_aiBulliedProtectedMinorTurn;
@@ -940,6 +942,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_aiLandmarksBuiltForMeTurn;
 	kStream << m_aiPlottedAgainstUsTurn;
 	kStream << m_aiPlunderedTradeRouteTurn;
+	kStream << m_aiBeatenToWonderTurn;
 	kStream << m_aiLoweredOurInfluenceTurn;
 	kStream << m_aiSidedWithProtectedMinorTurn;
 	kStream << m_aiBulliedProtectedMinorTurn;
@@ -5866,6 +5869,15 @@ void CvDiplomacyAI::SetNumWondersBeatenTo(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiNumWondersBeatenTo[ePlayer] = range(iValue, 0, UCHAR_MAX);
+
+	if (iValue > 0)
+	{
+		SetBeatenToWonderTurn(ePlayer, GC.getGame().getGameTurn());
+	}
+	else
+	{
+		SetBeatenToWonderTurn(ePlayer, -1);
+	}
 }
 
 void CvDiplomacyAI::ChangeNumWondersBeatenTo(PlayerTypes ePlayer, int iChange)
@@ -6511,6 +6523,19 @@ void CvDiplomacyAI::SetPlunderedTradeRouteTurn(PlayerTypes ePlayer, int iTurn)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiPlunderedTradeRouteTurn[ePlayer] = max(iTurn, -1);
+}
+
+/// On what turn did this player most recently beat us to a World Wonder?
+int CvDiplomacyAI::GetBeatenToWonderTurn(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+	return m_aiBeatenToWonderTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetBeatenToWonderTurn(PlayerTypes ePlayer, int iTurn)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	m_aiBeatenToWonderTurn[ePlayer] = max(iTurn, -1);
 }
 
 /// On what turn did this player most recently lower our Influence with a City-State?
@@ -12099,6 +12124,13 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 
 		if (IsPlayerValid(ePlayer))
 		{
+			// If they're spamming Wonders and we're cultural, we're angry about this even if they haven't beaten us to it as we build them
+			if (IsPlayerWonderSpammer(ePlayer) && (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism()))
+			{
+				SetWonderDisputeLevel(ePlayer, DISPUTE_LEVEL_FIERCE);
+				continue;
+			}
+
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
 			int iWonderDisputeWeight = GetNumWondersBeatenTo(ePlayer);
 
@@ -42014,6 +42046,20 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			{
 				iStacks /= 2;
 				SetNumTimesTheyPlottedAgainstUs(ePlayer, iStacks);
+			}
+		}
+
+		// Beat us to World Wonders?
+		iStacks = GetNumWondersBeatenTo(ePlayer);
+		if (iStacks > 0 && !IsPlayerWonderSpammer(ePlayer)) // do not remove this penalty if player is spamming World Wonders; this likely means he's been building all the Wonders before we had a chance to build them
+		{
+			iTurnDifference = iTurn - GetBeatenToWonderTurn(ePlayer);
+			iDuration = AdjustModifierDuration(false, /*75*/ GC.getBEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN(), GetWonderCompetitiveness());
+
+			if (iTurnDifference >= iDuration)
+			{
+				iStacks /= 2;
+				SetNumWondersBeatenTo(ePlayer, iStacks);
 			}
 		}
 
