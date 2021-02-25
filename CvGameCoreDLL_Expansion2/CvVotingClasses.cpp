@@ -12131,30 +12131,208 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	if (pProposal->GetEffects()->iUnitMaintenanceGoldPercent != 0)
 	{
 		int iFactor = (pProposal->GetEffects()->iUnitMaintenanceGoldPercent > 0) ? 1 : -1;
-		if (bSeekingConquestVictory)
+
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		{
-			iScore += -50 * iFactor;
-		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
-			if(!bSeekingConquestVictory)
+			// This is the Global Peace Accords resolution - we reverse the logic of Casus Belli!
+			if (iFactor == 1)
 			{
-				iScore += 75;
-			}
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+				int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
+				if (iPersonalityMod > 0)
 				{
-					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					iScore += (iPersonalityMod * 10);
+				}
+				else
+				{
+					iScore -= (iPersonalityMod * 15);
+				}
+
+				// Factor in our diplo personality
+				if (pDiploAI->IsConqueror())
+				{
+					iScore -= 50;
+				}
+				else if (pDiploAI->IsDiplomat())
+				{
+					iScore += 50;
+				}
+
+				// Factor in our UA
+				if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+				{
+					iScore -= 100;
+				}
+				else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+				{
+					iScore += 100;
+				}
+				if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+				{
+					iScore -= 50;
+				}
+				else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+				{
+					iScore += 100;
+				}
+
+				// Attractive to us if we've lost a lot from war!
+				if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
+				{
+					iScore += 500;
+				}
+				else
+				{
+					int iProWar = 0;
+					int iProPeace = 0;
+
+					iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
+					iProWar += GetPlayer()->GetNumCapitalCities();
+
+					// Most vassals don't want a world war
+					if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
+						iProPeace += 5;
+
+					if (bSeekingConquestVictory)
+						iProWar += 2;
+					else
+						iProPeace += 2;
+
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						iScore += -100;
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
+							iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
+
+							// At war
+							if (GetPlayer()->IsAtWarWith(eLoopPlayer))
+							{
+								// Losing?
+								if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+								{
+									iProPeace++;
+
+									if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
+									{
+										iProPeace++;
+									}
+								}
+								// Winning?
+								else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
+								{
+									iProWar++;
+
+									if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
+									{
+										iProWar++;
+									}
+
+									if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+									{
+										iProWar++;
+									}
+								}
+							}
+							// If WE have high warmonger penalties, we want to burn them off
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
+							{
+								iProWar++;
+							}
+							// If they have high warmonger penalties, don't want them to burn them off
+							if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
+							{
+								iProPeace++;
+							}
+							// Plotting against them?
+							if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+							{
+								iProWar++;
+							}
+							// Afraid of them?
+							else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+							{
+								iProPeace++;
+							}
+							// Reckless expander / wonder spammer?
+							if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
+							{
+								iProWar++;
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
+							{
+								iProPeace++;
+							}
+							if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
+							{
+								iProWar++;
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
+							{
+								iProPeace++;
+							}
+							// Close to victory?
+							if (pDiploAI->IsCloseToAnyVictoryCondition())
+							{
+								if (pDiploAI->IsCloseToDominationVictory())
+								{
+									iProWar += 5;
+								}
+								else
+								{
+									iProPeace += 2;
+								}
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+							{
+								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+								{
+									iProPeace += 5;
+								}
+								else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
+								{
+									iProWar += 5;
+								}
+							}
+
+							// Look at relative power
+							if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+							{
+								if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
+								{
+									iProWar++;
+								}
+								if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
+								{
+									iProWar++;
+								}
+							}
+							if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
+							{
+								iProPeace++;
+							}
+
+							if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
+							{
+								iProPeace++;
+							}
+						}
 					}
+
+					iScore -= (iProWar * 25);
+					iScore += (iProPeace * 25);
 				}
 			}
 		}
-#endif
+		else
+		{
+			if (bSeekingConquestVictory)
+			{
+				iScore += -50 * iFactor;
+			}
+		}
 
 		// What is the ratio of our current maintenance costs to our gross GPT?
 		int iUnitMaintenance = GetPlayer()->GetTreasury()->GetExpensePerTurnUnitMaintenance();
@@ -13352,87 +13530,195 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore = 0;
 		}
 	}
-	//Just War
+	// Casus Belli
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iIsWorldWar)
 	{
-		int iWar = 0;
-		int iPeace = 0;
-
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+		int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
+		if (iPersonalityMod > 0)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
-
-			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{	
-				//WAR
-				if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					iWar++;
-
-					if (GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetWarScore(eLoopPlayer) >= 25)
-					{
-						iWar++;
-					}
-				}
-				if (eWarmongerThreat >= THREAT_MAJOR)
-				{
-					iWar++;	
-				}
-				if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
-				{
-					iWar++;
-				}
-				if(GetPlayer()->getPower() > GET_PLAYER(eLoopPlayer).getPower())
-				{
-					iWar++;
-				}
-				//PEACE
-				else if(GetPlayer()->getPower() < GET_PLAYER(eLoopPlayer).getPower())
-				{
-					iPeace++;
-				}
-
-				if(GetPlayer()->getNumMilitaryUnits() < GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
-				{
-					iPeace++;
-				}
-				//Am I a bad person? I want to burn off warmonger stat!
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
-				{
-					iPeace++;
-				}
-			}
-		}
-		if(GetPlayer()->GetNumCapitalCities() > 1)
-		{
-			iWar += GetPlayer()->GetNumCapitalCities();
-		}
-		if(!bSeekingConquestVictory)
-		{
-			iPeace += iPeace;
-		}
-		if(GetPlayer()->GetCapitalConqueror() != NO_PLAYER)
-		{
-			iWar += iWar;
-		}
-
-		if((iWar > 0) || (iPeace > 0))
-		{
-			if (iWar > iPeace)
-			{
-				iScore += (iWar * 10);
-			}
-			else if (iPeace > iWar)
-			{
-				iScore += (iPeace * -10);
-			}
+			iScore -= (iPersonalityMod * 10);
 		}
 		else
 		{
-			iScore += -50;
+			iScore += (iPersonalityMod * 15);
+		}
+
+		// Factor in our diplo personality
+		if (pDiploAI->IsConqueror())
+		{
+			iScore += 50;
+		}
+		else if (pDiploAI->IsDiplomat())
+		{
+			iScore -= 50;
+		}
+
+		// Factor in our UA
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			iScore += 100;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iScore -= 100;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+		{
+			iScore += 50;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+		{
+			iScore -= 100;
+		}
+
+		// Not attractive to us if we've lost a lot from war!
+		if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
+		{
+			iScore -= 500;
+		}
+		else
+		{
+			int iProWar = 0;
+			int iProPeace = 0;
+
+			iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
+			iProWar += GetPlayer()->GetNumCapitalCities();
+
+			// Most vassals don't want a world war
+			if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
+				iProPeace += 5;
+
+			if (bSeekingConquestVictory)
+				iProWar += 2;
+			else
+				iProPeace += 2;
+
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
+					iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
+
+					// At war
+					if (GetPlayer()->IsAtWarWith(eLoopPlayer))
+					{
+						// Losing?
+						if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+						{
+							iProPeace++;
+
+							if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
+							{
+								iProPeace++;
+							}
+						}
+						// Winning?
+						else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
+						{
+							iProWar++;
+
+							if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
+							{
+								iProWar++;
+							}
+
+							if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+							{
+								iProWar++;
+							}
+						}
+					}
+					// If WE have high warmonger penalties, we want to burn them off
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
+					{
+						iProWar++;
+					}
+					// If they have high warmonger penalties, don't want them to burn them off
+					if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
+					{
+						iProPeace++;
+					}
+					// Plotting against them?
+					if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+					{
+						iProWar++;
+					}
+					// Afraid of them?
+					else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+					{
+						iProPeace++;
+					}
+					// Reckless expander / wonder spammer?
+					if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
+					{
+						iProWar++;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
+					{
+						iProPeace++;
+					}
+					if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
+					{
+						iProWar++;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
+					{
+						iProPeace++;
+					}
+					// Close to victory?
+					if (pDiploAI->IsCloseToAnyVictoryCondition())
+					{
+						if (pDiploAI->IsCloseToDominationVictory())
+						{
+							iProWar += 5;
+						}
+						else
+						{
+							iProPeace += 2;
+						}
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+					{
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+						{
+							iProPeace += 5;
+						}
+						else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
+						{
+							iProWar += 5;
+						}
+					}
+
+					// Look at relative power
+					if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+					{
+						if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
+						{
+							iProWar++;
+						}
+						if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
+						{
+							iProWar++;
+						}
+					}
+					if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
+					{
+						iProPeace++;
+					}
+
+					if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
+					{
+						iProPeace++;
+					}
+				}
+			}
+
+			iScore += (iProWar * 25);
+			iScore -= (iProPeace * 25);
 		}
 	}
 	//COLD WAR
