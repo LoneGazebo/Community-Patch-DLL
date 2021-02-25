@@ -4917,8 +4917,8 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation)
 {
 	m_CurrentMoveUnits.clear();
-
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, iNumTurnsAway);
+	//need to convert turns to max path length here, zero turns away is also valid!
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, (iNumTurnsAway+1)*3);
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
 	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
