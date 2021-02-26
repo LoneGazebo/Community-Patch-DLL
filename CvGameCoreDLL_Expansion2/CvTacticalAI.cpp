@@ -1208,8 +1208,8 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 							bAddUnit = true;
 						}
 					}
-					//if danger is high
-					else if(iDangerLevel>pUnit->GetMaxHitPoints())
+					//if danger is high or we took a lot of damage last turn
+					else if(iDangerLevel>pUnit->GetMaxHitPoints() || pUnit->isProjectedToDieNextTurn())
 					{
 						bAddUnit = true;
 					}

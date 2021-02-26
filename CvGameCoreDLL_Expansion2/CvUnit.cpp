@@ -6248,7 +6248,7 @@ void CvUnit::flipDamageReceivedPerTurn()
 
 bool CvUnit::isProjectedToDieNextTurn() const
 {
-	return (m_iDamageTakenLastTurn>GetCurrHitPoints() && getDamage()>67);
+	return m_iDamageTakenLastTurn>GetCurrHitPoints();
 }
 #endif
 
