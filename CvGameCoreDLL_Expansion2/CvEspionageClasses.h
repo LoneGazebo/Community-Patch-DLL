@@ -88,9 +88,7 @@ class CvEspionageSpy
 public:
 	CvEspionageSpy();
 
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	const char* GetSpyName(CvPlayer* pPlayer);
-#endif
 
 #if defined(MOD_API_ESPIONAGE)
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
@@ -98,9 +96,7 @@ public:
 
 	// Public data
 	int m_iName;
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	CvString m_sName;
-#endif
 	int m_iCityX;
 	int m_iCityY;
 	CvSpyRank m_eRank;
@@ -182,18 +178,18 @@ struct IntrigueNotificationMessage
 	int iSpyID;
 	bool m_bShared;
 };
-typedef FStaticVector<CvEspionageSpy, 14, false, c_eCiv5GameplayDLL > SpyList;
-typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
-typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
+typedef vector<CvEspionageSpy> SpyList;
+typedef vector<TechTypes> TechList;
+typedef vector<TechList> PlayerTechList;
+typedef vector<int> NumTechsToStealList;
 #if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumGWToStealList;
-typedef Firaxis::Array<std::vector<GWList>, MAX_MAJOR_CIVS> GreatWorkStealList;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumSpyActionsDone;
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxGWCost;
+typedef vector<int> NumGWToStealList;
+typedef vector<vector<GWList>> GreatWorkStealList;
+typedef vector<int> NumSpyActionsDone;
+typedef vector<int> MaxGWCost;
 #endif
-typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
-typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
+typedef vector<int> MaxTechCost;
+typedef vector<vector<HeistLocation>> HeistLocationList;
 
 class CvPlayerEspionage
 {
@@ -225,11 +221,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex);
 #endif
-#if defined(MOD_BUGFIX_SPY_NAMES)
 	void GetNextSpyName(CvEspionageSpy* pSpy);
-#else
-	int  GetNextSpyName(void);
-#endif
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
@@ -405,13 +397,13 @@ FDataStream& operator<<(FDataStream&, const CvCityEspionage&);
 //!  Key Attributes:
 //!  - Object is in the player class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfTechTurnList;
+typedef vector<int> EspionageAIOutOfTechTurnList;
 #if defined(MOD_BALANCE_CORE)
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfGWTurnList;
+typedef vector<int> EspionageAIOutOfGWTurnList;
 #endif
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAILastTurns;
-typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAICount;
-typedef std::vector<CvCity*> EspionageCityList;
+typedef vector<int> EspionageAILastTurns;
+typedef vector<int> EspionageAICount;
+typedef vector<CvCity*> EspionageCityList;
 
 class CvEspionageAI
 {

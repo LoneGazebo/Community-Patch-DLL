@@ -308,7 +308,7 @@ void CvGrandStrategyAI::DoTurn()
 			SetGrandStrategyPriority(eGrandStrategy, max(1, iPriority));
 		}
 		// Now look at what we think the other players in the game are up to - we might have an opportunity to capitalize somewhere
-		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viNumGrandStrategiesAdopted;
+		vector<int> viNumGrandStrategiesAdopted;
 		int iNumPlayers = 0;
 
 		// Init vector
@@ -341,7 +341,7 @@ void CvGrandStrategyAI::DoTurn()
 			viNumGrandStrategiesAdopted.push_back(iNumPlayers);
 		}
 
-		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viGrandStrategyChangeForLogging;
+		vector<int> viGrandStrategyChangeForLogging;
 
 		int iChange;
 
@@ -428,6 +428,12 @@ int CvGrandStrategyAI::GetConquestPriority()
 	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID()))
 		return -100;
 
+	// If we're close to winning, let's go to the finish line!
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToDominationVictory())
+	{
+		iPriority += 9000;
+	}
+
 	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	int iGeneralHostility = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_HOSTILE);
 	int iGeneralDeceptiveness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_DECEPTIVE);
@@ -467,6 +473,16 @@ int CvGrandStrategyAI::GetConquestPriority()
 		}
 	}
 
+	int iNumConquests = GetPlayer()->GetDiplomacyAI()->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
+	if (iNumConquests == 1)
+	{
+		iPriority += 50;
+	}
+	else if (iNumConquests > 1)
+	{
+		iPriority += (iNumConquests * 125);
+	}
+
 	// How many turns must have passed before we test for us having a weak military?
 	if (GC.getGame().getElapsedGameTurns() >= /*60*/ GC.getAI_GS_CONQUEST_MILITARY_STRENGTH_FIRST_TURN())
 	{
@@ -474,10 +490,10 @@ int CvGrandStrategyAI::GetConquestPriority()
 		int iWorldMilitaryStrength = GC.getGame().GetWorldMilitaryStrengthAverage(GetPlayer()->GetID(), true, true);
 
 		//Reduce world average if we're rocking multiple capitals.
-		if (GetPlayer()->GetNumCapitalCities() > 0)
+		if (iNumConquests > 0)
 		{
 			iWorldMilitaryStrength *= 100;
-			iWorldMilitaryStrength /= (100 + (GetPlayer()->GetNumCapitalCities() * 10));
+			iWorldMilitaryStrength /= (100 + (iNumConquests * 10));
 		}
 
 		if (iWorldMilitaryStrength > 0)
@@ -498,14 +514,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		iPriority += /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_AT_WAR_WEIGHT();
 	}
 
-	int iNum = GetPlayer()->GetNumCapitalCities();
-	if (iNum > 1)
-	{
-		iPriority += (iNum * 125);
-	}
-
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
-	PlayerTypes ePlayer;
 	int iNumPlayersMet = 1;	// Include 1 for me!
 	int iTotalLandMe = 0;
 	int iTotalLandPlayersMet = 0;
@@ -516,7 +525,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	// Count the number of Majors we know
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		ePlayer = (PlayerTypes)iMajorLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iMajorLoop;
 
 		if (GET_PLAYER(ePlayer).isAlive() && iMajorLoop != GetPlayer()->GetID())
 		{
@@ -549,7 +558,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		{
 			if (GC.getMap().plotByIndexUnchecked(iPlotLoop)->isOwned())
 			{
-				ePlayer = GC.getMap().plotByIndexUnchecked(iPlotLoop)->getOwner();
+				PlayerTypes ePlayer = GC.getMap().plotByIndexUnchecked(iPlotLoop)->getOwner();
 
 				if (ePlayer == GetPlayer()->GetID())
 				{
@@ -783,6 +792,12 @@ int CvGrandStrategyAI::GetCulturePriority()
 		return -100;
 	}
 
+	// If we're close to winning, let's go to the finish line!
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
+	{
+		iPriority += 8000;
+	}
+
 	// Before tourism kicks in, add weight based on flavor
 	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 
@@ -853,7 +868,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	iPriorityBonus += (m_pPlayer->getJONSCulture() / 30);
 	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 130);
 
-	iPriorityBonus += (m_pPlayer->GetMaxEffectiveCities() * -10);
+	iPriorityBonus += (m_pPlayer->GetNumEffectiveCities() * -10);
 
 	//Add priority value based on flavors of policies we've acquired.
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
@@ -1036,6 +1051,12 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	if(eVictory == NO_VICTORY || !GC.getGame().isVictoryValid(eVictory))
 	{
 		return -100;
+	}
+
+	// If we're close to winning, let's go to the finish line!
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+	{
+		iPriority += 7000;
 	}
 
 	int iPriorityBonus = 0;
@@ -1334,6 +1355,12 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		return -100;
 	}
 
+	// If we're close to winning, let's go to the finish line!
+	if (GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory())
+	{
+		iPriority += 10000;
+	}
+
 	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 
 	// the later the game the greater the chance
@@ -1559,23 +1586,19 @@ int CvGrandStrategyAI::GetBaseGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 }
 
 /// Get the base Priority for a Grand Strategy; these are elements common to ALL Grand Strategies
-#if defined(MOD_AI_SMART_V3)
 int CvGrandStrategyAI::GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, bool bBoostGSMainFlavor)
-#else
-int CvGrandStrategyAI::GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType)
-#endif
 {
-	if(m_eActiveGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (m_eActiveGrandStrategy != NO_AIGRANDSTRATEGY)
 	{
 		CvAIGrandStrategyXMLEntry* pGrandStrategy = GetAIGrandStrategies()->GetEntry(m_eActiveGrandStrategy);
 		int iModdedFlavor = pGrandStrategy->GetFlavorModValue(eFlavorType) + m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorType);
 		iModdedFlavor = max(0,iModdedFlavor);
-#if defined(MOD_AI_SMART_V3)
-		if(MOD_AI_SMART_V3 && bBoostGSMainFlavor && (pGrandStrategy->GetFlavorValue(eFlavorType) > 0))
+
+		if (bBoostGSMainFlavor && (pGrandStrategy->GetFlavorValue(eFlavorType) > 0))
 		{
 			iModdedFlavor = min(10, ((pGrandStrategy->GetFlavorValue(eFlavorType) + iModdedFlavor + 1) / 2));
 		}
-#endif
+
 		return iModdedFlavor;
 	}
 	return m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorType);
@@ -1659,7 +1682,7 @@ void CvGrandStrategyAI::ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 {
 	CvWeightedVector<int, 5, true> vGrandStrategyPriorities;
-	FStaticVector< int, 5, true, c_eCiv5GameplayDLL >  vGrandStrategyPrioritiesForLogging;
+	vector<int>  vGrandStrategyPrioritiesForLogging;
 
 	GuessConfidenceTypes eGuessConfidence = NO_GUESS_CONFIDENCE_TYPE;
 
@@ -1922,13 +1945,13 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(ePlayer) * /*5*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_ATTACKED());
 
 	// Minors Conquered
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMinorsConquered(ePlayer) * /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_CONQUERED());
+	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetPlayerNumMinorsConquered(ePlayer) * /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MINOR_CONQUERED());
 
 	// Majors attacked
 	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(ePlayer) * /*10*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_ATTACKED());
 
 	// Majors Conquered
-	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMajorsConquered(ePlayer) * /*15*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_CONQUERED());
+	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetPlayerNumMajorsConquered(ePlayer) * /*15*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_CONQUERED());
 
 	//Autocracy is usually a sure bet for conquest strategy.
 	//More than half of all Capitals?
@@ -2138,7 +2161,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 // PRIVATE METHODS
 
 /// Log GrandStrategy state: what are the Priorities and who is Active?
-void CvGrandStrategyAI::LogGrandStrategies(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vModifiedGrandStrategyPriorities)
+void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStrategyPriorities)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -2195,7 +2218,7 @@ void CvGrandStrategyAI::LogGrandStrategies(const FStaticVector< int, 5, true, c_
 }
 
 /// Log our guess as to other Players' Active Grand Strategy
-void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const FStaticVector< int, 5, true, c_eCiv5GameplayDLL >& vGrandStrategyPriorities, PlayerTypes ePlayer)
+void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

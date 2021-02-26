@@ -35,7 +35,7 @@ public:
 	char& operator[](std::string::size_type i) { return std::string::operator[](i);	}
 	const char operator[](int i) const { return std::string::operator[](i);	}
 	CvString& operator=( const char* s) { if (s) assign(s); else clear();	return *this; }	
-	CvString& operator=( const std::string& s) { assign(s.c_str());	return *this; }	
+	CvString& operator=( const std::string& s) { if (this != &s) assign(s.c_str());	return *this; }	
 
 	// FString compatibility
 	bool IsEmpty() const { return (empty() || this[0] == '\0');}

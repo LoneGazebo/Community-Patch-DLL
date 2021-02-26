@@ -76,6 +76,20 @@
 	int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
 #endif
 
+struct stringHash
+{
+	//taken from std::tr1::hash<string> but modified to look at all characters
+	size_t operator()(const std::string& key) const
+	{
+		size_t _Val = 2166136261U;
+		size_t _First = 0;
+		size_t _Last = key.size();
+		for(; _First < _Last; _First++)
+			_Val = 16777619U * _Val ^ (size_t)key[_First];
+		return (_Val);
+	}
+};
+
 //------------------------------------------------------------------------------
 // CvGame Version History
 // Version 1 
@@ -413,7 +427,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestPotential();
+	SetHighestSpyPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -735,14 +749,6 @@ void CvGame::InitPlayers()
 			{
 				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
 			}
-#if defined(MOD_BALANCE_CORE_OBSERVER_CHANGES)
-			//don't use a special observer team
-#else
-			else if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
-			{//make all observers be on the observer team.
-				CvPreGame::setTeamType((PlayerTypes)iI, OBSERVER_TEAM);
-			}
-#endif
 		}
 		// Minor civs
 		else if(iI < MAX_CIV_PLAYERS)
@@ -1195,9 +1201,6 @@ void CvGame::uninit()
 	m_iGlobalPopulation = 0;
 	m_iLastTurnCSSurrendered = 0;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	m_iLargestBasePotential = 0;
-#endif
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -1491,7 +1494,6 @@ void CvGame::initDiplomacy()
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_OBSERVER_CHANGES)
 		if(kTeamA.isObserver())
 		{
 			for(int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
@@ -1501,8 +1503,6 @@ void CvGame::initDiplomacy()
 					kTeamA.makeHasMet(eTeamB,true);
 			}
 		}
-#endif
-
 	}
 }
 
@@ -2566,10 +2566,6 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 	if((pkHeadSelectedCity != NULL) && ((pkHeadSelectedCity->getTeam() == getActiveTeam()) || isDebugMode()))
 	{
-		int iLoop = pkHeadSelectedCity->getIndex();
-
-		iLoop += (bForward ? 1 : -1);
-
 		CvCity* pLoopCity = pkHeadSelectedCity;
 		do
 		{
@@ -2577,6 +2573,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 			if(pLoopCity == NULL)
 			{
+				int iLoop = 0;
 				pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).firstCity(&iLoop, !bForward);
 			}
 
@@ -3403,7 +3400,7 @@ void CvGame::handleAction(int iAction)
 				{
 					GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkHeadSelectedUnit->getOwner());
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_INTERNATIONAL_TRADE_ROUTE, pkHeadSelectedUnit->getOwner());
-					kPopup.iData2 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData2 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}
@@ -3418,7 +3415,7 @@ void CvGame::handleAction(int iAction)
 				if (pkHeadSelectedUnit)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_TRADE_UNIT_NEW_HOME);
-					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData1 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}
@@ -3432,7 +3429,7 @@ void CvGame::handleAction(int iAction)
 				if (pkHeadSelectedUnit)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_ADMIRAL_PORT);
-					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
+					kPopup.iData1 = pkHeadSelectedUnit->GetID();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
 			}
@@ -4984,7 +4981,7 @@ void CvGame::SetStaticTutorialActive(bool bStaticTutorialActive)
 //	--------------------------------------------------------------------------------
 bool CvGame::HasAdvisorMessageBeenSeen(const char* szAdvisorMessageName)
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	std::tr1::unordered_set<size_t>::iterator it = m_AdvisorMessagesViewed.find( hasher(szAdvisorMessageName) );
 	return it != m_AdvisorMessagesViewed.end();
 }
@@ -4992,7 +4989,7 @@ bool CvGame::HasAdvisorMessageBeenSeen(const char* szAdvisorMessageName)
 //	--------------------------------------------------------------------------------
 void CvGame::SetAdvisorMessageHasBeenSeen(const char* szAdvisorMessageName, bool bSeen)
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	if(bSeen)
 	{
 		m_AdvisorMessagesViewed.insert( hasher(szAdvisorMessageName) );
@@ -5012,16 +5009,14 @@ bool CvGame::IsCityScreenBlocked()
 //	--------------------------------------------------------------------------------
 bool CvGame::CanOpenCityScreen(PlayerTypes eOpener, CvCity* pCity)
 {
-	if(eOpener == pCity->getOwner())
+	if(GET_PLAYER(eOpener).getTeam() == pCity->getTeam())
 	{
 		return true;
 	}
-#ifdef AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	else if (GET_PLAYER(eOpener).isObserver())
 	{
 		return true;
 	}
-#endif
 	else if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && (GET_PLAYER(eOpener).GetEspionage()->HasEstablishedSurveillanceInCity(pCity) || GET_PLAYER(eOpener).GetEspionage()->IsAnySchmoozing(pCity)))
 	{
 		return true;
@@ -6499,6 +6494,27 @@ bool CvGame::IsShowBaseHumanOpinion() const
 	return false;
 }
 
+/// Enable Lump Sum Gold Trading
+bool CvGame::IsLumpGoldTradingHumanOnly() const
+{
+	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() == 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CvGame::IsLumpGoldTradingEnabled() const
+{
+	if (GC.getDIPLOAI_ENABLE_LUMP_GOLD_TRADES() > 1)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /// Disable Friendship Requests
 /// Only affects human players, and only affects requests sent by the AI on their turn.
 bool CvGame::IsFriendshipRequestsDisabled() const
@@ -6751,6 +6767,11 @@ bool CvGame::IsAIAggressiveMode() const
 	if (GC.getDIPLOAI_AGGRESSIVE_MODE() == 2)
 	{
 		return true;
+	}
+
+	if (GC.getDIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION() > 0)
+	{
+		return false;
 	}
 
 	bool bDiplomaticVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
@@ -8561,7 +8582,7 @@ void CvGame::setName(const char* szName)
 //	--------------------------------------------------------------------------------
 bool CvGame::isDestroyedCityName(CvString& szName) const
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	std::vector<size_t>::const_iterator it = std::find(m_aszDestroyedCities.begin(), m_aszDestroyedCities.end(), hasher(szName.c_str()));
 	return it != m_aszDestroyedCities.end();
 }
@@ -8569,14 +8590,14 @@ bool CvGame::isDestroyedCityName(CvString& szName) const
 //	--------------------------------------------------------------------------------
 void CvGame::addDestroyedCityName(const CvString& szName)
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	m_aszDestroyedCities.push_back( hasher(szName.c_str()) );
 }
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isGreatPersonBorn(CvString& szName) const
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	std::vector<size_t>::const_iterator it = std::find(m_aszGreatPeopleBorn.begin(), m_aszGreatPeopleBorn.end(), hasher(szName.c_str()));
 	return it != m_aszGreatPeopleBorn.end();
 }
@@ -8584,7 +8605,7 @@ bool CvGame::isGreatPersonBorn(CvString& szName) const
 //	--------------------------------------------------------------------------------
 void CvGame::addGreatPersonBornName(const CvString& szName)
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	m_aszGreatPeopleBorn.push_back( hasher(szName.c_str()) );
 }
 
@@ -8592,7 +8613,7 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::removeGreatPersonBornName(const CvString& szName)
 {
-	std::tr1::hash<std::string> hasher;
+	stringHash hasher;
 	m_aszGreatPeopleBorn.erase(std::remove(m_aszGreatPeopleBorn.begin(), m_aszGreatPeopleBorn.end(), hasher(szName.c_str())), m_aszGreatPeopleBorn.end());
 }
 #endif
@@ -8692,7 +8713,7 @@ void CvGame::doTurn()
 	updateEconomicTotal();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestPotential();
+	SetHighestSpyPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -8859,6 +8880,10 @@ ImprovementTypes CvGame::GetBarbarianCampImprovementType()
 	return (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 }
 
+int CvGame::GetBarbarianReleaseTurn() const
+{ 
+	return (m_iEarliestBarbarianReleaseTurn * GC.getGame().getGameSpeedInfo().getTrainPercent()) / 100;
+}
 
 //	--------------------------------------------------------------------------------
 void CvGame::SetBarbarianReleaseTurn(int iValue)
@@ -8958,7 +8983,6 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 			if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 				continue;
 
-#if defined(MOD_BUGFIX_NO_HOVERING_REBELS)
 			// Must NOT be a hovering unit
 			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 			{
@@ -8968,14 +8992,13 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 						continue;
 				}
 			}
-#endif
 
 			// Must be able to train this thing
 			if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop)) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop + GET_PLAYER(ePlayer).getNumUnits() )) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -8991,11 +9014,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
-#else
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged)
-#endif
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -9015,35 +9034,62 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		if (pkUnitInfo->GetCombat() <= 0)
 			continue;
 
-		bool bValid = true;
-
-		if(bNoResource)
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+		if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 		{
-			int iNumResourceInfos= GC.getNumResourceInfos();
-			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+			// Is the unit's class replaced by another?
+			UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+			if (eUnitClass != NO_UNITCLASS && GET_PLAYER(ePlayer).GetUnitClassReplacement(eUnitClass) != NO_UNITCLASS)
 			{
-				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if(pkResourceInfo)
+				if (bIncludeUUs)
 				{
-					if(pkUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+					if (GET_PLAYER(ePlayer).getCivilizationInfo().isCivilizationUnitOverridden((int)eUnitClass) == false)
 					{
-						bValid = false;
-						break;
+						continue;
 					}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(eResource) > 0)
-					{
-						bValid = false;
-						break;
-					}
-#endif
+				}
+				else
+				{
+					continue;
 				}
 			}
 		}
-		if (pkUnitInfo->GetResourceType() != NO_RESOURCE)
+#endif
+
+		bool bValid = true;
+
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			continue;
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
+			{
+				int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+
+				if (iResourceRequirement > 0)
+				{
+					if (bNoResource)
+					{
+						bValid = false;
+						break;
+					}
+
+					// If a major civ, must have enough strategic resources to build this unit!
+					if (GET_PLAYER(ePlayer).isMajorCiv() && iResourceRequirement > GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, true))
+					{
+						bValid = false;
+						break;
+					}
+				}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(eResource) > 0)
+				{
+					bValid = false;
+					break;
+				}
+#endif
+			}
 		}
 
 		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
@@ -9090,13 +9136,13 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			{
 				continue;
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			//Skip own player if to include own UUs.
 			else if(bIncludeOwnUUsOnly && ((UnitTypes)GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass) != eLoopUnit))
 			{
 				continue;
 			}
-#endif
+
 			else
 			{
 				// Cannot be a UU from a civ that is in our game
@@ -9127,12 +9173,8 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 			continue;
 
-		// Must be land Unit
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
+		// Must be land Unit, or Naval Units must be allowed
 		if(!(pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips && (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore) != 0)))
-#else
-		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-#endif
 			continue;
 
 		// Must be able to train this thing
@@ -9154,11 +9196,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 #if defined(MOD_GLOBAL_CS_GIFTS)
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to recon units available to ePlayer's technology
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips)
-#else
-UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
-#endif
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -9320,7 +9358,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		CvAssert(pstartUnit);
 		if (pstartUnit)
 		{
-			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCombatUnit())
+			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCanAttack())
 			{
 				pstartUnit->kill(false);		// Could not find a spot!
 			}
@@ -9347,7 +9385,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				CvAssert(pmUnit);
 				if (pmUnit)
 				{
-					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCombatUnit())
+					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCanAttack())
 					{
 						pmUnit->kill(false);		// Could not find a spot!
 					}
@@ -9369,7 +9407,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					CvAssert(pUnit);
 					if (pUnit)
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCombatUnit())
+						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCanAttack())
 						{
 							pUnit->kill(false);		// Could not find a spot!
 						}
@@ -9548,11 +9586,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-		int iRandom = getSmallFakeRandNum(10, iPlotX + iPlotY);
+		int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
-			iRandom *= 2;
+			iRandom += 50;
 
 		veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 	}
@@ -9673,11 +9711,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 				continue;
 
-			int iRandom = getSmallFakeRandNum(20, iPlotX + iPlotY);
+			int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
 			//Weight minor civ gift units higher, so they're more likely to spawn each game.
 			if (pkUnitInfo->IsMinorCivGift())
-				iRandom += 10;
+				iRandom += 50;
 
 			veUnitRankings.push_back(OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
@@ -9738,7 +9776,7 @@ void CvGame::updateMoves()
 	// Processing of the AI 'first' only occurs when the AI are activated first
 	// in doTurn, when MPSIMULTANEOUS_TURNS is set.  If the turns are sequential,
 	// only one human or AI is active at one time and this will process them in order.
-	FStaticVector<PlayerTypes, MAX_PLAYERS, true, c_eCiv5GameplayDLL, 0> playersToProcess;
+	vector<PlayerTypes> playersToProcess;
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -9756,9 +9794,8 @@ void CvGame::updateMoves()
 	int currentTurn = getGameTurn();
 	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	m_firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
-#endif
+
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
@@ -9811,7 +9848,7 @@ void CvGame::updateMoves()
 		}
 	}
 
-	FStaticVector<PlayerTypes, MAX_PLAYERS, true, c_eCiv5GameplayDLL, 0>::const_iterator i;
+	vector<PlayerTypes>::const_iterator i;
 
 	for(i = playersToProcess.begin(); i != playersToProcess.end(); ++i)
 	{
@@ -9953,6 +9990,9 @@ void CvGame::updateMoves()
 					{
 						for(pLoopUnit = player.firstUnit(&iLoop); pLoopUnit; pLoopUnit = player.nextUnit(&iLoop))
 						{
+							if (pLoopUnit->isDelayedDeath() || pLoopUnit->plot() == NULL)
+								continue;
+
 							bool bMoveMe  = false;
 							IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
 							while(pUnitNodeInner != NULL && !bMoveMe)
@@ -10866,14 +10906,10 @@ CvRandom& CvGame::getMapRand()
 //	--------------------------------------------------------------------------------
 int CvGame::getMapRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return m_mapRand.get(iNum, pszLog);
 
 	return (int)m_mapRand.get(-iNum, pszLog)*(-1);
-#else
-	return m_mapRand.get(iNum, pszLog);
-#endif
 }
 
 
@@ -10889,14 +10925,10 @@ CvRandom& CvGame::getJonRand()
 /// Allows for logging.
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
 	return (int)m_jonRand.get(-iNum, pszLog)*(-1);
-#else
-	return m_jonRand.get(iNum, pszLog);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -10927,14 +10959,10 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 /// This should only be called by operations that will not effect gameplay!
 int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 {
-#if defined(MOD_BUGFIX_RANDOM)
 	if (iNum > 0)
 		return GC.getASyncRand().get(iNum, pszLog);
 
 	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
-#else
-	return GC.getASyncRand().get(iNum, pszLog);
-#endif
 }
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
@@ -10959,7 +10987,7 @@ static unsigned long giLastState = 0;
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*3;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getTurnSlice()*3;
 
 	/*
 	//safety check
@@ -10989,7 +11017,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getGameTurn() + abs(iExtraSeed);
+	unsigned long iState = getTurnSlice() + abs(iExtraSeed);
 
 	/*
 	//safety check
@@ -11105,11 +11133,7 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
-#if defined(MOD_UNITS_XP_TIMES_100)
 					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
-#else
-					iMultiplier += (pLoopUnit->getExperience() * 820622);
-#endif
 					iMultiplier += (pLoopUnit->getLevel() * 367291);
 				}
 				break;
@@ -11191,11 +11215,7 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
-#if defined(MOD_UNITS_XP_TIMES_100)
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
-#else
-					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
-#endif
 		}
 	}
 
@@ -11551,9 +11571,10 @@ void CvGame::DoGlobalAvgLogging()
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-void CvGame::SetHighestPotential()
+void CvGame::SetHighestSpyPotential()
 {
-	m_iLargestBasePotential = 0;
+	//no divide by zero ...
+	int iHighestEspionagePotential = 1;
 
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -11573,58 +11594,57 @@ void CvGame::SetHighestPotential()
 			{				
 				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
 
-				if (iPotential > m_iLargestBasePotential)
-				{
-					m_iLargestBasePotential = iPotential;
-				}
+				iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
 			}
 		}
 	}
-	// second pass to set the base potential for each city
-	if(m_iLargestBasePotential > 0)
+
+	for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
 	{
-		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+		if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
 		{
-			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			continue;
+		}
 
-			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+		//Check for spies - this determines if we need to do any updates or anything.
+		bool bNotify = false;
+		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+			if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
 			{
-				continue;
-			}
+				CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
 
-			//Check for spies - this determines if we need to do any updates or anything.
-			bool bNotify = false;
-			for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-			{
-				PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-				if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
+				if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
 				{
-					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
-
-					if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+					continue;
+				}
+				if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
+				{
+					if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
 					{
-						continue;
-					}
-					if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
-					{
-						if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
-						{
-							bNotify = true;
-							break;
-						}
+						bNotify = true;
+						break;
 					}
 				}
 			}
+		}
 
-			int iLoop = 0;
-			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-			{				
-				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
-				pLoopCity->SetEspionageRanking(iPotential, bNotify);
-			}
+		int iLoop = 0;
+		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+		{				
+			int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
+
+			//We want a value between 1 and 10
+			int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
+
+			pLoopCity->SetEspionageRanking(iRank, bNotify);
 		}
 	}
 }
+
 void CvGame::DoBarbCountdown()
 {
 	int iOtherMinorLoop;
@@ -11803,9 +11823,6 @@ void CvGame::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> wrapm_aiGreatestMonopolyPlayer(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 	kStream >> wrapm_aiGreatestMonopolyPlayer;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_READ(66, kStream, m_iLargestBasePotential, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -12085,11 +12102,6 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
 	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	MOD_SERIALIZE_WRITE(kStream, m_iLargestBasePotential);
-#endif
-
-
 
 	kStream << m_strScriptData;
 
@@ -12876,7 +12888,7 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	UnitTypes eUnitType = NO_UNIT;
 	if(pkUnitClassInfo != NULL)
 	{
-		eUnitType = ((UnitTypes)(GET_PLAYER(eMinor).getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
+		eUnitType = ((GET_PLAYER(eBully).GetSpecificUnitType(eUnitClassType)));
 	}
 	if(eUnitType != NO_UNIT)
 	{
@@ -13462,7 +13474,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 								break;
 							}
 
-							switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2, false))
+							switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2))
 							{
 							case MAJOR_CIV_APPROACH_WAR:
 								iMajorWar++;
@@ -13705,7 +13717,7 @@ void CvGame::TriggerArchaeologySiteCreation(bool bCheckInitialized)
 
 
 //	--------------------------------------------------------------------------------
-int CalculateDigSiteWeight(int iIndex, FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0>& inputData, FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0>& chosenDigSites)
+int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites)
 {
 	CvMap& theMap = GC.getMap();
 	int iGridWidth = theMap.getGridWidth();
@@ -13825,7 +13837,7 @@ int CalculateDigSiteWeight(int iIndex, FFastVector<CvArchaeologyData, true, c_eC
 
 
 //	--------------------------------------------------------------------------------
-void CalculateDigSiteWeights(int iGridSize, FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0>& inputData, FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0>& chosenDigSites, FFastVector<int, true, c_eCiv5GameplayDLL, 0>& currentWeights)
+void CalculateDigSiteWeights(int iGridSize, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites, vector<int>& currentWeights)
 {
 	CvAssertMsg(NO_GREAT_WORK_ARTIFACT_CLASS == 0, "Value of NO_ARTIFACT has changed");
 	for (int i = 0; i < iGridSize; i++)
@@ -14048,8 +14060,8 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	int iHowManyChosenDigSites = 0;
 
 	// fill the historical buffer with the archaeological data
-	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> historicalDigSites;
-	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> scratchDigSites;
+	vector<CvArchaeologyData> historicalDigSites;
+	vector<CvArchaeologyData> scratchDigSites;
 	int iGridSize = theMap.numPlots();
 	CvAssertMsg(iGridSize > 0, "iGridSize is zero");
 	historicalDigSites.resize(iGridSize);
@@ -14104,12 +14116,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	}
 
 	// calculate initial weights
-	FFastVector<int, true, c_eCiv5GameplayDLL, 0> digSiteWeights;
-	digSiteWeights.resize(iGridSize);
-	for (int i = 0; i < iGridSize; i++)
-	{
-		digSiteWeights[i] = 0;
-	}
+	vector<int> digSiteWeights(iGridSize,0);
 	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
 
 	// build a weight vector
@@ -14234,7 +14241,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	CombatPredictionTypes ePrediction = NO_COMBAT_PREDICTION;
 
-	if(pAttackingUnit->isRanged())
+	if(pAttackingUnit->IsCanAttackRanged())
 	{
 		return COMBAT_PREDICTION_RANGED;
 	}
@@ -14265,7 +14272,6 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, false, false, false);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
-#if defined(MOD_UNITS_MAX_HP)
 	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
 	int iDefenderMaxHitPoints = pDefendingUnit->GetMaxHitPoints();
 
@@ -14280,30 +14286,6 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	bool bAttackerDies = (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iAttackerMaxHitPoints);
 	bool bDefenderDies = (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iDefenderMaxHitPoints);
-#else
-	int iMaxUnitHitPoints = GC.getMAX_HIT_POINTS();
-	if (iAttackingDamageInflicted > iMaxUnitHitPoints)
-	{
-		iAttackingDamageInflicted = iMaxUnitHitPoints;
-	}
-	if (iDefenderDamageInflicted > iMaxUnitHitPoints)
-	{
-		iDefenderDamageInflicted = iMaxUnitHitPoints;
-	}
-
-	bool bAttackerDies = false;
-	bool bDefenderDies = false;
-
-	if (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
-	{
-		bAttackerDies = true;
-	}
-
-	if (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
-	{
-		bDefenderDies = true;
-	}
-#endif
 
 	if(bAttackerDies && bDefenderDies)
 	{
@@ -15058,9 +15040,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	return true;
 }
 #endif
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 bool CvGame::isFirstActivationOfPlayersAfterLoad()
 {
 	return m_firstActivationOfPlayersAfterLoad;
 }
-#endif

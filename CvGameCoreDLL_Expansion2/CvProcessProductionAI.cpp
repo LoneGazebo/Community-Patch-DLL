@@ -251,7 +251,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
 	AICityStrategyTypes eNeedFood = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD");
 	AICityStrategyTypes eNeedFoodNaval = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
-	EconomicAIStrategyTypes eGrowCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
 	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
 
 	//Yield value.
@@ -340,10 +339,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							iModifier += (m_pCity->getUnhappinessFromStarving() * 10);
 						}
 					}
-					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
-					{
-						iModifier += 20;
-					}
 					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
 						iModifier += 20;
@@ -372,7 +367,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{
-				FStaticVector<LeagueProjectRewardTypes, 4, true, c_eCiv5GameplayDLL> veRewards;
+				vector<LeagueProjectRewardTypes> veRewards;
 				veRewards.push_back(pInfo->GetRewardTier3());
 				veRewards.push_back(pInfo->GetRewardTier2());
 				veRewards.push_back(pInfo->GetRewardTier1());
@@ -436,14 +431,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Golden Age Points
 					if (pRewardInfo->GetGoldenAgePoints() > 0)
 					{
-						if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
-						{
-							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier()) * 25;
-						}
-						else
-						{
-							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.getGoldenAgeModifier()) * 25;
-						}
+						iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.getGoldenAgeModifier(false)) * 25;
 					}
 
 					// City-State Influence Boost
@@ -477,7 +465,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Free unit class
 					if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
 					{
-						UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+						UnitTypes eUnit = kPlayer.GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
 						if (eUnit != NO_UNIT)
 						{
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);

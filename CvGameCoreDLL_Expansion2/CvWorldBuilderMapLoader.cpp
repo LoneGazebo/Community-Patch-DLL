@@ -753,11 +753,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 				pkGameplayUnit->setDamage(iMaxHitPoints - iHitPoints);
 			}
 
-#if defined(MOD_UNITS_XP_TIMES_100)
 			pkGameplayUnit->setExperienceTimes100(((int)kSavedUnit.m_uiExperience) * 100);
-#else
-			pkGameplayUnit->setExperience((int)kSavedUnit.m_uiExperience);
-#endif
 
 			const int iPromotionTypeCount = GC.getNumPromotionInfos();
 			for(int iPromotion = 0; iPromotion < iPromotionTypeCount; ++iPromotion)
@@ -1024,8 +1020,8 @@ bool CvWorldBuilderMapLoader::InitMap()
 	// remove this hack but be very careful if you do and test thoroughly with scenario saves.
 	SetInitialItems(true);
 
-	FFastVector<CvPlayer*> kMajorCivs;
-	FFastVector<CvPlayer*> kMinorCivs;
+	vector<CvPlayer*> kMajorCivs;
+	vector<CvPlayer*> kMinorCivs;
 	for(uint i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
 		PlayerTypes ePlayer = PlayerTypes(i);
@@ -1213,22 +1209,6 @@ bool CvWorldBuilderMapLoader::InitMap()
 				eRoute = ROUTE_RAILROAD;
 
 			pkPlot->setRouteType(eRoute);
-
-			const PlayerTypes eOwner = GetPlayerType(kPlotData.m_byRouteOwner);
-			if(eOwner != NO_PLAYER && !pkPlot->isOwned())
-			{
-				// Mark the player as responsible for this route and update the treasury
-				CvTreasury* pkTreasury = GET_PLAYER(eOwner).GetTreasury();
-				const CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-				if(pkTreasury != NULL && pkRouteInfo != NULL)
-				{
-					if(pkPlot->MustPayMaintenanceHere(eOwner))
-					{
-						pkTreasury->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-					}
-					pkPlot->SetPlayerResponsibleForRoute(eOwner);
-				}
-			}
 		}
 
 		const CvWorldBuilderMap::City* pkCity = sg_kSave.m_kCities[kPlotData.m_hCity];

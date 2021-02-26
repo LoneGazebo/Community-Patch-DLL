@@ -431,6 +431,10 @@ public:
 	int GetInternationalRouteYieldModifier(int i) const;
 	int* GetInternationalRouteYieldModifiersArray();
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	bool IsUnitClassReplacements() const;
+	std::map<UnitClassTypes, UnitClassTypes> GetUnitClassReplacements() const;
+#endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
 	int GetFlavorValue(int i) const;
@@ -846,6 +850,9 @@ private:
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
 #endif
+#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
+#endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
@@ -1045,11 +1052,7 @@ public:
 #else
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false) const;
-#else
-	int GetNumPoliciesOwned() const;
-#endif
+	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false, bool bIncludeOpeners = false) const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;

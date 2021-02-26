@@ -477,7 +477,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
 				}
 			}
-			else if (pPlayer->GetDiplomacyAI()->GetMostValuableDefensivePact(false) == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableDoF(false) == eLoopPlayer)
+			else if (pPlayer->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
 			{
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
@@ -493,7 +493,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 			}
 
-			switch (pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true))
+			switch (pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
 			{
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				if (eOtherPlayerIdeology == eFreedomBranch)
@@ -702,21 +702,16 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		pPlayer->doPolicyGEorGM(iPolicyGEorGM);
 	}
 #endif
-#if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
-	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
 	{
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(pPlayer->GetID());
-			args->Push(eChosenBranch);
+		CvLuaArgsHandle args;
+		args->Push(pPlayer->GetID());
+		args->Push(eChosenBranch);
 
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
-		}
+		bool bResult = false;
+		LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
 	}
-#endif
 }
 
 /// Should the AI look at switching ideology branches?
@@ -850,7 +845,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 					PolicyBranchTypes eOtherPlayerIdeology;
 					eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
-					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true))
+					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
 					{
 						case MAJOR_CIV_APPROACH_HOSTILE:
 							if (eOtherPlayerIdeology == ePreferredIdeology)
@@ -944,13 +939,38 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 
 					if (pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 					{
-						BuildingTypes eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						if (eBuilding != NO_BUILDING)
+						BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+						bool bRome = pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
+#else
+						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+						{
+							eBuilding = (BuildingTypes)pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+						}
+#if defined(MOD_BALANCE_CORE)
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+#else
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || eBuilding != NO_BUILDING)
+#endif
 						{
 							CvCity *pCity;
 							int iLoop;
 							for (pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 							{
+#if defined(MOD_BALANCE_CORE)
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+								{
+									eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									if (eBuilding == NO_BUILDING)
+									{
+										continue;
+									}
+								}
 								if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 								{
 									iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass);
@@ -3650,7 +3670,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		if (!pkUnitClassInfo)
 			continue;
 		
-		const UnitTypes eUnit = (UnitTypes)pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 		if (!pUnitEntry)
 			continue;
@@ -3700,7 +3720,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 				if (pkUnitClassInfo)
 				{
-					const UnitTypes eUnit = (UnitTypes)pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+					const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 					if (pUnitEntry)
 					{
@@ -3716,7 +3736,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 			if (pkUnitClassInfo)
 			{
-				const UnitTypes eUnit = (UnitTypes)pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+				const UnitTypes eUnit = (UnitTypes)pPlayer->GetSpecificUnitType(eUnitClass);
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
@@ -4819,7 +4839,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 			{
 				iWeight = 0;
 			}
-			else if (pPlayer->GetDiplomacyAI()->GetNumMinorCivApproach(MINOR_CIV_APPROACH_FRIENDLY) <= 0)
+			else if (pPlayer->GetNumCSFriends() <= 0)
 			{
 				iWeight /= 5;
 			}

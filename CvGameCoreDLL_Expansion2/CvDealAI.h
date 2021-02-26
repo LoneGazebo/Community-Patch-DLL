@@ -80,7 +80,7 @@ public:
 	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
 	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
 	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue = false);
-	int GetCityValueForBuyer(CvCity* pCity, PlayerTypes eSeller, PlayerTypes eBuyer);
+	int GetCityValueForBuyer(CvCity* pCity, PlayerTypes eSeller, PlayerTypes eBuyer, bool bPeaceTreatyTrade = false);
 
 	// Potential items an AI can try to add to a deal to even it out - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
 
@@ -131,7 +131,7 @@ public:
 
 	void DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal);
 
-	int GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	int GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, int iIdealValue);
 	bool IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	bool IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
@@ -156,7 +156,7 @@ public:
 	// How much is item worth to AI?
 	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
+	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
 
 	// Does AI want to make offer for X?

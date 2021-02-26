@@ -183,6 +183,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 #endif
 	Method(IsAllowsOpenBordersToTeam);
 	Method(IsForcePeace);
+	Method(IsWarBlockedByPeaceTreaty);
 	Method(IsDefensivePact);
 	Method(GetRouteChange);
 	Method(ChangeRouteChange);
@@ -1128,6 +1129,45 @@ int CvLuaTeam::lIsForcePeace(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaTeam::lIsWarBlockedByPeaceTreaty(lua_State* L)
+{
+	CvTeam* pkTeam = GetInstance(L);
+	TeamTypes eOtherTeam = (TeamTypes)lua_tointeger(L, 2);
+
+	if (eOtherTeam == NO_TEAM)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bool bValue = false;
+
+	if (pkTeam->isForcePeace(eOtherTeam))
+		bValue = true;
+
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+		if (eLoopTeam != NO_TEAM && eLoopTeam != pkTeam->GetID() && eLoopTeam != eOtherTeam)
+		{
+			if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eOtherTeam) || GET_TEAM(eLoopTeam).IsVassal(eOtherTeam) || GET_TEAM(eOtherTeam).IsVassal(eLoopTeam))
+			{
+				if (pkTeam->isForcePeace(eLoopTeam))
+				{
+					bValue = true;
+					break;
+				}
+			}
+		}
+	}
+
+	const bool bReturnValue = bValue;
+	lua_pushboolean(L, bReturnValue);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 //bool isDefensivePact(TeamTypes eIndex);
 int CvLuaTeam::lIsDefensivePact(lua_State* L)
 {
@@ -1279,7 +1319,7 @@ int CvLuaTeam::lSetHasTech(lua_State* L)
 	const TechTypes eIndex = (TechTypes)lua_tointeger(L, 2);
 	const bool bNewValue = lua_toboolean(L, 3);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
-#if defined(MOD_BUGFIX_LUA_API)
+
 	bool bFirst = lua_toboolean(L, 4);
 	bool bAnnounce = lua_toboolean(L, 5);
 
@@ -1288,16 +1328,10 @@ int CvLuaTeam::lSetHasTech(lua_State* L)
 		bFirst = lua_toboolean(L, 5);
 		bAnnounce = lua_toboolean(L, 6);
 	}
-#else
-	const bool bFirst = lua_toboolean(L, 4);
-	const bool bAnnounce = lua_toboolean(L, 5);
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	const bool bNoBonus = luaL_optbool(L, 7, false);
 	pkTeam->setHasTech(eIndex, bNewValue, ePlayer, bFirst, bAnnounce, bNoBonus);
-#else
-	pkTeam->setHasTech(eIndex, bNewValue, ePlayer, bFirst, bAnnounce);
-#endif
+
 	return 0;
 }
 

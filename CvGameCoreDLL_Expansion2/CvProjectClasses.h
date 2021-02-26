@@ -56,6 +56,7 @@ public:
 	int GetHappiness() const;
 	int GetEmpireMod() const;
 #endif
+
 	const char* GetMovieArtDef() const;
 
 	const char* GetCreateSound() const;

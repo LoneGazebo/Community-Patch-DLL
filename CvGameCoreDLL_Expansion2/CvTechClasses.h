@@ -355,19 +355,11 @@ public:
 	void IncrementTechCount(TechTypes eIndex);
 	int GetTechCount(TechTypes eIndex) const;
 	void SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
-#else
-	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
-#endif
 	int GetResearchProgress(TechTypes eIndex) const;
 	int GetResearchProgressTimes100(TechTypes eIndex) const;
 	void ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
-#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
-#else
-	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
-#endif
 	int ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer);
 	int GetResearchCost(TechTypes eTech) const;
 	int GetResearchLeft(TechTypes eTech) const;

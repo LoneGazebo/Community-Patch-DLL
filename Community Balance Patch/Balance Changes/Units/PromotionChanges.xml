@@ -566,7 +566,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>33</InterceptChanceChange>
 			<PortraitIndex>27</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -579,7 +579,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>33</InterceptChanceChange>
 			<InterceptionCombatModifier>33</InterceptionCombatModifier>
 			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -593,7 +593,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>33</InterceptChanceChange>
 			<InterceptionCombatModifier>33</InterceptionCombatModifier>
 			<RangeChange>1</RangeChange>
 			<PortraitIndex>29</PortraitIndex>
@@ -648,7 +648,7 @@
 			<Help>TXT_KEY_PROMOTION_AIR_SIEGE_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<CityAttack>33</CityAttack>
+			<CityAttack>50</CityAttack>
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -661,7 +661,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<CityAttack>33</CityAttack>
+			<CityAttack>50</CityAttack>
 			<PortraitIndex>41</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -674,7 +674,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<CityAttack>34</CityAttack>
+			<CityAttack>50</CityAttack>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1545,7 +1545,7 @@
 			<Description>TXT_KEY_PROMOTION_INTERCEPTION_I</Description>
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>15</InterceptChanceChange>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1556,7 +1556,7 @@
 			<Description>TXT_KEY_PROMOTION_INTERCEPTION_II</Description>
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>15</InterceptChanceChange>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_I</PromotionPrereqOr1>
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -1569,7 +1569,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_III_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_II</PromotionPrereqOr1>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>15</InterceptChanceChange>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1581,7 +1581,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_IV_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_III</PromotionPrereqOr1>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>15</InterceptChanceChange>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>

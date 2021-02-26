@@ -981,7 +981,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
-			if (pUnit->isRanged())
+			if (pUnit->IsCanAttackRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
 				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
@@ -1105,7 +1105,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
-			if (pUnit->isRanged())
+			if (pUnit->IsCanAttackRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
 				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
@@ -1139,7 +1139,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if ( (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) || !pUnit->CanEverEmbark()) && pToPlot->needsEmbarkation(pUnit))
 			return FALSE;
 
-		if(pUnit->IsCombatUnit())
+		if(pUnit->IsCanAttack())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
 			if(pCity)
@@ -1186,7 +1186,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
-	if(pUnit->IsCombatUnit())
+	if(pUnit->IsCanDefend())
 	{
 		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
@@ -1259,7 +1259,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 
-		if (pUnit->IsCombatUnit())
+		if (pUnit->IsCanAttack())
 		{
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
@@ -1284,6 +1284,23 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	return iCost;
 }
 
+bool NeedToCheckStacking(const CvAStarNode* node, int iTurnsOverride = -1)
+{
+	//sometimes the turns stored in the node are not up to date
+	int iTurns = (iTurnsOverride >= 0) ? iTurnsOverride : node->m_iTurns;
+
+	//ignore what happens next turn
+	if (iTurns > 0)
+		return false;
+
+	//always check stacking for neutral units
+	if (node->m_kCostCacheData.bIsVisibleNeutralCombatUnit)
+		return true;
+
+	//now look at the flag
+	return (node->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0;
+}
+
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a move
 int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder)
@@ -1304,7 +1321,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 	bool bIsPathDest = finder->IsPathDest(iToPlotX, iToPlotY);
 	bool bCheckZOC =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ZOC);
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kToNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pUnitDataCache->pUnit;
@@ -1378,8 +1394,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 				return -1; //forbidden
 		}
 
-		// check stacking (if visible)
-		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bUnitStackingLimitReached && iTurns==0)
+		// check stacking on the next plot (if visible)
+		if (kToNodeCacheData.bPlotVisibleToTeam && kToNodeCacheData.bUnitStackingLimitReached && NeedToCheckStacking(node,iTurns))
 			return -1; //forbidden
 
 		//extra cost for ending the turn on various types of undesirable plots
@@ -1458,7 +1474,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kFromNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
@@ -1489,7 +1504,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			}
 
 			// check stacking (if visible)
-			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bUnitStackingLimitReached)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && NeedToCheckStacking(parent) && kFromNodeCacheData.bUnitStackingLimitReached)
 				return FALSE;
 		}
 	}
@@ -1542,7 +1557,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+				if ( pCacheData->isAIControl() && pUnit->IsCanAttack() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
 					return FALSE;
 			}
 
@@ -1901,7 +1916,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+		if (!kPlayer.CanCrossOcean())
 			return FALSE;
 	}
 
@@ -1944,7 +1959,8 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		//plot type dependent cost. should really be handled via terrain, but ok for now
 		if (pToPlot->isHills())
 			iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
-		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
+		//inca can cross mountains ...
+		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder() && !pToPlot->isValidMovePlot(finder->GetData().ePlayer,false))
 			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
 
 		//ignore this if there's a resource here
@@ -1993,7 +2009,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+		if (!kPlayer.CanCrossOcean())
 			return FALSE;
 	}
 
@@ -2337,7 +2353,7 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
-		if ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0 || temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit) //never ignore stacking for neutral units
+		if (NeedToCheckStacking(temp))
 			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 
@@ -2707,12 +2723,14 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		if (bValid)
 		{
 			int iNormalizedDistanceRaw = (temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
-			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
+			plots.insertNoIndex( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
 		}
 	}
 
 	if(!bHadLock)
 		gDLL->ReleaseGameCoreLock();
+
+	plots.createIndex();
 	return plots;
 }
 
@@ -3001,7 +3019,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_ePlayer = data.ePlayer;
 		pCacheData->m_eTeam = kPlayer.getTeam();
 		pCacheData->m_bCanCrossOcean = kPlayer.CanCrossOcean() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
-		pCacheData->m_bCanEmbark = GET_TEAM(kPlayer.getTeam()).canEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
+		pCacheData->m_bCanEmbark = kPlayer.CanEmbark() && !finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN);
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
@@ -3130,6 +3148,15 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 	if (pToPlot->isDeepWater() && !pCacheData->m_bCanCrossOcean)
 		iCost += PATH_BASE_COST/3;
 
+	// using canals is expensive!
+	if (!pToPlot->isWater() && !pToPlot->isCity())
+	{
+		if (pToPlot->IsImprovementPassable())
+			iCost += PATH_BASE_COST * 3;
+		else
+			iCost += PATH_BASE_COST * 11; //a non-existing canal is even more expensive!
+	}
+
 	return iCost;
 }
 
@@ -3160,11 +3187,21 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		return TRUE;
 
 	//check passable improvements
-	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false) && pNewPlot->isAdjacentToShallowWater())
+	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false))
 	{
 		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
 		//so we have to allow all cities and forts
 		return TRUE;
+	}
+
+	//check for shortcuts ...
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_CANALS))
+	{
+		CvPlot* pPrevPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+		//only single plot canals on plots without resource
+		//not that this is asymmetric, we can build a canal into a city but not out of a city ... shouldn't matter too much
+		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
+			return pNewPlot->getResourceType() == NO_RESOURCE;
 	}
 
 	return FALSE;
@@ -3466,32 +3503,69 @@ CvPlot * SPath::get(int i) const
 	return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 }
 
+void SPath::invert()
+{
+	reverse(vPlots.begin(), vPlots.end());
+}
+
 //use a fixed point format for normalized distance to avoid ties (123 is 1.23)
 int SPath::getNormalizedDistanceBase()
 {
 	return 100;
 }
 
+struct PairCompareFirst
+{
+    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const
+    {
+        return l.first < r.first;
+    }
+};
+
+void ReachablePlots::createIndex()
+{
+	lookup.clear();
+	lookup.reserve(storage.size());
+	for (size_t i = 0; i < storage.size(); i++)
+		lookup.push_back( make_pair(storage[i].iPlotIndex,i) );
+	sort(lookup.begin(), lookup.end(), PairCompareFirst());
+}
+
+struct EqualRangeComparison
+{
+    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
+    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
+};
+
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
-	std::tr1::unordered_map<int,size_t>::iterator it = lookup.find(iPlotIndex);
-	if (it!=lookup.end())
-		return storage.begin() + it->second;
+	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != lookup.end() && it2.first != it2.second)
+		return storage.begin() + it2.first->second;
 
 	return storage.end();
 }
 
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
-	std::tr1::unordered_map<int,size_t>::const_iterator it = lookup.find(iPlotIndex);
-	if (it!=lookup.end())
-		return storage.begin() + it->second;
+	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	if (it2.first != lookup.end() && it2.first != it2.second)
+		return storage.begin() + it2.first->second;
 
 	return storage.end();
 }
 
-void ReachablePlots::insert(const SMovePlot& plot)
+void ReachablePlots::insertNoIndex(const SMovePlot& plot)
 {
-	lookup[plot.iPlotIndex] = storage.size();
+	//must call createIndex later!
 	storage.push_back(plot);
+}
+
+void ReachablePlots::insertWithIndex(const SMovePlot& plot)
+{
+	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
+	storage.push_back(plot);
+	sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }

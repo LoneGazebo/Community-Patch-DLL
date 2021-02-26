@@ -92,11 +92,11 @@ public:
 	    DEAL_SUPPLEMENTAL
 	};
 
-	CvDeal();
-	CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	CvDeal(PlayerTypes eFromPlayer=NO_PLAYER, PlayerTypes eToPlayer=NO_PLAYER);
 	CvDeal(const CvDeal& source);
 	virtual ~CvDeal();
 	CvDeal& operator=(const CvDeal& source);
+	bool operator==(const CvDeal& other) const;
 
 	// Public data
 	PlayerTypes m_eFromPlayer;
@@ -115,7 +115,6 @@ public:
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
-	bool m_bRealDeal;
 	bool m_bIsGift;
 	bool m_bDoNotModifyFrom;
 	bool m_bDoNotModifyTo;
@@ -279,7 +278,7 @@ FDataStream& OldLoad(FDataStream&, CvDeal&);
 FDataStream& operator>>(FDataStream&, CvDeal&);
 FDataStream& operator<<(FDataStream&, const CvDeal&);
 
-typedef FStaticVector<CvDeal, 20, false, c_eCiv5GameplayDLL > DealList;
+typedef vector<CvDeal> DealList;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvGameDeals
 //!  \brief All the information about deals made between players
@@ -305,7 +304,7 @@ public:
 	void FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs);
 	void FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs);
 	CvDeal* GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest = false);
-	void DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyPlayerType eTargetPlayers);
+	void DoCancelAllProposedMPDealsWithPlayer(PlayerTypes eCancelPlayer, DiplomacyMode eTargetPlayers);
 #endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 	void DoTurn();

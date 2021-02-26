@@ -381,15 +381,16 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 		// Default for this zone
 		m_ePosture = TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 
-		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
-		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		//try to grab it ...
+		CvCity *pClosestCity = GetZoneCity();
+		if (pClosestCity && pClosestCity->isInDangerOfFalling())
 		{
-			//try to grab it ...
-			CvCity *pClosestCity = GetZoneCity();
-			if (pClosestCity && pClosestCity->isInDangerOfFalling())
-				m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-			else
-				m_ePosture = TACTICAL_POSTURE_WITHDRAW;
+			m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+		}
+		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
+		else if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || bInDangerOfCounterattack)
+		{
+			m_ePosture = TACTICAL_POSTURE_WITHDRAW;
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{
@@ -685,7 +686,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 /// Calculate military presences in each owned dominance zone
 void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 {
-	TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
+	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
+	TeamTypes eTeam = thisPlayer.getTeam();
 
 	//weigh units close to the center of the zone higher - assume unit mobility increases over time
 	int iMaxDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) / 2;	
@@ -717,7 +719,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		{
 			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
-			bool bFriendly = (eTeam==kPlayer.getTeam());
+			bool bFriendly =
+				(eTeam == kPlayer.getTeam()) || //on the same team
+				(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
+				(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
 
 			int iLoop;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
@@ -734,7 +739,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
-				if (!bZoneTypeMatch && !pLoopUnit->isRanged())
+				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
 					continue;
 
 				//a little cheating for AI - invisible units still count with reduced strength
@@ -875,7 +880,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 			if (GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,false) ||
 				GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,true) ||
-				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pZoneCity))
+				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsPreferredAttackTarget(pZoneCity))
 			{
 				iBaseValue *= 2;
 			}
@@ -987,46 +992,6 @@ void CvTacticalAnalysisMap::UpdatePostures()
 		//todo: should we include the previous posture in the logic?
 		//but we've thrown it away at this point ...
 		pZone->SelectPostureMultiZone(vNeighbors);
-	}
-
-	//third pass, logging only
-	for (unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
-	{
-		CvTacticalDominanceZone* pZone = &m_vDominanceZones[iI];
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString szPostureMsg;
-			szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
-
-			switch(pZone->GetPosture())
-			{
-			case TACTICAL_POSTURE_ATTRIT_FROM_RANGE:
-				szPostureMsg += "Attrit from Range";
-				break;
-			case TACTICAL_POSTURE_EXPLOIT_FLANKS:
-				szPostureMsg += "Exploit Flanks";
-				break;
-			case TACTICAL_POSTURE_STEAMROLL:
-				szPostureMsg += "Steamroll";
-				break;
-			case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE:
-				szPostureMsg += "Surgical City Strike";
-				break;
-			case TACTICAL_POSTURE_HEDGEHOG:
-				szPostureMsg += "Hedgehog";
-				break;
-			case TACTICAL_POSTURE_COUNTERATTACK:
-				szPostureMsg += "Counterattack";
-				break;
-			case TACTICAL_POSTURE_WITHDRAW:
-				szPostureMsg += "Withdraw";
-				break;
-			case TACTICAL_POSTURE_NONE:
-				szPostureMsg += "NoPosture";
-				break;
-			}
-			GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szPostureMsg);
-		}
 	}
 }
 
@@ -1187,9 +1152,6 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom)
 {
-	saveTo << 0u;
-	saveTo << 0u;
-	saveTo << 0u;
 	saveTo << readFrom.m_ePlayer;
 	saveTo << readFrom.m_iTurnSliceBuilt;
 
@@ -1200,11 +1162,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 }
 FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 {
-	int dummy;
-
-	loadFrom >> dummy;
-	loadFrom >> dummy;
-	loadFrom >> dummy;
 	loadFrom >> writeTo.m_ePlayer;
 	loadFrom >> writeTo.m_iTurnSliceBuilt;
 

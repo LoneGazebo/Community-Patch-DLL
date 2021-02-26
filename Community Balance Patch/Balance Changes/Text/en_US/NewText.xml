@@ -3,7 +3,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Iron Fist[ENDCOLOR]: Vassals can no longer rebel or be liberated by other Civilizations. Yields from City-States increased by 25%, Vassals tribute an additional 25% of their yields, and +50% Worker Improvement rate.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Iron Fist[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations, and capitulated vassals can no longer rebel. Yields from City-States increased by 25%, Vassals tribute an additional 25% of their yields, and +50% Worker Improvement rate.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A">
 			<Text>Iron Fist</Text>
@@ -19,7 +19,7 @@
 			<Text>Universal Healthcare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you kill a unit. +5 HP healed per turn in Friendly Territory. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
+			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you Kill a unit or Pillage a non-road improvement. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, the Harbinger</Text>
@@ -73,7 +73,7 @@
 			<Text>Bran, the Sleeping Guardian</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital, and for every 4 Followers of your Pantheon in owned Cities. +2 [ICON_HAPPINESS_1] Happiness from Ceilidh Hall.</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital, and for every 4 Followers of your Pantheon in owned Cities. +5 HP healed per turn in Friendly Territory. +2 [ICON_HAPPINESS_1] Happiness from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>

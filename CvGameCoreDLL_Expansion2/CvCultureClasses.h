@@ -37,7 +37,7 @@ public:
 FDataStream& operator>>(FDataStream&, CvGreatWork&);
 FDataStream& operator<<(FDataStream&, const CvGreatWork&);
 
-typedef FStaticVector<CvGreatWork, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL > GreatWorkList;
+typedef vector<CvGreatWork> GreatWorkList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameCulture

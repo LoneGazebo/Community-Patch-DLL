@@ -240,8 +240,6 @@ protected:
 	static int lGetJONSCulturePerTurnForFree(lua_State* L);
 	static int lChangeJONSCulturePerTurnForFree(lua_State* L);
 
-	static int lGetJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-	static int lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L); // DEPRECATED, does nothing
 	static int lGetCulturePerTurnFromMinorCivs(lua_State* L);
 	static int lGetCulturePerTurnFromMinor(lua_State* L);
 
@@ -1002,6 +1000,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumUnitsOfType, int, iUnit, bIncludeBeingTrained);
+	LUAAPIEXTN(GetNumUnitPromotions, int, iPromotion);
+#endif
 	static int lGetUnitByID(lua_State* L);
 
 	static int lAI_updateFoundValues(lua_State* L);
@@ -1075,8 +1077,6 @@ protected:
 	static int lGetWonderDisputeLevel(lua_State* L);
 	static int lGetMinorCivDisputeLevel(lua_State* L);
 	static int lGetWarmongerThreat(lua_State* L);
-	static int lIsPlayerNoSettleRequestEverAsked(lua_State* L);
-	static int lIsPlayerStopSpyingRequestEverAsked(lua_State* L);
 	static int lIsDemandEverMade(lua_State* L);
 	static int lGetNumCiviliansReturnedToMe(lua_State* L);
 	static int lGetNumLandmarksBuiltForMe(lua_State* L);
@@ -1109,6 +1109,7 @@ protected:
 	static int lIsDenouncedPlayer(lua_State* L);
 	static int lGetDenouncedPlayerCounter(lua_State* L);
 	static int lIsDenouncingPlayer(lua_State* L);
+	static int lIsDenounceMessageTooSoon(lua_State* L);
 	static int lIsPlayerRecklessExpander(lua_State* L);
 	static int lGetRecentTradeValue(lua_State* L);
 	static int lGetCommonFoeValue(lua_State* L);
@@ -1471,8 +1472,15 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	static int lGetResponsibleForRouteCount(lua_State* L);
+	static int lGetResponsibleForImprovementCount(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);

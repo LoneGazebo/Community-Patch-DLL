@@ -202,6 +202,11 @@ UPDATE Policies
 SET AllCityFreeBuilding = 'BUILDINGCLASS_AIRPORT'
 WHERE Type = 'POLICY_MILITARISM';
 
+INSERT INTO Policy_UnitClassReplacements
+	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
+VALUES
+	('POLICY_MILITARISM', 'UNITCLASS_FIGHTER', 'UNITCLASS_ZERO');
+
 -- Building Class Changes
 
 INSERT INTO Policy_BuildingClassYieldChanges

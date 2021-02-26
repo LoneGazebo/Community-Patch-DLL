@@ -106,7 +106,7 @@ FDataStream& operator<<(FDataStream&, const ContractTypes&);
 
 class CvPlayerContracts;
 
-typedef FStaticVector<CvContract, 24, false, c_eCiv5GameplayDLL > ContractList;
+typedef vector<CvContract> ContractList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameContracts

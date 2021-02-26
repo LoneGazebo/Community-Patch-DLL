@@ -1618,11 +1618,12 @@ local function GetHelpTextForImprovement( improvementID )
 	-- Maintenance:
 	tips:insertIf( (improvement[g_maintenanceCurrency] or 0) ~= 0 and S( "%s %+i%s", L"TXT_KEY_PEDIA_MAINT_LABEL", -improvement[g_maintenanceCurrency], g_currencyIcon) )
 
-	-- Improved Resources
+	-- Improved and Consumed Resources
 	items = table()
 	for row in GameInfo.Improvement_ResourceTypes( thisImprovementType ) do
 		item = GameInfo.Resources[ row.ResourceType ]
-		items:insertIf( item and tostring(item.IconString) )
+		items:insertIf( item and (row.ResourceTrade or 0) ~= 0 and tostring(item.IconString) )
+		tips:insertIf( item and (row.QuantityRequirement or 0) ~= 0 and S( "%s: %+i%s", L(item.Description), -row.QuantityRequirement, tostring(item.IconString) ) )
 	end
 	tips:insertIf( #items > 0  and L"TXT_KEY_PEDIA_IMPROVES_RESRC_LABEL" .. " " .. items:concat( ", " ) )
 

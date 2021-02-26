@@ -181,18 +181,14 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTradeRouteResourceModifier(0),
 	m_iUniqueLuxuryCities(0),
 	m_iUniqueLuxuryQuantity(0),
-#if defined(MOD_BUGFIX_MINOR)
 	m_iWorkerSpeedModifier(0),
 	m_iAfraidMinorPerTurnInfluence(0),
 	m_iLandTradeRouteRangeBonus(0),
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	m_iSeaTradeRouteRangeBonus(0),
 #endif
-#if defined(MOD_BUGFIX_MINOR)
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
-#endif
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
@@ -2581,7 +2577,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
-	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessChange");
+	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessTraitMod");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
@@ -2884,7 +2880,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		{
 			const int iYieldType = pResults->GetInt(0);
 			const int iYield = pResults->GetInt(1);
-			const int bEraScaling = pResults->GetBool(2);
+			const bool bEraScaling = pResults->GetBool(2);
 
 			m_pbiYieldFromBarbarianCampClear[iYieldType][bEraScaling] = iYield;
 		}
@@ -5714,7 +5710,7 @@ void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
 			if (m_ppaaiYieldChangePerImprovementBuilt[iImprovement][iYield] != 0)
 			{
 				m_vYieldChangeImprovementTypes.push_back((ImprovementTypes)iImprovement);
-				continue;
+				break;
 			}
 		}
 	}
@@ -6267,7 +6263,7 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes) m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 			if(pUnitEntry)
 			{
@@ -6721,11 +6717,9 @@ void CvPlayerTraits::ChooseMayaBoost()
 		bHasReligion = true;
 	}
 #endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+
 	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
-#else
-	ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-#endif
+
 	if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -6744,11 +6738,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 		// Don't have a religion and they can still be founded?
 		else
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
-#else
-			if(pReligions->GetNumReligionsStillToFound() > 0)
-#endif
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6764,11 +6754,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// Highly wonder competitive and still early in game?
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() >= 8 && GC.getGame().getGameTurn() <= (GC.getGame().getEstimateEndTurn() / 2))
@@ -6782,11 +6769,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
@@ -6797,11 +6781,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
@@ -6812,20 +6793,15 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 		if (MOD_DIPLOMACY_CITYSTATES)
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+		}
 		else
-#endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
-#endif
+		}
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
@@ -6836,11 +6812,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
@@ -6852,11 +6825,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
@@ -6870,11 +6840,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
-#else
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-#endif
+
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
@@ -6891,88 +6858,64 @@ void CvPlayerTraits::ChooseMayaBoost()
 		else
 #endif
 		{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
-#else
-			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
-#endif
+
 			if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 			else
 			{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_WRITER");
-#else
-				ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER");
-#endif
+
 				if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 				{
 					eDesiredGreatPerson = ePossibleGreatPerson;
 				}
 				else
 				{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 					ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
-#else
-					ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
-#endif
+
 					if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 					{
 						eDesiredGreatPerson = ePossibleGreatPerson;
 					}
 					else
 					{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 						ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
-#else
-						ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
-#endif
+
 						if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 						{
 							eDesiredGreatPerson = ePossibleGreatPerson;
 						}
 						else
 						{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 							ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
-#else
-							ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
-#endif
+
 							if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 							{
 								eDesiredGreatPerson = ePossibleGreatPerson;
 							}
 							else
 							{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 								ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MUSICIAN");
-#else
-								ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN");
-#endif
+
 								if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 								{
 									eDesiredGreatPerson = ePossibleGreatPerson;
 								}
 								else
 								{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 									ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-#else
-									ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
-#endif
+
 									if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 									{
 										eDesiredGreatPerson = ePossibleGreatPerson;
 									}
 									else
 									{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 										ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
-#else
-										ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_ADMIRAL");
-#endif
+
 										if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
@@ -6980,11 +6923,8 @@ void CvPlayerTraits::ChooseMayaBoost()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 										else if(MOD_DIPLOMACY_CITYSTATES)
 										{
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
-#else
-											ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
-#endif
+
 											if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 											{
 												eDesiredGreatPerson = ePossibleGreatPerson;
@@ -7124,7 +7064,7 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo)
 		{
-			const UnitTypes eUnit = (UnitTypes)m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			if (eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);

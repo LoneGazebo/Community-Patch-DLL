@@ -124,10 +124,8 @@ public:
 	bool IsNoSupply() const;
 #endif
 
-#if defined(MOD_UNITS_MAX_HP)
-	int  GetMaxHitPointsChange() const;
-	int  GetMaxHitPointsModifier() const;
-#endif
+	int GetMaxHitPointsChange() const;
+	int GetMaxHitPointsModifier() const;
 
 	int GetUpgradeDiscount() const;
 	int GetExperiencePercent() const;
@@ -182,6 +180,7 @@ public:
 	int GetNearbyUnitClassBonus() const;
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
+	bool IsFightWellDamaged() const;
 	bool IsMountainsDoubleMove() const;
 	bool IsEmbarkFlatCost() const;
 	bool IsDisembarkFlatCost() const;
@@ -443,10 +442,8 @@ protected:
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
 #endif
-#if defined(MOD_UNITS_MAX_HP)
 	int m_iMaxHitPointsChange;
 	int m_iMaxHitPointsModifier;
-#endif
 	int m_iUpgradeDiscount;
 	int m_iExperiencePercent;
 	int m_iAdjacentMod;
@@ -495,6 +492,7 @@ protected:
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;
 	bool m_bStrongerDamaged;
+	bool m_bFightWellDamaged;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;

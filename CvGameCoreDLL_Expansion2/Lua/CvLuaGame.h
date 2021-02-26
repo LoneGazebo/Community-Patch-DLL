@@ -290,6 +290,11 @@ protected:
 	static int lGetNumResourceRequiredForUnit(lua_State* L);
 	static int lGetNumResourceRequiredForBuilding(lua_State* L);
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	static int lGetNumResourceRequiredForImprovement(lua_State* L);
+	static int lGetNumResourceRequiredForRoute(lua_State* L);
+#endif
+
 	static int lIsCombatWarned(lua_State* L);
 	static int lSetCombatWarned(lua_State* L);
 

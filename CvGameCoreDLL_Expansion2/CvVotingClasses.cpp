@@ -992,6 +992,36 @@ int CvVoterDecision::GetVotesCastByPlayer(PlayerTypes ePlayer)
 	return iCount;
 }
 
+int CvVoterDecision::GetVotePercentageForOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost)
+{
+	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
+
+	int iTotalVotes = 0;
+	int iVotes = 0;
+
+	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
+	{
+		if (it->iChoice == iChoice)
+		{
+			iTotalVotes += it->iNumVotes;
+
+			if (it->ePlayer == eVoter)
+			{
+				iVotes += it->iNumVotes;
+			}
+		}
+		else if (!bChangeHost && it->ePlayer == eVoter)
+		{
+			iVotes -= it->iNumVotes;
+		}
+	}
+
+	if (iVotes <= 0)
+		return 0;
+
+	return (iVotes * 100) / max(iTotalVotes, 1);
+}
+
 LeagueHelpers::PlayerList CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 {
 	LeagueHelpers::PlayerList v;
@@ -1607,11 +1637,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		// Refresh trade routes
 		GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutes();
 
-		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
 				GET_PLAYER(eLoopPlayer).GetCorporations()->ClearCorporationFromForeignCities(true);
 			}
@@ -1622,11 +1652,10 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		CvAssertMsg(eTargetPlayer != NO_PLAYER, "Making an embargo on NO_PLAYER. Please send Anton your save file and version.");
 		// Refresh trade routes
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer, true);
-		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true);
+		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true, true);
 
-		CvCity* pLoopCity;
 		int iLoop;
-		for (pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromCity(pLoopCity, GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation(), true);
 		}
@@ -2766,20 +2795,9 @@ void CvLeague::DoProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer
 		}
 
 		// Proposals made by players could affect Diplomacy AI
-		LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(eResolution, eProposer, iChoice);
-		for (LeagueHelpers::PlayerList::iterator it = vLikers.begin(); it != vLikers.end(); ++it)
-		{
-			CvAssert((*it) != NO_PLAYER);
-			CvAssert(CanEverVote(*it));
-			GET_PLAYER(*it).GetDiplomacyAI()->SetTurnsSinceWeLikedTheirProposal(eProposer, 0);
-		}
-		LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(eResolution, eProposer, iChoice);
-		for (LeagueHelpers::PlayerList::iterator it = vDislikers.begin(); it != vDislikers.end(); ++it)
-		{
-			CvAssert((*it) != NO_PLAYER);
-			CvAssert(CanEverVote(*it));
-			GET_PLAYER(*it).GetDiplomacyAI()->SetTurnsSinceWeDislikedTheirProposal(eProposer, 0);
-		}
+		// Return values are discarded!
+		LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(eResolution, eProposer, iChoice, true);
+		LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(eResolution, eProposer, iChoice, true);
 	}
 	
 	CvEnactProposal proposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), eResolution, GetID(), eProposer, iChoice);
@@ -2814,23 +2832,12 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 				}
 
 				// Proposals made by players could affect Diplomacy AI
-				LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(iResolutionID, eProposer);
-				for (LeagueHelpers::PlayerList::iterator innerIt = vLikers.begin(); innerIt != vLikers.end(); ++innerIt)
-				{
-					CvAssert((*innerIt) != NO_PLAYER);
-					CvAssert(CanEverVote(*innerIt));
-					GET_PLAYER(*innerIt).GetDiplomacyAI()->SetTurnsSinceWeLikedTheirProposal(eProposer, 0);
-				}
-				LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(iResolutionID, eProposer);
-				for (LeagueHelpers::PlayerList::iterator innerIt = vDislikers.begin(); innerIt != vDislikers.end(); ++innerIt)
-				{
-					CvAssert((*innerIt) != NO_PLAYER);
-					CvAssert(CanEverVote(*innerIt));
-					GET_PLAYER(*innerIt).GetDiplomacyAI()->SetTurnsSinceWeDislikedTheirProposal(eProposer, 0);
-				}
+				// Return values are discarded!
+				LeagueHelpers::PlayerList vLikers = GetMembersThatLikeProposal(iResolutionID, eProposer, true);
+				LeagueHelpers::PlayerList vDislikers = GetMembersThatDislikeProposal(iResolutionID, eProposer, true);
 			}
 
-			CvRepealProposal proposal(it, eProposer);
+			CvRepealProposal proposal(&(*it), eProposer);
 			m_vRepealProposals.push_back(proposal);
 			iFound++;
 
@@ -2981,25 +2988,22 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			bValid = false;
 		}
 
-		if (MOD_BALANCE_CORE)
+		//projects can always be attempted
+		if (MOD_BALANCE_CORE && pInfo->GetLeagueProjectEnabled() == NO_LEAGUE_PROJECT)
 		{
 			for (EnactProposalList::iterator it = m_vLastTurnEnactProposals.begin(); it != m_vLastTurnEnactProposals.end(); it++)
 			{
 				if (it->GetType() == eResolution)
 				{
-					CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
-					if (pInfo != NULL)
+					if (it->GetProposerDecision()->GetDecision() == iChoice)
 					{
-						if (it->GetProposerDecision()->GetDecision() == iChoice)
+						if (sTooltipSink != NULL)
 						{
-							if (sTooltipSink != NULL)
-							{
-								(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-								(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION").toUTF8();
-								(*sTooltipSink) += "[ENDCOLOR]";
-							}
-							bValid = false;
+							(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+							(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION").toUTF8();
+							(*sTooltipSink) += "[ENDCOLOR]";
 						}
+						bValid = false;
 					}
 				}
 
@@ -3009,19 +3013,15 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			{
 				if (it->GetType() == eResolution)
 				{
-					CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
-					if (pInfo != NULL)
+					if (it->GetProposerDecision()->GetDecision() == iChoice)
 					{
-						if (it->GetProposerDecision()->GetDecision() == iChoice)
+						if (sTooltipSink != NULL)
 						{
-							if (sTooltipSink != NULL)
-							{
-								(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-								(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION").toUTF8();
-								(*sTooltipSink) += "[ENDCOLOR]";
-							}
-							bValid = false;
+							(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+							(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION").toUTF8();
+							(*sTooltipSink) += "[ENDCOLOR]";
 						}
+						bValid = false;
 					}
 				}
 			}
@@ -3891,7 +3891,7 @@ CvEnactProposal* CvLeague::GetEnactProposal(int iResolutionID)
 	{
 		if (it->GetID() == iResolutionID)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 	return NULL;
@@ -3913,7 +3913,7 @@ CvRepealProposal* CvLeague::GetRepealProposal(int iResolutionID)
 	{
 		if (it->GetID() == iResolutionID)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 	return NULL;
@@ -3936,9 +3936,9 @@ CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID, int iValue)
 		if (it->GetType() == iResolutionID)
 		{
 			if (iValue == -1)
-				return it;
+				return &(*it);
 			else if (iValue == it->GetProposerDecision()->GetDecision())
-				return it;
+				return &(*it);
 		}
 	}
 	return NULL;
@@ -4718,7 +4718,7 @@ int CvLeague::GetNumProposalsByMember(PlayerTypes ePlayer)
 	return iValue;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice)
+LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen)
 {
 	LeagueHelpers::PlayerList vMembersSupporting;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -4729,13 +4729,33 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(ResolutionTypes e
 			if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
 			{
 				vMembersSupporting.push_back(it->ePlayer);
+
+				// This proposal was chosen - how does this affect Diplomacy AI?
+				if (bChosen)
+				{
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, -1);
+
+					switch (eDesire)
+					{
+					case CvLeagueAI::DESIRE_ALWAYS:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
+						break;
+					case CvLeagueAI::DESIRE_STRONG_LIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
+						break;
+					case CvLeagueAI::DESIRE_LIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-15*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
+						break;
+					}
+				}
 			}
 		}
 	}
 	return vMembersSupporting;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver)
+LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen)
 {
 	LeagueHelpers::PlayerList vMembersSupporting;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -4746,13 +4766,33 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatLikeProposal(int iTargetResolu
 			if (eDesire > CvLeagueAI::DESIRE_WEAK_LIKE)
 			{
 				vMembersSupporting.push_back(it->ePlayer);
+
+				// This proposal was chosen - how does this affect Diplomacy AI?
+				if (bChosen)
+				{
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, -1);
+
+					switch (eDesire)
+					{
+					case CvLeagueAI::DESIRE_ALWAYS:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-45*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING());
+						break;
+					case CvLeagueAI::DESIRE_STRONG_LIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-30*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG());
+						break;
+					case CvLeagueAI::DESIRE_LIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*-15*/ GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL());
+						break;
+					}
+				}
 			}
 		}
 	}
 	return vMembersSupporting;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice)
+LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice, bool bChosen)
 {
 	LeagueHelpers::PlayerList vMembersDissuading;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -4763,13 +4803,33 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(ResolutionType
 			if (eDesire < CvLeagueAI::DESIRE_WEAK_DISLIKE)
 			{
 				vMembersDissuading.push_back(it->ePlayer);
+
+				// This proposal was chosen - how does this affect Diplomacy AI?
+				if (bChosen)
+				{
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, -1);
+
+					switch (eDesire)
+					{
+					case CvLeagueAI::DESIRE_NEVER:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
+						break;
+					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
+						break;
+					case CvLeagueAI::DESIRE_DISLIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*15*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
+						break;
+					}
+				}
 			}
 		}
 	}
 	return vMembersDissuading;
 }
 
-LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver)
+LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(int iTargetResolutionID, PlayerTypes eObserver, bool bChosen)
 {
 	LeagueHelpers::PlayerList vMembersDissuading;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -4780,6 +4840,26 @@ LeagueHelpers::PlayerList CvLeague::GetMembersThatDislikeProposal(int iTargetRes
 			if (eDesire < CvLeagueAI::DESIRE_WEAK_DISLIKE)
 			{
 				vMembersDissuading.push_back(it->ePlayer);
+
+				// This proposal was chosen - how does this affect Diplomacy AI?
+				if (bChosen)
+				{
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eObserver, GC.getGame().getGameTurn());
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eObserver, -1);
+
+					switch (eDesire)
+					{
+					case CvLeagueAI::DESIRE_NEVER:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*45*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING());
+						break;
+					case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*30*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG());
+						break;
+					case CvLeagueAI::DESIRE_DISLIKE:
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eObserver, /*15*/ GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL());
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -5148,6 +5228,10 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 				CvAssert(eEmbargoedMajor != NO_PLAYER);
 				if (eEmbargoedMajor == eTrader || eEmbargoedMajor == eRecipient)
 				{
+					//does not affect teammates
+					if (GET_PLAYER(eTrader).getTeam() == GET_PLAYER(eRecipient).getTeam())
+						continue;
+
 					//does not affect vassals
 					if (GET_TEAM(GET_PLAYER(eTrader).getTeam()).IsVassal(GET_PLAYER(eRecipient).getTeam()) || GET_TEAM(GET_PLAYER(eRecipient).getTeam()).IsVassal(GET_PLAYER(eTrader).getTeam()))
 						continue;
@@ -5835,10 +5919,10 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	{
 		eDecision = RESOLUTION_DECISION_REPEAL;
 	}
-	std::vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
+	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
 
 	// Discover what choices we can of the other players
-	FStaticVector< std::pair<PlayerTypes, int>, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> vMemberOpinions;
+	vector<pair<PlayerTypes, int>> vMemberOpinions;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
 		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
@@ -5852,13 +5936,13 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 			{
 				iMemberChoice = GET_PLAYER(it->ePlayer).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, GetRepealProposal(iResolutionID));
 			}
-			std::pair<PlayerTypes, int> pair = std::pair<PlayerTypes, int>(it->ePlayer, iMemberChoice);
-			vMemberOpinions.push_back(pair);
+			std::pair<PlayerTypes, int> pr = std::pair<PlayerTypes, int>(it->ePlayer, iMemberChoice);
+			vMemberOpinions.push_back(pr);
 		}
 	}
 
-	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
-	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
+	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
+	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
 	{
 		int iChoice = vChoices[iChoiceIndex];
@@ -6062,7 +6146,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 
 CvString CvLeague::GetMemberDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";
@@ -6081,7 +6165,7 @@ CvString CvLeague::GetMemberDetails(PlayerTypes eMember, PlayerTypes eObserver)
 
 CvString CvLeague::GetMemberDelegationDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";
@@ -6113,7 +6197,7 @@ CvString CvLeague::GetMemberDelegationDetails(PlayerTypes eMember, PlayerTypes e
 
 CvString CvLeague::GetMemberKnowledgeDetails(PlayerTypes eMember, PlayerTypes eObserver)
 {
-	if (!IsMember(eMember) || !IsMember(eObserver))
+	if (!IsMember(eMember) || (!IsMember(eObserver) && !GET_PLAYER(eObserver).isObserver()))
 	{
 		CvAssertMsg(false, "Attempting to get detail string for a player that is not a league member. Please send Anton your save file and version.");
 		return "";
@@ -6146,11 +6230,11 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 			s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_OPINIONS_VOTES").toUTF8();
 			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 			{
-				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, it, &s);
+				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, &(*it), &s);
 			}
 			for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); ++it)
 			{
-				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, it, &s);
+				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, &(*it), &s);
 			}
 		}
 		
@@ -6382,12 +6466,12 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 	// Ongoing resolution effects
 	ReligionTypes eWorldReligion = NO_RELIGION;
 	PolicyBranchTypes eWorldIdeology = NO_POLICY_BRANCH_TYPE;
-	FStaticVector<PlayerTypes, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> veEmbargoedPlayers;
-	FStaticVector<ResourceTypes, 32, true, c_eCiv5GameplayDLL> veBannedResources;
+	vector<PlayerTypes> veEmbargoedPlayers;
+	vector<ResourceTypes> veBannedResources;
 	CvResolutionEffects effects;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	FStaticVector<PlayerTypes, MAX_MINOR_CIVS, true, c_eCiv5GameplayDLL> veOpenMinors;
-	FStaticVector<PlayerTypes, MAX_MINOR_CIVS, true, c_eCiv5GameplayDLL> vePermanentMinors;
+	vector<PlayerTypes> veOpenMinors;
+	vector<PlayerTypes> vePermanentMinors;
 #endif
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
@@ -7134,7 +7218,6 @@ void CvLeague::CheckFinishSession()
 void CvLeague::FinishSession()
 {
 	PlayerTypes eOldHost = GetHostMember();
-	LeagueHelpers::PlayerList vSupportedNewHost;
 	int iTotalSessionVotes = GetVotesSpentThisSession();
 
 	// Find out if we have a recurring proposal
@@ -7170,14 +7253,23 @@ void CvLeague::FinishSession()
 			{
 				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
 				{
-					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheySupportedOurProposal(*playerIt, 0);
+					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
+						continue;
+
+					int iVotePercent = it->GetRepealDecision()->GetVotePercentageForOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+
+					if (iVotePercent > 0)
+					{
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
+					}
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				GET_PLAYER(eProposer).doInstantYield(INSTANT_YIELD_TYPE_PROPOSAL);
-#endif
 			}
 
-			DoRepealResolution(it);
+			DoRepealResolution(&(*it));
 		}
 		else
 		{
@@ -7186,12 +7278,22 @@ void CvLeague::FinishSession()
 			{
 				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
 				{
-					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheyFoiledOurProposal(*playerIt, 0);
+					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
+						continue;
+
+					int iVotePercent = it->GetRepealDecision()->GetVotePercentageForOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+
+					if (iVotePercent > 0)
+					{
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
+					}
 				}
 			}
 		}
 
-		LogProposalResolved(it);
+		LogProposalResolved(&(*it));
 	}
 	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
 	{
@@ -7209,20 +7311,42 @@ void CvLeague::FinishSession()
 			{
 				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
 				{
-					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheySupportedOurProposal(*playerIt, 0);
+					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
+						continue;
+
+					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+
+					if (iVotePercent > 0)
+					{
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
+					}
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				GET_PLAYER(eProposer).doInstantYield(INSTANT_YIELD_TYPE_PROPOSAL);
-#endif
 			}
 
-			if (it->GetEffects()->bChangeLeagueHost)
+			DoEnactResolution(&(*it));
+
+			// Host is grateful to people who helped him keep/gain his position
+			PlayerTypes eNewHost = GetHostMember();
+			if (it->GetEffects()->bChangeLeagueHost && !vHelpedOutcome.empty() && eNewHost != NO_PLAYER)
 			{
-				vSupportedNewHost.clear();
-				vSupportedNewHost = it->GetVoterDecision()->GetPlayersVotingForChoice(it->GetVoterDecision()->GetDecision());
-			}
+				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
+				{
+					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eNewHost).GetID())
+						continue;
 
-			DoEnactResolution(it);
+					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), true);
+
+					if (iVotePercent > 0)
+					{
+						GET_PLAYER(eNewHost).GetDiplomacyAI()->SetSupportedOurHostingValue(*playerIt, iVotePercent);
+						GET_PLAYER(eNewHost).GetDiplomacyAI()->SetTheySupportedOurHostingTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+					}
+				}
+			}
 		}
 		else
 		{
@@ -7231,7 +7355,17 @@ void CvLeague::FinishSession()
 			{
 				for (LeagueHelpers::PlayerList::iterator playerIt = vHelpedOutcome.begin(); playerIt != vHelpedOutcome.end(); ++playerIt)
 				{
-					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTurnsSinceTheyFoiledOurProposal(*playerIt, 0);
+					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
+						continue;
+
+					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+
+					if (iVotePercent > 0)
+					{
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
+					}
 				}
 			}
 
@@ -7265,18 +7399,9 @@ void CvLeague::FinishSession()
 			}
 		}
 
-		LogProposalResolved(it);
+		LogProposalResolved(&(*it));
 	}
 	PlayerTypes eNewHost = GetHostMember();
-
-	// A new host is grateful to people who helped him
-	if (!vSupportedNewHost.empty() && eNewHost != NO_PLAYER)
-	{
-		for (LeagueHelpers::PlayerList::iterator playerIt = vSupportedNewHost.begin(); playerIt != vSupportedNewHost.end(); ++playerIt)
-		{
-			GET_PLAYER(eNewHost).GetDiplomacyAI()->SetTurnsSinceTheySupportedOurHosting(*playerIt, 0);
-		}
-	}
 
 	// Update number of sessions held by consecutively by host
 	if (eNewHost == eOldHost)
@@ -7346,7 +7471,7 @@ void CvLeague::AssignProposalPrivileges()
 		if (CanEverPropose(it->ePlayer))
 		{
 			int iVotes = CalculateStartingVotesForMember(it->ePlayer);
-			vpPossibleProposers.push_back(it, iVotes);
+			vpPossibleProposers.push_back(&(*it), iVotes);
 		}
 		else
 		{
@@ -7568,11 +7693,11 @@ void CvLeague::NotifySessionDone()
 {
 	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
 	{
-		NotifyProposalResult(it);
+		NotifyProposalResult(&(*it));
 	}
 	for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); it++)
 	{
-		NotifyProposalResult(it);
+		NotifyProposalResult(&(*it));
 	}
 }
 
@@ -7727,7 +7852,7 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposalPlayer(), pProposal->GetProposerDecision()->GetDecision(), false, pProposal->IsPassed(iTotalSessionVotes));
 	}
 #endif
 
@@ -7979,7 +8104,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 	
 	// Which rewards do we get?
 	//antonjs: A switch statement in its natural habitat without break statements...a rare sight indeed
-	FStaticVector<LeagueProjectRewardTypes, NUM_CONTRIBUTION_TIERS, true, c_eCiv5GameplayDLL> veRewards;
+	vector<LeagueProjectRewardTypes> veRewards;
 	switch (eTier)
 	{
 	case CONTRIBUTION_TIER_3:
@@ -8086,7 +8211,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		// Free unit class
 		if (pRewardInfo->GetFreeUnitClass() != NO_UNITCLASS)
 		{
-			UnitTypes eUnit = (UnitTypes) GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(pRewardInfo->GetFreeUnitClass());
+			UnitTypes eUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(pRewardInfo->GetFreeUnitClass());
 			if (eUnit != NO_UNIT)
 			{
 				CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
@@ -8238,30 +8363,26 @@ void CvLeague::LogProposalResolved(CvRepealProposal* pProposal)
 
 CvLeague::Member* CvLeague::GetMember(PlayerTypes ePlayer)
 {
-	Member* pFound = NULL;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
 		if (it->ePlayer == ePlayer)
 		{
-			pFound = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pFound != NULL, "Could not retrieve member based on player ID. Please send Anton your save file and version.");
-	return pFound;
+	return NULL;
 }
 
 CvLeague::Project* CvLeague::GetProject(LeagueProjectTypes eLeagueProject)
 {
-	Project* pFound = NULL;
 	for (ProjectList::iterator it = m_vProjects.begin(); it != m_vProjects.end(); it++)
 	{
 		if (it->eType == eLeagueProject)
 		{
-			pFound = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pFound != NULL, "Could not retrieve project based on project type. Please send Anton your save file and version.");
-	return pFound;
+	return NULL;
 }
 
 // Serialization Read
@@ -8718,18 +8839,30 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 						
 						if (!bAllUsed)
 #endif
-						kPlayer.GetLeagueAI()->DoProposals(it);
+						kPlayer.GetLeagueAI()->DoProposals(&(*it));
 					}
 				}
 				// Call for Votes and other Session actions
 				else if (it->IsInSession())
 				{
 					// Honor vote commitments made in deals before spending any other votes
-					kPlayer.GetLeagueAI()->DoVoteCommitments(it);
+					kPlayer.GetLeagueAI()->DoVoteCommitments(&(*it));
 
 					// Allocate free votes
 					if (it->CanVote(kPlayer.GetID()))
 					{
+						if (kPlayer.IsVassalOfSomeone())
+						{
+							for (EnactProposalList::iterator it2 = it->m_vEnactProposals.begin(); it2 != it->m_vEnactProposals.end(); ++it2)
+							{
+								if (it2->GetEffects()->bDiplomaticVictory)
+								{
+									kPlayer.GetLeagueAI()->DoAbstainAllVotes(&(*it));
+									return;
+								}
+							}
+						}
+
 						if (it->IsAnythingProposed())
 						{
 							if (kPlayer.isHuman())
@@ -8760,12 +8893,12 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 								if (!bAllUsed)
 #endif
 								
-								kPlayer.GetLeagueAI()->DoVotes(it);
+								kPlayer.GetLeagueAI()->DoVotes(&(*it));
 							}
 						}
 						else
 						{
-							kPlayer.GetLeagueAI()->DoAbstainAllVotes(it);
+							kPlayer.GetLeagueAI()->DoAbstainAllVotes(&(*it));
 						}
 					}
 				}
@@ -8926,27 +9059,22 @@ void CvGameLeagues::SetLastEraTrigger(EraTypes eEraTrigger)
 
 CvLeague* CvGameLeagues::GetLeague(LeagueTypes eLeague)
 {
-	CvLeague* pLeague = NULL;
 	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
 	{
 		if (it->GetID() == eLeague)
 		{
-			pLeague = it;
+			return &(*it);
 		}
 	}
-	CvAssertMsg(pLeague != NULL, "CvLeague is NULL. Please send Anton your save file and version.");
-	return pLeague;
+	return NULL;
 }
 
 CvLeague* CvGameLeagues::GetActiveLeague()
 {
-	CvLeague* pLeague = NULL;
-	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
-	{
-		pLeague = it;
-	}
-	CvAssertMsg(GetNumActiveLeagues() == 0 || GetNumActiveLeagues() == 1, "Unexpected number of active leagues. Please send Anton your save file and version.");
-	return pLeague;
+	if (m_vActiveLeagues.empty())
+		return NULL;
+	else
+		return &m_vActiveLeagues.front();
 }
 
 int CvGameLeagues::GenerateResolutionUniqueID()
@@ -9954,11 +10082,7 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 }
 
 // How much do we like this vote commitment (either from us to someone else, or from someone else to us)?
-#if defined(MOD_BUGFIX_MINOR)
 CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal)
-#else
-CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal)
-#endif
 {
 	DEBUG_VARIABLE(iNumVotes);
 	DesireLevels eValue = DESIRE_NEVER;
@@ -9980,7 +10104,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(it, iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
 							break;
 						}
 					}
@@ -9993,7 +10117,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(it, iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
 							break;
 						}
 					}
@@ -10034,7 +10158,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateProposalForProposer(CvLeague* pLeag
 	{
 		if (it->GetID() == iTargetResolutionID)
 		{
-			eDesire = EvaluateDesire(ScoreProposal(pLeague, it));
+			eDesire = EvaluateDesire(ScoreProposal(pLeague, &(*it)));
 			bFound = true;
 			break;
 		}
@@ -10045,8 +10169,10 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateProposalForProposer(CvLeague* pLeag
 }
 
 // Calculate how much we think our interests are aligned with ePlayer, based on ideology, liberation, past voting patterns, etc.
-CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
+CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar, bool bNoAutomaticMasterAlignment)
 {
+	int iAlignment = 0;
+
 	if (ePlayer == NO_PLAYER)
 	{
 		return ALIGNMENT_NEUTRAL;
@@ -10080,102 +10206,332 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 	}
 	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 	{
-		return ALIGNMENT_WAR;
+		if (!bIgnoreWar)
+		{
+			return ALIGNMENT_WAR;
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsAggressor(GetPlayer()->GetID()))
+			{
+				iAlignment -= 2;
+			}
+			else
+			{
+				iAlignment -= 1;
+			}
+		}
 	}
 
-	int iAlignment = 0;
+	CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
+	bool bUntrustworthy = pDiplo->IsUntrustworthy(ePlayer);
 
 	// Ideology
 	PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 	if (eOurIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE)
 	{
-		if (eOurIdeology == eTheirIdeology)
+		int iIdeologyMod = 0;
+
+		if (eOurIdeology == eTheirIdeology && !bUntrustworthy)
 		{
-			iAlignment += 2;
+			iIdeologyMod += 2;
 		}
-		else
+		else if (!pDiplo->IsIgnoreIdeologyDifferences(ePlayer))
 		{
-			iAlignment += -2;
+			iIdeologyMod -= 2;
 		}
+
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL)
+		{
+			// Is this the World Ideology?
+			if ((pLeague->GetPressureForIdeology(eOurIdeology) > 0) || (pLeague->GetPressureForIdeology(eTheirIdeology) > 0))
+			{
+				iIdeologyMod *= 2;
+			}
+		}
+
+		// Are either of us a vassal?
+		if (GetPlayer()->IsVassalOfSomeone())
+		{
+			iIdeologyMod /= 2;
+		}
+		if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
+		{
+			iIdeologyMod /= 2;
+		}
+
+		iAlignment += iIdeologyMod;
+	}
+
+	// Religion
+	ReligionTypes eOurReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false) != NO_RELIGION ? GetPlayer()->GetReligions()->GetCurrentReligion(false) : GetPlayer()->GetReligions()->GetReligionInMostCities();
+	ReligionTypes eTheirReligion = (GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION && GC.getGame().GetGameReligions()->HasAnyDomesticCityFollowing(GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false), ePlayer)) ? GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) : GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	if (eOurReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
+	{
+		int iReligionMod = 0;
+
+		if (eOurReligion == eTheirReligion && !bUntrustworthy && !pDiplo->IsHolyCityCapturedBy(ePlayer))
+		{
+			iReligionMod += 1;
+		}
+		else if (!pDiplo->IsIgnoreReligionDifferences(ePlayer))
+		{
+			iReligionMod -= 1;
+		}
+
+		// Is this the World Religion?
+		if ((GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirReligion) > 0) || (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(GetPlayer()->GetID(), eOurReligion) > 0))
+		{
+			iReligionMod *= 2;
+		}
+
+		iAlignment += iReligionMod;
 	}
 
 	// Did they help us become host?
-	if (GetPlayer()->GetDiplomacyAI()->GetSupportedMyHostingScore(ePlayer) != 0)
+	if (pDiplo->GetSupportedMyHostingScore(ePlayer) != 0)
 	{
 		iAlignment += 2;
 	}
 
 	// Do we like their proposals or votes?
-	if (GetPlayer()->GetDiplomacyAI()->GetLikedTheirProposalScore(ePlayer) != 0 ||
-		GetPlayer()->GetDiplomacyAI()->GetSupportedMyProposalScore(ePlayer) != 0)
+	if (pDiplo->GetLikedTheirProposalScore(ePlayer) < 0)
 	{
 		iAlignment += 2;
 	}
-	if (GetPlayer()->GetDiplomacyAI()->GetDislikedTheirProposalScore(ePlayer) != 0 ||
-		GetPlayer()->GetDiplomacyAI()->GetFoiledMyProposalScore(ePlayer) != 0)
+	else if (pDiplo->GetDislikedTheirProposalScore(ePlayer) > 0)
 	{
-		iAlignment += -2;
+		iAlignment -= 2;
 	}
 
-	// DoF or Denounce
-	if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+	// Have they supported our proposals?
+	int iSupportedOurProposalScore = pDiplo->GetSupportedOurProposalScore(ePlayer);
+	if (iSupportedOurProposalScore > 0)
 	{
-		iAlignment += 1;
-	}
-	if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
-	{
-		iAlignment += -1;
-	}
-
-	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-	{
-		if(GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+		if (pDiplo->IsFoiledOurProposalAndThenSupportedUs(ePlayer))
 		{
-			iAlignment += ALIGNMENT_SELF;
+			iAlignment -= 1;
 		}
 		else
 		{
-			switch (GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(ePlayer))
-			{
-				case VASSAL_TREATMENT_CONTENT:
-					iAlignment += ALIGNMENT_ALLY;
-					break;
-				case VASSAL_TREATMENT_DISAGREE:
-					iAlignment += ALIGNMENT_NEUTRAL;
-					break;
-				case VASSAL_TREATMENT_MISTREATED:
-					iAlignment += 1;
-					break;
-				case VASSAL_TREATMENT_UNHAPPY:
-					iAlignment += -1;
-					break;
-				case VASSAL_TREATMENT_ENSLAVED:
-					iAlignment += -2;
-					break;
-			}
+			iAlignment -= 2;
 		}
 	}
-#endif
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	else if (iSupportedOurProposalScore < 0)
 	{
-		iAlignment += -1;
+		if (pDiplo->IsSupportedOurProposalAndThenFoiledUs(ePlayer))
+		{
+			iAlignment += 1;
+		}
+		else
+		{
+			iAlignment += 2;
+		}
 	}
-#endif
 
-	// Opinion and approach
-	MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-	if (eOpinion > MAJOR_CIV_OPINION_NEUTRAL || eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+	// DoF or Denounce
+	if (pDiplo->IsDenouncedPlayer(ePlayer) || pDiplo->IsDenouncedByPlayer(ePlayer))
+	{
+		iAlignment -= 2;
+	}
+	else if ((pDiplo->IsDoFAccepted(ePlayer) || pDiplo->IsWantsDoFWithPlayer(ePlayer)) && !pDiplo->IsWantsToEndDoFWithPlayer(ePlayer))
+	{
+		switch (pDiplo->GetDoFType(ePlayer))
+		{
+		case DOF_TYPE_FRIENDS:
+			iAlignment += 1;
+			break;
+		case DOF_TYPE_ALLIES:
+			iAlignment += 2;
+			break;
+		case DOF_TYPE_BATTLE_BROTHERS:
+			iAlignment += 3;
+			break;
+		}
+	}
+
+	// Defensive Pact?
+	if (pDiplo->IsHasDefensivePact(ePlayer) && !pDiplo->IsWantsToEndDefensivePactWithPlayer(ePlayer))
 	{
 		iAlignment += 1;
 	}
-	else if (eOpinion <= MAJOR_CIV_OPINION_ENEMY || eApproach == MAJOR_CIV_APPROACH_HOSTILE)
+
+	// Current vassal?
+	if (pDiplo->IsVassal(ePlayer))
 	{
-		iAlignment += -1;
+		VassalTreatmentTypes eTreatmentLevel = pDiplo->GetVassalTreatmentLevel(ePlayer);
+
+		if (pDiplo->IsVoluntaryVassalage(ePlayer))
+		{
+			switch (eTreatmentLevel)
+			{
+			case VASSAL_TREATMENT_CONTENT:
+				if (bNoAutomaticMasterAlignment)
+					iAlignment += 4;
+				else
+					return ALIGNMENT_LEADER;
+				break;
+			case VASSAL_TREATMENT_DISAGREE:
+				if (bNoAutomaticMasterAlignment)
+					iAlignment += 2;
+				else
+					return ALIGNMENT_ALLY;
+				break;
+			case VASSAL_TREATMENT_MISTREATED:
+				if (bNoAutomaticMasterAlignment)
+					iAlignment -= 2;
+				else
+					return ALIGNMENT_NEUTRAL;
+				break;
+			case VASSAL_TREATMENT_UNHAPPY:
+				iAlignment -= bNoAutomaticMasterAlignment ? 3 : 2;
+				break;
+			case VASSAL_TREATMENT_ENSLAVED:
+				iAlignment -= bNoAutomaticMasterAlignment ? 5 : 3;
+				break;
+			}
+		}
+		else
+		{
+			switch (eTreatmentLevel)
+			{
+			case VASSAL_TREATMENT_CONTENT:
+				if (bNoAutomaticMasterAlignment)
+					iAlignment += 2;
+				else
+					return ALIGNMENT_ALLY;
+				break;
+			case VASSAL_TREATMENT_DISAGREE:
+				if (bNoAutomaticMasterAlignment)
+					iAlignment -= 1;
+				else
+					return ALIGNMENT_NEUTRAL;
+				break;
+			case VASSAL_TREATMENT_MISTREATED:
+				iAlignment -= bNoAutomaticMasterAlignment ? 4 : 2;
+				break;
+			case VASSAL_TREATMENT_UNHAPPY:
+				iAlignment -= bNoAutomaticMasterAlignment ? 5 : 3;
+				break;
+			case VASSAL_TREATMENT_ENSLAVED:
+				iAlignment -= bNoAutomaticMasterAlignment ? 10 : 5;
+				break;
+			}
+		}
+	}
+	else
+	{
+		// Previous vassalage?
+		if (pDiplo->IsMasterLiberatedMeFromVassalage(ePlayer))
+		{
+			iAlignment += 2;
+		}
+		else if (pDiplo->IsHappyAboutPlayerVassalagePeacefullyRevoked(ePlayer))
+		{
+			iAlignment += 1;
+		}
+		else if (pDiplo->IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
+		{
+			iAlignment -= 1;
+		}
+	}
+
+	// Competing for City-States?
+	if (pDiplo->GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || pDiplo->GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
+	{
+		iAlignment -= 2;
+
+		// Big deal if we're diplomatic...
+		if (pDiplo->IsCompetingForVictory() && (GetPlayer()->GetPlayerTraits()->IsDiplomat() || pDiplo->IsDiplomat() || pDiplo->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC))
+		{
+			iAlignment -= 4;
+		}
+	}
+
+	// Opinion and approach
+	switch (pDiplo->GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_UNFORGIVABLE:
+	case MAJOR_CIV_OPINION_ENEMY:
+		iAlignment -= 2;
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		iAlignment -= 1;
+		break;
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		iAlignment += 0;
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+	case MAJOR_CIV_OPINION_FRIEND:
+		iAlignment += 1;
+		break;
+	case MAJOR_CIV_OPINION_ALLY:
+		iAlignment += 2;
+		break;
+	}
+
+	switch (pDiplo->GetMajorCivApproach(ePlayer))
+	{
+	case MAJOR_CIV_APPROACH_WAR:
+	case MAJOR_CIV_APPROACH_HOSTILE:
+		iAlignment -= 2;
+		break;
+	case MAJOR_CIV_APPROACH_DECEPTIVE:
+	case MAJOR_CIV_APPROACH_GUARDED:
+		iAlignment -= 1;
+		break;
+	case MAJOR_CIV_APPROACH_AFRAID:
+	case MAJOR_CIV_APPROACH_NEUTRAL:
+		iAlignment += 0;
+		break;
+	case MAJOR_CIV_APPROACH_FRIENDLY:
+		iAlignment += 1;
+		break;
+	}
+
+	// Backstabber?
+	if (bUntrustworthy)
+	{
+		iAlignment -= 2;
+
+		// A personal betrayal is worse!
+		if (pDiplo->IsFriendDeclaredWarOnUs(ePlayer) || pDiplo->IsFriendDenouncedUs(ePlayer) || pDiplo->IsPlayerBrokenVassalAgreement(ePlayer) || pDiplo->IsResurrectorAttackedUs(ePlayer))
+		{
+			iAlignment -= 2;
+		}
+		else if (pDiplo->IsPlayerBrokenMilitaryPromise(ePlayer) || pDiplo->IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		{
+			iAlignment -= 1;
+		}
+	}
+	// Liberator?
+	else if (pDiplo->IsPlayerLiberatedCapital(ePlayer) || pDiplo->IsPlayerLiberatedHolyCity(ePlayer))
+	{
+		if (!pDiplo->IsCompetingForVictory() && !bUntrustworthy && !GetPlayer()->IsAtWarWith(ePlayer))
+		{
+			return ALIGNMENT_LIBERATOR;
+		}
+
+		iAlignment += 2;
+	}
+	else if (!bUntrustworthy && !GetPlayer()->IsAtWarWith(ePlayer))
+	{
+		if (pDiplo->IsPlayerReturnedCapital(ePlayer) || pDiplo->IsPlayerReturnedHolyCity(ePlayer))
+		{
+			iAlignment += 1;
+		}
+		if (pDiplo->GetNumCitiesLiberatedBy(ePlayer) > 0 && pDiplo->GetNumCitiesCapturedBy(ePlayer) <= 0)
+		{
+			iAlignment += 1;
+		}
+	}
+
+	// Captured some of our cities before?
+	if (pDiplo->GetNumCitiesCapturedBy(ePlayer) > 0)
+	{
+		iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
 	}
 
 	AlignmentLevels eAlignment = ALIGNMENT_NEUTRAL;
@@ -10212,6 +10568,9 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 
 CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
+	// Teammates or Debug Mode
+	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
+
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = GET_PLAYER(eToPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -10232,7 +10591,7 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 	}
 
 	// Exceptions
-	if (DEBUG_LEAGUES)
+	if (bOverride)
 	{
 		eKnowledge = KNOWLEDGE_INTIMATE;
 	}
@@ -10258,14 +10617,17 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 			(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_NONE").toUTF8();
 			break;
 		}
-		
-		if (bShareIdeology)
+
+		if (!bOverride && !GetPlayer()->isHuman())
 		{
-			(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_IDEOLOGY").toUTF8();
-		}
-		else
-		{
-			(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_NO_IDEOLOGY").toUTF8();
+			if (bShareIdeology)
+			{
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_IDEOLOGY").toUTF8();
+			}
+			else
+			{
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_INTRIGUE_NO_IDEOLOGY").toUTF8();
+			}
 		}
 
 		if (bSpyVisitingUs)
@@ -10692,7 +11054,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			iOurResolutionID = it->GetID();
 		}
 
-		FindBestVoteChoices(it, vConsiderations);
+		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 	RepealProposalList vRepealProposals = pLeague->GetRepealProposals();
 	for (RepealProposalList::iterator it = vRepealProposals.begin(); it != vRepealProposals.end(); ++it)
@@ -10703,7 +11065,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			iFocusResolutionID = it->GetID();
 		}
 
-		FindBestVoteChoices(it, vConsiderations);
+		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 
 	if (vConsiderations.size() > 0)
@@ -11117,15 +11479,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	{
 		eTargetCityState = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
 	}
-	PlayerTypes eProposer = pProposal->GetProposalPlayer();
 #endif
+	PlayerTypes eProposer = pProposal->GetProposalPlayer();
 
 	// == Grand Strategy ==
-	AIGrandStrategyTypes eGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-	bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
+	bool bSeekingConquestVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	bool bSeekingCultureVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
+	bool bSeekingScienceVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_SCIENCE;
 
 	// == Gameplay Effects ==
 	// International Projects
@@ -11331,10 +11692,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Embargo City-States
 	if (pProposal->GetEffects()->bEmbargoCityStates)
 	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
 		// Trade connections
 		int iCSDestinations = 0;
 		int iCSPartners = 0;
-		int iCivEmbargos = 0;
 		int iCivDestinations = 0;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		int iCSApproachWar = 0;
@@ -11364,11 +11726,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iCSPartners++;
 					}
 				}
-				else if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetPlayer()->GetID(), e))
-				{
-					iCivEmbargos++;
-				}
-				else
+				else if (pLeague != NULL && !pLeague->IsTradeEmbargoed(GetPlayer()->GetID(), e))
 				{
 					iCivDestinations += GET_PLAYER(e).getNumCities();
 				}
@@ -11444,72 +11802,155 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// Major Civ relations
 		if (eTargetPlayer == GetPlayer()->GetID())
 		{
-			
-#if defined(MOD_BALANCE_CORE)
-			iScore += -1000;
-#else
-			iScore += -100;
-#endif
+			iScore -= 1000;
 		}
 		else if (GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
 		{
-#if defined(MOD_BALANCE_CORE)
-			iScore += -500;
-#else
-			iScore += -70;
-#endif
+			iScore -= 700;
 		}
-		else if (!GET_PLAYER(eTargetPlayer).isMinorCiv())
+		else if (GET_PLAYER(eTargetPlayer).isMajorCiv())
 		{
-			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer);
-			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer);
-			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
+			if (bSeekingConquestVictory)
+			{
+				iScore += 50;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) >= THREAT_SEVERE)
+			{
+				iScore += 50;
+			}
+
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 			{
-				iScore += 30;
+				iScore += 100;
 			}
-			else if (eWarmongerThreat >= THREAT_SEVERE)
+			else if (GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eTargetPlayer))
 			{
-				iScore += 30;
+				iScore += 100;
 			}
-			else if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR || eApproach < MAJOR_CIV_APPROACH_GUARDED)
+			else if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eTargetPlayer))
 			{
-				iScore += 30;
-			}
-			else if (eOpinion == MAJOR_CIV_OPINION_ALLY)
-			{
-				iScore += -400;
+				iScore += 50;
 			}
 			else
 			{
-				iScore += -100;
+				switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer))
+				{
+				case MAJOR_CIV_APPROACH_WAR:
+				case MAJOR_CIV_APPROACH_HOSTILE:
+					iScore += 50;
+					break;
+				case MAJOR_CIV_APPROACH_DECEPTIVE:
+				case MAJOR_CIV_APPROACH_GUARDED:
+					iScore += 30;
+					break;
+				case MAJOR_CIV_APPROACH_AFRAID:
+					iScore += 15;
+					break;
+				case MAJOR_CIV_APPROACH_NEUTRAL:
+					iScore -= 50;
+					break;
+				case MAJOR_CIV_APPROACH_FRIENDLY:
+					iScore -= 100;
+					break;
+				}
 			}
 
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BALANCE_CORE) {
-				//Ideological opponent
-				PolicyBranchTypes ePlayerIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
-				PolicyBranchTypes eSanctionIdeology = GET_PLAYER(eTargetPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-				if(ePlayerIdeology != eSanctionIdeology)
+			switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer))
+			{
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				iScore += 100;
+				break;
+			case MAJOR_CIV_OPINION_ENEMY:
+				iScore += 50;
+				break;
+			case MAJOR_CIV_OPINION_COMPETITOR:
+				iScore += 30;
+				break;
+			case MAJOR_CIV_OPINION_NEUTRAL:
+				iScore -= 10;
+				break;
+			case MAJOR_CIV_OPINION_FAVORABLE:
+				iScore -= 30;
+				break;
+			case MAJOR_CIV_OPINION_FRIEND:
+				iScore -= 50;
+				break;
+			case MAJOR_CIV_OPINION_ALLY:
+				iScore -= 200;
+				break;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsWantsToEndDoFWithPlayer(eTargetPlayer))
+			{
+				iScore -= 150;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsWantsToEndDefensivePactWithPlayer(eTargetPlayer))
+			{
+				iScore -= 50;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eTargetPlayer))
+			{
+				iScore -= 1000;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsPlayerSameIdeology(eTargetPlayer))
+			{
+				iScore -= 50;
+			}
+			else if (GetPlayer()->GetDiplomacyAI()->IsPlayerOpposingIdeology(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eTargetPlayer))
+			{
+				iScore += 50;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsPlayerSameReligion(eTargetPlayer))
+			{
+				iScore -= 25;
+			}
+			else if (GetPlayer()->GetDiplomacyAI()->IsPlayerOpposingReligion(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsIgnoreReligionDifferences(eTargetPlayer))
+			{
+				iScore += 25;
+			}
+
+			if (GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
+			{
+				switch (GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eTargetPlayer))
 				{
+				case VASSAL_TREATMENT_CONTENT:
+					iScore -= 200;
+					break;
+				case VASSAL_TREATMENT_DISAGREE:
+					iScore -= 50;
+					break;
+				case VASSAL_TREATMENT_MISTREATED:
 					iScore += 50;
-				}
-				if(bSeekingConquestVictory)
-				{
-					iScore += 50;
-				}
-				if(GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eTargetPlayer))
-				{
-					iScore += 50;
+					break;
+				case VASSAL_TREATMENT_UNHAPPY:
+					iScore += 200;
+					break;
+				case VASSAL_TREATMENT_ENSLAVED:
+					iScore += 500;
+					break;
 				}
 			}
-#endif
+
 			// Trade connections
-			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer))
+			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer, true))
 			{
 				int iFactor = -50;
-				iScore += MAX(-50, GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer) * iFactor);
+				iScore += min(-50, (GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * iFactor));
 			}
+
+			// Deals with them
+			int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer);
+
+			// Scale based on personality - how much do we care about trade loyalty? 
+			iTradeDealValue *= (GetPlayer()->GetDiplomacyAI()->GetLoyalty() + GetPlayer()->GetDiplomacyAI()->GetDiploBalance());
+			iTradeDealValue /= 100;
+
+			iScore -= iTradeDealValue;
 
 			// Player Trait making routes to them valuable (Morocco)
 			for (int i = 0; i < NUM_YIELD_TYPES; i++)
@@ -11528,14 +11969,63 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore += -100;
 			}
 
+			if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eTargetPlayer) || GetPlayer()->GetDiplomacyAI()->IsDenouncedByPlayer(eTargetPlayer))
+			{
+				iScore += 50;
+			}
+
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == eTargetPlayer)
 			{
 				iScore += 250;
 			}
-
-			if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+			else if (GetPlayer()->GetDiplomacyAI()->IsMajorCompetitor(eTargetPlayer))
 			{
-				iScore += 1000;
+				iScore += 100;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(eTargetPlayer))
+			{
+				iScore += 500;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory())
+			{
+				if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+				{
+					iScore += 1000;
+				}
+
+				switch (GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer))
+				{
+				case DISPUTE_LEVEL_FIERCE:
+					iScore += 100;
+					break;
+				case DISPUTE_LEVEL_STRONG:
+					iScore += 75;
+					break;
+				case DISPUTE_LEVEL_WEAK:
+					iScore += 50;
+					break;
+				case DISPUTE_LEVEL_NONE:
+					iScore -= 30;
+					break;
+				}
+
+				switch (GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eTargetPlayer))
+				{
+				case BLOCK_LEVEL_FIERCE:
+					iScore += 50;
+					break;
+				case BLOCK_LEVEL_STRONG:
+					iScore += 40;
+					break;
+				case BLOCK_LEVEL_WEAK:
+					iScore += 30;
+					break;
+				case BLOCK_LEVEL_NONE:
+					iScore -= 15;
+					break;
+				}
 			}
 		}
 	}
@@ -11646,30 +12136,208 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	if (pProposal->GetEffects()->iUnitMaintenanceGoldPercent != 0)
 	{
 		int iFactor = (pProposal->GetEffects()->iUnitMaintenanceGoldPercent > 0) ? 1 : -1;
-		if (bSeekingConquestVictory)
+
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		{
-			iScore += -50 * iFactor;
-		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
-			if(!bSeekingConquestVictory)
+			// This is the Global Peace Accords resolution - we reverse the logic of Casus Belli!
+			if (iFactor == 1)
 			{
-				iScore += 75;
-			}
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+				int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
+				if (iPersonalityMod > 0)
 				{
-					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					iScore += (iPersonalityMod * 10);
+				}
+				else
+				{
+					iScore -= (iPersonalityMod * 15);
+				}
+
+				// Factor in our diplo personality
+				if (pDiploAI->IsConqueror())
+				{
+					iScore -= 50;
+				}
+				else if (pDiploAI->IsDiplomat())
+				{
+					iScore += 50;
+				}
+
+				// Factor in our UA
+				if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+				{
+					iScore -= 100;
+				}
+				else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+				{
+					iScore += 100;
+				}
+				if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+				{
+					iScore -= 50;
+				}
+				else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+				{
+					iScore += 100;
+				}
+
+				// Attractive to us if we've lost a lot from war!
+				if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
+				{
+					iScore += 500;
+				}
+				else
+				{
+					int iProWar = 0;
+					int iProPeace = 0;
+
+					iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
+					iProWar += GetPlayer()->GetNumCapitalCities();
+
+					// Most vassals don't want a world war
+					if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
+						iProPeace += 5;
+
+					if (bSeekingConquestVictory)
+						iProWar += 2;
+					else
+						iProPeace += 2;
+
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						iScore += -100;
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
+							iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
+
+							// At war
+							if (GetPlayer()->IsAtWarWith(eLoopPlayer))
+							{
+								// Losing?
+								if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+								{
+									iProPeace++;
+
+									if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
+									{
+										iProPeace++;
+									}
+								}
+								// Winning?
+								else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
+								{
+									iProWar++;
+
+									if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
+									{
+										iProWar++;
+									}
+
+									if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+									{
+										iProWar++;
+									}
+								}
+							}
+							// If WE have high warmonger penalties, we want to burn them off
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
+							{
+								iProWar++;
+							}
+							// If they have high warmonger penalties, don't want them to burn them off
+							if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
+							{
+								iProPeace++;
+							}
+							// Plotting against them?
+							if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+							{
+								iProWar++;
+							}
+							// Afraid of them?
+							else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+							{
+								iProPeace++;
+							}
+							// Reckless expander / wonder spammer?
+							if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
+							{
+								iProWar++;
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
+							{
+								iProPeace++;
+							}
+							if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
+							{
+								iProWar++;
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
+							{
+								iProPeace++;
+							}
+							// Close to victory?
+							if (pDiploAI->IsCloseToAnyVictoryCondition())
+							{
+								if (pDiploAI->IsCloseToDominationVictory())
+								{
+									iProWar += 5;
+								}
+								else
+								{
+									iProPeace += 2;
+								}
+							}
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+							{
+								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+								{
+									iProPeace += 5;
+								}
+								else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
+								{
+									iProWar += 5;
+								}
+							}
+
+							// Look at relative power
+							if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+							{
+								if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
+								{
+									iProWar++;
+								}
+								if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
+								{
+									iProWar++;
+								}
+							}
+							if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
+							{
+								iProPeace++;
+							}
+
+							if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
+							{
+								iProPeace++;
+							}
+						}
 					}
+
+					iScore -= (iProWar * 25);
+					iScore += (iProPeace * 25);
 				}
 			}
 		}
-#endif
+		else
+		{
+			if (bSeekingConquestVictory)
+			{
+				iScore += -50 * iFactor;
+			}
+		}
 
 		// What is the ratio of our current maintenance costs to our gross GPT?
 		int iUnitMaintenance = GetPlayer()->GetTreasury()->GetExpensePerTurnUnitMaintenance();
@@ -11757,27 +12425,95 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore = (-1000 * GET_TEAM(eTeam).GetNumVassals());
 				bValid = true;
 			}
+			else if (GetPlayer()->IsVassalOfSomeone())
+			{
+				bValid = true;
+				TeamTypes eMasterTeam = GET_TEAM(GetPlayer()->getTeam()).GetMaster();
+				vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
+
+				for (size_t i=0; i<vMasterTeam.size(); i++)
+				{
+					PlayerTypes eMaster = (PlayerTypes) vMasterTeam[i];
+
+					if (GET_PLAYER(eMaster).isAlive())
+					{
+						if (GET_PLAYER(eMaster).IsVassalsNoRebel())
+						{
+							iScore = 0;
+							break;
+						}
+
+						VassalTreatmentTypes eVassalTreatmentLevel = GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eMaster);
+
+						if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eMaster))
+						{
+							iScore -= 500;
+						}
+
+						if (GetPlayer()->GetDiplomacyAI()->IsVoluntaryVassalage(eMaster))
+						{
+							switch (eVassalTreatmentLevel)
+							{
+							case VASSAL_TREATMENT_CONTENT:
+								iScore -= 1000;
+								break;
+							case VASSAL_TREATMENT_DISAGREE:
+								iScore -= 500;
+								break;
+							case VASSAL_TREATMENT_MISTREATED:
+								iScore += 500;
+								break;
+							case VASSAL_TREATMENT_UNHAPPY:
+								iScore += 1000;
+								break;
+							case VASSAL_TREATMENT_ENSLAVED:
+								iScore += 2000;
+								break;
+							}
+						}
+						else
+						{
+							switch (eVassalTreatmentLevel)
+							{
+							case VASSAL_TREATMENT_CONTENT:
+								iScore -= 500;
+								break;
+							case VASSAL_TREATMENT_DISAGREE:
+								iScore -= 100;
+								break;
+							case VASSAL_TREATMENT_MISTREATED:
+								iScore += 500;
+								break;
+							case VASSAL_TREATMENT_UNHAPPY:
+								iScore += 2000;
+								break;
+							case VASSAL_TREATMENT_ENSLAVED:
+								iScore += 5000;
+								break;
+							}
+						}
+					}
+				}
+			}
 			else
 			{
 				//No vassals? Let's see how we feel about other vassals out there...
-				TeamTypes eLoopTeam;
-				for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
+				for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 				{
-					eLoopTeam = (TeamTypes) iTeamLoop;
+					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
 
 					if (GET_TEAM(eTeam).isAlive())
 					{
 						if(eLoopTeam != NO_TEAM && eLoopTeam != eTeam && GET_TEAM(eLoopTeam).GetNumVassals() > 0)
 						{
-							PlayerTypes eLoopPlayer;
-							for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 							{
-								eLoopPlayer = (PlayerTypes) iPlayerLoop;
-								if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+								PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+								if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 								{
 									//The Master
 									MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 
 									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 									{
@@ -11834,15 +12570,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 												break;
 										}
 
-										PlayerTypes eLoopPlayer2;
-										for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+										for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 										{
-											eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
+											PlayerTypes eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
 											if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer2).getTeam()).GetMaster() == eLoopPlayer)
 											{
 												//The Master
 												MajorCivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer2);
-												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2, /*bHideTrueFeelings*/ true);
+												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2);
 												int iTempScore = 0;
 												switch (eOpinion2)
 												{
@@ -11934,12 +12669,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
-#if defined(MOD_BALANCE_CORE)
 				iScore += -100;
-#else
-				iScore += -30;
-#endif
-				
 			}
 		}
 		// At or worse than average
@@ -11949,11 +12679,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
-#if defined(MOD_BALANCE_CORE)
 				iScore += 500;
-#else
-				iScore += 40;
-#endif
 			}
 		}
 	}
@@ -11977,12 +12703,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -35;
 		if (iNumNaturalWonders > 0)
 		{
-			int iFactor = bSeekingCultureVictory ? 20 : 15;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BALANCE_CORE) {
-				iFactor = bSeekingCultureVictory ? 50 : 30;
-			}
-#endif
+			int iFactor = bSeekingCultureVictory ? 50 : 30;
 			iTempScore += iNumNaturalWonders * iFactor;
 		}
 		iScore += iTempScore;
@@ -11991,58 +12712,47 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	// Nuclear Non-Proliferation
 	if (pProposal->GetEffects()->bNoTrainingNuclearWeapons)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE) {
-			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
+			// Have you been nuked? If so, you are going to want nukes outlawed.
+			if (GetPlayer()->GetDiplomacyAI()->GetNumTimesNuked(eMajor) > 0)
 			{
-				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-				//Have you been nuked? If so, you are going to want nukes outlawed.
-				if(GetPlayer()->GetDiplomacyAI()->GetNumTimesNuked(eMajor) > 0)
-				{
-					iScore += 200;
-				}
-			}
-			//If we already have 4+ nukes...let's not let anyone else build them.
-			if(GetPlayer()->getNumNukeUnits() > 3)
-			{
-				iScore += 50;
+				iScore += 200;
 			}
 		}
-#endif
+		//If we already have 4+ nukes...let's not let anyone else build them.
+		if (GetPlayer()->getNumNukeUnits() > 3)
+		{
+			iScore += 50;
+		}
 
 		if (bSeekingConquestVictory)
 		{
-			iScore += -50;
+			iScore -= 50;
 		}
 		else
 		{
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				// Protect against a modder setting this to zero
-				int iNukeFlavor = 5;
-				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+			// Protect against a modder setting this to zero
+			int iNukeFlavor = 5;
+			for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+			{
+				if (GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_NUKE")
 				{
-					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_NUKE")
-					{
-						iNukeFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-						break;
-					}
+					iNukeFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
+					break;
 				}
+			}
 
-				// ex: 3 Nuke flavor = 35, 5 nuke flavor = 21, 12 Nuke flavor = -28
-				// Civs that don't like nukes will be more likely to ban them than civs that do Gandhi!!!!
-				iScore *= (8 - iNukeFlavor) * 7;
-			} else 
-#endif
-				iScore += 35;
+			// ex: 3 Nuke flavor = 35, 5 nuke flavor = 21, 12 Nuke flavor = -28
+			// Civs that don't like nukes will be more likely to ban them than civs that do Gandhi!!!!
+			iScore *= (8 - iNukeFlavor) * 7;
 		}
-#if defined(MOD_BALANCE_CORE)
 		// Speaking of Gandhi, he's very nuke happy!
 		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 		{
-			iScore += -5000;
+			iScore -= 5000;
 		}
-#endif
 	}
 	// World Religion
 	if (pProposal->GetEffects()->iVotesForFollowingReligion != 0 ||
@@ -12055,56 +12765,49 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		if (bFoundedReligion)
 		{
-			if (bSeekingDiploVictory || bSeekingCultureVictory)
+			if (bSeekingDiploVictory || bSeekingCultureVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
 				iScore += 300;
 			else
 				iScore += 100;
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if (bMajorityReligion)
 		{
-			if (bSeekingDiploVictory || bSeekingCultureVictory)
+			if (bSeekingDiploVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
 				iScore += 50;
 			else
 				iScore += 25;
 		}
 		else
 		{
-			iScore += -50;
+			if (bSeekingDiploVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
+				iScore -= 50;
+			else
+				iScore -= 25;
 		}
-#endif
 
 		const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, GetPlayer()->GetID());
 		CvAssertMsg(pkTargetReligion, "Evaluating World Religion for an invalid religion. Please send Anton your save file and version.");
-		if (pkTargetReligion)
+		if (pkTargetReligion && GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory())
 		{
 			CvCity* pHolyCity = pkTargetReligion->GetHolyCity();
-			if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
+			if (pHolyCity && GET_PLAYER(pHolyCity->getOwner()).getTeam() != GetPlayer()->getTeam())
 			{
 				// Don't let someone going for culture get away with a world religion easily
 				if ((GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE 
 					&& GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()) == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					|| GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					if (bMajorityReligion)
-					{
-						iScore += 100;
-					}
-					else
-					{
-						iScore += -100;
-					}
+					iScore -= 100;
 				}
 			}
 		}
-		
+
 		if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
 		{
-#if defined(MOD_BALANCE_CORE)
-			iScore += -25;
-#else
-			iScore += -20;
-#endif
+			if (bSeekingDiploVictory || bSeekingCultureVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
+				iScore -= 300;
+			else
+				iScore -= 100;
 		}
 	}
 	// World Ideology
@@ -12114,7 +12817,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvAssertMsg(eTargetIdeology != NO_POLICY_BRANCH_TYPE, "Evaluating World Ideology for NO_POLICY_BRANCH_TYPE. Please send Anton your save file and version.");
 		PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
 
-#ifdef AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
 		int iPublicOpinionUnhappiness = GetPlayer()->GetCulture()->GetPublicOpinionType();
 		if (eOurIdeology != NO_POLICY_BRANCH_TYPE)
 		{
@@ -12123,12 +12825,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore += 50 + 100 * iPublicOpinionUnhappiness;
 				if (bSeekingDiploVictory)
 				{
-#if defined(MOD_BALANCE_CORE)
 					if (MOD_BALANCE_CORE) 
 						iScore += 2000;
 					else
-#endif
-					iScore += 25;
+						iScore += 25;
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 				if (pLeague)
@@ -12163,7 +12863,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == eTargetIdeology)
 					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
+						if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
 						{
 							iScore -= 250;
 						}
@@ -12175,12 +12875,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore += -50 - 100 * (iPublicOpinionUnhappiness + 1);
 				if (bSeekingDiploVictory)
 				{
-#if defined(MOD_BALANCE_CORE)
 					if (MOD_BALANCE_CORE) 
 						iScore -= 300;
 					else
-#endif
-					iScore += -25;
+						iScore += -25;
 				}
 
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -12241,45 +12939,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			iScore += MAX(-50, MIN(50, (10 * iPressure * iWithoutIdeologyCount) / iCivCount));
 		}
-#else
-		bool bPublicOpinionUnhappiness = GetPlayer()->GetCulture()->GetPublicOpinionUnhappiness() > 0;
-		if (eOurIdeology != NO_POLICY_BRANCH_TYPE)
-		{
-			if (eOurIdeology == eTargetIdeology)
-			{
-				iScore += 50;
-				if (bSeekingDiploVictory)
-				{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += 300;
-					else
-#endif
-					iScore += 25;
-				}
-				if (bPublicOpinionUnhappiness)
-				{
-					iScore += 25;
-				}
-			}
-			else
-			{
-				iScore += -50;
-				if (bSeekingDiploVictory)
-				{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += -200;
-					else
-#endif					iScore += -25;
-				}
-				if (bPublicOpinionUnhappiness)
-				{
-					iScore += -25;
-				}
-			}
-		}
-#endif // AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
 	}
 	// Arts Funding
 	if (pProposal->GetEffects()->iArtsyGreatPersonRateMod > 0 ||
@@ -12752,8 +13411,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
 
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ true);
-					DisputeLevelTypes eDispute = GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer);
+					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer);
+					DisputeLevelTypes eDispute = (DisputeLevelTypes) max((int)GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer), (int)GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(eTargetPlayer));
 					BlockLevelTypes eBlock = GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eTargetPlayer);
 
 					if (pPlayerTeam->isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
@@ -12795,6 +13454,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							iScore -= (iAllies * 20);
 						}
+					}
+
+					if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory() && GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
+					{
+						iScore += (iAllies * 200);
 					}
 				}
 			}
@@ -12871,93 +13535,195 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore = 0;
 		}
 	}
-	//Just War
+	// Casus Belli
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iIsWorldWar)
 	{
-		PlayerTypes eLoopPlayer;
-		int iWar = 0;
-		int iPeace = 0;
-		int iThreat = GetPlayer()->GetMilitaryAI()->GetThreatTotal();
-
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+		int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
+		if (iPersonalityMod > 0)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-			MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-			MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
-
-			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{	
-				//WAR
-				if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					iWar++;
-
-					if (GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetWarScore(eLoopPlayer) >= 25)
-					{
-						iWar++;
-					}
-				}
-				if (eWarmongerThreat >= THREAT_MAJOR)
-				{
-					iWar++;	
-				}
-				if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
-				{
-					iWar++;
-				}
-				if(GetPlayer()->getPower() > GET_PLAYER(eLoopPlayer).getPower())
-				{
-					iWar++;
-				}
-				//PEACE
-				else if(GetPlayer()->getPower() < GET_PLAYER(eLoopPlayer).getPower())
-				{
-					iPeace++;
-				}
-
-				if(GetPlayer()->getNumMilitaryUnits() < GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
-				{
-					iPeace++;
-				}
-				//Am I a bad person? I want to burn off warmonger stat!
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
-				{
-					iPeace++;
-				}
-			}
-		}
-		if(GetPlayer()->GetNumCapitalCities() > 1)
-		{
-			iWar += GetPlayer()->GetNumCapitalCities();
-		}
-		if(!bSeekingConquestVictory)
-		{
-			iPeace += iPeace;
-		}
-		if(GetPlayer()->GetCapitalConqueror() != NO_PLAYER)
-		{
-			iWar += iWar;
-		}
-		if(iThreat < GetPlayer()->GetMilitaryAI()->GetThreatWeight(THREAT_MAJOR))
-		{
-			iPeace += iPeace;
-		}
-
-		if((iWar > 0) || (iPeace > 0))
-		{
-			if (iWar > iPeace)
-			{
-				iScore += (iWar * 10);
-			}
-			else if (iPeace > iWar)
-			{
-				iScore += (iPeace * -10);
-			}
+			iScore -= (iPersonalityMod * 10);
 		}
 		else
 		{
-			iScore += -50;
+			iScore += (iPersonalityMod * 15);
+		}
+
+		// Factor in our diplo personality
+		if (pDiploAI->IsConqueror())
+		{
+			iScore += 50;
+		}
+		else if (pDiploAI->IsDiplomat())
+		{
+			iScore -= 50;
+		}
+
+		// Factor in our UA
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			iScore += 100;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iScore -= 100;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+		{
+			iScore += 50;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+		{
+			iScore -= 100;
+		}
+
+		// Not attractive to us if we've lost a lot from war!
+		if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
+		{
+			iScore -= 500;
+		}
+		else
+		{
+			int iProWar = 0;
+			int iProPeace = 0;
+
+			iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
+			iProWar += GetPlayer()->GetNumCapitalCities();
+
+			// Most vassals don't want a world war
+			if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
+				iProPeace += 5;
+
+			if (bSeekingConquestVictory)
+				iProWar += 2;
+			else
+				iProPeace += 2;
+
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
+					iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
+
+					// At war
+					if (GetPlayer()->IsAtWarWith(eLoopPlayer))
+					{
+						// Losing?
+						if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+						{
+							iProPeace++;
+
+							if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
+							{
+								iProPeace++;
+							}
+						}
+						// Winning?
+						else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
+						{
+							iProWar++;
+
+							if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
+							{
+								iProWar++;
+							}
+
+							if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
+							{
+								iProWar++;
+							}
+						}
+					}
+					// If WE have high warmonger penalties, we want to burn them off
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
+					{
+						iProWar++;
+					}
+					// If they have high warmonger penalties, don't want them to burn them off
+					if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
+					{
+						iProPeace++;
+					}
+					// Plotting against them?
+					if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+					{
+						iProWar++;
+					}
+					// Afraid of them?
+					else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+					{
+						iProPeace++;
+					}
+					// Reckless expander / wonder spammer?
+					if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
+					{
+						iProWar++;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
+					{
+						iProPeace++;
+					}
+					if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
+					{
+						iProWar++;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
+					{
+						iProPeace++;
+					}
+					// Close to victory?
+					if (pDiploAI->IsCloseToAnyVictoryCondition())
+					{
+						if (pDiploAI->IsCloseToDominationVictory())
+						{
+							iProWar += 5;
+						}
+						else
+						{
+							iProPeace += 2;
+						}
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+					{
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+						{
+							iProPeace += 5;
+						}
+						else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
+						{
+							iProWar += 5;
+						}
+					}
+
+					// Look at relative power
+					if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+					{
+						if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
+						{
+							iProWar++;
+						}
+						if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
+						{
+							iProWar++;
+						}
+					}
+					if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
+					{
+						iProPeace++;
+					}
+
+					if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
+					{
+						iProPeace++;
+					}
+				}
+			}
+
+			iScore += (iProWar * 25);
+			iScore -= (iProPeace * 25);
 		}
 	}
 	//COLD WAR
@@ -12992,7 +13758,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true);
+					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
 
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
@@ -13044,7 +13810,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Reducing Tourism
 	if(pProposal->GetEffects()->iChangeTourism < 0)
 	{
-		if(bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+		if(bSeekingCultureVictory)
 		{
 			//Boo!
 			iScore -= 5000;
@@ -13102,7 +13868,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Increasing Tourism
 	if(pProposal->GetEffects()->iChangeTourism > 0)
 	{
-		if (bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+		if (bSeekingCultureVictory)
 		{
 			//Yay!
 			iScore += 5000;
@@ -13213,49 +13979,63 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	}	
 #endif
 	// == Alignment with Proposer ==
-#if !defined(MOD_BALANCE_CORE)
-	PlayerTypes eProposer = pProposal->GetProposalPlayer();
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES && (eProposer != NO_PLAYER) && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eProposer).getTeam()))
+	bool bNoAutomaticMasterAlignment = pProposal->GetEffects()->bEmbargoPlayer && eTargetPlayer != NO_PLAYER && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam());
+
+	// To avoid making diplo victory too easy, vassals aren't always supportive of their master's interests
+	if (!GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eProposer))
+	{
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bDecolonization;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bSphereOfInfluence;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingReligion != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iHolyCityTourism != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iReligionSpreadStrengthMod != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingIdeology != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iOtherIdeologyRebellionMod != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iLimitSpaceshipProduction != 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iChangeTourism > 0;
+		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bEndAllCurrentVassals;
+	}
+
+	if (MOD_DIPLOMACY_CIV4_FEATURES && (eProposer != NO_PLAYER) && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eProposer).getTeam()) && !bNoAutomaticMasterAlignment)
 	{
 		iScore += 250;
 	}
 	else
-#endif
-	if (iScore > -20 || eProposer == GetPlayer()->GetID())
 	{
-		if (eProposer != NO_PLAYER)
+		if (iScore > -20 || eProposer == GetPlayer()->GetID())
 		{
-			AlignmentLevels eAlignment = EvaluateAlignment(eProposer);
-			switch (eAlignment)
+			if (eProposer != NO_PLAYER)
 			{
-			case ALIGNMENT_SELF:
-				iScore += 40;
-				break;
-			case ALIGNMENT_LIBERATOR:
-			case ALIGNMENT_LEADER:
-			case ALIGNMENT_ALLY:
-				iScore += 30;
-				break;
-			case ALIGNMENT_CONFIDANT:
-				iScore += 20;
-				break;
-			case ALIGNMENT_FRIEND:
-				iScore += 10;
-				break;
-			case ALIGNMENT_RIVAL:
-				iScore += -10;
-				break;
-			case ALIGNMENT_HATRED:
-				iScore += -20;
-				break;
-			case ALIGNMENT_ENEMY:
-			case ALIGNMENT_WAR:
-				iScore += -30;
-				break;
-			default:
-				break;
+				AlignmentLevels eAlignment = EvaluateAlignment(eProposer, false, true);
+				switch (eAlignment)
+				{
+				case ALIGNMENT_SELF:
+					iScore += 40;
+					break;
+				case ALIGNMENT_LIBERATOR:
+				case ALIGNMENT_LEADER:
+				case ALIGNMENT_ALLY:
+					iScore += 30;
+					break;
+				case ALIGNMENT_CONFIDANT:
+					iScore += 20;
+					break;
+				case ALIGNMENT_FRIEND:
+					iScore += 10;
+					break;
+				case ALIGNMENT_RIVAL:
+					iScore += -10;
+					break;
+				case ALIGNMENT_HATRED:
+					iScore += -20;
+					break;
+				case ALIGNMENT_ENEMY:
+				case ALIGNMENT_WAR:
+					iScore += -30;
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
@@ -13300,22 +14080,12 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	int iScore = 0;
 
 	// == Grand Strategy and other factors ==
-	AIGrandStrategyTypes eGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
 
 	// == Diplomatic Victory ==
 	if (pProposal->GetEffects()->bDiplomaticVictory)
 	{
-		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
-		{
-			if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
-			{
-				iScore += 200;
-			}
-		}
-#endif
+		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false, GC.getGame().IsVictoryCompetitionEnabled());
 
 		if (eAlignment == ALIGNMENT_LIBERATOR)
 		{
@@ -13337,16 +14107,23 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		{
 			iScore += -50;
 
-			if (bSeekingDiploVictory)
-			{
-				iScore += -150;
-			}
-
 			// Don't hand victory to someone
-			if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(eChoicePlayer) + 4
-				>= GC.getGame().GetVotesNeededForDiploVictory())
+			if (!GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer) || GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eChoicePlayer) > VASSAL_TREATMENT_CONTENT)
 			{
-				iScore += -150;
+				if (bSeekingDiploVictory)
+				{
+					iScore += -150;
+				}
+
+				if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(eChoicePlayer) + 4
+					>= GC.getGame().GetVotesNeededForDiploVictory())
+				{
+					iScore += -150;
+				}
+			}
+			else if (GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer))
+			{
+				iScore += 110;
 			}
 			
 			switch (eAlignment)
@@ -13379,30 +14156,19 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// Mostly same as evaluating Diplomatic Victory, but with higher value to pick others you like
 	if (pProposal->GetEffects()->bChangeLeagueHost)
 	{
-#if defined(MOD_BALANCE_CORE)
-		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
+		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false, GC.getGame().IsVictoryCompetitionEnabled());
 		PlayerTypes ePlayer = GetPlayer()->GetID();
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
-		{
-			if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
-			{
-				iScore += 1000;
-				return iScore;
-			}
-		}
-#endif
+
 		//Let's drill down and look at how votes could shake out here.
 		int iVotesNeeded = 0;
 		int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
 		int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
 
 		bool bCanWin = false;
-			
-		PlayerTypes eLoopPlayer;
+
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
 			{			
 				iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
@@ -13440,6 +14206,11 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		}
 		else
 		{
+			if (!bCanWin && eAlignment > ALIGNMENT_NEUTRAL && GetPlayer()->GetDiplomacyAI()->IsVassal(eChoicePlayer) && GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eChoicePlayer) == VASSAL_TREATMENT_CONTENT)
+			{
+				iScore += 200;
+			}
+
 			switch (eAlignment)
 			{
 			case ALIGNMENT_ALLY:
@@ -13535,56 +14306,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 				break;
 			}
 		}
-#else
-			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
-			if (eAlignment == ALIGNMENT_LIBERATOR)
-			{
-				iScore += 200;
-			}
-			else if (eAlignment == ALIGNMENT_SELF)
-			{
-				iScore += 100;
-			}
-			else if (eAlignment == ALIGNMENT_LEADER)
-			{
-				iScore += 50;
-			}
-			else if (eAlignment == ALIGNMENT_WAR)
-			{
-				iScore += -500;
-			}
-			else
-			{
-				if (bSeekingDiploVictory)
-				{
-					iScore += -150;
-				}
-
-				switch (eAlignment)
-				{
-				case ALIGNMENT_ALLY:
-					iScore += 130;
-					break;
-				case ALIGNMENT_CONFIDANT:
-					iScore += 90;
-					break;
-				case ALIGNMENT_FRIEND:
-					iScore += 50;
-					break;
-				case ALIGNMENT_RIVAL:
-					iScore += -50;
-					break;
-				case ALIGNMENT_HATRED:
-					iScore += -90;
-					break;
-				case ALIGNMENT_ENEMY:
-					iScore += -130;
-					break;
-				default:
-					break;
-				}
-			}
-#endif
 	}
 
 	return iScore;

@@ -254,8 +254,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetJONSCulturePerTurnForFree);
 	Method(ChangeJONSCulturePerTurnForFree);
 
-	Method(GetJONSCulturePerTurnFromMinorCivs);
-	Method(ChangeJONSCulturePerTurnFromMinorCivs);
 	Method(GetCulturePerTurnFromMinorCivs);
 	Method(GetCulturePerTurnFromMinor);
 
@@ -939,6 +937,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(GetNumUnitsToSupply);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetNumUnitsOfType);
+	Method(GetNumUnitPromotions);
+#endif
 	Method(GetUnitByID);
 
 	Method(AI_updateFoundValues);
@@ -1011,8 +1013,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWonderDisputeLevel);
 	Method(GetMinorCivDisputeLevel);
 	Method(GetWarmongerThreat);
-	Method(IsPlayerNoSettleRequestEverAsked);
-	Method(IsPlayerStopSpyingRequestEverAsked);
 	Method(IsDemandEverMade);
 	Method(GetNumCiviliansReturnedToMe);
 	Method(GetNumLandmarksBuiltForMe);
@@ -1045,6 +1045,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDenouncedPlayer);
 	Method(GetDenouncedPlayerCounter);
 	Method(IsDenouncingPlayer);
+	Method(IsDenounceMessageTooSoon);
 	Method(IsPlayerRecklessExpander);
 	Method(GetRecentTradeValue);
 	Method(GetCommonFoeValue);
@@ -1476,8 +1477,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	Method(GetResponsibleForRouteCount);
+	Method(GetResponsibleForImprovementCount);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	Method(DoInstantYield);
 	Method(GetInstantYieldHistoryTooltip);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
@@ -2981,20 +2989,6 @@ int CvLuaPlayer::lChangeJONSCulturePerTurnForFree(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeJONSCulturePerTurnForFree);
 }
 //------------------------------------------------------------------------------
-// DEPRECATED, use lGetCulturePerTurnFromMinorCivs instead
-//int getJONSCulturePerTurnFromMinorCivs();
-int CvLuaPlayer::lGetJONSCulturePerTurnFromMinorCivs(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromMinorCivs);
-}
-//------------------------------------------------------------------------------
-// DEPRECATED, does nothing
-//void changeJONSCulturePerTurnFromMinorCivs(int iChange);
-int CvLuaPlayer::lChangeJONSCulturePerTurnFromMinorCivs(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::ChangeJONSCulturePerTurnFromMinorCivs);
-}
-//------------------------------------------------------------------------------
 //int GetCulturePerTurnFromMinorCivs();
 int CvLuaPlayer::lGetCulturePerTurnFromMinorCivs(lua_State* L)
 {
@@ -3516,7 +3510,20 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(pkPlayer->getCivilizationType());
 	if (pkCity && pkCivInfo)
 	{
-		int iBuilding = pkCivInfo->getCivilizationBuildings(eBuildingClass);
+		int iBuilding = -1;
+#if defined(MOD_BALANCE_CORE)
+		bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+		{
+			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+		}
+		else
+		{
+			iBuilding = pkCivInfo->getCivilizationBuildings(eBuildingClass);
+		}
 		lua_pushinteger(L, iBuilding);
 		return 1;
 	}
@@ -5321,11 +5328,7 @@ int CvLuaPlayer::lGetTradeUnitType(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeUnit(eDomain, pkPlayer));
-#else
-	lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeUnit(eDomain));
-#endif
 	return 1;
 }
 
@@ -6185,7 +6188,21 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
 			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
-			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			BuildingTypes eBuilding = NO_BUILDING;
+#if defined(MOD_BALANCE_CORE)
+			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
+			{
+				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
+			}
+			else
+			{
+				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			}
+
 			if (eBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -6469,7 +6486,7 @@ int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
-	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamageLevels();
+	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamage();
 	return 0;
 }
 
@@ -8810,7 +8827,7 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 		if(pkUnitClassInfo != NULL)
 		{
-			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->getCivilizationInfo().getCivilizationUnits((int)eUnitClass)));
+			const UnitTypes eUnit = ((UnitTypes)(pkPlayer->GetSpecificUnitType(eUnitClass)));
 			if(eUnit != NO_UNIT)
 			{
 				lua_pushinteger(L, eUnit);
@@ -9063,7 +9080,7 @@ int CvLuaPlayer::lGetJerk(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetMinorCivAI()->GetJerk(eTeam);
+	const int iResult = pkPlayer->GetMinorCivAI()->GetJerkTurnsRemaining(eTeam);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -9684,96 +9701,68 @@ int CvLuaPlayer::lSetResearchingTech(lua_State* L)
 //int getCombatExperience();
 int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100() / 100);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::getCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //void changeCombatExperience(int iChange);
 int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
 	pkPlayer->changeCombatExperienceTimes100(iExperience * 100);
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::changeCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
 	pkPlayer->setCombatExperienceTimes100(iExperience * 100);
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::setCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //int getLifetimeCombatExperience();
 int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getLifetimeCombatExperienceTimes100() / 100);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::getLifetimeCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //int getNavalCombatExperience();
 int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100() / 100);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::getNavalCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //void changeNavalCombatExperience(int iChange);
 int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
 	pkPlayer->changeNavalCombatExperienceTimes100(iExperience * 100);
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::changeNavalCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
 	pkPlayer->setNavalCombatExperienceTimes100(iExperience * 100);
 	return 0;
-#else
-	return BasicLuaMethod(L, &CvPlayerAI::setNavalCombatExperience);
-#endif
 }
 //------------------------------------------------------------------------------
 //int getSpecialistExtraYield(SpecialistTypes  eIndex1, YieldTypes  eIndex2);
@@ -10018,6 +10007,26 @@ int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsToSupply);
 }
 
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//int GetNumUnitsOfType();
+int CvLuaPlayer::lGetNumUnitsOfType(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const bool bIncludeBeingTrained = luaL_optbool(L, 3, false);
+
+	const int iResult = pkPlayer->GetNumUnitsOfType(eUnit, bIncludeBeingTrained);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetNumUnitPromotions();
+int CvLuaPlayer::lGetNumUnitPromotions(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayer::GetNumUnitPromotions);
+}
 #endif
 //------------------------------------------------------------------------------
 //void AI_updateFoundValues(bool bStartingLoc);
@@ -10264,7 +10273,7 @@ int CvLuaPlayer::lGetMajorCivApproach(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false));
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMajorCivApproach(ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10349,8 +10358,7 @@ int CvLuaPlayer::lIsDoFMessageTooSoon(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	// Removed IsDoFMessageTooSoon()...human should always be able to ask for DoF unless they already have one
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer);
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFMessageTooSoon(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
@@ -10434,7 +10442,7 @@ int CvLuaPlayer::lIsUntrustworthyFriend(lua_State* L)
 		return 0;
 	}
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsUntrustworthyFriend(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsUntrustworthy(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -10583,27 +10591,6 @@ int CvLuaPlayer::lGetWarmongerThreat(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lIsPlayerNoSettleRequestEverAsked(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerNoSettleRequestEverAsked(eOtherPlayer);
-
-	lua_pushboolean(L, bValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lIsPlayerStopSpyingRequestEverAsked(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerStopSpyingRequestEverAsked(eOtherPlayer);
-
-	lua_pushboolean(L, bValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
 int CvLuaPlayer::lIsDemandEverMade(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -10698,11 +10685,9 @@ int CvLuaPlayer::lIsPlayerIgnoredMilitaryPromise(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	if (eOtherPlayer != pkPlayer->GetID())
-	{
-	}
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsPlayerIgnoredMilitaryPromise(eOtherPlayer);
 
-	lua_pushboolean(L, false);
+	lua_pushboolean(L, bValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10911,7 +10896,8 @@ int CvLuaPlayer::lGetTurnsSincePlayerBulliedProtectedMinor(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const int iValue = pkPlayer->GetDiplomacyAI()->GetTurnsSincePlayerBulliedProtectedMinor(eOtherPlayer);
+	int iTurn = pkPlayer->GetDiplomacyAI()->GetOtherPlayerBulliedProtectedMinorTurn(eOtherPlayer);
+	const int iValue = (iTurn != -1) ? (GC.getGame().getGameTurn() - iTurn) : -1;
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -10957,6 +10943,17 @@ int CvLuaPlayer::lIsDenouncingPlayer(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
 	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDenouncingPlayer(eOtherPlayer);
+
+	lua_pushboolean(L, bValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsDenounceMessageTooSoon(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDenounceMessageTooSoon(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11033,7 +11030,7 @@ int CvLuaPlayer::lIsCapitalCapturedBy(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsCapitalCapturedBy(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsCapitalCapturedBy(eOtherPlayer, true, false);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11077,7 +11074,7 @@ int CvLuaPlayer::lIsAngryAboutSidedWithTheirProtectedMinor(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsAngryAboutSidedWithTheirProtectedMinor(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsAngryAboutSidedWithProtectedMinor(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -11110,6 +11107,10 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
+	// Can't do this while at war!
+	if (pkPlayer->IsAtWarWith(eOtherPlayer))
+		return 1;
+
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
 
@@ -11133,6 +11134,14 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_NEW);
 		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
 	}
+
+	vector<PlayerTypes> v;
+	v.push_back(eOtherPlayer);
+	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayers(v);
+
+	vector<PlayerTypes> v2;
+	v2.push_back(pkPlayer->GetID());
+	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2);
 
 	return 1;
 }
@@ -12249,29 +12258,7 @@ int CvLuaPlayer::lGetNextCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pCurrentCity = CvLuaCity::GetInstance(L, 2);
-	CvCity* pLoopCity = NULL;
-	CvCity* pNextCity = NULL;
-	int	iLoop = pCurrentCity->getIndex();
-	iLoop++;
-
-	do
-	{
-		pLoopCity = pkPlayer->nextCity(&iLoop, false);
-
-		if(pLoopCity == NULL)
-		{
-			pLoopCity = pkPlayer->firstCity(&iLoop, false);
-		}
-
-		if((pLoopCity != NULL) && (pLoopCity != pCurrentCity) && !pLoopCity->IsPuppet())  // we don't want the player to be able to cycle to puppeted cities - it kind of defeats teh whole purpose
-		{
-			pNextCity = pLoopCity;
-		}
-
-	}
-	while((pLoopCity != pCurrentCity) && !pNextCity);
-
-
+	CvCity* pNextCity = pkPlayer->nextCity(pCurrentCity);
 	CvLuaCity::Push(L, pNextCity);
 	return 1;
 }
@@ -12280,28 +12267,7 @@ int CvLuaPlayer::lGetPrevCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pCurrentCity = CvLuaCity::GetInstance(L, 2);
-	CvCity* pLoopCity = NULL;
-	CvCity* pPrevCity = NULL;
-	int	iLoop = pCurrentCity->getIndex();
-	iLoop--;
-
-	do
-	{
-		pLoopCity = pkPlayer->nextCity(&iLoop, true);
-
-		if(pLoopCity == NULL)
-		{
-			pLoopCity = pkPlayer->firstCity(&iLoop, true);
-		}
-
-		if((pLoopCity != NULL) && (pLoopCity != pCurrentCity) && !pLoopCity->IsPuppet())  // we don't want the player to be able to cycle to puppeted cities - it kind of defeats teh whole purpose
-		{
-			pPrevCity = pLoopCity;
-		}
-
-	}
-	while((pLoopCity != pCurrentCity) && !pPrevCity);
-
+	CvCity* pPrevCity = pkPlayer->nextCity(pCurrentCity,true);
 	CvLuaCity::Push(L, pPrevCity);
 	return 1;
 }
@@ -12507,13 +12473,45 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 				continue;
 			}
 			
-			BuildingTypes eParentBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(eParentBuildingClass);
-			if (eParentBuilding != NO_BUILDING && pkPlayer->countNumBuildings(eParentBuilding) > 0)
+#if defined(MOD_BALANCE_CORE)
+			bool bRome = pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings();
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+#else
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+#endif
 			{
-				CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
-				if (pkParentBuilding)
+				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
 				{
-					iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass);
+					int iLoop = 0;
+
+					for (const CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+					{
+						if (pLoopCity->HasBuildingClass(eParentBuildingClass))
+						{
+							BuildingTypes eParentBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eParentBuildingClass);
+							if (eParentBuilding != NO_BUILDING)
+							{
+								CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
+								if (pkParentBuilding)
+								{
+									iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass);
+								}
+							}
+						}
+					}
+
+				}
+			}
+			else
+			{
+				BuildingTypes eParentBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(eParentBuildingClass);
+				if (eParentBuilding != NO_BUILDING && pkPlayer->countNumBuildings(eParentBuilding) > 0)
+				{
+					CvBuildingEntry* pkParentBuilding = GC.getBuildingInfo(eParentBuilding);
+					if (pkParentBuilding)
+					{
+						iChange += pkParentBuilding->GetBuildingClassHappiness(eOtherBuildingClass) * pkPlayer->getNumBuildings(eParentBuilding);
+					}
 				}
 			}
 		}
@@ -12586,12 +12584,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bHideDisputes = bShowAllModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowAllModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = bHideDisputes && bHideNegatives;
-	bool bObserver = GET_PLAYER(ePlayer).isObserver();
+	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
-	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
+	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer);
 
 	//--------------------------------//
 	// [PART 1: SPECIAL INDICATORS]	  //
@@ -12642,30 +12640,30 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case MAJOR_CIV_APPROACH_WAR:
 					if (pDiplo->IsAtWar(ePlayer))
 					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_WAR").toUTF8();
+						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_WAR").toUTF8();
 					}
 					else
 					{
-						str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR").toUTF8();
+						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR").toUTF8();
 					}
 					break;
 				case MAJOR_CIV_APPROACH_HOSTILE:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_DECEPTIVE:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_GUARDED:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_GUARDED").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_AFRAID:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_AFRAID").toUTF8();
 					break;
 				case MAJOR_CIV_APPROACH_FRIENDLY:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
 				default:
-					str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL").toUTF8();
 					break;
 				}
 
@@ -12674,7 +12672,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Untrustworthy friend?
-			if (!bJustMet && pDiplo->IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+			if (!bJustMet && !pDiplo->IsAlwaysAtWar(ePlayer) && pDiplo->IsUntrustworthy(ePlayer))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12684,12 +12682,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			// Base opinion score?
 			iValue = pDiplo->GetBaseOpinionScore(ePlayer);
-			if (iValue != 0 && GC.getGame().IsShowBaseHumanOpinion())
+			if (iValue != 0 && !pDiplo->IsAlwaysAtWar(ePlayer) && GC.getGame().IsShowBaseHumanOpinion())
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-				
+
 				if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION").toUTF8();
@@ -12867,6 +12865,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
 			aOpinions.push_back(kOpinion);
 		}
+		// Diplomat?
+		iValue = pDiplo->GetDiplomatScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -10;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIPLOMAT");
+			aOpinions.push_back(kOpinion);
+		}
 		// Open Borders?
 		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
 		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
@@ -12877,18 +12884,50 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
 			aOpinions.push_back(kOpinion);
 		}
-		else if (bUsOpen)
+		else if (bThemOpen)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = -12;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
 			aOpinions.push_back(kOpinion);
 		}
-		else if (bThemOpen)
+		else if (bUsOpen)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = -6;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiplo->GetLiberatedCapitalScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -130;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_CAPITAL");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiplo->GetLiberatedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -120;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_HOLY_CITY");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiplo->GetReturnedCapitalScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -110;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_CAPITAL");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiplo->GetReturnedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -100;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_HOLY_CITY");
 			aOpinions.push_back(kOpinion);
 		}
 		if (!bTeammate)
@@ -12950,7 +12989,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 			// Killed or captured our civilians?
-			iValue = pDiplo->GetCitiesRazedScore(ePlayer);
+			iValue = pDiplo->GetCivilianKillerScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
@@ -13073,28 +13112,37 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// World Congress?
-		iValue = pDiplo->GetSupportedMyProposalScore(ePlayer);
-		if (iValue != 0)
+		if (pDiplo->GetTheySupportedOurProposalTurn(ePlayer) > -1)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = -36;
 			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
 			aOpinions.push_back(kOpinion);
 		}
-		iValue = pDiplo->GetFoiledMyProposalScore(ePlayer);
-		if (iValue != 0)
+		else if (pDiplo->GetTheyFoiledOurProposalTurn(ePlayer) > -1)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = bTeammate ? 0 : 36;
 			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN") : Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL");
 			aOpinions.push_back(kOpinion);
 		}
-		iValue = pDiplo->GetSupportedMyHostingScore(ePlayer);
-		if (iValue != 0)
+		if (pDiplo->GetTheySupportedOurHostingTurn(ePlayer) > -1)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = -38;
-			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
+			CvString str;
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 		// Vassalage?
@@ -13167,12 +13215,39 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetLiberatedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_HOLY_CITY");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetLiberatedCitiesScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CITIES_LIBERATED");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetReturnedCapitalScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_CAPITAL");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetReturnedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_HOLY_CITY");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -13333,17 +13408,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetSupportedMyProposalScore(ePlayer);
-		if (iValue != 0)
+		iValue = pDiplo->GetSupportedOurProposalScore(ePlayer);
+		if (iValue < 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
 			aOpinions.push_back(kOpinion);
 		}
-
-		iValue = pDiplo->GetFoiledMyProposalScore(ePlayer);
-		if (iValue != 0)
+		else if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -13356,7 +13429,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
+			CvString str;
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL && pLeague->GetConsecutiveHostedSessions() > 1)
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 	}
@@ -13447,14 +13532,25 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 
-			// Tech Dispute
-			iValue = bHideDisputes ? 0 : pDiplo->GetTechDisputeLevelScore(ePlayer);
+			// Tech Block
+			iValue = bHideDisputes ? 0 : pDiplo->GetTechBlockLevelScore(ePlayer);
 
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
+				aOpinions.push_back(kOpinion);
+			}
+
+			// Policy Block
+			iValue = bHideDisputes ? 0 : pDiplo->GetPolicyBlockLevelScore(ePlayer);
+
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_POLICY_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_POLICY_DISPUTE");
 				aOpinions.push_back(kOpinion);
 			}
 
@@ -13588,8 +13684,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		// Civilians killed/captured
-		iValue = pDiplo->GetCitiesRazedScore(ePlayer);
-		iTempValue = pDiplo->GetCitiesRazedGlobalScore(ePlayer);
+		iValue = pDiplo->GetCivilianKillerScore(ePlayer);
+		iTempValue = pDiplo->GetCivilianKillerGlobalScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
@@ -13661,11 +13757,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			if (!pDiplo->IsFriendDenouncedUs(ePlayer) && !pDiplo->IsFriendDeclaredWarOnUs(ePlayer))
 			{
-				int iTurn = GC.getGame().getGameTurn();
-				iTurn -= pDiplo->GetDoFBrokenTurn(ePlayer);
-				if (iTurn < 10)
+				int iTurns = pDiplo->GetTurnsSinceDoFBroken(ePlayer);
+				int iTimer = /*10*/ GC.getDOF_BROKEN_BACKSTAB_TIMER();
+
+				if (iTurns < iTimer)
 				{	
-					iValue = (10 - iTurn);
+					iValue = (iTimer - iTurns);
 					Opinion kOpinion;
 					kOpinion.m_iValue = 0;
 					CvString str;
@@ -13766,6 +13863,38 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = (!GET_PLAYER(ePlayer).IsVassalOfSomeone()) ? Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES_VASSAL");
 			kOpinion.m_str << GC.getPolicyBranchInfo(eTheirBranch)->GetDescription();
 			kOpinion.m_str << GC.getPolicyBranchInfo(eOurBranch)->GetDescription();
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetLeagueAlignmentScore(ePlayer);
+		if (iValue > 0 && (bHideDisputes || bHideNegatives))
+		{
+			iValue = 0;
+		}
+
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+
+			if (iValue > 0)
+			{
+				if (pDiplo->GetPrimeLeagueCompetitor() == ePlayer)
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_PRIME_LEAGUE_COMPETITOR").toUTF8();
+				}
+				else
+				{
+					str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_BAD_LEAGUE_ALIGNMENT").toUTF8();
+				}
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_GOOD_LEAGUE_ALIGNMENT").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -13907,60 +14036,60 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		////////////////////////////////////
 
 		// Embassy?
-		iValue = pDiplo->GetEmbassyScore(ePlayer);
-		if (iValue != 0)
+		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		if (bUsEmbassy && bThemEmbassy)
 		{
-			bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-			bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
-			if (bUsEmbassy && bThemEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bUsEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bThemEmbassy)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
-				aOpinions.push_back(kOpinion);
-			}
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bUsEmbassy)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bThemEmbassy)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetEmbassyScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
+			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		iValue = pDiplo->GetOpenBordersScore(ePlayer);
-		if (iValue != 0)
+		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		if (bThemOpen && bUsOpen)
 		{
-			bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-			bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
-			if (bThemOpen && bUsOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bUsOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (bThemOpen)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
-				aOpinions.push_back(kOpinion);
-			}
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bThemOpen)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (bUsOpen)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetOpenBordersScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
+			aOpinions.push_back(kOpinion);
+		}
+		// Diplomat?
+		if (pkPlayer->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = pDiplo->GetDiplomatScore(ePlayer);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIPLOMAT");
+			aOpinions.push_back(kOpinion);
 		}
 
 		iValue = pDiplo->GetDPAcceptedScore(ePlayer);
@@ -14026,12 +14155,39 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetLiberatedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_HOLY_CITY");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetLiberatedCitiesScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CITIES_LIBERATED");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetReturnedCapitalScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_CAPITAL");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetReturnedHolyCityScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RETURNED_HOLY_CITY");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14058,7 +14214,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DOF");
+			kOpinion.m_str = pDiplo->IsDoFAccepted(ePlayer) ? Localization::Lookup("TXT_KEY_DIPLO_DOF") : Localization::Lookup("TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14116,12 +14272,24 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetSupportedMyProposalScore(ePlayer);
-		if (iValue != 0)
+		iValue = pDiplo->GetSupportedOurProposalScore(ePlayer);
+		if (iValue < 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
+			CvString str;
+
+			// Are we still happy over their past support?
+			if (pDiplo->IsSupportedOurProposalAndThenFoiledUs(ePlayer))
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_PREVIOUSLY").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14130,7 +14298,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN") : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
+			CvString str;
+
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague->GetConsecutiveHostedSessions() > 1)
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_MAINTAINED_THEIR_HOSTING").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14222,12 +14402,30 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetStoleArtifactsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOLEN_ARTIFACTS");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetBrokenMilitaryPromiseScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiplo->GetIgnoredMilitaryPromiseScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14467,6 +14665,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
+		iValue = pDiplo->GetResurrectorAttackedUsScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTOR_ATTACKED_US");
+			aOpinions.push_back(kOpinion);
+		}
+
 		iValue = pDiplo->GetDislikedTheirProposalScore(ePlayer);
 		if (iValue != 0)
 		{
@@ -14476,12 +14683,24 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetFoiledMyProposalScore(ePlayer);
-		if (iValue != 0)
+		iValue = pDiplo->GetSupportedOurProposalScore(ePlayer);
+		if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN") : Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL");
+			CvString str;
+
+			// Are we still holding a grudge over their past opposition?
+			if (pDiplo->IsFoiledOurProposalAndThenSupportedUs(ePlayer))
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_PREVIOUSLY").toUTF8();
+			}
+			else
+			{
+				str = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL").toUTF8();
+			}
+
+			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14491,6 +14710,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		if (!bHideNegatives && !bJustMet)
 		{
+			iValue = pDiplo->GetDenouncedByOurFriendScore(ePlayer);
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE");
+				aOpinions.push_back(kOpinion);
+			}
+
 			iValue = pDiplo->GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
 			if (iValue != 0)
 			{
@@ -15026,7 +15254,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
 #if defined(MOD_BALANCE_CORE_SPIES)
-				int iRate = pCity->GetRank();
+				int iRate = pCity->GetEspionageRanking();
 				lua_pushinteger(L, iRate);
 				lua_setfield(L, t, "Potential");
 
@@ -15117,11 +15345,8 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushinteger(L, pSpy->m_iCityY);
 		lua_setfield(L, t, "CityY");
 
-#if defined(MOD_BUGFIX_SPY_NAMES)
 		const char* szSpyName = pSpy->GetSpyName(pkThisPlayer);
-#else
-		const char* szSpyName = pkThisPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
+
 		lua_pushstring(L, szSpyName);
 		lua_setfield(L, t, "Name");
 
@@ -15570,7 +15795,6 @@ int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
 int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 {
 	const PlayerTypes eOwner = (PlayerTypes) lua_tointeger(L, 2);
-#if defined(MOD_CONFIG_AI_IN_XML)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	if(pkCity)
 	{
@@ -15582,16 +15806,12 @@ int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
 		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, NULL, eToPlayer));
 	}
-#else
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
-#endif
 	return 1;
 }
 
 int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 {
 	const PlayerTypes eOriginalOwner = (PlayerTypes) lua_tointeger(L, 2);
-#if defined(MOD_CONFIG_AI_IN_XML)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
 	if(pkCity)
 	{
@@ -15603,9 +15823,6 @@ int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
 		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, NULL, eToPlayer));
 	}
-#else
-	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
-#endif
 	return 1;
 }
 
@@ -15626,6 +15843,26 @@ LUAAPIIMPL(Player, CountAllResource)
 LUAAPIIMPL(Player, CountAllWorkedResource)
 LUAAPIIMPL(Player, CountAllTerrain)
 LUAAPIIMPL(Player, CountAllWorkedTerrain)
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetResponsibleForRouteCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const RouteTypes eRoute = (RouteTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getResponsibleForRouteCount(eRoute);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetResponsibleForImprovementCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getResponsibleForImprovementCount(eImprovement);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
 //-------------------------------------------------------------------------
@@ -15725,7 +15962,10 @@ int CvLuaPlayer::lGetPlayerMoveTroopsRequestCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetPlayerMoveTroopsRequestCounter(eOtherPlayer));
+	int iTurn = pkPlayer->GetDiplomacyAI()->GetPlayerMoveTroopsRequestAcceptedTurn(eOtherPlayer);
+	const int iValue = (iTurn != -1) ? (GC.getGame().getGameTurn() - iTurn) : -1;
+
+	lua_pushinteger(L, iValue);
 	return 1;
 }
 
@@ -16463,7 +16703,40 @@ int CvLuaPlayer::lDisbandContractUnits(lua_State* L)
 	return 0;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
+#if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lDoInstantYield(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iYield = lua_tointeger(L, 3);
+	const bool bSuppress = luaL_optbool(L, 4, false);
+	int iCity = luaL_optint(L, 5, -1);
+
+	CvCity* pkCity = NULL;
+	if (iCity != -1)
+	{
+		pkCity = pkPlayer->getCity(iCity);
+
+		//sometimes Lua city IDs are actually sequential indices
+		//global IDs start at 1000
+		if (!pkCity && iCity < 1000)
+		{
+			if (iCity > 0)
+			{
+				iCity--;
+				pkCity = pkPlayer->nextCity(&iCity);
+			}
+			else
+			{
+				pkCity = pkPlayer->firstCity(&iCity);
+			}
+		}
+	}
+
+	pkPlayer->doInstantYield(INSTANT_YIELD_TYPE_LUA, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, bSuppress, pkCity, false, true, false, eYield);
+
+	return 1;
+}
 int CvLuaPlayer::lGetInstantYieldHistoryTooltip(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -16473,6 +16746,8 @@ int CvLuaPlayer::lGetInstantYieldHistoryTooltip(lua_State* L)
 	lua_pushstring(L, string.c_str());
 	return 1;
 }
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
 int CvLuaPlayer::lGetDisabledTooltip(lua_State* L)
 {
 	CvString DisabledTT = "";

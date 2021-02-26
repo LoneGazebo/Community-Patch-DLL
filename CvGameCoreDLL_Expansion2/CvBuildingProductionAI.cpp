@@ -715,20 +715,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (m_pCity->isCoastal())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
-		if (eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+		if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 		{
-			if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
+			if (pkBuildingInfo->GetBorderObstacleWater() > 0)
 			{
-				if (pkBuildingInfo->GetBorderObstacleWater() > 0)
-				{
-					iDefense += 25;
-				}
+				iDefense += 25;
 			}
 		}
 	}
 	else
 	{
-		if (pkBuildingInfo->GetBorderObstacleCity() > 0)
+		if (pkBuildingInfo->GetBorderObstacleLand() > 0)
 		{
 			iDefense += 25;
 		}
@@ -763,17 +760,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
 	{
-		int iSupply = kPlayer.GetNumUnitsSupplied();
-		if (iSupply <= 0)
-		{
-			iSupply = 1;
-		}
+		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
-		int iPercent = (iDemand * 100) / iSupply;
-
 		int iGrowth = pkBuildingInfo->GetCitySupplyModifier() + (pkBuildingInfo->GetCitySupplyModifierGlobal() * kPlayer.getNumCities());
 
-		iPercent += max (1, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -782,17 +773,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (iBonus > 0 &&  (pkBuildingInfo->GetCitySupplyFlat() > 0 || pkBuildingInfo->GetCitySupplyFlatGlobal() > 0))
 	{
-		int iSupply = kPlayer.GetNumUnitsSupplied();
-		if (iSupply <= 0)
-		{
-			iSupply = 1;
-		}
+		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
-		int iPercent = (iDemand * 100) / iSupply;
-
 		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + (pkBuildingInfo->GetCitySupplyFlatGlobal() * kPlayer.getNumCities()));
 
-		iPercent += max(1, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);

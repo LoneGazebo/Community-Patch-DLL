@@ -317,10 +317,10 @@ VALUES
 	('BELIEF_ONE_WITH_NATURE', 'YIELD_CULTURE', 2);
 
 INSERT INTO Belief_YieldPerBorderGrowth
-	(BeliefType, YieldType, Yield)
+	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_FAITH', 20),
-	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_PRODUCTION', 10);
+	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_FAITH', 20, 0),
+	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_PRODUCTION', 10, 0);
 
 INSERT INTO Belief_FeatureYieldChanges
 	(BeliefType, FeatureType, YieldType, Yield)

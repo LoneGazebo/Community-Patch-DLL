@@ -289,6 +289,8 @@ SET RegionType = 'REGION_JUNGLE'
 WHERE CivilizationType = 'CIVILIZATION_MAYA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- NEW
+UPDATE CustomModOptions	SET Value = 1 WHERE Name = 'RELIGION_EXTENSIONS';
+
 INSERT INTO Beliefs
 	(Type, Description, ShortDescription, Pantheon, CivilizationType)
 VALUES
@@ -341,7 +343,7 @@ VALUES
 
 UPDATE Beliefs
 SET FriendlyHealChange = '5'
-WHERE Type = 'BELIEF_MORRIGAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+WHERE Type = 'BELIEF_DAGDA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 	
 INSERT INTO Belief_YieldFromKills
 	(BeliefType, YieldType, Yield)
@@ -349,6 +351,13 @@ VALUES
 	('BELIEF_MORRIGAN', 'YIELD_GOLD', 125),
 	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 125),
 	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 125);
+	
+INSERT INTO Belief_YieldFromPillageGlobal
+	(BeliefType, YieldType, Yield, 	IsEraScaling)
+VALUES
+	('BELIEF_MORRIGAN', 'YIELD_GOLD', 		20, 	1),
+	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 		20, 	1),
+	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 	20, 	1);
 
 INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)
@@ -356,11 +365,11 @@ VALUES
 	('BELIEF_EPONA', 'YIELD_CULTURE_LOCAL', 3);
 
 INSERT INTO Belief_YieldPerBorderGrowth
-	(BeliefType, YieldType, Yield)
+	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_EPONA', 'YIELD_SCIENCE', 10),
-	('BELIEF_EPONA', 'YIELD_CULTURE', 10),
-	('BELIEF_EPONA', 'YIELD_FOOD', 10);
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 10, 1),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 10, 1),
+	('BELIEF_EPONA', 'YIELD_FOOD', 10, 1);
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)

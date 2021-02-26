@@ -607,9 +607,18 @@ void CvPlayerCorporations::DestroyCorporation()
 	BuildingClassTypes eFranchiseClass = pkCorporationInfo->GetFranchiseBuildingClass();
 
 	// Get Corporation Buildings
-	BuildingTypes eHeadquarters = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass);
-	BuildingTypes eOffice = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
-	BuildingTypes eFranchise = (BuildingTypes) m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	BuildingTypes eHeadquarters = NO_BUILDING;
+	BuildingTypes eOffice = NO_BUILDING;
+	BuildingTypes eFranchise = NO_BUILDING;
+
+	// Get Corporation Buildings
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Don't check for Rome as even they don't keep Corporation buildings on conquest
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eHeadquartersClass);
+		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eOfficeClass);
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	}
 
 	int iLoop = 0;
 	// Destroy our headquarters and offices
@@ -618,15 +627,21 @@ void CvPlayerCorporations::DestroyCorporation()
 		if (pCity == NULL)
 			continue;
 
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+		{
+			eHeadquarters = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eHeadquartersClass);
+			eOffice = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eOfficeClass);
+		}
+
 		// City has headquarters?
-		if(pCity->HasBuilding(eHeadquarters))
+		if(eHeadquarters != NO_BUILDING && pCity->HasBuilding(eHeadquarters))
 		{
 			pCity->GetCityBuildings()->SetNumRealBuilding(eHeadquarters, 0);
 			GC.getGame().decrementBuildingClassCreatedCount(eHeadquartersClass);
 		}
 
 		// City has office?
-		if(pCity->HasBuilding(eOffice))
+		if(eOffice != NO_BUILDING && pCity->HasBuilding(eOffice))
 		{
 			pCity->GetCityBuildings()->SetNumRealBuilding(eOffice, 0);
 		}
@@ -642,7 +657,11 @@ void CvPlayerCorporations::DestroyCorporation()
 		iLoop = 0;
 		for(CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
-			if(pCity->HasBuilding(eFranchise))
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			{
+				eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(eFranchiseClass);
+			}
+			if(eFranchise != NO_BUILDING && pCity->HasBuilding(eFranchise))
 			{
 				pCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 0);
 			}
@@ -744,7 +763,7 @@ void CvPlayerCorporations::SetNoFranchisesInForeignCities(bool bValue)
 		m_bIsNoFranchisesInForeignCities = bValue;
 		if (bValue)
 		{
-			ClearCorporationFromForeignCities();
+			ClearCorporationFromForeignCities(false, true);
 		}
 	}
 }
@@ -979,10 +998,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	if (!HasFoundedCorporation())
 		return;
 
-	bool bIsVassalOrMaster = GET_TEAM(m_pPlayer->getTeam()).IsVassalOfSomeone() || GET_TEAM(m_pPlayer->getTeam()).GetMaster() != NO_TEAM;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague && !bIsVassalOrMaster && pLeague->IsPlayerEmbargoed(m_pPlayer->GetID()))
-		return;
 
 	int iFranchises = GetNumFranchises();
 	int iMaxFranchises = GetMaxNumFranchises();
@@ -1022,21 +1038,17 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		if (GET_PLAYER(ePlayer).GetID() == m_pPlayer->GetID())
 			continue;
 
-		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
 			continue;
 
-		//does not affect vassals
-		bool bMasterVassalRelationship = GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()) || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(m_pPlayer->getTeam());
-
-		if (pLeague && !bMasterVassalRelationship && pLeague->IsPlayerEmbargoed(ePlayer))
+		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
 			continue;
 
 		if (GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
 			continue;
 
-		CvCity* pLoopCity;
 		int iLoop;
-		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			if (pLoopCity != NULL)
 			{
@@ -1426,9 +1438,22 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 		return;
 
 	// Explicitly destroy all corporation buildings from this city
-	BuildingTypes eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetHeadquartersBuildingClass());
-	BuildingTypes eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
-	BuildingTypes eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+	BuildingTypes eHeadquarters = NO_BUILDING;
+	BuildingTypes eOffice = NO_BUILDING;
+	BuildingTypes eFranchise = NO_BUILDING;
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eHeadquarters = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetHeadquartersBuildingClass());
+		eOffice = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetOfficeBuildingClass());
+		eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetFranchiseBuildingClass());
+	}
+	else
+	{
+		eHeadquarters = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetHeadquartersBuildingClass());
+		eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass());
+	}
 
 	const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t jJ = 0; jJ < vBuildings.size(); jJ++)
@@ -1565,7 +1590,7 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 }
 
 // Clear our Corporation from foreign cities
-void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /* = false */, bool bFromEmbargo /* = false */)
+void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, bool bExcludeVassals, bool bExcludeMasters)
 {
 	if (!HasFoundedCorporation())
 		return;
@@ -1577,17 +1602,26 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /*
 	BuildingClassTypes eFranchiseClass = pkCorporationInfo->GetFranchiseBuildingClass();
 
 	// Get Corporation Buildings
-	BuildingTypes eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
+	BuildingTypes eFranchise = NO_BUILDING;
+	CvBuildingEntry* pkBuilding = NULL;
+	// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	{
+		eFranchise = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFranchiseClass);
 
-	CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFranchise);
-	if (!pkBuilding || !pkBuilding->IsCorp())
-		return;
+		if (eFranchise == NO_BUILDING)
+			return;
+
+		pkBuilding = GC.getBuildingInfo(eFranchise);
+		if (!pkBuilding || !pkBuilding->IsCorp())
+			return;
+	}
 
 	//and destroy our franchises!
-	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
 		if (!GET_PLAYER(eLoopPlayer).isAlive()) 
 			continue;
 
@@ -1595,10 +1629,13 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /*
 			continue;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// Don't clear franchises between masters and vassals if it's from a World Congress embargo
-		if (MOD_DIPLOMACY_CIV4_FEATURES && bFromEmbargo)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
-			if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			if (bExcludeVassals && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			{
+				continue;
+			}
+			if (bExcludeMasters && GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				continue;
 			}
@@ -1608,7 +1645,19 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly /*
 		int iLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
-			if (pCity->HasBuilding(eFranchise))
+			// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city. Rome check unnecessary as even Rome cannot keep Corporation buildings on conquest.
+			if(MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+			{
+				eFranchise = pCity->GetCityBuildings()->GetBuildingTypeFromClass(pkCorporationInfo->GetFranchiseBuildingClass());
+
+				if (eFranchise == NO_BUILDING)
+					continue;
+
+				pkBuilding = GC.getBuildingInfo(eFranchise);
+				if (!pkBuilding || !pkBuilding->IsCorp())
+					return;
+			}
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pCity->HasBuilding(eFranchise))
 			{
 				pCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 0);
 
@@ -1671,7 +1720,7 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 		return false;
 
 	//no foreign franchises? Exception for vassals.
-	if (IsNoFranchisesInForeignCities() && !GET_TEAM(pTargetCity->getTeam()).GetMaster() == pOriginCity->getTeam())
+	if (IsNoFranchisesInForeignCities() && GET_TEAM(pTargetCity->getTeam()).GetMaster() != pOriginCity->getTeam())
 		return false;
 
 	if (pTargetCity->IsHasFranchise(m_eFoundedCorporation) || !pOriginCity->IsHasOffice())
@@ -1682,15 +1731,9 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 	if (iFranchises >= iMax)
 		return false;
 
-	bool bVassalRelations = GET_TEAM(GET_PLAYER(pTargetCity->getOwner()).getTeam()).IsVassal(m_pPlayer->getTeam()) || GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pTargetCity->getOwner()).getTeam());
-
-	if (!bVassalRelations)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague)
-			if (pLeague->IsPlayerEmbargoed(pTargetCity->getOwner()) || pLeague->IsPlayerEmbargoed(m_pPlayer->GetID()))
-				return false;
-	}
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner()))
+		return false;
 
 	return true;
 }
@@ -1814,7 +1857,7 @@ CvCorporation* CvGameCorporations::GetCorporation(CorporationTypes eCorporation)
 	{
 		if(it->m_eCorporation == eCorporation)
 		{
-			return it;
+			return &(*it);
 		}
 	}
 

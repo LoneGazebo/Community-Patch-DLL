@@ -303,6 +303,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumResourceRequiredForUnit);
 	Method(GetNumResourceRequiredForBuilding);
 
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	Method(GetNumResourceRequiredForImprovement);
+	Method(GetNumResourceRequiredForRoute);
+#endif
+
 	Method(IsCombatWarned);
 	Method(SetCombatWarned);
 
@@ -1144,15 +1149,12 @@ int CvLuaGame::lIsNoNukes(lua_State* L)
 //void changeNoNukesCount(int iChange);
 int CvLuaGame::lChangeNoNukesCount(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNoNukesCount() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNoNukesCount() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNoNukesCount(iNumNukes);
 	return 1;
 }
@@ -1166,15 +1168,12 @@ int CvLuaGame::lGetNukesExploded(lua_State* L)
 //void changeNukesExploded(int iChange);
 int CvLuaGame::lChangeNukesExploded(lua_State* L)
 {
-#if defined(MOD_BUGFIX_LUA_API)
 	int iNumNukes;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNukesExploded() usage
 	else
 		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNukesExploded() usage
-#else
-	int iNumNukes = lua_tointeger(L, 2);
-#endif
+
 	GC.getGame().changeNukesExploded(iNumNukes);
 	return 1;
 }
@@ -2088,6 +2087,45 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 	lua_pushinteger(L, iNumNeeded);
 	return 1;
 }
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetNumResourceRequiredForImprovement(lua_State* L)
+{
+	const ImprovementTypes eImprovement = (ImprovementTypes)luaL_checkint(L, 1);
+	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+	int iNumNeeded = 0;
+	if (pkImprovementInfo && pkResourceInfo)
+	{
+		iNumNeeded = pkImprovementInfo->GetResourceQuantityRequirement((int)eResource);
+	}
+
+	lua_pushinteger(L, iNumNeeded);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetNumResourceRequiredForRoute(lua_State* L)
+{
+	const RouteTypes eRoute = (RouteTypes)luaL_checkint(L, 1);
+	const ResourceTypes eResource = (ResourceTypes)luaL_checkint(L, 2);
+
+	CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+	int iNumNeeded = 0;
+	if (pkRouteInfo && pkResourceInfo)
+	{
+		iNumNeeded = pkRouteInfo->getResourceQuantityRequirement((int)eResource);
+	}
+
+	lua_pushinteger(L, iNumNeeded);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsCombatWarned(lua_State* L)

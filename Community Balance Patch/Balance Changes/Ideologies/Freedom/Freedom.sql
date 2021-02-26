@@ -6,6 +6,11 @@ VALUES
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_BOMBER', 25),
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_FIGHTER', 25);
 
+INSERT INTO Policy_UnitClassReplacements
+	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
+VALUES
+	('POLICY_THEIR_FINEST_HOUR', 'UNITCLASS_BOMBER', 'UNITCLASS_B17');
+
 -- Arsenal of Democracy
 UPDATE Policies
 SET MilitaryUnitGiftExtraInfluence = '40'
