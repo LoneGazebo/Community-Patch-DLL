@@ -2846,16 +2846,19 @@ void CvCity::doTurn()
 		// Following function also looks at WLTKD stuff
 		DoTestResourceDemanded();
 
+		int iBorderGrowth = 0;
+		iBorderGrowth += getJONSCulturePerTurn();
+		iBorderGrowth += getYieldRate(YIELD_CULTURE_LOCAL, false);
 		// Culture accumulation
-		if(getJONSCulturePerTurn() > 0)
+		if(iBorderGrowth > 0)
 		{
-			ChangeJONSCultureStored(getJONSCulturePerTurn());
+			ChangeJONSCultureStored(iBorderGrowth);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			ChangeJONSCultureStored(getYieldRate(YIELD_CULTURE_LOCAL, false));
-			//Doubles during Golden Age
+			// Doubles during Golden Age ???
+			// Tooltip says just during WLTKD
 			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && (GET_PLAYER(getOwner()).isGoldenAge() || (GetWeLoveTheKingDayCounter() > 0)))
 			{
-				ChangeJONSCultureStored(getJONSCulturePerTurn());
+				ChangeJONSCultureStored(iBorderGrowth);
 			}
 #endif
 		}
@@ -29135,7 +29138,7 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 
 	if (!plots.empty())
 	{
-		SetCheapestPlotInfluenceDistance( calculateInfluenceDistance( GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() ) );
+		SetCheapestPlotInfluenceDistance( calculateInfluenceDistance( GC.getMap().plotByIndex(plots.front()), GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE()) );
 	}
 	else
 		SetCheapestPlotInfluenceDistance(INT_MAX);
