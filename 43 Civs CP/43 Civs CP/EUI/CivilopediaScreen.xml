@@ -1,0 +1,1309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<Context>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a list item  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ListItemInstance">
+		<Button Anchor="L,C" Size="256,22" Offset="0,0" Texture="CivilopediaSideButtons22.dds" ToolTipType="TypeRoundImage" ID="ListItemButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="C,C" Offset="0,0" Size="272,22" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".25">
+					<Image Anchor="C,C" Offset="-1,0" Texture="CivilopediaSideButtons272x22HL.dds" Size="272,22"/>
+				</AlphaAnim>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="9,-1" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="11,-1" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="2,-1" TextureOffset="8.0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="2,-1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Label Anchor="L,C" Offset="12,-2" Font="TwCenMT16" TruncateWidth="244" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="" ID="ListItemLabel"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a list heading  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ListHeadingInstance">
+		<Button Anchor="L,C" Size="254,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" ID="ListHeadingButton">
+			<Label Anchor="L,C" Offset="0,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="- Era Name Open Example" ID="ListHeadingLabel"/>
+		</Button>
+	</Instance>
+	<!-- While these are all remarkably similar, I am implementing them as individual instances so that they can be easily changed in the future -->
+	<!--=======================================================================================================================-->
+	<!--    Instance of a Great Works button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="GreatWorksInstance">
+		<Container Anchor="L,T" Size="64,64" ID="GreatWorksButton">
+			<Image Anchor="C,C" Texture="GreatWorks.dds" Size="32,32" ID="GreatWorksImage"/>
+		</Container>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a prerequisite technology button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="PrereqTechInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TECHNOLOGY_NAME" ID="PrereqTechButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TechnologyAtlas512.dds" Size="64,64" ID="PrereqTechImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a "leads to" technology button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="LeadsToTechInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TECHNOLOGY_NAME" ID="LeadsToTechButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TechnologyAtlas512.dds" Size="64,64" ID="LeadsToTechImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a "obsolete" technology button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ObsoleteTechInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TECHNOLOGY_NAME" ID="ObsoleteTechButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TechnologyAtlas512.dds" Size="64,64" ID="ObsoleteTechImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a "Upgrade"  button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UpgradeInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TECHNOLOGY_NAME" ID="UpgradeButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TechnologyAtlas512.dds" Size="64,64" ID="UpgradeImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a "reveals" technology button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RevealTechInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TECHNOLOGY_NAME" ID="RevealTechButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TechnologyAtlas512.dds" Size="64,64" ID="RevealTechImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unlocked unit button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UnlockedUnitInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNLOCKED_UNIT_NAME" ID="UnlockedUnitButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="UnitPortraitsAncientMedieval512.dds" Size="64,64" ID="UnlockedUnitImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unlocked building button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UnlockedBuildingInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNLOCKED_UNIT_NAME" ID="UnlockedBuildingButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UnlockedBuildingImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a required building button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RequiredBuildingInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_REQUIRED_BUILDING_NAME" ID="RequiredBuildingButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="RequiredBuildingImage"/>
+		</Button>
+	</Instance>
+	<!-- CBP -->
+	<!--=======================================================================================================================-->
+	<!--    Instance of a leads to building button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="LeadsToBuildingInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_LEADS_TO_BUILDING_NAME" ID="LeadsToBuildingButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="LeadsToBuildingImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a corporation button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="CorporationInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_CORPORATION_BUILDING_NAME" ID="CorporationButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="CorporationImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a corporation building button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="CorporationBuildingInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_CORPORATION_BUILDING_NAME" ID="CorporationBuildingButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="CorporationBuildingImage"/>
+		</Button>
+	</Instance>
+	<!-- END -->
+	<!--=======================================================================================================================-->
+	<!--    Instance of a revealed resource button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RevealedResourceInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_RESOURCE_NAME" ID="RevealedResourceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="Resources512.dds" Size="64,64" ID="RevealedResourceImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a required resource button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RequiredResourceInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_RESOURCE_NAME" ID="RequiredResourceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="Resources512.dds" Size="64,64" ID="RequiredResourceImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a local resource button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="LocalResourceInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_LOCAL_RESOURCE_NAME" ID="LocalResourceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="Resources512.dds" Size="64,64" ID="LocalResourceImage"/>
+		</Button>
+	</Instance>
+	<!-- CBP -->
+	<!--=======================================================================================================================-->
+	<!--    Instance of a Monopoly resource button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="MonopolyResourceInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_MONOPOLY_RESOURCE_NAME" ID="MonopolyResourceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="Resources512.dds" Size="64,64" ID="MonopolyResourceImage"/>
+		</Button>
+	</Instance>
+	<!-- END -->
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unlocked worker action button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="WorkerActionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_WORKER_ACTION_NAME" ID="WorkerActionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="WorkerActionImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unlocked project button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UnlockedProjectInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNLKED_PROJECT_NAME" ID="UnlockedProjectButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UnlockedProjectImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a promotion button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="PromotionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_PROMOTION_NAME" ID="PromotionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="PromotionImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a required promotion button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RequiredPromotionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_PROMOTION_NAME" ID="RequiredPromotionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="RequiredPromotionImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a specialist button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="SpecialistInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_SPEC_NAME" ID="SpecialistButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="SpecialistImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a required policy button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="RequiredPolicyInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_POLICY_NAME" ID="RequiredPolicyButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="RequiredPolicyImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a leader button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="LeaderInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_LEADER_NAME" ID="LeaderButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="LeaderPortraits512.dds" Size="64,64" ID="LeaderImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a civilization button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="CivilizationInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_CIVILIZATION_NAME" ID="CivilizationButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="CivSymbolsColor512.dds" Size="64,64" ID="CivilizationImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a trait button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="TraitInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TRAIT_NAME" ID="TraitButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="CivSymbolsColor512.dds" Size="64,64" ID="TraitImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unique unit button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UniqueUnitInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEUNIT_NAME" ID="UniqueUnitButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="UnitPortraitsAncientMedieval512.dds" Size="64,64" ID="UniqueUnitImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unique building button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UniqueBuildingInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEBLDG_NAME" ID="UniqueBuildingButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UniqueBuildingImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unique improvement button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UniqueImprovementInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEIMPR_NAME" ID="UniqueImprovementButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UniqueImprovementImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a replaces button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ReplaceInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_REPLACE_NAME" ID="ReplaceButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="UnitPortraitsAncientMedieval512.dds" Size="64,64" ID="ReplaceImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of an improvement button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ImprovementInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_IMPROVEMENT_NAME" ID="ImprovementButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="UnitPortraitsAncientMedieval512.dds" Size="64,64" ID="ImprovementImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a feature button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="FeatureInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_FEATURE_NAME" ID="FeatureButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TerrainIcons512.dds" Size="64,64" ID="FeatureImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a terrain button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="TerrainInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_TERRAIN_NAME" ID="TerrainButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="TerrainIcons512.dds" Size="64,64" ID="TerrainImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a found resource button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="ResourceFoundInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_RESOURCE_NAME" ID="ResourceFoundButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="Resources512.dds" Size="64,64" ID="ResourceFoundImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a free form text block  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="FreeFormTextInstance">
+		<Grid Anchor="L,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FFTextFrame">
+			<Label ID="FFTextHeader" Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="FFTextInnerFrame">
+				<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="FFTextLabel"/>
+			</Grid>
+		</Grid>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a big text block  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="BBTextInstance">
+		<Grid Anchor="L,T" Offset="0,24" Size="636,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="BBTextFrame">
+			<Label ID="BBTextHeader" Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="640,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="BBTextInnerFrame">
+				<Label Anchor="L,T" Offset="15,15" WrapWidth="615" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="BBTextLabel"/>
+			</Grid>
+		</Grid>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!-- The display -->
+	<!--=======================================================================================================================-->
+	<Box Anchor="C,C" Size="Full,Full" Color="0,0,0,160" ConsumeMouse="1" ID="BackDrop"/>
+	<Box Anchor="C,C" Size="1024,Full" Color="0,0,0,0">
+		<Image Anchor="C,T" Texture="FancyTrim1024.dds" Size="1024,64"/>
+		<Label Anchor="C,T" Offset="0,4" Font="TwCenMT24" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_CIVILOPEDIA"/>
+		<Grid Size="1024,full" Anchor="C,T" Offset="0,82" Padding="0,0" Style="Grid9DetailFive140">
+			<Image Anchor="C,T" Offset="0.5" Texture="CivilopediaTopTitleDark.dds" Size="360,39">
+				<Image Anchor="L,C" Offset="0.0" AnchorSide="I.O" Texture="CivilopediaTopTitleDivider.dds" Size="3,32"/>
+				<Image Anchor="R,C" Offset="0.0" AnchorSide="I.O" Texture="CivilopediaTopTitleDivider.dds" Size="3,32"/>
+				<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CategoryLabel" String="TXT_KEY_PEDIA_TECH_SECTION"/>
+				<Button Offset="-305,3" Style="BackButton" Anchor="L,C" ID="BackButton">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="L,C" Offset="0,0" Size="48,48" TextureOffset="0.0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="0">
+							<Label Anchor="R,C" AnchorSide="O.I" Offset="-10,-2" Font="TwCenMT20" FontStyle="SoftShadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_BACK_BUTTON"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+				<Button Offset="-36,3" Style="ForwardButton" Anchor="L,C" ID="ForwardButton">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="L,C" Offset="0,0" Size="48,48" TextureOffset="0.0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="0">
+							<Label Anchor="L,C" AnchorSide="O.I" Offset="4,-2" Font="TwCenMT20" FontStyle="SoftShadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_FORWARD_BUTTON"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+			</Image>
+			<Button Anchor="R,T" Size="32,32" Offset="36.6" TextureOffset="28,-3" Texture="CloseMinButtons.dds" ToolTip="TXT_KEY_ESC_TO_EXIT" ID="CloseButton" Hidden="0"/>"
+
+			<!-- Search -->
+			<GridButton Anchor="R,T" ID="SearchButton" Offset="-16,-32" Size="38,38" Style="BaseButton" String="">
+				<Image Anchor="C,C" Offset="0,0" Size="30,30" Texture="Civilopedia_SearchIcon.dds" ToolTip="TXT_KEY_SEARCH_BUTTON"/>
+				<Grid Anchor="L,C" AnchorSide="O.I" Offset="8,0" Size="150,32" Padding="0,0" Style="GridBlackIndent8" Hidden="0">
+					<Grid Anchor="C,C" Offset="0,0" Size="154,36" Padding="0,0" Style="Grid9Frame" Hidden="0">
+						<!--<Box Anchor="L,C" Offset="8,0" Size="140,24" Color="255,0,0,255" />-->
+						<EditBox ID="SearchEditBox" Anchor="L,C" Offset="10,0" Size="140,24" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" MaxLength="50"/>
+					</Grid>
+				</Grid>
+			</GridButton>
+			<!--<GridButton Anchor="R,T" Size="32,32" Color="255,255,255,200"  Offset="20,-32" StateOffsetIncrement="0,0" Hidden="0" ID="SearchButton" >
+        <GridData Style="Grid9DarkBlue8Button" />
+        -->
+			<!--<Grid Anchor="C,C" Offset="0,0" Size="32,32" Padding="0,0" Style="Grid9Frame" >-->
+			<!--
+          <ShowOnMouseOver>
+            <AlphaAnim  Anchor="C,C" Offset="0,0" Size="32,32" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+              <Grid  Size="84,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+            </AlphaAnim>
+            <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+            <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+            <Image Anchor="R,C" Offset="-17,1" TextureOffset="0.0" AnchorSide="O.O"  Texture="buttonsides.dds" Size="32,32" />
+            <Image Anchor="L,C" Offset="-17,1" TextureOffset="0.0" AnchorSide="O.O"  Texture="buttonsides_left.dds" Size="32,32" />
+          </ShowOnMouseOver>          
+        -->
+			<!--</Grid>-->
+			<!--
+
+		  -->
+			<!--<Label Anchor="C,C" Offset="0,-2"  Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_SEARCH_BUTTON"  />-->
+			<!--
+		  <Image Anchor="C,C" Offset="0,0" Size="30,30" Texture="Civilopedia_SearchIcon.dds" ToolTip="TXT_KEY_SEARCH_BUTTON" />
+		  
+        <Grid Anchor="L,C" AnchorSide="O.I" Offset="8,0" Size="170,32" Padding="0,0" Style="GridBlackIndent8" Hidden="0" >
+          <Grid Anchor="C,C" Offset="0,0" Size="174,36" Padding="0,0" Style="Grid9Frame" Hidden="0" >
+            <EditBox ID="SearchEditBox" Anchor="L,C" Offset="10,0" Size="160,24" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" MaxLength="50" />
+          </Grid>
+        </Grid>   
+      </GridButton>-->
+			<PullDown Style="GenericPullDown" Anchor="R,T" ScrollThreshold="500" AutoSizePopUp="1" Offset="6,-36" Size="280,38" SpaceForScroll="1" ID="PartialMatchPullDown" Hidden="1"/>
+			<!-- Top Tab Buttons -->
+			<Stack Anchor="L,T" Offset="38,-35" Size="64,64" StackGrowth="Right" Padding="1">
+				<Button Anchor="C,T" ID="CategoryButton1" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsHome.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_1_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton2" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsGameplay.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_2_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton3" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsTechnology.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_3_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton4" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsUnit.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_4_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton5" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsPromotions.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_5_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton6" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsBuildings.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_6_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton7" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsWonders.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_7_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton8" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsSocialPolicy.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_8_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton9" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsGreatPersons.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_9_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton10" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsCivsCityStates.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_10_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton11" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsCities.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_11_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton12" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsTerrian.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_12_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton13" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsResourcesImprovements.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_13_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton14" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsImprovements.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_14_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton15" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsReligion.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_15_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton16" Size="46,50" Offset="0,-10" Texture="CivilopediaTopButtonsWorldCongress.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_16_LABEL"/>
+				<Button Anchor="C,T" ID="CategoryButton17" Size="46,50" Offset="0,-10" Texture="civilopediatopbuttonscorporations.dds" ToolTip="TXT_KEY_PEDIA_CATEGORY_17_LABEL"/>
+			</Stack>
+			<!-- Selected Button -->
+			<Stack Anchor="L,T" Offset="38,-35" Size="64,64" StackGrowth="Right" Padding="1">
+				<Image Anchor="C,T" Size="46,50" Offset="0,-10" TextureOffset="0,50" Texture="CivilopediaTopButtonsHome.dds" ID="SelectedCategoryTab">
+				</Image>
+			</Stack>
+		</Grid>
+		<Image Anchor="L,T" Offset="273,125" TextureOffset="0.0" Texture="SideRight.dds" Size="13,1500" Hidden="0"/>
+		<!--Invisible box that everything is anchored to-->
+		<Box Anchor="C,T" Size="1000,980" Offset="0,126" Color="255,255,255,0">
+			<!--glowy blue background behind list of articles-->
+			<AlphaAnim Anchor="L,T" Offset="0,0" Size="270,Full" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".55" AlphaEnd=".75">
+				<Grid Size="270,full" Anchor="L,T" Offset="0,0" Padding="0,0" Style="GridGlass16"/>
+			</AlphaAnim>
+			<ScrollPanel Anchor="C,T" Offset="0,0" Size="1002,980" Vertical="1" ID="ScrollPanel" AutoScrollBar="1">
+				<ScrollBar Offset="0,0" Style="VertSlider" Anchor="R,T" Length="800" ID="ScrollBar"/>
+				<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="UpButton"/>
+				<DownButton Offset="0,0" Style="ScrollBarDown" Anchor="R,T" ID="DownButton"/>
+				<!--large (wide) content stack-->
+				<Stack Anchor="R,T" Offset="38,0" Size="64,64" StackGrowth="Bottom" Padding="12" ID="WideStack">
+					<!-- Name -->
+					<Image Anchor="R,T" Size="500,64" Offset="-18,0" Texture="CivilopediaTitle.dds">
+						<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT20" FontStyle="SoftShadow" Color0="Beige" Color1="0.0.0.160" String="title goes here" ID="ArticleID"/>
+					</Image>
+					<!-- Subtitle -->
+					<Image Anchor="R,T" Size="500,64" Offset="-18,-30" Texture="CivilopediaTitle.dds" ID="SubtitleID">
+						<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT20" FontStyle="SoftShadow" Color0="Beige" Color1="0.0.0.160" String="Subtitle goes here" ID="SubtitleLabel"/>
+					</Image>
+					<!-- Game Info -->
+					<Grid Anchor="R,T" Offset="0,0" Size="436,180" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GameInfoFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_GAME_INFO_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,184" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="GameInfoInnerFrame">
+							<Stack Anchor="L,T" Offset="0,0" Size="64,64" StackGrowth="Bottom" Padding="0">
+								<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="GameInfoLabel" String="text goes here"/>
+							</Stack>
+						</Grid>
+					</Grid>
+					<!--Home Page blub infos -->
+					<Grid Anchor="L,T" Offset="78,0" Size="436,180" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="HomePageBlurbFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="440,184" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="HomePageBlurbInnerFrame">
+							<Stack Anchor="L,T" Offset="12,0" Size="64,64" StackGrowth="Bottom" Padding="0">
+								<Label Anchor="L,T" Offset="0,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="HomePageBlurbLabel" String="text goes here"/>
+							</Stack>
+						</Grid>
+					</Grid>
+					<!-- Quote -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,150" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="QuoteFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_QUOTE_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,154" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="QuoteInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="quote goes here" ID="QuoteLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Special Abilities -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,60" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AbilitiesFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_ABILITIES_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,64" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="AbilitiesInnerFrame">
+							<Label Anchor="L,T" Offset="12,12" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AbilitiesLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Silent Quote -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="SilentQuoteFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_QUOTE_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="SilentQuoteInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="420" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="SilentQuoteLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Strategy -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="StrategyFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_STRATEGY_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="StrategyInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="StrategyLabel"/>
+						</Grid>
+					</Grid>
+					<!-- History -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="HistoryFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_HISTORICAL_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="HistoryInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="HistoryLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Summary -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="SummaryFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_SUMMARY_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="SummaryInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="SummaryLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Extended -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ExtendedFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_EXTENDED_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="ExtendedInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ExtendedLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Resource Bonus -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationResourceBonusFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpResourceBonusInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationResourceBonusLabel"/>
+						</Grid>
+					</Grid>
+					<!-- CBP -->
+					<!-- Office Bonus -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationOfficeBonusFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpOfficeBonusInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationOfficeBonusLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Trade Route Bonus -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationTRBonusFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_TRADE_ROUTE_BONUS_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorporationTRBonusInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationTRBonusLabel"/>
+						</Grid>
+					</Grid>
+					<!-- CBP END -->
+					<Stack Anchor="L,T" Offset="440,0" Size="64,64" StackGrowth="Bottom" Padding="12" ID="FFTextStack"/>
+					<!-- Designer's Notes -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="DNotesFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_DNOTES_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="DNotesInnerFrame">
+							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="DNotesLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Related Images -->
+					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RelatedImagesFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RELATED_IMAGES_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RelatedImagesInnerFrame">
+						</Grid>
+					</Grid>
+					<!-- bottom spacing -->
+					<Box Anchor="R,T" Size="1,10" Offset="0,0" Color="255,255,255,0"/>
+				</Stack>
+				<!--Full Page content -->
+				<Stack Anchor="L,T" Offset="320,260" Size="64,64" StackGrowth="Bottom" Padding="12" ID="SuperWideStack">
+					<!-- Wide Text Block Help Info -->
+					<Grid Anchor="R,T" Offset="0,18" Size="636,180" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="WideTextBlockFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_HOME_PAGE_HELP_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="640,184" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="WideTextBlockInnerFrame">
+							<Stack Anchor="L,T" Offset="12,0" Size="64,64" StackGrowth="Bottom" Padding="0">
+								<Label Anchor="L,T" Offset="0,12" WrapWidth="600" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="WideTextBlockLabel" String="text goes here"/>
+							</Stack>
+						</Grid>
+					</Grid>
+					<Stack Anchor="L,T" Offset="0,0" Size="64,64" StackGrowth="Bottom" Padding="12" ID="BBTextStack"/>
+				</Stack>
+				<!--small (narrow) content stack-->
+				<Stack Anchor="L,T" Offset="304,0" Size="64,64" StackGrowth="Bottom" Padding="12" ID="NarrowStack">
+					<!-- Portrait -->
+					<Image Anchor="L,T" Offset="-24,0" TextureOffset="0.0" Texture="256x256Frame.dds" Size="256,256" ID="PortraitFrame">
+						<Image Anchor="C,C" Offset="0,0" TextureOffset="0.0" Size="256,256" ID="Portrait"/>
+					</Image>
+					<!-- Cost -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CostFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_COST_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="60 Science" ID="CostLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Lived -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LivedFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LIVED_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="???-???" ID="LivedLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Titles etc. -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TitlesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TitlesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TITLES_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="190" LeadingOffset="-5" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="???" ID="TitlesLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Maintenance -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MaintenanceFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_MAINT_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="60 Gold" ID="MaintenanceLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Happiness -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="HappinessFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_HAPPINESS_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="HappinessLabel"/>
+						</Grid>
+					</Grid>
+					<!-- UnmoddedHappiness -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UnmoddedHappinessFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_HAPPINESS_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="UnmoddedHappinessLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Culture -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CultureFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CULTURE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CultureLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Faith -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FaithFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FAITH_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="FaithLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Defense -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="DefenseFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_DEFENSE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="DefenseLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Food Change -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FoodFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FOOD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="FoodLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Gold Change -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GoldChangeFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_GOLD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="GoldChangeLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Gold -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GoldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_GOLD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="GoldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Science -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ScienceFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_SCIENCE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ScienceLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Production -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ProductionFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PRODUCTION_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ProductionLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Vox Populi Tourism -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TourismFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TOURISM_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TourismLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Great People -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GreatPeopleFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="GPTitle" String="TXT_KEY_PEDIA_GP_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="GreatPeopleLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Combat Type -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CombatTypeFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_COMBATTYPE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CombatTypeLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Combat Strength -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CombatFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_COMBAT_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.3" ID="CombatLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Ranged Combat Strength -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RangedCombatFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RANGEDCOMBAT_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.4" ID="RangedCombatLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Ranged Combat Range -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RangedCombatRangeFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RANGE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.5" ID="RangedCombatRangeLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Movement Range -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MovementFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_MOVEMENT_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.5" ID="MovementLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Air Defense -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AirDefenseFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_AIR_DEFENSE_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.5" ID="AirDefenseLabel"/>
+						</Grid>
+					</Grid>
+					<!-- City Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="YieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="YieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Mountain Adjacency Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MountainYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_MOUNTAINADJYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="MountainYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- CBP-->
+					<!-- Route/Trade Yield-->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TradeRouteYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TRADEROUTE_CBP_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TradeRouteYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Improvement Adjacency Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVADJYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Terrain Adjacency Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentTerrainYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVADJTERRAINYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentTerrainYieldLabel"/>
+						</Grid>
+					</Grid>
+					
+					<!-- Adjacent Improvement Yield-->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Two Adjacent Improvement Yield-->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TwoAdjacentImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TWOADJIMPROVYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TwoAdjacentImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Resource Improvement Yield-->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ImprovementYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ImprovementYieldLabel"/>
+						</Grid>
+					</Grid>		
+					<!-- END-->
+					<!-- Movement Cost -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MovementCostFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_MOVECOST_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="MovementCostLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Combat Modifier -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CombatModFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_COMBATMOD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CombatModLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Policy Branch -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="PolicyBranchFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_POLICYBRANCH_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.8" ID="PolicyBranchLabel"/>
+						</Grid>
+					</Grid>
+          <!-- Tenet Level -->
+          <Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="1" ID="TenetLevelFrame">
+            <Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+              <Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="{TXT_KEY_PEDIA_TENET_LEVEL}:"/>
+              <Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.8" ID="TenetLevelLabel"/>
+            </Grid>
+          </Grid>
+					<!-- Prereq Era -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="PrereqEraFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PREREQ_ERA_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="11.7" ID="PrereqEraLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Leaders -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LeadersFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LeadersInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LEADERS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Civs -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CivilizationsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CivilizationsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CIVILIZATIONS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Trait -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TraitsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TraitsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TRAITS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Unique Units -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UniqueUnitsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UniqueUnitsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEUNIT_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Unique Buildings -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UniqueBuildingsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UniqueBuildingsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEBLDG_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Unique Improvements -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UniqueImprovementsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UniqueImprovementsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEIMPRV_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Required Policies -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RequiredPoliciesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RequiredPoliciesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PREREQ_POLICY_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Promotions -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FreePromotionsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="FreePromotionsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FREEPROMOTIONS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Required Promotions -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RequiredPromotionsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RequiredPromotionsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REQ_PROMOTIONS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Resources Required -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RequiredResourcesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RequiredResourcesInnerFrame">
+							<Label ID="RequiredResourcesLabel" Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REQ_RESRC_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Local Resources Required -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LocalResourcesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LocalResourcesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LOCAL_RESRC_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- CBP -->
+					<!-- Corporation Free Trade Routes -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FreeTRFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FREE_TR_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="60 Science" ID="FreeTRLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Corporation -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorporationInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Corporation Headquarters -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorpHeadquartersFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpHeadquartersInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORP_HEADQUARTERS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Corporation Office -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorpOfficeFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpOfficeInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORP_OFFICE_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Corporation Franchise -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorpFranchiseFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpFranchiseInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORP_FRANCHISE_LABEL"/>
+						</Grid>
+					</Grid>
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MonopolyResourcesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="MonopolyResourcesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- END -->
+					<!-- Prerequisite Techs -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="PrereqTechFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="PrereqTechInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PREREQ_TECH_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Leads to Techs  -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LeadsToTechFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LeadsToTechInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LEADS_TO_TECH_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Obsolete Techs  -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ObsoleteTechFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="ObsoleteTechInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_OBSOLETE_TECH_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Upgrade -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UpgradeFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UpgradeInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_COMMAND_UPGRADE"/>
+						</Grid>
+					</Grid>
+					<!-- Units Unlocked  -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UnlockedUnitsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UnlockedUnitsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIT_UNLOCK_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Buildings Unlocked -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UnlockedBuildingsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UnlockedBuildingsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_BLDG_UNLOCK_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Buildings Required -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RequiredBuildingsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RequiredBuildingsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REQ_BLDG_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- CBP -->
+					<!-- Buildings Leads To -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LeadsToBuildingsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LeadsToBuildingsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LEADS_TO_BLDG_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- END-->
+					<!-- Projects Unlocked -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UnlockedProjectsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UnlockedProjectsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PROJ_UNLOCK_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Resources Revealed -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RevealedResourcesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RevealedResourcesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RESRC_RVL_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Specialists -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="SpecialistsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="SpecialistsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_SPEC_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Great Works -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GreatWorksFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="GreatWorksInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_GREAT_WORKS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Worker Actions -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="WorkerActionsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="WorkerActionsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_WORKER_ACTION_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Replaces -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ReplacesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="ReplacesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REPLACES_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Reveal Techs  -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RevealTechsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RevealTechsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REVEAL_TECH_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Features -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FeaturesFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="FeaturesInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FEATURES_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Terrains -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TerrainsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TerrainsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FEATURES_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Resources Found on this (terrain/feature) -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ResourcesFoundFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="ResourcesFoundInnerFrame">
+							<Label ID="ResourcesFoundLabel" Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TERRAINS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Improvements -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ImprovementsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="ImprovementsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVEMENTS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Related Articles -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,150" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RelatedArticlesFrame">
+						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RELATED_ARTICLES_LABEL"/>
+						<Grid Anchor="C,C" Offset="0,0" Size="208,154" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RelatedArticlesInnerFrame">
+						</Grid>
+						<Stack Anchor="C,T" Offset="0,14" Size="64,64" StackGrowth="Bottom" Padding="12">
+							<GridButton Anchor="C,T" Size="180,32" Color="255,255,255,200" Offset="0,0" StateOffsetIncrement="0,0">
+								<GridData Style="Grid9DarkBlue8Button"/>
+								<Grid Anchor="C,C" Offset="0,0" Size="184,36" Padding="0,0" Style="Grid9Frame" Hidden="0"/>
+								<ShowOnMouseOver>
+									<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+										<Grid Size="180,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+									</AlphaAnim>
+									<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<Image Anchor="R,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides.dds" Size="32,32"/>
+									<Image Anchor="L,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides_left.dds" Size="32,32"/>
+								</ShowOnMouseOver>
+								<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT16" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_RESEARCH_LABEL"/>
+							</GridButton>
+							<GridButton Anchor="C,T" Size="180,32" Color="255,255,255,200" Offset="0,0" StateOffsetIncrement="0,0">
+								<GridData Style="Grid9DarkBlue8Button"/>
+								<Grid Anchor="C,C" Offset="0,0" Size="184,36" Padding="0,0" Style="Grid9Frame" Hidden="0"/>
+								<ShowOnMouseOver>
+									<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+										<Grid Size="180,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+									</AlphaAnim>
+									<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<Image Anchor="R,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides.dds" Size="32,32"/>
+									<Image Anchor="L,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides_left.dds" Size="32,32"/>
+								</ShowOnMouseOver>
+								<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT16" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="Ancient Era"/>
+							</GridButton>
+							<GridButton Anchor="C,T" Size="180,32" Color="255,255,255,200" Offset="0,0" StateOffsetIncrement="0,0">
+								<GridData Style="Grid9DarkBlue8Button"/>
+								<Grid Anchor="C,C" Offset="0,0" Size="184,36" Padding="0,0" Style="Grid9Frame" Hidden="0"/>
+								<ShowOnMouseOver>
+									<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+										<Grid Size="180,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+									</AlphaAnim>
+									<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+									<Image Anchor="R,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides.dds" Size="32,32"/>
+									<Image Anchor="L,C" Offset="-24,1" TextureOffset="0.0" AnchorSide="O.O" Texture="buttonsides_left.dds" Size="32,32"/>
+								</ShowOnMouseOver>
+								<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT16" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="Blah Blah Blah"/>
+							</GridButton>
+						</Stack>
+					</Grid>
+					<Box Anchor="R,T" Size="636,100" Offset="0,0" Color="255,255,255,0"/>
+					<!--list of articles in this category-->
+					<!--<Stack Anchor="L,T"  Offset="7,0" Size="64,64" StackGrowth="Bottom" Padding="0" ID="ListOfArticles"/>-->
+				</Stack>
+			</ScrollPanel>
+			<ScrollPanel Anchor="L,T" Offset="0,0" Size="294,980" Vertical="1" ID="LeftScrollPanel">
+				<ScrollBar Offset="0,0" Style="VertSlider" Anchor="R,T" Length="930" ID="LeftScrollBar"/>
+				<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="LeftUpButton"/>
+				<DownButton Offset="0,0" Style="ScrollBarDown" Anchor="R,T" ID="LeftDownButton"/>
+				<!--list of articles in this category-->
+				<Stack Anchor="L,T" Offset="7,0" Size="64,64" StackGrowth="Bottom" Padding="0" ID="ListOfArticles"/>
+			</ScrollPanel>
+		</Box>
+	</Box>
+	<ToolTipType Name="TypeRoundImage">
+		<Image Anchor="L,T" Size="64,64" Offset="20,-32" Texture="64x64FrameButtons.dds" ID="ToolTipFrame">
+			<Image Anchor="C,C" Texture="UnitPortraitsAncientMedieval512.dds" Size="64,64" ID="ToolTipImage"/>
+		</Image>
+	</ToolTipType>
+	<Box Color="Black.200" Size="Full.Full" ID="SearchFoundNothing" ConsumeMouseOver="1" Hidden="1">
+		<Grid Size="500,360" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0">
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,0" Size="80,80" Texture="NotificationFrameBase.dds">
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="80.80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
+				</Image>
+			</Image>
+			<Label ID="SearchNotFoundText" Anchor="C,T" Offset="0,74" WrapWidth="440" String="TXT_KEY_CONFIRM_TXT" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			<Stack Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom" ID="ButtonStack">
+				<!-- Yes Button  -->
+				<GridButton Style="BaseButton" ID="OK" Size="400,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OK_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+</Context>

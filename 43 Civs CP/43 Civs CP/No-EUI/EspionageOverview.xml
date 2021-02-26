@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+	<Instance Name="AgentInstance">
+		<Box Size="451,80" Color="255,255,255,80" ID="Base">
+			<Stack Size="451,40" StackGrowth="Right">
+				<Box Size="116,40" Color="0,0,0,0">
+					<Label ID="AgentName" Anchor="L,T" Offset="10,4" TruncateWidth="105" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Grid Style="Grid9Frame27" Size="65,35" Anchor="L,T" Offset="15,25">
+						<Image Size="21,21" Anchor="R,C" Offset="2,0" Texture="Esp_Spy_Upgrades21.dds" ID="AgentRank"/>
+					</Grid>
+					<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" ToolTip="Secret"/>
+          <Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Diplomat_FramedIcon45.dds" ID="DiplomatIcon" ToolTip="Secret" Hidden="true"/>
+		 <Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Thief_FramedIcon45.dds" ID="ThiefIcon" ToolTip="Secret" Hidden="true"/>
+				</Box>
+				<Box Size="116,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
+					<Stack Size="116,20" StackGrowth="Right">
+						<Box Size="32,32" Anchor="L,T" Offset="0,-5" Color="0,0,0,0">
+							<Image ID="AgentLocationIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="AgentLocationIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="AgentLocationIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Box>
+						<Label ID="AgentLocation" Anchor="L,T" Offset="0,5" TruncateWidth="120" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Stack>
+					<Stack Size="116,20" Offset="0,20" Anchor="C,T" StackGrowth="Bottom" ID="AgentActivitiesStack">
+						<GridButton Size="96,26" Style="SmallButton" ID="ViewCityButton" ToolTip="TXT_KEY_EO_VIEW_TOOLTIP">
+							<Image Size="20,20" Texture="Esp_ViewCity20.dds" Offset="5,5" Anchor="L,T"/>
+							<Label ID="ViewCityButtonLabel" String="TXT_KEY_EO_VIEW" Offset="0,0" Anchor="C,C"/>
+						</GridButton>
+						<GridButton Size="96,26" Style="SmallButton" ID="StageCoupButton" String="TXT_KEY_EO_COUP" ToolTip="TXT_KEY_EO_COUP_TT" Hidden="1"/>
+						<GridButton Size="96,26" Style="SmallButton" ID="RelocateButton" String="TXT_KEY_EO_RELOCATE" ToolTip="TXT_KEY_EO_RELOCATE_TOOLTIP"/>
+					</Stack>
+				</Box>
+				<Box Size="218,40" Color="0,0,0,0" ID="AgentActivityPanel">
+					<Box Size="180,20" Color="0,0,0,0" Anchor="C,T">
+						<Label ID="AgentActivity" Offset="5,1" Anchor="C,C" TruncateWidth="180" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+					<Box Size="152,40" Offset="0,20" Color="0,0,0,0">
+						<Box Size="214,29" Anchor="L,B" Color="0,0,0,0">
+							<Image Texture="MeterBarFrame.dds" Size="214,29" Anchor="L,B" ID="AgentActivityProgressFrame"/>
+							<Image Texture="MeterBarGreatPersonBack.dds" Size="214,29" Anchor="L,B" ID="AgentActivityProgressBack"/>
+							<TextureBar Anchor="L,B" Size="214,29" Texture="MeterBarGreatPersonGold.dds" ShadowColor="255,255,255,120" HasShadow="1" Direction="Right" ID="AgentActivityProgress"/>
+							<Label ID="AgentProgress" Anchor="C,C" Offset="14,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+						</Box>
+						<Image Size="45,45" Anchor="L,B" Offset="0,-7" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="45,45" ID="AgentActivityIcon"/>
+					</Box>
+				</Box>
+			</Stack>
+			<Box Size="451,80" Color="0,0,0,200" ID="AgentKIAPanel" Hidden="1">
+				<Label Anchor="C,C" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_KIA"/>
+			</Box>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="451,3"/>
+		</Box>
+	</Instance>
+	<Instance Name="MyCityInstance">
+		<Box Size="466,28" Color="120,120,120,80" ID="Base">
+			<Stack Size="466,28" StackGrowth="Right">
+				<Box Size="161,25" Color="0,0,0,0">
+					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+						<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+            <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Box>
+					<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="161,25" Color="0,0,0,0">
+					<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
+					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
+					<!-- CBP Entry -->
+					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<!-- END -->
+					<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="80,25" Color="0,0,0,0">
+					<Image ID="PotentialMeterBack" Anchor="L,C" Texture="Esp_CityPotential_Stars_Black.dds" Size="93,20"/>
+					<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars.dds" Direction="Right" ID="PotentialMeterFront"/>
+				</Box>
+				<Box Size="80,25" Color="0,0,0,0">
+					<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+			</Stack>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="466,3"/>
+		</Box>
+	</Instance>
+	<Instance Name="MyCityButtonInstance">
+		<Box Size="466,28" Color="120,120,120,80" ID="Base">
+			<Button Size="466,28" ID="CitySelectButton">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<Stack Size="466,28" StackGrowth="Right">
+					<Box Size="161,25" Color="0,0,0,0">
+						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+							<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Box>
+						<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+					<Box Size="161,25" Color="0,0,0,0">
+						<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
+						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
+						<!-- CBP Entry -->
+						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+						<!-- END -->
+						<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+					<Box Size="80,25" Color="0,0,0,0">
+						<Image ID="PotentialMeterBack" Anchor="L,C" Texture="Esp_CityPotential_Stars_Black.dds" Size="93,20"/>
+						<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars.dds" Direction="Right" ID="PotentialMeterFront"/>
+					</Box>
+					<Box Size="80,25" Color="0,0,0,0">
+						<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+				</Stack>
+			</Button>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="466,3"/>
+		</Box>
+	</Instance>
+	<Instance Name="TheirCityInstance">
+		<Box Size="466,28" Color="255,255,255,120" ID="Base">
+			<Stack Size="466,28" StackGrowth="Right">
+				<Box Size="161,25" Color="0,0,0,0">
+					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+						<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+       				</Box>
+					<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="161,25" Color="0,0,0,0">
+					<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
+          <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
+					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
+					<Button Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" NoStateChange="1" ID="ViewCityIcon"/>
+<!-- CBP Entry -->
+					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+						<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Box>
+					<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+<!-- END -->
+					<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="80,25" Color="0,0,0,0">
+					<Image ID="PotentialMeterBack" Anchor="L,C" Texture="Esp_CityPotential_Stars_Black.dds" Size="93,20"/>
+					<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars_Blue.dds" Direction="Right" ID="PotentialMeterGhost"/>
+					<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars.dds" Direction="Right" ID="PotentialMeterFront"/>
+					<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+					<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" Size="22,22"/>
+					<!-- CBP -->
+					<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+					<!-- END -->
+				</Box>
+				<Box Size="80,25" Color="0,0,0,0">
+					<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+			</Stack>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="466,3"/>
+		</Box>
+	</Instance>
+	<Instance Name="TheirCityButtonInstance">
+		<Box Size="466,28" Color="255,255,255,120" ID="Base">
+			<Button Size="466,28" ID="CitySelectButton">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="486,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="486,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<Stack Size="466,28" StackGrowth="Right">
+					<Box Size="161,25" Color="0,0,0,0">
+						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+							<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+              <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Box>
+						<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+					<Box Size="161,25" Color="0,0,0,0">
+						<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
+            <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
+						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
+						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
+<!-- CBP Entry -->
+						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+							<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+							<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+							<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+							<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						</Box>
+						<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+<!-- END -->
+						<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+					<Box Size="80,25" Color="0,0,0,0">
+						<Image ID="PotentialMeterBack" Anchor="L,C" Texture="Esp_CityPotential_Stars_Black.dds" Size="93,20"/>
+						<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars_Blue.dds" Direction="Right" ID="PotentialMeterGhost"/>
+						<TextureBar Anchor="L,C" Size="93,20" Texture="Esp_CityPotential_Stars.dds" Direction="Right" ID="PotentialMeterFront"/>
+						<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+						<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+						<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" Size="22,22"/>
+						<!-- CBP -->
+						<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
+						<!-- END -->
+					</Box>
+					<Box Size="80,25" Color="0,0,0,0">
+						<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					</Box>
+				</Stack>
+			</Button>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="466,3"/>
+		</Box>
+	</Instance>
+	<Instance Name="IntrigueMessageInstance">
+		<Box Size="936,60" Color="0,0,0,0" ID="Base">
+			<Stack Size="936,28" StackGrowth="Right">
+				<Box Size="100,28" Color="0,0,0,0">
+					<Label ID="TurnNum" Anchor="L,C" Offset="32,0" TruncateWidth="50" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="250,25" Color="0,0,0,0">
+					<Image ID="CivIcon" Texture="CivSymbolsColor256.dds" Size="32,32" Offset="0,-4"/>
+					<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Image Texture="Esp_Spy_InCity22.dds" Size="22,22" ID="SpyIcon" Offset="12,4"/>
+				</Box>
+				<Box Size="586,28" Color="0,0,0,0">
+					<Label ID="Message" Anchor="L,T" Offset="0,10" WrapWidth="586" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</Box>
+			</Stack>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
+			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
+		</Box>
+	</Instance>
+	<Box Style="BGBlock_ClearTopBar"/>
+	<Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
+		<!-- Decoration -->
+		<!-- Top -->
+		<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+			<Image ID="Icon" Size="64,64" Offset="-1,-1" Anchor="C,C" Texture="EspionageSpyIcons64_Expansion.dds"/>
+		</Image>
+		<Image ID="ModernBackground" Anchor="L,T" Offset="20,73" Texture="Espionage_Background953x567.dds" Size="953,470"/>
+		<Image ID="EarlyBackground" Anchor="L,T" Offset="20,73" Texture="Espionage_medieval_BKGRND.dds" Size="953,470" Hidden="1"/>
+   
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    
+		<Label Style="MenuTitleCaption" String="TXT_KEY_EO_TITLE" />
+		<!-- Internal Space-->
+		<Box Size="954,566" Offset="19,44" Color="0,0,0,0">
+			<Label Anchor="C,C" ID="LabelEspionageNotStartedYet" String="TXT_KEY_ESPIONAGE_NOT_STARTED_YET" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+			<Box Anchor="C,T" Size="954,32" Offset="0,0" Color="0.0.0.128" ID="TabPanel">
+				<Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
+					<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_EO_OVERVIEW" ToolTip="TXT_KEY_EO_OVERVIEW_TT" ID="TabButtonOverview">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+						<!-- Selected State  -->
+						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="0" ID="OverviewSelectHighlight"/>
+					</Button>
+					<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_EO_INTRIGUE" ToolTip="TXT_KEY_EO_INTRIGUE_TT" ID="TabButtonIntrigue">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+						<!-- Selected State  -->
+						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="IntrigueSelectHighlight"/>
+					</Button>
+				</Stack>
+				<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971.5"/>
+			</Box>
+			<Box Size="954,464" Offset="0,30" Color="0,0,0,0" ID="OverviewPanel" Hidden="1">
+				<!-- Agent List-->
+				<Box Size="479,464" Offset="0,0" Color="0,0,0,0" ID="AgentsListBox" Hidden="0">
+					<Stack Size="479,464" Anchor="L,T" StackGrowth="Bottom">
+						<Box Size="484,22" Color="0,0,0,0">
+							<Label Anchor="C,B" String="TXT_KEY_EO_AGENTS" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+						</Box>
+						<Box Size="484,20" Color="0,0,0,0">
+							<Stack Size="484,20" StackGrowth="Right">
+								<Box Size="116,18" Color="0,0,0,0">
+									<TextButton Offset="20,0" Anchor="L,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_NAME_RANK" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ASortByNameRank">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ASortByNameRankImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="116,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_LOCATION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ASortByLocation">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ASortByLocationImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="233,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVITY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ASortByActivity">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ASortByActivityImage"/>
+									</TextButton>
+								</Box>
+							</Stack>
+						</Box>
+						<Box Size="479,5" Color="0,0,0,0">
+							<Image Anchor="C,B" Offset="0,1" Texture="bar400x2.dds" Size="400,1"/>
+						</Box>
+						<ScrollPanel Vertical="1" Size="451,417" Offset="0,0" AutoScrollBar="0" ID="AgentScrollPanel">
+							<!-- Scroll Controls -->
+							<ScrollBar Style="VertSlider" Length="381" Anchor="R,C" AnchorSide="O,I"/>
+							<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+							<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+							<Stack StackGrowth="Bottom" ID="AgentStack"/>
+						</ScrollPanel>
+					</Stack>
+					<Label Anchor="C,C" String="TXT_KEY_NO_MORE_SPIES" WrapWidth="450" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow" ID="NoMoreSpiesLabel"/>
+				</Box>
+				<Box Size="479,464" Offset="0,0" Color="0,0,0,0" ID="AgentMovePanel" Hidden="1">
+					<Image Anchor="R,T" Offset="10,0" Texture="VerticalTrim.dds" Size="5,464"/>
+					<Box Size="465,80" Color="19,32,46,120" Offset="0,5" ID="Base">
+						<Stack Size="465,40" StackGrowth="Right">
+							<Box Size="116,40" Color="0,0,0,0">
+								<Label ID="AgentName" String="Pickles" Anchor="L,T" Offset="10,4" TruncateWidth="116" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+								<Grid Style="Grid9Frame27" Size="65,35" Anchor="L,T" Offset="15,25">
+									<Image Size="21,21" Anchor="R,C" Offset="2,0" Texture="Esp_Spy_Upgrades21.dds" ID="AgentRank"/>
+								</Grid>
+								<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" ToolTip="Secret"/>
+							</Box>
+							<Box Size="116,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
+								<Stack Size="116,20" Anchor="L,T" StackGrowth="Right">
+									<Box Size="32,32" Anchor="L,T" Offset="0,-5" Color="0,0,0,0">
+										<Image ID="AgentLocationIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+										<Image ID="AgentLocationIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+										<Image ID="AgentLocationIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                    <Image ID="CivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+									</Box>
+									<Label ID="AgentLocation" String="Mexico" Anchor="L,T" Offset="0,5" TruncateWidth="152" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+								</Stack>
+							</Box>
+							<Box Size="218,40" Color="0,0,0,0" ID="AgentActivityPanel">
+								<Box Size="180,20" Color="0,0,0,0" Anchor="C,T">
+									<Label ID="AgentActivity" Offset="5,1" Anchor="C,C" String="Spyin" TruncateWidth="180" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+								</Box>
+								<Box Size="152,40" Offset="0,20" Color="0,0,0,0">
+									<Box Size="214,29" Anchor="L,B" Color="0,0,0,0">
+										<Image Texture="MeterBarFrame.dds" Size="214,29" Anchor="L,B" ID="AgentActivityProgressFrame"/>
+										<Image Texture="MeterBarGreatPersonBack.dds" Size="214,29" Anchor="L,B" ID="AgentActivityProgressBack"/>
+										<TextureBar Anchor="L,B" Size="214,29" Texture="MeterBarGreatPersonGold.dds" ShadowColor="255,255,255,120" HasShadow="1" Direction="Right" ID="AgentActivityProgress"/>
+										<Label ID="AgentProgress" Anchor="C,C" Offset="14,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+									</Box>
+									<Image Size="45,45" Anchor="L,B" Offset="0,-7" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="45,45" ID="AgentActivityIcon"/>
+								</Box>
+							</Box>
+						</Stack>
+						<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="464,3"/>
+					</Box>
+					<Label ID="RelocateInstructions" Anchor="L,T" Offset="10,90" String="Choose a city to move [COLOR_GREEN]Agent Pickles[ENDCOLOR] into to begin operations." WrapWidth="440" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow"/>
+					<GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="20,10" StateOffsetIncrement="0,0" ID="UnassignButton">
+						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_MOVE_SPY_HIDEOUT_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+					</GridButton>
+					<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="5,10" StateOffsetIncrement="0,0" ID="CancelButton">
+						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CANCEL_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+					</GridButton>
+				</Box>
+				<!-- Cities List-->
+				<Box Size="484,464" Offset="0,0" Anchor="R,T" Color="0,0,0,0" ID="CitiesListBox" Hidden="1">
+					<Stack Size="484,464" Anchor="L,T" StackGrowth="Bottom">
+						<!-- Your Cities -->
+						<Box Size="484,22" Color="0,0,0,0">
+							<Label Anchor="C,B" String="TXT_KEY_EO_YOUR_CITIES" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+						</Box>
+						<Box Size="484,20" Color="0,0,0,0">
+							<Stack Size="484,20" StackGrowth="Right">
+								<Box Size="161,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_EO_CIVILIZATION_SORT_TT" String="TXT_KEY_EO_CIVILIZATION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="YCSortByCivilization">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="YCSortByCivilizationImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="161,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_NAME" ToolTip="TXT_KEY_EO_CITY_SORT_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="YCSortByName">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="YCSortByNameImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="80,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_POTENTIAL" ToolTip="TXT_KEY_EO_POTENTIAL_SORT_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="YCSortByPotential">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="YCSortByPotentialImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="80,18" Color="0,0,0,0">
+									<Button Anchor="C,B" Size="32,32" Texture="CitizenWorker.dds" ToolTip="TXT_KEY_EO_POPULATION_SORT_TT" ID="YCSortByPopulation">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="YCSortByPopulationImage"/>
+									</Button>
+								</Box>
+							</Stack>
+						</Box>
+						<Box Size="484,5" Color="0,0,0,0">
+							<Image Anchor="C,B" Offset="0,1" Texture="bar400x2.dds" Size="400,1"/>
+						</Box>
+						<ScrollPanel Vertical="1" Size="466,182" Offset="0,0" AutoScrollBar="0" ID="MyCityScrollPanel">
+							<!-- Scroll Controls -->
+							<ScrollBar Style="VertSlider" Length="146" Anchor="R,C" AnchorSide="O,I"/>
+							<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+							<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+							<Stack StackGrowth="Bottom" ID="MyCityStack" Padding="0"/>
+						</ScrollPanel>
+						<!-- Other Cities -->
+						<Box Size="484,5" Color="0,0,0,0">
+							<Image Anchor="C,B" Offset="0,1" Texture="bar400x2.dds" Size="400,1"/>
+						</Box>
+						<Box Size="484,22" Color="0,0,0,0">
+							<Label Anchor="C,B" String="TXT_KEY_EO_THEIR_CITIES" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+						</Box>
+						<Box Size="484,20" Color="0,0,0,0">
+							<Stack Size="484,20" StackGrowth="Right">
+								<Box Size="161,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_CIVILIZATION" ToolTip="TXT_KEY_EO_CIVILIZATION_SORT_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="OCSortByCivilization">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="OCSortByCivilizationImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="161,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_EO_CITY_SORT_TT" String="TXT_KEY_EO_NAME" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="OCSortByName">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="OCSortByNameImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="80,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_EO_POTENTIAL_SORT_TT" String="TXT_KEY_EO_POTENTIAL" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="OCSortByPotential">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="OCSortByPotentialImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="80,18" Color="0,0,0,0">
+									<Button Anchor="C,B" Size="32,32" Texture="CitizenWorker.dds" ToolTip="TXT_KEY_EO_POPULATION_SORT_TT" ID="OtherCitiesSortByPopulation">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="OCSortByPopulationImage"/>
+									</Button>
+								</Box>
+							</Stack>
+						</Box>
+						<Box Size="484,5" Color="0,0,0,0">
+							<Image Anchor="C,B" Offset="0,1" Texture="bar400x2.dds" Size="400,1"/>
+						</Box>
+						<ScrollPanel Vertical="1" Size="466,183" Offset="0,0" AutoScrollBar="0" ID="TheirCityScrollPanel">
+							<!-- Scroll Controls -->
+							<ScrollBar Style="VertSlider" Length="147" Anchor="R,C" AnchorSide="O,I"/>
+							<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+							<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+							<Stack StackGrowth="Bottom" ID="TheirCityStack"/>
+						</ScrollPanel>
+					</Stack>
+				</Box>
+			</Box>
+			<Box Size="954,463" Offset="0,31" Color="0,0,0,0" ID="IntriguePanel" Hidden="1">
+				<Stack Size="954,20" StackGrowth="Right" ID="IntrigueMessageHeaders">
+					<Box Size="100,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_INTRIGUE_TURN" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="IntrigueSortByTurn">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="IntrigueSortByTurnImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="250,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_INTRIGUE_FROM" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="IntrigueSortByFrom">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="IntrigueSortByFromImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="586,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_INTRIGUE_MSG" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="IntrigueSortByMsg">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="IntrigueSortByMsgImg"/>
+						</TextButton>
+					</Box>
+				</Stack>
+				<ScrollPanel Vertical="1" Size="936,443" Offset="0,24" AutoScrollBar="0" ID="IntrigueMessageScrollPanel">
+					<!-- Scroll Controls -->
+					<ScrollBar Style="VertSlider" Length="427" Anchor="R,C" AnchorSide="O,I"/>
+					<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+					<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+					<Stack StackGrowth="Bottom" ID="IntrigueMessageStack"/>
+				</ScrollPanel>
+				<Label Anchor="C,C" Offset="0,10" WrapWidth="440" ID="NoIntrigueAvailable" Hidden="1" String="TXT_KEY_EO_NO_INTRIGUE_AVAILABLE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</Box>
+		</Box>
+		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="927,56" Color="255,255,255,0">
+			<!-- Close Button  -->
+			<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="CloseButton" Hidden="1">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</GridButton>
+		</Box>
+		<Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="971.5"/>
+	</Grid>
+	<!-- Confirmation Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="ChooseConfirm" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="500,310" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0" ID="ConfirmFrame">
+      <!-- Side treatments -->
+      <Box Style="MenuLeftSideTreatment"/>
+      <Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
+			</Image>
+			
+				
+			<Stack Anchor="C,T" Offset="0,60" Padding="24" StackGrowth="Bottom" ID="ConfirmContent">
+				<Label Anchor="L,T" Offset="0,0" WrapWidth="400" ID="ConfirmText" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+
+				<!-- Yes Button  -->
+				<GridButton Style="BaseButton" ID="Yes" Size="380,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" ID="YesString" String="TXT_KEY_YES_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+				<!-- No Button  -->
+				<GridButton Style="BaseButton" ID="No" Size="380,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" ID="NoString" String="TXT_KEY_NO_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+	<!-- Notification Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="NotificationPopup" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="500,340" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0" ID="NotificationFrame">
+      <!-- Side treatments -->
+      <Box Style="MenuLeftSideTreatment"/>
+      <Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
+			</Image>
+			<Stack Anchor="C,T" Offset="0,80" Padding="24" StackGrowth="Bottom" ID="NotificationContent">
+				<Label Anchor="L,T" Offset="0,0" WrapWidth="400" ID="NotificationText" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				<!-- OK Button  -->
+				<GridButton Style="BaseButton" ID="OK" Size="400,42" Anchor="C,T" Offset="0,0" Hidden="0">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OK_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+	<LuaContext FileName="Assets/UI/InGame/Popups/EmptyPopup" ID="EmptyPopup" Hidden="True"/>
+</Context>
