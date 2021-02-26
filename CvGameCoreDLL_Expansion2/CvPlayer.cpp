@@ -18353,7 +18353,7 @@ void CvPlayer::cacheGoldRate()
 		{
 			int iYieldTurn = iTurn - iI;
 			if (iYieldTurn <= 0)
-				continue;
+				break;
 				
 			iGoldAverage += getInstantYieldValue(YIELD_GOLD, iYieldTurn);
 		}
@@ -18370,19 +18370,15 @@ int CvPlayer::unitsRequiredForGoldenAge() const
 	return (GC.getBASE_GOLDEN_AGE_UNITS() + (getNumUnitGoldenAges() * GC.getGOLDEN_AGE_UNITS_MULTIPLIER()));
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::unitsGoldenAgeCapable() const
 {
-	const CvUnit* pLoopUnit;
-	int iCount;
 	int iLoop;
+	int iCount = 0;
 
-	iCount = 0;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->isGoldenAge())
+		if (pLoopUnit->isGoldenAge())
 		{
 			iCount++;
 		}
@@ -18391,26 +18387,19 @@ int CvPlayer::unitsGoldenAgeCapable() const
 	return iCount;
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::unitsGoldenAgeReady() const
 {
-	const CvUnit* pLoopUnit;
-	bool* pabUnitUsed;
-	int iCount;
-	int iLoop;
-	int iI;
+	bool* pabUnitUsed = FNEW(bool[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
 
-	pabUnitUsed = FNEW(bool[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
-
-	for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		pabUnitUsed[iI] = false;
 	}
 
-	iCount = 0;
+	int iCount = 0;
 
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!(pabUnitUsed[pLoopUnit->getUnitType()]))
 		{
@@ -18423,16 +18412,13 @@ int CvPlayer::unitsGoldenAgeReady() const
 	}
 
 	SAFE_DELETE_ARRAY(pabUnitUsed);
-
 	return iCount;
 }
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::greatGeneralThreshold() const
 {
-	int iThreshold;
-
-	iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatGeneralsThresholdModifier() + 100))) / 100);
+	int iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatGeneralsThresholdModifier() + 100))) / 100);
 
 	UnitClassTypes eUnitClassGeneral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL");
 	int iMod = GetPlayerTraits()->GetGreatPersonCostReduction(GetGreatPersonFromUnitClass(eUnitClassGeneral));
@@ -18451,9 +18437,7 @@ int CvPlayer::greatGeneralThreshold() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::greatAdmiralThreshold() const
 {
-	int iThreshold;
-
-	iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatAdmiralsThresholdModifier() + 100))) / 100);
+	int iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatAdmiralsThresholdModifier() + 100))) / 100);
 
 	UnitClassTypes eUnitClassAdmiral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL");
 	int iMod = GetPlayerTraits()->GetGreatPersonCostReduction(GetGreatPersonFromUnitClass(eUnitClassAdmiral));
