@@ -45454,19 +45454,33 @@ bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 {
 	bool bLiberate = false;
 
-	if (GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_FRIENDLY || GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_PROTECTIVE || IsGoingForDiploVictory() || IsCloseToDiploVictory())
+	// Going for Diplo victory?
+	if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
+	{
+		GetPlayer()->DoLiberatePlayer(eMinor, iCityID);
+		return true;
+	}
+
+	// Do we have a trait that makes us unwilling to liberate City-States?
+	if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties()
+		|| GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0
+		|| GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
+	{
+		return false;
+	}
+
+	// Going for Culture victory?
+	if (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory() || IsCloseToCultureVictory())
 	{
 		bLiberate = true;
 	}
-	
-#if defined(MOD_BALANCE_CORE)
-	if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
-	{
-		bLiberate = false;
-	}
-#endif
 
 	if (GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		bLiberate = true;
+	}
+
+	if (GetLoyalty() >= 7 && !IsBackstabber() && !IsConqueror() && !GetPlayer()->GetPlayerTraits()->IsWarmonger())
 	{
 		bLiberate = true;
 	}
@@ -45492,6 +45506,10 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 	// Originally owned by a teammate?
 	if (IsTeammate(eMajor))
 		return true;
+
+	// We're a backstabber?
+	if (IsBackstabber())
+		return false;
 
 	bool bLiberate = false;
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eMajor);
