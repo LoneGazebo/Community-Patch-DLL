@@ -12345,19 +12345,19 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		float fRatio = ((float)iUnitMaintenance / (float)iGPT);
 		if ((iGPT - iUnitMaintenance) < 0)
 		{
-			iScore += -50 * iFactor;
+			iScore += -100 * iFactor;
 		}
 		else if (fRatio >= 0.5f)
 		{
-			iScore += -40 * iFactor;
+			iScore += -80 * iFactor;
 		}
 		else if (fRatio >= 0.2f)
 		{
-			iScore += -15 * iFactor;
+			iScore += -30 * iFactor;
 		}
 		else
 		{
-			iScore += 15 * iFactor;
+			iScore += 30 * iFactor;
 		}
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
