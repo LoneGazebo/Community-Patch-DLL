@@ -506,6 +506,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Can't exchange GPT for lump Gold - we aren't a bank.
 			if (eFromTeam != eToTeam && !bLumpGoldEnabled && GetGoldTrade(eToPlayer) > 0)
 				return false;
+
+			// Cannot trade cities for gold per turn
+			if (ContainsItemType(TRADE_ITEM_CITIES))
+				return false;
 		}
 
 		//int iDuration = iData2;
@@ -672,45 +676,41 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
-		CvCity* pCity = NULL;
 		CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
-		if(pPlot != NULL)
-			pCity = pPlot->getPlotCity();
+		CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
+		if (pCity == NULL)
+			return false;
 
-		if(pCity != NULL)
-		{
-			// Can't trade someone else's city
-			if(pCity->getOwner() != ePlayer)
-				return false;
+		// Can't trade someone else's city
+		if(pCity->getOwner() != ePlayer)
+			return false;
 
-			// Can't trade one's capital
-			if(pCity->isCapital())
-				return false;
+		// Can't trade one's capital
+		if(pCity->isCapital())
+			return false;
 
-			if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
-				return false;
+		if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
+			return false;
 
-			// Can't trade a city to a human in an OCC game
-			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
-				return false;
+		// Can't trade a city to a human in an OCC game
+		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
+			return false;
 
-			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
-			{
-				if (eFromTeam != eToTeam && !pToTeam->HasEmbassyAtTeam(eFromTeam))
-					return false;
-			}
-		}
-		// Can't trade a null city
-		else
+		// Need an embassy in peacetime
+		if (GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		// Can't already have this city in the deal
 		if(!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
 			return false;
 
-		//Can't in a peace deal if not surrendering.
+		//Can't give up cities in a peace deal if not surrendering.
 		if(!bHumanToHuman)
 		{
+			// Cannot trade cities for gold per turn or third party war
+			if (ContainsItemType(TRADE_ITEM_GOLD_PER_TURN) || ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR))
+				return false;
+
 			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
 			{
 				if(this->GetSurrenderingPlayer() != ePlayer)
@@ -726,6 +726,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// too few cities
 		if (pToPlayer->getNumCities() < 1)
 			return false;
+
 		// Does not have tech for Embassy trading
 		if(!pToTeam->isAllowEmbassyTradingAllowed())
 			return false;
@@ -1096,9 +1097,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
 				return false;
+		}
 
-			//Can't already be offering this.
-			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eThirdTeam))
+		//Can't already be offering this.
+		if (!bFinalizing)
+		{
+			if (IsThirdPartyWarTrade(ePlayer, eThirdTeam))
 				return false;
 		}
 
@@ -1135,6 +1139,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!bHumanToHuman)
 		{
+			// Cannot trade cities for war
+			if (ContainsItemType(TRADE_ITEM_CITIES))
+				return false;
+
 			if (GC.getGame().IsAllWarBribesDisabled())
 			{
 				return false;
@@ -1481,7 +1489,7 @@ int CvDeal::GetNumCities(PlayerTypes ePlayer)
 bool CvDeal::IsCityInDeal(PlayerTypes ePlayer, int iCityID)
 {
 	if (ePlayer == NO_PLAYER)
-		return 0;
+		return false;
 
 	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
@@ -3623,15 +3631,11 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				{
 					CvCity* pCity = GC.getMap().plot(it->m_iData1, it->m_iData2)->getPlotCity();
 					if(pCity != NULL)
-#if defined(MOD_BALANCE_CORE)
 					{
 						//I've traded for? I don't want to give away again.
 						pCity->SetTraded(eAcceptedToPlayer, true);
-#endif
 						GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, false, true);
-#if defined(MOD_BALANCE_CORE)
 					}
-#endif
 				}
 				else if(it->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY)
 				{

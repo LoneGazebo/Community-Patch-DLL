@@ -679,7 +679,7 @@
 		<Row Tag="TXT_KEY_AMPHITHEATER_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Writings either from your own Civilization, or from Civilizations other than your own.</Text>
 		</Row>
-
+		<!--
 		<Row Tag="TXT_KEY_BUILDING_MISSION">
 			<Text>Mission</Text>
 		</Row>
@@ -692,6 +692,8 @@
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
 			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants a bunch of Faith and Gold when Citizens are born in City (based on the current yields of the city when the new citizen is born). Increases Military Units supplied by this City's population by 10%. Boosts the city's religious pressure by 15% and resistance to foreign conversion by 15%, thus making the city more effective at converting nearby cities. Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion. Also helps with managing the Empire Needs Modifier in this City.</Text>
 		</Row>
+	-->
+	
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
 			<Text>Runestone</Text>
 		</Row>

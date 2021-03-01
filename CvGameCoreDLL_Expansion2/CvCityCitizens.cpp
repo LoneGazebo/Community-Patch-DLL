@@ -597,7 +597,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 						iYield100 /= 20;
 					else
 						// if we have growth penalties, pretend the yield is lower
-						iYield100 += (iYield100*m_pCity->getGrowthMods()) / 100;
+						iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 				}
 
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction)
@@ -657,13 +657,13 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 			//now put it all together
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-				iYieldMod += 2;
+				iYieldMod += 3;
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 				iYieldMod += 2;
 
 			//no yield mods until we're fed!
 			if (eYield == YIELD_FOOD || store.iExcessFoodTimes100 > 0)
-				iYield100 *= max(1, iYieldMod+iUnhappyMod);
+				iYield100 *= max(1, (iYieldMod + iUnhappyMod));
 
 			iValue += iYield100;
 		}
@@ -1128,7 +1128,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 					}
 
 					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
+					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10);
 					iTemp /= 100;
 					iValue += iTemp;
 
@@ -1298,11 +1298,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYieldMod += 5;
+				iYieldMod += 3;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
-				iYieldMod += 5;
+				iYieldMod += 2;
 			}
 
 			if (eYield == YIELD_FOOD)
@@ -1337,7 +1337,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				{
 					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD();
 				}
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
 					iYieldMod += GC.getAI_CITIZEN_VALUE_GOLD()/2;
 				}
@@ -1402,7 +1402,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				}
 			}
 
-			iYieldValue += iYield100*iYieldMod;
+			iYieldValue += iYield100 * max(1, iYieldMod);
 		}
 	}
 
@@ -1456,9 +1456,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iGPPYieldValue *= 2;
 
 	if (eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-		iGPPYieldValue /= 2;
+		iGPPYieldValue /= 4;
 	else
-		iGPPYieldValue /= 10;
+		iGPPYieldValue /= 8;
+
+
+	int iValue = iYieldValue + iGPPYieldValue;
 
 	// GPP modifiers
 	int iMod = m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
@@ -1488,7 +1491,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatScientistRateModifier();
 		if (bWantScience)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -1500,7 +1503,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatWriterRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
@@ -1512,7 +1515,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatArtistRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -1524,7 +1527,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
 		if (bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -1532,7 +1535,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
 		if (bWantDiplo)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
@@ -1540,7 +1543,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
 		if (bWantScience || bWantArt)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1549,7 +1552,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
 		if (bWantDiplo)
 		{
-			iGPPYieldValue *= 2;
+			iMod *= 2;
 		}
 	}
 #endif
@@ -1617,11 +1620,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -1629,11 +1632,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -1641,20 +1644,18 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			int iEmptySlots = GET_PLAYER(m_pCity->getOwner()).GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 			if (iEmptySlots == 0)
 			{
-				iGPPYieldValue /= 3;
+				iMod /= 3;
 			}
 			else
 			{
-				iGPPYieldValue += (iEmptySlots * 2);
+				iMod += (iEmptySlots * 2);
 			}
 			if (bWantArt)
 			{
-				iGPPYieldValue *= 2;
+				iMod *= 2;
 			}
 		}
 	}
-
-	int iValue = iYieldValue + iGPPYieldValue;
 
 	//Let's see how close we are to a specialist. If close, emphasize.
 	int iProximityToGPBonus = 0;
@@ -1665,11 +1666,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		if (iGPNeededForNextGP != 0)
 		{
 			iGPWeHave *= 100;
-			iProximityToGPBonus = iGPWeHave / iGPNeededForNextGP;
+			iMod += iGPWeHave / iGPNeededForNextGP;
 		}
 	}
 
-	iValue *= (100 + iMod + iProximityToGPBonus);
+	iValue *= (100+iMod);
 	iValue /= 100;
 
 	///////

@@ -302,6 +302,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 	if (isHuman())
 		return;
 
+	// Burn them all to the ground!
+	if (canRaze(pCity) && MOD_BALANCE_CORE && GetPlayerTraits()->GetRazeSpeedModifier() > 0)
+	{
+		pCity->doTask(TASK_RAZE);
+		return;
+	}
+
 	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
 	TeamTypes eOldOwnerTeam = GET_PLAYER(eOldOwner).getTeam();
 

@@ -1232,6 +1232,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 {
 	vector<PlayerTypes> result;
 	vector<PlayerTypes> vMinorsToCheck;
+	vector<PlayerTypes> vDefensePactsToCheck;
 	int iLoopUntil = bIncludeMinors ? MAX_CIV_PLAYERS : MAX_MAJOR_CIVS;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < iLoopUntil; iPlayerLoop++)
@@ -1266,6 +1267,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 				if (!bIgnoreDefensivePacts && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer))
 				{
 					result.push_back(eLoopPlayer);
+					vDefensePactsToCheck.push_back(eLoopPlayer);
 				}
 				// Master?
 				else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsMaster(eOtherPlayer))
@@ -1310,20 +1312,65 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
+			if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
 				continue;
 
 			if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
 				continue;
 
-			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 			{
-				if ((!bIgnoreDefensivePacts && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eMasterPlayer)) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
+				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
 				{
 					// Make sure not to include them more than once!
 					if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
 					{
 						result.push_back(eLoopPlayer);
+					}
+				}
+				else if (!bIgnoreDefensivePacts && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eMasterPlayer))
+				{
+					// Make sure not to include them more than once!
+					if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
+					{
+						result.push_back(eLoopPlayer);
+					}
+					if (std::find(vDefensePactsToCheck.begin(), vDefensePactsToCheck.end(), eLoopPlayer) == vDefensePactsToCheck.end())
+					{
+						vDefensePactsToCheck.push_back(eLoopPlayer);
+					}
+				}
+			}
+		}
+	}
+
+	// For all Defensive Pacts, check if they have vassals and include them too!
+	if (!bIgnoreDefensivePacts)
+	{
+		for (std::vector<PlayerTypes>::iterator it = vDefensePactsToCheck.begin(); it != vDefensePactsToCheck.end(); it++)
+		{
+			if (GET_PLAYER(*it).GetNumVassals() > 0)
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*it).getTeam())
+						continue;
+
+					if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
+						continue;
+
+					if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+					{
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(*it))
+						{
+							// Make sure not to include them more than once!
+							if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
+							{
+								result.push_back(eLoopPlayer);
+							}
+						}
 					}
 				}
 			}
@@ -45454,19 +45501,33 @@ bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 {
 	bool bLiberate = false;
 
-	if (GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_FRIENDLY || GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_PROTECTIVE || IsGoingForDiploVictory() || IsCloseToDiploVictory())
+	// Going for Diplo victory?
+	if (IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
+	{
+		GetPlayer()->DoLiberatePlayer(eMinor, iCityID);
+		return true;
+	}
+
+	// Do we have a trait that makes us unwilling to liberate City-States?
+	if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties()
+		|| GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0
+		|| GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
+	{
+		return false;
+	}
+
+	// Going for Culture victory?
+	if (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory() || IsCloseToCultureVictory())
 	{
 		bLiberate = true;
 	}
-	
-#if defined(MOD_BALANCE_CORE)
-	if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
-	{
-		bLiberate = false;
-	}
-#endif
 
 	if (GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		bLiberate = true;
+	}
+
+	if (GetLoyalty() >= 7 && !IsBackstabber() && !IsConqueror() && !GetPlayer()->GetPlayerTraits()->IsWarmonger())
 	{
 		bLiberate = true;
 	}
@@ -45492,6 +45553,10 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 	// Originally owned by a teammate?
 	if (IsTeammate(eMajor))
 		return true;
+
+	// We're a backstabber?
+	if (IsBackstabber())
+		return false;
 
 	bool bLiberate = false;
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eMajor);

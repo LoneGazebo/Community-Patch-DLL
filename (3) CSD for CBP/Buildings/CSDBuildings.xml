@@ -182,6 +182,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_FORUM_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_FORUM_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
+			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>100</ConquestProb>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
@@ -204,6 +205,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_SUMMER_PALACE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
+			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>100</ConquestProb>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>

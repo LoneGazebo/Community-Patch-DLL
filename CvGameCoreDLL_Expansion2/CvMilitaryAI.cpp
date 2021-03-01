@@ -478,9 +478,11 @@ void CvMilitaryAI::DoTurn()
 	UpdateMilitaryStrategies();
 	UpdateWarType();
 
+	//do this also for humans because AI relies on the data!
+	UpdateAttackTargets();
+
 	if(!m_pPlayer->isHuman())
 	{
-		UpdateAttackTargets();
 		UpdateOperations();
 		MakeEmergencyPurchases();
 		DisbandObsoleteUnits();
