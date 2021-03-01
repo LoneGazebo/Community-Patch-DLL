@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+<Type Name="FAutoVariable&lt;*,*&gt;">
+  <DisplayString>{{val = {m_value}}}</DisplayString>
+</Type>
+<Type Name="FAutoVariable&lt;std::vector&lt;*,*&gt;,*&gt;">
+  <DisplayString>{{size = {m_value._Mylast - m_value._Myfirst}}}</DisplayString>
+  <Expand>
+    <ArrayItems>
+      <Size>m_value._Mylast - m_value._Myfirst</Size>
+      <ValuePointer>m_value._Myfirst</ValuePointer>
+    </ArrayItems>
+  </Expand>
+</Type>
+</AutoVisualizer>
