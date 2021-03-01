@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<CustomModOptions>
+		<!-- This is the "all off" option -->
+		<Update>
+			<Where Name="AI_SMART"/>
+			<Set Value="1"/>
+		</Update>
+		
+    <!-- Omit obsolete/no value items as part of a deal if asked to balance things out -->
+		<Update>
+			<Where Name="AI_SMART_DEALS"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Use Great people more effectively, plant some improvements early, and later use GP powers -->
+		<Update>
+			<Where Name="AI_SMART_GREAT_PEOPLE"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Delay grand strategy bias until the Renaissance -->
+		<Update>
+			<Where Name="AI_SMART_GRAND_STRATEGY"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Make better policy choices ignoring grand strategy until medieval and giving less importance to opening branches vs unlocked branches -->
+		<Update>
+			<Where Name="AI_SMART_POLICY_CHOICE"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Stop making archaeologists sooner and also disband archaeologists if there are not valid targets -->
+		<Update>
+			<Where Name="AI_SMART_ARCHAEOLOGISTS"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Disband long obsolete units, eg triremes in industrial era -->
+		<Update>
+			<Where Name="AI_SMART_DISBAND"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Upgrade more units per turn if there are lots of units that can be upgraded. Also upgrade air units more often -->
+		<Update>
+			<Where Name="AI_SMART_UPGRADES"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Units with at least 75% health will avoid healing -->
+		<Update>
+			<Where Name="AI_SMART_HEALING"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Units won't randomly embark to water tiles -->
+		<Update>
+			<Where Name="AI_SMART_FLEE_FROM_DANGER"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Ranged units are always able to move AND shoot on the same turn and should not attack over and over a city with 1 HP remaining. -->
+		<Update>
+			<Where Name="AI_SMART_RANGED_UNITS"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby -->
+		<Update>
+			<Where Name="AI_SMART_AIR_TACTICS"/>
+			<Set Value="1"/>
+		</Update>
+    <!-- Improves the AI's melee tactics -->
+		<Update>
+			<Where Name="AI_SMART_MELEE_TACTICS"/>
+			<Set Value="1"/>
+		</Update>
+	</CustomModOptions>
+</GameData>
