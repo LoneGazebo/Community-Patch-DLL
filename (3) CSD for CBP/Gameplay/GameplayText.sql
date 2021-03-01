@@ -36,6 +36,10 @@ UPDATE Language_en_US
 SET Text = 'You have gained {1_Num} [ICON_GOLD] Gold and {2_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!'
 WHERE Tag = 'TXT_KEY_MERCHANT_RESULT' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'You have gained {1_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!', 'TXT_KEY_DIPLOMATIC_MISSION_RESULT_NO_GOLD'
+WHERE EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
 UPDATE Language_en_US
 SET Text = 'You may initiate one of the following Diplomatic Missions.'
 WHERE Tag = 'TXT_KEY_POPUP_MINOR_GOLD_GIFT' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
