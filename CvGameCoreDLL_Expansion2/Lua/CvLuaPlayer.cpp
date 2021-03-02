@@ -12710,7 +12710,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Gandhi? :)
-			if (GC.getGame().IsNuclearGandhiEnabled() && pDiplo->IsAtWar(ePlayer) && pkPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+			if (GC.getGame().IsNuclearGandhiEnabled() && pDiplo->IsAtWar(ePlayer) && pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsNukedBy(pkPlayer->GetID()) || pkPlayer->getNumNukeUnits() > 0)
 				{
@@ -13013,22 +13013,58 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-				
-				if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_CRITICAL)
+
+				switch (pDiplo->GetWarmongerThreat(ePlayer))
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL").toUTF8();
-				}
-				else if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_SEVERE)
-				{
+				case THREAT_CRITICAL:
+					str = pDiplo->IsNukedBy(ePlayer) ? Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL").toUTF8();
+					break;
+				case THREAT_SEVERE:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_SEVERE").toUTF8();
-				}
-				else if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_MAJOR)
-				{
+					break;
+				case THREAT_MAJOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
-				}
-				else 
-				{
+					break;
+				case THREAT_MINOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
+					break;
+				}
+
+				str += " ";
+
+				// Aztecs have a special message.
+				if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
+				{
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_AZTECS").toUTF8();
+				}
+				// India/Venice have a special message.
+				else if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && (pkPlayer->GetPlayerTraits()->IsNoAnnexing() || pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion()))
+				{
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MAXIMAL").toUTF8();
+				}
+				// Otherwise, give a hint as to this player's WarmongerHate flavor. This is relevant for humans too!
+				else
+				{
+					if (pDiplo->GetWarmongerHate() >= 9)
+					{
+						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_EXTREME").toUTF8();
+					}
+					else if (pDiplo->GetWarmongerHate() >= 7)
+					{
+						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH_CBP").toUTF8();
+					}
+					else if (pDiplo->GetWarmongerHate() >= 5)
+					{
+						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
+					}
+					else if (pDiplo->GetWarmongerHate() >= 3)
+					{
+						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
+					}
+					else
+					{
+						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MINIMAL").toUTF8();
+					}
 				}
 
 				kOpinion.m_str = str;
@@ -13636,46 +13672,57 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			CvString str;
-			
-			if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_CRITICAL)
+
+			switch (pDiplo->GetWarmongerThreat(ePlayer))
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL").toUTF8();
-			}
-			else if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_SEVERE)
-			{
+			case THREAT_CRITICAL:
+				str = pDiplo->IsNukedBy(ePlayer) ? Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL").toUTF8();
+				break;
+			case THREAT_SEVERE:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_SEVERE").toUTF8();
-			}
-			else if (pDiplo->GetWarmongerThreat(ePlayer) == THREAT_MAJOR)
-			{
+				break;
+			case THREAT_MAJOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
-			}
-			else 
-			{
+				break;
+			case THREAT_MINOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
+				break;
 			}
 
+			str += " ";
+
 			// Aztecs have a special message.
-			if (pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
+			if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
 			{
-				str += " ";
 				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_AZTECS").toUTF8();
 			}
+			// India/Venice have a special message.
+			else if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && (pkPlayer->GetPlayerTraits()->IsNoAnnexing() || pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion()))
+			{
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MAXIMAL").toUTF8();
+			}
+			// Otherwise, give a hint as to this player's WarmongerHate flavor. This is relevant for humans too!
 			else
 			{
-				if (pDiplo->GetWarmongerHate() >= 7)
+				if (pDiplo->GetWarmongerHate() >= 9)
 				{
-					str += " ";
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_EXTREME").toUTF8();
+				}
+				else if (pDiplo->GetWarmongerHate() >= 7)
+				{
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH_CBP").toUTF8();
 				}
 				else if (pDiplo->GetWarmongerHate() >= 5)
 				{
-					str += " ";
 					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
 				}
-				else 
+				else if (pDiplo->GetWarmongerHate() >= 3)
 				{
-					str += " ";
 					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
+				}
+				else
+				{
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MINIMAL").toUTF8();
 				}
 			}
 

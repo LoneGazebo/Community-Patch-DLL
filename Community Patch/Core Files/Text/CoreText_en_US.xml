@@ -3153,7 +3153,22 @@
 			<Text>We are their greatest rival in the United Nations.</Text>
 		</Row>
 
-		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<!-- New Warmonger Hate Descriptors -->
+		<Row Tag="TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL_NUCLEAR">
+			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MAXIMAL">
+			<Text> (They furiously abhor warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
+			<Text> (They hate warmongers!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_HIGH_CBP">
+			<Text> (They strongly dislike warmongers.)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_HATE_MINIMAL">
+			<Text> (They ignore most warmongering.)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
 			<Text> (They are bloodthirsty warmongers!)</Text>
 		</Row>

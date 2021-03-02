@@ -3868,13 +3868,11 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 	{
 		return false;
 	}
-	
-#if defined(MOD_BALANCE_CORE)
-	if (GC.getGame().IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+
+	if (GC.getGame().IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 	{
 		return true;
 	}
-#endif
 
 	int iFlavorNuke = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NUKE"));
 	int iNumNukes = pPlayer->getNumNukeUnits();

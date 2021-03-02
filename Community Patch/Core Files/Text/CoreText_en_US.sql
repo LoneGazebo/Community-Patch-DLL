@@ -636,6 +636,23 @@ UPDATE Language_en_US
 SET Text = 'You are competing for World Wonders.'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
+-- Warmongering
+UPDATE Language_en_US
+SET Text = 'They have some early concerns about your warmongering.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR';
+
+UPDATE Language_en_US
+SET Text = 'They are wary of the potential threat posed by your warmongering.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR';
+
+UPDATE Language_en_US
+SET Text = 'They believe your warmongering has become an existential threat.'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_SEVERE';
+
+UPDATE Language_en_US
+SET Text = 'They fear your warmongering will end this world in fire!'
+WHERE Tag = 'TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL';
+
 -- Reckless Expansion
 UPDATE Language_en_US
 SET Text = 'They believe we are expanding our empire too aggressively!'

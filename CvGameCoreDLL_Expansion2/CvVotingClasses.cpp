@@ -12749,7 +12749,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore *= (8 - iNukeFlavor) * 7;
 		}
 		// Speaking of Gandhi, he's very nuke happy!
-		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->IsPopulationBoostReligion())
 		{
 			iScore -= 5000;
 		}

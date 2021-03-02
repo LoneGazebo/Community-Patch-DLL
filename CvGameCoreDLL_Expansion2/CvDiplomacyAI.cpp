@@ -10218,7 +10218,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			}
 
 			// Nuclear Gandhi sees vulnerability in his opponents...
-			if (GC.getGame().IsNuclearGandhiEnabled() && !GetPlayer()->isHuman() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0 && GetPlayer()->getNumNukeUnits() > 0)
+			if (GC.getGame().IsNuclearGandhiEnabled() && !GetPlayer()->isHuman() && GetPlayer()->GetPlayerTraits()->IsPopulationBoostReligion() && GetPlayer()->getNumNukeUnits() > 0)
 			{
 				SetEasyTarget(ePlayer, true);
 				continue;
@@ -19291,7 +19291,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// India - More likely to be friendly than any other civ, everything else equal, plus an extra bonus for players with no warmongering penalty
-		else if (GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		else if (GetPlayer()->GetPlayerTraits()->IsPopulationBoostReligion())
 		{
 			vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 		
