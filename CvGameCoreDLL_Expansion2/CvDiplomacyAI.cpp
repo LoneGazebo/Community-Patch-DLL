@@ -3414,6 +3414,10 @@ bool CvDiplomacyAI::IsWarSane(PlayerTypes ePlayer) const
 bool CvDiplomacyAI::IsPotentialWarTarget(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return false;
+
+	if (GetPlayer()->isHuman())
+		return true;
+
 	return m_abPotentialWarTarget[ePlayer];
 }
 
