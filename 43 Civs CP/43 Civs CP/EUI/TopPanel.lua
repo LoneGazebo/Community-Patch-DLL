@@ -1621,7 +1621,7 @@ g_toolTipHandler.CultureString = function()-- control )
 
 		if civ5_mode then
 			-- Culture from Minor Civs
-			local culturePerTurnFromMinorCivs = g_activePlayer:GetJONSCulturePerTurnFromMinorCivs()
+			local culturePerTurnFromMinorCivs = g_activePlayer:GetCulturePerTurnFromMinorCivs()
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_MINORS", culturePerTurnFromMinorCivs )
 
 			-- Culture from Religion
@@ -2374,7 +2374,7 @@ local function ResourcesToolTip( control )
 				if numResource > 0 then
 					-- count how many such buildings player has
 					local numExisting = g_activePlayer:CountNumBuildings( buildingID )
-					-- count how many such units player is building
+					-- count how many such buildings player is building
 					local numBuilds = 0
 					for city in g_activePlayer:Cities() do
 						for i=0, city:GetOrderQueueLength()-1 do
@@ -2383,6 +2383,7 @@ local function ResourcesToolTip( control )
 								numBuilds = numBuilds + 1
 							end
 						end
+						numExisting = numExisting - city:GetNumFreeBuilding( buildingID ) -- free buildings do not consume resources
 					end
 					-- can player build this building someday ?
 					local canBuildSomeday
@@ -2420,6 +2421,100 @@ local function ResourcesToolTip( control )
 									end
 								end
 							end
+						end
+						if totalResource > 0 then
+							tipIndex = tipIndex+1
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+						else
+							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
+						end
+					end
+				end
+			end
+			for improvement in GameInfo.Improvements() do
+				local improvementID = improvement.ID
+				local numResource = Game.GetNumResourceRequiredForImprovement(improvementID, resourceID)
+				if numResource > 0 then
+					-- how many improvements are the player responsible for
+					local numExisting = g_activePlayer:GetResponsibleForImprovementCount(improvementID)
+					-- how many improvements is the player currently building
+					local numBuilds = 0
+					for unit in g_activePlayer:Units() do
+						if unit:IsWork() then
+							local improvementBuildingID = unit:GetImprovementBuildType()
+							if improvementBuildingID == improvementID then
+								numBuilds = numBuilds + 1
+							end
+						end
+					end
+					-- can player build this improvement someday ?
+					local canBuildSomeday = true
+					if ( civ5_mode and improvement.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[improvement.ObsoleteTech] ) ) then
+						canBuildSomeday = false
+					end
+					if (improvement.CivilizationType and GameInfoTypes[improvement.CivilizationType] ~= g_activeCivilization) then
+						canBuildSomeday = false
+					end
+					if canBuildSomeday or numExisting > 0 or numBuilds > 0 then
+						local totalResource = (numExisting + numBuilds) * numResource
+						local tip = L( improvement.Description )
+						if canBuildSomeday then
+							local tech
+							for build in GameInfo.Builds() do
+								if build.ImprovementType then
+									if improvementID == GameInfoTypes[build.ImprovementType] then
+										if build.PrereqTech then
+											tech = GameInfo.Technologies[ build.PrereqTech ]
+										end
+										break
+									end
+								end
+							end
+							if tech and not g_activeTeamTechs:HasTech( tech.ID ) then
+								tip = S( "%s [COLOR_CYAN]%s[ENDCOLOR]", tip, L(tech.Description) )
+							end
+						end
+						if totalResource > 0 then
+							tipIndex = tipIndex+1
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+						else
+							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
+						end
+					end
+				end
+			end
+			for route in GameInfo.Routes() do
+				local routeID = route.ID
+				local numResource = Game.GetNumResourceRequiredForRoute(routeID, resourceID)
+				if numResource > 0 then
+					-- how many routes is the player responsible for
+					local numExisting = g_activePlayer:GetResponsibleForRouteCount(routeID)
+					-- how many improvements is the player currently building
+					local numBuilds = 0
+					for unit in g_activePlayer:Units() do
+						if unit:IsWork() then
+							local routeBuildingID = unit:GetRouteBuildType()
+							if routeBuildingID == routeID then
+								numBuilds = numBuilds + 1
+							end
+						end
+					end
+					if numExisting > 0 or numBuilds > 0 then
+						local totalResource = (numExisting + numBuilds) * numResource
+						local tip = L( route.Description )
+						local tech
+						for build in GameInfo.Builds() do
+							if build.RouteType then
+								if routeID == GameInfoTypes[build.RouteType] then
+									if build.PrereqTech then
+										tech = GameInfo.Technologies[ build.PrereqTech ]
+									end
+									break
+								end
+							end
+						end
+						if tech and not g_activeTeamTechs:HasTech( tech.ID ) then
+							tip = S( "%s [COLOR_CYAN]%s[ENDCOLOR]", tip, L(tech.Description) )
 						end
 						if totalResource > 0 then
 							tipIndex = tipIndex+1

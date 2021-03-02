@@ -1658,7 +1658,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 
 	//Let's see how close we are to a specialist. If close, emphasize.
-	int iProximityToGPBonus = 0;
 	int iGPWeHave = GetSpecialistGreatPersonProgress(eSpecialist);
 	if (iGPWeHave != 0)
 	{

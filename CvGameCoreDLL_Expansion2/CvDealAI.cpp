@@ -3214,7 +3214,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
-		
+
 	// Don't accept war bribes if we recently made peace.
 	if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
 	{
@@ -3230,44 +3230,47 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 	}
 
-	// Sanity check - who else would we go to war with?
-	vector<PlayerTypes> vLinkedWarPlayers = pDiploAI->GetLinkedWarPlayers(eWithPlayer, false, true, false);
-	for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
+	// AI sanity check - who else would we go to war with?
+	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
-		// Would we be declaring war on a powerful neighbor?
-		if (GET_PLAYER(ePlayerDeclaringWar).GetProximityToPlayer(*it) >= PLAYER_PROXIMITY_CLOSE)
+		vector<PlayerTypes> vLinkedWarPlayers = pDiploAI->GetLinkedWarPlayers(eWithPlayer, false, true, false);
+		for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
 		{
-			if (GET_PLAYER(*it).isMajorCiv())
+			// Would we be declaring war on a powerful neighbor?
+			if (GET_PLAYER(ePlayerDeclaringWar).GetProximityToPlayer(*it) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				if (pDiploAI->GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_AFRAID)
+				if (GET_PLAYER(*it).isMajorCiv())
 				{
-					return INT_MAX;
-				}
-				// If we're already planning a war/demand against them, then we don't care.
-				else if (pDiploAI->GetMajorCivApproach(*it) != MAJOR_CIV_APPROACH_WAR && pDiploAI->GetWarGoal(*it) != WAR_GOAL_DEMAND)
-				{
-					// Bold AIs will take more risks.
-					if (pDiploAI->GetBoldness() <= 5 || pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+					if (pDiploAI->GetMajorCivApproach(*it) == MAJOR_CIV_APPROACH_AFRAID)
 					{
 						return INT_MAX;
 					}
-					else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+					// If we're already planning a war/demand against them, then we don't care.
+					else if (pDiploAI->GetMajorCivApproach(*it) != MAJOR_CIV_APPROACH_WAR && pDiploAI->GetWarGoal(*it) != WAR_GOAL_DEMAND)
 					{
-						return INT_MAX;
+						// Bold AIs will take more risks.
+						if (pDiploAI->GetBoldness() <= 5 || pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+						{
+							return INT_MAX;
+						}
+						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+						{
+							return INT_MAX;
+						}
 					}
-				}
 
-				// Anti-stupidity: Is this guy not sane to attack (e.g. friends, coop war, DP etc)? Then don't accept a bribe...indirect backstabbing should never be because of a bribe.
-				if (!pDiploAI->IsWarSane(*it))
-					return INT_MAX;
-			}
-			else
-			{
-				if (pDiploAI->GetMinorCivApproach(*it) != MINOR_CIV_APPROACH_CONQUEST && pDiploAI->GetMinorCivApproach(*it) != MINOR_CIV_APPROACH_BULLY)
-				{
-					if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
-					{
+					// Anti-stupidity: Is this guy not sane to attack (e.g. friends, coop war, DP etc)? Then don't accept a bribe...indirect backstabbing should never be because of a bribe.
+					if (!pDiploAI->IsWarSane(*it))
 						return INT_MAX;
+				}
+				else
+				{
+					if (pDiploAI->GetMinorCivApproach(*it) != MINOR_CIV_APPROACH_CONQUEST && pDiploAI->GetMinorCivApproach(*it) != MINOR_CIV_APPROACH_BULLY)
+					{
+						if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+						{
+							return INT_MAX;
+						}
 					}
 				}
 			}
@@ -3282,65 +3285,62 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	int iWarApproachWeight = pDiploAI->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	iItemValue *= max(1, (5 - iWarApproachWeight/2));
 
-	if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
-		iItemValue /= 2;
-	}
-	else if (pDiploAI->IsMajorCompetitor(eWithPlayer))
-	{
-		iItemValue *= 75;
-		iItemValue /= 100;
-	}
-	else if (eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_AFRAID)
-	{
-		// Don't accept if we don't like the asker
-		return INT_MAX;
-	}
-
-	// Modify for our feelings towards the player we're would go to war with
-	if (GET_PLAYER(eWithPlayer).isMajorCiv())
-	{
-		MajorCivApproachTypes eMajorApproachTowardsWarPlayer = pDiploAI->GetMajorCivApproach(eWithPlayer);
-		if (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_WAR)
+		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+		{
+			iItemValue /= 2;
+		}
+		else if (pDiploAI->IsMajorCompetitor(eWithPlayer))
 		{
 			iItemValue *= 75;
 			iItemValue /= 100;
 		}
-		else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
+		// If not against a major competitor, don't accept if we don't like the other guy
+		else if (eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_AFRAID)
 		{
-			iItemValue *= 90;
-			iItemValue /= 100;
+			return INT_MAX;
 		}
-		else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
-		{
-			iItemValue *= 125;
-			iItemValue /= 100;
-		}
+	}
+
+	// Modify for our feelings towards the player we're would go to war with
+	MajorCivApproachTypes eMajorApproachTowardsWarPlayer = pDiploAI->GetMajorCivApproach(eWithPlayer);
+	if (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_WAR)
+	{
+		iItemValue *= 75;
+		iItemValue /= 100;
+	}
+	else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
+	{
+		iItemValue *= 90;
+		iItemValue /= 100;
+	}
+	else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+	{
+		iItemValue *= 125;
+		iItemValue /= 100;
 	}
 
 	// Modify for our feelings towards the asking player
-	if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+	switch (eApproachTowardsAskingPlayer)
 	{
+	case MAJOR_CIV_APPROACH_FRIENDLY:
+	case MAJOR_CIV_APPROACH_AFRAID:
 		iItemValue *= 90;
 		iItemValue /= 100;
-	}
-	else if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_NEUTRAL)
-	{
+		break;
+	case MAJOR_CIV_APPROACH_NEUTRAL:
 		iItemValue *= 150;
 		iItemValue /= 100;
-	}
-	else if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
-	{
-		iItemValue *= 90;
-		iItemValue /= 100;
+		break;
 	}
 
 	// Target is close to winning the game? Halve the value.
-	if (GET_PLAYER(eWithPlayer).isMajorCiv() && pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
+	if (GET_PLAYER(ePlayerDeclaringWar).isHuman() && GET_PLAYER(eWithPlayer).isMajorCiv() && pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
 	{
 		iItemValue /= 2;
 	}
-			
+
 	// Easy target? Halve the value.
 	if (pDiploAI->IsEasyTarget(eWithPlayer))
 	{

@@ -18,6 +18,7 @@ SELECT 'DIPLOAI_DISABLE_ENDGAME_AGGRESSION', '0';
 
 -- [ENABLE NUCLEAR GANDHI]
 -- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
+-- NOTE: Does nothing if the Community Balance Patch is not enabled.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
 
