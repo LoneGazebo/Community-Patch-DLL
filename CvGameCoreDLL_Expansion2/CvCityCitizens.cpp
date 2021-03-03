@@ -561,6 +561,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 	int iValue = 0;
 
 	bool bCityFoodProduction = m_pCity->isFoodProduction(); //settler!
+	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 	CityAIFocusTypes eFocus = GetFocusType();
@@ -610,7 +611,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			}
 			else if (eYield == YIELD_PRODUCTION)
 			{
-				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction || m_pCity->IsBuildingWorldWonder())
+				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction || bCityWonderProduction)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_PRODUCTION();
 
 				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
