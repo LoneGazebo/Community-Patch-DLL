@@ -879,7 +879,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(pDeal->GetFromPlayer()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pDeal->GetFromPlayer()).nextCity(&iCityLoop))
 		{
-			if (pDeal->IsCityInDeal(eOtherPlayer, pLoopCity->GetID()))
+			if (pDeal->IsCityTrade(eOtherPlayer, pLoopCity->getX(), pLoopCity->getY()))
 			{
 				if (pLoopCity->getOriginalOwner() == pDeal->GetToPlayer())
 				{

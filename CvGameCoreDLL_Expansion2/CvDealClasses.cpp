@@ -1470,8 +1470,7 @@ int CvDeal::GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource)
 	return iNumInExistingDeal;
 }
 
-#if defined(MOD_BALANCE_CORE)
-int CvDeal::GetNumCities(PlayerTypes ePlayer)
+int CvDeal::GetNumCitiesInDeal(PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER)
 		return 0;
@@ -1486,29 +1485,7 @@ int CvDeal::GetNumCities(PlayerTypes ePlayer)
 	}
 	return iNumCities;
 }
-bool CvDeal::IsCityInDeal(PlayerTypes ePlayer, int iCityID)
-{
-	if (ePlayer == NO_PLAYER)
-		return false;
 
-	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-	{
-		if (it->m_eItemType == TRADE_ITEM_CITIES && it->m_eFromPlayer == ePlayer)
-		{
-			CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
-			if (pCity != NULL)
-			{
-				if (it->m_iData1 == pCity->getX() &&
-					it->m_iData2 == pCity->getY())
-				{
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-#endif
 /// What kind of Peace Treaty (if any) is this Deal?
 PeaceTreatyTypes CvDeal::GetPeaceTreatyType() const
 {

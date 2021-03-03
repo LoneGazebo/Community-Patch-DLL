@@ -3788,16 +3788,35 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 				UnitProcessed(pUnit->GetID());
 				return;
 			}
+			else
+			{
+				//cannot swap, get a new plot
+				pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,true);
+			}
 		}
+	}
 
+	if (pBestPlot != NULL)
+	{
 		//check if we can bump somebody else
 		CvUnit* pBumpUnit = pUnit->GetPotentialUnitToPushOut(*pBestPlot);
-		if (pBumpUnit && pUnit->PushBlockingUnitOutOfPlot(*pBestPlot))
+		if (pBumpUnit)
 		{
-			UnitProcessed(pUnit->GetID());
-			return;
+			if (pUnit->PushBlockingUnitOutOfPlot(*pBestPlot))
+			{
+				UnitProcessed(pUnit->GetID());
+				return;
+			}
+			else
+			{
+				//cannot bump, get a new plot
+				pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true, false, false);
+			}
 		}
+	}
 
+	if (pBestPlot != NULL)
+	{
 		//pillage before retreat, if we have movement points to spare
 		if (pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -3819,7 +3838,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 
 		UnitProcessed(pUnit->GetID());
 	}
-	else if (pUnit->canHeal(pUnit->plot()))
+	else if (pUnit->canHeal(pUnit->plot()) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 	{
 		//do nothing and hope for the best
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
@@ -4418,14 +4437,14 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			if (m_pPlayer->isMinorCiv())
 				pNearestCity = m_pPlayer->getCapitalCity();
 
-				if (pNearestCity)
-					pTargetPlot = pNearestCity->plot();
+			if (pNearestCity)
+				pTargetPlot = pNearestCity->plot();
 
-				if (pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
-					bMoveMade = pUnit->IsCivilianUnit() ?
-						ExecuteMoveToPlot(pUnit, pTargetPlot) :
-						MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
-			}
+			if (pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
+				bMoveMade = pUnit->IsCivilianUnit() ?
+					ExecuteMoveToPlot(pUnit, pTargetPlot) :
+					MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
+		}
 
 		if (bMoveMade)
 		{
@@ -4440,7 +4459,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 		}
 		else
 		{
-			if (pUnit->shouldPillage(pUnit->plot()), true)
+			if (pUnit->shouldPillage(pUnit->plot(), true))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 			//now move all units which didn't find a path to a city
@@ -8903,7 +8922,10 @@ bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID)
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
 	{
 		if (it->eAssignmentType == A_RESTART)
+		{
 			bHaveRestart = true;
+			continue;
+		}
 
 		if (bHaveRestart && it->iUnitID == iUnitID && it->eAssignmentType != A_FINISH)
 			return true;
