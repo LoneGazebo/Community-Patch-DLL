@@ -1533,6 +1533,10 @@ void CvDiplomacyAI::DoInitializePersonality()
 			}
 		}
 	}
+
+	// Minimal loyalty? We're willing to backstab.
+	if (GetLoyalty() <= 2)
+		SetBackstabber(true);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -15099,7 +15103,31 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// NEUTRAL DEFAULT WEIGHT
 	////////////////////////////////////
 
-	vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+	vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 3;
+
+	////////////////////////////////////
+	// LEADER TRAITS WEIGHT
+	////////////////////////////////////
+
+	// Conquerors get enough war bonuses later on; non-warmonger UAs get a bonus here.
+	if (bDiplomatTraits || bCulturalTraits)
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+	}
+	if (bScientistTraits)
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+	}
+
+	// Diplo personality should also count!
+	if (IsDiplomat() || IsCultural())
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+	}
+	else if (IsScientist())
+	{
+		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+	}
 
 	////////////////////////////////////
 	// LAST TURN APPROACH BIASES
@@ -16148,25 +16176,25 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	switch (GetWarmongerThreat(ePlayer))
 	{
 	case THREAT_CRITICAL:
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 8;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 8;
-		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 3 * iTheirAttackMultiplier;
-		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] += vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 5 * iTheirAttackMultiplier;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * GetWarmongerHate() * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * GetWarmongerHate() * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * GetWarmongerHate() * iTheirAttackMultiplier / 2;
+		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] += vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * (10 - GetWarmongerHate()) * iTheirAttackMultiplier;
 		break;
 	case THREAT_SEVERE:
-		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * 5;
-		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * 5;
-		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 5 * iTheirAttackMultiplier;
-		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] += vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * 3 * iTheirAttackMultiplier;
+		vApproachScores[MAJOR_CIV_APPROACH_WAR] += vApproachBias[MAJOR_CIV_APPROACH_WAR] * GetWarmongerHate();
+		vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += vApproachBias[MAJOR_CIV_APPROACH_HOSTILE] * GetWarmongerHate();
+		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * GetWarmongerHate() * iTheirAttackMultiplier;
+		vApproachScores[MAJOR_CIV_APPROACH_AFRAID] += vApproachBias[MAJOR_CIV_APPROACH_AFRAID] * (10 - GetWarmongerHate()) * iTheirAttackMultiplier / 2;
 		break;
 	case THREAT_MAJOR:
-		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * 3 * iTheirAttackMultiplier;
-		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 3 * iTheirAttackMultiplier;
+		vApproachScores[MAJOR_CIV_APPROACH_GUARDED] += vApproachBias[MAJOR_CIV_APPROACH_GUARDED] * GetWarmongerHate() * iTheirAttackMultiplier / 2;
+		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * GetWarmongerHate() * iTheirAttackMultiplier / 2;
 		break;
 	case THREAT_MINOR:
 	case THREAT_NONE:
-		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
-		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[MAJOR_CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[MAJOR_CIV_APPROACH_NEUTRAL] * GetWarmongerHate() * iTheirAttackMultiplier / 2;
+		vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[MAJOR_CIV_APPROACH_FRIENDLY] * GetWarmongerHate() * iTheirAttackMultiplier / 2;
 		break;
 	}
 
@@ -17711,7 +17739,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Scale based on personality - how much do we care about trade loyalty? 
 	// Only use 20% of the value for the diplo modifier (/20 followed by /5 = /100).
-	iTradeDealValue *= (GetLoyalty() + GetDiploBalance());
+	// Netherlands always has maximum trade loyalty!
+	iTradeDealValue *= GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() ? 20 : GetLoyalty() + GetDiploBalance();
 	iTradeDealValue /= 100;
 
 	int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
@@ -19303,6 +19332,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// ... unless Gandhi has nukes
 			if ((GetPlayer()->getNumNukeUnits() > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsNukedBy(eMyPlayer)) && GC.getGame().IsNuclearGandhiEnabled())
 			{
+				if (!GetPlayer()->IsVassalOfSomeone())
+					SetBackstabber(true); // activate backstabbing
+
 				vApproachScores[MAJOR_CIV_APPROACH_WAR] += 200;
 				vApproachScores[MAJOR_CIV_APPROACH_HOSTILE] += 100;
 				vApproachScores[MAJOR_CIV_APPROACH_FRIENDLY] = -1000;

@@ -11946,8 +11946,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			// Deals with them
 			int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer);
 
-			// Scale based on personality - how much do we care about trade loyalty? 
-			iTradeDealValue *= (GetPlayer()->GetDiplomacyAI()->GetLoyalty() + GetPlayer()->GetDiplomacyAI()->GetDiploBalance());
+			// Scale based on personality - how much do we care about trade loyalty?
+			// Netherlands always has maximum trade loyalty!
+			iTradeDealValue *= GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() ? 20 : GetPlayer()->GetDiplomacyAI()->GetLoyalty() + GetPlayer()->GetDiplomacyAI()->GetDiploBalance();
 			iTradeDealValue /= 100;
 
 			iScore -= iTradeDealValue;
