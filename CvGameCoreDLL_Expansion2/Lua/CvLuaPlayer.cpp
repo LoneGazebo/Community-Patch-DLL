@@ -13025,7 +13025,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case THREAT_MAJOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 					break;
-				case THREAT_MINOR:
+				default:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 					break;
 				}
@@ -13684,7 +13684,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case THREAT_MAJOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 				break;
-			case THREAT_MINOR:
+			default:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 				break;
 			}
