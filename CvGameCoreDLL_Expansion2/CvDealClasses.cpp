@@ -805,6 +805,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
 
+		// Can't have vassalage in the deal
+		if (IsVassalageTrade(ePlayer) || IsVassalageTrade(eToPlayer))
+			return false;
+
 		// Already has DP
 		if (!bIgnoreExistingOP)
 		{
@@ -1362,6 +1366,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		//Does the offering team have a vassal?
 		if(pFromTeam->GetNumVassals() > 0)
+			return false;
+
+		// Can't have a Defensive Pact in the deal
+		if (IsDefensivePactTrade(eToPlayer))
 			return false;
 
 		//If the other player is our master, or vice versa...
