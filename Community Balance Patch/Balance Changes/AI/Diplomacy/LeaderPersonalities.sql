@@ -1102,7 +1102,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_SU
 UPDATE Leader_MinorCivApproachBiases SET Bias = 9 	WHERE LeaderType = 'LEADER_SULEIMAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 
 -- Theodora (Byzantium)
-UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_THEODORA';
+UPDATE Leaders SET Personality = 'PERSONALITY_DIPLOMAT' WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET VictoryCompetitiveness = 8 		WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET WonderCompetitiveness = 9 		WHERE Type = 'LEADER_THEODORA';
 UPDATE Leaders SET MinorCivCompetitiveness = 8 		WHERE Type = 'LEADER_THEODORA';
