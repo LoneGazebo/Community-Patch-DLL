@@ -9871,10 +9871,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
-				if ((kOtherPlayer.isAlive() || kOtherPlayer.isObserver()) && kOtherPlayer.GetNotifications() && iI != m_eID)
+				if (iI == m_eID)
+					continue;
+
+				if (!kOtherPlayer.isObserver())
 				{
-					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_LIBERATED_MAJOR_CITY, strMessage.toUTF8(), strSummary.toUTF8(), pNewCity->getX(), pNewCity->getY(), -1);
+					if (!kOtherPlayer.isAlive())
+						continue;
+
+					if (!GET_TEAM(kOtherPlayer.getTeam()).isHasMet(getTeam()) && !GET_TEAM(kOtherPlayer.getTeam()).isHasMet(eLiberatedTeam))
+						continue;
 				}
+
+				if (kOtherPlayer.GetNotifications())
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_LIBERATED_MAJOR_CITY, strMessage.toUTF8(), strSummary.toUTF8(), pNewCity->getX(), pNewCity->getY(), -1);
 			}
 		}
 
@@ -10032,10 +10042,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				CvPlayerAI& kOtherPlayer = GET_PLAYER((PlayerTypes)iI);
-				if ((kOtherPlayer.isAlive() || kOtherPlayer.isObserver()) && kOtherPlayer.GetNotifications() && iI != m_eID)
+				if (iI == m_eID)
+					continue;
+
+				if (!kOtherPlayer.isObserver())
 				{
-					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pNewCity->getX(), pNewCity->getY(), -1);
+					if (!kOtherPlayer.isAlive())
+						continue;
+
+					if (!GET_TEAM(kOtherPlayer.getTeam()).isHasMet(getTeam()) && !GET_TEAM(kOtherPlayer.getTeam()).isHasMet(eLiberatedTeam))
+						continue;
 				}
+
+				if (kOtherPlayer.GetNotifications())
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pNewCity->getX(), pNewCity->getY(), -1);
 			}
 
 			CvString temp = strMessage.toUTF8();

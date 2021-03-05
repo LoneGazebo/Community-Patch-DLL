@@ -203,11 +203,7 @@ public:
 
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bCheckOtherPlayerValidity = true, bool bFinalizing = false);
 	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
-
-#if defined(MOD_BALANCE_CORE)
-	int GetNumCities(PlayerTypes ePlayer);
-	bool IsCityInDeal(PlayerTypes ePlayer, int iCityID);
-#endif
+	int GetNumCitiesInDeal(PlayerTypes ePlayer);
 
 	// Methods to add a CvTradedItem to a deal
 	void AddGoldTrade(PlayerTypes eFrom, int iAmount);
