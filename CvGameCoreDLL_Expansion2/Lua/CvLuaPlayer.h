@@ -98,9 +98,7 @@ protected:
 	static int lSetNumWondersBeatenTo(lua_State* L);
 
 	static int lIsCapitalConnectedToCity(lua_State* L);
-#if defined(MOD_API_LUA_EXTENSIONS)
-	LUAAPIEXTN(IsPlotConnectedToPlot, bool, pFromPlot, pToPlot);
-#endif
+	static int lIsPlotConnectedToPlot(lua_State* L);
 
 	static int lIsTurnActive(lua_State* L);
 	static int lIsSimultaneousTurns(lua_State* L);
