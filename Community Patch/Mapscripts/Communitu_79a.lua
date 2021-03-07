@@ -1362,7 +1362,7 @@ function MapGlobals:New()
 				{self.aluminum_ID, alum_amt, 100, 1, 3}
 			};
 			self:ProcessResourceList(42 * resMultiplier, 1, self.hills_open_no_grass, resources_to_place);
-			self:ProcessResourceList(27 * resMultiplier, 1, self.flat_open_no_grass_no_plains, resources_to_place);
+			self:ProcessResourceList(35 * resMultiplier, 1, self.flat_open_no_grass_no_plains, resources_to_place);
 			self:ProcessResourceList(100 * resMultiplier, 1, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
@@ -1858,7 +1858,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.1.1",
+		Name = "Communitu_79a v2.2.0",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -3803,10 +3803,12 @@ function BlendTerrain()
 	if debugTime then print(string.format("%5s ms, BlendTerrain %s", math.floor(mountainCheckTime * 1000), "MountainCheckTime")) end
 
 	-- flat -> hills near mountain, and flat cold -> hills when surrounded by warm
+	-- add flat desert -> hills when surrounded by flat desert too
 	for plotID, plot in Plots(Shuffle) do
 		if plot:GetPlotType() == PlotTypes.PLOT_LAND then
 			local nearMountains = 0
 			local nearWarm = 0
+			local nearDesert = 0
 			for nearPlot in Plot_GetPlotsInCircle(plot, 1) do
 				if not nearPlot:IsWater() then
 					local nearTerrainID = nearPlot:GetTerrainType()
@@ -3818,13 +3820,21 @@ function BlendTerrain()
 					if GetTemperature(nearPlot) > GetTemperature(plot) then
 						nearWarm = nearWarm + 1
 					end
+					
+					if plot:GetTerrainType() == TerrainTypes.TERRAIN_DESERT and nearPlot:GetPlotType() == PlotTypes.PLOT_LAND and nearPlot:GetTerrainType() == TerrainTypes.TERRAIN_DESERT then
+						nearDesert = nearDesert + 1
+					end
 				end
 			end
-			if (nearMountains > 1 and (nearMountains * mg.hillsBlendPercent * 100) >= Map.Rand(100, "Blend mountains - Lua")) then
-				--print("Turning flatland near mountain into hills")
+			if (nearMountains > 1 and (nearMountains * mg.hillsBlendPercent * 10000) >= Map.Rand(10000, "Blend mountains - Lua")) then
+				--print("Turning flatland near mountain into hills", nearMountains)
 				plot:SetPlotType(PlotTypes.PLOT_HILLS, false, false)
 				--plot:SetTerrainType(TerrainTypes.TERRAIN_SNOW, false, false)
-			elseif nearWarm * 0.5 * mg.hillsBlendPercent * 100 >= Map.Rand(100, "Blend hills - Lua") then
+			elseif nearWarm * 0.5 * mg.hillsBlendPercent * 10000 >= Map.Rand(10000, "Blend hills - Lua") then
+				--print("Turning flatland near warm into hills", nearWarm)
+				plot:SetPlotType(PlotTypes.PLOT_HILLS, false, false)
+			elseif nearDesert * 0.5 * mg.hillsBlendPercent * 10000 >= Map.Rand(10000, "Blend hills - Lua") then
+				--print("Turning flat desert surrounded by flat desert into hills", nearDesert)
 				plot:SetPlotType(PlotTypes.PLOT_HILLS, false, false)
 			end
 		end
