@@ -1473,14 +1473,6 @@ void CvDiplomacyAI::DoInitializePersonality()
 	// Human player
 	else
 	{
-		// Warmonger hate has special handling, since it is used in anti-warmonger fervor calculations
-		// Use the AI's base XML value
-		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
-		int iMax = range(/*10*/ GC.getDIPLO_PERSONALITY_FLAVOR_MAX_VALUE(), 1, 20);
-		int iMin = range(/*1*/ GC.getDIPLO_PERSONALITY_FLAVOR_MIN_VALUE(), 1, iMax);
-		m_iWarmongerHate = range(playerLeaderInfo.GetWarmongerHate(), iMin, iMax);
-
-		// For all other flavors, just assign the default value
 		int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 
 		m_iVictoryCompetitiveness = iDefaultFlavorValue;
@@ -1488,6 +1480,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 		m_iMinorCivCompetitiveness = iDefaultFlavorValue;
 		m_iBoldness = iDefaultFlavorValue;
 		m_iDiploBalance = iDefaultFlavorValue;
+		m_iWarmongerHate = iDefaultFlavorValue;
 		m_iDenounceWillingness = iDefaultFlavorValue;
 		m_iDoFWillingness = iDefaultFlavorValue;
 		m_iLoyalty = iDefaultFlavorValue;
@@ -26025,7 +26018,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 		return 0;
 
 	if (GetPlayer()->isHuman())
-		return iReturnValue / 2;
+		return iReturnValue / 4;
 
 	// Modify warmonger amount based on current diplomatic status with this player
 	bool bUntrustworthy = false;
@@ -26077,7 +26070,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	}
 
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
-	iReturnValue /= 10;
+	iReturnValue /= 20;
 
 	return iReturnValue;
 }
@@ -50741,11 +50734,6 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 				}
 			}
 
-			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-
-			iWarmongerValue *= 100 + (iPersonalityMod * 10);
-			iWarmongerValue /= 100;
-
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
 			iWarmongerValue /= 100;
 
@@ -50806,11 +50794,6 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 					iWarmongerValue /= 100;
 				}
 			}
-
-			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-
-			iWarmongerValue *= 100 + (iPersonalityMod * 10);
-			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
 			iWarmongerValue /= 100;
@@ -50923,11 +50906,6 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 					iWarmongerValue /= 100;
 				}
 			}
-
-			int iPersonalityMod = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-
-			iWarmongerValue *= 100 + (iPersonalityMod * 10);
-			iWarmongerValue /= 100;
 
 			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
 			iWarmongerValue /= 100;
@@ -51320,11 +51298,6 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 			iWarmongerOffset /= 100;
 		}
 	}
-
-	int iPersonalityMod = GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetWarmongerHate() - 5;
-
-	iWarmongerOffset *= 100 + (iPersonalityMod * 10);
-	iWarmongerOffset /= 100;
 
 	// scale the final amount by era
 	iWarmongerOffset *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
