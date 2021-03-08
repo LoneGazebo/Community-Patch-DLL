@@ -17057,41 +17057,31 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
+int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* /*pTargetPlot*/) const
 {
-	pAttacker;  pTargetPlot; //unused
-
-	int iVal = 5;
-
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
+		int iMaxRandom = 5;
 		int iBaseValue = getUnitInfo().GetBaseLandAirDefense() + getLandAirDefenseValue();
-		if (iBaseValue == 0)
-			if (bIncludeRand && !IsCivilianUnit())
-				return GC.getGame().getSmallFakeRandNum(iVal, *plot());
-			else
-				return 0;
 
 		if (pAttacker != NULL)
 		{
 			//value is negative if good!
 			int iReduction = pAttacker->GetInterceptionDefenseDamageModifier();
 
-			iBaseValue = iBaseValue * (100 + iReduction);
+			iBaseValue = iBaseValue * max(0, 100 + iReduction);
 			iBaseValue /= 100;
-			if (iBaseValue <= 0)
-				iBaseValue = 0;
 		}
 
 		if (bIncludeRand)
-			return iBaseValue + GC.getGame().getSmallFakeRandNum(iVal, *plot());
+			return iBaseValue + GC.getGame().getSmallFakeRandNum(iMaxRandom, *plot());
 		else
 			return iBaseValue;
 	}
 	else
 	{
-		iVal *= 2;
+		int iVal = 10;
 		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
 		{
 			iVal = iVal * (100 + pAttacker->GetInterceptionDefenseDamageModifier());
