@@ -16516,8 +16516,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 {
 	VALIDATE_OBJECT
 
-		if (pMyPlot == NULL)
-			pMyPlot = plot();
+	if (pMyPlot == NULL)
+		pMyPlot = plot();
 
 	if (pOtherPlot == NULL)
 	{

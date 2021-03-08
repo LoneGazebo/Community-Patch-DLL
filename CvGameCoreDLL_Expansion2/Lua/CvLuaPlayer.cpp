@@ -2005,7 +2005,6 @@ int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 {
@@ -2017,7 +2016,7 @@ int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //bool isTurnActive( void );
 int CvLuaPlayer::lIsTurnActive(lua_State* L)
