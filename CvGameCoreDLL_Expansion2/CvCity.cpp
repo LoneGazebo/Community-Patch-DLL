@@ -28971,8 +28971,6 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		// Deficient? If so, give it a boost
 		if(pCityStrategyAI->GetMostDeficientYield() == eYield)
 			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER();
-		else if (pCityStrategyAI->IsYieldDeficient(eYield))
-			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER() / 2;
 
 #if defined(MOD_BALANCE_CORE)
 		TerrainTypes eTerrain = pPlot->getTerrainType();
@@ -32405,7 +32403,7 @@ void CvCity::read(FDataStream& kStream)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	GetCityStrategyAI()->PrecalcYieldAverages();
+	GetCityStrategyAI()->PrecalcYieldStats();
 #endif
 
 	CvCityManager::OnCityCreated(this);

@@ -311,7 +311,7 @@ void CvCityCitizens::DoTurn()
 
 		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-		bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
+		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
 
 		//---------------
 		// note that GetPlotValue already considers wonder/settler building so we don't do that here
@@ -576,7 +576,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			break;
 
 		//base yield plus combo bonuses
-		int iYield100 = (pPlot->getYield(eYield)+GetBonusPlotValue(pPlot, eYield)) * 100;
+		int iYield100 = (pPlot->getYield(eYield) + GetBonusPlotValue(pPlot, eYield)) * 100;
 		
 		int iYieldMod = 0; //how much do we want it right now?
 		int iUnhappyMod = 0; //how much does it help for happiness?
@@ -601,9 +601,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 						iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 				}
 
-				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction)
+				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction || store.iExcessFoodTimes100 < 0)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_FOOD();
-				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_FOOD()/2;
 
 				if (store.iUnhappinessFromDistress > 0)
@@ -613,8 +613,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			{
 				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction || bCityWonderProduction)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_PRODUCTION();
-
-				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_PRODUCTION()/2;
 
 				if (store.iUnhappinessFromDistress > 0)
@@ -624,8 +623,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			{		
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_GOLD();
-
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_GOLD()/2;
 
 				if (store.iUnhappinessFromGold > 0)
@@ -656,17 +654,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 					iUnhappyMod = store.iUnhappinessFromReligion;
 			}
 
-			//now put it all together
-			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-				iYieldMod += 3;
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-				iYieldMod += 2;
+			//grubs first, morals later
+			if (eYield != YIELD_FOOD && (store.iExcessFoodTimes100+pPlot->getYield(YIELD_FOOD)*100) <= 0)
+				iYieldMod = 1;
 
-			//no yield mods until we're fed!
-			if (eYield == YIELD_FOOD || store.iExcessFoodTimes100 > 0)
-				iYield100 *= max(1, (iYieldMod + iUnhappyMod));
-
-			iValue += iYield100;
+			iValue += iYield100*max(1,iYieldMod+iUnhappyMod);
 		}
 	}
 
@@ -809,7 +801,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 	}
 
 	// If we're deficient in Food then we're less likely to want Specialists
-	if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD))
+	if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD)
 	{
 		iWeight *= 75;
 		iWeight /= 100;
@@ -1298,10 +1290,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
 				iYieldMod += 3;
-			}
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-			{
-				iYieldMod += 2;
 			}
 
 			if (eYield == YIELD_FOOD)

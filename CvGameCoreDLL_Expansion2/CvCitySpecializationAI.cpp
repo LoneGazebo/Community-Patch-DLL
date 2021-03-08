@@ -396,24 +396,15 @@ void CvCitySpecializationAI::DoTurn()
 		m_bSpecializationsDirty = false;
 		m_iLastTurnEvaluated = GC.getGame().getGameTurn();
 
-#if defined(MOD_BALANCE_CORE)
 		// Do we need to choose production again at all our cities?
 		if(m_bInterruptWonders || m_bInterruptBuildings)
-#else
-		// Do we need to choose production again at all our cities?
-		if(m_bInterruptWonders)
-#endif
 		{
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
 				if(pLoopCity->isProductionBuilding())
 				{
-#if defined(MOD_BALANCE_CORE)
 					pLoopCity->AI_chooseProduction(m_bInterruptWonders, m_bInterruptBuildings);
-#else
-					pLoopCity->AI_chooseProduction(true /*bInterruptWonders*/);
-#endif
 				}
 			}
 		}
@@ -494,13 +485,7 @@ CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 }
 
 // PRIVATE METHODS
-#if defined(MOD_BALANCE_CORE)
-//Helper functions to round
-static double citystrategyround(double x)
-{
-	return (x >= 0) ? floor(x + .5) : ceil(x - .5);
-};
-#endif
+
 /// Evaluate which specializations we need
 void CvCitySpecializationAI::WeightSpecializations()
 {
@@ -509,10 +494,8 @@ void CvCitySpecializationAI::WeightSpecializations()
 	int iGoldYieldWeight = 1;
 	int iScienceYieldWeight = 1;
 	int iGeneralEconomicWeight = 1;
-#if defined(MOD_BALANCE_CORE)
 	int iCultureYieldWeight = 1;
 	int iFaithYieldWeight = 1;
-#endif
 
 	// Clear old weights
 	m_YieldWeights.clear();
@@ -521,107 +504,28 @@ void CvCitySpecializationAI::WeightSpecializations()
 	// Must have a capital to do any specialization
 	if(m_pPlayer->getCapitalCity() != NULL)
 	{
-		//int iFlavorExpansion = 0;
-		int iFlavorWonder = 0;
-		int iFlavorGold = 0;
-		int iFlavorScience = 0;
-		int iFlavorSpaceship = 0;
-
-		//iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		//if(iFlavorExpansion < 0) iFlavorExpansion = 0;
-		iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+		int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 		if(iFlavorWonder < 0) iFlavorWonder = 0;
-		iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+
+		int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		if(iFlavorGold < 0) iFlavorGold = 0;
-		iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+
+		int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 		if(iFlavorScience < 0) iFlavorScience = 0;
-		iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
+
+		int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
 		if(iFlavorSpaceship < 0) iFlavorSpaceship = 0;
-#if defined(MOD_BALANCE_CORE)
+
 		int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		if(iFlavorGrowth < 0) iFlavorGrowth = 0;
+
 		int iFlavorCulture = 10 * (m_pPlayer->GetCulture()->GetNumCivsInfluentialOn() + m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
 		if(iFlavorCulture < 0) iFlavorCulture = 0;
+
 		int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		if(iFlavorFaith < 0) iFlavorFaith = 0;
-#endif
 
 		// COMPUTE NEW WEIGHTS
-#if defined(MOD_BALANCE_CORE)
-		//City Loop (to encourage specializations that capitalize on what we're good at).		
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(pLoopCity == NULL || pLoopCity->IsPuppet())
-			{
-				continue;
-			}
-			
-			//Highest First
-			YieldTypes eHighestYield = pLoopCity->GetCityStrategyAI()->GetHighestYield();
-			int iYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eHighestYield));
-
-			if(eHighestYield == YIELD_FOOD)
-			{
-				iFoodYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_PRODUCTION)
-			{
-				iProductionYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_GOLD)
-			{
-				iGoldYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_SCIENCE)
-			{
-				iScienceYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_CULTURE)
-			{
-				iCultureYieldWeight += iYieldAverage;
-			}
-			else if(eHighestYield == YIELD_FAITH)
-			{
-				iFaithYieldWeight += iYieldAverage;
-			}
-
-			iGeneralEconomicWeight += (iYieldAverage / 3);
-
-			//Then Lowest
-			YieldTypes eLowestYield = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
-			int iLowestYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield));
-
-			int iDelta = iYieldAverage - iLowestYieldAverage;
-
-			if(eLowestYield == YIELD_FOOD)
-			{
-				iFoodYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_PRODUCTION)
-			{
-				iProductionYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_GOLD)
-			{
-				iGoldYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_SCIENCE)
-			{
-				iScienceYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_CULTURE)
-			{
-				iCultureYieldWeight += iDelta;
-			}
-			else if(eLowestYield == YIELD_FAITH)
-			{
-				iFaithYieldWeight += iDelta;
-			}
-
-			iGeneralEconomicWeight += (iDelta / 3);
-		}			
 
 		//   Add in any contribution from the current grand strategy
 		for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)
@@ -704,68 +608,6 @@ void CvCitySpecializationAI::WeightSpecializations()
 
 		// Log results
 		LogSpecializationWeights();
-#else
-		//   Food
-		CvArea* pArea = GC.getMap().getArea(m_pPlayer->getCapitalCity()->getArea());
-		int iNumUnownedTiles = pArea->getNumUnownedTiles();
-		int iNumCities = m_pPlayer->getNumCities();
-		int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-		if(eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
-		{
-			iFoodYieldWeight += GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() /* 500 */;
-		}
-		iFoodYieldWeight *= max(1, iFlavorGrowth);
-		iFoodYieldWeight += iFlavorExpansion * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_FLAVOR_EXPANSION() /* 5 */;
-		iFoodYieldWeight += (iNumUnownedTiles * 100) / pArea->getNumTiles() * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_PERCENT_CONTINENT_UNOWNED() /* 5 */;
-		iFoodYieldWeight += iNumCities * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_CITIES() /* -50 */;
-		iFoodYieldWeight += iNumSettlers * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_SETTLERS() /* -40 */;
-		if((iNumCities + iNumSettlers) == 1)
-		{
-			iFoodYieldWeight *= 3;   // Really want to get up over 1 city
-		}
-		if(iFoodYieldWeight < 0) iFoodYieldWeight = 0;
-
-		//   Production
-		iProductionYieldWeight = WeightProductionSubtypes(iFlavorWonder, iFlavorSpaceship);
-
-		//   Trade
-		int iLandDisputeLevel = m_pPlayer->GetDiplomacyAI()->GetTotalLandDisputeLevel();
-		iGoldYieldWeight += iFlavorGold * GC.getAI_CITY_SPECIALIZATION_GOLD_WEIGHT_FLAVOR_GOLD() /* 20 */;
-		iGoldYieldWeight += iLandDisputeLevel * GC.getAI_CITY_SPECIALIZATION_GOLD_WEIGHT_LAND_DISPUTE() /* 10 */;
-
-		//   Science
-		iScienceYieldWeight += iFlavorScience * GC.getAI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SCIENCE() /* 20 */;
-		iScienceYieldWeight += iFlavorSpaceship * GC.getAI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SPACESHIP() /* 10 */;
-
-		//   General Economics
-		iGeneralEconomicWeight = GC.getAI_CITY_SPECIALIZATION_GENERAL_ECONOMIC_WEIGHT() /* 200 */;
-
-		//   Add in any contribution from the current grand strategy
-		for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)
-		{
-			CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo((AIGrandStrategyTypes)iGrandStrategyLoop);
-			if(grandStrategy)
-			{
-				if(iGrandStrategyLoop == m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy())
-				{
-					iFoodYieldWeight +=	grandStrategy->GetSpecializationBoost(YIELD_FOOD);
-					iGoldYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_GOLD);
-					iScienceYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
-				}
-			}
-		}
-
-		// Add weights to our weighted vector
-		m_YieldWeights.push_back(YIELD_FOOD, iFoodYieldWeight);
-		m_YieldWeights.push_back(YIELD_PRODUCTION, iProductionYieldWeight);
-		m_YieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
-		m_YieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
-		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
-
-		// Log results
-		LogSpecializationWeights();
-#endif
 	}
 
 	return;

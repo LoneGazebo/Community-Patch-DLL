@@ -3152,12 +3152,13 @@ void CvUnit::doTurn()
 
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
-	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
-	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (!isHuman() || IsAutomated() || !IsHurt());
-	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true);
-	bool bInterceptCheck = eActivityType == ACTIVITY_INTERCEPT && !isHuman();
+	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD); //this is after a skip mission
+	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && !IsHurt(); //done healing?
+	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY || eActivityType == ACTIVITY_HEAL) && SentryAlert(true); //on alert or healing
+	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn() && SentryAlert(true); //fortified but about to die
+	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(); //AI interceptors reconsider each turn
 
-	if (bHoldCheck || bHealCheck || bSentryCheck || bInterceptCheck)	
+	if (bHoldCheck || bHealCheck || bSentryCheck || bFortifyCheck || bInterceptCheck)	
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
