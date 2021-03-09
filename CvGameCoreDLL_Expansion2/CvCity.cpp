@@ -28901,7 +28901,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 	{
-		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetSurfaceApproach(pPlot->getOwner()) >= MAJOR_CIV_APPROACH_AFRAID)
+		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetSurfaceApproach(pPlot->getOwner()) >= CIV_APPROACH_AFRAID)
 		{
 			return iRtnValue;
 		}

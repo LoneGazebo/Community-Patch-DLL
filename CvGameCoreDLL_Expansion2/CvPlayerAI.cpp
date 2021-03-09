@@ -371,13 +371,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift
 			CvArea* pArea = GC.getMap().getArea(pCity->getArea());
 			if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) > 1)
 			{
-				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner);
-				if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+				CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eOldOwner);
+				if (eOpinion == CIV_OPINION_UNFORGIVABLE)
 				{
 					pCity->doTask(TASK_RAZE);
 					return;
 				}
-				else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
+				else if (eOpinion == CIV_OPINION_ENEMY)
 				{
 					if (GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam))
 					{
@@ -1632,7 +1632,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 			continue;
 
 		// Is this a minor we are friendly with?
-		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetMinorCivApproach(kPlayer.GetID()) != MINOR_CIV_APPROACH_CONQUEST);
+		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE);
 		bool bNotPlanningAWar = GetDiplomacyAI()->GetWarGoal(kPlayer.GetID()) == NO_WAR_GOAL_TYPE;
 
 		if (bMinorCivApproachIsCorrect && !kPlayer.IsAtWarWith(GetID()) && bNotPlanningAWar)
@@ -1680,7 +1680,7 @@ bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 		return false;
 
 	//Are we planning on conquering them?
-	if(kPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCityPlayer.GetID()) == MINOR_CIV_APPROACH_CONQUEST)
+	if(kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
 		return false;
 
 	// Does somebody already have an embassy here?
@@ -1841,8 +1841,12 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		// Approaches
 		// **************************
 
-		MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
-		if (eApproach == MINOR_CIV_APPROACH_IGNORE)
+		CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(kMinor.GetID());
+
+		if (eApproach <= CIV_APPROACH_HOSTILE)
+			return 0;
+
+		if (eApproach == CIV_APPROACH_NEUTRAL)
 			iScore /= 5;
 
 		// **************************
@@ -2010,26 +2014,26 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 		if (GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eAlliedPlayer).getTeam()))
 		{
-			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eAlliedPlayer);
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+			CivApproachTypes eApproachType = GetDiplomacyAI()->GetCivApproach(eAlliedPlayer);
+			CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer);
 
 			// If a friendly player is allied, let's discourage going there.
-			if (eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
+			if (eApproachType == CIV_APPROACH_FRIENDLY)
 			{
 				iScore /= 10;
 			}
 			// If an enemy is allied, let's take their stuff!
-			else if (eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+			else if (eApproachType == CIV_APPROACH_HOSTILE)
 			{
 				iScore *= 2;
 			}
 			// If an ally is allied, let's leave it alone!
-			if (eOpinion == MAJOR_CIV_OPINION_ALLY)
+			if (eOpinion == CIV_OPINION_ALLY)
 			{
 				iScore /= 10;
 			}
 			// If an competitor is allied, let's fight for it!
-			else if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+			else if (eOpinion == CIV_OPINION_COMPETITOR)
 			{
 				iScore *= 2;
 			}

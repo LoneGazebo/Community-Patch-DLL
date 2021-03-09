@@ -6942,14 +6942,14 @@ int CvLeaderHeadInfo::GetWarmongerHate() const
 	return m_iWarmongerHate;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetDenounceWillingness() const
-{
-	return m_iDenounceWillingness;
-}
-//------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDoFWillingness() const
 {
 	return m_iDoFWillingness;
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetDenounceWillingness() const
+{
+	return m_iDenounceWillingness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetLoyalty() const
@@ -6957,19 +6957,14 @@ int CvLeaderHeadInfo::GetLoyalty() const
 	return m_iLoyalty;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetNeediness() const
-{
-	return m_iNeediness;
-}
-//------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetForgiveness() const
 {
 	return m_iForgiveness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetChattiness() const
+int CvLeaderHeadInfo::GetNeediness() const
 {
-	return m_iChattiness;
+	return m_iNeediness;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetMeanness() const
@@ -6977,18 +6972,64 @@ int CvLeaderHeadInfo::GetMeanness() const
 	return m_iMeanness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetMajorCivApproachBias(int i) const
+int CvLeaderHeadInfo::GetChattiness() const
 {
-	CvAssertMsg(i < NUM_MAJOR_CIV_APPROACHES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMajorCivApproachBiases? m_piMajorCivApproachBiases[i] : -1;
+	return m_iChattiness;
 }
 //------------------------------------------------------------------------------
-int CvLeaderHeadInfo::GetMinorCivApproachBias(int i) const
+// Recursive: Need to hardcode these references because of how Firaxis set up the table.
+int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
-	CvAssertMsg(i < NUM_MINOR_CIV_APPROACHES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMinorCivApproachBiases? m_piMinorCivApproachBiases[i] : -1;
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[3] : 5; // xml: MINOR_CIV_APPROACH_CONQUEST
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[0] : 5; // xml: MAJOR_CIV_APPROACH_WAR
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
+{
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[4] : 5; // xml: MINOR_CIV_APPROACH_BULLY
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[1] : 5; // xml: MAJOR_CIV_APPROACH_HOSTILE
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetDeceptiveBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[2] : 5; // xml: MAJOR_CIV_APPROACH_DECEPTIVE
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetGuardedBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[3] : 5; // xml: MAJOR_CIV_APPROACH_GUARDED
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetAfraidBias() const
+{
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[4] : 5; // xml: MAJOR_CIV_APPROACH_AFRAID
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
+{
+	if (bMinor)
+		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[0] : 5; // xml: MINOR_CIV_APPROACH_IGNORE
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[6] : 5; // xml: MAJOR_CIV_APPROACH_NEUTRAL
+}
+//------------------------------------------------------------------------------
+int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
+{
+	// We combine Friendly and Protective into a single approach, removing the dumb Firaxis distinction.
+	// Use the higher of the two for the diplomacy AI.
+	if (bMinor)
+	{
+		if (!m_piMinorCivApproachBiases)
+			return 5;
+
+		return max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
+	}
+
+	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[5] : 5; // xml: MAJOR_CIV_APPROACH_FRIENDLY
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getArtDefineTag() const
@@ -7022,38 +7063,35 @@ const char* CvLeaderHeadInfo::getLeaderHead() const
 //------------------------------------------------------------------------------
 bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if (!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
 	//Basic Properties
-
 	const char* szTextVal = NULL;	//Temp storage
 	szTextVal = kResults.GetText("ArtDefineTag");
 	setArtDefineTag(szTextVal);
 
+	// Diplomacy Flavors
 	m_iVictoryCompetitiveness					= kResults.GetInt("VictoryCompetitiveness");
 	m_iWonderCompetitiveness					= kResults.GetInt("WonderCompetitiveness");
 	m_iMinorCivCompetitiveness					= kResults.GetInt("MinorCivCompetitiveness");
 	m_iBoldness									= kResults.GetInt("Boldness");
-	m_iDiploBalance									= kResults.GetInt("DiploBalance");
-	m_iWarmongerHate									= kResults.GetInt("WarmongerHate");
-	m_iDenounceWillingness									= kResults.GetInt("DenounceWillingness");
-	m_iDoFWillingness									= kResults.GetInt("DoFWillingness");
+	m_iDiploBalance								= kResults.GetInt("DiploBalance");
+	m_iWarmongerHate							= kResults.GetInt("WarmongerHate");
+	m_iDenounceWillingness						= kResults.GetInt("DenounceWillingness");
+	m_iDoFWillingness							= kResults.GetInt("DoFWillingness");
 	m_iLoyalty									= kResults.GetInt("Loyalty");
-	m_iNeediness									= kResults.GetInt("Neediness");
-	m_iForgiveness									= kResults.GetInt("Forgiveness");
-	m_iChattiness									= kResults.GetInt("Chattiness");
+	m_iNeediness								= kResults.GetInt("Neediness");
+	m_iForgiveness								= kResults.GetInt("Forgiveness");
+	m_iChattiness								= kResults.GetInt("Chattiness");
 	m_iMeanness									= kResults.GetInt("Meanness");
 
 	//Arrays
 	const char* szType = GetType();
 
 	kUtility.SetFlavors(m_piFlavorValue, "Leader_Flavors", "LeaderType", szType);
-
 	kUtility.PopulateArrayByValue(m_piMajorCivApproachBiases, "MajorCivApproachTypes", "Leader_MajorCivApproachBiases", "MajorCivApproachType", "LeaderType", szType, "Bias");
-
 	kUtility.PopulateArrayByValue(m_piMinorCivApproachBiases, "MinorCivApproachTypes", "Leader_MinorCivApproachBiases", "MinorCivApproachType", "LeaderType", szType, "Bias");
-
 	kUtility.PopulateArrayByExistence(m_pbTraits, "Traits", "Leader_Traits", "TraitType", "LeaderType", szType);
 
 	return true;

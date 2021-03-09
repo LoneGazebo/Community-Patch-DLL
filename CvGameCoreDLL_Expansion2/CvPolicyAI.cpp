@@ -449,10 +449,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 
 	// Finally see what our friends (and enemies) have already chosen
-	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
@@ -493,9 +492,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 			}
 
-			switch (pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
+			switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer))
 			{
-			case MAJOR_CIV_APPROACH_HOSTILE:
+			case CIV_APPROACH_HOSTILE:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
 					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
@@ -512,7 +511,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
 				}
 				break;
-			case MAJOR_CIV_APPROACH_GUARDED:
+			case CIV_APPROACH_GUARDED:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
 					iAutocracyPriority += GC.getIDEOLOGY_SCORE_GUARDED();
@@ -529,7 +528,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_GUARDED();
 				}
 				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
+			case CIV_APPROACH_AFRAID:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_AFRAID();
@@ -543,7 +542,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iOrderPriority += GC.getIDEOLOGY_SCORE_AFRAID();
 				}
 				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case CIV_APPROACH_FRIENDLY:
 				if (eOtherPlayerIdeology == eFreedomBranch)
 				{
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
@@ -557,7 +556,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iOrderPriority += GC.getIDEOLOGY_SCORE_FRIENDLY();
 				}
 				break;
-			case MAJOR_CIV_APPROACH_NEUTRAL:
+			default:
 				// No changes
 				break;
 			}
@@ -620,7 +619,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	bool bFirstIdeology = true;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
@@ -827,38 +826,27 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
-		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
+		if (ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
 		{
 			int iUnhappiness = pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(ePreferredIdeology);
-			if(iUnhappiness >= iPublicOpinionUnhappiness)
+			if (iUnhappiness >= iPublicOpinionUnhappiness)
 			{
 				return;
 			}
 			// Finally see what our friends (and enemies) have already chosen
-			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 				if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 				{
 					CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
 					PolicyBranchTypes eOtherPlayerIdeology;
 					eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
-					switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer))
+					if (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_HOSTILE)
 					{
-						case MAJOR_CIV_APPROACH_HOSTILE:
-							if (eOtherPlayerIdeology == ePreferredIdeology)
-							{
-								return;
-							}
-							break;
-						case MAJOR_CIV_APPROACH_WAR:
-							if (eOtherPlayerIdeology == ePreferredIdeology)
-							{
-								return;
-							}
-							break;
+						if (eOtherPlayerIdeology == ePreferredIdeology)
+							return;
 					}
 				}
 			}
@@ -4631,7 +4619,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 						// Loop through all minors - if we're itching to conquer, bail out on diplo policies.
 						if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
 						{
-							if (pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
+							if (pPlayer->GetDiplomacyAI()->GetCivApproach(eMinor) >= CIV_APPROACH_HOSTILE)
 							{
 								iDiploValue -= iFlavorValue;
 								break;

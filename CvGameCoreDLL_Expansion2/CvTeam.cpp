@@ -1371,7 +1371,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (GET_PLAYER(eLoopTarget).isMajorCiv())
 							{
 								bool bHaveOffensiveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
-								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMajorCivApproach(eLoopTarget) == MAJOR_CIV_APPROACH_WAR;
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
 
 								if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopTarget) || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
 								{
@@ -1381,7 +1381,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							else if (GET_PLAYER(eLoopTarget).isMinorCiv())
 							{
 								bool bHaveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
-								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetMinorCivApproach(eLoopTarget) == MINOR_CIV_APPROACH_CONQUEST;
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
 
 								if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget))
 								{
@@ -1398,17 +1398,17 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{
 							bool bHaveOffensiveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
-							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_WAR;
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
 
 							if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopPlayer) || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
 						}
-						else if (GET_PLAYER(eLoopPlayer).isMinorCiv() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST)
+						else if (GET_PLAYER(eLoopPlayer).isMinorCiv() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 						{
 							bool bHaveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
-							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetMinorCivApproach(eLoopPlayer) == MINOR_CIV_APPROACH_CONQUEST;
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
 
 							if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer))
 							{
@@ -2539,7 +2539,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 					int kiBase = 10000;
 					
 					// What is our leader's opinion of the other team's leader? Remember, bad opinion is positive, good opinion is negative.
-					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->GetMajorCivOpinionWeight(eLeaderLoop);
+					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->GetCivOpinionWeight(eLeaderLoop);
 					if (isAtWar(eTeamLoop))
 						iOpinion = kiBase; // Don't vote for someone we are at war with, if we can help it
 

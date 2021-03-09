@@ -428,7 +428,7 @@ protected:
 	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
 	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
-	LUAAPIEXTN(GetMajorCivOpinion, int);
+	LUAAPIEXTN(GetCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
 	//JFD
 	LUAAPIEXTN(GetWLTKDResourceTT, int);

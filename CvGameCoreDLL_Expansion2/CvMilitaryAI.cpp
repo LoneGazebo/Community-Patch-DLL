@@ -2123,13 +2123,13 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 			bool bRollForNuke = false;
 			if(GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				MajorCivOpinionTypes eMajorCivOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
+				CivOpinionTypes eCivOpinion = m_pPlayer->GetDiplomacyAI()->GetCivOpinion(ePlayer);
 				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT || eCurrentWarState == WAR_STATE_DEFENSIVE)
 				{
 					// roll every turn
 					bRollForNuke = true;
 				}
-				else if(eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
+				else if(eCivOpinion <= CIV_OPINION_ENEMY)
 				{
 					bRollForNuke = true;
 				}
@@ -3591,11 +3591,9 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		}
 
 		// Add in weight for each civ we're on really bad terms with
-		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_AFRAID ||
-				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
-				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE ||
+		else if(pkDiplomacyAI->GetCivApproach(eOtherPlayer) <= CIV_APPROACH_HOSTILE ||
+		        pkDiplomacyAI->GetCivApproach(eOtherPlayer) == CIV_APPROACH_AFRAID ||
+				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) <= CIV_APPROACH_HOSTILE ||
 				pkDiplomacyAI->IsCapitalCapturedBy(eOtherPlayer) || pkDiplomacyAI->IsHolyCityCapturedBy(eOtherPlayer) ||
 				pkDiplomacyAI->GetNumCitiesCapturedBy(eOtherPlayer) > 0 || pkDiplomacyAI->GetNumWarsDeclaredOnUs(eOtherPlayer) > 2)
 		{
@@ -3603,9 +3601,8 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		}
 
 		// And some if on fairly bad terms
-		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_GUARDED ||
-		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer) == MAJOR_CIV_APPROACH_DECEPTIVE ||
-				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == MAJOR_CIV_APPROACH_GUARDED ||
+		else if(pkDiplomacyAI->GetCivApproach(eOtherPlayer) <= CIV_APPROACH_GUARDED ||
+				pkDiplomacyAI->GetVisibleApproachTowardsUs(eOtherPlayer) == CIV_APPROACH_GUARDED ||
 				pkDiplomacyAI->GetNumWarsDeclaredOnUs(eOtherPlayer) > 0)
 		{
 			iCurrentWeight += 25;

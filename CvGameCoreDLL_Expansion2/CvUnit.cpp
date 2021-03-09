@@ -3040,22 +3040,22 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 				{
-					MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
-					MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+					CivOpinionTypes eMajorOpinion = NO_CIV_OPINION;
+					CivApproachTypes eMinorOpinion = NO_CIV_APPROACH;
 					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 					{
-						eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+						eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivOpinion(kCaptureDef.eOriginalOwner);
 					}
 					else
 					{
-						eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+						eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivApproach(kCaptureDef.eOriginalOwner);
 					}
 
-					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= CIV_OPINION_FAVORABLE)
 					{	
 						kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 					}
-					else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
+					else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && eMinorOpinion == CIV_APPROACH_FRIENDLY)
 					{
 						kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 					}
@@ -3080,22 +3080,22 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 			if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
 			{
-				MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
-				MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+				CivOpinionTypes eMajorOpinion = NO_CIV_OPINION;
+				CivApproachTypes eMinorOpinion = NO_CIV_APPROACH;
 				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 				{
-					eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+					eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivOpinion(kCaptureDef.eOriginalOwner);
 				}
 				else
 				{
-					eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+					eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivApproach(kCaptureDef.eOriginalOwner);
 				}
 
-				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= CIV_OPINION_FAVORABLE)
 				{	
 					kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 				}
-				else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
+				else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && eMinorOpinion == CIV_APPROACH_FRIENDLY)
 				{
 					kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 				}

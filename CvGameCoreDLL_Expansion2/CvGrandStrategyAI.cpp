@@ -434,10 +434,10 @@ int CvGrandStrategyAI::GetConquestPriority()
 		iPriority += 9000;
 	}
 
-	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
-	int iGeneralHostility = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_HOSTILE);
-	int iGeneralDeceptiveness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_DECEPTIVE);
-	int iGeneralFriendliness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_FRIENDLY);
+	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_WAR);
+	int iGeneralHostility = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_HOSTILE);
+	int iGeneralDeceptiveness = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE);
+	int iGeneralFriendliness = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY);
 
 	int iGeneralApproachModifier = max(max(iGeneralDeceptiveness, iGeneralHostility), iGeneralWarlikeness) - iGeneralFriendliness;
 	// Boldness gives the base weight for Conquest (no flavors added earlier)

@@ -825,7 +825,20 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NUM_RESOURCEUSAGE_TYPES);
 	EnumEnd(L);
 
-	// MajorCivApproachTypes
+	// CivApproachTypes
+	EnumStart(L, "CivApproachTypes");
+	RegisterEnum(NO_CIV_APPROACH);
+	RegisterEnum(CIV_APPROACH_WAR);
+	RegisterEnum(CIV_APPROACH_HOSTILE);
+	RegisterEnum(CIV_APPROACH_DECEPTIVE);
+	RegisterEnum(CIV_APPROACH_GUARDED);
+	RegisterEnum(CIV_APPROACH_AFRAID);
+	RegisterEnum(CIV_APPROACH_NEUTRAL);
+	RegisterEnum(CIV_APPROACH_FRIENDLY);
+	RegisterEnum(NUM_CIV_APPROACHES);
+	EnumEnd(L);
+
+	// MajorCivApproachTypes (retained for backwards compatibility, but recommended to use CivApproachTypes above)
 	EnumStart(L, "MajorCivApproachTypes");
 	RegisterEnum(NO_MAJOR_CIV_APPROACH);
 	RegisterEnum(MAJOR_CIV_APPROACH_WAR);
@@ -833,12 +846,11 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(MAJOR_CIV_APPROACH_DECEPTIVE);
 	RegisterEnum(MAJOR_CIV_APPROACH_GUARDED);
 	RegisterEnum(MAJOR_CIV_APPROACH_AFRAID);
-	RegisterEnum(MAJOR_CIV_APPROACH_FRIENDLY);
 	RegisterEnum(MAJOR_CIV_APPROACH_NEUTRAL);
+	RegisterEnum(MAJOR_CIV_APPROACH_FRIENDLY);
 	RegisterEnum(NUM_MAJOR_CIV_APPROACHES);
 	EnumEnd(L);
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	EnumStart(L, "AggressivePostureTypes");
 	RegisterEnum(NO_AGGRESSIVE_POSTURE_TYPE);
 	RegisterEnum(AGGRESSIVE_POSTURE_NONE);
@@ -848,7 +860,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(AGGRESSIVE_POSTURE_INCREDIBLE);
 	RegisterEnum(NUM_AGGRESSIVE_POSTURE_TYPES);
 	EnumEnd(L);
-#endif
 
 	// MinorCivTraitTypes
 	EnumStart(L, "MinorCivTraitTypes");
@@ -1113,15 +1124,15 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(PEACE_TREATY_UNCONDITIONAL_SURRENDER);
 	EnumEnd(L);
 
-	EnumStart(L, "MajorCivOpinionTypes");
-	RegisterEnum(NO_MAJOR_CIV_OPINION);
-	RegisterEnum(MAJOR_CIV_OPINION_UNFORGIVABLE);
-	RegisterEnum(MAJOR_CIV_OPINION_ENEMY);
-	RegisterEnum(MAJOR_CIV_OPINION_COMPETITOR);
-	RegisterEnum(MAJOR_CIV_OPINION_NEUTRAL);
-	RegisterEnum(MAJOR_CIV_OPINION_FAVORABLE);
-	RegisterEnum(MAJOR_CIV_OPINION_FRIEND);
-	RegisterEnum(MAJOR_CIV_OPINION_ALLY);
+	EnumStart(L, "CivOpinionTypes");
+	RegisterEnum(NO_CIV_OPINION);
+	RegisterEnum(CIV_OPINION_UNFORGIVABLE);
+	RegisterEnum(CIV_OPINION_ENEMY);
+	RegisterEnum(CIV_OPINION_COMPETITOR);
+	RegisterEnum(CIV_OPINION_NEUTRAL);
+	RegisterEnum(CIV_OPINION_FAVORABLE);
+	RegisterEnum(CIV_OPINION_FRIEND);
+	RegisterEnum(CIV_OPINION_ALLY);
 	EnumEnd(L);
 #endif
 

@@ -992,7 +992,7 @@ int CvVoterDecision::GetVotesCastByPlayer(PlayerTypes ePlayer)
 	return iCount;
 }
 
-int CvVoterDecision::GetVotePercentageForOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost)
+int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost)
 {
 	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
 
@@ -7256,7 +7256,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
 						continue;
 
-					int iVotePercent = it->GetRepealDecision()->GetVotePercentageForOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+					int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
 
 					if (iVotePercent > 0)
 					{
@@ -7281,7 +7281,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
 						continue;
 
-					int iVotePercent = it->GetRepealDecision()->GetVotePercentageForOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
+					int iVotePercent = it->GetRepealDecision()->GetPercentContributionToOutcome(*playerIt, it->GetRepealDecision()->GetDecision(), false);
 
 					if (iVotePercent > 0)
 					{
@@ -7314,7 +7314,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
 						continue;
 
-					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
 
 					if (iVotePercent > 0)
 					{
@@ -7338,7 +7338,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eNewHost).GetID())
 						continue;
 
-					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), true);
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), true);
 
 					if (iVotePercent > 0)
 					{
@@ -7358,7 +7358,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).GetID() == GET_PLAYER(eProposer).GetID())
 						continue;
 
-					int iVotePercent = it->GetVoterDecision()->GetVotePercentageForOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
+					int iVotePercent = it->GetVoterDecision()->GetPercentContributionToOutcome(*playerIt, it->GetVoterDecision()->GetDecision(), false);
 
 					if (iVotePercent > 0)
 					{
@@ -10451,42 +10451,42 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Opinion and approach
-	switch (pDiplo->GetMajorCivOpinion(ePlayer))
+	switch (pDiplo->GetCivOpinion(ePlayer))
 	{
-	case MAJOR_CIV_OPINION_UNFORGIVABLE:
-	case MAJOR_CIV_OPINION_ENEMY:
+	case CIV_OPINION_UNFORGIVABLE:
+	case CIV_OPINION_ENEMY:
 		iAlignment -= 2;
 		break;
-	case MAJOR_CIV_OPINION_COMPETITOR:
+	case CIV_OPINION_COMPETITOR:
 		iAlignment -= 1;
 		break;
-	case MAJOR_CIV_OPINION_NEUTRAL:
+	case CIV_OPINION_NEUTRAL:
 		iAlignment += 0;
 		break;
-	case MAJOR_CIV_OPINION_FAVORABLE:
-	case MAJOR_CIV_OPINION_FRIEND:
+	case CIV_OPINION_FAVORABLE:
+	case CIV_OPINION_FRIEND:
 		iAlignment += 1;
 		break;
-	case MAJOR_CIV_OPINION_ALLY:
+	case CIV_OPINION_ALLY:
 		iAlignment += 2;
 		break;
 	}
 
-	switch (pDiplo->GetMajorCivApproach(ePlayer))
+	switch (pDiplo->GetCivApproach(ePlayer))
 	{
-	case MAJOR_CIV_APPROACH_WAR:
-	case MAJOR_CIV_APPROACH_HOSTILE:
+	case CIV_APPROACH_WAR:
+	case CIV_APPROACH_HOSTILE:
 		iAlignment -= 2;
 		break;
-	case MAJOR_CIV_APPROACH_DECEPTIVE:
-	case MAJOR_CIV_APPROACH_GUARDED:
+	case CIV_APPROACH_DECEPTIVE:
+	case CIV_APPROACH_GUARDED:
 		iAlignment -= 1;
 		break;
-	case MAJOR_CIV_APPROACH_AFRAID:
-	case MAJOR_CIV_APPROACH_NEUTRAL:
+	case CIV_APPROACH_AFRAID:
+	case CIV_APPROACH_NEUTRAL:
 		iAlignment += 0;
 		break;
-	case MAJOR_CIV_APPROACH_FRIENDLY:
+	case CIV_APPROACH_FRIENDLY:
 		iAlignment += 1;
 		break;
 	}
@@ -11715,7 +11715,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iCSWar++;
 					}
-					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetMinorCivApproach(e) == MINOR_CIV_APPROACH_CONQUEST)
+					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetCivApproach(e) == CIV_APPROACH_WAR)
 					{
 						iCSApproachWar++;
 					}
@@ -11834,49 +11834,49 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer))
+				switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer))
 				{
-				case MAJOR_CIV_APPROACH_WAR:
-				case MAJOR_CIV_APPROACH_HOSTILE:
+				case CIV_APPROACH_WAR:
+				case CIV_APPROACH_HOSTILE:
 					iScore += 50;
 					break;
-				case MAJOR_CIV_APPROACH_DECEPTIVE:
-				case MAJOR_CIV_APPROACH_GUARDED:
+				case CIV_APPROACH_DECEPTIVE:
+				case CIV_APPROACH_GUARDED:
 					iScore += 30;
 					break;
-				case MAJOR_CIV_APPROACH_AFRAID:
+				case CIV_APPROACH_AFRAID:
 					iScore += 15;
 					break;
-				case MAJOR_CIV_APPROACH_NEUTRAL:
+				case CIV_APPROACH_NEUTRAL:
 					iScore -= 50;
 					break;
-				case MAJOR_CIV_APPROACH_FRIENDLY:
+				case CIV_APPROACH_FRIENDLY:
 					iScore -= 100;
 					break;
 				}
 			}
 
-			switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer))
+			switch (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer))
 			{
-			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+			case CIV_OPINION_UNFORGIVABLE:
 				iScore += 100;
 				break;
-			case MAJOR_CIV_OPINION_ENEMY:
+			case CIV_OPINION_ENEMY:
 				iScore += 50;
 				break;
-			case MAJOR_CIV_OPINION_COMPETITOR:
+			case CIV_OPINION_COMPETITOR:
 				iScore += 30;
 				break;
-			case MAJOR_CIV_OPINION_NEUTRAL:
+			case CIV_OPINION_NEUTRAL:
 				iScore -= 10;
 				break;
-			case MAJOR_CIV_OPINION_FAVORABLE:
+			case CIV_OPINION_FAVORABLE:
 				iScore -= 30;
 				break;
-			case MAJOR_CIV_OPINION_FRIEND:
+			case CIV_OPINION_FRIEND:
 				iScore -= 50;
 				break;
-			case MAJOR_CIV_OPINION_ALLY:
+			case CIV_OPINION_ALLY:
 				iScore -= 200;
 				break;
 			}
@@ -12046,7 +12046,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (GET_PLAYER(e).getNumResourceTotal(eTargetLuxury) > 0)
 				{
 					bOwnedByAnyPlayer = true;
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(e);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(e);
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(e).getTeam()))
 					{
 						iOtherPlayerResourceFactor += 5;
@@ -12055,9 +12055,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iOtherPlayerResourceFactor += -10;
 					}
-					else if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					else if (eOpinion <= CIV_OPINION_COMPETITOR)
 					{
-						if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+						if (eOpinion == CIV_OPINION_COMPETITOR)
 						{
 							iOtherPlayerResourceFactor += 3;
 						}
@@ -12075,9 +12075,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 #endif
 					}
-					else if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					else if (eOpinion >= CIV_OPINION_FAVORABLE)
 					{
-						if (eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
+						if (eOpinion == CIV_OPINION_FAVORABLE)
 						{
 							iOtherPlayerResourceFactor += -3;
 						}
@@ -12253,12 +12253,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 								iProPeace++;
 							}
 							// Plotting against them?
-							if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+							if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_DECEPTIVE)
 							{
 								iProWar++;
 							}
 							// Afraid of them?
-							else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+							else if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_AFRAID)
 							{
 								iProPeace++;
 							}
@@ -12387,23 +12387,23 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 0)
 					{
-						switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer))
+						switch(GetPlayer()->GetDiplomacyAI()->GetCivOpinion(ePlayer))
 						{
-							case MAJOR_CIV_OPINION_ALLY:
-							case MAJOR_CIV_OPINION_FRIEND:
+							case CIV_OPINION_ALLY:
+							case CIV_OPINION_FRIEND:
 								iScore += -10 * iFactor;
 								break;
-							case MAJOR_CIV_OPINION_FAVORABLE:
+							case CIV_OPINION_FAVORABLE:
 								iScore += -5 * iFactor;
 								break;
-							case MAJOR_CIV_OPINION_NEUTRAL:
+							case CIV_OPINION_NEUTRAL:
 								iScore += 0;
 								break;
-							case MAJOR_CIV_OPINION_COMPETITOR:
+							case CIV_OPINION_COMPETITOR:
 								iScore += 5 * iFactor;
 								break;
-							case MAJOR_CIV_OPINION_ENEMY:
-							case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							case CIV_OPINION_ENEMY:
+							case CIV_OPINION_UNFORGIVABLE:
 								iScore += 10 * iFactor;
 								break;
 						}
@@ -12513,8 +12513,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 								if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 								{
 									//The Master
-									MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-									MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
+									CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer);
+									CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer);
 
 									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 									{
@@ -12522,53 +12522,53 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 										if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
 											continue;
 
-										switch(eOpinion)
+										switch (eOpinion)
 										{
-											case MAJOR_CIV_OPINION_ALLY:
-												iScore += -50;
-												break;
-											case MAJOR_CIV_OPINION_FRIEND:
-												iScore += -25;
-												break;
-											case MAJOR_CIV_OPINION_FAVORABLE:
-												iScore += -10;
-												break;
-											case MAJOR_CIV_OPINION_NEUTRAL:
-												iScore += 0;
-												break;
-											case MAJOR_CIV_OPINION_COMPETITOR:
-												iScore += 10;
-												break;
-											case MAJOR_CIV_OPINION_ENEMY:
-												iScore += 25;
-												break;
-											case MAJOR_CIV_OPINION_UNFORGIVABLE:
-												iScore += 50;
-												break;
+										case CIV_OPINION_ALLY:
+											iScore += -50;
+											break;
+										case CIV_OPINION_FRIEND:
+											iScore += -25;
+											break;
+										case CIV_OPINION_FAVORABLE:
+											iScore += -10;
+											break;
+										case CIV_OPINION_NEUTRAL:
+											iScore += 0;
+											break;
+										case CIV_OPINION_COMPETITOR:
+											iScore += 10;
+											break;
+										case CIV_OPINION_ENEMY:
+											iScore += 25;
+											break;
+										case CIV_OPINION_UNFORGIVABLE:
+											iScore += 50;
+											break;
 										}
 										switch(eApproach)
 										{
-											case MAJOR_CIV_APPROACH_AFRAID:
-												iScore += -25;
-												break;
-											case MAJOR_CIV_APPROACH_FRIENDLY:
-												iScore += -50;
-												break;
-											case MAJOR_CIV_APPROACH_NEUTRAL:
-												iScore += -10;
-												break;
-											case MAJOR_CIV_APPROACH_GUARDED:
-												iScore += 10;
-												break;
-											case MAJOR_CIV_APPROACH_DECEPTIVE:
-												iScore += 20;
-												break;
-											case MAJOR_CIV_APPROACH_HOSTILE:
-												iScore += 40;
-												break;
-											case MAJOR_CIV_APPROACH_WAR:
-												iScore += 60;
-												break;
+										case CIV_APPROACH_AFRAID:
+											iScore += -25;
+											break;
+										case CIV_APPROACH_FRIENDLY:
+											iScore += -50;
+											break;
+										case CIV_APPROACH_NEUTRAL:
+											iScore += -10;
+											break;
+										case CIV_APPROACH_GUARDED:
+											iScore += 10;
+											break;
+										case CIV_APPROACH_DECEPTIVE:
+											iScore += 20;
+											break;
+										case CIV_APPROACH_HOSTILE:
+											iScore += 40;
+											break;
+										case CIV_APPROACH_WAR:
+											iScore += 60;
+											break;
 										}
 
 										for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
@@ -12577,54 +12577,54 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 											if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer2).getTeam()).GetMaster() == eLoopPlayer)
 											{
 												//The Master
-												MajorCivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer2);
-												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2);
+												CivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2);
+												CivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2);
 												int iTempScore = 0;
 												switch (eOpinion2)
 												{
-												case MAJOR_CIV_OPINION_ALLY:
+												case CIV_OPINION_ALLY:
 													iTempScore += 50;
 													break;
-												case MAJOR_CIV_OPINION_FRIEND:
+												case CIV_OPINION_FRIEND:
 													iTempScore += 25;
 													break;
-												case MAJOR_CIV_OPINION_FAVORABLE:
+												case CIV_OPINION_FAVORABLE:
 													iTempScore += 10;
 													break;
-												case MAJOR_CIV_OPINION_NEUTRAL:
+												case CIV_OPINION_NEUTRAL:
 													iTempScore += 0;
 													break;
-												case MAJOR_CIV_OPINION_COMPETITOR:
+												case CIV_OPINION_COMPETITOR:
 													iTempScore += -10;
 													break;
-												case MAJOR_CIV_OPINION_ENEMY:
+												case CIV_OPINION_ENEMY:
 													iTempScore += -25;
 													break;
-												case MAJOR_CIV_OPINION_UNFORGIVABLE:
+												case CIV_OPINION_UNFORGIVABLE:
 													iTempScore += -50;
 													break;
 												}
 												switch (eApproach2)
 												{
-												case MAJOR_CIV_APPROACH_AFRAID:
+												case CIV_APPROACH_AFRAID:
 													iTempScore += -50;
 													break;
-												case MAJOR_CIV_APPROACH_FRIENDLY:
+												case CIV_APPROACH_FRIENDLY:
 													iTempScore += 25;
 													break;
-												case MAJOR_CIV_APPROACH_NEUTRAL:
+												case CIV_APPROACH_NEUTRAL:
 													iTempScore += 0;
 													break;
-												case MAJOR_CIV_APPROACH_GUARDED:
+												case CIV_APPROACH_GUARDED:
 													iTempScore += -10;
 													break;
-												case MAJOR_CIV_APPROACH_DECEPTIVE:
+												case CIV_APPROACH_DECEPTIVE:
 													iTempScore += -20;
 													break;
-												case MAJOR_CIV_APPROACH_HOSTILE:
+												case CIV_APPROACH_HOSTILE:
 													iTempScore += -40;
 													break;
-												case MAJOR_CIV_APPROACH_WAR:
+												case CIV_APPROACH_WAR:
 													iTempScore += 60;
 													break;
 												}
@@ -13121,7 +13121,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if (eAlliedPlayer != NO_PLAYER)
 			{
 				TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
-				MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+				CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer);
 
 				if (eAlliedPlayer != ePlayer)
 				{
@@ -13146,11 +13146,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iScore += -20;
 					}
-					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion <= CIV_OPINION_COMPETITOR)
 					{
 						iScore += 20;
 					}
-					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					if (eOpinion >= CIV_OPINION_FAVORABLE)
 					{
 						iScore += -20;
 					}
@@ -13235,7 +13235,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (eAlliedPlayer != ePlayer && eAlliedPlayer != NO_PLAYER)
 				{
 					TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer);
 
 					if (pPlayerTeam->isAtWar(eAlliedTeam))
 					{
@@ -13249,11 +13249,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iScore += -50;
 					}
-					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion <= CIV_OPINION_COMPETITOR)
 					{
 						iScore += 50;
 					}
-					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					if (eOpinion >= CIV_OPINION_FAVORABLE)
 					{
 						iScore += -50;
 					}
@@ -13270,15 +13270,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eTargetCityState) == CIV_APPROACH_FRIENDLY)
 				{
 					iScore += 15;
 				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
-				{
-					iScore += 15;
-				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eTargetCityState) == CIV_APPROACH_NEUTRAL)
 				{
 					iScore -= 25;
 				}
@@ -13308,7 +13304,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (eAlliedPlayer != ePlayer && eAlliedPlayer != NO_PLAYER)
 				{
 					TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer);
 
 					if (pPlayerTeam->isAtWar(eAlliedTeam))
 					{
@@ -13322,11 +13318,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iScore += -100;
 					}
-					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion <= CIV_OPINION_COMPETITOR)
 					{
 						iScore += 10;
 					}
-					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					if (eOpinion >= CIV_OPINION_FAVORABLE)
 					{
 						iScore += -50;
 					}
@@ -13340,15 +13336,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					iScore -= 1000;
 				}
 
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eTargetCityState) == CIV_APPROACH_FRIENDLY)
 				{
 					iScore -= 10;
 				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
-				{
-					iScore -= 10;
-				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eTargetCityState) == CIV_APPROACH_NEUTRAL)
 				{
 					iScore += 5;
 				}
@@ -13411,8 +13403,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 					CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
 
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eTargetPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eTargetPlayer);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer);
+					CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer);
 					DisputeLevelTypes eDispute = (DisputeLevelTypes) max((int)GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer), (int)GetPlayer()->GetDiplomacyAI()->GetMinorCivDisputeLevel(eTargetPlayer));
 					BlockLevelTypes eBlock = GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eTargetPlayer);
 
@@ -13442,7 +13434,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							iScore += 25 * eBlock;
 						}
 					}
-					if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
+					if (eOpinion < CIV_OPINION_NEUTRAL || eApproach < CIV_APPROACH_GUARDED)
 					{			
 						if(iAllies > 0)
 						{
@@ -13649,12 +13641,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iProPeace++;
 					}
 					// Plotting against them?
-					if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
+					if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_DECEPTIVE)
 					{
 						iProWar++;
 					}
 					// Afraid of them?
-					else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) <= MAJOR_CIV_APPROACH_AFRAID)
+					else if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_AFRAID)
 					{
 						iProPeace++;
 					}
@@ -13758,8 +13750,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 
 					ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-					MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer);
+					CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer);
 
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
@@ -13769,7 +13761,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iScore += 150;
 					}
-					else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
+					else if (eOpinion < CIV_OPINION_NEUTRAL || eApproach < CIV_APPROACH_GUARDED)
 					{
 						iScore += 150;
 					}
@@ -13943,14 +13935,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(*it);
 					//People we don't like like this? We should not do this to spite them!
-					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion < CIV_OPINION_COMPETITOR)
 					{
 						iScore -= 30;
 					}
 					//People we like like this? We should do it!
-					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+					else if (eOpinion > CIV_OPINION_FAVORABLE)
 					{
 						iScore += 30;
 					}
@@ -13963,14 +13955,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
-					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
+					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(*it);
 					//People we don't like? We should do this to spite them!
-					if (eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion < CIV_OPINION_COMPETITOR)
 					{
 						iScore += 30;
 					}
 					//People we like? We should reconsider...
-					else if (eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+					else if (eOpinion > CIV_OPINION_FAVORABLE)
 					{
 						iScore -= 30;
 					}

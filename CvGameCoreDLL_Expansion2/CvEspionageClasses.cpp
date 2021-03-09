@@ -3219,14 +3219,14 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			continue;
 		}
 
-		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
-		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer);
+		CivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
+		CivApproachTypes eHonestApproach = pTargetDiploAI->GetCivApproach(eOtherOtherPlayer);
 
 		// if the current approach is a dangerous approach
-		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
+		if(eHonestApproach == CIV_APPROACH_DECEPTIVE || eHonestApproach == CIV_APPROACH_WAR)
 		{
 			// if the surface approach hides this
-			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
+			if(eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_NEUTRAL || eSurfaceApproach == CIV_APPROACH_GUARDED)
 			{
 				if(GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
@@ -3404,14 +3404,14 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 			continue;
 		}
 
-		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
-		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer);
+		CivApproachTypes eSurfaceApproach = pTargetDiploAI->GetSurfaceApproach(eOtherOtherPlayer);
+		CivApproachTypes eHonestApproach = pTargetDiploAI->GetCivApproach(eOtherOtherPlayer);
 
 		// if the current approach is a dangerous approach
-		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
+		if (eHonestApproach == CIV_APPROACH_DECEPTIVE || eHonestApproach == CIV_APPROACH_WAR)
 		{
 			// if the surface approach hides this
-			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
+			if (eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_NEUTRAL || eSurfaceApproach == CIV_APPROACH_GUARDED)
 			{
 				if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
@@ -4800,7 +4800,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				else
 				{
 					// Don't apply the diplo penalty if this player hates the previous ally (or they're at war).
-					if (!GET_PLAYER(eLoopPlayer).IsAtWarWith(ePreviousAlly) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE
+					if (!GET_PLAYER(eLoopPlayer).IsAtWarWith(ePreviousAlly) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetCivOpinion(ePreviousAlly) != CIV_OPINION_UNFORGIVABLE
 						&& !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(ePreviousAlly) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthy(ePreviousAlly))
 					{
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
@@ -9455,11 +9455,11 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					{
 						iDiploModifier += 50;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer) >= MAJOR_CIV_APPROACH_AFRAID)
+					if (pDiploAI->GetCivApproach(eTargetPlayer) >= CIV_APPROACH_AFRAID)
 					{
 						iDiploModifier -= 100;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer) <= MAJOR_CIV_APPROACH_GUARDED)
+					if (pDiploAI->GetCivApproach(eTargetPlayer) <= CIV_APPROACH_GUARDED)
 					{
 						iDiploModifier += 100;
 					}
@@ -9600,7 +9600,7 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 		}
 
 		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eTargetPlayer).GetMinorCivAI();
-		MinorCivApproachTypes eApproach = pDiploAI->GetMinorCivApproach(eTargetPlayer);
+		CivApproachTypes eApproach = pDiploAI->GetCivApproach(eTargetPlayer);
 		int iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID());
 		
 		bool bAlreadyScoredCity = false;
@@ -9626,8 +9626,10 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 			{
 			case PLAN_PLAY_NORMAL:
 				// If we're not protective or friendly, then don't bother with minor diplo
-				if (eApproach == MINOR_CIV_APPROACH_PROTECTIVE || eApproach == MINOR_CIV_APPROACH_FRIENDLY)
+				if (eApproach == CIV_APPROACH_FRIENDLY)
 				{
+					iValue += /*10*/ GC.getMC_GIFT_WEIGHT_PROTECTIVE();
+
 					// Nearly everyone likes to grow
 					if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME && !m_pPlayer->IsEmpireUnhappy())
 					{
@@ -9651,12 +9653,6 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 					if (iResourcesWeLack > 0)
 					{
 						iValue += (iResourcesWeLack * /*80*/ GC.getMC_GIFT_WEIGHT_RESOURCE_WE_NEED());
-					}
-
-					// If we're protective this is worth more than if we're friendly
-					if (eApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						iValue += /*10*/ GC.getMC_GIFT_WEIGHT_PROTECTIVE();
 					}
 
 					// If the minor is hostile, then reduce the weighting
@@ -9694,7 +9690,7 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 					}
 				}
 
-				if (eApproach != MINOR_CIV_APPROACH_BULLY && eApproach != MINOR_CIV_APPROACH_CONQUEST)
+				if (eApproach > CIV_APPROACH_HOSTILE)
 				{
 					if (pDiploAI->GetVictoryFocus() == VICTORY_FOCUS_CULTURE)
 					{

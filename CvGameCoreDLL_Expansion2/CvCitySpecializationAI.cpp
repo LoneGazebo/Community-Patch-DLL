@@ -631,7 +631,7 @@ int CvCitySpecializationAI::WeightProductionSubtypes(int iFlavorWonder, int iFla
 
 	// LONG-TERM MILITARY BUILD-UP
 	iMilitaryTrainingWeight += (iFlavorOffense * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_OFFENSE()) /* 10 */;
-	iMilitaryTrainingWeight += (m_pPlayer->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY() /* 10 */);
+	iMilitaryTrainingWeight += (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_WAR) * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_TRAINING_PER_PERSONALITY() /* 10 */);
 
 	// EMERGENCY UNITS
 	iEmergencyUnitWeight += iUnitsRequested * GC.getAI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_OPERATIONAL_UNITS_REQUESTED() /* 10 */;
