@@ -4005,7 +4005,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		{
 			//at least try to flee
 			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-			if (!pBetterPlot && pBetterPlot != pUnit->plot())
+			if (pBetterPlot && pBetterPlot != pUnit->plot())
 				ExecuteMoveToPlot(pUnit, pBetterPlot);
 
 			//why not pillage more tiles?
