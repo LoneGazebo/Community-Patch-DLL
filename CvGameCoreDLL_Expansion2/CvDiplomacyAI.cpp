@@ -2267,7 +2267,10 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return NO_CIV_APPROACH;
 
-	if (GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
+	if (IsAtWar(ePlayer) || GET_PLAYER(ePlayer).isBarbarian())
+		return CIV_APPROACH_WAR;
+
+	if (GET_PLAYER(ePlayer).isMinorCiv())
 		return GetCivApproach(ePlayer);
 
 	// Always friendly if we have a Declaration of Friendship
