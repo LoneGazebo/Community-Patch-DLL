@@ -42884,7 +42884,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 	if (GetRecentTradeValue(ePlayer) > 0)
 	{
 		int iMaxValue = GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_TRADE_MAX();
-		int iCurrentValuePercent = min(GetRecentTradeValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+		int iCurrentValuePercent = max(GetRecentTradeValue(ePlayer)*-1, iMaxValue) * 100 / min(iMaxValue, -1);
 
 		if (iCurrentValuePercent > 0)
 		{
@@ -42942,7 +42942,7 @@ int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer)
 	if (GetCommonFoeValue(ePlayer) > 0)
 	{
 		int iMaxValue = GC.getCOMMON_FOE_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_COMMON_FOE_MAX();
-		int iCurrentValuePercent = min(GetCommonFoeValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+		int iCurrentValuePercent = max(GetCommonFoeValue(ePlayer)*-1, iMaxValue) * 100 / min(iMaxValue, -1);
 
 		if (iCurrentValuePercent > 0)
 		{
@@ -45093,7 +45093,7 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 	if (GetVassalProtectValue(ePlayer) > 0)
 	{
 		int iMaxValue = GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT() * GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
-		int iCurrentValuePercent = min(GetVassalProtectValue(ePlayer), iMaxValue) * 100 / max(iMaxValue, 1);
+		int iCurrentValuePercent = max(GetVassalProtectValue(ePlayer)*-1, iMaxValue) * 100 / min(iMaxValue, -1);
 
 		if (iCurrentValuePercent > 0)
 		{
