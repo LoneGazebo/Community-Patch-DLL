@@ -22963,11 +22963,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	if (GetVictoryFocus() == VICTORY_FOCUS_CULTURE || IsCloseToCultureVictory() || pTraits->IsTourism() || pTraits->IsSmaller())
 	{
-		// Minor is cultural
-		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED) 
+		// Minor is cultural or maritime
+		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME) 
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			bCheckIfGoodWarTarget = false;
+		}
+		// Smaller bonus for happiness
+		else if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY];
 		}
 		else
 		{
@@ -22979,7 +22984,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// SCIENCE GRAND STRATEGY
 	////////////////////////////////////
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || IsCloseToSSVictory() || pTraits->IsNerd())
+	if (GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || IsCloseToSSVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
 	{
 		// Minor is maritime or militaristic
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
@@ -22987,88 +22992,92 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			bCheckIfGoodWarTarget = false;
 		}
+		// Smaller bonus for happiness
+		else if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY];
+		}
 		else
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 		}
-	}
-	// Smaller civs like science & military support
-	if (pTraits->IsSmaller() && GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-		bCheckIfGoodWarTarget = false;
 	}
 
 	////////////////////////////////////
 	// RELIGIOUS MINORS
 	////////////////////////////////////
 
-	if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+	if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
-		if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+		ReligionTypes eReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+
+		// Do we already have a religion?
+		if (eReligion != NO_RELIGION)
 		{
-			ReligionTypes eReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 
-			// Do we already have a religion?
-			if (eReligion != NO_RELIGION)
+			// But not yet enhanced?
+			if (!pReligion->m_bEnhanced)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-
-				// But not yet enhanced?
-				if (!pReligion->m_bEnhanced)
-				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-					bCheckIfGoodWarTarget = false;
-				}
-				// Enhanced? Be a bit more friendly (to benefit from faith quests etc), but it's no longer a huge issue.
-				else
-				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY];
-				}				
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+				bCheckIfGoodWarTarget = false;
 			}
-			// Can we found a religion?
-			else if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 || GetPlayer()->GetPlayerTraits()->IsAlwaysReligion())
+			// Enhanced? Be a bit more friendly (to benefit from faith quests etc), but it's no longer a huge issue.
+			else
 			{
-				// We created a pantheon? We're on track, so keep these City-States close...
-				if (GetPlayer()->GetReligions()->HasCreatedPantheon())
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY];
+			}				
+		}
+		// Can we found a religion?
+		else if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 || pTraits->IsAlwaysReligion())
+		{
+			// We created a pantheon? We're on track, so keep these City-States close...
+			if (GetPlayer()->GetReligions()->HasCreatedPantheon())
+			{
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 4;
+				bCheckIfGoodWarTarget = false;
+			}
+			// No one has founded a religion yet, so let's be more friendly...
+			else if (GC.getGame().GetGameReligions()->GetNumReligionsFounded() <= 0)
+			{
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+				bCheckIfGoodWarTarget = false;
+			}
+			// Less interesting, but better conquest targets.
+			else if (!pTraits->IsReligious())
+			{
+				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR];
+
+				if (bEasyTarget)
 				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 4;
-					bCheckIfGoodWarTarget = false;
-				}
-				// No one has founded a religion yet, so let's be more friendly...
-				else if (GC.getGame().GetGameReligions()->GetNumReligionsFounded() <= 0)
-				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-					bCheckIfGoodWarTarget = false;
-				}
-				else if (!pTraits->IsReligious())
-				{
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE];
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR];
-
-					if (bEasyTarget)
-					{
-						vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE];
-						vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR];
-					}
-					if (bAnyAggressionBonus)
-					{
-						vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE];
-						vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR];
-					}
+				}
+				if (bAnyAggressionBonus)
+				{
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE];
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR];
 				}
 			}
+		}
+		// Far less interesting.
+		else
+		{
+			vApproachScores[CIV_APPROACH_WAR] += (bEasyTarget || bAnyAggressionBonus) ? vApproachBias[CIV_APPROACH_WAR] * 2 : 0;
+			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 4;
+		}
 
-			// Religious civ - apply weight if ANY religion criteria is met
-			if (pTraits->IsReligious())
+		// Religious civ - apply extra weight if ANY religion criteria is met
+		if (pTraits->IsReligious())
+		{
+			ReligionTypes eMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
+
+			if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetPlayer()->GetReligions()->HasCreatedPantheon())
 			{
-				ReligionTypes eMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
-
-				if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetPlayer()->GetReligions()->HasCreatedPantheon())
-				{
-					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-					bCheckIfGoodWarTarget = false;
-				}
+				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+				bCheckIfGoodWarTarget = false;
 			}
 		}
 	}

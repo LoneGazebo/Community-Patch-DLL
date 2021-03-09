@@ -1853,44 +1853,109 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		// Benefits to Us!
 		// **************************
 
+		CvPlayerTraits* pTraits = GetPlayerTraits();
+
 		//DIPLOMACY - We want all of them the same!
-		if (GetDiplomacyAI()->IsGoingForDiploVictory())
+		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || pTraits->IsDiplomat())
 		{
 			iScore *= 2;
 		}
 
 		//MILITARY - We want units and happiness!!
-		else if (GetDiplomacyAI()->IsGoingForWorldConquest())
+		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || pTraits->IsWarmonger() || pTraits->IsExpansionist())
 		{
-			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 			{
 				iScore *= 2;
 			}
 		}
 
-		//SCIENCE - We want happiness and growth!!
-		else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		//SCIENCE - We want growth and units!!
+		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || pTraits->IsNerd() || pTraits->IsSmaller())
 		{
-			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
 				iScore *= 2;
 			}
-			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			// Happiness gets a smaller bonus too.
+			else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 			{
-				iScore *= 2;
+				iScore *= 3;
+				iScore /= 2;
 			}
 		}
 
-		//CULTURE - We want culture and religion!!
-		else if (GetDiplomacyAI()->IsGoingForCultureVictory())
+		//CULTURE - We want culture and growth!!
+		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_CULTURE || pTraits->IsTourism() || pTraits->IsSmaller())
 		{
-			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 			{
 				iScore *= 2;
 			}
-			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+			// Happiness gets a smaller bonus too.
+			else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 			{
-				iScore *= 2;
+				iScore *= 3;
+				iScore /= 2;
+			}
+		}
+
+		//RELIGIOUS MINORS - Minors can be helpful in starting, enhancing or spreading a religion.
+		if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+		{
+			ReligionTypes eReligion = GetReligions()->GetCurrentReligion(false);
+
+			// Do we already have a religion?
+			if (eReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+
+				// But not yet enhanced?
+				if (!pReligion->m_bEnhanced)
+				{
+					iScore *= 2;
+				}
+				// Enhanced? Be a bit more friendly (to benefit from faith quests etc), but it's no longer a huge issue.
+				else
+				{
+					iScore *= 3;
+					iScore /= 2;
+				}				
+			}
+			// Can we found a religion?
+			else if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 || pTraits->IsAlwaysReligion())
+			{
+				// We created a pantheon? We're on track, so keep these City-States close...
+				if (GetReligions()->HasCreatedPantheon())
+				{
+					iScore *= 2;
+				}
+				// No one has founded a religion yet, so let's be more friendly...
+				else if (GC.getGame().GetGameReligions()->GetNumReligionsFounded() <= 0)
+				{
+					iScore *= 2;
+				}
+				// Less interesting.
+				else if (!pTraits->IsReligious())
+				{
+					iScore /= 2;
+				}
+			}
+			// Far less interesting.
+			else
+			{
+				iScore /= 4;
+			}
+
+			// Religious civ - apply extra weight if ANY religion criteria is met
+			if (pTraits->IsReligious())
+			{
+				ReligionTypes eMajorityReligion = GetReligions()->GetReligionInMostCities();
+
+				if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetReligions()->HasCreatedPantheon())
+				{
+					iScore *= 2;
+				}
 			}
 		}
 
@@ -1910,12 +1975,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			{
 				iScore *= 2;
 			}
+			// Boost this big time if we have the monopoly resource bonus.
+			if (IsCSResourcesCountMonopolies())
+			{
+				iScore *= iResourcesWeLack;
+			}
 		}
 
 		//Will they give us a WLTKD for their resource?
-		CvCity* pLoopCity;
 		int iCityLoop;
-		for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 		{
 			if (pLoopCity != NULL)
 			{
