@@ -2265,9 +2265,9 @@ void CvDiplomacyAI::SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachType
 /// What is our surface-level approach towards ePlayer (i.e. how we are acting towards them right now)?
 CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_CIV_APPROACH;
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return NO_CIV_APPROACH;
 
-	if (GET_PLAYER(ePlayer).isMinorCiv())
+	if (GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 		return GetCivApproach(ePlayer);
 
 	// Always friendly if we have a Declaration of Friendship
