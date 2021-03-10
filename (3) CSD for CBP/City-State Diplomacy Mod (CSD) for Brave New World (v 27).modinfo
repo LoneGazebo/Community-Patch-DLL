@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" version="28">
+  <Properties>
+    <Name>(3) City-State Diplomacy Mod for CBP</Name>
+    <Teaser>(1-28) A mod to improve diplomacy with city-states and the World Congress.</Teaser>
+    <Description>- Design Philosophy -
+This mod is a complete overhaul of the city-state diplomacy system as well as the World Congress. It introduces a new, unit-based system of influence, dozens of new city-state quests, and an entirely revamped World Congress.
+
+Players are now encouraged to build and use diplomatic units and/or complete city-state quests if they want to earn influence. Because diplomacy now requires production, time and energy, players must actively and consciously strive to maintain good relations with neighboring city-states. Furthermore, diplomatic units, being defenseless, are liable to capture or destruction if sent too far from safety, thus long-distance diplomacy now utilizes a risk-reward system.
+
+Securing allies is more important than ever, as the World Congress has been greatly expanded and improved to make each resolution more meaningful to most victory conditions.</Description>
+    <Authors>Gazebo</Authors>
+	<Stability>Beta</Stability>
+    <HideSetupGame>0</HideSetupGame>
+    <AffectsSavedGames>1</AffectsSavedGames>
+    <MinCompatibleSaveVersion>24</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>1</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>1</ReloadAudioSystem>
+    <ReloadLandmarkSystem>1</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>1</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>1</ReloadUnitSystem>
+  </Properties>
+  <Dependencies>
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="52" maxversion="999" title="Community Patch - Core" />
+	<Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="0" maxversion="999" title="Community Balance Patch" />
+  </Dependencies>
+  <References />
+  <Blocks />
+  <Files>
+    <File md5="AB712F21B58EEE7760040D131EE3F170" import="1">Art/Buildings/Icons/CSDBuildings128.dds</File>
+    <File md5="5E1A9E11DA516CC0D1AAD6F1DD5207F1" import="1">Art/Buildings/Icons/CSDBuildings256.dds</File>
+    <File md5="72C5EDB4919E5B5DE297AE1DB5795AEA" import="1">Art/Buildings/Icons/CSDBuildings45.dds</File>
+    <File md5="D6B4A84C40ABF936CC2C775A1BA5C19D" import="1">Art/Buildings/Icons/CSDBuildings64.dds</File>
+    <File md5="877959A403AD036E0B17B1268C7B078B" import="1">Art/Buildings/Icons/CSDBuildings80.dds</File>
+    <File md5="519FB2256A964E18CFBDACCBB9BA5888" import="1">Art/Buildings/Icons/MeninGate_045.dds</File>
+    <File md5="8C3E7F3B5A0DED841208825FC63D948C" import="1">Art/Buildings/Icons/MeninGate_064.dds</File>
+    <File md5="F99E2437B6DFE5FC561EE8DC691AA527" import="1">Art/Buildings/Icons/MeninGate_080.dds</File>
+    <File md5="1EA1DEBEB0D4942BC53FEDB706C0B50A" import="1">Art/Buildings/Icons/MeninGate_128.dds</File>
+    <File md5="CDFAC8B81919F363D1F6548AE4B82AA4" import="1">Art/Buildings/Icons/MeninGate_256.dds</File>
+    <File md5="8304DAE66FD9C7489552854640582954" import="1">Art/Buildings/Splashes/CrystalPalace.dds</File>
+    <File md5="05D3E58EF45A16024A61512B9D1DBE3B" import="1">Art/Buildings/Splashes/MeninGateSplash.dds</File>
+    <File md5="081309344ED7F57661CAEE549678A988" import="1">Art/Buildings/Splashes/OlympicVillage.dds</File>
+    <File md5="3485185DC73AABA3DE7984F0F571AD43" import="1">Art/Buildings/Splashes/ProjectTreasureFleet.dds</File>
+    <File md5="23245B022AF4D8766991A7C85DD9E8F0" import="1">Art/Buildings/Splashes/ProjectUN.dds</File>
+    <File md5="55CAB77F2B582685DBF7C55A34D1419A" import="1">Art/Buildings/Splashes/ProjectWargames.dds</File>
+    <File md5="D85FF40F1A5DC941B23ABE626D56413E" import="1">Art/Buildings/Splashes/WonderAdmiralty.dds</File>
+    <File md5="8F684BC3E334305412605F12C499B115" import="1">Art/Buildings/Splashes/WonderForum.dds</File>
+    <File md5="D09D9751ECF70A8F6978548EC09CF5BB" import="1">Art/Buildings/Splashes/WonderSummerPalace.dds</File>
+    <File md5="7B0C8092278B6E4C5A3CA2F6920CD14D" import="0">Art/ArtInfo.sql</File>
+    <File md5="E68079ECA34AC209094AF7A16C7102E1" import="1">Art/Embassy/Embassy.fxsxml</File>
+    <File md5="B92E45EEA3277D6761B941E6C6E84366" import="1">Art/Embassy/Embassy.gr2</File>
+    <File md5="9359FA2E402F55B6611F23699B5F6DF7" import="1">Art/Embassy/EmbassyAtlas256.dds</File>
+    <File md5="D663ABAC419D50B495FEE906438999C2" import="1">Art/Embassy/EmbassyAtlas64.dds</File>
+    <File md5="D58F4982DDD998AE3FFE2E7A641A509E" import="1">Art/Embassy/EmbassyBuildIcon45.dds</File>
+    <File md5="B9ABBBCBEC4F98B6BBF66332938312AE" import="1">Art/Embassy/EmbassyBuildIcon64.dds</File>
+    <File md5="AF0387C8B7097F5CBB0BCCEF33777F06" import="1">Art/Embassy/EmbassyBuilding.dds</File>
+    <File md5="815A4E178DC11C9AA2EC759398769B8A" import="1">Art/Embassy/EmbassyBuilding_SREF.dds</File>
+    <File md5="D71B8475146D7D369BA74FAC43965515" import="1">Art/Embassy/EmbassyGround.dds</File>
+    <File md5="A50A60EABA1E23DBCFB0F0AC92F90E67" import="1">Art/Embassy/EmbassyGround_h.dds</File>
+    <File md5="47905DB07E4D3EC8DD69FD90388F1D20" import="1">Art/Embassy/SV_Embassy.dds</File>
+    <File md5="380E2B82F29ADB8F1F3C9EFEA87A0B04" import="1">Art/Resources/Book256.dds</File>
+    <File md5="D6F8D4E33D89ABAFC17EF35AA62EC66C" import="1">Art/Resources/Book45.dds</File>
+    <File md5="A858E522055E1A4188C4F1A806E7EF23" import="1">Art/Resources/Book64.dds</File>
+    <File md5="3322910D84FAB8D476FADB0BC690F114" import="1">Art/Resources/Book80.dds</File>
+    <File md5="271D8602DAF934C07A53BE3B32AD2B3B" import="1">Art/Resources/CSDPaper.dds</File>
+    <File md5="41F450D710658C652158869BE18FB6D9" import="1">Art/Specialists/citizenCivilServant.dds</File>
+    <File md5="7ACAA3C6DDF4168AC251730F1158E5E9" import="1">Art/Specialists/CSDcs1024.dds</File>
+    <File md5="D2E56502A735986B37C7EEAA564C7C62" import="1">Art/Specialists/CSDcs128.dds</File>
+    <File md5="E850A7D50EB6B16D8DD74CF70131B19C" import="1">Art/Specialists/CSDcs180.dds</File>
+    <File md5="90CB5153EDFC7E162D566707C7C19698" import="1">Art/Specialists/CSDcs256.dds</File>
+    <File md5="183E3195CF313BFD9BED46292A8AD26A" import="1">Art/Specialists/CSDcs512.dds</File>
+    <File md5="2C580C8630BDC86394D0D4786EA7B6E2" import="1">Art/Units/Flag/CSDSVIcon.dds</File>
+    <File md5="75A714B020AD295FC985408B04430156" import="1">Art/Units/Flag/CSDSVIconGD.dds</File>
+    <File md5="45CC370400040836CC9B4DEC3FACF8A4" import="1">Art/Units/Flag/CSDunitflagatlaswhite32.dds</File>
+    <File md5="3D33BD6C211F7FE93F04C24082103FEE" import="1">Art/Units/Icons/CSDUnits128.dds</File>
+    <File md5="938D17525A62FD84ABAEA20A4522B93D" import="1">Art/Units/Icons/CSDUnits256.dds</File>
+    <File md5="538781B4660CDDCDA1B752C7F8F8EF61" import="1">Art/Units/Icons/CSDUnits45.dds</File>
+    <File md5="3BEA7186993F12E87F1C328148061C69" import="1">Art/Units/Icons/CSDUnits64.dds</File>
+    <File md5="C0BC744A984C8839B9BB57D88FE403D3" import="1">Art/Units/Icons/CSDUnits80.dds</File>
+    <File md5="AA1D9E47207BD116C7E0297BC1063F67" import="1">Art/XML/CSDPaper.ggxml</File>
+    <File md5="4392B462F4EDE100DCA4210FC3FC7BA6" import="0">Art/XML/Icons.xml</File>
+    <File md5="6E2B1234F4565E350F6FF54D18555F5C" import="1">Assets/UI/InGame/CityStateStatusHelper.lua</File>
+    <File md5="F2F3C872FC30CBD6044E7A0784019790" import="1">Assets/UI/InGame/CityView/CityView.lua</File>
+    <File md5="D2A457EB1B4D745BB7AE1A4E3A2BC9CC" import="1">Assets/UI/InGame/DiploList.lua</File>
+    <File md5="7058730E3D258D56CA8CC72F80B25095" import="0">Assets/UI/InGame/HealthandPlague/InfoTooltipInclude.lua</File>
+    <File md5="4D86276773219EFFE0B51FD5E2DF9A38" import="0">Assets/UI/InGame/HealthandPlague/PlotMouseoverInclude.lua</File>
+    <File md5="3767AA588FAC4C1F7AC5D18254E030D5" import="1">Assets/UI/InGame/InfoTooltipInclude.lua</File>
+    <File md5="72B9CD7EEF42736309F76DFABCE1DB6B" import="1">Assets/UI/InGame/PlotMouseoverInclude.lua</File>
+    <File md5="482AAA85F4762E3767BD5CE6D03CAEC7" import="1">Assets/UI/InGame/Popups/CityStateDiploPopup.lua</File>
+    <File md5="192E3D6781FC2D7A9A50F9CA9DEC25A4" import="1">Assets/UI/InGame/Popups/CityStateDiploPopup.xml</File>
+    <File md5="9807F5198A57AA3A4B76739F9414E1CA" import="1">Assets/UI/InGame/Popups/CityStateGreetingPopup.lua</File>
+    <File md5="1701443B6C49F935BBE0AE848650E7D0" import="1">Assets/UI/InGame/TopPanel.lua</File>
+    <File md5="079D4B8AF7075A5AFF36CB51C21C4906" import="0">Buildings/BuildingRules.sql</File>
+    <File md5="676A8654D0A969AA70617F0A64A9154F" import="0">Buildings/BuildingText.xml</File>
+    <File md5="BDE7B7E122CC5C6F5730008BE6E5CB83" import="0">Buildings/CSDBuildings.xml</File>
+    <File md5="AE23637C2CB4CDBD7A75466B38808208" import="0">Buildings/DiploBuildingText.sql</File>
+    <File md5="3401FD1B5207E9E53E7486E5F0F992FB" import="0">Buildings/BuildingGrowthYield.xml</File>
+    <File md5="F1F2973383F5FACE199967A1987246A6" import="0">Buildings/VanillaBuildingChanges.sql</File>
+    <File md5="A07483F573AB7630F55C2DFD9B43D0AF" import="0">DLL/AddDefines.sql</File>
+    <File md5="6CC199A955CF6FC27C94B55E756E447A" import="0">DLL/MinorCivChanges.sql</File>
+    <File md5="E7D6F0307F25EA433ED916312FE9E5BE" import="0">Gameplay/CSDTable.sql</File>
+    <File md5="DF5429D7239566EDE051F5C83F9D5C35" import="0">Gameplay/GameplayText.sql</File>
+    <File md5="94FB311E79C3026224974FB4E41F9698" import="0">Gameplay/Gameplay.sql</File>
+    <File md5="C8EA27FB8F68EDE9A43A84AAEA4F67FF" import="0">Gameplay/GoldGifts.sql</File>
+    <File md5="B707A96F98A2242B6D13F96688A9AB08" import="0">Improvements/Build.xml</File>
+    <File md5="5C8DC18B9EAA098B5B17DA7C3A80A546" import="0">Improvements/ImprovementText.xml</File>
+    <File md5="CE37DD2FBE8FB33D227D541BD86DFB6E" import="0">Improvements/Improvements.xml</File>
+    <File md5="F7769F9AEC75E2CAC70ACDEFFEC2257A" import="0">Languages/German/GermanText.xml</File>
+    <File md5="ECE4E5F02321225A934FDC969189ACCC" import="0">Languages/German/GermanText.sql</File>
+    <File md5="C81FBD38C35664975BD4F034F64CDC8B" import="0">Options.sql</File>
+    <File md5="CCCC381C026E548C9F576626164AF549" import="0">Policies/Bonuses.sql</File>
+    <File md5="7F748D0900FA4949708EF9CB014A4D51" import="0">Policies/Flavors.sql</File>
+    <File md5="977D8995E89F6A7094F64E7E7BAE1327" import="0">Policies/Policies.sql</File>
+    <File md5="2A4EB9A6B9CF2A86B7777183948E1E9B" import="0">Promotions/Promotions.xml</File>
+    <File md5="3FB50D07009B081D9FA705411129029C" import="0">Promotions/PromotionText.xml</File>
+    <File md5="D3D92F4F8206CD15627C4544AC31DE66" import="0">Quests/CityStateQuest.xml</File>
+    <File md5="56F2A5FB062D020C56DC18039A91C3B9" import="1">Resource/Paper.lua</File>
+    <File md5="89988A39A743F102B73E51C9CDE8FD8B" import="0">Resource/Paper.xml</File>
+    <File md5="B618E118B7B8F28865FF734C5E8AF187" import="0">Specialist/CivilServant.xml</File>
+    <File md5="43DA18BCC8E3865879CDEC59699ED3A2" import="0">Units/UnitClasses.xml</File>
+    <File md5="E7E310FF269B9E53C5FD52EACFF74080" import="0">Units/Units.xml</File>
+    <File md5="0F77FA582E2DEC17DDEE0CD5C89FCBD2" import="0">Units/UnitAI.xml</File>
+    <File md5="3B882F4C1354E3A8C5D5DE83860DD845" import="0">Units/GreatDiplomats.xml</File>
+    <File md5="D51F785537083FF98AE51052D01572DF" import="0">Units/UnitGoldCost.sql</File>
+    <File md5="21C1D880F440BF10ABD5BC498B9A22D8" import="0">Units/UnitClassOverrides.xml</File>
+    <File md5="60CBADD7BA684A5102F7E9BD7B94F448" import="0">Units/UnitText.xml</File>
+    <File md5="B2ADE38CC710B14477FA604524452BAC" import="0">World Congress/Congress.xml</File>
+    <File md5="EF86DDE4C37B329640A7B42C814045E1" import="0">World Congress/CongressTurns.sql</File>
+    <File md5="0BF251ABE534FE22A4EECAEBD63DAEE8" import="0">World Congress/IdeologyChanges.sql</File>
+    <File md5="EFC05108E83F347A0391D9DB8A68DF10" import="0">World Congress/Projects.xml</File>
+  </Files>
+  <Actions>
+    <OnModActivated>
+      <UpdateDatabase>Gameplay/CSDTable.sql</UpdateDatabase>
+      <UpdateDatabase>Options.sql</UpdateDatabase>
+      <UpdateDatabase>DLL/AddDefines.sql</UpdateDatabase>
+      <UpdateDatabase>Art/XML/Icons.xml</UpdateDatabase>
+      <UpdateDatabase>Art/ArtInfo.sql</UpdateDatabase>
+      <UpdateDatabase>Buildings/BuildingRules.sql</UpdateDatabase>
+      <UpdateDatabase>Buildings/DiploBuildingText.sql</UpdateDatabase>
+      <UpdateDatabase>Buildings/VanillaBuildingChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Gameplay/Gameplay.sql</UpdateDatabase>
+      <UpdateDatabase>Gameplay/GameplayText.sql</UpdateDatabase>
+      <UpdateDatabase>Gameplay/GoldGifts.sql</UpdateDatabase>
+      <UpdateDatabase>Policies/Bonuses.sql</UpdateDatabase>
+      <UpdateDatabase>Policies/Flavors.sql</UpdateDatabase>
+      <UpdateDatabase>Policies/Policies.sql</UpdateDatabase>
+      <UpdateDatabase>Units/UnitGoldCost.sql</UpdateDatabase>
+      <UpdateDatabase>World Congress/CongressTurns.sql</UpdateDatabase>
+      <UpdateDatabase>World Congress/IdeologyChanges.sql</UpdateDatabase>
+      <UpdateDatabase>DLL/MinorCivChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Buildings/BuildingText.xml</UpdateDatabase>
+      <UpdateDatabase>Buildings/CSDBuildings.xml</UpdateDatabase>
+      <UpdateDatabase>Buildings/BuildingGrowthYield.xml</UpdateDatabase>
+      <UpdateDatabase>Improvements/Build.xml</UpdateDatabase>
+      <UpdateDatabase>Improvements/Improvements.xml</UpdateDatabase>
+      <UpdateDatabase>Improvements/ImprovementText.xml</UpdateDatabase>
+      <UpdateDatabase>Units/GreatDiplomats.xml</UpdateDatabase>
+      <UpdateDatabase>Units/Units.xml</UpdateDatabase>
+      <UpdateDatabase>Units/UnitAI.xml</UpdateDatabase>
+      <UpdateDatabase>Units/UnitClasses.xml</UpdateDatabase>
+      <UpdateDatabase>Units/UnitClassOverrides.xml</UpdateDatabase>
+      <UpdateDatabase>Units/UnitText.xml</UpdateDatabase>
+      <UpdateDatabase>Promotions/Promotions.xml</UpdateDatabase>
+      <UpdateDatabase>Promotions/PromotionText.xml</UpdateDatabase>
+      <UpdateDatabase>Quests/CityStateQuest.xml</UpdateDatabase>
+      <UpdateDatabase>Resource/Paper.xml</UpdateDatabase>
+      <UpdateDatabase>Specialist/CivilServant.xml</UpdateDatabase>
+      <UpdateDatabase>World Congress/Congress.xml</UpdateDatabase>
+      <UpdateDatabase>World Congress/Projects.xml</UpdateDatabase>
+      <UpdateDatabase>Languages/German/GermanText.sql</UpdateDatabase>
+      <UpdateDatabase>Languages/German/GermanText.xml</UpdateDatabase>
+    </OnModActivated>
+  </Actions>
+</Mod>

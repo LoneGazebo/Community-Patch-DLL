@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" version="11">
+  <Properties>
+    <Name>(4) C4DF - CBP</Name>
+    <Stability>Alpha</Stability>
+    <Teaser>(9-27) C4DF for Community Balance Overhaul only</Teaser>
+    <Description>Current Version: 11.0.6[NEWLINE]
+Savegame Compatible: 11.0.0 and up[NEWLINE]
+[NEWLINE][NEWLINE]This mod adds new diplomatic features as they appeared in Civilization IV.[NEWLINE][NEWLINE]
+[ICON_BULLET] Sharing Opinions: The AI will share their opinions of other leaders with you if they deem you a trustworthy ally.[NEWLINE]
+[ICON_BULLET] Map Trading: Sell World Maps upon discovery of Military Science. Cost goes up depending on the quality and quantity of terrain that is to be discovered - don't be surprised to chalk up a lot of cash/luxuries/your map for a map! Maps that are equal (no unique territory between two civs) are worthless.[NEWLINE]
+[ICON_BULLET] Technology Trading: Upon discovery of Scientific Theory, allows you to sell technology with other civs. The cost will be determined by how many turns left this technology has to be researched (by the purchasing civ). Enabling this option will disable Research Agreements. [COLOR_NEGATIVE_TEXT]THIS OPTION MUST BE ENABLED IN "ADVANCED OPTIONS" IN ORDER FOR THIS TO BE ACTIVE.[ENDCOLOR][NEWLINE]
+[ICON_BULLET] Request Help: Replaces "Demand" with Civs whom you've declared a Declaration of Friendship with (no diplomatic penalty, AIs will give help if they're in a better shape than you)[NEWLINE]
+[ICON_BULLET] Generous Offers: AIs whom you have DoF's with will offer you help if you need it (if you're low on GPT/Gold they will donate some, if you're low on happiness they will donate a luxury)[NEWLINE]
+[ICON_BULLET] Vassalage: Enslave your defeated foes and create vassals! Vassals are your puppet states. You swear protection to them, and in turn, your Vassals provide you with tribute.[NEWLINE]
+[NEWLINE]
+[COLOR_WARNING_TEXT]IMPORTANT NOTE:[ENDCOLOR][NEWLINE]
+This mod modifies the Civilization V Source Code (the DLL). It is not compatible with other mods that also modify the Civilization V Source Code (the DLL).[NEWLINE][NEWLINE]
+This mod modifies the Civilization V Lua. It MAY be compatible with other mods that also modify the Lua. Do to the amount of mods out there, and the number of potential conflicts, I cannot debug issues with this mod when used with other Lua mods. Please consult the github page for a full list of affected files.</Description>
+    <Authors>Michael "Putmalk"</Authors>
+    <HideSetupGame>0</HideSetupGame>
+    <Homepage>http://forums.civfanatics.com/forumdisplay.php?f=497</Homepage>
+    <AffectsSavedGames>1</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>1</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>0</ReloadAudioSystem>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies>
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="0" maxversion="999" title="Community Balance Patch" />
+  </Dependencies>
+  <References />
+  <Blocks>
+    <Mod id="275db698-0c69-401e-89a8-7eab501b6bcf" minversion="0" maxversion="999" title="Civilization IV Diplomatic Features - Standalone" />
+    <Mod id="781d81cf-49e1-4acb-ae5f-b9e3713f98d3" minversion="0" maxversion="999" title="(1a) Civ IV Diplomatic Features - CP" />
+  </Blocks>
+  <Files>
+    <File md5="E9029C9E9851D1E0138D792ED5F5A471" import="1">Images/vassal80.dds</File>
+    <File md5="8050930951C51832D14A659C7DD22C3F" import="1">Images/vassal80hl.dds</File>
+    <File md5="46DA3FB256CFF041E8C7181952962A9D" import="1">LUA/VassalageOverview.lua</File>
+    <File md5="30BA62E79F70C9FFDC0236C4ACE9AEC0" import="1">LUA/VassalageOverview.xml</File>
+    <File md5="8F9F9F34B3480B8D8CDFCCAA32F801CA" import="0">SQL/Globals.sql</File>
+    <File md5="7C056B4E0DC8C5CF9AD3712842FD9B40" import="0">SQL/NewColumns.sql</File>
+    <File md5="B150DE1D6850A1BB7F6E4873AE35380E" import="0">XML/Gameplay/C4DFConcepts.xml</File>
+    <File md5="F22260F5CF6B9D797DD5FB04012E3E7D" import="0">XML/Gameplay/C4DFDiplomacyResponses.xml</File>
+    <File md5="954B0F030CD7C265C861693A8644D795" import="0">XML/Gameplay/C4DFGameOptions.xml</File>
+    <File md5="FD36146DAEBC1FB26D9E59C2F22A7D17" import="0">XML/Gameplay/C4DFResolutions.xml</File>
+    <File md5="23E9CD90710F33236EA878FADB69239E" import="0">XML/Text/en_US/en_US_Text_CivilopediaC4DF.xml</File>
+    <File md5="B748DAF33842348C82A253A437D4F508" import="0">XML/Text/en_US/en_US_Text_Generic_DiplomacyC4DF.xml</File>
+    <File md5="6D095FA8B448572DE2F561D917E6565C" import="0">XML/Text/en_US/en_US_Text_UIC4DF.xml</File>
+    <File md5="767B2D853F4A3B807B08729506BFF39D" import="0">XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</File>
+    <File md5="59526757011511DF276CD9CEAEC87ACA" import="0">XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</File>
+    <File md5="4ED6E372F56083C0234B87AA38C8B34B" import="0">XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</File>
+    <File md5="5B9B49BB48C7963DF0676D18E1900251" import="0">XML/Text/zn_CN/zh_CN_Text_CivilopediaC4DF.xml</File>
+    <File md5="073F5DA3FF21F23D98ABD71F676273A3" import="0">XML/Text/zn_CN/zh_CN_Text_Generic_DiplomacyC4DF.xml</File>
+    <File md5="B7EE5D4BEF5FCA7C9499D1EF4FDF92EA" import="0">XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</File>
+    <File md5="D417A0D338A563DA55E85C46720672FA" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_CivilopediaC4DF.xml</File>
+    <File md5="B2BF34A34A8BD1C83BC1274153308D21" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_Generic_DiplomacyC4DF.xml</File>
+    <File md5="92F556F7B2B37DEC794CDB23E8F7A468" import="0">XML/Text/zn_Hant_HK/zh_Hant_HK_Text_UIC4DF.xml</File>
+  </Files>
+  <Actions>
+    <OnModActivated>
+      <UpdateDatabase>SQL/Globals.sql</UpdateDatabase>
+      <UpdateDatabase>SQL/NewColumns.sql</UpdateDatabase>
+      <UpdateDatabase>XML/Gameplay/C4DFConcepts.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Gameplay/C4DFDiplomacyResponses.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Gameplay/C4DFGameOptions.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Gameplay/C4DFResolutions.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/en_US/en_US_Text_CivilopediaC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/en_US/en_US_Text_Generic_DiplomacyC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/en_US/en_US_Text_UIC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_CivilopediaC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_Generic_DiplomacyC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_Hant_HK/zh_Hant_HK_Text_UIC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_CN/zh_CN_Text_CivilopediaC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_CN/zh_CN_Text_Generic_DiplomacyC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</UpdateDatabase>
+      <UpdateDatabase>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</UpdateDatabase>
+    </OnModActivated>
+  </Actions>
+  <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="LUA/VassalageOverview.lua">
+      <Name>Vassalage Overview</Name>
+      <Description>Vassalage Overview</Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>

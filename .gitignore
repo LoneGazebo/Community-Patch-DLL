@@ -27,6 +27,7 @@
 !*.txt
 !*.rtf
 !*.ico
+!*.modinfo
 
 !*.py
 !*.inl
