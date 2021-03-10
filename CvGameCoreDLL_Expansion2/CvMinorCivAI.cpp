@@ -14376,13 +14376,6 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
 		if (!pUnitPlot)
 			pUnitPlot = pMinorCapital->plot();
-		if (!pUnitPlot)
-		{
-			pXPCity = pClosestCity;
-			CvPlot* pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
-			if (!pUnitPlot)
-				pUnitPlot = pClosestCity->plot();
-		}
 	}
 	else
 	{
@@ -14391,21 +14384,18 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		if (pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 		{
 			pXPCity = pClosestCoastalCity;
-			CvPlot* pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
+			pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
 			if (!pUnitPlot)
 				pUnitPlot = pClosestCoastalCity->plot();
 		}
 		else
 		{
 			pXPCity = pClosestCity;
-			CvPlot* pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
+			pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
 			if (!pUnitPlot)
 				pUnitPlot = pClosestCity->plot();
 		}
 	}
-
-	if (!pUnitPlot)
-		return NULL;
 
 	// Now actually spawn the Unit
 	CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnit, pUnitPlot->getX(), pUnitPlot->getY());

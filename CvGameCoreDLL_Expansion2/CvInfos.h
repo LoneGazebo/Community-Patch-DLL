@@ -2111,16 +2111,21 @@ public:
 	int GetBoldness() const;
 	int GetDiploBalance() const;
 	int GetWarmongerHate() const;
-	int GetDenounceWillingness() const;
 	int GetDoFWillingness() const;
+	int GetDenounceWillingness() const;
 	int GetLoyalty() const;
-	int GetNeediness() const;
 	int GetForgiveness() const;
-	int GetChattiness() const;
+	int GetNeediness() const;
 	int GetMeanness() const;
+	int GetChattiness() const;
 
-	int GetMajorCivApproachBias(int i) const;
-	int GetMinorCivApproachBias(int i) const;
+	int GetWarBias(bool bMinor) const;
+	int GetHostileBias(bool bMinor) const;
+	int GetDeceptiveBias() const;
+	int GetGuardedBias() const;
+	int GetAfraidBias() const;
+	int GetNeutralBias(bool bMinor) const;
+	int GetFriendlyBias(bool bMinor) const;
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szVal);

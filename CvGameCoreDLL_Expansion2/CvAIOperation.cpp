@@ -2791,11 +2791,11 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 						}
 						else if (eUnitOwner != NO_PLAYER && GET_PLAYER(eUnitOwner).isMajorCiv()) // this will trigger a war
 						{
-							if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner) == MAJOR_CIV_APPROACH_WAR)
+							if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eUnitOwner) == CIV_APPROACH_WAR)
 							{
 								iThisCityValue += 500;
 							}
-							else if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner) == MAJOR_CIV_APPROACH_HOSTILE)
+							else if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eUnitOwner) == CIV_APPROACH_HOSTILE)
 							{
 								iThisCityValue += 200;
 							}

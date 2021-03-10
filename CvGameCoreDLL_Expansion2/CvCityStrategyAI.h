@@ -186,43 +186,21 @@ public:
 	CvString GetHurryLogFileName(CvString& playerName, CvString& cityName) const;
 #endif
 
-	bool IsYieldDeficient(YieldTypes yieldType);
 #if defined(MOD_BALANCE_CORE)
 	YieldTypes GetMostDeficientYield();
-	YieldTypes GetHighestYield();
-#endif
-
-	YieldTypes GetDeficientYield(void);  // returns if any yield is deficient, starting with food, then production. Returns NO_YIELD if the city is fine
-	double GetYieldAverage(YieldTypes eYieldType);
-	double GetDeficientYieldValue(YieldTypes eYieldType);
-
-#if defined(MOD_BALANCE_CORE)
-	void PrecalcYieldAverages();
+	YieldTypes GetMostAbundantYield();
+	void PrecalcYieldStats();
 #endif
 
 	// City AI methods
-#if defined(MOD_BALANCE_CORE)
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT, bool bInterruptBuildings = false, bool bInterruptWonders = false);
-#else
-	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	CvCityBuildable ChooseHurry(bool bUnitOnly = false, bool bFaithPurchase = false);
 	void LogHurryMessage(CvString& strMsg);
-#endif
 	void DoTurn();
-
-	// these functions must be called together. Reset clears the internal arrays, update evalutes the city, and GetBestYieldAverage... returns the value that the builder AI uses.
-	void ResetBestYields();
-	void UpdateBestYields();
-	unsigned short GetBestYieldAverageTimes100(YieldTypes eYield);
-	short GetYieldDeltaTimes100(YieldTypes eYield);
-	YieldTypes GetFocusYield();
 
 	// Public logging functions
 	void LogHurry(HurryTypes iHurryType, int iHurryAmount, int iHurryAmountAvailable, int iTurnsSaved);
 	void LogCityProduction(CvCityBuildable Buildable, bool bRush);
-
 	void LogInvalidItem(CvCityBuildable Buildable, int iVal);
 
 private:
@@ -264,16 +242,8 @@ private:
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_BuildablesPrecheck;
 #endif
 
-
-	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS];
-	unsigned short m_asBestYieldAverageTimes100[NUM_YIELD_TYPES];
-	short m_asYieldDeltaTimes100[NUM_YIELD_TYPES];
-	YieldTypes m_eFocusYield;
-
-#if defined(MOD_BALANCE_CORE)
-	double m_adYieldAvg[NUM_YIELD_TYPES];
-#endif
-
+	YieldTypes m_eMostDeficientYield;
+	YieldTypes m_eMostAbundantYield;
 };
 
 namespace CityStrategyAIHelpers

@@ -3438,7 +3438,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			{
 				if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 				{
-					if (m_pPlayer->GetDiplomacyAI()->GetMinorCivApproach(pPlot->getOwner()) != MINOR_CIV_APPROACH_CONQUEST)
+					if (m_pPlayer->GetDiplomacyAI()->GetCivApproach(pPlot->getOwner()) > CIV_APPROACH_HOSTILE)
 					{
 						eRtnValue = ARCHAEOLOGY_LANDMARK;
 					}
@@ -3446,7 +3446,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			}
 			else
 			{
-				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
+				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetCivOpinion(pPlot->getOwner()) >= CIV_OPINION_FRIEND)
 					eRtnValue = ARCHAEOLOGY_LANDMARK;
 			}
 		}

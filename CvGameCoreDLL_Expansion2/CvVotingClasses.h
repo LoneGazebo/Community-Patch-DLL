@@ -245,7 +245,7 @@ public:
 	int GetVotesCastForChoice(int iChoice);
 	int GetVotesMarginOfTopChoice();
 	int GetVotesCastByPlayer(PlayerTypes ePlayer);
-	int GetVotePercentageForOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost);
+	int GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost);
 	LeagueHelpers::PlayerList GetPlayersVotingForChoice(int iChoice);
 	void ProcessVote(PlayerTypes eVoter, int iNumVotes, int iChoice);
 	CvString GetVotesAsText(CvLeague* pLeague);

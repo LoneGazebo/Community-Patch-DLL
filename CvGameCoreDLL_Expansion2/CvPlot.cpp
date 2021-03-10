@@ -15171,7 +15171,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
 				iAdjacentOwnedOther++;
-				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
+				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetCivOpinion(pLoopAdjacentPlot->getOwner()) <= CIV_OPINION_NEUTRAL)
 					iBadAdjacent++;
 			}
 		}
@@ -15197,7 +15197,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 				if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 				{
 					iNearbyOwnedOther++;
-					if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
+					if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetCivOpinion(pLoopNearbyPlot->getOwner()) <= CIV_OPINION_NEUTRAL)
 						iBadNearby++;
 				}
 			}

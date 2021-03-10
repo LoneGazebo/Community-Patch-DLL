@@ -105,9 +105,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetNumWondersBeatenTo);
 
 	Method(IsCapitalConnectedToCity);
-#if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsPlotConnectedToPlot);
-#endif
 
 	Method(IsTurnActive);
 	Method(IsSimultaneousTurns);
@@ -1379,7 +1377,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasCapturedHolyCity);
 	Method(HasEmbassyWith);
 	Method(DoForceDefPact);
-	Method(GetMajorCivOpinion);
+	Method(GetCivOpinion);
 	Method(GetMajorityReligion);
 	//JFD
 	Method(GetWLTKDResourceTT);
@@ -2005,7 +2003,6 @@ int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 {
@@ -2017,7 +2014,6 @@ int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool isTurnActive( void );
 int CvLuaPlayer::lIsTurnActive(lua_State* L)
@@ -10273,7 +10269,7 @@ int CvLuaPlayer::lGetMajorCivApproach(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMajorCivApproach(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetCivApproach(ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12588,8 +12584,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
-	MajorCivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
-	MajorCivApproachTypes eTrueApproach = pDiplo->GetMajorCivApproach(ePlayer);
+	CivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
+	CivApproachTypes eTrueApproach = pDiplo->GetCivApproach(ePlayer);
 
 	//--------------------------------//
 	// [PART 1: SPECIAL INDICATORS]	  //
@@ -12637,7 +12633,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 				switch (eTrueApproach)
 				{
-				case MAJOR_CIV_APPROACH_WAR:
+				case CIV_APPROACH_WAR:
 					if (pDiplo->IsAtWar(ePlayer))
 					{
 						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_WAR").toUTF8();
@@ -12647,19 +12643,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 						str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR").toUTF8();
 					}
 					break;
-				case MAJOR_CIV_APPROACH_HOSTILE:
+				case CIV_APPROACH_HOSTILE:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE").toUTF8();
 					break;
-				case MAJOR_CIV_APPROACH_DECEPTIVE:
+				case CIV_APPROACH_DECEPTIVE:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE").toUTF8();
 					break;
-				case MAJOR_CIV_APPROACH_GUARDED:
+				case CIV_APPROACH_GUARDED:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_GUARDED").toUTF8();
 					break;
-				case MAJOR_CIV_APPROACH_AFRAID:
+				case CIV_APPROACH_AFRAID:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_AFRAID").toUTF8();
 					break;
-				case MAJOR_CIV_APPROACH_FRIENDLY:
+				case CIV_APPROACH_FRIENDLY:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
 				default:
@@ -13028,43 +13024,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				default:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 					break;
-				}
-
-				str += " ";
-
-				// Aztecs have a special message.
-				if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
-				{
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_AZTECS").toUTF8();
-				}
-				// India/Venice have a special message.
-				else if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && (pkPlayer->GetPlayerTraits()->IsNoAnnexing() || pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion()))
-				{
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MAXIMAL").toUTF8();
-				}
-				// Otherwise, give a hint as to this player's WarmongerHate flavor. This is relevant for humans too!
-				else
-				{
-					if (pDiplo->GetWarmongerHate() >= 9)
-					{
-						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_EXTREME").toUTF8();
-					}
-					else if (pDiplo->GetWarmongerHate() >= 7)
-					{
-						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH_CBP").toUTF8();
-					}
-					else if (pDiplo->GetWarmongerHate() >= 5)
-					{
-						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
-					}
-					else if (pDiplo->GetWarmongerHate() >= 3)
-					{
-						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
-					}
-					else
-					{
-						str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MINIMAL").toUTF8();
-					}
 				}
 
 				kOpinion.m_str = str;
@@ -14938,16 +14897,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			switch (eSurfaceApproach)
 			{
-			case MAJOR_CIV_APPROACH_HOSTILE:
+			case CIV_APPROACH_HOSTILE:
 				str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE").toUTF8();
 				break;
-			case MAJOR_CIV_APPROACH_GUARDED:
+			case CIV_APPROACH_GUARDED:
 				str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED").toUTF8();
 				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
+			case CIV_APPROACH_AFRAID:
 				str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID").toUTF8();
 				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
+			case CIV_APPROACH_FRIENDLY:
 				str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
 				break;
 			default:
@@ -16266,11 +16225,11 @@ int CvLuaPlayer::lGetNumInternalTradeRoutes(lua_State* L)
 	return 1;
 }
 
-int CvLuaPlayer::lGetMajorCivOpinion(lua_State* L)
+int CvLuaPlayer::lGetCivOpinion(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetCivOpinion(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

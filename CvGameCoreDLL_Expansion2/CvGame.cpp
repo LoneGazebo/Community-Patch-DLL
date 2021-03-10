@@ -13402,7 +13402,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 		int iMajorNeutral = 0;
 
 		int iMinorIgnore = 0;
-		int iMinorFriendly = 0;
 		int iMinorProtective = 0;
 		int iMinorConquest = 0;
 		int iMinorBully = 0;
@@ -13449,75 +13448,72 @@ void CvGame::LogGameState(bool bLogHeaders)
 						// Major
 						if(eLoopPlayer2 < MAX_MAJOR_CIVS)
 						{
-							switch(pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer2))
+							switch (pPlayer->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2))
 							{
-							case MAJOR_CIV_OPINION_ALLY:
+							case CIV_OPINION_ALLY:
 								iAlly++;
 								break;
-							case MAJOR_CIV_OPINION_FRIEND:
+							case CIV_OPINION_FRIEND:
 								iFriend++;
 								break;
-							case MAJOR_CIV_OPINION_FAVORABLE:
+							case CIV_OPINION_FAVORABLE:
 								iFavorable++;
 								break;
-							case MAJOR_CIV_OPINION_NEUTRAL:
+							case CIV_OPINION_NEUTRAL:
 								iNeutral++;
 								break;
-							case MAJOR_CIV_OPINION_COMPETITOR:
+							case CIV_OPINION_COMPETITOR:
 								iCompetitor++;
 								break;
-							case MAJOR_CIV_OPINION_ENEMY:
+							case CIV_OPINION_ENEMY:
 								iEnemy++;
 								break;
-							case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							case CIV_OPINION_UNFORGIVABLE:
 								iUnforgivable++;
 								break;
 							}
 
-							switch(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2))
+							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
 							{
-							case MAJOR_CIV_APPROACH_WAR:
+							case CIV_APPROACH_WAR:
 								iMajorWar++;
 								break;
-							case MAJOR_CIV_APPROACH_HOSTILE:
+							case CIV_APPROACH_HOSTILE:
 								iMajorHostile++;
 								break;
-							case MAJOR_CIV_APPROACH_DECEPTIVE:
+							case CIV_APPROACH_DECEPTIVE:
 								iMajorDeceptive++;
 								break;
-							case MAJOR_CIV_APPROACH_GUARDED:
+							case CIV_APPROACH_GUARDED:
 								iMajorGuarded++;
 								break;
-							case MAJOR_CIV_APPROACH_AFRAID:
+							case CIV_APPROACH_AFRAID:
 								iMajorAfraid++;
 								break;
-							case MAJOR_CIV_APPROACH_FRIENDLY:
-								iMajorFriendly++;
-								break;
-							case MAJOR_CIV_APPROACH_NEUTRAL:
+							case CIV_APPROACH_NEUTRAL:
 								iMajorNeutral++;
+								break;
+							case CIV_APPROACH_FRIENDLY:
+								iMajorFriendly++;
 								break;
 							}
 						}
 						// Minor
 						else
 						{
-							switch(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eLoopPlayer2))
+							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
 							{
-							case MINOR_CIV_APPROACH_IGNORE:
-								iMinorIgnore++;
-								break;
-							case MINOR_CIV_APPROACH_FRIENDLY:
-								iMinorFriendly++;
-								break;
-							case MINOR_CIV_APPROACH_PROTECTIVE:
-								iMinorProtective++;
-								break;
-							case MINOR_CIV_APPROACH_CONQUEST:
+							case CIV_APPROACH_WAR:
 								iMinorConquest++;
 								break;
-							case MINOR_CIV_APPROACH_BULLY:
+							case CIV_APPROACH_HOSTILE:
 								iMinorBully++;
+								break;
+							case CIV_APPROACH_NEUTRAL:
+								iMinorIgnore++;
+								break;
+							case CIV_APPROACH_FRIENDLY:
+								iMinorProtective++;
 								break;
 							}
 						}
@@ -13529,7 +13525,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 		bool bFirstTurn = bLogHeaders || getElapsedGameTurns() == 0;
 
 		// Grand Strategies
-		if(bFirstTurn)
+		if (bFirstTurn)
 		{
 			strOutput = "Turn";
 			strOutput += ", Conquest";
@@ -13551,7 +13547,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 		}
 
 		// Major Approaches
-		if(bFirstTurn)
+		if (bFirstTurn)
 		{
 			strOutput += ", Ally";
 			strOutput += ", Friend";
@@ -13580,7 +13576,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 		}
 
 		// Major Approaches
-		if(bFirstTurn)
+		if (bFirstTurn)
 		{
 			strOutput += ", War";
 			strOutput += ", Hostile";
@@ -13609,10 +13605,9 @@ void CvGame::LogGameState(bool bLogHeaders)
 		}
 
 		// Minor Approaches
-		if(bFirstTurn)
+		if (bFirstTurn)
 		{
 			strOutput += ", Ignore";
-			strOutput += ", Friendly";
 			strOutput += ", Protective";
 			strOutput += ", Conquest";
 			strOutput += ", Bully";
@@ -13620,8 +13615,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 		else
 		{
 			strTemp.Format("%d", iMinorIgnore);
-			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMinorFriendly);
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iMinorProtective);
 			strOutput += ", " + strTemp;

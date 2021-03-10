@@ -195,12 +195,6 @@ void CvBuilderTaskingAI::Update(void)
 
 	m_eRouteBuild = GetBuildRoute();
 
-	int iLoop;
-	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
-	{
-		pCity->GetCityStrategyAI()->UpdateBestYields();
-	}
-
 	if(m_bLogging)
 	{
 		bool bShowOutput = m_pPlayer->isHuman();
@@ -212,86 +206,38 @@ void CvBuilderTaskingAI::Update(void)
 		}
 
 		// show crisis states
-		CvCity* pLoopCity;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		int iLoop;
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			CvString str;
-			str += "// ";
-			CvString strCityName;
-			strCityName = pLoopCity->getName();
-			str += strCityName;
-			str += " \\\\";
+			CvString str("// ");
+			str += pLoopCity->getName();
+			str += " // missing ";
 
-			LogInfo(str, m_pPlayer, bShowOutput);
-
-			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+			YieldTypes eMissing = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
+			switch(eMissing)
 			{
-				//double fYield = pLoopCity->GetCityStrategyAI()->GetYieldAverage((YieldTypes)ui);
-				//double fYieldDeficient = pLoopCity->GetCityStrategyAI()->GetDeficientYieldValue((YieldTypes)ui);
-				CvString strYield;
-				switch(ui)
-				{
-				case YIELD_FOOD:
-					strYield = "food       ";
-					break;
-				case YIELD_PRODUCTION:
-					strYield = "production ";
-					break;
-				case YIELD_SCIENCE:
-					strYield = "science    ";
-					break;
-				case YIELD_GOLD:
-					strYield = "gold       ";
-					break;
-				case YIELD_CULTURE:
-					strYield = "culture    ";
-					break;
-				case YIELD_FAITH:
-					strYield = "faith      ";
-					break;
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-				case YIELD_TOURISM:
-					strYield = "tourism    ";
-					break;
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-				case YIELD_GOLDEN_AGE_POINTS:
-					strYield = "goldenage  ";
-					break;
-#endif
-				}
-
-				CvString strNumbers;
-				strNumbers.Format("%d, %d", pLoopCity->GetCityStrategyAI()->GetBestYieldAverageTimes100((YieldTypes)ui), pLoopCity->GetCityStrategyAI()->GetYieldDeltaTimes100((YieldTypes)ui));
-
-				//int iYieldAdjusted = (int)workerround(fYield * 100);
-				//int iYieldDeficientAdjacent = (int)workerround(fYieldDeficient * 100);
-
-				//strNumbers.Format("%d / %d", iYieldAdjusted, iYieldDeficientAdjacent);
-				strYield += strNumbers;
-
-				if(ui == pLoopCity->GetCityStrategyAI()->GetFocusYield())
-				{
-					strYield += " *";
-				}
-
-				//if (iYieldAdjusted < iYieldDeficientAdjacent)
-				//{
-				//if (GetDeficientYield(pLoopCity, false) != GetDeficientYield(pLoopCity, true))
-				//{
-				//	strYield += "  Problem, but happiness over is overriding it";
-				//}
-				//else
-				//{
-				//	strYield += "  PROBLEM!!";
-				//}
-				//}
-				LogInfo(strYield, m_pPlayer, bShowOutput);
+			case YIELD_FOOD:
+				str += "food";
+				break;
+			case YIELD_PRODUCTION:
+				str += "production";
+				break;
+			case YIELD_SCIENCE:
+				str += "science";
+				break;
+			case YIELD_GOLD:
+				str += "gold";
+				break;
+			case YIELD_CULTURE:
+				str += "culture";
+				break;
+			case YIELD_FAITH:
+				str += "faith";
+				break;
+			default:
+				str += "unknown";
 			}
 
-			str = "\\\\ end ";
-			str += strCityName;
-			str += " //";
 			LogInfo(str, m_pPlayer, bShowOutput);
 		}
 	}
@@ -2084,59 +2030,21 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				return -1;
 		}
 
-		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-		if(pCapitalCity)
+		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
-			bool bAnyNegativeMultiplier = false;
-			YieldTypes eFocusYield = pCapitalCityStrategy->GetFocusYield();
-			if(!pCapitalCityStrategy)
+			int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui] * 100;
+			if(iYieldDelta >= 0)
 			{
-				return -1;
+				iYieldScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
 			}
-			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+			else if(iYieldDelta < 0)
 			{
-				int iMultiplier = pCapitalCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
-				//int iAbsMultiplier = abs(iMultiplier);
-				int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui] * 100;
-
-				// the multiplier being lower than zero means that we need more of this resource
-				if(iMultiplier < 0)
-				{
-					bAnyNegativeMultiplier = true;
-					if(iYieldDelta > 0)  // this would be an improvement to the yield
-					{
-						iYieldScore += m_aiProjectedPlotYields[ui];
-					}
-					else if(iYieldDelta < 0)  // the yield would go down
-					{
-						iYieldScore += iYieldDelta;
-					}
-				}
-				else
-				{
-					if(iYieldDelta >= 0)
-					{
-						iYieldScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
-					}
-					else if(iYieldDelta < 0)
-					{
-						iYieldScore += iYieldDelta;
-					}
-				}
+				iYieldScore += iYieldDelta;
 			}
-			if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
-			{
-				int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
-				if(iYieldDelta > 0)
-				{
-					iYieldScore += m_aiProjectedPlotYields[eFocusYield];
-				}
-			}
-			
-			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
-			iYieldScore -= iSmallBuff;
 		}
+			
+		//Because this evaluates territory outside of our base territory, let's cut this down a bit.
+		iYieldScore -= iSmallBuff;
 	}
 
 	CvCity* pCity = pPlot->getOwningCity();
@@ -2146,6 +2054,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if (!m_bEvaluateAdjacent && !pCity)
 			return 0;
 	}
+
 	if(pCity)
 	{
 		CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
@@ -2157,7 +2066,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			//int iAbsMultiplier = abs(iMultiplier);
 			int iYieldDelta = (m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui]) * 100;
-			if (iYieldDelta > 0 && pCityStrategy->GetFocusYield() == (YieldTypes)ui)
+			if (iYieldDelta > 0 && pCityStrategy->GetMostDeficientYield() == (YieldTypes)ui)
 				iYieldScore += iYieldDelta * 5;
 			else
 				iYieldScore += iYieldDelta;

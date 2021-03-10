@@ -131,8 +131,8 @@ public:
 	int GetChattiness() const;
 	int GetMeanness() const;
 
-	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
-	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
+	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
+	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
 
 	DiploPersonalityTypes GetDiploPersonalityType() const;
 	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
@@ -201,37 +201,34 @@ public:
 	// ------------------------------------
 
 	// Opinion
-	MajorCivOpinionTypes GetMajorCivOpinion(PlayerTypes ePlayer) const;
-	void SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
+	CivOpinionTypes GetCivOpinion(PlayerTypes ePlayer) const;
+	void SetCivOpinion(PlayerTypes ePlayer, CivOpinionTypes eOpinion);
 
 	int GetCachedOpinionWeight(PlayerTypes ePlayer) const;
 	void SetCachedOpinionWeight(PlayerTypes ePlayer, int iWeight);
 
 	// Approach
-	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer) const;
-	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+	CivApproachTypes GetCivApproach(PlayerTypes ePlayer) const;
+	void SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
-	MajorCivApproachTypes GetMajorCivStrategicApproach(PlayerTypes ePlayer) const;
-	void SetMajorCivStrategicApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+	CivApproachTypes GetCivStrategicApproach(PlayerTypes ePlayer) const;
+	void SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
-	MajorCivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
+	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 
 	// Approach Values: Cached weight for each approach
-	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
-	void SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
-	MajorCivApproachTypes GetHighestValueApproach(PlayerTypes ePlayer, bool bExcludeWar = false, bool bIncludeOverrides = false) const;
-	PlayerTypes GetPlayerWithHighestApproachValue(MajorCivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
+	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
+	void SetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
+	CivApproachTypes GetHighestValueApproach(PlayerTypes ePlayer, bool bExcludeWar = false, bool bIncludeOverrides = false) const;
+	PlayerTypes GetPlayerWithHighestApproachValue(CivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
 
-	int GetPlayerStrategicApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
-	void SetPlayerStrategicApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
-	PlayerTypes GetPlayerWithHighestStrategicApproachValue(MajorCivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
+	int GetPlayerStrategicApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
+	void SetPlayerStrategicApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
+	PlayerTypes GetPlayerWithHighestStrategicApproachValue(CivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
 
 	// ------------------------------------
 	// Minor Civs
 	// ------------------------------------
-
-	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes eMinor) const;
-	void SetMinorCivApproach(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
 
 	PlayerTypes GetCSBullyTargetPlayer() const;
 	void SetCSBullyTargetPlayer(PlayerTypes ePlayer);
@@ -920,10 +917,10 @@ public:
 	// ------------------------------------
 
 	// Guesses about other players' feelings towards us
-	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
-	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
-	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
-	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+	CivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
+	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, CivOpinionTypes eOpinion);
+	CivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
+	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, CivApproachTypes eApproach);
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
@@ -1130,7 +1127,7 @@ public:
 
 	void DoUpdateOpinions();
 	void DoUpdateOnePlayerOpinion(PlayerTypes ePlayer);
-	int GetMajorCivOpinionWeight(PlayerTypes ePlayer);
+	int GetCivOpinionWeight(PlayerTypes ePlayer);
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight); // <= JdH
 #endif
@@ -1158,7 +1155,7 @@ public:
 	void SelectApproachTowardsVassal(PlayerTypes ePlayer);
 
 	// Main approach update function
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
 
 	// Planning Exchanges
 	void DoRelationshipPairing();
@@ -1175,7 +1172,7 @@ public:
 
 	// Minor Civ Approach
 	void DoUpdateMinorCivApproaches();
-	void SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches);
+	void SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
 
 	/////////////////////////////////////////////////////////
 	// Opinion
@@ -1189,7 +1186,7 @@ public:
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
-	MajorCivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const;
+	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const;
 
 	void DoUpdateApproachTowardsUsGuesses();
 
@@ -1293,7 +1290,7 @@ public:
 
 	// Possible contact options follow:
 
-	void DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivApproachTypes eApproach);
+	void DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach);
 
 	void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
@@ -1550,7 +1547,7 @@ public:
 	// Player asks the AI not to dig
 	bool IsStopDiggingAcceptable(PlayerTypes ePlayer) const;
 
-	MajorCivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
+	CivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
 	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
 
 	/////////////////////////////////////////////////////////
@@ -1768,8 +1765,8 @@ private:
 	int GetEstimatePlayerForgiveness(PlayerTypes ePlayer) const;
 	int GetEstimatePlayerChattiness(PlayerTypes ePlayer) const;
 	int GetEstimatePlayerMeanness(PlayerTypes ePlayer) const;	
-	int GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
-	int GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, MinorCivApproachTypes eApproach) const;
+	int GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
+	int GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
 	int GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const;
 	int GetDifferenceFromAverageFlavorValue(int iValue) const;
 
@@ -1788,12 +1785,11 @@ private:
 	void LogWantRA(PlayerTypes ePlayer);
 	void LogWantDP(PlayerTypes ePlayer);
 
-	void LogOpinionUpdate(PlayerTypes ePlayer, std::vector<int>& viOpinionValues);
 	void LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApproachValues, const int* aiScratchValues);
 	void LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial);
 
-	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, MajorCivApproachTypes eSurfaceApproach);
-	void LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MinorCivApproachTypes eNewMinorCivApproach, MinorCivApproachTypes eOldApproach);
+	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, CivApproachTypes eNewMajorCivApproach, CivApproachTypes eOldApproach, CivApproachTypes eSurfaceApproach);
+	void LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, CivApproachTypes eNewMinorCivApproach, CivApproachTypes eOldApproach);
 	void LogPersonality();
 	void LogStatus();
 	void LogWarStatus();
@@ -1801,8 +1797,8 @@ private:
 
 	void LogGrandStrategy(CvString& strString);
 
-	void LogMajorCivApproach(CvString& strString, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eSurfaceApproach);
-	void LogMinorCivApproach(CvString& strString, MinorCivApproachTypes eNewMajorCivApproach);
+	void LogMajorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach, CivApproachTypes eSurfaceApproach);
+	void LogMinorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach);
 	void LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes eQuestType);
 	void LogOpinion(CvString& strString, PlayerTypes ePlayer);
 	void LogWarmongerThreat(CvString& strString, PlayerTypes ePlayer);
@@ -1843,15 +1839,15 @@ private:
 	unsigned char m_iBoldness;
 	unsigned char m_iDiploBalance;
 	unsigned char m_iWarmongerHate;
-	unsigned char m_iDenounceWillingness;
 	unsigned char m_iDoFWillingness;
+	unsigned char m_iDenounceWillingness;
 	unsigned char m_iLoyalty;
-	unsigned char m_iNeediness;
 	unsigned char m_iForgiveness;
-	unsigned char m_iChattiness;
+	unsigned char m_iNeediness;
 	unsigned char m_iMeanness;
-	unsigned char m_aiPersonalityMajorCivApproachBiases[NUM_MAJOR_CIV_APPROACHES];
-	unsigned char m_aiPersonalityMinorCivApproachBiases[NUM_MINOR_CIV_APPROACHES];
+	unsigned char m_iChattiness;
+	unsigned char m_aiMajorCivApproachBiases[NUM_CIV_APPROACHES];
+	unsigned char m_aiMinorCivApproachBiases[NUM_CIV_APPROACHES];
 	DiploPersonalityTypes m_eDiploPersonalityType;
 
 	// Key Players
@@ -1878,15 +1874,14 @@ private:
 	bool m_aabSentAttackMessageToMinorCivProtector[MAX_MAJOR_CIVS][MAX_MINOR_CIVS];
 
 	// Opinion & Approach
-	char m_aeMajorCivOpinion[MAX_MAJOR_CIVS];
+	char m_aeCivOpinion[MAX_MAJOR_CIVS];
 	short m_aiCachedOpinionWeight[MAX_MAJOR_CIVS];
-	char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
-	char m_aeMajorCivStrategicApproach[MAX_MAJOR_CIVS];
-	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_MAJOR_CIV_APPROACHES];
-	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_MAJOR_CIV_APPROACHES];
+	char m_aeCivApproach[MAX_CIV_PLAYERS];
+	char m_aeCivStrategicApproach[MAX_MAJOR_CIVS];
+	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
+	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 
 	// Minor Civs
-	char m_aeMinorCivApproach[MAX_MINOR_CIVS];
 	bool m_abWantToRouteToMinor[MAX_MINOR_CIVS];
 
 	// Planning Exchanges

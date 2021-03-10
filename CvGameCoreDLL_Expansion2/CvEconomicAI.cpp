@@ -4442,45 +4442,44 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 			if(eMinor)
 			{
 				//Are we aggressive towards city-states? If so, discourage building diplo units.
-				if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_CONQUEST)
+				if (pPlayer->GetDiplomacyAI()->GetCivApproach(eMinor) == CIV_APPROACH_WAR)
 				{
 					iNumApConq++;
 				}
-
 				//Are we planning on bullying them?
-				if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_BULLY)
+				else if (pPlayer->GetDiplomacyAI()->GetCivApproach(eMinor) == CIV_APPROACH_HOSTILE)
 				{
 					iNumApBully++;
 				}
 
 				//About to lose an ally? Build units!
-				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsCloseToNotBeingAllies(ePlayer))
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsCloseToNotBeingAllies(ePlayer))
 				{
 					iNumCloseNotAllies++;
 				}
 
 				// Is there an active influence quest? Let's take advantage of that.
-				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_INFLUENCE))
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_INFLUENCE))
 				{
 					iNumInfluenceQuest++;
 				}
 
 				//MINOR ALLY TESTS - If other minors are allied, what's our opinion of the ally? 
-				if(eMinorAlly != NO_PLAYER)
+				if (eMinorAlly != NO_PLAYER)
 				{
-					MajorCivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eMinorAlly);
-					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly);
-					MajorCivApproachTypes eApproachTowardsUs = pPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(eMinorAlly);
+					CivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetCivOpinion(eMinorAlly);
+					CivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetCivApproach(eMinorAlly);
+					CivApproachTypes eApproachTowardsUs = pPlayer->GetDiplomacyAI()->GetVisibleApproachTowardsUs(eMinorAlly);
 
-					if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+					if (eOpinion == CIV_OPINION_COMPETITOR)
 					{
 						iMinorAllyCompetitor++;
 					}
-					if (eOpinion == MAJOR_CIV_OPINION_ENEMY || eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+					if (eOpinion <= CIV_OPINION_ENEMY)
 					{
 						iMinorAllyEnemy++;
 					}
-					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproachTowardsUs == MAJOR_CIV_APPROACH_HOSTILE || eApproachTowardsUs == MAJOR_CIV_APPROACH_WAR)
+					if (eApproach <= CIV_APPROACH_HOSTILE || eApproachTowardsUs <= CIV_APPROACH_HOSTILE)
 					{
 						iMinorAllyHostile++;
 					}

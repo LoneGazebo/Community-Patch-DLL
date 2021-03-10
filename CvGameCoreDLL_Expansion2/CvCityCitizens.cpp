@@ -311,7 +311,7 @@ void CvCityCitizens::DoTurn()
 
 		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-		bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
+		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
 
 		//---------------
 		// note that GetPlotValue already considers wonder/settler building so we don't do that here
@@ -576,7 +576,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			break;
 
 		//base yield plus combo bonuses
-		int iYield100 = (pPlot->getYield(eYield)+GetBonusPlotValue(pPlot, eYield)) * 100;
+		int iYield100 = (pPlot->getYield(eYield) + GetBonusPlotValue(pPlot, eYield)) * 100;
 		
 		int iYieldMod = 0; //how much do we want it right now?
 		int iUnhappyMod = 0; //how much does it help for happiness?
@@ -601,9 +601,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 						iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 				}
 
-				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction)
+				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bCityFoodProduction || store.iExcessFoodTimes100 < 0)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_FOOD();
-				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_FOOD()/2;
 
 				if (store.iUnhappinessFromDistress > 0)
@@ -613,8 +613,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			{
 				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction || bCityWonderProduction)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_PRODUCTION();
-
-				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_PRODUCTION()/2;
 
 				if (store.iUnhappinessFromDistress > 0)
@@ -624,8 +623,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 			{		
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_GOLD();
-
-				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				else if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == NO_CITY_AI_FOCUS_TYPE)
 					iYieldMod = GC.getAI_CITIZEN_VALUE_GOLD()/2;
 
 				if (store.iUnhappinessFromGold > 0)
@@ -656,17 +654,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 					iUnhappyMod = store.iUnhappinessFromReligion;
 			}
 
-			//now put it all together
-			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-				iYieldMod += 3;
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-				iYieldMod += 2;
+			//grubs first, morals later
+			if (eYield != YIELD_FOOD && (store.iExcessFoodTimes100+pPlot->getYield(YIELD_FOOD)*100) <= 0)
+				iYieldMod = 1;
 
-			//no yield mods until we're fed!
-			if (eYield == YIELD_FOOD || store.iExcessFoodTimes100 > 0)
-				iYield100 *= max(1, (iYieldMod + iUnhappyMod));
-
-			iValue += iYield100;
+			iValue += iYield100*max(1,iYieldMod+iUnhappyMod);
 		}
 	}
 
@@ -760,7 +752,7 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 		m_eCityAIFocusTypes = eFocus;
 		// Reallocate with our new focus
 		if (bReallocate)
-			DoReallocateCitizens(true);
+			DoReallocateCitizens(true,true);
 		return true;
 	}
 
@@ -809,7 +801,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 	}
 
 	// If we're deficient in Food then we're less likely to want Specialists
-	if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD))
+	if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD)
 	{
 		iWeight *= 75;
 		iWeight /= 100;
@@ -1090,10 +1082,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = -1;
-	int iBestUnmodifiedSpecialistValue = -1;
-
-	SpecialistTypes eSpecialist;
-	int iValue;
+	CvBuildingEntry* pBestBuildingInfo = NULL;
 
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
@@ -1117,7 +1106,8 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 				// Can't add more than the max
 				if (IsCanAddSpecialistToBuilding(eBuilding))
 				{
-					eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+					SpecialistTypes eSpecialist = (SpecialistTypes)pkBuildingInfo->GetSpecialistType();
+					int iValue = 0;
 
 					std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
 					if (it != specialistValueCache.end())
@@ -1128,39 +1118,39 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 						specialistValueCache[eSpecialist] = iValue;
 					}
 
-					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10);
-					iTemp /= 100;
-					iValue += iTemp;
+					// Add a bit more weight to a Building if it has more slots (10% per).
+					// This will bias the AI to fill a single building over spreading Specialists out
+					int iBonus = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10) / 100;
 
-					if (bLogging && (GC.getLogging() && GC.getAILogging()))
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "CityTileScorer.csv";
-						playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("%s: Specialist Building: %s, Score: %d", m_pCity->getName().GetCString(), pkBuildingInfo->GetDescription(), iValue);
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-
-					if (iValue > iBestSpecialistValue)
+					if (iValue+iBonus > iBestSpecialistValue)
 					{
 						eBestBuilding = eBuilding;
-						iBestSpecialistValue = iValue;
-						iBestUnmodifiedSpecialistValue = iValue - iTemp;
+						iBestSpecialistValue = iValue + iBonus;
+						pBestBuildingInfo = pkBuildingInfo;
+
+						//return the unbiased value
+						iSpecialistValue = iValue;
 					}
 				}
 			}
 		}
 	}
 
-	iSpecialistValue = iBestUnmodifiedSpecialistValue;
+	if (bLogging && GC.getLogging() && pBestBuildingInfo)
+	{
+		CvString strBaseString;
+		CvString strOutBuf;
+		CvString strFileName = "CityTileScorer.csv";
+		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+		strOutBuf.Format("%s, focus %d, idle citizens %d, specialist building: %s, score %d", 
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestBuildingInfo->GetDescription(), iSpecialistValue);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
+
 	return eBestBuilding;
 }
 
@@ -1300,10 +1290,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
 				iYieldMod += 3;
-			}
-			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
-			{
-				iYieldMod += 2;
 			}
 
 			if (eYield == YIELD_FOOD)
@@ -1984,11 +1970,10 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 /// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
 CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced, bool bLogging)
 {
-	bool bPlotForceWorked;
-
 	int iBestPlotValue = -1;
-	int iBestPlotID = -1;
+	CvPlot* pBestPlot = NULL;
 
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 	SPrecomputedExpensiveNumbers store(m_pCity);
 
 	// Look at all workable Plots
@@ -2010,32 +1995,14 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						// Working the Plot or CAN work the Plot?
 						if (bWantWorked || IsCanWork(pLoopPlot))
 						{
-							iValue = GetPlotValue(pLoopPlot, store);
-
-							if (bLogging && (GC.getLogging() && GC.getAILogging()))
-							{
-								CvString playerName;
-								FILogFile* pLog;
-								CvString strBaseString;
-								CvString strOutBuf;
-								CvString strFileName = "CityTileScorer.csv";
-								playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-								pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-								strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-								strBaseString += playerName + ", ";
-								strOutBuf.Format("%s: Plot %d, Score: %d", m_pCity->getName().GetCString(), pLoopPlot->GetPlotIndex(), iValue);
-								strBaseString += strOutBuf;
-								pLog->Msg(strBaseString);
-							}
-
-							bPlotForceWorked = IsForcedWorkingPlot(pLoopPlot);
-
-							if (bPlotForceWorked)
+							int iCurrent = GetPlotValue(pLoopPlot, store);
+							
+							if (IsForcedWorkingPlot(pLoopPlot))
 							{
 								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
 								if (bWantBest && !bWantWorked)
 								{
-									iValue += 1000*1000;
+									iCurrent += 1000*1000;
 								}
 								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
 								if (!bWantBest && bWantWorked)
@@ -2046,17 +2013,25 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 									}
 									else
 									{
-										iValue += 1000*1000;
+										iCurrent += 1000*1000;
 									}
 								}
 							}
 
-							if (iBestPlotID == -1 ||							// First Plot?
-								(bWantBest && iValue > iBestPlotValue) ||		// Best Plot so far?
-								(!bWantBest && iValue < iBestPlotValue))		// Worst Plot so far?
+							if (pLog)
 							{
-								iBestPlotValue = iValue;
-								iBestPlotID = iPlotLoop;
+								CvString strOutBuf;
+								strOutBuf.Format("--> index %d, plot %d:%d, terrain %d, feature %d, score %d", 
+									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getTerrainType(), pLoopPlot->getFeatureType(), iCurrent);
+								pLog->Msg(strOutBuf);
+							}
+
+							if ( pBestPlot == NULL ||							// First Plot?
+								(bWantBest && iCurrent > iBestPlotValue) ||		// Best Plot so far?
+								(!bWantBest && iCurrent < iBestPlotValue) )		// Worst Plot so far?
+							{
+								iBestPlotValue = iCurrent;
+								pBestPlot = pLoopPlot;
 							}
 						}
 					}
@@ -2067,13 +2042,21 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 
 	// Passed in by reference
 	iValue = iBestPlotValue;
-
-	if (iBestPlotID == -1)
-	{
+	if (pBestPlot == NULL)
 		return NULL;
+
+	if (pLog)
+	{
+		CvString strBaseString;
+		CvString strOutBuf;
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf.Format("%s, focus %d, idle citizens %d, plot %d:%d, terrain %d, feature %d, score %d", 
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->getTerrainType(), pBestPlot->getFeatureType(), iValue);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
 	}
 
-	return GetCityPlotFromIndex(iBestPlotID);
+	return pBestPlot;
 }
 
 bool CvCityCitizens::NeedReworkCitizens()

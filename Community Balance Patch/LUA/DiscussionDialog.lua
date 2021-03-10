@@ -463,15 +463,28 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_CAUGHT_DEMAND_STOP_SPYING" );
 			end
 			
-			if(not activePlayer:IsDenouncedPlayer(iPlayer)) then
+			if(not activePlayer:IsDenounceMessageTooSoon(iPlayer)) then
 				strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_CAUGHT_DENOUNCE_FOR_SPYING", strLeaderName );
  			end
  			
 			strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_CAUGHT_DECLARE_WAR", strLeaderName );
 			
-			if (pActiveTeam:IsForcePeace(g_iAITeam) or pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
+			if (not pActiveTeam:CanDeclareWar(g_iAITeam)) then
 				Controls.Button4:SetDisabled(true);
-				strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" );
+
+				if (pActiveTeam:IsVassalOfSomeone()) then
+					if (pActiveTeam:IsVassal(g_iAIPlayer)) then
+						strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_MASTER_TT" );
+					else
+						strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT" );
+					end
+				elseif (pActiveTeam:IsForcePeace(g_iAITeam)) then
+					strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" );
+				elseif (pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
+					strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP" );
+				else
+					strButton4Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" );
+				end
 			end
 			
 			bHideBackButton = true;

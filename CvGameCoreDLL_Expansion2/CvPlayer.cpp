@@ -5438,17 +5438,19 @@ void CvPlayer::UpdateCityThreatCriteria()
 				if((pLoopNearbyPlot->getOwner() != GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
 				{
 					PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
+					CivOpinionTypes eNeighborOpinion = GetDiplomacyAI()->GetCivOpinion(pNeighborNearby);
+
 					if(pNeighborNearby != NULL)
 					{
-						if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
+						if (eNeighborOpinion == CIV_OPINION_NEUTRAL)
 						{
 							iThreatValue += (i<RING3_PLOTS) ? 3 : 1;
 						}
-						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
+						else if (eNeighborOpinion == CIV_OPINION_COMPETITOR)
 						{
 							iThreatValue += (i<RING3_PLOTS) ? 5 : 2;
 						}
-						else if(GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
+						else if (eNeighborOpinion < CIV_OPINION_COMPETITOR)
 						{
 							iThreatValue += (i<RING3_PLOTS) ? 7 : 3;
 						}
@@ -5459,7 +5461,6 @@ void CvPlayer::UpdateCityThreatCriteria()
 
 		//note: we don't consider a cities size or economic importance here
 		//after all, small border cities are especially vulnerable
-
 		pLoopCity->setThreatValue(iThreatValue);
 	}
 }
@@ -34955,7 +34956,8 @@ void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 		GetPlayerTraits()->InitPlayerTraits();
 		recomputePolicyCostModifier();
 		
-		if (!isHuman()) {
+		if (!isHuman()) 
+		{
 			// Update the player's biases (Leader_MajorCivApproachBiases)
 			// Nothing to do as they are not cached in CvPlayer
 	
@@ -37433,26 +37435,27 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				int iPercent = 0;
 
 				// Approach is very important
-				switch (GetDiplomacyAI()->GetMajorCivApproach(eToPlayer)) {
-					case MAJOR_CIV_APPROACH_WAR:
+				switch (GetDiplomacyAI()->GetCivApproach(eToPlayer)) 
+				{
+					case CIV_APPROACH_WAR:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_WAR_MULTIPLIER", 0) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_HOSTILE:
+					case CIV_APPROACH_HOSTILE:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_HOSTILE_MULTIPLIER", 2) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_GUARDED:
+					case CIV_APPROACH_GUARDED:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_GUARDED_MULTIPLIER", 4) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_DECEPTIVE:
+					case CIV_APPROACH_DECEPTIVE:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DECEPTIVE_MULTIPLIER", 4) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_AFRAID:
+					case CIV_APPROACH_AFRAID:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_AFRAID_MULTIPLIER", 4) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_NEUTRAL:
+					case CIV_APPROACH_NEUTRAL:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_NEUTRAL_MULTIPLIER", 6) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
-					case MAJOR_CIV_APPROACH_FRIENDLY:
+					case CIV_APPROACH_FRIENDLY:
 						iPercent = iDefectProb * gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_FRIENDLY_MULTIPLIER", 10) / gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_DIVISOR", 8);
 						break;
 					default:
@@ -37460,30 +37463,31 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				}
 
 				// Opinion also matters
-				switch (GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer)) {
-					case MAJOR_CIV_OPINION_ALLY:
-						iPercent += iDefectProb * 5 / 4;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
-						iPercent += iDefectProb * 1;
-						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
-						iPercent += iDefectProb * 3 / 4;
-						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
-						iPercent += iDefectProb * 1 / 2;
-						break;
-					case MAJOR_CIV_OPINION_COMPETITOR:
-						iPercent += iDefectProb * 0;
-						break;
-					case MAJOR_CIV_OPINION_ENEMY:
-						iPercent += iDefectProb * -1;
-						break;
-					case MAJOR_CIV_OPINION_UNFORGIVABLE:
-						iPercent += iDefectProb * -1;
-						break;
-					default:
-						break;
+				switch (GetDiplomacyAI()->GetCivOpinion(eToPlayer)) 
+				{
+				case CIV_OPINION_ALLY:
+					iPercent += iDefectProb * 5 / 4;
+					break;
+				case CIV_OPINION_FRIEND:
+					iPercent += iDefectProb * 1;
+					break;
+				case CIV_OPINION_FAVORABLE:
+					iPercent += iDefectProb * 3 / 4;
+					break;
+				case CIV_OPINION_NEUTRAL:
+					iPercent += iDefectProb * 1 / 2;
+					break;
+				case CIV_OPINION_COMPETITOR:
+					iPercent += iDefectProb * 0;
+					break;
+				case CIV_OPINION_ENEMY:
+					iPercent += iDefectProb * -1;
+					break;
+				case CIV_OPINION_UNFORGIVABLE:
+					iPercent += iDefectProb * -1;
+					break;
+				default:
+					break;
 				}
 
 				// Limit the outcome
@@ -37530,7 +37534,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				// Use the popularity difference between the players to skew the probability
 				int iSmileRatio = (GetExcessHappiness() * 100) / (std::max(0, GET_PLAYER(eToPlayer).GetExcessHappiness()) + 10);
 				iPercent = iPercent * std::min(150, std::max(75, iSmileRatio)) / 100;
-				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetMajorCivApproach(eToPlayer), GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer));
+				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetCivApproach(eToPlayer), GetDiplomacyAI()->GetCivOpinion(eToPlayer));
 
 				if (GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed()) < iPercent) {
 					if (GC.getGame().getActivePlayer() == GetID()) {
@@ -37764,17 +37768,12 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 				if (!CanGiftUnit(eLoopMinor))
 					continue;
 
-				//Initializations...
-				int iScore = 0;
+				// Skip if not revealed.
+				if (!pCity->plot()->isRevealed(getTeam()))
+					continue;
 
 				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
 				int iFriendship = pMinorCivAI->GetFriendshipFromUnitGift(GetID(), false, true);
-
-				// Skip if not revealed.
-				if (!pCity->plot()->isRevealed(getTeam()))
-				{
-					continue;
-				}
 
 				if (!GET_TEAM(eMinor->getTeam()).isHasMet(getTeam()))
 					continue;
@@ -37808,26 +37807,19 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 					continue;
 				}
 
-				int iOtherMajorLoop;
-				PlayerTypes eOtherMajor;
-				int iFriendshipWithMinor;
-				int iOtherPlayerFriendshipWithMinor;
-
 				EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
 				EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
 				bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
 				bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
-				MinorCivApproachTypes eApproach;
-
 				// **************************
 				// Approaches
 				// **************************
 
-				iScore = 100;
-				eApproach = GetDiplomacyAI()->GetMinorCivApproach(eLoopMinor);
+				int iScore = 100;
+				CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(eLoopMinor);
 
-				if (eApproach == MINOR_CIV_APPROACH_IGNORE)
+				if (eApproach == CIV_APPROACH_NEUTRAL)
 				{
 					iScore /= 2;
 				}
@@ -37902,9 +37894,8 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 				}
 
 				//Will they give us a WLTKD for their resource?
-				CvCity* pLoopCity;
 				int iCityLoop;
-				for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
+				for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 				{
 					if (pLoopCity != NULL)
 					{
@@ -37936,27 +37927,27 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 				// Other Relationships!
 				// **************************
 
-				PlayerTypes eAlliedPlayer = NO_PLAYER;
-				iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(GetID());
-				eAlliedPlayer = pMinorCivAI->GetAlly();
+				PlayerTypes eAlliedPlayer = pMinorCivAI->GetAlly();
+				int iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(GetID());
 
 				if (eAlliedPlayer != NO_PLAYER)
 				{
 					int iHighestInfluence = 0;
 					// Loop through other players to see if we can pass them in influence
-					for (iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
+					for (int iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 					{
-						eOtherMajor = (PlayerTypes)iOtherMajorLoop;
+						PlayerTypes eOtherMajor = (PlayerTypes)iOtherMajorLoop;
+						int iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
 
-						iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
 						if (iOtherPlayerFriendshipWithMinor > iHighestInfluence)
 						{
 							iHighestInfluence = iOtherPlayerFriendshipWithMinor;
 						}
 						if (eOtherMajor != NO_PLAYER && eOtherMajor != GetID() && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
 						{
-							MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor);
-							MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
+							CivApproachTypes eApproachType = GetDiplomacyAI()->GetCivApproach(eOtherMajor);
+							CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eOtherMajor);
+
 							// If another player is allied, let's evaluate that.
 							// Only care if they are allies
 							if (pMinorCivAI->IsAllies(eOtherMajor))
@@ -37981,22 +37972,22 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 									iScore /= 5;
 								}
 								// If a friendly player is allied, let's discourage going there.
-								if (eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
+								if (eApproachType == CIV_APPROACH_FRIENDLY)
 								{
 									iScore /= 2;
 								}
 								// If an enemy is allied, let's take their stuff!
-								else if (eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+								else if (eApproachType == CIV_APPROACH_HOSTILE)
 								{
 									iScore *= 2;
 								}
 								// If an ally is allied, let's leave it alone!
-								if (eOpinion == MAJOR_CIV_OPINION_ALLY)
+								if (eOpinion == CIV_OPINION_ALLY)
 								{
 									iScore /= 2;
 								}
 								// If an competitor is allied, let's fight for it!
-								else if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+								else if (eOpinion == CIV_OPINION_COMPETITOR)
 								{
 									iScore *= 2;
 								}
@@ -47894,13 +47885,10 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 				bWarMayBeComing = true;
 
 			//how is the general diplomatic climate?
-			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer);
-			MajorCivApproachTypes eTheirApproach = GetDiplomacyAI()->GetVisibleApproachTowardsUs(eLoopPlayer);
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE || 
-				eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_GUARDED ||
-				eTheirApproach == MAJOR_CIV_APPROACH_HOSTILE || eTheirApproach == MAJOR_CIV_APPROACH_GUARDED ||
-				eOpinion == MAJOR_CIV_OPINION_ENEMY)
+			CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(eLoopPlayer);
+			CivApproachTypes eTheirApproach = GetDiplomacyAI()->GetVisibleApproachTowardsUs(eLoopPlayer);
+			CivOpinionTypes eOpinion = GetDiplomacyAI()->GetCivOpinion(eLoopPlayer);
+			if (eApproach <= CIV_APPROACH_AFRAID || eTheirApproach <= CIV_APPROACH_GUARDED || eOpinion == CIV_OPINION_ENEMY)
 				bWarMayBeComing = true;
 
 			if (bWarMayBeComing)
@@ -48326,15 +48314,24 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 	//looking up the best settle plot is expensive so do this only if we really want to expand
 	if (bWantExpansion)
 	{
+		//maybe our old favorite is no longer available?
 		CvPlot* pPreviousFavorite = GC.getMap().plotByIndex(m_iPreviousBestSettlePlot);
-	
 		CvPlot* pCurrentFavorite = GetBestSettlePlot(NULL);
+
+		//no problem
+		if (pCurrentFavorite == pPreviousFavorite)
+			return NO_PLAYER;
+
+		//update
 		m_iPreviousBestSettlePlot = pCurrentFavorite ? pCurrentFavorite->GetPlotIndex() : -1;
 
-		if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 3)
+		//did somebody else settle there?
+		if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 5)
 		{
 			CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
-			if (pCity->getTeam() != getTeam())
+			//get triggered if the settle spot was close to one of our cities
+			int iTriggerDistance = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT() + GetDiplomacyAI()->GetBoldness();
+			if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
 				return pCity->getOwner();
 		}
 	}

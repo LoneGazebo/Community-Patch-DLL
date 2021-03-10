@@ -272,11 +272,11 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 			//similar to GetPlayersAtWarWithInFuture() ...
 			if (pNeighbor->GetOwner() != NO_PLAYER && GET_PLAYER(pNeighbor->GetOwner()).isMajorCiv())
 			{
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetVisibleApproachTowardsUs(pNeighbor->GetOwner()) <= MAJOR_CIV_APPROACH_GUARDED)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetVisibleApproachTowardsUs(pNeighbor->GetOwner()) <= CIV_APPROACH_GUARDED)
 					iScore++;
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(pNeighbor->GetOwner()) <= MAJOR_CIV_APPROACH_GUARDED)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(pNeighbor->GetOwner()) <= CIV_APPROACH_GUARDED)
 					iScore++;
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighbor->GetOwner()) == MAJOR_CIV_OPINION_ENEMY)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivOpinion(pNeighbor->GetOwner()) == CIV_OPINION_ENEMY)
 					iScore++;
 			}
 		}

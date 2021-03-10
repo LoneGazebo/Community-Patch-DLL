@@ -3040,22 +3040,22 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 				{
-					MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
-					MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+					CivOpinionTypes eMajorOpinion = NO_CIV_OPINION;
+					CivApproachTypes eMinorOpinion = NO_CIV_APPROACH;
 					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 					{
-						eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+						eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivOpinion(kCaptureDef.eOriginalOwner);
 					}
 					else
 					{
-						eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+						eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivApproach(kCaptureDef.eOriginalOwner);
 					}
 
-					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= CIV_OPINION_FAVORABLE)
 					{	
 						kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 					}
-					else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
+					else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && eMinorOpinion == CIV_APPROACH_FRIENDLY)
 					{
 						kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 					}
@@ -3080,22 +3080,22 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 			if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
 			{
-				MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
-				MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
+				CivOpinionTypes eMajorOpinion = NO_CIV_OPINION;
+				CivApproachTypes eMinorOpinion = NO_CIV_APPROACH;
 				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 				{
-					eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMajorCivOpinion(kCaptureDef.eOriginalOwner);
+					eMajorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivOpinion(kCaptureDef.eOriginalOwner);
 				}
 				else
 				{
-					eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetMinorCivApproach(kCaptureDef.eOriginalOwner);
+					eMinorOpinion = kCapturingPlayer.GetDiplomacyAI()->GetCivApproach(kCaptureDef.eOriginalOwner);
 				}
 
-				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv() && eMajorOpinion >= CIV_OPINION_FAVORABLE)
 				{	
 					kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 				}
-				else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && (eMinorOpinion == MINOR_CIV_APPROACH_FRIENDLY || eMinorOpinion == MINOR_CIV_APPROACH_PROTECTIVE))
+				else if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMinorCiv() && eMinorOpinion == CIV_APPROACH_FRIENDLY)
 				{
 					kCapturingPlayer.DoCivilianReturnLogic(true, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 				}
@@ -3152,12 +3152,13 @@ void CvUnit::doTurn()
 
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
-	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
-	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (!isHuman() || IsAutomated() || !IsHurt());
-	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true);
-	bool bInterceptCheck = eActivityType == ACTIVITY_INTERCEPT && !isHuman();
+	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD); //this is after a skip mission
+	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && !IsHurt(); //done healing?
+	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY || eActivityType == ACTIVITY_HEAL) && SentryAlert(true); //on alert or healing
+	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn() && SentryAlert(true); //fortified but about to die
+	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(); //AI interceptors reconsider each turn
 
-	if (bHoldCheck || bHealCheck || bSentryCheck || bInterceptCheck)	
+	if (bHoldCheck || bHealCheck || bSentryCheck || bFortifyCheck || bInterceptCheck)	
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
@@ -16516,8 +16517,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 {
 	VALIDATE_OBJECT
 
-		if (pMyPlot == NULL)
-			pMyPlot = plot();
+	if (pMyPlot == NULL)
+		pMyPlot = plot();
 
 	if (pOtherPlot == NULL)
 	{
@@ -17056,41 +17057,31 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
+int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* /*pTargetPlot*/) const
 {
-	pAttacker;  pTargetPlot; //unused
-
-	int iVal = 5;
-
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
+		int iMaxRandom = 5;
 		int iBaseValue = getUnitInfo().GetBaseLandAirDefense() + getLandAirDefenseValue();
-		if (iBaseValue == 0)
-			if (bIncludeRand && !IsCivilianUnit())
-				return GC.getGame().getSmallFakeRandNum(iVal, *plot());
-			else
-				return 0;
 
 		if (pAttacker != NULL)
 		{
 			//value is negative if good!
 			int iReduction = pAttacker->GetInterceptionDefenseDamageModifier();
 
-			iBaseValue = iBaseValue * (100 + iReduction);
+			iBaseValue = iBaseValue * max(0, 100 + iReduction);
 			iBaseValue /= 100;
-			if (iBaseValue <= 0)
-				iBaseValue = 0;
 		}
 
 		if (bIncludeRand)
-			return iBaseValue + GC.getGame().getSmallFakeRandNum(iVal, *plot());
+			return iBaseValue + GC.getGame().getSmallFakeRandNum(iMaxRandom, *plot());
 		else
 			return iBaseValue;
 	}
 	else
 	{
-		iVal *= 2;
+		int iVal = 10;
 		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
 		{
 			iVal = iVal * (100 + pAttacker->GetInterceptionDefenseDamageModifier());

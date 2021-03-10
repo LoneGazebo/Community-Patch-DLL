@@ -2751,6 +2751,9 @@
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
 			<Text>You are always at war with this player!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP">
+			<Text>May not attack this player until current Peace Treaty with their ally (Defensive Pact or Master) expires.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT">
 			<Text>May not declare war as a vassal (war is automatically declared when your Master declares war with this civilization).</Text>
 		</Row>

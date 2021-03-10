@@ -325,8 +325,10 @@ function OnShowHide( bHide )
 						else
 							Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARE_WAR_VASSAL_BLOCKED_TT" ));
 						end
-					elseif (pActiveTeam:IsForcePeace(g_iAITeam) or pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
+					elseif (pActiveTeam:IsForcePeace(g_iAITeam)) then
 						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
+					elseif (pActiveTeam:IsWarBlockedByPeaceTreaty(g_iAITeam)) then
+						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_DP" ));
 					else
 						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));
 					end
