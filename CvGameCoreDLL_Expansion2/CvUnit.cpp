@@ -3295,6 +3295,7 @@ void CvUnit::doTurn()
 	DoNearbyUnitPromotion();
 	DoConvertEnemyUnitToBarbarian(plot());
 	DoConvertReligiousUnitsToMilitary();
+	DoFinishBuildIfSafe();
 #endif
 }
 //	--------------------------------------------------------------------------------
@@ -15309,8 +15310,6 @@ BuildTypes CvUnit::getBuildType() const
 int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 {
 	VALIDATE_OBJECT
-	int iRate;
-
 	if(!bMax)
 	{
 		if(!canMove())
@@ -15319,10 +15318,9 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 		}
 	}
 
-	iRate = m_pUnitInfo->GetWorkRate();
+	int iRate = m_pUnitInfo->GetWorkRate();
 
 #if defined(MOD_BALANCE_CORE)
-	bool bCanWork = false;
 	if(iRate <= 0)
 	{
 		for(int iI = 0; iI < GC.getNumBuildInfos(); iI++)
@@ -15333,15 +15331,11 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 			{
 				if(GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()))
 				{
-					bCanWork = true;
+					iRate = 100;
 					break;
 				}
 			}
 		}
-	}
-	if(bCanWork)
-	{
-		iRate = 100;
 	}
 
 	int Modifiers = 0;
@@ -23707,9 +23701,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 {
 	if (pPlot == NULL)
-	{
 		pPlot = plot();
-	}
 	if (!pPlot)
 		return;
 
@@ -23835,6 +23827,16 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 			}
 		}
 	}
+}
+void CvUnit::DoFinishBuildIfSafe()
+{
+	int iBuildTimeLeft = -1;
+	BuildTypes eBuild = getBuildType();
+	if (eBuild != NO_BUILD && canMove())
+		iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+
+	if (iBuildTimeLeft == 0 && GetDanger() == 0)
+		CvUnitMission::ContinueMission(this);
 }
 #endif 
 

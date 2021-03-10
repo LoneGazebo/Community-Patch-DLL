@@ -1993,7 +1993,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit)
+		if (pUnit && !pUnit->isDelayedDeath())
 		{
 			// Do not call UnitProcessed() from inside this loop, it can invalidate the iterator!
 			// Therefore we set the last move manually

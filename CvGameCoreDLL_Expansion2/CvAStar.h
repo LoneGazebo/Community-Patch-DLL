@@ -357,7 +357,7 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 //helper functions
-bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = ROUTE_ANY, bool bAllowHarbors = true, bool bAssumeOpenBorders = false, SPath* pPathOut = NULL);
 
 namespace PathHelpers
 {

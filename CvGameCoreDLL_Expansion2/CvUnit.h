@@ -1386,6 +1386,7 @@ public:
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
 	void DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot = NULL);
+	void DoFinishBuildIfSafe();
 #endif
 
 	bool IsCanHeavyCharge() const;
