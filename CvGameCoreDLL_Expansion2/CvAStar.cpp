@@ -2050,7 +2050,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 
 //	---------------------------------------------------------------------------
 /// Route path finder - check validity of a coordinate
-int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
 {
 	if(parent == NULL || data.ePlayer==NO_PLAYER)
 		return TRUE;
@@ -2085,7 +2085,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 		if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
 		{
-			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv() && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 				//major player without open borders is not ok
 				return pNewPlot->IsFriendlyTerritory(ePlayer);
 			else
@@ -2101,7 +2101,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 
 //	--------------------------------------------------------------------------------
 /// Water route valid finder - check the validity of a coordinate
-int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
 {
 	if(parent == NULL)
 		return TRUE;
@@ -2121,7 +2121,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
 	{
-		if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+		if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv() && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 		{
 			//major player without open borders is not ok
 			if (!pNewPlot->IsFriendlyTerritory(ePlayer))
