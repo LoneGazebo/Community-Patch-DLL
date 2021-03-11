@@ -2009,8 +2009,10 @@ int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlot* pkFromPlot = CvLuaPlot::GetInstance(L, 2);
 	CvPlot* pkToPlot = CvLuaPlot::GetInstance(L, 3);
+	bool bAllowHarbors = luaL_optbool(L, 4, false);
+	bool bAssumeOpenBorders = luaL_optbool(L, 5, false);
 
-	const bool bResult = IsPlotConnectedToPlot(pkPlayer->GetID(), pkFromPlot, pkToPlot);
+	const bool bResult = IsPlotConnectedToPlot(pkPlayer->GetID(), pkFromPlot, pkToPlot, ROUTE_ANY, bAllowHarbors, bAssumeOpenBorders);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
