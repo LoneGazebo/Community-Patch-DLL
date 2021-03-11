@@ -878,10 +878,33 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Air defense needed?
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetAirInterceptRange() > 0 || pkUnitEntry->GetBaseLandAirDefense() > 20)
 		{
+			int iNeedAir = 0;
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();
-			int iNumCities = kPlayer.getNumCities();
-			
-			iBonus += ((iNumCities - iNumAA) * 5);
+			int iOurAir =  + kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR) + kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR);
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && (kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
+				{
+					int iTheirAir = GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR) + GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR);
+
+					//they have no air units? Ignore!
+					if (iTheirAir == 0)
+						continue;
+
+					//not enough AA?
+					if (iNumAA < kPlayer.getNumCities())
+						iNeedAir += kPlayer.getNumCities();
+
+					//they're superior to us overall? Get on it!
+					if (iTheirAir >= iOurAir)
+						iNeedAir += kPlayer.getNumCities();
+				}
+			}
+
+			iBonus += iNeedAir * 100;
+
 		}
 	
 		/////////////
@@ -1637,7 +1660,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//slight bump in value for ranged units, to counteract some other elements.
 			if (pkUnitEntry->GetRangedCombat() > 0)
 			{
-				iBonus += (pkUnitEntry->GetRangedCombat() / 2);
+				iBonus += pkUnitEntry->GetRangedCombat();
 			}
 
 			if (kPlayer.GetDiversity(eDomain) == (int)pkUnitEntry->GetDefaultUnitAIType())
@@ -1646,8 +1669,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_PARADROP)
 					iBonus += 25;
 				else
-					iBonus += 250;
+					iBonus += 500;
 			}
+			else
+				iBonus -= 25;
 
 			if (eDomain == DOMAIN_LAND)
 			{

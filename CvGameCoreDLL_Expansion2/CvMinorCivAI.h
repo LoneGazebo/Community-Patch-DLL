@@ -134,7 +134,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoRewards(PlayerTypes ePlayer);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
-	void CalculateRewards(PlayerTypes ePlayer);
+	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
 
 	void SetInfluence(int iValue);
 	void SetGPGlobal(int iValue);

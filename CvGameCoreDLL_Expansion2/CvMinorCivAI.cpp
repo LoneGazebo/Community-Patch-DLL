@@ -625,10 +625,10 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 		return;
 
 	for (QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
-		itr_quest->CalculateRewards(ePlayer);
+		itr_quest->CalculateRewards(ePlayer, true);
 }
 
-void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
+void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 {
 	if(ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER)
 	{
@@ -687,7 +687,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
-			SetInfluence(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetInfluence())
+				{
+					SetInfluence(iBonus);
+				}
+			}
+			else
+				SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
 		{
@@ -708,7 +716,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus /= 100;
 			}
 
-			SetAdmiralPoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetAdmiralPoints())
+				{
+					SetAdmiralPoints(iBonus);
+				}
+			}
+			else
+				SetAdmiralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGeneralPoints() > 0)
 		{
@@ -728,8 +744,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetGeneralPoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGeneralPoints())
+				{
+					SetGeneralPoints(iBonus);
+				}
+			}
+			else
+				SetGeneralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetCulture() > 0)
 		{
@@ -754,8 +777,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetCulture(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetCulture())
+				{
+					SetCulture(iBonus);
+				}
+			}
+			else
+				SetCulture(iBonus);
 		}
 		if(pkSmallAwardInfo->GetExperience() > 0)
 		{
@@ -774,8 +804,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 50;
 				iBonus /= 100;
 			}
-
-			SetExperience(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetExperience())
+				{
+					SetExperience(iBonus);
+				}
+			}
+			else
+				SetExperience(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFaith() > 0)
 		{
@@ -795,8 +832,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetFaith(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetFaith())
+				{
+					SetFaith(iBonus);
+				}
+			}
+			else
+				SetFaith(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFood() > 0)
 		{
@@ -821,8 +865,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetFood(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetFood())
+				{
+					SetFood(iBonus);
+				}
+			}
+			else
+				SetFood(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGAP() > 0)
 		{
@@ -847,8 +898,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetGoldenAgePoints(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGoldenAgePoints())
+				{
+					SetGoldenAgePoints(iBonus);
+				}
+			}
+			else
+				SetGoldenAgePoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGold() > 0)
 		{
@@ -868,8 +926,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetGold(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGold())
+				{
+					SetGold(iBonus);
+				}
+			}
+			else
+				SetGold(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPoints() > 0)
 		{
@@ -893,8 +958,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetGP(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGP())
+				{
+					SetGP(iBonus);
+				}
+			}
+			else
+				SetGP(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
 		{
@@ -918,13 +990,28 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetGPGlobal(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetGPGlobal())
+				{
+					SetGPGlobal(iBonus);
+				}
+			}
+			else
+				SetGPGlobal(iBonus);
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
 		{
 			int iBonus = (iEra/2) + pkSmallAwardInfo->GetHappiness();
-			SetHappiness(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetHappiness())
+				{
+					SetHappiness(iBonus);
+				}
+			}
+			else
+				SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
 		{
@@ -954,8 +1041,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
-			SetTourism(iBonus);	
+			if (bRecalc)
+			{
+				if (iBonus > GetTourism())
+				{
+					SetTourism(iBonus);
+				}
+			}
+			else
+				SetTourism(iBonus);	
 		}
 		if(pkSmallAwardInfo->GetProduction() > 0)
 		{
@@ -970,8 +1064,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
-			SetProduction(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetProduction())
+				{
+					SetProduction(iBonus);
+				}
+			}
+			else
+				SetProduction(iBonus);
 		}
 		if(pkSmallAwardInfo->GetScience() > 0)
 		{
@@ -986,8 +1087,15 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-
-			SetScience(iBonus);
+			if (bRecalc)
+			{
+				if (iBonus > GetScience())
+				{
+					SetScience(iBonus);
+				}
+			}
+			else
+				SetScience(iBonus);
 		}
 
 		if(GC.getLogging() && GC.getAILogging())

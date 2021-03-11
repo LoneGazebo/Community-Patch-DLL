@@ -12631,7 +12631,7 @@ bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes 
 	if (!pCity1 || !pCity2)
 		return false;
 
-	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors, pPathOut);
+	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, !bIgnoreHarbors, false, pPathOut);
 }
 
 //	--------------------------------------------------------------------------------
@@ -34294,6 +34294,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead
 				GetCityConnections()->Update();
 				GetTreasury()->DoUpdateCityConnectionGold();
+
+				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
+				if (isHuman())
+					GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 
 				if(kGame.isFinalInitialized())
 				{

@@ -3447,12 +3447,14 @@ CvPlot * CvPathNodeArray::GetPlotByIndex(int iIndex) const
 }
 
 //	---------------------------------------------------------------------------
-bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bAllowHarbors, bool bAssumeOpenBorders, SPath* pPathOut)
 {
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_CONNECTION_LAND : PT_CITY_CONNECTION_MIXED, eRestrictRoute);
+	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, eRestrictRoute);
+	data.iFlags = bAssumeOpenBorders ? CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE : 0; //slight misuse but who cares
+
 	SPath result;
 	if (!pPathOut)
 		pPathOut = &result;

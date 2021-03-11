@@ -280,8 +280,6 @@ void CvPlayerAI::AI_unitUpdate()
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
-		//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 		GetHomelandAI()->Update();
 		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
@@ -290,7 +288,6 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
-		// AI subsystems. Tactical map has already been refreshed above.
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update();
 		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished AI HomelandAI update", GC.getGame().getElapsedGameTurns()));

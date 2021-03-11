@@ -2933,24 +2933,16 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const
 {
 	int iBuildLeft = getBuildTime(eBuild, ePlayer);
-
 	if(iBuildLeft == 0)
 		return 0;
 
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-	int iNowBuildRate;
-	int iThenBuildRate;
-	int iTurnsLeft;
+	int iNowBuildRate = iNowExtra;
+	int iThenBuildRate = iThenExtra;
 
-	iNowBuildRate = iNowExtra;
-	iThenBuildRate = iThenExtra;
-
-	pUnitNode = headUnitNode();
-
+	const IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getBuildType() == eBuild)
@@ -2971,19 +2963,13 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowEx
 
 	iBuildLeft -= getBuildProgress(eBuild);
 	iBuildLeft -= iNowBuildRate;
-
 	iBuildLeft = std::max(0, iBuildLeft);
 
-	iTurnsLeft = (iBuildLeft / iThenBuildRate);
-
-	if((iTurnsLeft * iThenBuildRate) < iBuildLeft)
-	{
+	int iTurnsLeft = (iBuildLeft / iThenBuildRate);
+	//round up
+	if(iTurnsLeft * iThenBuildRate < iBuildLeft)
 		iTurnsLeft++;
-	}
 
-	//iTurnsLeft++;
-
-	//return std::max(1, iTurnsLeft);
 	return iTurnsLeft;
 }
 
