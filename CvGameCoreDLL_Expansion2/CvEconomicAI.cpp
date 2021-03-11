@@ -958,8 +958,8 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
 		return 0;
 
-	//No value if there's a unit here.
-	if(pPlot->getNumUnits() > 0)
+	//No value if we can't go there
+	if(!pPlot->isValidMovePlot(pPlayer->GetID()))
 		return 0;
 
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
@@ -980,6 +980,9 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 		{
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
+				continue;
+			//Not interested in very small areas we can see completely from the surrounding plots (like arctic lakes)
+			if(pLoopPlot->isWater() && pLoopPlot->area()->getNumTiles()<5)
 				continue;
 
 			// "cheating" to look to see what the next tile is.
