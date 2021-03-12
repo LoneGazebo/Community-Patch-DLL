@@ -866,7 +866,7 @@ public:
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
 	void updateMovePlotsIfRequired();
 	bool findTactPlotRecursive(int iPlotIndex) const;
-	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
+	bool addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getAggressionBias() const;

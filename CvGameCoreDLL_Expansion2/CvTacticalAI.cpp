@@ -8152,10 +8152,13 @@ void CvTacticalPosition::addInitialAssignments()
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
-		//we pretend the unit has zero moves, this means we do not score any possible attacks
-		//this is important for symmetry with canStayInPlot()
-		int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot( itUnit->iPlotIndex ), *this, true).iScore;
-		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
+		if (tactPlot.isValid()) //failsafe
+		{
+			//we pretend the unit has zero moves, this means we do not score any possible attacks
+			//this is important for symmetry with canStayInPlot()
+			int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, true).iScore;
+			addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
+		}
 	}
 }
 
@@ -9181,14 +9184,14 @@ bool CvTacticalPosition::findTactPlotRecursive(int iPlotIndex) const
 	return false;
 }
 
-void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
+bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
 {
 	//don't check the official visibility here, we might want to create a tactplot that only became visible during simulation
 	if (!pPlot)
-		return;
+		return false;
 
 	if (findTactPlotRecursive(pPlot->GetPlotIndex()))
-		return; //nothing to do
+		return true; //nothing to do
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
 	if (newPlot.isValid())
@@ -9196,7 +9199,10 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 		pair<int, size_t> newEntry(pPlot->GetPlotIndex(), tactPlots.size());
 		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
+		return true;
 	}
+
+	return false;
 }
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
@@ -9768,7 +9774,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			for (int j = 0; j < RING2_PLOTS; j++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-				if (pPlot && pPlot->isVisible(ourTeam))
+				if (!pPlot)
+					continue;
+				//there was a strange bug where the plot containing the unit is not visible? wtf
+				if (j==0 || pPlot->isVisible(ourTeam))
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
