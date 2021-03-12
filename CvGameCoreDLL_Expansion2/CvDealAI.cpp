@@ -7274,6 +7274,11 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		{
 			return (iItemValue / 2);
 		}
+		else
+		{
+			if (m_pPlayer->IsAtWar() || m_pPlayer->HasCityInDanger(false, 0))
+				return INT_MAX;
+		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
@@ -7378,6 +7383,11 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
 			return (iItemValue / 2);
+		}
+		else
+		{
+			if (GET_PLAYER(eOtherPlayer).IsAtWar() || GET_PLAYER(eOtherPlayer).HasCityInDanger(false, 0))
+				return INT_MAX;
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
