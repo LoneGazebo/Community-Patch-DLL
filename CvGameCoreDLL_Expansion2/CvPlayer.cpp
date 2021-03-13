@@ -32660,52 +32660,44 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			TeamTypes eWinningTeam = NO_TEAM;
 			PlayerTypes eWinningPlayer = NO_PLAYER;
 
-			{
-				// Calculate who owns the most original capitals by iterating through all civs 
-				// and finding out who owns their original capital.
-				typedef std::tr1::array<int, MAX_CIV_TEAMS> CivTeamArray;
-				CivTeamArray aTeamCityCount;
-				aTeamCityCount.assign(0);
+			// Calculate who owns the most original capitals by iterating through all civs 
+			// and finding out who owns their original capital.
+			map<TeamTypes, int> numOriginalCapitals;
 
-				CvMap& kMap = GC.getMap();
-				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			CvMap& kMap = GC.getMap();
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			{
+				const PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
+				CvPlayer& kLoopPlayer = GET_PLAYER(ePlayer);
+				if(kLoopPlayer.isEverAlive())
 				{
-					const PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
-					CvPlayer& kLoopPlayer = GET_PLAYER(ePlayer);
-					if(kLoopPlayer.isEverAlive())
+					const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
+					const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
+					if(iOriginalCapitalX != -1 && iOriginalCapitalY != -1)
 					{
-						const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
-						const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
-						if(iOriginalCapitalX != -1 && iOriginalCapitalY != -1)
+						CvPlot* pkPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
+						if(pkPlot != NULL)
 						{
-							CvPlot* pkPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
-							if(pkPlot != NULL)
+							CvCity* pkCapitalCity = pkPlot->getPlotCity();
+							if(pkCapitalCity != NULL)
 							{
-								CvCity* pkCapitalCity = pkPlot->getPlotCity();
-								if(pkCapitalCity != NULL)
+								const PlayerTypes eCapitalOwner = pkCapitalCity->getOwner();
+								if(eCapitalOwner != NO_PLAYER)
 								{
-									const PlayerTypes eCapitalOwner = pkCapitalCity->getOwner();
-									if(eCapitalOwner != NO_PLAYER)
+									CvPlayer& kCapitalOwnerPlayer = GET_PLAYER(eCapitalOwner);
+									++numOriginalCapitals[kCapitalOwnerPlayer.getTeam()];
+
+									if (numOriginalCapitals[kCapitalOwnerPlayer.getTeam()] > iMostOriginalCapitals)
 									{
-										CvPlayer& kCapitalOwnerPlayer = GET_PLAYER(eCapitalOwner);
-										aTeamCityCount[kCapitalOwnerPlayer.getTeam()]++;
+										iMostOriginalCapitals = numOriginalCapitals[kCapitalOwnerPlayer.getTeam()];
+										eWinningTeam = kCapitalOwnerPlayer.getTeam();
+										eWinningPlayer = GET_TEAM(eWinningTeam).getLeaderID();
 									}
 								}
-							}	
-						}
+							}
+						}	
 					}
 				}
-
-				// What's the max count and are they the only team to have the max?
-				CivTeamArray::iterator itMax = max_element(aTeamCityCount.begin(), aTeamCityCount.end());
-				if(count(aTeamCityCount.begin(), aTeamCityCount.end(), *itMax) == 1)
-				{
-					eWinningTeam = static_cast<TeamTypes>(itMax - aTeamCityCount.begin());
-					iMostOriginalCapitals = *itMax;
-
-					CvTeam& kTeam = GET_TEAM(eWinningTeam);
-					eWinningPlayer = kTeam.getLeaderID();
-				}			
 			}
 
 			// Someone just lost their capital, test to see if someone wins
