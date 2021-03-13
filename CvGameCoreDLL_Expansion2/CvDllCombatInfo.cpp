@@ -153,7 +153,7 @@ int	CvDllCombatInfo::GetNuclearDamageLevel() const
 //------------------------------------------------------------------------------
 bool CvDllCombatInfo::GetAttackIsRanged() const
 {
-	return m_pCombatInfo->GetAttackIsRanged();
+	return m_pCombatInfo->getAttackIsRanged();
 }
 //------------------------------------------------------------------------------
 bool CvDllCombatInfo::GetAttackIsBombingMission() const

@@ -2420,7 +2420,7 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 		if (!pLoopUnit->canScrap())
 			continue;
 
-		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCanAttack() && !pLoopUnit->IsGreatPerson())
+		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
 		{
 			if (bMayBeInOperation || pLoopUnit->getArmyID()!=-1)
 				return pLoopUnit;
@@ -2526,7 +2526,7 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 			continue;
 
 		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKBOAT");
-		if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCanAttack() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+		if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			return pLoopUnit;
 		}
@@ -2909,7 +2909,7 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 
 		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
-		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCanAttack() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			int WorkRateMod = 100 - pLoopUnit->GetWorkRateMod();
 			if (WorkRateMod < 100 && WorkRateMod > 0)
@@ -2937,7 +2937,7 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 
 			UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCanAttack() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 			{
 				return pLoopUnit;
 			}

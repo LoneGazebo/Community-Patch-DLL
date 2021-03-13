@@ -405,7 +405,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		int iLoop;
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCanAttack())
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
 			}

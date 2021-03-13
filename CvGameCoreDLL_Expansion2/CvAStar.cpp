@@ -1139,7 +1139,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if ( (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) || !pUnit->CanEverEmbark()) && pToPlot->needsEmbarkation(pUnit))
 			return FALSE;
 
-		if(pUnit->IsCanAttack())
+		if(pUnit->IsCombatUnit())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
 			if(pCity)
@@ -1259,7 +1259,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 
-		if (pUnit->IsCanAttack())
+		if (pUnit->IsCombatUnit())
 		{
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
@@ -1557,7 +1557,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCanAttack() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
 					return FALSE;
 			}
 

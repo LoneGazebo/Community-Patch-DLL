@@ -2648,7 +2648,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				if((eAttackerOwner == NO_PLAYER || pkUnit->getOwner() != eAttackerOwner) && !pkUnit->isBarbarian())
 					uiOpposingDamageCount++;	// Count the number of non-barbarian opposing units
 
-				if(pkUnit->IsCanAttack() || pkUnit->IsCanAttackRanged())
+				if(pkUnit->IsCombatUnit() || pkUnit->IsCanAttackRanged())
 				{
 					pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
 				}
@@ -3350,7 +3350,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 	}
 
 	// Ranged Attack
-	else if(kInfo.GetAttackIsRanged())
+	else if(kInfo.getAttackIsRanged())
 	{
 		if(kInfo.getUnit(BATTLE_UNIT_ATTACKER))
 		{

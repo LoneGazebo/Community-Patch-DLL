@@ -2746,9 +2746,7 @@ int CvLuaUnit::lGetBaseCombatStrength(lua_State* L)
 int CvLuaUnit::lIsCombatUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
-	//note: air units are neither civilians nor combat units ... this seems to be the convention
-	const bool bResult = pkUnit->IsCanAttack() && pkUnit->IsCanDefend();
+	const bool bResult = pkUnit->IsCombatUnit();
 
 	lua_pushboolean(L, bResult);
 	return 1;

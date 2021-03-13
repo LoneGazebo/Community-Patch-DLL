@@ -299,7 +299,7 @@ public:
 	bool getDefenderRetaliates() const;
 	void setDefenderRetaliates(bool bRetaliate);
 
-	bool GetAttackIsRanged() const;
+	bool getAttackIsRanged() const;
 	void setAttackIsRanged(bool bRanged);
 
 	bool getAttackIsBombingMission() const;

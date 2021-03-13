@@ -38,7 +38,7 @@ public:
 	TeamTypes DLLCALL GetTeam() const;
 	DomainTypes DLLCALL GetDomainType() const;
 
-	bool DLLCALL IsCanAttack() const;
+	bool DLLCALL IsCombatUnit() const;
 	bool DLLCALL IsBarbarian() const;
 	bool DLLCALL IsHoveringUnit() const;
 	bool DLLCALL IsInvisible(TeamTypes eTeam, bool bDebug) const;

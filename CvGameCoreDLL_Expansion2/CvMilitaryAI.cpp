@@ -2471,7 +2471,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 	int iUnitLoop;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit->IsCanAttack())
+		if (!pLoopUnit->IsCombatUnit())
 			continue;
 
 		if (!pLoopUnit->canScrap())
@@ -2529,7 +2529,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
 
-		if(!pLoopUnit->IsCanAttack())
+		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
 		if (!pLoopUnit->canScrap())
@@ -2938,7 +2938,7 @@ void CvMilitaryAI::LogAvailableForces()
 			}
 
 			// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general/admiral
-			else if(!pLoopUnit->IsCanAttack() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
+			else if(!pLoopUnit->IsCombatUnit() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
 			{
 				continue;
 			}
@@ -3202,7 +3202,7 @@ void CvMilitaryAI::UpdateWarType()
 
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit != NULL && pLoopUnit->IsCanAttack())
+		if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
 		{
 			if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
@@ -3275,7 +3275,7 @@ void CvMilitaryAI::UpdateWarType()
 			{
 				for(CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
 				{
-					if (pLoopUnit != NULL && pLoopUnit->IsCanAttack())
+					if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
 					{
 						if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{

@@ -1768,6 +1768,7 @@ public:
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend() const;
 	bool IsCivilianUnit() const;
+	bool IsCombatUnit() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);

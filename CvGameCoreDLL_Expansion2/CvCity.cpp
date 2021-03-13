@@ -2600,7 +2600,7 @@ void CvCity::doTurn()
 			pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
 
 			//Only get land combat units
-			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pLoopUnit->getDamage() > 0)
 				{
@@ -14216,7 +14216,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iLoop = 0;
 				for(pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCanAttack())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 					{
 						UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
 						UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
@@ -30458,7 +30458,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		if(pLoopUnit != NULL)
 		{
 			// check stacking (see also CountStackingUnitsAtPlot)
-			if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType()==pkUnitInfo->GetDomainType())
+			if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==pkUnitInfo->GetDomainType())
 				return false;
 		}
 
@@ -33291,7 +33291,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCanAttack())
+			if (pUnit->IsCombatUnit())
 			{
 				if (pUnit->getTeam() == getTeam())
 					iFriendlyPower += pUnit->GetPower();

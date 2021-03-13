@@ -540,7 +540,7 @@ struct STacticalAssignment
 	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
 
 	//convenience
-	bool IsCanAttack() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
+	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
 	bool isOffensive() const;

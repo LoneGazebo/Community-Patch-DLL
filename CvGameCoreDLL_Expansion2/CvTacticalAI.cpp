@@ -1205,7 +1205,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 				bool bAddUnit = false;
 				if(bCombatUnits)
 				{
-					if (!pUnit->IsCanAttack() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
+					if (!pUnit->IsCombatUnit() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
 						continue;
 
 					if(pUnit->isBarbarian())
@@ -4662,7 +4662,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCanAttack() && !pLoopUnit->TurnProcessed())
+		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
@@ -4896,7 +4896,7 @@ bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistan
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCanAttack() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
+		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
 		{
 			CvTacticalUnit unit(pLoopUnit->GetID());
 			unit.SetAttackStrength(pLoopUnit->GetBaseCombatStrength());
@@ -5638,7 +5638,7 @@ bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	if(pUnit)
 	{
 		int iEstimatedEndTurn = GC.getGame().getEstimateEndTurn();
-		if(pUnit->isEmbarked() && !pUnit->IsCanAttack())  //embarked civilians
+		if(pUnit->isEmbarked() && !pUnit->IsCombatUnit())  //embarked civilians
 		{
 			bRtnValue = true;
 		}
@@ -6641,7 +6641,7 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(const ReachablePlots& p
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// Is a combat unit
-				if (pLoopUnit && (pLoopUnit->IsCanAttack() || pLoopUnit->getDomainType() == DOMAIN_AIR))
+				if (pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
 				{
 					int iScale = pLoopUnit->isNativeDomain(pLoopPlot) ? 1 : 2;
 
@@ -7695,7 +7695,7 @@ void CvTacticalPlot::resetVolatileProperties()
 bool CvTacticalPlot::hasFriendlyCombatUnit() const
 {
 	for (size_t i = 0; i < vUnits.size(); i++)
-		if (vUnits[i].IsCanAttack())
+		if (vUnits[i].isCombatUnit())
 			return true;
 	
 	return false;
@@ -8350,7 +8350,7 @@ vector<STacticalAssignment> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlo
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
-		if (move.IsCanAttack() && units[i].IsCanAttack())
+		if (move.isCombatUnit() && units[i].isCombatUnit())
 			result.push_back(units[i]);
 		if (move.isEmbarkedUnit() && units[i].isEmbarkedUnit())
 			result.push_back(units[i]);
@@ -9221,7 +9221,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	//if were not looking to fight but about to embark then keep the unit away from enemies
 	if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
-		if (pUnit->IsCanAttack())
+		if (pUnit->IsCombatUnit())
 			eStrategy = MS_EMBARKED;
 		else
 			eStrategy = MS_SUPPORT; //civilians can stack!
