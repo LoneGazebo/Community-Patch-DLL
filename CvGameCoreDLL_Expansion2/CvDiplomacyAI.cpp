@@ -8461,13 +8461,13 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 				switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
 				{
 				case GUESS_CONFIDENCE_POSITIVE:
-					iVictoryDisputeWeight += /*25*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE();
+					iVictoryDisputeWeight = /*25*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE();
 					break;
 				case GUESS_CONFIDENCE_LIKELY:
-					iVictoryDisputeWeight += /*15*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY();
+					iVictoryDisputeWeight = /*15*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY();
 					break;
 				case GUESS_CONFIDENCE_UNSURE:
-					iVictoryDisputeWeight += /*5*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE();
+					iVictoryDisputeWeight = /*5*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE();
 					break;
 				}
 			}
@@ -16459,22 +16459,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		switch (eMaxVictoryDispute)
 		{
 		case DISPUTE_LEVEL_NONE:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 800;
-			vApproachScores[CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_NEUTRAL] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 800;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_NEUTRAL] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
 			break;
 		case DISPUTE_LEVEL_WEAK:
-			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 2000;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 2000;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 2000;
 			break;
 		case DISPUTE_LEVEL_STRONG:
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1400;
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1400;
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1400;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
 			break;
 		case DISPUTE_LEVEL_FIERCE:
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 800;
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 800;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 800;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
 			break;
 		}
 	}
