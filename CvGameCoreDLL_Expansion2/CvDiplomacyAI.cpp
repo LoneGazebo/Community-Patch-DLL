@@ -82,8 +82,6 @@ void CvDiplomacyAI::Reset()
 		m_aiMinorCivApproachBiases[iI] = 0;
 	}
 
-	m_eDiploPersonalityType = NO_DIPLO_PERSONALITY_TYPE;
-
 	// Key Players
 	m_eMostValuableFriend = NO_PLAYER;
 	m_eMostValuableAlly = NO_PLAYER;
@@ -97,6 +95,7 @@ void CvDiplomacyAI::Reset()
 	m_bEndedFriendshipThisTurn = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
+	m_eDefaultVictoryFocus = NO_VICTORY_FOCUS_TYPE;
 	m_eVictoryFocus = NO_VICTORY_FOCUS_TYPE;
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
 
@@ -427,7 +426,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_iChattiness;
 	kStream >> m_aiMajorCivApproachBiases;
 	kStream >> m_aiMinorCivApproachBiases;
-	kStream >> m_eDiploPersonalityType;
 
 	// Key Players
 	kStream >> m_eMostValuableFriend;
@@ -442,6 +440,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_bEndedFriendshipThisTurn;
 	kStream >> m_bBackstabber;
 	kStream >> m_bCompetingForVictory;
+	kStream >> m_eDefaultVictoryFocus;
 	kStream >> m_eVictoryFocus;
 	kStream >> m_eStateAllWars;
 
@@ -721,7 +720,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_iChattiness;
 	kStream << m_aiMajorCivApproachBiases;
 	kStream << m_aiMinorCivApproachBiases;
-	kStream << m_eDiploPersonalityType;
 
 	// Key Players
 	kStream << m_eMostValuableFriend;
@@ -736,6 +734,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream)
 	kStream << m_bEndedFriendshipThisTurn;
 	kStream << m_bBackstabber;
 	kStream << m_bCompetingForVictory;
+	kStream << m_eDefaultVictoryFocus;
 	kStream << m_eVictoryFocus;
 	kStream << m_eStateAllWars;
 
@@ -1487,8 +1486,8 @@ void CvDiplomacyAI::DoInitializePersonality()
 		m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = iDefaultFlavorValue;
 	}
 
-	// Now that we've picked our flavors, select a Diplo Personality.
-	DoInitializeDiploPersonalityType();
+	// Now that we've picked our flavors, select our default Victory Focus.
+	SelectDefaultVictoryFocus();
 	LogPersonality();
 
 	// Initialize a few static values here
@@ -1514,39 +1513,42 @@ void CvDiplomacyAI::DoInitializePersonality()
 
 //	-----------------------------------------------------------------------------------------------
 
-/// Select our Diplo Personality for this game (affects sensitivity to a specific victory condition and other things)
-void CvDiplomacyAI::DoInitializeDiploPersonalityType()
+/// Select our Default Victory Focus for this game (the victory condition we go for early in the game, prior to grand strategy AI taking effect; has other effects throughout the game as well)
+/// Intention here is to add some variability to AI behavior, especially for generalist civs
+void CvDiplomacyAI::SelectDefaultVictoryFocus()
 {
-	// Human player - pick a default personality based on leader traits
+	CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
+
+	// Human player - pick a default focus based on leader UA
 	if (GetPlayer()->isHuman())
 	{
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (pTraits->IsWarmonger())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_CONQUEROR);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsNerd())
+		else if (pTraits->IsNerd())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_SCIENTIST);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
+		else if (pTraits->IsTourism())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_CULTURAL);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_CULTURE);
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		else if (pTraits->IsDiplomat())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_DIPLOMAT);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+		else if (pTraits->IsExpansionist())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_CONQUEROR);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+		else if (pTraits->IsSmaller())
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_SCIENTIST);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		}
 		else
 		{
-			SetDiploPersonalityType(DIPLO_PERSONALITY_CONQUEROR);
+			SetDefaultVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		}
 		return;
 	}
@@ -1603,30 +1605,30 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	iScientistWeight += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	iScientistWeight += GC.getGame().getSmallFakeRandNum(iRandom, ((GetWarmongerHate() * GetDiploBalance() * GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL) * ID) + iSeed));
 
-	// Add weight for leader traits
-	if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+	// Add weight for leader UA
+	if (pTraits->IsWarmonger())
 	{
 		iConquerorWeight += 5;
 	}
-	if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+	if (pTraits->IsDiplomat())
 	{
 		iDiplomatWeight += 5;
 	}
-	if (GetPlayer()->GetPlayerTraits()->IsTourism())
+	if (pTraits->IsTourism())
 	{
 		iCulturalWeight += 5;
 	}
-	if (GetPlayer()->GetPlayerTraits()->IsNerd())
+	if (pTraits->IsNerd())
 	{
 		iScientistWeight += 5;
 	}
-	if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+	if (pTraits->IsExpansionist())
 	{
 		iConquerorWeight += 2;
 		iCulturalWeight -= 2;
 		iScientistWeight -= 2;
 	}
-	if (GetPlayer()->GetPlayerTraits()->IsSmaller())
+	if (pTraits->IsSmaller())
 	{
 		iConquerorWeight -= 2;
 		iCulturalWeight += 2;
@@ -1646,18 +1648,18 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 
 	bool bTie = false;
 	int iBestWeight = 0;
-	DiploPersonalityTypes eBestPersonality = NO_DIPLO_PERSONALITY_TYPE;
+	VictoryFocusTypes eBestFocus = NO_VICTORY_FOCUS_TYPE;
 	
 	if (iConquerorWeight > iBestWeight)
 	{
 		iBestWeight = iConquerorWeight;
-		eBestPersonality = DIPLO_PERSONALITY_CONQUEROR;
+		eBestFocus = VICTORY_FOCUS_DOMINATION;
 	}
 
 	if (iDiplomatWeight > iBestWeight)
 	{
 		iBestWeight = iDiplomatWeight;
-		eBestPersonality = DIPLO_PERSONALITY_DIPLOMAT;
+		eBestFocus = VICTORY_FOCUS_DIPLOMACY;
 		bTie = false;
 	}
 	else if (iDiplomatWeight == iBestWeight)
@@ -1668,7 +1670,7 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	if (iCulturalWeight > iBestWeight)
 	{
 		iBestWeight = iCulturalWeight;
-		eBestPersonality = DIPLO_PERSONALITY_CULTURAL;
+		eBestFocus = VICTORY_FOCUS_CULTURE;
 		bTie = false;
 	}
 	else if (iCulturalWeight == iBestWeight)
@@ -1679,7 +1681,7 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	if (iScientistWeight > iBestWeight)
 	{
 		iBestWeight = iScientistWeight;
-		eBestPersonality = DIPLO_PERSONALITY_SCIENTIST;
+		eBestFocus = VICTORY_FOCUS_SCIENCE;
 		bTie = false;
 	}
 	else if (iScientistWeight == iBestWeight)
@@ -1690,25 +1692,25 @@ void CvDiplomacyAI::DoInitializeDiploPersonalityType()
 	// In the event of a tie, use the civ's leader traits
 	if (bTie)
 	{
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (pTraits->IsWarmonger())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_CONQUEROR;
+			eBestFocus = VICTORY_FOCUS_DOMINATION;
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		else if (pTraits->IsDiplomat())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_DIPLOMAT;
+			eBestFocus = VICTORY_FOCUS_DIPLOMACY;
 		}
-		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
+		else if (pTraits->IsTourism())
 		{
-			eBestPersonality = DIPLO_PERSONALITY_CULTURAL;
+			eBestFocus = VICTORY_FOCUS_CULTURE;
 		}
 		else
 		{
-			eBestPersonality = DIPLO_PERSONALITY_SCIENTIST;
+			eBestFocus = VICTORY_FOCUS_SCIENCE;
 		}
 	}
 
-	SetDiploPersonalityType(eBestPersonality);
+	SetDefaultVictoryFocus(eBestFocus);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1807,41 +1809,41 @@ int CvDiplomacyAI::GetMinorCivApproachBias(CivApproachTypes eApproach) const
 
 //	-----------------------------------------------------------------------------------------------
 
-/// What is this AI leader's Diplomatic Personality Type?
-DiploPersonalityTypes CvDiplomacyAI::GetDiploPersonalityType() const
+/// What is this AI leader's Default Victory Focus?
+VictoryFocusTypes CvDiplomacyAI::GetDefaultVictoryFocus() const
 {
-	return (DiploPersonalityTypes) m_eDiploPersonalityType;
+	return (VictoryFocusTypes) m_eDefaultVictoryFocus;
 }
 
-/// Sets this AI leader's Diplomatic Personality Type
-void CvDiplomacyAI::SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonality)
+/// Sets this AI leader's Default Victory Focus
+void CvDiplomacyAI::SetDefaultVictoryFocus(VictoryFocusTypes eVictoryFocus)
 {
-	if (eDiploPersonality < NO_DIPLO_PERSONALITY_TYPE || eDiploPersonality >= NUM_DIPLO_PERSONALITY_TYPES) return;
-	m_eDiploPersonalityType = eDiploPersonality;
+	if (eVictoryFocus < NO_VICTORY_FOCUS_TYPE || eVictoryFocus >= NUM_VICTORY_FOCUS_TYPES) return;
+	m_eDefaultVictoryFocus = eVictoryFocus;
 }
 
 /// Is this AI leader naturally inclined to be aggressive and covetous of others' possessions?
 bool CvDiplomacyAI::IsConqueror() const
 {
-	return GetDiploPersonalityType() == DIPLO_PERSONALITY_CONQUEROR;
+	return GetDefaultVictoryFocus() == VICTORY_FOCUS_DOMINATION;
 }
 
 /// Is this AI leader naturally focused on forging friendships and allying City-States?
 bool CvDiplomacyAI::IsDiplomat() const
 {
-	return GetDiploPersonalityType() == DIPLO_PERSONALITY_DIPLOMAT;
+	return GetDefaultVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
 }
 
 /// Is this AI leader naturally focused on spreading its culture across the world?
 bool CvDiplomacyAI::IsCultural() const
 {
-	return GetDiploPersonalityType() == DIPLO_PERSONALITY_CULTURAL;
+	return GetDefaultVictoryFocus() == VICTORY_FOCUS_CULTURE;
 }
 
 /// Is this AI leader naturally focused on their civilization's technological advancement?
 bool CvDiplomacyAI::IsScientist() const
 {
-	return GetDiploPersonalityType() == DIPLO_PERSONALITY_SCIENTIST;
+	return GetDefaultVictoryFocus() == VICTORY_FOCUS_SCIENCE;
 }
 
 
@@ -7890,12 +7892,12 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 	else if (IsCloseToDiploVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMATIC);
+		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
 
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCareAboutWinning = (!IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500);
+	bool bDontCareAboutWinning = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 
 	// AI isn't too focused on victory in the early game
 	if (IsGoingForWorldConquest() && GetPlayer()->GetCurrentEra() < 2)
@@ -7910,19 +7912,19 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	// If we don't care about winning, default to our diplomatic personality
 	if (bDontCareAboutWinning)
 	{
-		switch (GetDiploPersonalityType())
+		switch (GetDefaultVictoryFocus())
 		{
-		case DIPLO_PERSONALITY_CONQUEROR:
-			SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		case VICTORY_FOCUS_DIPLOMACY:
+			SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 			break;
-		case DIPLO_PERSONALITY_DIPLOMAT:
-			SetVictoryFocus(VICTORY_FOCUS_DIPLOMATIC);
-			break;
-		case DIPLO_PERSONALITY_CULTURAL:
+		case VICTORY_FOCUS_CULTURE:
 			SetVictoryFocus(VICTORY_FOCUS_CULTURE);
 			break;
-		case DIPLO_PERSONALITY_SCIENTIST:
+		case VICTORY_FOCUS_SCIENCE:
 			SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+			break;
+		default:
+			SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 			break;
 		}
 		return;
@@ -7936,7 +7938,7 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 	else if (IsGoingForDiploVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMATIC);
+		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
 	else if (IsGoingForCultureVictory())
@@ -15106,7 +15108,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
 	}
 
-	// Diplo personality should also count!
+	// Default victory focus should also count!
 	if (IsDiplomat() || IsCultural())
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
@@ -15235,7 +15237,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Multipliers?
 		if (!bCloseToDiploVictory && !bCloseToScienceVictory && !bCloseToCultureVictory)
 		{
-			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 			{
 				iNumWarQuests *= 2;
 				iNumHostileQuests *= 2;
@@ -15617,7 +15619,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
 		bProvokedUs = true;
 
-		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 		{
 			int iPenalty = max((GetOtherPlayerNumProtectedMinorsKilled(ePlayer) * 2), GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iPenalty;
@@ -15635,7 +15637,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iPenalty = (GetOtherPlayerNumProtectedMinorsKilled(ePlayer) + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 		bProvokedUs = !IsPlayerMadeAttackCityStatePromise(ePlayer);
 
-		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iPenalty;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iPenalty;
@@ -15761,7 +15763,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		bVictoryConcern |= IsEndgameAggressiveTo(ePlayer);
 		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_SCIENCE && GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG;
 		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_DOMINATION && GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
-		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
+		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
 		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_CULTURE && (GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetPolicyBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG);
 	}
 
@@ -16062,7 +16064,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			if (GetPrimeLeagueCompetitor() == ePlayer)
 			{
-				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
@@ -16084,7 +16086,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 			// No? Then our diplomacy is glad for it.
-			else if (pLeague != NULL && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC && !bUntrustworthy)
+			else if (pLeague != NULL && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && !bUntrustworthy)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			}
@@ -16323,7 +16325,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// DOF HISTORY
 	////////////////////////////////////
 
-	int iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC ? 2 : 1;
+	int iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY ? 2 : 1;
 
 	if (GetDiploBalance() >= 8)
 		iDiploMultiplier += 1;
@@ -16380,7 +16382,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL)
 	{
-		iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC ? 2 : 1;
+		iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY ? 2 : 1;
 
 		if (GetDiploBalance() >= 8)
 			iDiploMultiplier += 1;
@@ -16589,7 +16591,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+		if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 		{
 			iMultiplier++;
 			bBonus = true;
@@ -18343,7 +18345,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Renaissance Era or later (or close to winning) for other victories
 		if (iMyEra >= 3 || bCloseToAnyVictory)
 		{
-			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || bCloseToDiploVictory)
+			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory)
 			{
 				// Increase friendship willingness with all civs (that aren't close to winning)
 				if (!IsEndgameAggressiveTo(ePlayer))
@@ -19340,7 +19342,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// UN active? Be more friendly if we're trying to win by diplomacy.
 			if (pLeague->IsUnitedNations())
 			{
-				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || bCloseToDiploVictory)
+				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory)
 				{
 					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
 					vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 5;
@@ -20288,7 +20290,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 
-			if ((iEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC) || bCloseToDiploVictory)
+			if ((iEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY) || bCloseToDiploVictory)
 			{
 				if (IsMinorCivTroublemaker(ePlayer, true))
 				{
@@ -20389,7 +20391,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 	// STEP 1: Identify our prime league competitor
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	bool bGoingForDiploVictory = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
+	bool bGoingForDiploVictory = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 	bool bPrimeIsCloseToWinning = false;
 	int iMyVotes = pLeague != NULL ? pLeague->CalculateStartingVotesForMember(GetID()) : 0;
@@ -21138,7 +21140,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			// Don't befriend our prime league competitor unless we really like them.
 			if (GetPrimeLeagueCompetitor() == GET_PLAYER(*it).GetID() && !bLiberator)
 			{
-				if (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC && eOpinion < CIV_OPINION_ALLY)
+				if (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && eOpinion < CIV_OPINION_ALLY)
 				{
 					continue;
 				}
@@ -22931,7 +22933,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			bCheckIfGoodWarTarget = false;
 		}
-		else if (!pTraits->IsSmaller() && GetVictoryFocus() != VICTORY_FOCUS_DIPLOMATIC)
+		else if (!pTraits->IsSmaller() && GetVictoryFocus() != VICTORY_FOCUS_DIPLOMACY)
 		{
 			bAnyAggressionBonus = true;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 4;
@@ -22945,7 +22947,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || bCloseToDiploVictory || pTraits->IsDiplomat())
+	if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory || pTraits->IsDiplomat())
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 
@@ -40130,7 +40132,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	}
 
 	bool bDiplomatic = IsDiplomat();
-	bDiplomatic |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
+	bDiplomatic |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
 	bDiplomatic |= GetPlayer()->GetPlayerTraits()->IsDiplomat();
 
 	ePromiseState = GetPlayerBullyCityStatePromiseState(ePlayer);
@@ -40416,7 +40418,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		return true;
 
 	// Avoid denouncing friends if we're going for diplo victory!
-	if (!WasEverBackstabbedBy(ePlayer) && IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC)
+	if (!WasEverBackstabbedBy(ePlayer) && IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
 		return false;
 
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);
@@ -46911,7 +46913,7 @@ PlayerTypes CvDiplomacyAI::GetID() const
 // ////////////////////////////////////
 
 // Recursive: Because of how Firaxis programmed the diplomacy flavors, a separate estimation function is necessary for each of them, plus one for other flavors
-// For Diplo Personality Type, just grab the other leader's personality instead of estimating ...
+// For Default Victory Focus, just grab the other leader's personality instead of estimating ...
 // ... humans can learn this by studying opinion modifiers whenever the AI's approach isn't FRIENDLY (or with Transparent Diplomacy enabled)
 
 /// How much do we estimate this other leader gets angry when another player is competing for Victory?
@@ -48557,22 +48559,22 @@ void CvDiplomacyAI::LogPersonality()
 		strOutBuf = strBaseString + ", " + strTemp;
 		pLog->Msg(strOutBuf);
 
-		switch (GetDiploPersonalityType())
+		switch (GetDefaultVictoryFocus())
 		{
-		case DIPLO_PERSONALITY_CONQUEROR:
-			strTemp.Format("DIPLO PERSONALITY, CONQUEROR");
+		case VICTORY_FOCUS_DOMINATION:
+			strTemp.Format("DEFAULT FOCUS, DOMINATION");
 			break;
-		case DIPLO_PERSONALITY_DIPLOMAT:
-			strTemp.Format("DIPLO PERSONALITY, DIPLOMAT");
+		case VICTORY_FOCUS_DIPLOMACY:
+			strTemp.Format("DEFAULT FOCUS, DIPLOMACY");
 			break;
-		case DIPLO_PERSONALITY_CULTURAL:
-			strTemp.Format("DIPLO PERSONALITY, CULTURAL");
+		case VICTORY_FOCUS_CULTURE:
+			strTemp.Format("DEFAULT FOCUS, CULTURE");
 			break;
-		case DIPLO_PERSONALITY_SCIENTIST:
-			strTemp.Format("DIPLO PERSONALITY, SCIENTIST");
+		case VICTORY_FOCUS_SCIENCE:
+			strTemp.Format("DEFAULT FOCUS, SCIENCE");
 			break;
 		default:
-			strTemp.Format("DIPLO PERSONALITY, NONE");
+			strTemp.Format("DEFAULT FOCUS, NONE");
 			break;
 		}
 

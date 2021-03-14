@@ -174,24 +174,12 @@ enum DoFLevelTypes
 	NUM_DOF_TYPES,
 };
 
-enum DiploPersonalityTypes
-{
-	NO_DIPLO_PERSONALITY_TYPE = -1,
-
-	DIPLO_PERSONALITY_CONQUEROR,
-	DIPLO_PERSONALITY_DIPLOMAT,
-	DIPLO_PERSONALITY_CULTURAL,
-	DIPLO_PERSONALITY_SCIENTIST,
-
-	NUM_DIPLO_PERSONALITY_TYPES,
-};
-
 enum VictoryFocusTypes
 {
 	NO_VICTORY_FOCUS_TYPE = -1,
 
 	VICTORY_FOCUS_DOMINATION,
-	VICTORY_FOCUS_DIPLOMATIC,
+	VICTORY_FOCUS_DIPLOMACY,
 	VICTORY_FOCUS_CULTURE,
 	VICTORY_FOCUS_SCIENCE,
 
@@ -345,19 +333,6 @@ enum CoopWarStates
 
 	NUM_COOP_WAR_STATES,
 };
-
-inline FDataStream& operator<<(FDataStream& saveTo, const DiploPersonalityTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-inline FDataStream& operator>>(FDataStream& loadFrom, DiploPersonalityTypes& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<DiploPersonalityTypes>(v);
-	return loadFrom;
-}
 
 inline FDataStream& operator<<(FDataStream& saveTo, const VictoryFocusTypes& readFrom)
 {

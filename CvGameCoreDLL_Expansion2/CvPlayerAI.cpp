@@ -1853,7 +1853,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		CvPlayerTraits* pTraits = GetPlayerTraits();
 
 		//DIPLOMACY - We want all of them the same!
-		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || pTraits->IsDiplomat())
+		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || pTraits->IsDiplomat())
 		{
 			iScore *= 2;
 		}

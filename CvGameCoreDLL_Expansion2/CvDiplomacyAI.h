@@ -115,7 +115,7 @@ public:
 
 	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
 	void DoInitializePersonality();
-	void DoInitializeDiploPersonalityType();
+	void SelectDefaultVictoryFocus();
 
 	int GetVictoryCompetitiveness() const;
 	int GetWonderCompetitiveness() const;
@@ -134,8 +134,8 @@ public:
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
 
-	DiploPersonalityTypes GetDiploPersonalityType() const;
-	void SetDiploPersonalityType(DiploPersonalityTypes eDiploPersonalityType);
+	VictoryFocusTypes GetDefaultVictoryFocus() const;
+	void SetDefaultVictoryFocus(VictoryFocusTypes eVictoryFocus);
 	bool IsConqueror() const;
 	bool IsDiplomat() const;
 	bool IsCultural() const;
@@ -1848,7 +1848,6 @@ private:
 	unsigned char m_iChattiness;
 	unsigned char m_aiMajorCivApproachBiases[NUM_CIV_APPROACHES];
 	unsigned char m_aiMinorCivApproachBiases[NUM_CIV_APPROACHES];
-	DiploPersonalityTypes m_eDiploPersonalityType;
 
 	// Key Players
 	PlayerTypes m_eMostValuableFriend;
@@ -1864,6 +1863,7 @@ private:
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
+	VictoryFocusTypes m_eDefaultVictoryFocus;
 	VictoryFocusTypes m_eVictoryFocus;
 	StateAllWars m_eStateAllWars;
 
