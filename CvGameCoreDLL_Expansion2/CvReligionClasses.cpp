@@ -8631,7 +8631,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	iRtnValue += m_pPlayer->GetPlayerTraits()->IsSmaller() ? pEntry->GetCityGrowthModifier() * 2 : pEntry->GetCityGrowthModifier();
 	if(pEntry->RequiresPeace())
 	{
-		iRtnValue /= 2 + (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") ? 1 : -1);
+		iRtnValue /= 2 + (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() ? 1 : -1);
 	}
 	iRtnValue += (-pEntry->GetPlotCultureCostModifier() / 7) * MAX(-pEntry->GetPlotCultureCostModifier() / 7, iFlavorDefense - iFlavorOffense);
 
@@ -11198,7 +11198,6 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 			{
 				//let's be diverse, as hoarding faith isn't terribly useful.
 				int iScore = max(0, 20000 - pCapital->GetFaithPurchaseCost(eUnit, true));
-				AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 
 				// Score it
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
@@ -11221,14 +11220,14 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 					{
 						iScore += 200;
 					}
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-						if (kLoopPlayer.isAlive() && !kLoopPlayer.isMinorCiv())
+						if (kLoopPlayer.isAlive() && kLoopPlayer.isMajorCiv())
 						{
 							if (kLoopPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 							{
@@ -11239,14 +11238,14 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 					{
 						iScore += 200;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 					{
 						iScore += 200;
 					}
@@ -11257,7 +11256,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 					{
 						iScore += 200;
 					}
@@ -11268,7 +11267,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+					if (!MOD_DIPLOMACY_CITYSTATES && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 					{
 						iScore += 200;
 					}
@@ -11291,7 +11290,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST")&& !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
 						iScore += 200;
 					}
@@ -11302,7 +11301,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 				{
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
 					{
 						iScore += 200;
 					}
@@ -11311,7 +11310,6 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 						iScore += 100;
 					}
 				}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
@@ -11319,7 +11317,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					{
 						iScore += 200;
 					}
-					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_DIPLOMACY"))
+					if (m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 					{
 						iScore += 200;
 					}
@@ -11328,7 +11326,6 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 						iScore += 100;
 					}
 				}
-#endif
 
 				if (iScore > iBestScore)
 				{

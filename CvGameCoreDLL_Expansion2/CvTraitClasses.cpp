@@ -6766,14 +6766,13 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 
 	// Does our grand strategy match one that is available?
-	AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	if(eDesiredGreatPerson == NO_UNIT)
+	if (eDesiredGreatPerson == NO_UNIT)
 	{
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+			if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6785,7 +6784,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6804,7 +6803,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6816,7 +6815,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6829,7 +6828,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}

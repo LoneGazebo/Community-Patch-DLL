@@ -7880,9 +7880,9 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
 	}
-	else if (IsCloseToDominationVictory())
+	else if (IsCloseToDiploVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
 	else if (IsCloseToCultureVictory())
@@ -7890,26 +7890,32 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
 		return;
 	}
-	else if (IsCloseToDiploVictory())
+	else if (IsCloseToDominationVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		return;
 	}
 
+	AIGrandStrategyTypes eDomination = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	AIGrandStrategyTypes eDiplomacy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	AIGrandStrategyTypes eCulture = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+	AIGrandStrategyTypes eScience = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	bool bDontCareAboutWinning = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	int iGameEra = GC.getGame().getCurrentEra();
 
 	// AI isn't too focused on victory in the early game
-	if (IsGoingForWorldConquest() && GetPlayer()->GetCurrentEra() < 2)
+	if (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0)
 	{
 		bDontCareAboutWinning = true;
 	}
-	else if (GetPlayer()->GetCurrentEra() < 3)
+	else if (iGameEra < 3)
 	{
 		bDontCareAboutWinning = true;
 	}
 
-	// If we don't care about winning, default to our diplomatic personality
+	// If we don't care about winning, use our default focus based on flavors
 	if (bDontCareAboutWinning)
 	{
 		switch (GetDefaultVictoryFocus())
@@ -7931,22 +7937,22 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 
 	// We care about winning, so Grand Strategy AI decides
-	if (IsGoingForWorldConquest())
+	if (eMyGrandStrategy == eDomination)
 	{
 		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		return;
 	}
-	else if (IsGoingForDiploVictory())
+	else if (eMyGrandStrategy == eDiplomacy)
 	{
 		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
-	else if (IsGoingForCultureVictory())
+	else if (eMyGrandStrategy == eCulture)
 	{
 		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
 		return;
 	}
-	else if (IsGoingForSpaceshipVictory())
+	else if (eMyGrandStrategy == eScience)
 	{
 		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
@@ -8102,8 +8108,8 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 	// Find the mean value
 	fAverageNumWonders /= max(1, iNumPlayers);
 
-	bool bCultural = GetPlayer()->GetPlayerTraits()->IsTourism() || GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
-	bool bConqueror = GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	bool bCultural = GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory();
+	bool bConqueror = GetPlayer()->GetPlayerTraits()->IsWarmonger() || IsGoingForWorldConquest();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -8421,7 +8427,8 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 		return;
 
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCare = (!IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500);
+	bool bDontCare = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	int iGameEra = GC.getGame().getCurrentEra();
 
 	if (bDontCare)
 	{
@@ -8458,7 +8465,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 			// Does the other player's (estimated) Grand Strategy match our own?
 			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer) == eMyGrandStrategy)
 			{
-				switch(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
+				switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
 				{
 				case GUESS_CONFIDENCE_POSITIVE:
 					iVictoryDisputeWeight = /*25*/ GC.getVICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE();
@@ -8473,8 +8480,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 			}
 
 			// Reduce competitiveness in earlier eras
-			int iEraReduction = (6 - GET_PLAYER(eLoopPlayer).GetCurrentEra());
-			iVictoryDisputeWeight -= iEraReduction;
+			iVictoryDisputeWeight -= (6 - iGameEra);
 
 			if (iVictoryDisputeWeight > 0)
 			{
@@ -8482,7 +8488,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 
 				// Add weight for Player's competitiveness (1 - 10)
 				iVictoryDisputeWeight *= GetVictoryCompetitiveness();
-				iVictoryDisputeWeight += (DifficultyModifier / 70);
+				iVictoryDisputeWeight += DifficultyModifier / 70;
 
 				// Now see what our new Dispute Level should be
 				if (iVictoryDisputeWeight >= /*80*/ GC.getVICTORY_DISPUTE_FIERCE_THRESHOLD())
@@ -8511,7 +8517,8 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		return;
 
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCare = (!IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500);
+	bool bDontCare = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	int iGameEra = GC.getGame().getCurrentEra();
 
 	if (bDontCare)
 	{
@@ -8575,6 +8582,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 			if (iProjectCount > 0)
 			{
 				bSpaceRace = true;
+				iVictoryBlockWeight += iProjectCount * 10;
 			}
 			else
 			{
@@ -8607,10 +8615,6 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				{
 					bSpaceRace = true;
 				}
-			}
-			if (bSpaceRace)
-			{
-				iVictoryBlockWeight += iProjectCount * 10;
 			}
 
 			if (GetWarmongerThreat(eLoopPlayer) >= THREAT_SEVERE || (GetPlayerNumMajorsConquered(eLoopPlayer) >= (GC.getGame().countMajorCivsEverAlive() / 3)))
@@ -8671,8 +8675,8 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
 				// Add weight for Player's victory competitiveness, meanness and diplobalance desires (1 - 10)
 				// Average of each is 5, and era goes up by one throughout game.
-				iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GET_PLAYER(eLoopPlayer).GetCurrentEra());
-				iVictoryBlockWeight += (DifficultyModifier / 50);
+				iVictoryBlockWeight += GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + iGameEra;
+				iVictoryBlockWeight += DifficultyModifier / 50;
 
 				// Now see what our new Block Level should be
 				if (iVictoryBlockWeight >= /*40*/ GC.getVICTORY_BLOCK_FIERCE_THRESHOLD())
@@ -11341,7 +11345,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	{
 		if (!IsCapitalCapturedBy(ePlayer, false, true) && !IsHolyCityCapturedBy(ePlayer, false, true) && !IsEndgameAggressiveTo(ePlayer) && iWarScore >= 90 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canBecomeVassal(GetTeam()))
 		{
-			if (!(GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || IsGoingForWorldConquest() || IsCloseToDominationVictory()) || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+			if (!(IsGoingForWorldConquest() || IsCloseToDominationVictory()) || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 			{
 				bReadyForVassalage = true;
 			}
@@ -12030,7 +12034,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 	int iEra = GetPlayer()->GetCurrentEra();
 	bool bCramped = GetPlayer()->IsCramped();
 	PlayerTypes eSettleSpotThief = GetPlayer()->GetPlayerWhoStoleMyFavoriteCitySite();
-	bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || (IsCompetingForVictory() && IsGoingForWorldConquest());
 	bBold |= GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) > 7;
 	vector<PlayerTypes> v;
 
@@ -14808,7 +14812,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 				bConsiderWar = true;
 			}
 
-			if (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+			if (IsCompetingForVictory() && IsGoingForWorldConquest())
 			{
 				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 				{
@@ -15237,7 +15241,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Multipliers?
 		if (!bCloseToDiploVictory && !bCloseToScienceVictory && !bCloseToCultureVictory)
 		{
-			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+			if (IsGoingForDiploVictory())
 			{
 				iNumWarQuests *= 2;
 				iNumHostileQuests *= 2;
@@ -15619,7 +15623,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
 		bProvokedUs = true;
 
-		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+		if (IsGoingForDiploVictory())
 		{
 			int iPenalty = max((GetOtherPlayerNumProtectedMinorsKilled(ePlayer) * 2), GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iPenalty;
@@ -15637,7 +15641,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		int iPenalty = (GetOtherPlayerNumProtectedMinorsKilled(ePlayer) + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 		bProvokedUs = !IsPlayerMadeAttackCityStatePromise(ePlayer);
 
-		if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+		if (IsGoingForDiploVictory())
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iPenalty;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iPenalty;
@@ -15761,10 +15765,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		bVictoryConcern |= GetTechBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
 		bVictoryConcern |= GetPolicyBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
 		bVictoryConcern |= IsEndgameAggressiveTo(ePlayer);
-		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_SCIENCE && GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG;
-		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_DOMINATION && GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
-		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
-		bVictoryConcern |= GetVictoryFocus() == VICTORY_FOCUS_CULTURE && (GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetPolicyBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG);
+		bVictoryConcern |= IsGoingForSpaceshipVictory() && GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG;
+		bVictoryConcern |= IsGoingForWorldConquest() && GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
+		bVictoryConcern |= IsGoingForDiploVictory() && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
+		bVictoryConcern |= IsGoingForCultureVictory() && (GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetPolicyBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG);
 	}
 
 	////////////////////////////////////
@@ -15789,7 +15793,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Certain things require a higher threshold for an opportunity attack desire
 	// If we don't moderate our aggressive desire, we'll lose friends and be hated by the world.
 	bool bModerateAggressiveDesire = false;
-	bool bBold = GetBoldness() > 7 || bConquerorTraits || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bool bBold = GetBoldness() > 7 || bConquerorTraits || (IsCompetingForVictory() && IsGoingForWorldConquest());
 
 	// If they're far away, moderate aggressive desire no matter what.
 	if (eProximity <= PLAYER_PROXIMITY_FAR)
@@ -15840,7 +15844,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 			else
 			{
-				bWantsOpportunityAttack = (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer);
+				bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer);
 
 				// If they're nearby, more reasons are valid to want to attack them!
 				if (eProximity >= PLAYER_PROXIMITY_CLOSE)
@@ -16023,7 +16027,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 5;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 5;
 
-			if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || eProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs || bWantsOpportunityAttack)
+			if (IsGoingForWorldConquest() || eProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs || bWantsOpportunityAttack)
 			{
 				// Easy target? Let's get 'em.
 				if (bEasyTarget)
@@ -16039,7 +16043,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 3;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2;
 
-			if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || eProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs)
+			if (IsGoingForWorldConquest() || eProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs)
 			{
 				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
 				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
@@ -16064,7 +16068,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			if (GetPrimeLeagueCompetitor() == ePlayer)
 			{
-				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+				if (IsGoingForDiploVictory())
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
@@ -16086,7 +16090,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 			// No? Then our diplomacy is glad for it.
-			else if (pLeague != NULL && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && !bUntrustworthy)
+			else if (pLeague != NULL && IsGoingForDiploVictory() && !bUntrustworthy)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			}
@@ -16325,7 +16329,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// DOF HISTORY
 	////////////////////////////////////
 
-	int iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY ? 2 : 1;
+	int iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? 2 : 1;
 
 	if (GetDiploBalance() >= 8)
 		iDiploMultiplier += 1;
@@ -16382,7 +16386,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL)
 	{
-		iDiploMultiplier = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY ? 2 : 1;
+		iDiploMultiplier = IsCompetingForVictory() && IsGoingForDiploVictory() ? 2 : 1;
 
 		if (GetDiploBalance() >= 8)
 			iDiploMultiplier += 1;
@@ -16500,7 +16504,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		iMultiplier += 2;
 	}
-	if (iMyEra >= 2 && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+	if (iMyEra >= 2 && IsGoingForWorldConquest())
 	{
 		iMultiplier += 2;
 		bVictoryCompetitor = true;
@@ -16591,7 +16595,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+		if (iMyEra >= 3 && IsGoingForDiploVictory())
 		{
 			iMultiplier++;
 			bBonus = true;
@@ -16688,7 +16692,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier++;
 		bBonus = true;
 	}
-	if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_CULTURE)
+	if (iMyEra >= 3 && IsGoingForCultureVictory())
 	{
 		iMultiplier++;
 		bBonus = true;
@@ -16793,7 +16797,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_SCIENCE)
+		if (iMyEra >= 3 && IsGoingForSpaceshipVictory())
 		{
 			iMultiplier++;
 			bVictoryCompetitor = true;
@@ -16882,7 +16886,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_CULTURE)
+		if (iMyEra >= 3 && IsGoingForCultureVictory())
 		{
 			iMultiplier++;
 			bVictoryCompetitor = true;
@@ -17380,7 +17384,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	iIdeologueScore += IsCultural() || bCulturalTraits ? 2 : 0;
-	iIdeologueScore += GetVictoryFocus() == VICTORY_FOCUS_CULTURE || bCloseToCultureVictory ? 2 : 0;
+	iIdeologueScore += IsGoingForCultureVictory() || bCloseToCultureVictory ? 2 : 0;
 
 	if (iGameEra >= 7)
 		iIdeologueScore /= 2;
@@ -18081,7 +18085,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 
 				// Easy target and we have war bonuses? Attack!
-				if (IsConqueror() || GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || bCloseToWorldConquest || bConquerorTraits || bWeHaveUUActive)
+				if (IsConqueror() || IsGoingForWorldConquest() || bCloseToWorldConquest || bConquerorTraits || bWeHaveUUActive)
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
@@ -18217,7 +18221,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Must be at least in the Medieval Era (or with few players / close to winning / already conquered a capital) to add weight for Domination Victory
 		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().countMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 1)
 		{
-			if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || GetPlayerNumMajorsConquered(eMyPlayer) > 1)
+			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 1)
 			{
 				// Add some weight for leader flavors
 				vApproachScores[CIV_APPROACH_WAR] += (GetBoldness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2;
@@ -18345,7 +18349,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Renaissance Era or later (or close to winning) for other victories
 		if (iMyEra >= 3 || bCloseToAnyVictory)
 		{
-			if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory)
+			if (IsGoingForDiploVictory() || bCloseToDiploVictory)
 			{
 				// Increase friendship willingness with all civs (that aren't close to winning)
 				if (!IsEndgameAggressiveTo(ePlayer))
@@ -18464,7 +18468,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 
-			if (GetVictoryFocus() == VICTORY_FOCUS_CULTURE || bCloseToCultureVictory)
+			if (IsGoingForCultureVictory() || bCloseToCultureVictory)
 			{
 				// They have influence over us
 				if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_POPULAR)
@@ -18593,7 +18597,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 
-			if (GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || bCloseToScienceVictory)
+			if (IsGoingForSpaceshipVictory() || bCloseToScienceVictory)
 			{
 				// Spaceship competitor?
 				if (GET_TEAM(eTeam).GetSSProjectCount() > 0 || (!bCloseToScienceVictory && bTheyAreCloseToScienceVictory))
@@ -18758,7 +18762,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
 
 			// Going for world conquest?
-			if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || bCloseToWorldConquest)
+			if (IsGoingForWorldConquest() || bCloseToWorldConquest)
 			{
 				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
@@ -18890,7 +18894,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vApproachScores[CIV_APPROACH_WAR] += 1000;
 			}
 		}
-		if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || bCloseToWorldConquest)
+		if (IsGoingForWorldConquest() || bCloseToWorldConquest)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += 1000;
 		}
@@ -18958,7 +18962,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				iHostileBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 2 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * iAttackMultiplier;
 			
 				// AND we're going for world conquest?
-				if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || bCloseToWorldConquest)
+				if (IsGoingForWorldConquest() || bCloseToWorldConquest)
 				{
 					iWarBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 4 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier;
 					iHostileBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 4 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier;
@@ -19016,7 +19020,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_WAR] += iWarBonus;
 			vApproachScores[CIV_APPROACH_HOSTILE] += iHostileBonus;
 
-			if (bConquerorTraits || bCloseToWorldConquest || GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+			if (bConquerorTraits || bCloseToWorldConquest || IsGoingForWorldConquest())
 			{
 				vApproachScores[CIV_APPROACH_WAR] += iWarBonus;
 				vApproachScores[CIV_APPROACH_HOSTILE] += iHostileBonus;
@@ -19109,7 +19113,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			iMultiplier = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eFealty) ? 2 : 1;
 			iMultiplier += GetPlayer()->GetPlayerTraits()->IsReligious() ? 2 : 0; // Additional bonus if we're geared towards being religious
-			iMultiplier += GetVictoryFocus() == VICTORY_FOCUS_DOMINATION ? 1 : 0;
+			iMultiplier += IsGoingForWorldConquest() ? 1 : 0;
 			iMultiplier += iFlavorReligion < 5 ? -1 : 0;
 			iMultiplier += iFlavorReligion > 7 ? 1 : 0;
 
@@ -19342,7 +19346,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// UN active? Be more friendly if we're trying to win by diplomacy.
 			if (pLeague->IsUnitedNations())
 			{
-				if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory)
+				if (IsGoingForDiploVictory() || bCloseToDiploVictory)
 				{
 					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
 					vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 5;
@@ -20269,7 +20273,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 
 		if (IsCompetingForVictory())
 		{
-			if (iEra >= 2 && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+			if (iEra >= 2 && IsGoingForWorldConquest())
 			{
 				if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
 				{
@@ -20290,7 +20294,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 
-			if ((iEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY) || bCloseToDiploVictory)
+			if ((iEra >= 3 && IsGoingForDiploVictory()) || bCloseToDiploVictory)
 			{
 				if (IsMinorCivTroublemaker(ePlayer, true))
 				{
@@ -20311,7 +20315,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 			
-			if ((iEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_CULTURE) || bCloseToCultureVictory)
+			if ((iEra >= 3 && IsGoingForCultureVictory()) || bCloseToCultureVictory)
 			{
 				if (GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 				{
@@ -20358,7 +20362,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 			
-			if ((iEra >= 3 && GetVictoryFocus() == VICTORY_FOCUS_SCIENCE) || bCloseToScienceVictory)
+			if ((iEra >= 3 && IsGoingForSpaceshipVictory()) || bCloseToScienceVictory)
 			{
 				if (GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG)
 				{
@@ -20391,7 +20395,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 	// STEP 1: Identify our prime league competitor
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	bool bGoingForDiploVictory = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
+	bool bGoingForDiploVictory = IsCompetingForVictory() && IsGoingForDiploVictory();
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 	bool bPrimeIsCloseToWinning = false;
 	int iMyVotes = pLeague != NULL ? pLeague->CalculateStartingVotesForMember(GetID()) : 0;
@@ -20844,7 +20848,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 	// STEP 4: Select our strategic trade partners
 	bool bCloseToConquest = IsCloseToDominationVictory();
-	bool bGoingForConquest = IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	bool bGoingForConquest = IsCompetingForVictory() && IsGoingForWorldConquest();
 	PolicyBranchTypes eIndustry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true);
 	bool bTradeBonus = GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eIndustry);
 
@@ -21140,7 +21144,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			// Don't befriend our prime league competitor unless we really like them.
 			if (GetPrimeLeagueCompetitor() == GET_PLAYER(*it).GetID() && !bLiberator)
 			{
-				if (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY && eOpinion < CIV_OPINION_ALLY)
+				if (IsCompetingForVictory() && IsGoingForDiploVictory() && eOpinion < CIV_OPINION_ALLY)
 				{
 					continue;
 				}
@@ -22130,7 +22134,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 		}
 	}
 
-	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
 	bool bCloseToWorldConquest = IsCloseToDominationVictory();
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
 
@@ -22925,7 +22929,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// CONQUEST GRAND STRATEGY
 	////////////////////////////////////
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || IsCloseToDominationVictory() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
 	{
 		// Minor is militaristic or mercantile
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
@@ -22933,7 +22937,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			bCheckIfGoodWarTarget = false;
 		}
-		else if (!pTraits->IsSmaller() && GetVictoryFocus() != VICTORY_FOCUS_DIPLOMACY)
+		else if (IsCloseToDominationVictory() || (!pTraits->IsSmaller() && !IsGoingForDiploVictory()))
 		{
 			bAnyAggressionBonus = true;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 4;
@@ -22947,7 +22951,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	bool bCloseToDiploVictory = IsCloseToDiploVictory();
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY || bCloseToDiploVictory || pTraits->IsDiplomat())
+	if (IsGoingForDiploVictory() || bCloseToDiploVictory || pTraits->IsDiplomat())
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 
@@ -22963,7 +22967,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// CULTURE GRAND STRATEGY
 	////////////////////////////////////
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_CULTURE || IsCloseToCultureVictory() || pTraits->IsTourism() || pTraits->IsSmaller())
+	if (IsGoingForCultureVictory() || IsCloseToCultureVictory() || pTraits->IsTourism() || pTraits->IsSmaller())
 	{
 		// Minor is cultural or maritime
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME) 
@@ -22986,7 +22990,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// SCIENCE GRAND STRATEGY
 	////////////////////////////////////
 
-	if (GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || IsCloseToSSVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
+	if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
 	{
 		// Minor is maritime or militaristic
 		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME || GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
@@ -25100,7 +25104,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	
 	TargetValueTypes eTargetValue = GetPlayerTargetValue(ePlayer);
 	bool bWeHaveGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
-	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
 
 	// They're an easy target, so play offensively!
 	if (IsEasyTarget(ePlayer) && bWeHaveGoodAttackTarget)
@@ -39355,7 +39359,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 		return COOP_WAR_STATE_REJECTED;
 	}
 
-	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION);
+	bool bBold = GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
 	bool bCloseToTarget = GetPlayer()->CanCrossOcean() ? GetPlayer()->GetProximityToPlayer(eTargetPlayer) >= PLAYER_PROXIMITY_CLOSE : GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_NEIGHBORS;
 
 	// Teammates will always agree when a human asks
@@ -40108,7 +40112,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 
 	// Broken/ignored promises? Each one adds negative weight.
 	bool bBold = GetBoldness() > 7;
-	bBold |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
+	bBold |= IsCompetingForVictory() && IsGoingForWorldConquest();
 	bBold |= GetPlayer()->GetPlayerTraits()->IsWarmonger();
 
 	PromiseStates ePromiseState = GetPlayerExpansionPromiseState(ePlayer);
@@ -40132,7 +40136,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	}
 
 	bool bDiplomatic = IsDiplomat();
-	bDiplomatic |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
+	bDiplomatic |= IsCompetingForVictory() && IsGoingForDiploVictory();
 	bDiplomatic |= GetPlayer()->GetPlayerTraits()->IsDiplomat();
 
 	ePromiseState = GetPlayerBullyCityStatePromiseState(ePlayer);
@@ -40156,7 +40160,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	}
 
 	bool bScientific = IsScientist();
-	bScientific |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_SCIENCE;
+	bScientific |= IsCompetingForVictory() && IsGoingForSpaceshipVictory();
 	bScientific |= GetPlayer()->GetPlayerTraits()->IsNerd();
 
 	ePromiseState = GetPlayerSpyPromiseState(ePlayer);
@@ -40186,7 +40190,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	bool bCultural = iFlavorCulture > 6;
 	bCultural |= IsCultural();
-	bCultural |= IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
+	bCultural |= IsCompetingForVictory() && IsGoingForCultureVictory();
 	bCultural = GetPlayer()->GetPlayerTraits()->IsTourism();
 
 	ePromiseState = GetPlayerNoDiggingPromiseState(ePlayer);
@@ -40418,7 +40422,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		return true;
 
 	// Avoid denouncing friends if we're going for diplo victory!
-	if (!WasEverBackstabbedBy(ePlayer) && IsCompetingForVictory() && GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY)
+	if (!WasEverBackstabbedBy(ePlayer) && IsCompetingForVictory() && IsGoingForDiploVictory())
 		return false;
 
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);
@@ -40465,7 +40469,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		}
 
 		// Going for conquest, and they're weak and close
-		if (GetVictoryFocus() == VICTORY_FOCUS_DOMINATION && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
+		if (IsGoingForWorldConquest() && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
 		{
 			if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_POOR && GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
 			{
@@ -45648,7 +45652,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eO
 						bLiberate = !bBadWarDecision;
 					}
 					// Going for culture victory, and we're okay for influence/victory against this guy?
-					else if (GetVictoryFocus() == VICTORY_FOCUS_CULTURE)
+					else if (IsGoingForCultureVictory())
 					{
 						bLiberate = !bBadWarDecision && GetVictoryDisputeLevel(eMajor) < DISPUTE_LEVEL_STRONG && GetVictoryBlockLevel(eMajor) < BLOCK_LEVEL_FIERCE && !IsEndgameAggressiveTo(eMajor);
 
@@ -45935,53 +45939,25 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 /// Does this player want to conquer the world?
 bool CvDiplomacyAI::IsGoingForWorldConquest() const
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-
-	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-	{
-		return true;
-	}
-
-	return false;
+	return GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
 }
 
 /// Does this player want to win by diplomacy?
 bool CvDiplomacyAI::IsGoingForDiploVictory() const
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-
-	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-	{
-		return true;
-	}
-
-	return false;
+	return GetVictoryFocus() == VICTORY_FOCUS_DIPLOMACY;
 }
 
 /// Does this player want to win by culture?
 bool CvDiplomacyAI::IsGoingForCultureVictory() const
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-
-	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-	{
-		return true;
-	}
-
-	return false;
+	return GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
 }
 
 /// Does this player want to win by science?
 bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
-
-	if (eGrandStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-	{
-		return true;
-	}
-
-	return false;
+	return GetVictoryFocus() == VICTORY_FOCUS_SCIENCE;
 }
 
 /// Is this player close to ANY victory condition?
