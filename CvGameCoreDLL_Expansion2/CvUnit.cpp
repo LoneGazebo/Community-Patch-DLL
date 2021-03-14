@@ -4625,12 +4625,7 @@ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bT
 void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 {
 	VALIDATE_OBJECT
-	bool bCycle;
-
-	bCycle = false;
-
-	CvAssert(getOwner() != NO_PLAYER);
-
+	bool bCycle = false;
 	if(canDoCommand(eCommand, iData1, iData2))
 	{
 		switch(eCommand)

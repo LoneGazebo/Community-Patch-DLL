@@ -16590,7 +16590,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		}
 	}
 
-	if (bJustCheckingStarve)
+	if (bJustCheckingStarve) //important, otherwise we can get into endless recursion (happiness depends on food which depends on happiness!)
 		return iDifference;
 
 	// Growth Mods - Only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
@@ -16797,7 +16797,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
 		}
 #endif
-		if (iTotalMod <= -100)
+		if (iTotalMod <= 0)
 			return 0;
 
 		iDifference *= iTotalMod;

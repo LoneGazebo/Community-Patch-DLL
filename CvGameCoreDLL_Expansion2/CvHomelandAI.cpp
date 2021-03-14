@@ -2019,15 +2019,16 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				}
 			}
 
+			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
 			if (pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if (pUnit->getMoves() > 0)
 				{
 					CvCity* pClosestCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
-					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
-						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23) )
-						ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), iFlags, 23))
+						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), iFlags);
+					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), iFlags, 42))
+						ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), iFlags);
 					else
 						pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				}
@@ -2075,7 +2076,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if (pBestPlot != NULL)
 					{
-						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
+						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags))
 						{
 							pUnit->SetTurnProcessed(true);
 
