@@ -42671,19 +42671,23 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
+	// Don't stack!
+	if ((int)GetVictoryBlockLevel(ePlayer) > (int)GetVictoryDisputeLevel(ePlayer))
+		return 0;
+
 	switch (GetVictoryDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_FIERCE:
-		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE();
-		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
+		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE();
+		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_STRONG();
-		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_STRONG();
+		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_VICTORY_WEAK();
-		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_WEAK();
+		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_NONE:
 		iOpinionWeight = /*0*/ GC.getOPINION_WEIGHT_VICTORY_NONE();
@@ -42694,7 +42698,7 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight *= GetVictoryCompetitiveness();
 		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+		iOpinionWeight /= 500;
 
 		// Additional multiplier if they're close to winning.
 		if (IsEndgameAggressiveTo(ePlayer))
@@ -42710,6 +42714,10 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
+	// Don't stack!
+	if ((int)GetVictoryDisputeLevel(ePlayer) > (int)GetVictoryBlockLevel(ePlayer))
+		return 0;
 
 	switch (GetVictoryBlockLevel(ePlayer))
 	{
@@ -42734,7 +42742,7 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight *= GetVictoryCompetitiveness();
 		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 2000;
+		iOpinionWeight /= 1000;
 
 		// Additional multiplier if they're close to winning.
 		if (IsEndgameAggressiveTo(ePlayer))
