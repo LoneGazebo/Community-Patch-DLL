@@ -1704,18 +1704,14 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 			{
 				//one army per target
 				if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer))
-					iNumUnitsWantedOffense += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
+					iNumUnitsWantedOffense += /*6*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
 			}
 		}
 	}
 
 	// if we are going for conquest we want at least one more task force, more in later eras
-	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	if(eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
-			iNumUnitsWantedOffense += /*8*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
-	}
+	if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+		iNumUnitsWantedOffense += /*6*/ GC.getBALANCE_BASIC_ATTACK_ARMY_SIZE();
 
 	// now how many should be naval units?
 	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
@@ -2412,13 +2408,9 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 		// Are we running anything other than the Conquest Grand Strategy?
-		AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-		if (eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
+		if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 		{
-			if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
-			{
-				bConquestGrandStrategy = true;
-			}
+			bConquestGrandStrategy = true;
 		}
 	}
 
@@ -3461,20 +3453,16 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughMilitaryUnits(CvPlayer* pPlayer)
 	bool bInDeficit = pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	// Are we running anything other than the Conquest Grand Strategy?
-	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	if(eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (bInDeficit || !pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 	{
-		if(bInDeficit || pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() != eConquestGrandStrategy)
+		if (pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH)
 		{
-			if(pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH)
-			{
-				return true;
-			}
+			return true;
 		}
-		else
-		{
-			return false;
-		}
+	}
+	else
+	{
+		return false;
 	}
 
 	return false;
@@ -3549,13 +3537,9 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	}
 
 	// Are we running the Conquest Grand Strategy?
-	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	if(eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
-		{
-			iCurrentWeight += 25;
-		}
+		iCurrentWeight += 25;
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(pPlayer->IsCramped())

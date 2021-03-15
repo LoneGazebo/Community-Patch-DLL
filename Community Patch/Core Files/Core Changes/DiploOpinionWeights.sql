@@ -68,16 +68,16 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_STRONG', '20';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_WEAK', '10';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_POLICY_NONE', '-5'; -- increases based on Neediness flavor
 
--- NOTE: Values are multiplied by VictoryCompetitiveness flavor and then divided by 5.
+-- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 -- NOTE: If endgame aggression is enabled, victory dispute/block weights are multiplied by AIDeclareWarProb (DifficultyMod.xml) and then divided by 100 against players who are close to achieving any victory condition.
 -- They fear/suspect you are competing with them. / They know you are competing with them, and they hate it!
-UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
-UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
-UPDATE Defines SET Value = '10' WHERE Name = 'OPINION_WEIGHT_VICTORY_WEAK';
+UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
+UPDATE Defines SET Value = '30' WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
+UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_VICTORY_WEAK';
 UPDATE Defines SET Value = '0' WHERE Name = 'OPINION_WEIGHT_VICTORY_NONE';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '3'; -- increase per era if > 0
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '4'; -- increase per era if > 0
 
--- NOTE: Values are multiplied by VictoryCompetitiveness flavor and then divided by 10.
+-- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 -- Your behavior worries/angers/infuriates them.
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '40';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '30';

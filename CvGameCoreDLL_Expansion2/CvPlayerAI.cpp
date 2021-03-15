@@ -424,23 +424,22 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 		else
 		{
 			// Pick the person based on our victory method
-			AIGrandStrategyTypes eVictoryStrategy = GetGrandStrategyAI()->GetActiveGrandStrategy();
-			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+			if (GetDiplomacyAI()->IsGoingForWorldConquest())
 			{
 				eDesiredGreatPerson = GetMilitaryAI()->GetWarType() == WARTYPE_SEA ? GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL") : GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+			else if (GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
 				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_ARTIST");
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			else if (GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
 				if (MOD_DIPLOMACY_CITYSTATES)
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 				else
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_MERCHANT");
 			}
-			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+			else if (GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_SCIENTIST");
 			}
@@ -1853,13 +1852,13 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		CvPlayerTraits* pTraits = GetPlayerTraits();
 
 		//DIPLOMACY - We want all of them the same!
-		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC || pTraits->IsDiplomat())
+		if (GetDiplomacyAI()->IsGoingForDiploVictory() || pTraits->IsDiplomat())
 		{
 			iScore *= 2;
 		}
 
 		//MILITARY - We want units and happiness!!
-		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DOMINATION || pTraits->IsWarmonger() || pTraits->IsExpansionist())
+		if (GetDiplomacyAI()->IsGoingForWorldConquest() || pTraits->IsWarmonger() || pTraits->IsExpansionist())
 		{
 			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 			{
@@ -1868,7 +1867,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		}
 
 		//SCIENCE - We want growth and units!!
-		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_SCIENCE || pTraits->IsNerd() || pTraits->IsSmaller())
+		if (GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pTraits->IsNerd() || pTraits->IsSmaller())
 		{
 			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
@@ -1883,7 +1882,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		}
 
 		//CULTURE - We want culture and growth!!
-		if (GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_CULTURE || pTraits->IsTourism() || pTraits->IsSmaller())
+		if (GetDiplomacyAI()->IsGoingForCultureVictory() || pTraits->IsTourism() || pTraits->IsSmaller())
 		{
 			if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED || pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 			{

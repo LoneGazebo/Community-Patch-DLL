@@ -1336,14 +1336,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//check victory conditions
 		if (!bRunningEarlyExpand)
 		{
-			AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
-			bool bSeekingCultureVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"));
-			if (bSeekingCultureVictory)
+			if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
 				iFlavorExpansion -= 25;
 			}
-			bool bSeekingSSVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"));
-			if (bSeekingSSVictory)
+			else if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				iFlavorExpansion -= 25;
 			}
@@ -1396,11 +1393,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					iBonus += 5000;
 				}
-
-				AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
-				bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 				
-				if(bSeekingCultureVictory)
+				if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 				{
 					iBonus += 5000;
 				}

@@ -13406,47 +13406,42 @@ void CvGame::LogGameState(bool bLogHeaders)
 		int iMinorConquest = 0;
 		int iMinorBully = 0;
 
-		int iPlayerLoop2;
-		PlayerTypes eLoopPlayer2;
-
 		// Loop through all Players
-		PlayerTypes eLoopPlayer;
-		CvPlayer* pPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			pPlayer = &GET_PLAYER(eLoopPlayer);
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
 
-			if(pPlayer->isAlive())
+			if (pPlayer->isAlive())
 			{
 				eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 
-				if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+				if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
 				{
 					iGSConquest++;
 				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
 				{
 					iGSSpaceship++;
 				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 				{
 					iGSUN++;
 				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 				{
 					iGSCulture++;
 				}
 
 				// Loop through all players
-				for(iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
 				{
-					eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+					PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
 
-					if(GET_PLAYER(eLoopPlayer2).isAlive())
+					if (GET_PLAYER(eLoopPlayer2).isAlive())
 					{
 						// Major
-						if(eLoopPlayer2 < MAX_MAJOR_CIVS)
+						if (GET_PLAYER(eLoopPlayer2).isMajorCiv())
 						{
 							switch (pPlayer->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2))
 							{

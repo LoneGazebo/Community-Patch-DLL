@@ -10444,7 +10444,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		iAlignment -= 2;
 
 		// Big deal if we're diplomatic...
-		if (pDiplo->IsCompetingForVictory() && (GetPlayer()->GetPlayerTraits()->IsDiplomat() || pDiplo->IsDiplomat() || pDiplo->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC))
+		if (pDiplo->IsCompetingForVictory() && (GetPlayer()->GetPlayerTraits()->IsDiplomat() || pDiplo->IsDiplomat() || pDiplo->IsGoingForDiploVictory()))
 		{
 			iAlignment -= 4;
 		}
@@ -11483,10 +11483,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	PlayerTypes eProposer = pProposal->GetProposalPlayer();
 
 	// == Grand Strategy ==
-	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
-	bool bSeekingConquestVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DOMINATION;
-	bool bSeekingCultureVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_CULTURE;
-	bool bSeekingScienceVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_SCIENCE;
+	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory();
+	bool bSeekingConquestVictory = GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest();
+	bool bSeekingCultureVictory = GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory();
+	bool bSeekingScienceVictory = GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory();
 
 	// == Gameplay Effects ==
 	// International Projects
@@ -12154,7 +12154,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					iScore -= (iPersonalityMod * 15);
 				}
 
-				// Factor in our diplo personality
+				// Factor in our default victory focus
 				if (pDiploAI->IsConqueror())
 				{
 					iScore -= 50;
@@ -13542,7 +13542,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore += (iPersonalityMod * 15);
 		}
 
-		// Factor in our diplo personality
+		// Factor in our default victory focus
 		if (pDiploAI->IsConqueror())
 		{
 			iScore += 50;
@@ -14073,7 +14073,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	int iScore = 0;
 
 	// == Grand Strategy and other factors ==
-	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->GetVictoryFocus() == VICTORY_FOCUS_DIPLOMATIC;
+	bool bSeekingDiploVictory = GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory();
 
 	// == Diplomatic Victory ==
 	if (pProposal->GetEffects()->bDiplomaticVictory)

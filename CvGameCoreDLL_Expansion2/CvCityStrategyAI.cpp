@@ -4755,26 +4755,22 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			break;
 		}
 
-		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
-		bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-		bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-		bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-		bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+		CvDiplomacyAI* pDiplo = kPlayer.GetDiplomacyAI();
 
 		//GS Yield Valuation
-		if (bSeekingDiploVictory && (eYield == YIELD_GOLD || eYield == YIELD_FAITH))
+		if (pDiplo->IsGoingForDiploVictory() && (eYield == YIELD_GOLD || eYield == YIELD_FAITH))
 		{
 			iYieldValue *= 2;
 		}
-		if (bSeekingConquestVictory && (eYield == YIELD_PRODUCTION || eYield == YIELD_GOLD))
+		if (pDiplo->IsGoingForWorldConquest() && (eYield == YIELD_PRODUCTION || eYield == YIELD_GOLD))
 		{
 			iYieldValue *= 2;
 		}
-		if (bSeekingCultureVictory && (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM))
+		if (pDiplo->IsGoingForCultureVictory() && (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM))
 		{
 			iYieldValue *= 2;
 		}
-		if (bSeekingScienceVictory && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD))
+		if (pDiplo->IsGoingForSpaceshipVictory() && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD))
 		{
 			iYieldValue *= 2;
 		}

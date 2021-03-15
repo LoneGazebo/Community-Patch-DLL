@@ -4181,65 +4181,25 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 /// "Grand Strategy Culture" Player Strategy: Run this if our Grand Strategy is to go for Culture
 bool EconomicAIHelpers::IsTestStrategy_GS_Culture(CvPlayer* pPlayer)
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return pPlayer->isMajorCiv() && pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory();
 }
 
 /// "Grand Strategy Conquest" Player Strategy: Run this if our Grand Strategy is to go for Conquest
 bool EconomicAIHelpers::IsTestStrategy_GS_Conquest(CvPlayer* pPlayer)
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return pPlayer->isMajorCiv() && pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest();
 }
 
 /// "Grand Strategy Diplomacy" Player Strategy: Run this if our Grand Strategy is to go for Diplomacy
 bool EconomicAIHelpers::IsTestStrategy_GS_Diplomacy(CvPlayer* pPlayer)
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return pPlayer->isMajorCiv() && pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory();
 }
 
 /// "Grand Strategy Spaceship" Player Strategy: Run this if our Grand Strategy is to go for the Spaceship
 bool EconomicAIHelpers::IsTestStrategy_GS_Spaceship(CvPlayer* pPlayer)
 {
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
-
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return pPlayer->isMajorCiv() && pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory();
 }
 
 /// We are in the home stretch of the "Grand Strategy Spaceship" Player Strategy

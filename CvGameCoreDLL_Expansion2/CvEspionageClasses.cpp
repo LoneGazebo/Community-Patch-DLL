@@ -9643,7 +9643,7 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 					}
 
 					// Slight negative weight towards militaristic
-					if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && pDiploAI->GetVictoryFocus() != VICTORY_FOCUS_DOMINATION && !(MOD_BALANCE_CORE && m_pPlayer->GetPlayerTraits()->IsWarmonger()))
+					if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && !pDiploAI->IsGoingForWorldConquest() && !m_pPlayer->GetPlayerTraits()->IsWarmonger())
 					{
 						iValue += /*-50*/ GC.getMC_GIFT_WEIGHT_MILITARISTIC();
 					}
@@ -9692,33 +9692,37 @@ void CvEspionageAI::BuildMinorCityList(EspionageCityList& aMinorCityList)
 
 				if (eApproach > CIV_APPROACH_HOSTILE)
 				{
-					if (pDiploAI->GetVictoryFocus() == VICTORY_FOCUS_CULTURE)
+					if (pDiploAI->IsGoingForCultureVictory())
 					{
 						if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 						{
-							iValue += 999;
+							iValue += 1000;
 						}
-						else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+						else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME && !m_pPlayer->IsEmpireUnhappy())
 						{
 							iValue += 500;
 						}
+						else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+						{
+							iValue += 250;
+						}
 					}
-					else if (pDiploAI->GetVictoryFocus() == VICTORY_FOCUS_DOMINATION)
+					else if (pDiploAI->IsGoingForWorldConquest())
 					{
 						if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 						{
-							iValue += 999;
+							iValue += 1000;
 						}
 						else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 						{
 							iValue += 500;
 						}
 					}
-					else if (pDiploAI->GetVictoryFocus() == VICTORY_FOCUS_SCIENCE)
+					else if (pDiploAI->IsGoingForSpaceshipVictory())
 					{
 						if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME && !m_pPlayer->IsEmpireUnhappy())
 						{
-							iValue += 999;
+							iValue += 1000;
 						}
 						else if (pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 						{

@@ -3436,12 +3436,9 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		{
 			if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 			{
-				if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+				if (m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() && m_pPlayer->GetDiplomacyAI()->GetCivApproach(pPlot->getOwner()) > CIV_APPROACH_HOSTILE)
 				{
-					if (m_pPlayer->GetDiplomacyAI()->GetCivApproach(pPlot->getOwner()) > CIV_APPROACH_HOSTILE)
-					{
-						eRtnValue = ARCHAEOLOGY_LANDMARK;
-					}
+					eRtnValue = ARCHAEOLOGY_LANDMARK;
 				}
 			}
 			else
