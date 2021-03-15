@@ -2600,7 +2600,7 @@ void CvCity::doTurn()
 			pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
 
 			//Only get land combat units
-			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if(pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pLoopUnit->getDamage() > 0)
 				{
@@ -14216,7 +14216,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iLoop = 0;
 				for(pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCanAttack())
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 					{
 						UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
 						UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
@@ -16590,7 +16590,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		}
 	}
 
-	if (bJustCheckingStarve)
+	if (bJustCheckingStarve) //important, otherwise we can get into endless recursion (happiness depends on food which depends on happiness!)
 		return iDifference;
 
 	// Growth Mods - Only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
@@ -16797,7 +16797,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
 		}
 #endif
-		if (iTotalMod <= -100)
+		if (iTotalMod <= 0)
 			return 0;
 
 		iDifference *= iTotalMod;
@@ -30458,7 +30458,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		if(pLoopUnit != NULL)
 		{
 			// check stacking (see also CountStackingUnitsAtPlot)
-			if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType()==pkUnitInfo->GetDomainType())
+			if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==pkUnitInfo->GetDomainType())
 				return false;
 		}
 
@@ -33291,7 +33291,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCanAttack())
+			if (pUnit->IsCombatUnit())
 			{
 				if (pUnit->getTeam() == getTeam())
 					iFriendlyPower += pUnit->GetPower();

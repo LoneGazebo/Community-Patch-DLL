@@ -540,7 +540,7 @@ struct STacticalAssignment
 	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
 
 	//convenience
-	bool IsCanAttack() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
+	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
 	bool isOffensive() const;
@@ -866,7 +866,7 @@ public:
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
 	void updateMovePlotsIfRequired();
 	bool findTactPlotRecursive(int iPlotIndex) const;
-	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
+	bool addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getAggressionBias() const;

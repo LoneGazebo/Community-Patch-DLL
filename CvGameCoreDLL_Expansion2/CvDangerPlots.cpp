@@ -138,7 +138,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	int iLoop;
 	for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 	{
-		if (pLoopUnit->IsCanAttack() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
 			plotsWithOwnedUnitsLikelyToBeKilled.push_back(pLoopUnit->plot()->GetPlotIndex());
 	}
 
@@ -746,7 +746,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	CvCity* pFriendlyCity = m_pPlot->isFriendlyCity(*pUnit) ? m_pPlot->getPlotCity() : NULL;
 
 	// Civilians can be captured - unless they would need to be embarked on this plot
-	if (!pUnit->IsCanAttack() && pUnit->isNativeDomain(m_pPlot))
+	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
 	{
 		// If plot contains an enemy unit, mark it as max danger
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))

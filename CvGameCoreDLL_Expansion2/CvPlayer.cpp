@@ -10805,7 +10805,7 @@ int CvPlayer::GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly)
 	{
 		if(pLoopUnit->getDomainType() == eDomain)
 		{
-			if(!bMilitaryOnly || pLoopUnit->IsCanAttack())
+			if(!bMilitaryOnly || pLoopUnit->IsCombatUnit())
 			{
 				iNumUnits++;
 			}
@@ -14314,7 +14314,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		{
 			CvUnit* pNewUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
 			// see if there is an open spot to put him - no over-stacking allowed!
-			if(pNewUnit && pUnit && pNewUnit->IsCanAttack())  
+			if(pNewUnit && pUnit && pNewUnit->IsCombatUnit())  
 			{
 				pBestPlot = NULL;
 				iBestValue = INT_MAX;
@@ -19627,7 +19627,7 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 {
 #if defined(MOD_BALANCE_CORE)
 	//Bonus resource in a city every time you win a battle.
-	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCanAttack())
+	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
 		CvCity* pOriginCity = pCity;
 		if (pAttackingUnit != NULL)
@@ -30370,7 +30370,7 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 
 		if (bOnlyCombatUnits)
 		{
-			if (!pLoopUnit->IsCanAttack())
+			if (!pLoopUnit->IsCombatUnit())
 			{
 				continue;
 			}
@@ -32660,52 +32660,44 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			TeamTypes eWinningTeam = NO_TEAM;
 			PlayerTypes eWinningPlayer = NO_PLAYER;
 
-			{
-				// Calculate who owns the most original capitals by iterating through all civs 
-				// and finding out who owns their original capital.
-				typedef std::tr1::array<int, MAX_CIV_TEAMS> CivTeamArray;
-				CivTeamArray aTeamCityCount;
-				aTeamCityCount.assign(0);
+			// Calculate who owns the most original capitals by iterating through all civs 
+			// and finding out who owns their original capital.
+			map<TeamTypes, int> numOriginalCapitals;
 
-				CvMap& kMap = GC.getMap();
-				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			CvMap& kMap = GC.getMap();
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
+			{
+				const PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
+				CvPlayer& kLoopPlayer = GET_PLAYER(ePlayer);
+				if(kLoopPlayer.isEverAlive())
 				{
-					const PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
-					CvPlayer& kLoopPlayer = GET_PLAYER(ePlayer);
-					if(kLoopPlayer.isEverAlive())
+					const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
+					const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
+					if(iOriginalCapitalX != -1 && iOriginalCapitalY != -1)
 					{
-						const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
-						const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
-						if(iOriginalCapitalX != -1 && iOriginalCapitalY != -1)
+						CvPlot* pkPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
+						if(pkPlot != NULL)
 						{
-							CvPlot* pkPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
-							if(pkPlot != NULL)
+							CvCity* pkCapitalCity = pkPlot->getPlotCity();
+							if(pkCapitalCity != NULL)
 							{
-								CvCity* pkCapitalCity = pkPlot->getPlotCity();
-								if(pkCapitalCity != NULL)
+								const PlayerTypes eCapitalOwner = pkCapitalCity->getOwner();
+								if(eCapitalOwner != NO_PLAYER)
 								{
-									const PlayerTypes eCapitalOwner = pkCapitalCity->getOwner();
-									if(eCapitalOwner != NO_PLAYER)
+									CvPlayer& kCapitalOwnerPlayer = GET_PLAYER(eCapitalOwner);
+									++numOriginalCapitals[kCapitalOwnerPlayer.getTeam()];
+
+									if (numOriginalCapitals[kCapitalOwnerPlayer.getTeam()] > iMostOriginalCapitals)
 									{
-										CvPlayer& kCapitalOwnerPlayer = GET_PLAYER(eCapitalOwner);
-										aTeamCityCount[kCapitalOwnerPlayer.getTeam()]++;
+										iMostOriginalCapitals = numOriginalCapitals[kCapitalOwnerPlayer.getTeam()];
+										eWinningTeam = kCapitalOwnerPlayer.getTeam();
+										eWinningPlayer = GET_TEAM(eWinningTeam).getLeaderID();
 									}
 								}
-							}	
-						}
+							}
+						}	
 					}
 				}
-
-				// What's the max count and are they the only team to have the max?
-				CivTeamArray::iterator itMax = max_element(aTeamCityCount.begin(), aTeamCityCount.end());
-				if(count(aTeamCityCount.begin(), aTeamCityCount.end(), *itMax) == 1)
-				{
-					eWinningTeam = static_cast<TeamTypes>(itMax - aTeamCityCount.begin());
-					iMostOriginalCapitals = *itMax;
-
-					CvTeam& kTeam = GET_TEAM(eWinningTeam);
-					eWinningPlayer = kTeam.getLeaderID();
-				}			
 			}
 
 			// Someone just lost their capital, test to see if someone wins
@@ -33388,7 +33380,7 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 	int iLoop;
 	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(!pLoopUnit->IsCanAttack())
+		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
 		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
@@ -36870,7 +36862,7 @@ void CvPlayer::DoDeficit()
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->IsCanAttack())
+		if(pLoopUnit->IsCombatUnit())
 			iNumMilitaryUnits++;
 	}
 
@@ -46513,7 +46505,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
 		}
 	}
-	if(pGreatPeopleUnit->IsCanAttack() && getCapitalCity() != NULL)
+	if(pGreatPeopleUnit->IsCombatUnit() && getCapitalCity() != NULL)
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
 		pGreatPeopleUnit->setOriginCity(getCapitalCity()->GetID());
@@ -46550,7 +46542,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 
 	// In rare cases we can gain the general from an embarked unit being attacked, or from a hovering unit over coast
 	// so if this plot is water, relocate the Great General
-	if (pPlot->isWater() || pGreatPeopleUnit->IsCanAttack()) {
+	if (pPlot->isWater() || pGreatPeopleUnit->IsCombatUnit()) {
 		pGreatPeopleUnit->jumpToNearestValidPlot();
 	}
 #else
@@ -46672,7 +46664,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
 		}
 	}
-	if(pGreatPeopleUnit->IsCanAttack())
+	if(pGreatPeopleUnit->IsCombatUnit())
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
 	}
@@ -47599,7 +47591,7 @@ void CvPlayer::UpdateMilitaryStats()
 	int iExpCount = 0, iExpSum = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->IsCanAttack() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 		{
 			iExpCount++;
 			iExpSum += pLoopUnit->getExperienceTimes100();
@@ -49775,7 +49767,7 @@ void CvPlayer::DoVassalLevy()
 		int iLoop = 0;
 		for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCanAttack())
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
 			{
 				UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
 				UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();

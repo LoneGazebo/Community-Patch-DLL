@@ -3991,7 +3991,7 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
 							// Civilian unit or the unit can acquire this promotion
-							if(!pLoopUnit->IsCanAttack() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+							if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
 								pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
 						}
 					}
@@ -4465,7 +4465,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 			CvUnit* pLoopUnit = NULL; //for some stupid reason createCaptureUnit is a member of CvUnit and not CvPlayer
 			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if(pLoopUnit->IsCanAttack())
+				if(pLoopUnit->IsCombatUnit())
 				{
 					for(int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
 					{
@@ -4473,7 +4473,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 
 						if( pPotentialCaptureUnit && 
 							pPotentialCaptureUnit->getTeam()==eIndex && //only from the right team
-							!pPotentialCaptureUnit->IsCanAttack() && 
+							!pPotentialCaptureUnit->IsCombatUnit() && 
 							!pPotentialCaptureUnit->isEmbarked() && 
 							!pPotentialCaptureUnit->isDelayedDeath() ) //can only capture once!
 						{

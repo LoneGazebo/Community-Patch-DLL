@@ -900,7 +900,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->IsCanAttack() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
+		if (pUnit && pUnit->IsCombatUnit() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
 		{
 			//fake this, the distance check is irrelevant here
 			ReachablePlots turnsFromMuster;
@@ -1162,7 +1162,7 @@ void CvHomelandAI::PlotPatrolMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->IsCanAttack() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
+		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 		{
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
@@ -1181,7 +1181,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
-		if (pUnit && pUnit->IsCanAttack())
+		if (pUnit && pUnit->IsCombatUnit())
 		{
 			if (pUnit->getDomainType()==DOMAIN_SEA)
 				iUnitsSea++;
@@ -2019,15 +2019,16 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				}
 			}
 
+			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
 			if (pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if (pUnit->getMoves() > 0)
 				{
 					CvCity* pClosestCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
-					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
-						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23) )
-						ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), iFlags, 23))
+						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), iFlags);
+					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), iFlags, 42))
+						ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), iFlags);
 					else
 						pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				}
@@ -2075,7 +2076,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if (pBestPlot != NULL)
 					{
-						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
+						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags))
 						{
 							pUnit->SetTurnProcessed(true);
 
@@ -2589,7 +2590,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		//how far around each worker should we be checking?
 		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
-		if (pUnit->IsCanAttack())
+		if (pUnit->IsCombatUnit())
 			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
 
 		//is the unit still busy? if so, less time for movement
@@ -3233,7 +3234,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 						}
 #if defined(MOD_BALANCE_CORE)
 					}
-					else if(pUnit->IsCanAttack())
+					else if(pUnit->IsCombatUnit())
 					{
 						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 						if(pEng)
@@ -3315,7 +3316,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							}
 #if defined(MOD_BALANCE_CORE)
 						}
-						else if(pUnit->IsCanAttack())
+						else if(pUnit->IsCombatUnit())
 						{
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
@@ -4849,7 +4850,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 		if(pLoopUnit && !pLoopUnit->isHuman())
 		{
 			// Civilians or units in armies aren't useful for any of these moves
-			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || pLoopUnit->getArmyID() != -1)
+			if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)
 				continue;
 
 			bool bSuitableUnit = false;
@@ -4880,7 +4881,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				break;
 			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 				// No ranged units as sentries (that would be assault_sea)
-				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCanAttack() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
+				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
 				{
 					bSuitableUnit = true;
 				}

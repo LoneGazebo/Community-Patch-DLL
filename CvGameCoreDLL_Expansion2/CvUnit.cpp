@@ -1002,7 +1002,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		// Civilians get it for free
 		if(getDomainType() == DOMAIN_LAND)
 		{
-			if(!IsCanAttack())
+			if(!IsCombatUnit())
 				bGivePromotion = true;
 		}
 
@@ -1194,7 +1194,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(getDomainType() == DOMAIN_LAND)
 	{
-		if(IsCanAttack())
+		if(IsCombatUnit())
 		{
 			if((GC.getGame().getBestLandUnit() == NO_UNIT) || (GetBaseCombatStrength() > GC.getGame().getBestLandUnitCombat()))
 			{
@@ -1317,7 +1317,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			{
 				continue;
 			}
-			if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
 				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetInspirationalLeader() * 100);
@@ -2348,7 +2348,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if (ePlayer != NO_PLAYER)
 	{
 #if defined(MOD_BALANCE_CORE)
-		if (IsCanAttack())
+		if (IsCombatUnit())
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
@@ -2799,7 +2799,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		TeamTypes activeTeam = GC.getGame().getActiveTeam();
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (!pLoopUnit->IsCanAttack())
+			if (!pLoopUnit->IsCombatUnit())
 				continue;
 
 			if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
@@ -2971,7 +2971,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			pkCapturedUnit->kill(false);
 			pkCapturedUnit = NULL;
 		}
-		if (pkCapturedUnit != NULL && pkCapturedUnit->IsCanAttack())
+		if (pkCapturedUnit != NULL && pkCapturedUnit->IsCombatUnit())
 		{
 			if(!pkCapturedUnit->jumpToNearestValidPlot())
 			{
@@ -3199,7 +3199,7 @@ void CvUnit::doTurn()
 					CvUnit* loopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
 					if (loopUnit == NULL)
 						continue;
-					if (!loopUnit->IsCanAttack())
+					if (!loopUnit->IsCombatUnit())
 						continue;
 					if (loopUnit->getDomainType() != getDomainType())
 						continue;
@@ -4626,9 +4626,6 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 {
 	VALIDATE_OBJECT
 	bool bCycle = false;
-
-	CvAssert(getOwner() != NO_PLAYER);
-
 	if(canDoCommand(eCommand, iData1, iData2))
 	{
 		switch(eCommand)
@@ -4784,7 +4781,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		}
 		else
 		{
-			bool bNoEnemy = IsCanAttack() && !(iMoveFlags & MOVEFLAG_ATTACK);
+			bool bNoEnemy = IsCombatUnit() && !(iMoveFlags & MOVEFLAG_ATTACK);
 			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
 				return false;
 		}
@@ -4944,7 +4941,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 				if(loopUnit != NULL)
 				{
-					if(loopUnit->IsCanAttack())
+					if(loopUnit->IsCombatUnit())
 					{
 						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
@@ -5018,7 +5015,7 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 					//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
 					if(loopUnit != NULL)
 					{
-						if(loopUnit->IsCanAttack())
+						if(loopUnit->IsCombatUnit())
 						{
 							if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 							{
@@ -5219,7 +5216,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 									bPlotContainsCombat = true;
 							}
 
-							if(pLoopUnit->IsDead() || !pLoopUnit->IsCanAttack())
+							if(pLoopUnit->IsDead() || !pLoopUnit->IsCombatUnit())
 							{
 								bCanAdvanceOnDeadUnit = true;
 							}
@@ -5349,7 +5346,7 @@ bool CvUnit::IsAngerFreeUnit() const
 		return true;
 
 	// Don't care about noncombat units
-	if(!IsCanAttack())
+	if(!IsCombatUnit())
 		return true;
 
 	// We don't care about other Minors or the Barbs
@@ -6017,7 +6014,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			return false;
 
 		// No non-combat units
-		if(!IsCanAttack())
+		if(!IsCombatUnit())
 		{
 			CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
@@ -7880,7 +7877,7 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if (isBarbarian())
 	{
-		if (IsCanAttack())
+		if (IsCombatUnit())
 		{
 #if defined(MOD_BARBARIANS_HEAL_EVERYWHERE)
 			if (IsHurt() && !hasMoved() && getDomainType()==DOMAIN_LAND && isNativeDomain(plot()) && (plot()->isBarbarian() || !plot()->isOwned()))
@@ -9083,7 +9080,7 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 {
-	if (!IsCanAttack())
+	if (!IsCombatUnit())
 	{
 		return false;
 	}
@@ -13891,13 +13888,13 @@ bool CvUnit::build(BuildTypes eBuild)
 			//if we are a builder (something with builderstrength)
 			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 			{
-				if ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER) || IsCanAttack())
+				if ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER) || IsCombatUnit())
 				{
 					//check the amount of work done
 					int iBuildCost = pkBuildInfo->getBuilderCost();
 					// remove this amount (and kill me if it's too high)
 					setBuilderStrength(getBuilderStrength() - iBuildCost);
-					if (getBuilderStrength() <= 0 && !IsCanAttack())
+					if (getBuilderStrength() <= 0 && !IsCombatUnit())
 					{
 						//delete unit if it's not a combat unit
 						kill(true);
@@ -15157,7 +15154,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if(!IsCanAttack() && !IsGreatGeneral() && !IsGreatAdmiral())
+	if(!IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
 	{
 		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
 	}
@@ -17040,7 +17037,7 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 				{
 					CvUnit* pOtherUnit = pNeighbor->getUnitByIndex(iUnitLoop);
 					//damage is applied to enemy civilians also, but it's collateral damage, don't count them here
-					if (pOtherUnit && pOtherUnit->IsCanAttack() && pOtherUnit->isEnemy(getTeam()))
+					if (pOtherUnit && pOtherUnit->IsCombatUnit() && pOtherUnit->isEnemy(getTeam()))
 						iTotal += getSplashDamage();
 				}
 			}
@@ -17185,7 +17182,7 @@ bool CvUnit::isWaiting() const
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	return (IsCanAttack() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
+	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -17315,6 +17312,7 @@ int CvUnit::maxFirstStrikes() const
 	return (firstStrikes() + chanceFirstStrikes());
 }
 
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::immuneToFirstStrikes() const
 {
@@ -17322,12 +17320,14 @@ bool CvUnit::immuneToFirstStrikes() const
 	return (getImmuneToFirstStrikesCount() > 0);
 }
 
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::ignoreBuildingDefense() const
 {
 	//return m_pUnitInfo->IsIgnoreBuildingDefense();
 	return false; //always return false - this is too powerful
 }
+
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::ignoreTerrainCost() const
@@ -19380,7 +19380,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 
-		if(IsCanAttack())
+		if(IsCombatUnit())
 		{
 			oldUnitList.clear();
 
@@ -19644,7 +19644,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			int iLoop;
 			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if (!pLoopUnit->IsCanAttack())
+				if (!pLoopUnit->IsCombatUnit())
 					continue;
 
 				if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
@@ -19686,7 +19686,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(IsCanAttack())
+		if(IsCombatUnit())
 		{
 			pUnitNode = pNewPlot->headUnitNode();
 			while(pUnitNode != NULL)
@@ -19828,7 +19828,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			load();
 		}
 #if defined(MOD_CARGO_SHIPS)
-		if(IsCanAttack())
+		if(IsCombatUnit())
 		{
 			if(MOD_CARGO_SHIPS)
 			{
@@ -20134,7 +20134,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(IsCanAttack())
+		if(IsCombatUnit())
 		{
 			pUnitNode = pOldPlot->headUnitNode();
 			while(pUnitNode != NULL)
@@ -23003,7 +23003,7 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			return false;
 	}
 
-	if (!IsCanAttack())
+	if (!IsCombatUnit())
 		return false;
 
 	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
@@ -23534,7 +23534,7 @@ void CvUnit::DoImprovementExperience(const CvPlot* pPlot)
 			{
 				iExperience += pPlot->GetUnitPlotGAExperience();
 			}
-			if (IsCanAttack() && pPlot == plot())
+			if (IsCombatUnit() && pPlot == plot())
 			{
 				changeExperienceTimes100(iExperience * 100);
 			}
@@ -23630,7 +23630,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					CvUnit* pConvertUnit = NULL;
 					int iDamageTheshold = getDamageThreshold();
 					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
-					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCanAttack() && !pAdjacentUnit->isBarbarian() && !pAdjacentPlot->isEnemyCity(*this))
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian() && !pAdjacentPlot->isEnemyCity(*this))
 					{
 						int iExistingDamage = pAdjacentUnit->getDamage();
 						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
@@ -23656,7 +23656,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					}
 				}/*
 				// Is this unit running into a unit that might convert it into a barbarian??
-				if(IsCanAttack() && !isBarbarian() && !pPlot->isFriendlyCity(*this))
+				if(IsCombatUnit() && !isBarbarian() && !pPlot->isFriendlyCity(*this))
 				{
 					CvUnit* pConvertUnit = NULL;
 					int iExistingDamage = getDamage();
@@ -23846,7 +23846,7 @@ bool CvUnit::IsGreatGeneral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(IsCanAttack())
+	if(IsCombatUnit())
 		return false;
 	if(getUnitInfo().GetUnitAIType(UNITAI_GENERAL))
 	{
@@ -23877,7 +23877,7 @@ bool CvUnit::IsGreatAdmiral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(IsCanAttack())
+	if(IsCombatUnit())
 		return false;
 	if(getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL))
 	{
@@ -26922,7 +26922,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(CvPlot & pushPlot) const
 		pUnitNode = pushPlot.nextUnitNode(pUnitNode);
 
 		//this should be the blocking unit
-		if (pLoopUnit->IsCanAttack() && pLoopUnit->getDomainType() == getDomainType())
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
 		{
 			//is it idle right now?
 			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0)
@@ -26982,7 +26982,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
-		if (IsCanAttack() && canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
+		if (IsCombatUnit() && canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
 			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
@@ -27015,7 +27015,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if (pLoopUnit->IsCanAttack() && pLoopUnit->ReadyToSwap())
+								if (pLoopUnit->IsCombatUnit() && pLoopUnit->ReadyToSwap())
 								{
 									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true) && pLoopUnit->ReadyToSwap())
 									{
@@ -27263,7 +27263,7 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 
 	//this also catches air units!
 	//they have separate checks (canRebaseAt)
-	if (!IsCanDefend())
+	if (!IsCombatUnit())
 		return 0;
 
 	if (IsStackingUnit())
@@ -27297,7 +27297,7 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 				continue;
 
 			// Combat units are in conflict
-			if (pLoopUnit->IsCanAttack())
+			if (pLoopUnit->IsCombatUnit())
 			{
 				//inside of cities mixing domains is ok
 				if (pPlot->isFriendlyCityOrPassableImprovement(getOwner()))
@@ -28207,7 +28207,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 
 	//combat units should wake as soon as enemies are around
 	//civilians ignore non-lethal danger like fallout
-	int iDangerLimit = IsCanAttack() ? 0 : GetCurrHitPoints() / 2;
+	int iDangerLimit = IsCombatUnit() ? 0 : GetCurrHitPoints() / 2;
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
@@ -28634,7 +28634,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 	SetSpottedEnemy(false);
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
-	bool bMoved = UnitMove(pPathPlot, IsCanAttack(), NULL, bDone);
+	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
 
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 	{
@@ -28730,7 +28730,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 		return false;
 	}
 
-	return UnitMove(pNextPlot, IsCanAttack(), NULL, true);
+	return UnitMove(pNextPlot, IsCombatUnit(), NULL, true);
 }
 
 
@@ -28948,7 +28948,7 @@ const char* CvUnit::GetMissionInfo()
 			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
 	}
 
-	if (IsCanAttack())
+	if (IsCombatUnit())
 	{
 		m_strMissionInfoString += " : ";
 		m_strMissionInfoString += getTacticalZoneInfo();
@@ -29290,23 +29290,15 @@ CvUnit* CvUnit::GetMissionAIUnit()
 /// Is this unit able to ground attack?
 bool CvUnit::IsCanAttackWithMove() const
 {
-    VALIDATE_OBJECT
-    if(m_iBaseCombat == 0)
-    {
-        return false;
+	return IsCombatUnit() && !IsCanAttackRanged() && !isOnlyDefensive();
     }
-    else
-    {
-        return !isOnlyDefensive() && !IsCanAttackRanged();
-    }
-}
 
 //	--------------------------------------------------------------------------------
 /// Does this unit have a ranged attack?
 bool CvUnit::IsCanAttackRanged() const
 {
 	VALIDATE_OBJECT
-	//range check to exclude impi  ...
+	//need the range check to exclude impi
 	return (GetRange() > 0 && GetBaseRangedCombatStrength() > 0);
 }
 
@@ -29350,11 +29342,19 @@ bool CvUnit::IsCanDefend() const
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsCivilianUnit() const
 {
-	//aircraft can not defend but can attack!
-	return !IsCanDefend() && !IsCanAttack();
+	//aircraft are not combat units but can attack ranged ...
+	return !IsCombatUnit() && !IsCanAttackRanged();
 }
+
+// Combat eligibility routines
+bool CvUnit::IsCombatUnit() const
+{
+	return (m_iBaseCombat > 0);
+}
+
 
 //	--------------------------------------------------------------------------------
 // get all tiles a unit can reach in one turn - this ignores friendly stacking. need to check the result by hand!
@@ -29538,7 +29538,7 @@ const CvPathNodeArray& CvUnit::GetLastPath() const
 bool CvUnit::canAdvance(const CvPlot& plot, int iThreshold) const
 {
 	VALIDATE_OBJECT
-	CvAssert(IsCanAttack());
+	CvAssert(IsCombatUnit());
 	CvAssert(getDomainType() != DOMAIN_AIR);
 	CvAssert(getDomainType() != DOMAIN_IMMOBILE);
 

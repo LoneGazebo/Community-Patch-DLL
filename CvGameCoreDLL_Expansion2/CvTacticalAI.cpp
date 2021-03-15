@@ -1205,7 +1205,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 				bool bAddUnit = false;
 				if(bCombatUnits)
 				{
-					if (!pUnit->IsCanAttack() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
+					if (!pUnit->IsCombatUnit() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
 						continue;
 
 					if(pUnit->isBarbarian())
@@ -4662,7 +4662,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCanAttack() && !pLoopUnit->TurnProcessed())
+		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
@@ -4896,7 +4896,7 @@ bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistan
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCanAttack() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
+		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
 		{
 			CvTacticalUnit unit(pLoopUnit->GetID());
 			unit.SetAttackStrength(pLoopUnit->GetBaseCombatStrength());
@@ -5638,7 +5638,7 @@ bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	if(pUnit)
 	{
 		int iEstimatedEndTurn = GC.getGame().getEstimateEndTurn();
-		if(pUnit->isEmbarked() && !pUnit->IsCanAttack())  //embarked civilians
+		if(pUnit->isEmbarked() && !pUnit->IsCombatUnit())  //embarked civilians
 		{
 			bRtnValue = true;
 		}
@@ -6641,7 +6641,7 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(const ReachablePlots& p
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// Is a combat unit
-				if (pLoopUnit && (pLoopUnit->IsCanAttack() || pLoopUnit->getDomainType() == DOMAIN_AIR))
+				if (pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
 				{
 					int iScale = pLoopUnit->isNativeDomain(pLoopPlot) ? 1 : 2;
 
@@ -7695,7 +7695,7 @@ void CvTacticalPlot::resetVolatileProperties()
 bool CvTacticalPlot::hasFriendlyCombatUnit() const
 {
 	for (size_t i = 0; i < vUnits.size(); i++)
-		if (vUnits[i].IsCanAttack())
+		if (vUnits[i].isCombatUnit())
 			return true;
 	
 	return false;
@@ -8152,10 +8152,13 @@ void CvTacticalPosition::addInitialAssignments()
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
-		//we pretend the unit has zero moves, this means we do not score any possible attacks
-		//this is important for symmetry with canStayInPlot()
-		int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot( itUnit->iPlotIndex ), *this, true).iScore;
-		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
+		if (tactPlot.isValid()) //failsafe
+		{
+			//we pretend the unit has zero moves, this means we do not score any possible attacks
+			//this is important for symmetry with canStayInPlot()
+			int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, true).iScore;
+			addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
+		}
 	}
 }
 
@@ -8347,7 +8350,7 @@ vector<STacticalAssignment> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlo
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
-		if (move.IsCanAttack() && units[i].IsCanAttack())
+		if (move.isCombatUnit() && units[i].isCombatUnit())
 			result.push_back(units[i]);
 		if (move.isEmbarkedUnit() && units[i].isEmbarkedUnit())
 			result.push_back(units[i]);
@@ -9181,14 +9184,14 @@ bool CvTacticalPosition::findTactPlotRecursive(int iPlotIndex) const
 	return false;
 }
 
-void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
+bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
 {
 	//don't check the official visibility here, we might want to create a tactplot that only became visible during simulation
 	if (!pPlot)
-		return;
+		return false;
 
 	if (findTactPlotRecursive(pPlot->GetPlotIndex()))
-		return; //nothing to do
+		return true; //nothing to do
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
 	if (newPlot.isValid())
@@ -9196,7 +9199,10 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 		pair<int, size_t> newEntry(pPlot->GetPlotIndex(), tactPlots.size());
 		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
+		return true;
 	}
+
+	return false;
 }
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
@@ -9215,7 +9221,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	//if were not looking to fight but about to embark then keep the unit away from enemies
 	if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
-		if (pUnit->IsCanAttack())
+		if (pUnit->IsCombatUnit())
 			eStrategy = MS_EMBARKED;
 		else
 			eStrategy = MS_SUPPORT; //civilians can stack!
@@ -9768,7 +9774,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			for (int j = 0; j < RING2_PLOTS; j++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-				if (pPlot && pPlot->isVisible(ourTeam))
+				if (!pPlot)
+					continue;
+				//there was a strange bug where the plot containing the unit is not visible? wtf
+				if (j==0 || pPlot->isVisible(ourTeam))
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}

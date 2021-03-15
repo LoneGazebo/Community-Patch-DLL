@@ -9358,7 +9358,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		CvAssert(pstartUnit);
 		if (pstartUnit)
 		{
-			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCanAttack())
+			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCombatUnit())
 			{
 				pstartUnit->kill(false);		// Could not find a spot!
 			}
@@ -9385,7 +9385,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				CvAssert(pmUnit);
 				if (pmUnit)
 				{
-					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCanAttack())
+					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCombatUnit())
 					{
 						pmUnit->kill(false);		// Could not find a spot!
 					}
@@ -9407,7 +9407,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					CvAssert(pUnit);
 					if (pUnit)
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCanAttack())
+						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCombatUnit())
 						{
 							pUnit->kill(false);		// Could not find a spot!
 						}
