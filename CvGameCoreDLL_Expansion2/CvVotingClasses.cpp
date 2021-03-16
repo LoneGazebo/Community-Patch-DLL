@@ -11037,76 +11037,21 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		iVotesAllOthersCombined = pLeague->GetNumMembers();
 
 	VoteConsiderationList vConsiderations;
-	int iFocusResolutionID = -1;
-	int iOurResolutionID = -1;
 
 	EnactProposalList vEnactProposals = pLeague->GetEnactProposals();
 	for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
 	{
-		// Special case - If an embargo on us is proposed, use all our Delegates towards its outcome
-		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
-		{
-			iFocusResolutionID = it->GetID();
-		}
-
-		if (it->GetProposalPlayer() == GetPlayer()->GetID())
-		{
-			iOurResolutionID = it->GetID();
-		}
-
 		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 	RepealProposalList vRepealProposals = pLeague->GetRepealProposals();
 	for (RepealProposalList::iterator it = vRepealProposals.begin(); it != vRepealProposals.end(); ++it)
 	{
-		// Special case - If an embargo on us is proposed, use all our Delegates towards its outcome
-		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
-		{
-			iFocusResolutionID = it->GetID();
-		}
-
 		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 
 	if (vConsiderations.size() > 0)
 	{
 		vConsiderations.SortItems();
-
-		// If we want to focus on one resolution, zero out all other considerations
-		if (iFocusResolutionID != -1)
-		{
-			bool bFound = false;
-			for (int i = 0; i < vConsiderations.size(); ++i)
-			{
-				if (vConsiderations.GetElement(i).iID != iFocusResolutionID)
-				{
-					vConsiderations.SetWeight(i, 0);
-				}
-				else
-				{
-					bFound = true;
-				}
-			}
-			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
-			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
-		}
-		else if (iOurResolutionID != -1)
-		{
-			bool bFound = false;
-			for (int i = 0; i < vConsiderations.size(); ++i)
-			{
-				if (vConsiderations.GetElement(i).iID == iOurResolutionID)
-				{
-					vConsiderations.SetWeight(i, vConsiderations.GetWeight(vConsiderations.GetElement(i).iID) * 10);
-				}
-				else
-				{
-					bFound = true;
-				}
-			}
-			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
-			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
-		}
 
 
 		// Even if we don't like anything, make sure we have something to choose from
@@ -11152,7 +11097,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 			if (chosen.iNumAllocated >= iVotesAllOthersCombined)
 			{
-				// Zero out weight of any other choices that were considered for this proposal, since we can only allocate to one choice
+				// If we have already alocated more than we should need to pass it, don't allocate more votes here.
 				for (int j = 0; j < vConsiderations.size(); j++)
 				{
 					if (vConsiderations.GetWeight(j) > 0)
@@ -11266,26 +11211,6 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
 
-		if(HasVoteCommitment())
-		{
-			int iNumVotes = 0;
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != GetPlayer()->GetID()))
-				{
-					iNumVotes += GetVoteCommitment(eLoopPlayer, pProposal->GetID(), vChoices[i], /*bEnact*/ true);
-				}
-			}
-		
-			//If we already have votes commited here, let's zero out the score.
-			if(iNumVotes > 0)
-			{
-				iScore = 0;
-			}
-		} 
-
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
 	}
@@ -11332,26 +11257,6 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 	{
 		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
-
-		if(HasVoteCommitment())
-		{
-			int iNumVotes = 0;
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != GetPlayer()->GetID()))
-				{
-					iNumVotes += GetVoteCommitment(eLoopPlayer, pProposal->GetID(), vChoices[i], /*bEnact*/ false);
-				}
-			}
-		
-			//If we already have votes commited here, let's zero out the score.
-			if(iNumVotes > 0)
-			{
-				iScore = 0;
-			}
-		} 
 
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
@@ -14033,14 +13938,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 	}
 
-	if (iScore != 0)
-	{
-		int iRandom = GC.getGame().getSmallFakeRandNum(200, iScore);
-		if (iChoice == LeagueHelpers::CHOICE_NO || !bEnact)
-			iRandom *= -1;
-
-		iScore += iRandom;
-	}
 
 	// == Post-Processing ==
 	if (iChoice == LeagueHelpers::CHOICE_NO)
