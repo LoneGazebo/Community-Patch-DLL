@@ -131,6 +131,7 @@ ContextPtr:SetInputHandler( InputHandler );
 
 function GatherData(RivalId, Text)
 	local data = {};
+	local g_RelationshipLength = Game.GetRelationshipDuration();
 	
 	data.Text = Text;
 	
@@ -162,18 +163,18 @@ function GatherData(RivalId, Text)
 	
 	if (not data.RivalIsMinor) then
 		data.HasDoF = activePlayer:IsDoF(RivalId);
-		if(activePlayer.GetDoFCounter ~= nil and GameDefines.DOF_EXPIRATION_TIME ~= nil) then
-			data.DoFTurnsLeft = GameDefines.DOF_EXPIRATION_TIME - activePlayer:GetDoFCounter(RivalId);
+		if(activePlayer.GetDoFCounter ~= nil) then
+			data.DoFTurnsLeft = g_RelationshipLength - activePlayer:GetDoFCounter(RivalId);
 		end
 			
 		data.WeDenouncedThem = activePlayer:IsDenouncedPlayer(RivalId);
-		if(activePlayer.GetDenouncedPlayerCounter and GameDefines.DENUNCIATION_EXPIRATION_TIME ~= nil) then
-			data.WeDenouncedThemTurnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - activePlayer:GetDenouncedPlayerCounter(RivalId);
+		if(activePlayer.GetDenouncedPlayerCounter ~= nil) then
+			data.WeDenouncedThemTurnsLeft = g_RelationshipLength - activePlayer:GetDenouncedPlayerCounter(RivalId);
 		end
 		
 		data.TheyDenouncedUs = rivalPlayer:IsDenouncedPlayer(data.LeaderId);
-		if(rivalPlayer.GetDenouncedPlayerCounter and GameDefines.DENUNCIATION_EXPIRATION_TIME ~= nil) then
-			data.TheyDenouncedUsTurnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - rivalPlayer:GetDenouncedPlayerCounter(data.LeaderId);
+		if(rivalPlayer.GetDenouncedPlayerCounter ~= nil) then
+			data.TheyDenouncedUsTurnsLeft = g_RelationshipLength - rivalPlayer:GetDenouncedPlayerCounter(data.LeaderId);
 		end
 		--CP
 		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(data.LeaderId);
