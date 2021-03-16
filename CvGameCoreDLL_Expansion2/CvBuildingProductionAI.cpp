@@ -296,9 +296,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 
-		if (iValue > 300)
+		if (iValue > 500)
 		{
-			iValue = 300;
+			iValue = 500;
 		}
 
 		// we want this? ramp it up!
