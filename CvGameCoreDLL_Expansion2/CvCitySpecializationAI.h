@@ -20,13 +20,6 @@ enum ProductionSpecializationSubtypes
     NUM_PRODUCTION_SPECIALIZATION_SUBTYPES
 };
 
-// Thru science (YIELD_SCIENCE+1) plus one more for general economics
-#if defined(MOD_BALANCE_CORE)
-#define NUM_SPECIALIZATION_YIELDS (YIELD_FAITH+2)
-#else
-#define NUM_SPECIALIZATION_YIELDS (YIELD_SCIENCE+2)
-#endif
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvCitySpecializationXMLEntry
 //!  \brief		A single entry in the city specialization XML file
@@ -110,13 +103,6 @@ enum CitySpecializationUpdateType
 	SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE,
 };
 
-class CitySpecializationData
-{
-public:
-	int m_eID;
-	int m_iWeight[NUM_SPECIALIZATION_YIELDS];
-};
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvCitySpecializationAI
 //!  \brief		Decides which cities are assigned special roles
@@ -143,10 +129,6 @@ public:
 
 	CvCitySpecializationXMLEntries* GetCitySpecializations();
 	void SetSpecializationsDirty(CitySpecializationUpdateType eUpdate);
-	CitySpecializationTypes GetNextSpecializationDesired() const
-	{
-		return m_eNextSpecializationDesired;
-	};
 	BuildingTypes GetNextWonderDesired() const
 	{
 		return m_eNextWonderDesired;
@@ -157,63 +139,44 @@ public:
 	CvString GetLogFileName(CvString& playerName) const;
 
 	CitySpecializationTypes GetWonderSpecialization() const;
+
 private:
-	void WeightSpecializations();
-	int WeightProductionSubtypes(int iFlavorWonder, int iFlavorSpaceship);
 	void AssignSpecializations();
-	void SelectSpecializations();
-	CitySpecializationTypes SelectProductionSpecialization(int& iReductionAmount);
+	CvWeightedVector<YieldTypes> WeightSpecializations();
+	CvWeightedVector<ProductionSpecializationSubtypes> WeightProductionSubtypes();
+	vector<int> CityValueForUnworkedTileYields(CvCity* pCity);
+	vector<CitySpecializationTypes> SelectSpecializations();
+	CitySpecializationTypes SelectProductionSpecialization(
+		CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
+		map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype, 
+		int& iReductionAmount);
 	CitySpecializationTypes GetEconomicDefaultSpecialization() const;
 	int GetWonderSubtype() const;
 	CvCity* FindBestWonderCity() const;
-	void FindBestSites();
-	int PlotValueForSpecificYield(CvPlot* pPlot, YieldTypes eYield);
-	int PlotValueForScience(CvPlot* pPlot);
-#if defined(MOD_BALANCE_CORE)
-	int PlotValueForCulture(CvPlot* pPlot); 
-	int PlotValueForFaith(CvPlot* pPlot);
-#endif
 	int AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue);
-#if defined(MOD_BALANCE_CORE)
 	int AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue);
-#endif
 	bool CanBuildSpaceshipParts();
 
 	// Logging functions
-	void LogSpecializationWeights();
+	void LogSpecializationWeights(CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights, CvWeightedVector<YieldTypes> yieldWeights);
 	void LogSpecializationAssignment(CvCity* pCity, CitySpecializationTypes eType, bool bWonderCity=false);
 	void LogSpecializationUpdate(CitySpecializationUpdateType eUpdate);
-	void LogNextSpecialization(CitySpecializationTypes eType);
-	void LogBestSites();
-	void LogCity(CvCity* pCity, CitySpecializationData data);
+	void LogCity(CvCity* pCity, const vector<int>& data);
 	void LogMsg(const CvString& msg);
 
 	CvPlayer* m_pPlayer;
 	CvCitySpecializationXMLEntries* m_pSpecializations;
 	bool m_bSpecializationsDirty;
-	CitySpecializationTypes m_eNextSpecializationDesired;
-	list<CitySpecializationTypes> m_SpecializationsNeeded;
-#if defined(MOD_BALANCE_CORE)
-	int m_iBestValue[YIELD_FAITH+1];
-#else
-	int m_iBestValue[YIELD_SCIENCE+1];
-#endif
-	CvWeightedVector<YieldTypes, NUM_SPECIALIZATION_YIELDS, true> m_YieldWeights;
-	int m_iNumSpecializationsForThisYield[NUM_SPECIALIZATION_YIELDS];  // Array is offset by 1 so NO_YIELD = 0, YIELD_FOOD = 1
-	CvWeightedVector<ProductionSpecializationSubtypes, 4, true> m_ProductionSubtypeWeights;
-	int m_iNumSpecializationsForThisSubtype[NUM_PRODUCTION_SPECIALIZATION_SUBTYPES];
 	int m_iLastTurnEvaluated;
 
 	// Wonder builds
 	bool m_bChooseNewWonder;
 	bool m_bInterruptWonders;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bInterruptBuildings;
-#endif
+
 	BuildingTypes m_eNextWonderDesired;
 	int m_iWonderCityID;
 	int m_iNextWonderWeight;
-	bool m_bWonderChosen;
 };
 
 #endif //CIV5_CITY_SPECIALIZATION_AI_H

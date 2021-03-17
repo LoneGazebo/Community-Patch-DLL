@@ -12,10 +12,6 @@
 #ifndef CIV5_PLAYER_H
 #define CIV5_PLAYER_H
 
-#define SAFE_ESTIMATE_NUM_IMPROVEMENTS 50
-#define SAFE_ESTIMATE_NUM_CITIES       64
-#define MAX_INCOMING_UNITS	20
-
 #include "CvCityAI.h"
 #include "CvUnit.h"
 #include "CvArmyAI.h"

@@ -2706,7 +2706,7 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 	PlayerTypes eToPlayer = kDeal.m_eToPlayer;
 	bool bFoundIt = true;
 	bool bValid = kDeal.AreAllTradeItemsValid();
-	CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
+	CvWeightedVector<TeamTypes> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
 	{
 		if(!bValid || !bAccepted)
 		{
@@ -2733,7 +2733,7 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 	return bFoundIt && bValid;
 }
 
-void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs)
+void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal& kDeal, bool bAccepted, CvWeightedVector<TeamTypes>& veNowAtPeacePairs)
 {
 	if (!bAccepted)
 		return;
@@ -3282,7 +3282,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 	LogDealComplete(&kDeal);
 }
 
-void CvGameDeals::FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true>& veNowAtPeacePairs)
+void CvGameDeals::FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes>& veNowAtPeacePairs)
 {
 	// Update UI if we were involved in the deal
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
@@ -3354,7 +3354,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 	CvDeal kDeal;
 	bool bFoundIt = false;
 	bool bValid   = true;
-	CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
+	CvWeightedVector<TeamTypes> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
 
 	// Find the deal in the list of proposed deals
 	for(dealIt = m_ProposedDeals.begin(); dealIt != m_ProposedDeals.end(); ++dealIt)

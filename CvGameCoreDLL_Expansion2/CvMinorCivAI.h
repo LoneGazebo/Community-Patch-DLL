@@ -12,11 +12,8 @@
 
 #include <CvLocalization.h>
 
-#define SAFE_ESTIMATE_NUM_XML_WIDGETS 100
-
 #define ENABLE_QUESTS_AT_START false
 #define ENABLE_PERMANENT_WAR false
-#define SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER (5)
 #define MINOR_POWER_COMPARISON_RADIUS (5)
 
 enum MinorCivStatusTypes
@@ -95,7 +92,7 @@ FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);
 
 
 typedef vector<PlayerTypes> CivsList;
-typedef CvWeightedVector< PlayerTypes, MAX_PLAYERS, true > WeightedCivsList;
+typedef CvWeightedVector< PlayerTypes> WeightedCivsList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvMinorCivQuest

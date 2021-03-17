@@ -93,8 +93,6 @@ FDataStream& operator<<(FDataStream&, const AIOperationAbortReason&);
 FDataStream& operator>>(FDataStream&, AIOperationAbortReason&);
 const char* AbortReasonString(AIOperationAbortReason eReason);
 
-typedef CvWeightedVector<int, 128, true> WeightedUnitIdVector;
-
 struct OperationSlot
 {
 	explicit OperationSlot(int opId=-1, int armyId=-1, int slotId=-1)

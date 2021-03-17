@@ -851,8 +851,6 @@ public:
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
 
-	bool isAreaBorderObstacle() const;
-
 	bool IsResistance() const;
 	int GetResistanceTurns() const;
 	void ChangeResistanceTurns(int iChange);

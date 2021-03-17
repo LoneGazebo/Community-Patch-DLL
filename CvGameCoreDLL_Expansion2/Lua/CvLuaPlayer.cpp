@@ -7876,7 +7876,7 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	CvWeightedVector<PlayerTypes> veMilitaryRankings;
 	PlayerTypes eMajorLoop;
 
 	int iRankRatio = 0;
@@ -11399,7 +11399,7 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	return 1;
 }
 
-typedef CvWeightedVector<CvPlot*, 800, true> WeightedPlotVector;
+typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)

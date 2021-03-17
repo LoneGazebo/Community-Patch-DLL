@@ -2687,7 +2687,7 @@ void CvHomelandAI::ExecuteHeals()
 	}
 }
 
-typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
+typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)

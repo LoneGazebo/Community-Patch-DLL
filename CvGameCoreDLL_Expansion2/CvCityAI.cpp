@@ -265,7 +265,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				return;
 			}
 			// Now let's get the event flavors.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
@@ -325,7 +325,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;

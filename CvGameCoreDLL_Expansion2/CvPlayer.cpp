@@ -19746,7 +19746,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 
 	int iOpenSlots = 0;
 	int iStuffStolen = 0;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> artChoices;
+	CvWeightedVector<int> artChoices;
 	const char* strTargetNameKey = pCity->getNameKey();
 	const CvCity* pLoopCity;
 	int iLoop;
@@ -24292,7 +24292,7 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 {
 	int iRank = 0;
 	int iMajorCivs = 0;
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
+	CvWeightedVector<PlayerTypes> veMajorRankings;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -24353,7 +24353,7 @@ PlayerTypes CvPlayer::AidRank()
 #else
 	int iRank = 0;
 	int iMajorCivs = 0;
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
+	CvWeightedVector<PlayerTypes> veMajorRankings;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{

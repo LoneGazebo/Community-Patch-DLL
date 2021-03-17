@@ -877,7 +877,7 @@ public:
 		int iChoice;
 		int iNumAllocated;
 	};
-	typedef CvWeightedVector<VoteConsideration, 32, false> VoteConsiderationList;
+	typedef CvWeightedVector<VoteConsideration> VoteConsiderationList;
 
 	struct ProposalConsideration {
 		ProposalConsideration(void);
@@ -888,7 +888,7 @@ public:
 		int iIndex;
 		int iChoice;
 	};
-	typedef CvWeightedVector<ProposalConsideration, 128, false> ProposalConsiderationList;
+	typedef CvWeightedVector<ProposalConsideration> ProposalConsiderationList;
 
 	void Init(CvPlayer* pPlayer);
 	void Uninit();

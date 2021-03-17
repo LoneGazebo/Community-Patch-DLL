@@ -805,7 +805,7 @@ CvVoterDecision::~CvVoterDecision(void)
 
 int CvVoterDecision::GetDecision()
 {
-	CvWeightedVector<int, 64, true> vChoices;
+	CvWeightedVector<int> vChoices;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
 	{
 		bool bFirst = true;
@@ -890,7 +890,7 @@ bool CvVoterDecision::IsTie()
 
 std::vector<int> CvVoterDecision::GetTopVotedChoices(int iNumTopChoices)
 {
-	CvWeightedVector<int, 64, true> vChoices;
+	CvWeightedVector<int> vChoices;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
 	{
 		bool bFirst = true;
@@ -7465,7 +7465,7 @@ void CvLeague::ClearProposalPrivileges()
 
 void CvLeague::AssignProposalPrivileges()
 {
-	CvWeightedVector<Member*, MAX_CIV_PLAYERS, false> vpPossibleProposers;
+	CvWeightedVector<Member*> vpPossibleProposers;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
 		if (CanEverPropose(it->ePlayer))
@@ -11075,39 +11075,24 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		// If we want to focus on one resolution, zero out all other considerations
 		if (iFocusResolutionID != -1)
 		{
-			bool bFound = false;
 			for (int i = 0; i < vConsiderations.size(); ++i)
 			{
 				if (vConsiderations.GetElement(i).iID != iFocusResolutionID)
 				{
 					vConsiderations.SetWeight(i, 0);
 				}
-				else
-				{
-					bFound = true;
-				}
 			}
-			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
-			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
 		}
 		else if (iOurResolutionID != -1)
 		{
-			bool bFound = false;
 			for (int i = 0; i < vConsiderations.size(); ++i)
 			{
 				if (vConsiderations.GetElement(i).iID == iOurResolutionID)
 				{
-					vConsiderations.SetWeight(i, vConsiderations.GetWeight(vConsiderations.GetElement(i).iID) * 10);
-				}
-				else
-				{
-					bFound = true;
+					vConsiderations.SetWeight(i, vConsiderations.GetWeight(i) * 10);
 				}
 			}
-			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
-			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
 		}
-
 
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)
@@ -11118,7 +11103,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			}
 		}
 
-		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
+		CvWeightedVector<VoteConsideration> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
 			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);

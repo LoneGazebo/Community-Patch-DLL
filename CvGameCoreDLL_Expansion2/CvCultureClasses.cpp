@@ -1816,7 +1816,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		return false;
 	}
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> bestThemes;
+	CvWeightedVector<int> bestThemes;
 
 	for (int iI = 0; iI < pkEntry->GetNumThemingBonuses(); iI++)
 	{
@@ -1915,7 +1915,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 			{
 				//Let's look at every applicable GW in the world.
 				vector<int> aForeignWorksToConsider;
-				CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> aGreatWorkPairs;
+				CvWeightedVector<int> aGreatWorkPairs;
 				vector<int> aWorksToDiscard;
 
 				GreatWorkSlotType eSlotType = pkEntry->GetGreatWorkSlotType();
@@ -2550,7 +2550,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				{
 					//Let's look at every applicable GW in the world.
 					vector<int> aForeignWorksToConsider;
-					CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> aGreatWorkPairs;
+					CvWeightedVector<int> aGreatWorkPairs;
 					vector<int> aWorksToDiscard;
 
 					GreatWorkSlotType eSlotType = pkEntry->GetGreatWorkSlotType();

@@ -1999,10 +1999,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		// Set up AI and hook it up to the flavor manager
 		m_pCityStrategyAI->Init(GC.GetGameAICityStrategies(), this, true);
 		if(m_eOwner != NO_PLAYER)
-		{
 			GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI);
-			m_pCityStrategyAI->SetDefaultSpecialization(GET_PLAYER(getOwner()).GetCitySpecializationAI()->GetNextSpecializationDesired());
-		}
 
 		m_pCityCitizens->Init(this);
 		m_pCityReligions->Init(this);
@@ -6428,7 +6425,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
-			typedef CvWeightedVector<CvPlot*, SAFE_ESTIMATE_NUM_BUILDINGS, true> WeightedPlotVector;
+			typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 			WeightedPlotVector aBestPlots;
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
@@ -7036,7 +7033,7 @@ void CvCity::updateEconomicValue()
 
 	int iYieldValue = 0;
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> validResources;
+	CvWeightedVector<int> validResources;
 
 	//notes:
 	//- economic value is in gold, so use a rough conversion factor for the others
@@ -23201,7 +23198,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 {
 	BuildingTypes eRtnValue = NO_BUILDING;
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> buildingChoices;
+	CvWeightedVector<int> buildingChoices;
 
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
 	{
@@ -23245,7 +23242,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 {
 	BuildingTypes eRtnValue = NO_BUILDING;
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> buildingChoices;
+	CvWeightedVector<int> buildingChoices;
 
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
 	{

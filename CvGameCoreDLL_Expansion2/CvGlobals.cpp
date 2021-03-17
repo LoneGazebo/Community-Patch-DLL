@@ -4285,8 +4285,9 @@ std::vector<CvAIGrandStrategyXMLEntry*>& CvGlobals::getAIGrandStrategyInfo()
 
 CvAIGrandStrategyXMLEntry* CvGlobals::getAIGrandStrategyInfo(AIGrandStrategyTypes eAIGrandStrategyNum)
 {
-	CvAssert(eAIGrandStrategyNum > -1);
-	CvAssert(eAIGrandStrategyNum < GC.getNumAIGrandStrategyInfos());
+	if (eAIGrandStrategyNum == NO_AIGRANDSTRATEGY)
+		return NULL;
+
 	return m_pAIGrandStrategies->GetAIGrandStrategyEntries()[eAIGrandStrategyNum];
 }
 

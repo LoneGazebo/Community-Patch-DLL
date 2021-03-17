@@ -46,17 +46,7 @@ void CvProjectProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	// Reset vector
-	m_ProjectAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	for(int i = 0; i < GC.GetGameProjects()->GetNumProjects(); i++)
-	{
-		kStream >> iWeight;
-		m_ProjectAIWeights.push_back(i, iWeight);
-	}
+	kStream >> m_ProjectAIWeights;
 }
 
 /// Serialization write
@@ -67,11 +57,7 @@ void CvProjectProductionAI::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	// Loop through writing each entry
-	for(int i = 0; i < GC.GetGameProjects()->GetNumProjects(); i++)
-	{
-		kStream << m_ProjectAIWeights.GetWeight(i);
-	}
+	kStream << m_ProjectAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
