@@ -3175,7 +3175,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// Player must be a potential war target
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI();
-	if (!pDiploAI->IsPotentialWarTarget(eWithPlayer))
+	if (GET_PLAYER(eWithPlayer).isMajorCiv() && !pDiploAI->IsPotentialWarTarget(eWithPlayer))
 	{
 		return INT_MAX;
 	}
