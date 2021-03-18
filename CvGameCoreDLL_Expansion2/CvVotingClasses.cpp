@@ -10104,7 +10104,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice, /*bConsiderGlobal*/ true));
 							break;
 						}
 					}
@@ -10117,7 +10117,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int
 					{
 						if (it->GetID() == iResolutionID)
 						{
-							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice));
+							eValue = EvaluateDesire(ScoreVoteChoice(&(*it), iVoteChoice, /*bConsiderGlobal*/ true));
 							break;
 						}
 					}
@@ -10652,22 +10652,6 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 		return LeagueHelpers::CHOICE_NONE;
 	}
 
-	// What is our preferred choice on this proposal?
-	int iTopChoice = LeagueHelpers::CHOICE_NONE;
-	int iTopChoiceScore = MIN_INT;
-	std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetVoterDecision()->GetType(), GetPlayer()->GetID());
-	for (uint i = 0; i < vChoices.size(); i++)
-	{
-		int iChoice = vChoices[i];
-		int iChoiceScore = ScoreVoteChoice(pProposal, iChoice);
-		if (iChoiceScore > iTopChoiceScore)
-		{
-			iTopChoice = iChoice;
-			iTopChoiceScore = iChoiceScore;
-		}
-	}
-	CvAssert(iTopChoice != LeagueHelpers::CHOICE_NONE);
-
 	// How much are we telling them?
 	int iRevealedChoice = LeagueHelpers::CHOICE_NONE;
 	KnowledgeLevels eKnowledge = GetKnowledgeGivenToOtherPlayer(eToPlayer);
@@ -10685,6 +10669,21 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 		}
 	case KNOWLEDGE_PARTIAL:
 		{	
+		// What is our preferred choice on this proposal?
+		int iTopChoice = LeagueHelpers::CHOICE_NONE;
+		int iTopChoiceScore = MIN_INT;
+		std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetVoterDecision()->GetType(), GetPlayer()->GetID());
+		for (uint i = 0; i < vChoices.size(); i++)
+		{
+			int iChoice = vChoices[i];
+			int iChoiceScore = ScoreVoteChoice(pProposal, iChoice, /*bConsiderGlobal*/ true);
+			if (iChoiceScore > iTopChoiceScore)
+			{
+				iTopChoice = iChoice;
+				iTopChoiceScore = iChoiceScore;
+			}
+		}
+		CvAssert(iTopChoice != LeagueHelpers::CHOICE_NONE);
 			iRevealedChoice = iTopChoice;
 			if (sTooltipSink != NULL)
 			{
@@ -10697,6 +10696,21 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 		}
 	case KNOWLEDGE_INTIMATE:
 		{
+		// What is our preferred choice on this proposal?
+		int iTopChoice = LeagueHelpers::CHOICE_NONE;
+		int iTopChoiceScore = MIN_INT;
+		std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetVoterDecision()->GetType(), GetPlayer()->GetID());
+		for (uint i = 0; i < vChoices.size(); i++)
+		{
+			int iChoice = vChoices[i];
+			int iChoiceScore = ScoreVoteChoice(pProposal, iChoice, /*bConsiderGlobal*/ true);
+			if (iChoiceScore > iTopChoiceScore)
+			{
+				iTopChoice = iChoice;
+				iTopChoiceScore = iChoiceScore;
+			}
+		}
+		CvAssert(iTopChoice != LeagueHelpers::CHOICE_NONE);
 			iRevealedChoice = iTopChoice;
 			if (sTooltipSink != NULL)
 			{
@@ -10722,20 +10736,6 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 		return LeagueHelpers::CHOICE_NONE;
 	}
 
-	// What is our preferred choice on this proposal?
-	int iTopChoice = LeagueHelpers::CHOICE_NONE;
-	int iTopChoiceScore = 0;
-	std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetRepealDecision()->GetType(), GetPlayer()->GetID());
-	for (uint i = 0; i < vChoices.size(); i++)
-	{
-		int iChoice = vChoices[i];
-		int iChoiceScore = ScoreVoteChoice(pProposal, iChoice);
-		if (iChoiceScore > iTopChoiceScore)
-		{
-			iTopChoice = iChoice;
-			iTopChoiceScore = iChoiceScore;
-		}
-	}
 
 	// How much are we telling them?
 	int iRevealedChoice = LeagueHelpers::CHOICE_NONE;
@@ -10754,6 +10754,21 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 		}
 	case KNOWLEDGE_PARTIAL:
 		{	
+		// What is our preferred choice on this proposal?
+		int iTopChoice = LeagueHelpers::CHOICE_NONE;
+		int iTopChoiceScore = 0;
+		std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetRepealDecision()->GetType(), GetPlayer()->GetID());
+		for (uint i = 0; i < vChoices.size(); i++)
+		{
+			int iChoice = vChoices[i];
+			int iChoiceScore = ScoreVoteChoice(pProposal, iChoice,/*bConsiderGlobal*/ true);
+			if (iChoiceScore > iTopChoiceScore)
+			{
+				iTopChoice = iChoice;
+				iTopChoiceScore = iChoiceScore;
+			}
+		}
+
 			iRevealedChoice = iTopChoice;
 			if (sTooltipSink != NULL)
 			{
@@ -10765,7 +10780,21 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 			break;
 		}
 	case KNOWLEDGE_INTIMATE:
+		{	// What is our preferred choice on this proposal?
+		int iTopChoice = LeagueHelpers::CHOICE_NONE;
+		int iTopChoiceScore = 0;
+		std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetRepealDecision()->GetType(), GetPlayer()->GetID());
+		for (uint i = 0; i < vChoices.size(); i++)
 		{
+			int iChoice = vChoices[i];
+			int iChoiceScore = ScoreVoteChoice(pProposal, iChoice,/*bConsiderGlobal*/ true);
+			if (iChoiceScore > iTopChoiceScore)
+			{
+				iTopChoice = iChoice;
+				iTopChoiceScore = iChoiceScore;
+			}
+		}
+
 			iRevealedChoice = iTopChoice;
 			if (sTooltipSink != NULL)
 			{
@@ -11209,7 +11238,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 	for (uint i = 0; i < vChoices.size(); i++)
 	{
 		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i], 0);
-		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
+		int iScore = ScoreVoteChoice(pProposal, vChoices[i], /*bConsiderGlobal*/ true);
 
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
@@ -11256,7 +11285,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 	for (uint i = 0; i < vChoices.size(); i++)
 	{
 		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i], 0);
-		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
+		int iScore = ScoreVoteChoice(pProposal, vChoices[i],/*bConsiderGlobal*/ true);
 
 		iScore = MAX(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
@@ -11274,7 +11303,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 }
 
 // Score a particular choice on a particular proposal
-int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice)
+int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal)
 {
 	CvAssert(pProposal != NULL);
 	if (!(pProposal != NULL)) return 0;
@@ -11290,7 +11319,7 @@ int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice)
 	{
 	case RESOLUTION_DECISION_YES_OR_NO:
 		{
-			iScore = ScoreVoteChoiceYesNo(pProposal, iChoice, /*bEnact*/ true);
+			iScore = ScoreVoteChoiceYesNo(pProposal, iChoice, /*bEnact*/ true, bConsiderGlobal);
 			break;
 		}
 	case RESOLUTION_DECISION_ANY_MEMBER:
@@ -11311,7 +11340,7 @@ int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice)
 }
 
 // Score a particular choice on a particular proposal
-int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice)
+int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal)
 {
 	CvAssert(pProposal != NULL);
 	if (!(pProposal != NULL)) return 0;
@@ -11327,7 +11356,7 @@ int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice)
 	{
 	case RESOLUTION_DECISION_REPEAL:
 		{
-			iScore = ScoreVoteChoiceYesNo(pProposal, iChoice, /*bEnact*/ false);
+			iScore = ScoreVoteChoiceYesNo(pProposal, iChoice, /*bEnact*/ false, bConsiderGlobal);
 			break;
 		}
 	default:
@@ -11341,7 +11370,7 @@ int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice)
 }
 
 // Score a particular choice on a particular proposal which is a decision between Yes and No
-int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact)
+int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal)
 {
 	CvAssert(pProposal != NULL);
 	if (!(pProposal != NULL)) return 0;
@@ -13825,114 +13854,70 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 	}
 #endif
-	// == Diplomat knowledge, Vote Commitments we secured ==
-#if defined(MOD_BALANCE_CORE)
-	//How much will friends/enemies care about this?
-	if(eProposer == GetPlayer()->GetID())
+	if (!bEnact)
 	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if(pLeague)
+		iScore *= -1; // Flip the score when the proposal is to repeal these effects
+	}
+	if (bConsiderGlobal)
+	{
+		// == Alignment with Proposer ==
+		bool bNoAutomaticMasterAlignment = pProposal->GetEffects()->bEmbargoPlayer && eTargetPlayer != NO_PLAYER && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam());
+
+		// To avoid making diplo victory too easy, vassals aren't always supportive of their master's interests
+		if (!GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eProposer))
 		{
-			LeagueHelpers::PlayerList vLikers = pLeague->GetMembersThatLikeProposal(pProposal->GetType(), eProposer, iChoice);
-			for (LeagueHelpers::PlayerList::iterator it = vLikers.begin(); it != vLikers.end(); ++it)
-			{
-				CvAssert((*it) != NO_PLAYER);
-				CvAssert(pLeague->CanEverVote(*it));
-				if(*it != NO_PLAYER)
-				{	
-					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(*it);
-					//People we don't like like this? We should not do this to spite them!
-					if (eOpinion < CIV_OPINION_COMPETITOR)
-					{
-						iScore -= 30;
-					}
-					//People we like like this? We should do it!
-					else if (eOpinion > CIV_OPINION_FAVORABLE)
-					{
-						iScore += 30;
-					}
-				}
-			}
-			LeagueHelpers::PlayerList vDislikers = pLeague->GetMembersThatDislikeProposal(pProposal->GetType(), eProposer, iChoice);
-			for (LeagueHelpers::PlayerList::iterator it = vDislikers.begin(); it != vDislikers.end(); ++it)
-			{
-				CvAssert((*it) != NO_PLAYER);
-				CvAssert(pLeague->CanEverVote(*it));
-				if(*it != NO_PLAYER)
-				{	
-					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(*it);
-					//People we don't like? We should do this to spite them!
-					if (eOpinion < CIV_OPINION_COMPETITOR)
-					{
-						iScore += 30;
-					}
-					//People we like? We should reconsider...
-					else if (eOpinion > CIV_OPINION_FAVORABLE)
-					{
-						iScore -= 30;
-					}
-				}	
-			}
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bDecolonization;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bSphereOfInfluence;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingReligion != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iHolyCityTourism != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iReligionSpreadStrengthMod != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingIdeology != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iOtherIdeologyRebellionMod != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iLimitSpaceshipProduction != 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iChangeTourism > 0;
+			bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bEndAllCurrentVassals;
 		}
-	}	
-#endif
-	// == Alignment with Proposer ==
-	bool bNoAutomaticMasterAlignment = pProposal->GetEffects()->bEmbargoPlayer && eTargetPlayer != NO_PLAYER && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam());
 
-	// To avoid making diplo victory too easy, vassals aren't always supportive of their master's interests
-	if (!GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eProposer))
-	{
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bDecolonization;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bSphereOfInfluence;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingReligion != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iHolyCityTourism != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iReligionSpreadStrengthMod != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iVotesForFollowingIdeology != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iOtherIdeologyRebellionMod != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iLimitSpaceshipProduction != 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->iChangeTourism > 0;
-		bNoAutomaticMasterAlignment |= pProposal->GetEffects()->bEndAllCurrentVassals;
-	}
-
-	if (MOD_DIPLOMACY_CIV4_FEATURES && (eProposer != NO_PLAYER) && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eProposer).getTeam()) && !bNoAutomaticMasterAlignment)
-	{
-		iScore += 250;
-	}
-	else
-	{
-		if (iScore > -20 || eProposer == GetPlayer()->GetID())
+		if (MOD_DIPLOMACY_CIV4_FEATURES && (eProposer != NO_PLAYER) && GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eProposer).getTeam()) && !bNoAutomaticMasterAlignment)
 		{
-			if (eProposer != NO_PLAYER)
+			iScore += 250;
+		}
+		else
+		{
+			if (iScore > -20 || eProposer == GetPlayer()->GetID())
 			{
-				AlignmentLevels eAlignment = EvaluateAlignment(eProposer, false, true);
-				switch (eAlignment)
+				if (eProposer != NO_PLAYER)
 				{
-				case ALIGNMENT_SELF:
-					iScore += 40;
-					break;
-				case ALIGNMENT_LIBERATOR:
-				case ALIGNMENT_LEADER:
-				case ALIGNMENT_ALLY:
-					iScore += 30;
-					break;
-				case ALIGNMENT_CONFIDANT:
-					iScore += 20;
-					break;
-				case ALIGNMENT_FRIEND:
-					iScore += 10;
-					break;
-				case ALIGNMENT_RIVAL:
-					iScore += -10;
-					break;
-				case ALIGNMENT_HATRED:
-					iScore += -20;
-					break;
-				case ALIGNMENT_ENEMY:
-				case ALIGNMENT_WAR:
-					iScore += -30;
-					break;
-				default:
-					break;
+					AlignmentLevels eAlignment = EvaluateAlignment(eProposer, false, true);
+					switch (eAlignment)
+					{
+					case ALIGNMENT_SELF:
+						iScore += 40;
+						break;
+					case ALIGNMENT_LIBERATOR:
+					case ALIGNMENT_LEADER:
+					case ALIGNMENT_ALLY:
+						iScore += 30;
+						break;
+					case ALIGNMENT_CONFIDANT:
+						iScore += 20;
+						break;
+					case ALIGNMENT_FRIEND:
+						iScore += 10;
+						break;
+					case ALIGNMENT_RIVAL:
+						iScore += -10;
+						break;
+					case ALIGNMENT_HATRED:
+						iScore += -20;
+						break;
+					case ALIGNMENT_ENEMY:
+					case ALIGNMENT_WAR:
+						iScore += -30;
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
@@ -13944,10 +13929,29 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	{
 		iScore *= -1; // Flip the score when we are considering NO for these effects
 	}
-	if (!bEnact)
+
+
+#if defined(MOD_BALANCE_CORE)
+	//How much will friends/enemies care about this?
+	if (bConsiderGlobal == true)
 	{
-		iScore *= -1; // Flip the score when the proposal is to repeal these effects
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague)
+		{
+			int iDiploScore = 0;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID())
+				{
+					iDiploScore += GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false);
+				}
+			}
+			iScore += iDiploScore;
+
+		}
 	}
+#endif
 
 	return iScore;
 }

@@ -6405,7 +6405,10 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	{
 		return false;
 	}
-	
+	if (!GET_PLAYER(eOtherPlayer).GetLeagueAI()->CanCommitVote(GetPlayer()->GetID()))
+	{
+		return false;
+	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	//Asking a vassal? Abort!
 	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())

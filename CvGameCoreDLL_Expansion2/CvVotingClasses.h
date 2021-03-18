@@ -945,9 +945,9 @@ private:
 	void AllocateVotes(CvLeague* pLeague);
 	void FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderationList& considerations);
 	void FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderationList& considerations);
-	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice);
-	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice);
-	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact);
+	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal);
 	int ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	// Proposing
