@@ -7874,8 +7874,12 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 
 	// Let's check if we're close to winning.
-	// Pick the easiest victory condition to win with first.
-	if (IsCloseToSSVictory())
+	if (IsCloseToDominationVictory())
+	{
+		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		return;
+	}
+	else if (IsCloseToSSVictory())
 	{
 		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
@@ -7888,11 +7892,6 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	else if (IsCloseToCultureVictory())
 	{
 		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
-		return;
-	}
-	else if (IsCloseToDominationVictory())
-	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		return;
 	}
 
