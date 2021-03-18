@@ -8513,42 +8513,35 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 		if (iI > YIELD_FAITH)
 			continue;
 
-		int iFlavor = 1;
 		int iPersonFlavor = 0;
 		CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 		switch (iI)
 		{
 		case YIELD_FOOD:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 			break;
 		case YIELD_PRODUCTION:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 			break;
 		case YIELD_GOLD:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			break;
 		case YIELD_SCIENCE:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 			break;
 		case YIELD_CULTURE:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 			break;
 		case YIELD_FAITH:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 			break;
 		}
-
-		iFlavor = iPersonFlavor;
-		iFlavor /= 10;
-
-		if (iFlavor <= iPersonFlavor)
-			iFlavor = iPersonFlavor;
 
 		iRtnValue = GetValidPlotYield(pEntry, pPlot, (YieldTypes)iI);
 		if (iRtnValue <= 0)
 			continue;
 
-		iTotalRtnValue += iRtnValue*iFlavor;
+		iTotalRtnValue += iRtnValue*iPersonFlavor;
 
 		if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 		{

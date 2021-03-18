@@ -390,7 +390,7 @@ void CvCityStrategyAI::FlavorUpdate()
 	// Broadcast to our sub AI objects
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);// m_piLatestFlavorValues[iFlavor];
+		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
 		const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str(); pcFlavorName; //for debugging
 
 		m_pBuildingProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);

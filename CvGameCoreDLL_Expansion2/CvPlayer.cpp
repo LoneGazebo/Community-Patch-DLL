@@ -50692,7 +50692,7 @@ void CvPlayer::computeFoundValueThreshold()
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
+	//clamp it to a sensible range
 	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 

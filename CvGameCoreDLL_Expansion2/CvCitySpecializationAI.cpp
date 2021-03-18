@@ -501,7 +501,7 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 		 int iFlavorGrowth = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
 
-		 int iFlavorCulture = 100 * (m_pPlayer->GetCulture()->GetNumCivsInfluentialOn() + m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
+		 int iFlavorCulture = 100 * (m_pPlayer->GetCulture()->GetNumCivsInfluentialOn() + m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
 		 if (iFlavorCulture < 0) iFlavorCulture = 0;
 
 		 int iFlavorFaith = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
