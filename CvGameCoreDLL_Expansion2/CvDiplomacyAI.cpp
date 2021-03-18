@@ -7884,14 +7884,14 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
 	}
-	else if (IsCloseToDiploVictory())
-	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
-		return;
-	}
 	else if (IsCloseToCultureVictory())
 	{
 		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
+		return;
+	}
+	else if (IsCloseToDiploVictory())
+	{
+		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
 
