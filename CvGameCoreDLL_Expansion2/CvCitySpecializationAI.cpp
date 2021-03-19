@@ -482,32 +482,32 @@ CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 /// Evaluate which specializations we need
 CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 {
-	int iFoodYieldWeight = 1;
-	int iProductionYieldWeight = 1;
-	int iGoldYieldWeight = 1;
-	int iScienceYieldWeight = 1;
-	int iCultureYieldWeight = 1;
-	int iFaithYieldWeight = 1;
+	int iFoodYieldWeight = 100;
+	int iProductionYieldWeight = 100;
+	int iGoldYieldWeight = 100;
+	int iScienceYieldWeight = 100;
+	int iCultureYieldWeight = 100;
+	int iFaithYieldWeight = 100;
 
 	// Must have a capital to do any specialization
 	 if (m_pPlayer->getCapitalCity() != NULL)
 	 {
-		 int iFlavorGold = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		 if (iFlavorGold < 0) iFlavorGold = 0;
 
-		 int iFlavorScience = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 		 if (iFlavorScience < 0) iFlavorScience = 0;
 
-		 int iFlavorGrowth = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
 
-		 int iFlavorCulture = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 		 if (iFlavorCulture < 0) iFlavorCulture = 0;
 
-		 int iFlavorFaith = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		 if (iFlavorFaith < 0) iFlavorFaith = 0;
 
-		 int iFlavorProduction = 100 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 		 if (iFlavorProduction < 0) iFlavorProduction = 0;
 
 		 //   Add in any contribution from the current grand strategy
@@ -519,27 +519,27 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 				 iFoodYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_FOOD);
 				 iFoodYieldWeight /= 100;
 			 }
-			 else if (grandStrategy->GetSpecializationBoost(YIELD_GOLD) > 0)
+			 if (grandStrategy->GetSpecializationBoost(YIELD_GOLD) > 0)
 			 {
 				 iGoldYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_GOLD);
 				 iGoldYieldWeight /= 100;
 			 }
-			 else if (grandStrategy->GetSpecializationBoost(YIELD_SCIENCE) > 0)
+			 if (grandStrategy->GetSpecializationBoost(YIELD_SCIENCE) > 0)
 			 {
 				 iScienceYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
 				 iScienceYieldWeight /= 100;
 			 }
-			 else if (grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
+			 if (grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
 			 {
 				 iProductionYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
 				 iProductionYieldWeight /= 100;
 			 }
-			 else if (grandStrategy->GetSpecializationBoost(YIELD_CULTURE) > 0)
+			 if (grandStrategy->GetSpecializationBoost(YIELD_CULTURE) > 0)
 			 {
 				 iCultureYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_CULTURE);
 				 iCultureYieldWeight /= 100;
 			 }
-			 else if (grandStrategy->GetSpecializationBoost(YIELD_FAITH) > 0)
+			 if (grandStrategy->GetSpecializationBoost(YIELD_FAITH) > 0)
 			 {
 				 iFaithYieldWeight *= grandStrategy->GetSpecializationBoost(YIELD_FAITH);
 				 iFaithYieldWeight /= 100;
@@ -774,8 +774,8 @@ void CvCitySpecializationAI::AssignSpecializations()
 			if (bCoastal && !pCity->isCoastal())
 				continue;
 
-			//food is the one yield than can turn bad
-			if (pCity->GetCityCitizens()->IsAvoidGrowth() && eYield == YIELD_FOOD)
+			//food is the one yield than can turn bad - don't grow unhappy cities
+			if (pCity->getHappinessDelta()<0 && eYield == YIELD_FOOD)
 				continue;
 
 			int iCityValue = 0;
@@ -826,7 +826,7 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 	for(int iI = 1; iI < pCity->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot->getX(), pPlot->getY(), iI);
-		if(pLoopPlot != NULL && pLoopPlot->getOwningCityID()==pCity->GetID() && !pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+		if(pLoopPlot != NULL && pLoopPlot->getOwningCityID()==pCity->GetID() && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
 		{
 			for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
 			{
@@ -869,14 +869,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 		{
 			if(eYield == YIELD_PRODUCTION)
 			{
-				int iReductionAmount = 0;
-				eSpecialization = SelectProductionSpecialization(prodSubtypeWeights,numSpecializationsPerSubtype,iReductionAmount);
-
-				int iOldWeight = yieldWeights.GetWeight(0);
-				int iNewWeight = iOldWeight - iReductionAmount;
-
-				numSpecializationsPerYield[eYield]++;
-				yieldWeights.SetWeight(0, iNewWeight);
+				eSpecialization = SelectProductionSpecialization(prodSubtypeWeights,numSpecializationsPerSubtype);
 			}
 			else
 			{
@@ -886,14 +879,15 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 		else
 		{
 			eSpecialization = GC.GetGameCitySpecializations()->GetFirstSpecializationForYield(eYield);
-			numSpecializationsPerYield[eYield]++;
-
-			// Reduce weight for this specialization based on dividing original weight by <num of this type + 1>
-			int iOldWeight = yieldWeights.GetWeight(0);
-			int iNewWeight = iOldWeight * numSpecializationsPerYield[eYield] / (numSpecializationsPerYield[eYield] + 1);
-
-			yieldWeights.SetWeight(0, iNewWeight);
 		}
+
+		numSpecializationsPerYield[eYield]++;
+
+		// Reduce weight for this specialization based on dividing original weight by <num of this type + 1>
+		int iOldWeight = yieldWeights.GetWeight(0);
+		int iNewWeight = iOldWeight * numSpecializationsPerYield[eYield] / (numSpecializationsPerYield[eYield] + 1);
+
+		yieldWeights.SetWeight(0, iNewWeight);
 
 		specializationsNeeded.push_back(eSpecialization);
 	}
@@ -904,8 +898,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 /// Find production specializations needed
 CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 	CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
-	map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype, 
-	int& iReductionAmount)
+	map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype)
 {
 	// Find current highest weighted subtype
 	prodSubtypeWeights.SortItems();
@@ -936,17 +929,15 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 			eSpecialization = GetEconomicDefaultSpecialization();
 		}
 
-		iReductionAmount = prodSubtypeWeights.GetWeight(0);
 		prodSubtypeWeights.SetWeight(0, 0);
 	}
 	else
 	{
-		// Reduce weight for this subtype based on dividing original weight by <num of this type + 1>
-		int iOldWeight = prodSubtypeWeights.GetWeight(0);
 		numSpecializationsPerSubtype[eSubtype]++;
 
+		// Reduce weight for this subtype based on dividing original weight by <num of this type + 1>
+		int iOldWeight = prodSubtypeWeights.GetWeight(0);
 		int iNewWeight = iOldWeight * numSpecializationsPerSubtype[eSubtype] / (numSpecializationsPerSubtype[eSubtype] + 1);
-		iReductionAmount = iOldWeight - iNewWeight;
 
 		prodSubtypeWeights.SetWeight(0, iNewWeight);
 	}

@@ -148,8 +148,7 @@ private:
 	vector<CitySpecializationTypes> SelectSpecializations();
 	CitySpecializationTypes SelectProductionSpecialization(
 		CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
-		map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype, 
-		int& iReductionAmount);
+		map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype);
 	CitySpecializationTypes GetEconomicDefaultSpecialization() const;
 	int GetWonderSubtype() const;
 	CvCity* FindBestWonderCity() const;
