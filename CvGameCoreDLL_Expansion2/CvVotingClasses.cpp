@@ -276,7 +276,7 @@ CvResolutionEffects::CvResolutionEffects(void)
 #endif
 }
 
-CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
+bool CvResolutionEffects::SetType(ResolutionTypes eType)
 {
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eType);	
 	CvAssertMsg(pInfo, "Resolution info is null when instantiating ResolutionEffects. Please send Anton your save file and version.");
@@ -324,7 +324,9 @@ CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
 		iVassalMaintenanceGoldPercent		= pInfo->GetVassalMaintenanceGoldPercent();
 		bEndAllCurrentVassals				= pInfo->IsEndAllCurrentVassals();
 #endif
+		return true;
 	}
+	return false;
 }
 
 CvResolutionEffects::~CvResolutionEffects(void)
@@ -1148,7 +1150,7 @@ CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague)
 	m_iID = iID;
 	m_eType = eType;
 	m_eLeague = eLeague;
-	m_sEffects = CvResolutionEffects(m_eType);
+	m_sEffects.SetType(m_eType);
 }
 
 CvResolution::~CvResolution(void)
@@ -14490,21 +14492,14 @@ void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iCh
 	if (vInactive.empty())
 		return;
 
-	ResolutionTypes eResolution = NO_RESOLUTION;
+	if (pProposal == NULL)
+		return;
 
-	if (pProposal->bEnact)
-	{
-		eResolution = vInactive[pProposal->iIndex];
-	}
-	else
-	{
-		eResolution = vActive[pProposal->iIndex].GetType();
-	}
+	ResolutionTypes eResolution = pProposal->bEnact ? vInactive[pProposal->iIndex] : vActive[pProposal->iIndex].GetType();
+	if (GC.getResolutionInfo(eResolution) == NULL)
+		return;
 
-	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
 	CvString sMessage = "";
-
 	sMessage += ",";
 	sMessage += GetPlayer()->getCivilizationShortDescription();
 	sMessage += ",- - -";

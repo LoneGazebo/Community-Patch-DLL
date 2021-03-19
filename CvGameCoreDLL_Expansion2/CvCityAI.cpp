@@ -62,11 +62,7 @@ void CvCityAI::AI_reset()
 
 	m_bChooseProductionDirty = false;
 
-	for(int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
-	{
-		m_aiPlayerCloseness[iI] = 0;
-		m_aiNumPlotsAcquiredByOtherPlayers[iI] = 0;
-	}
+	m_mapPlotsAcquiredByOtherPlayers.clear();
 	m_iCachePlayerClosenessTurn = -1;
 	m_iCachePlayerClosenessDistance = -1;
 }
@@ -80,11 +76,8 @@ void CvCityAI::AI_doTurn()
 		AI_stealPlots();
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings)
-#else
-void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
-#endif
 {
 	VALIDATE_OBJECT
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -223,8 +216,12 @@ int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 	VALIDATE_OBJECT
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
+	
+	map<PlayerTypes,int>::const_iterator it = m_mapPlotsAcquiredByOtherPlayers.find(ePlayer);
+	if (it != m_mapPlotsAcquiredByOtherPlayers.end())
+		return it->second;
 
-	return m_aiNumPlotsAcquiredByOtherPlayers[ePlayer];
+	return 0;
 }
 
 /// Changes how many of our City's plots have been grabbed by someone else
@@ -234,8 +231,12 @@ void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int i
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
 
-	m_aiNumPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
+	m_mapPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
+
+	if (m_mapPlotsAcquiredByOtherPlayers[ePlayer] == 0)
+		m_mapPlotsAcquiredByOtherPlayers.erase(ePlayer);
 }
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 {
@@ -398,8 +399,7 @@ void CvCityAI::read(FDataStream& kStream)
 	kStream >> m_bChooseProductionDirty;
 	kStream >> m_iCachePlayerClosenessTurn;
 	kStream >> m_iCachePlayerClosenessDistance;
-	kStream >> m_aiPlayerCloseness;
-	kStream >> m_aiNumPlotsAcquiredByOtherPlayers;
+	kStream >> m_mapPlotsAcquiredByOtherPlayers;
 }
 
 //
@@ -418,8 +418,7 @@ void CvCityAI::write(FDataStream& kStream) const
 	kStream << m_bChooseProductionDirty;
 	kStream << m_iCachePlayerClosenessTurn;
 	kStream << m_iCachePlayerClosenessDistance;
-	kStream << m_aiPlayerCloseness;
-	kStream << m_aiNumPlotsAcquiredByOtherPlayers;
+	kStream << m_mapPlotsAcquiredByOtherPlayers;
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvCityAI& readFrom)

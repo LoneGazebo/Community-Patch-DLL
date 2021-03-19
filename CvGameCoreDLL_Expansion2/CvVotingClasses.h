@@ -104,9 +104,9 @@ namespace LeagueHelpers
 struct CvResolutionEffects
 {
 	CvResolutionEffects(void);
-	CvResolutionEffects(ResolutionTypes eType);
 	~CvResolutionEffects(void);
 
+	bool SetType(ResolutionTypes eType);
 	bool HasOngoingEffects() const;
 	void AddOngoingEffects(const CvResolutionEffects* pOtherEffects);
 
@@ -286,6 +286,7 @@ public:
 	CvProposerDecision* GetProposerDecision();
 	CvString GetName();
 
+protected:
 	int m_iID;
 	ResolutionTypes m_eType;
 	LeagueTypes m_eLeague;
@@ -293,11 +294,10 @@ public:
 	CvVoterDecision m_VoterDecision;
 	CvProposerDecision m_ProposerDecision;
 
-protected:
+friend FDataStream& operator>>(FDataStream&, CvResolution&);
+friend FDataStream& operator<<(FDataStream&, const CvResolution&);
 };
 
-FDataStream& operator>>(FDataStream&, CvResolution&);
-FDataStream& operator<<(FDataStream&, const CvResolution&);
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

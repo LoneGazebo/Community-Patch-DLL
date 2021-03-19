@@ -26,11 +26,7 @@ public:
 	void AI_reset();
 
 	void AI_doTurn();
-#if defined(MOD_BALANCE_CORE)
 	void AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings = false);
-#else
-	void AI_chooseProduction(bool bInterruptWonders);
-#endif
 	bool AI_isChooseProductionDirty();
 	void AI_setChooseProductionDirty(bool bNewValue);
 
@@ -46,8 +42,7 @@ protected:
 	bool m_bChooseProductionDirty;
 	int m_iCachePlayerClosenessTurn;
 	int m_iCachePlayerClosenessDistance;
-	int m_aiPlayerCloseness[REALLY_MAX_PLAYERS];
-	int m_aiNumPlotsAcquiredByOtherPlayers[REALLY_MAX_PLAYERS];
+	map<PlayerTypes,int> m_mapPlotsAcquiredByOtherPlayers;
 
 	void AI_stealPlots();
 };

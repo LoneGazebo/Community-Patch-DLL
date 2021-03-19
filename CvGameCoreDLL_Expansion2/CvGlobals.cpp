@@ -4591,8 +4591,9 @@ std::vector<CvResolutionEntry*>& CvGlobals::getResolutionInfo()
 
 CvResolutionEntry* CvGlobals::getResolutionInfo(ResolutionTypes eResolutionNum)
 {
-	CvAssert(eResolutionNum > -1);
-	CvAssert(eResolutionNum < GC.getNumResolutionInfos());
+	if (eResolutionNum == NO_RESOLUTION || eResolutionNum >= m_pResolutions->GetNumResolutions())
+		return NULL;
+
 	return m_pResolutions->GetResolutionEntries()[eResolutionNum];
 }
 

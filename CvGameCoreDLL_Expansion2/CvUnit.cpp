@@ -26407,6 +26407,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	int iChange;
 	int iI;
 
+	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
+		return;
+
 	if(isHasPromotion(eIndex) != bNewValue)
 	{
 		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
