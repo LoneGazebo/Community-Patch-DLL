@@ -11440,15 +11440,17 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iHigherProductionCivs = 0;
 		int iLowerProductionCivs = 0;
 		int iAliveCivs = 0;
+		int iHighestProduction = 0;
+		int iPercentofWinning = 0;
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			PlayerTypes e = (PlayerTypes) i;
 			if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 			{
 				iAliveCivs++;
+				int iMight = GET_PLAYER(e).GetProductionMight();
 				if (GetPlayer()->GetID() != e)
 				{
-					int iMight = GET_PLAYER(e).GetProductionMight();
 					if (iMight > iOurProductionMight)
 					{
 						iHigherProductionCivs++;
@@ -11458,167 +11460,137 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iLowerProductionCivs++; // Include civs with equal might
 					}
 				}
+				if (iMight > iHighestProduction)
+				{
+					iHighestProduction = iMight;
+				}
+				
 			}
 		}
-		bool bStrongProduction = false;
-		if (iAliveCivs > 0)
+		int iProductionMightPercent = (iOurProductionMight * 100) / iHighestProduction;
+		bool bCanGold = iProductionMightPercent >= 80;
+		if (bCanGold)
 		{
-			float fProductionMightRatio = ((float)iAliveCivs - (float)iHigherProductionCivs) / ((float)iAliveCivs);
-			CvAssertMsg(0.0f <= fProductionMightRatio && fProductionMightRatio <= 1.0f, "Error when evaluating delegates for an international project. Please send Anton your save file and version.");
-			fProductionMightRatio = MAX(fProductionMightRatio, 0.0f);
-			fProductionMightRatio = MIN(fProductionMightRatio, 1.0f);
-
-			if (fProductionMightRatio >= 0.75f)
-			{
-				iScore += 50;
-				bStrongProduction = true;
-			}
-			else if (fProductionMightRatio >= 0.50f)
-			{
-				iScore += 20;
-				bStrongProduction = true;
-			}
-			else if (fProductionMightRatio >= 0.25f)
-			{
-				iScore += -20;
-			}
-			else
-			{
-				iScore += -50;
-			}
+			iPercentofWinning = 100 / (max(iHigherProductionCivs + 1, 1));
 		}
+		bool bCanSilver = iProductionMightPercent >= 40;
+		bool bCanBronze = iProductionMightPercent >= 20;
 
 		// Project specific benefits
 		if (eWorldsFair == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingCultureVictory && bStrongProduction)
+			if (bCanGold)
 			{
-				iScore += 30;
+				iScore += 5 * iPercentofWinning;
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-			else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && bStrongProduction)
+			if (bCanSilver)
+			{
+				iScore += 100;
+			}
+			if (bCanBronze)
 			{
 				iScore += 50;
-			}
-#endif
-			else
-			{
-				iScore += 10;
 			}
 		}
 		else if (eInternationalGames == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingCultureVictory && bStrongProduction)
+			if (bSeekingCultureVictory && bCanGold)
 			{
-				iScore += 60;
+				iScore += 4 * iPercentofWinning;
 			}
-			else
+			if(bCanSilver)
 			{
-				iScore += 10;
+				iScore += 50;
+			}
+			if (bSeekingCultureVictory && bCanBronze)
+			{
+				iScore += 100;
 			}
 		}
 		else if (eInternationalSpaceStation == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingScienceVictory && bStrongProduction)
+			if (bSeekingScienceVictory && bCanGold)
+			{
+				iScore += 4 * iPercentofWinning;
+			}
+			if (bSeekingScienceVictory && bCanSilver)
 			{
 				iScore += 100;
 			}
-			else
+			if (bSeekingScienceVictory && bCanBronze)
 			{
-				iScore += 10;
+				iScore += 50;
 			}
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eTreasureFleet == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
+			if (bCanGold)
+			{
+				iScore += 4 * iPercentofWinning;
+			}
+			if (bCanSilver)
 			{
 				iScore += 100;
 			}
-			else
+			if (bCanBronze)
 			{
-				iScore += -30;
-			}
-			if (bSeekingConquestVictory && bStrongProduction)
-			{
-				iScore += 75;
-			}
-			else if (bSeekingConquestVictory || bStrongProduction)
-			{
-				iScore += 25;
-			}
-			else
-			{
-				iScore += 10;
+				iScore += 50;
 			}
 		}
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eWargames == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingConquestVictory && bStrongProduction)
+			if (bCanGold)
+			{
+				iScore += 4 * iPercentofWinning;
+			}
+			if (bCanSilver)
 			{
 				iScore += 100;
 			}
-			else if (bSeekingConquestVictory || bStrongProduction)
+			if (bCanBronze)
 			{
 				iScore += 50;
-			}
-			else
-			{
-				iScore += 10;
 			}
 		}
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eUN == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingDiploVictory && bStrongProduction)
-			{
-				iScore += 2500;
-			}
-			else if (bSeekingDiploVictory)
-			{
-				iScore += 1000;
-			}
-			else
-			{
-				iScore += -100;
-			}
-
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
 			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 			int iVoteRatio = 0;
 			int iFlavorDiplo =  GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
-			//If FLAVOR_DIPLOMACY is 7+...
-			if(iFlavorDiplo >= 7)
-			{
-				iScore += 50 * (iVotes);
-			}
-			else
-			{
-				iScore += 10 * (iVotes);
-			}
 			if(iNeededVotes > 0)
 			{
 				iVoteRatio = (iVotes * 100) / iNeededVotes;
-				if(iVoteRatio < 25)
+				if(iVoteRatio >= 100)
 				{
-					iScore += -100;
+					iScore += 5000;
 				}
-				if(iVoteRatio < 50)
+				else if(iVoteRatio >= 75)
 				{
-					iScore += -50;
+					iScore += 1000;
 				}
-				if(iVoteRatio >= 50)
+				else if(iVoteRatio >= 50)
 				{
 					iScore += 250;
 				}
-				if(iVoteRatio >= 75)
+				else if(iVoteRatio >= 25)
 				{
-					iScore += 500;
+					iScore += 100;
 				}
 			}
-			else
+			if (bCanGold)
 			{
-				iScore -= 50;
+				iScore += 4 * iPercentofWinning;
+			}
+			if (bCanSilver)
+			{
+				iScore += 100;
+			}
+			if (bCanBronze)
+			{
+				iScore += 50;
 			}
 		}
 #endif
@@ -11632,10 +11604,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iCSDestinations = 0;
 		int iCSPartners = 0;
 		int iCivDestinations = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		int iCSApproachWar = 0;
-		int iCSWar = 0;
-#endif
 		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 		{
 			PlayerTypes e = (PlayerTypes) i;
@@ -11643,17 +11611,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (GET_PLAYER(e).isMinorCiv())
 				{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-				//Warring with City-States? Let's get this.
-					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(e).getTeam()))
-					{
-						iCSWar++;
-					}
-					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDiplomacyAI()->GetCivApproach(e) == CIV_APPROACH_WAR)
-					{
-						iCSApproachWar++;
-					}
-#endif
 					iCSDestinations++;
 					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), e))
 					{
@@ -11667,67 +11624,23 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
-		{
-			iScore += -5000;
-		}
-		//Mongolia, you want this. Also autocracy players.
-		if((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0) || (GetPlayer()->GetCityStateCombatModifier() > 0))
-		{
-			iScore += 100;
-		}
-		if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && iCSWar > 0)
-		{
-			iScore += iCSWar * 25;
-		}
-		if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && iCSApproachWar > 0)
-		{
-			iScore += iCSApproachWar * 15;
-		}
-#endif
-
 		// Would we lose active CS trade routes?
 		if (iCSPartners > 0)
 		{
-			iScore += MAX(-50, iCSPartners * -15);
+			iScore -= iCSPartners * 50;
 		}
-		else
-		{
-			iScore += 25;
-		}
+
 
 		// Can we trade with any major civs?
-		if (iCivDestinations <= 0)
+
+			// Based on estimates, would we still have enough valid trade routes if this passed?	
+		int iPossibleRoutesAfter = iCivDestinations + GetPlayer()->getNumCities();
+		int iTradeRouteDefecit = ((int)GetPlayer()->GetTrade()->GetNumTradeRoutesPossible()) - iPossibleRoutesAfter;
+		if (iTradeRouteDefecit > 0)
 		{
-			iScore += -50;
-		}
-		else
-		{
-			// Based on estimates, would we still have enough valid trade routes if this passed?
-			int iPossibleRoutesAfter = iCivDestinations * GetPlayer()->getNumCities();
-			if ((iPossibleRoutesAfter / 3) < (int) GetPlayer()->GetTrade()->GetNumTradeRoutesPossible())
-			{
-				iScore += -40;
-			}
+			iScore -= min(100 * iTradeRouteDefecit, 1000);
 		}
 
-		// Player Trait making routes to them valuable (Morocco)
-		for (int i = 0; i < NUM_YIELD_TYPES; i++)
-		{
-			YieldTypes e = (YieldTypes) i;
-			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
-			{
-				iScore += -40;
-				break;
-			}
-		}
-
-		// Player Trait gives us extra routes, embargoes are bad for business (Venice)
-		if (GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0)
-		{
-			iScore += -20;
-		}
 	}
 	// Embargo
 	if (pProposal->GetEffects()->bEmbargoPlayer)
@@ -11736,24 +11649,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// Major Civ relations
 		if (eTargetPlayer == GetPlayer()->GetID())
 		{
-			iScore -= 1000;
+			iScore -= 2000;
 		}
 		else if (GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
 		{
-			iScore -= 700;
+			iScore -= 1000;
 		}
 		else if (GET_PLAYER(eTargetPlayer).isMajorCiv())
 		{
-			if (bSeekingConquestVictory)
-			{
-				iScore += 50;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) >= THREAT_SEVERE)
-			{
-				iScore += 50;
-			}
-
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 			{
 				iScore += 100;
@@ -11766,54 +11669,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				iScore += 50;
 			}
-			else
-			{
-				switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer))
-				{
-				case CIV_APPROACH_WAR:
-				case CIV_APPROACH_HOSTILE:
-					iScore += 50;
-					break;
-				case CIV_APPROACH_DECEPTIVE:
-				case CIV_APPROACH_GUARDED:
-					iScore += 30;
-					break;
-				case CIV_APPROACH_AFRAID:
-					iScore += 15;
-					break;
-				case CIV_APPROACH_NEUTRAL:
-					iScore -= 50;
-					break;
-				case CIV_APPROACH_FRIENDLY:
-					iScore -= 100;
-					break;
-				}
-			}
-
-			switch (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer))
-			{
-			case CIV_OPINION_UNFORGIVABLE:
-				iScore += 100;
-				break;
-			case CIV_OPINION_ENEMY:
-				iScore += 50;
-				break;
-			case CIV_OPINION_COMPETITOR:
-				iScore += 30;
-				break;
-			case CIV_OPINION_NEUTRAL:
-				iScore -= 10;
-				break;
-			case CIV_OPINION_FAVORABLE:
-				iScore -= 30;
-				break;
-			case CIV_OPINION_FRIEND:
-				iScore -= 50;
-				break;
-			case CIV_OPINION_ALLY:
-				iScore -= 200;
-				break;
-			}
 
 			if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsWantsToEndDoFWithPlayer(eTargetPlayer))
 			{
@@ -11825,56 +11680,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iScore -= 50;
 			}
 
-			if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eTargetPlayer))
-			{
-				iScore -= 1000;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->IsPlayerSameIdeology(eTargetPlayer))
-			{
-				iScore -= 50;
-			}
-			else if (GetPlayer()->GetDiplomacyAI()->IsPlayerOpposingIdeology(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eTargetPlayer))
-			{
-				iScore += 50;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->IsPlayerSameReligion(eTargetPlayer))
-			{
-				iScore -= 25;
-			}
-			else if (GetPlayer()->GetDiplomacyAI()->IsPlayerOpposingReligion(eTargetPlayer) && !GetPlayer()->GetDiplomacyAI()->IsIgnoreReligionDifferences(eTargetPlayer))
-			{
-				iScore += 25;
-			}
-
-			if (GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
-			{
-				switch (GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eTargetPlayer))
-				{
-				case VASSAL_TREATMENT_CONTENT:
-					iScore -= 200;
-					break;
-				case VASSAL_TREATMENT_DISAGREE:
-					iScore -= 50;
-					break;
-				case VASSAL_TREATMENT_MISTREATED:
-					iScore += 50;
-					break;
-				case VASSAL_TREATMENT_UNHAPPY:
-					iScore += 200;
-					break;
-				case VASSAL_TREATMENT_ENSLAVED:
-					iScore += 500;
-					break;
-				}
-			}
-
 			// Trade connections
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer, true))
 			{
-				int iFactor = -50;
-				iScore += min(-50, (GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * iFactor));
+				int iFactor = 50;
+				iScore -=  GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * iFactor;
 			}
 
 			// Deals with them
@@ -11887,81 +11697,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			iScore -= iTradeDealValue;
 
-			// Player Trait making routes to them valuable (Morocco)
-			for (int i = 0; i < NUM_YIELD_TYPES; i++)
-			{
-				YieldTypes e = (YieldTypes) i;
-				if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
-				{
-					iScore += -100;
-					break;
-				}
-			}
-
-			// Player Trait gives us extra routes, embargoes are bad for business (Venice)
-			if (GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0)
-			{
-				iScore += -100;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eTargetPlayer) || GetPlayer()->GetDiplomacyAI()->IsDenouncedByPlayer(eTargetPlayer))
-			{
-				iScore += 50;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == eTargetPlayer)
-			{
-				iScore += 250;
-			}
-			else if (GetPlayer()->GetDiplomacyAI()->IsMajorCompetitor(eTargetPlayer))
-			{
-				iScore += 100;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(eTargetPlayer))
-			{
-				iScore += 500;
-			}
-
-			if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory())
-			{
-				if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
-				{
-					iScore += 1000;
-				}
-
-				switch (GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eTargetPlayer))
-				{
-				case DISPUTE_LEVEL_FIERCE:
-					iScore += 100;
-					break;
-				case DISPUTE_LEVEL_STRONG:
-					iScore += 75;
-					break;
-				case DISPUTE_LEVEL_WEAK:
-					iScore += 50;
-					break;
-				case DISPUTE_LEVEL_NONE:
-					iScore -= 30;
-					break;
-				}
-
-				switch (GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eTargetPlayer))
-				{
-				case BLOCK_LEVEL_FIERCE:
-					iScore += 50;
-					break;
-				case BLOCK_LEVEL_STRONG:
-					iScore += 40;
-					break;
-				case BLOCK_LEVEL_WEAK:
-					iScore += 30;
-					break;
-				case BLOCK_LEVEL_NONE:
-					iScore -= 15;
-					break;
-				}
-			}
 		}
 	}
 	// Ban Luxury
@@ -11970,112 +11705,37 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvAssertMsg(eTargetLuxury != NO_RESOURCE, "Evaluating banning Happiness for NO_RESOURCE. Please send Anton your save file and version.");
 
 		// What other major civs have this resource?
-		int iOtherPlayerResourceFactor = 0;
-		bool bOwnedByAnyPlayer = false;
-		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-		{
-			PlayerTypes e = (PlayerTypes) i;
-			if (e != GetPlayer()->GetID() && GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(e).getTeam()))
-			{
-				if (GET_PLAYER(e).getNumResourceTotal(eTargetLuxury) > 0)
-				{
-					bOwnedByAnyPlayer = true;
-					CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(e);
-					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(e).getTeam()))
-					{
-						iOtherPlayerResourceFactor += 5;
-					}
-					else if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(e) || GetPlayer()->getTeam() == GET_PLAYER(e).getTeam())
-					{
-						iOtherPlayerResourceFactor += -10;
-					}
-					else if (eOpinion <= CIV_OPINION_COMPETITOR)
-					{
-						if (eOpinion == CIV_OPINION_COMPETITOR)
-						{
-							iOtherPlayerResourceFactor += 3;
-						}
-						else
-						{
-							iOtherPlayerResourceFactor += 5;
-						}
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							if (GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
-								iOtherPlayerResourceFactor += 15;
-							else
-								iOtherPlayerResourceFactor += 3;
-						}
-#endif
-					}
-					else if (eOpinion >= CIV_OPINION_FAVORABLE)
-					{
-						if (eOpinion == CIV_OPINION_FAVORABLE)
-						{
-							iOtherPlayerResourceFactor += -3;
-						}
-						else
-						{
-							iOtherPlayerResourceFactor += -5;
-						}
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							if (GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
-								iOtherPlayerResourceFactor += -10;
-							else
-								iOtherPlayerResourceFactor += -5;
-						}
-#endif
-					}
-				}
-			}
-		}
 
-		int iUsResourceFactor = 0;
-		bool bOwnedByUs = false;
 		// Do we have this resource?
-		if (GetPlayer()->getNumResourceTotal(eTargetLuxury) > 0 || GetPlayer()->getResourceInOwnedPlots(eTargetLuxury) > 0)
+		if (GetPlayer()->getNumResourceTotal(eTargetLuxury) > 0)
 		{
-			bOwnedByUs = true;
-			iUsResourceFactor += -10;
+			iScore -= 50;
 			if (GetPlayer()->IsEmpireUnhappy())
 			{
-				iUsResourceFactor += -10;
+				iScore -= -150;
 			}
+		}
+		int iNumOwned = GetPlayer()->getResourceInOwnedPlots(eTargetLuxury);
+		if (iNumOwned > 0)
+		{
+			iScore -= 20 * iNumOwned;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 			if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GetPlayer()->HasGlobalMonopoly(eTargetLuxury))
 			{
-				iUsResourceFactor += -25;
+				iScore -= -200;
 			}
 #endif
-		}
-
-		if (bOwnedByAnyPlayer && !bOwnedByUs)
-		{
-			iScore = 5 * iOtherPlayerResourceFactor;
-		}
-		else if (bOwnedByUs)
-		{
-			iScore = 8 * iUsResourceFactor;
-		}
-
-		if (!bOwnedByAnyPlayer && !bOwnedByUs)
-		{
-			// Hard set to 0 if nobody owns it.  No effect, so we don't care.
-			iScore = 0;
 		}
 	}
 	// Standing Army Tax
 	if (pProposal->GetEffects()->iUnitMaintenanceGoldPercent != 0)
 	{
-		int iFactor = (pProposal->GetEffects()->iUnitMaintenanceGoldPercent > 0) ? 1 : -1;
+		int iFactor = pProposal->GetEffects()->iUnitMaintenanceGoldPercent;
 
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		{
-			// This is the Global Peace Accords resolution - we reverse the logic of Casus Belli!
-			if (iFactor == 1)
+			// This is the Global Peace Accords resolution - doubles warmonger penalties
+			if (iFactor > 0)
 			{
 				CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 				int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
@@ -12107,244 +11767,126 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iScore += 100;
 				}
-				if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
+				int iWarmongerThreat = 0;
+				int iWarStates = 0;
+				int iWarProjection = 0;
+				int iWarTargets = 0;
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					iScore -= 50;
-				}
-				else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
-				{
-					iScore += 100;
-				}
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-				// Attractive to us if we've lost a lot from war!
-				if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
-				{
-					iScore += 500;
-				}
-				else
-				{
-					int iProWar = 0;
-					int iProPeace = 0;
-
-					iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
-					iProWar += GetPlayer()->GetNumCapitalCities();
-
-					// Most vassals don't want a world war
-					if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
-						iProPeace += 5;
-
-					if (bSeekingConquestVictory)
-						iProWar += 2;
-					else
-						iProPeace += 2;
-
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-						if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+						// At war
+						if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 						{
-							iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
-							iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
+							iWarmongerThreat += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID());
+							iWarStates += (int)pDiploAI->GetWarState(eLoopPlayer) - 2;
+							iWarProjection += pDiploAI->GetWarProjection(eLoopPlayer) - 2;
 
-							// At war
-							if (GetPlayer()->IsAtWarWith(eLoopPlayer))
+						}
+						else
+						{
+							if (pDiploAI->GetPlayerTargetValue(eLoopPlayer) > TARGET_VALUE_AVERAGE)
 							{
-								// Losing?
-								if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
-								{
-									iProPeace++;
-
-									if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
-									{
-										iProPeace++;
-									}
-								}
-								// Winning?
-								else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
-								{
-									iProWar++;
-
-									if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
-									{
-										iProWar++;
-									}
-
-									if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
-									{
-										iProWar++;
-									}
-								}
-							}
-							// If WE have high warmonger penalties, we want to burn them off
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
-							{
-								iProWar++;
-							}
-							// If they have high warmonger penalties, don't want them to burn them off
-							if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
-							{
-								iProPeace++;
-							}
-							// Plotting against them?
-							if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_DECEPTIVE)
-							{
-								iProWar++;
-							}
-							// Afraid of them?
-							else if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_AFRAID)
-							{
-								iProPeace++;
-							}
-							// Reckless expander / wonder spammer?
-							if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
-							{
-								iProWar++;
-							}
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
-							{
-								iProPeace++;
-							}
-							if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
-							{
-								iProWar++;
-							}
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
-							{
-								iProPeace++;
-							}
-							// Close to victory?
-							if (pDiploAI->IsCloseToAnyVictoryCondition())
-							{
-								if (pDiploAI->IsCloseToDominationVictory())
-								{
-									iProWar += 5;
-								}
-								else
-								{
-									iProPeace += 2;
-								}
-							}
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
-							{
-								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
-								{
-									iProPeace += 5;
-								}
-								else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
-								{
-									iProWar += 5;
-								}
-							}
-
-							// Look at relative power
-							if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
-							{
-								if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
-								{
-									iProWar++;
-								}
-								if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
-								{
-									iProWar++;
-								}
-							}
-							if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
-							{
-								iProPeace++;
-							}
-
-							if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
-							{
-								iProPeace++;
+								iWarTargets += pDiploAI->GetPlayerTargetValue(eLoopPlayer) - 2;
 							}
 						}
 					}
-
-					iScore -= (iProWar * 25);
-					iScore += (iProPeace * 25);
 				}
-			}
-		}
-		else
-		{
-			if (bSeekingConquestVictory)
-			{
-				iScore += -50 * iFactor;
+				iScore -= iWarmongerThreat * 50;
+				iScore -= iWarStates * 50;
+				iScore -= iWarProjection * 50;
+				iScore -= iWarTargets * 50;
 			}
 		}
 
 		// What is the ratio of our current maintenance costs to our gross GPT?
 		int iUnitMaintenance = GetPlayer()->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 		int iGPT = GetPlayer()->GetTreasury()->CalculateGrossGold();
-		float fRatio = ((float)iUnitMaintenance / (float)iGPT);
-		if ((iGPT - iUnitMaintenance) < 0)
-		{
-			iScore += -100 * iFactor;
-		}
-		else if (fRatio >= 0.5f)
-		{
-			iScore += -80 * iFactor;
-		}
-		else if (fRatio >= 0.2f)
-		{
-			iScore += -30 * iFactor;
-		}
-		else
-		{
-			iScore += 30 * iFactor;
-		}
+		int iPercent = (iUnitMaintenance * 100) / iGPT;
+
+		iScore -= iPercent * iFactor;
+
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pProposal->GetEffects()->iVassalMaintenanceGoldPercent != 0)
+	// Casus Belli
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iIsWorldWar)
 	{
-		int iFactor = (pProposal->GetEffects()->iVassalMaintenanceGoldPercent > 0) ? 1 : -1;
-		
-		// REALLY hate it if we have vassals
-		if(GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() > 0)
+		CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+		int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
+		if (iPersonalityMod > 0)
 		{
-			iScore += -200 * iFactor;
+			iScore -= (iPersonalityMod * 10);
 		}
-		// Like it if we are a vassal
-		else if(GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-		{
-			iScore += 50 * iFactor;
-		}
-		// Look at every major and check their position on it
 		else
 		{
-			PlayerTypes ePlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			iScore += (iPersonalityMod * 15);
+		}
+
+		// Factor in our default victory focus
+		if (pDiploAI->IsConqueror())
+		{
+			iScore += 50;
+		}
+		else if (pDiploAI->IsDiplomat())
+		{
+			iScore -= 50;
+		}
+
+		// Factor in our UA
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			iScore += 100;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iScore -= 100;
+		}
+		int iWarmongerThreat = 0;
+		int iWarStates = 0;
+		int iWarProjection = 0;
+		int iWarTargets = 0;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				ePlayer = (PlayerTypes) iPlayerLoop;
-				if(ePlayer != GetPlayer()->GetID())
+
+				// At war
+				if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 				{
-					if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 0)
+					iWarmongerThreat += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID());
+					iWarStates += (int)pDiploAI->GetWarState(eLoopPlayer) - 2;
+					iWarProjection += pDiploAI->GetWarProjection(eLoopPlayer) - 2;
+
+				}
+				else
+				{
+					if (pDiploAI->GetPlayerTargetValue(eLoopPlayer) > TARGET_VALUE_AVERAGE)
 					{
-						switch(GetPlayer()->GetDiplomacyAI()->GetCivOpinion(ePlayer))
-						{
-							case CIV_OPINION_ALLY:
-							case CIV_OPINION_FRIEND:
-								iScore += -10 * iFactor;
-								break;
-							case CIV_OPINION_FAVORABLE:
-								iScore += -5 * iFactor;
-								break;
-							case CIV_OPINION_NEUTRAL:
-								iScore += 0;
-								break;
-							case CIV_OPINION_COMPETITOR:
-								iScore += 5 * iFactor;
-								break;
-							case CIV_OPINION_ENEMY:
-							case CIV_OPINION_UNFORGIVABLE:
-								iScore += 10 * iFactor;
-								break;
-						}
+						iWarTargets += pDiploAI->GetPlayerTargetValue(eLoopPlayer) - 2;
 					}
 				}
 			}
 		}
+		iScore += iWarmongerThreat * 50;
+		iScore += iWarStates * 50;
+		iScore += iWarProjection * 50;
+		iScore += iWarTargets * 50;
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES && pProposal->GetEffects()->iVassalMaintenanceGoldPercent != 0)
+	{
+		int iFactor = pProposal->GetEffects()->iVassalMaintenanceGoldPercent;
+		
+		// REALLY hate it if we have vassals
+		if(GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() > 0)
+		{
+			iScore -= 5 * GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() * iFactor;
+		}
+
 	}
 	//End Vassalage
 	if (MOD_DIPLOMACY_CIV4_FEATURES && pProposal->GetEffects()->bEndAllCurrentVassals)
@@ -12353,16 +11895,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		TeamTypes eTeam = GetPlayer()->getTeam();
 		if(eTeam != NO_TEAM)
 		{
-			bool bValid = false;
+
 			if (GET_TEAM(eTeam).GetNumVassals() > 0 && !GetPlayer()->IsVassalsNoRebel())
 			{
 				//We have vassals? Eek!
 				iScore = (-1000 * GET_TEAM(eTeam).GetNumVassals());
-				bValid = true;
+
 			}
 			else if (GetPlayer()->IsVassalOfSomeone())
 			{
-				bValid = true;
+
 				TeamTypes eMasterTeam = GET_TEAM(GetPlayer()->getTeam()).GetMaster();
 				vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
 
@@ -12370,13 +11912,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					PlayerTypes eMaster = (PlayerTypes) vMasterTeam[i];
 
-					if (GET_PLAYER(eMaster).isAlive())
+					if (GET_PLAYER(eMaster).isAlive() && !GET_PLAYER(eMaster).IsVassalsNoRebel())
 					{
-						if (GET_PLAYER(eMaster).IsVassalsNoRebel())
-						{
-							iScore = 0;
-							break;
-						}
 
 						VassalTreatmentTypes eVassalTreatmentLevel = GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(eMaster);
 
@@ -12390,10 +11927,31 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							switch (eVassalTreatmentLevel)
 							{
 							case VASSAL_TREATMENT_CONTENT:
-								iScore -= 1000;
+								iScore -= 500;
 								break;
 							case VASSAL_TREATMENT_DISAGREE:
+								iScore -= 250;
+								break;
+							case VASSAL_TREATMENT_MISTREATED:
+								iScore += 250;
+								break;
+							case VASSAL_TREATMENT_UNHAPPY:
+								iScore += 500;
+								break;
+							case VASSAL_TREATMENT_ENSLAVED:
+								iScore += 1000;
+								break;
+							}
+						}
+						else
+						{
+							switch (eVassalTreatmentLevel)
+							{
+							case VASSAL_TREATMENT_CONTENT:
 								iScore -= 500;
+								break;
+							case VASSAL_TREATMENT_DISAGREE:
+								iScore -= 250;
 								break;
 							case VASSAL_TREATMENT_MISTREATED:
 								iScore += 500;
@@ -12406,287 +11964,105 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 								break;
 							}
 						}
-						else
-						{
-							switch (eVassalTreatmentLevel)
-							{
-							case VASSAL_TREATMENT_CONTENT:
-								iScore -= 500;
-								break;
-							case VASSAL_TREATMENT_DISAGREE:
-								iScore -= 100;
-								break;
-							case VASSAL_TREATMENT_MISTREATED:
-								iScore += 500;
-								break;
-							case VASSAL_TREATMENT_UNHAPPY:
-								iScore += 2000;
-								break;
-							case VASSAL_TREATMENT_ENSLAVED:
-								iScore += 5000;
-								break;
-							}
-						}
 					}
 				}
 			}
-			else
-			{
-				//No vassals? Let's see how we feel about other vassals out there...
-				for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-				{
-					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
 
-					if (GET_TEAM(eTeam).isAlive())
-					{
-						if(eLoopTeam != NO_TEAM && eLoopTeam != eTeam && GET_TEAM(eLoopTeam).GetNumVassals() > 0)
-						{
+				//Let's see how we feel about other vassals out there...
+
 							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 							{
 								PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-								if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+								if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
 								{
-									//The Master
-									CivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer);
 									CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer);
-
-									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
+									if (eApproach <= CIV_APPROACH_DECEPTIVE)
 									{
-										//Ignore players this doesn't apply to.
-										if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
-											continue;
-
-										switch (eOpinion)
+										if (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eLoopPlayer) > TARGET_VALUE_AVERAGE)
 										{
-										case CIV_OPINION_ALLY:
-											iScore += -50;
-											break;
-										case CIV_OPINION_FRIEND:
-											iScore += -25;
-											break;
-										case CIV_OPINION_FAVORABLE:
-											iScore += -10;
-											break;
-										case CIV_OPINION_NEUTRAL:
-											iScore += 0;
-											break;
-										case CIV_OPINION_COMPETITOR:
-											iScore += 10;
-											break;
-										case CIV_OPINION_ENEMY:
-											iScore += 25;
-											break;
-										case CIV_OPINION_UNFORGIVABLE:
-											iScore += 50;
-											break;
-										}
-										switch(eApproach)
-										{
-										case CIV_APPROACH_AFRAID:
-											iScore += -25;
-											break;
-										case CIV_APPROACH_FRIENDLY:
-											iScore += -50;
-											break;
-										case CIV_APPROACH_NEUTRAL:
-											iScore += -10;
-											break;
-										case CIV_APPROACH_GUARDED:
-											iScore += 10;
-											break;
-										case CIV_APPROACH_DECEPTIVE:
-											iScore += 20;
-											break;
-										case CIV_APPROACH_HOSTILE:
-											iScore += 40;
-											break;
-										case CIV_APPROACH_WAR:
-											iScore += 60;
-											break;
-										}
-
-										for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-										{
-											PlayerTypes eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
-											if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer2).getTeam()).GetMaster() == eLoopPlayer)
-											{
-												//The Master
-												CivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2);
-												CivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2);
-												int iTempScore = 0;
-												switch (eOpinion2)
-												{
-												case CIV_OPINION_ALLY:
-													iTempScore += 50;
-													break;
-												case CIV_OPINION_FRIEND:
-													iTempScore += 25;
-													break;
-												case CIV_OPINION_FAVORABLE:
-													iTempScore += 10;
-													break;
-												case CIV_OPINION_NEUTRAL:
-													iTempScore += 0;
-													break;
-												case CIV_OPINION_COMPETITOR:
-													iTempScore += -10;
-													break;
-												case CIV_OPINION_ENEMY:
-													iTempScore += -25;
-													break;
-												case CIV_OPINION_UNFORGIVABLE:
-													iTempScore += -50;
-													break;
-												}
-												switch (eApproach2)
-												{
-												case CIV_APPROACH_AFRAID:
-													iTempScore += -50;
-													break;
-												case CIV_APPROACH_FRIENDLY:
-													iTempScore += 25;
-													break;
-												case CIV_APPROACH_NEUTRAL:
-													iTempScore += 0;
-													break;
-												case CIV_APPROACH_GUARDED:
-													iTempScore += -10;
-													break;
-												case CIV_APPROACH_DECEPTIVE:
-													iTempScore += -20;
-													break;
-												case CIV_APPROACH_HOSTILE:
-													iTempScore += -40;
-													break;
-												case CIV_APPROACH_WAR:
-													iTempScore += 60;
-													break;
-												}
-												if (iTempScore != 0)
-												{
-													iScore += iTempScore;
-													bValid = true;
-												}
-											}
+											iScore += (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eLoopPlayer) - 2) * 100;
 										}
 									}
+
 								}
 							}
-						}
-					}
-				}
-			}
-			//Not valid because there aren't any vassals? Zero this all out.
-			if(!bValid)
-			{
-				iScore = 0;
-			}
-			else
-			{
-				if(bSeekingDiploVictory)
-				{
-					iScore *= 2;
-				}
-			}
+
 		}
 	}
 #endif
 	// Scholars in Residence
 	if (pProposal->GetEffects()->iMemberDiscoveredTechMod != 0)
 	{
-		float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
-		fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
-		
-		// We are better than average
-		if (fTechRatio < 0.0f)
+		int iMostTechsKnown = 0;
+		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
-			int iFactor = 400;
-			iScore += (int) (fTechRatio * iFactor);
-			if (bSeekingScienceVictory)
+			TeamTypes eLoopTeam = (TeamTypes)iTeamLoop;
+			if (!GET_TEAM(eLoopTeam).isMinorCiv())
 			{
-				iScore += -100;
+				int iTechsKnown = GET_TEAM(eLoopTeam).GetTeamTechs()->GetNumTechsKnown();
+				if (iTechsKnown > iMostTechsKnown)
+				{
+					iMostTechsKnown = iTechsKnown;
+				}
 			}
 		}
-		// At or worse than average
-		else
+		int iTechsBehind = iMostTechsKnown - GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+		if (iTechsBehind > 0)
 		{
-			int iFactor = 400;
-			iScore += (int) (fTechRatio * iFactor);
-			if (bSeekingScienceVictory)
-			{
-				iScore += 500;
-			}
+			iScore += min(60 * iTechsBehind , 400);
 		}
+
 	}
 	// Cultural Heritage Sites
 	if (pProposal->GetEffects()->iCulturePerWonder != 0)
 	{
 		int iNumWonders = GetPlayer()->GetNumWonders();
-		int iTempScore = -50;
-		if (iNumWonders > 0)
-		{
-			int iFactor = bSeekingCultureVictory ? 5 : 2;
-			iTempScore += iNumWonders * iFactor;
-		}
-		iScore += iTempScore;
-		iScore = MIN(70, iScore);
+
+		iScore += 20 * iNumWonders;
 	}
 	// Natural Heritage Sites
 	if (pProposal->GetEffects()->iCulturePerNaturalWonder != 0)
 	{
 		int iNumNaturalWonders = GetPlayer()->GetNumNaturalWondersInOwnedPlots();
-		int iTempScore = -35;
-		if (iNumNaturalWonders > 0)
-		{
-			int iFactor = bSeekingCultureVictory ? 50 : 30;
-			iTempScore += iNumNaturalWonders * iFactor;
-		}
-		iScore += iTempScore;
-		iScore = MIN(70, iScore);
+
+		iScore += 100 * iNumNaturalWonders;
 	}
 	// Nuclear Non-Proliferation
 	if (pProposal->GetEffects()->bNoTrainingNuclearWeapons)
 	{
+		int iDislikedNeighbours = 0;
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-			// Have you been nuked? If so, you are going to want nukes outlawed.
-			if (GetPlayer()->GetDiplomacyAI()->GetNumTimesNuked(eMajor) > 0)
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			if (GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
 			{
-				iScore += 200;
-			}
-		}
-		//If we already have 4+ nukes...let's not let anyone else build them.
-		if (GetPlayer()->getNumNukeUnits() > 3)
-		{
-			iScore += 50;
-		}
-
-		if (bSeekingConquestVictory)
-		{
-			iScore -= 50;
-		}
-		else
-		{
-			// Protect against a modder setting this to zero
-			int iNukeFlavor = 5;
-			for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-			{
-				if (GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_NUKE")
+				if (GetPlayer()->GetDiplomacyAI()->GetLandDisputeLevel(eMajor) >= DISPUTE_LEVEL_STRONG)
 				{
-					iNukeFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-					break;
+					if (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eMajor) < CIV_APPROACH_DECEPTIVE)
+					{
+						iDislikedNeighbours += 2 - GetPlayer()->GetDiplomacyAI()->GetCivApproach(eMajor);
+					}
 				}
+
 			}
 
-			// ex: 3 Nuke flavor = 35, 5 nuke flavor = 21, 12 Nuke flavor = -28
-			// Civs that don't like nukes will be more likely to ban them than civs that do Gandhi!!!!
-			iScore *= (8 - iNukeFlavor) * 7;
 		}
+		// Protect against a modder setting this to zero
+		int iNukeFlavor = 8;
+		for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+		{
+			if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NUKE")
+			{
+				iNukeFlavor = range(GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop), 0, 20);
+				break;
+			}
+		}
+		iScore += (8 - iNukeFlavor) * iDislikedNeighbours * 20;
+
 		// Speaking of Gandhi, he's very nuke happy!
 		if (GC.getGame().IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->IsPopulationBoostReligion())
 		{
-			iScore -= 5000;
+			iScore -= 1000;
 		}
 	}
 	// World Religion
@@ -12695,55 +12071,69 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		pProposal->GetEffects()->iReligionSpreadStrengthMod != 0)
 	{
 		CvAssertMsg(eTargetReligion != NO_RELIGION, "Evaluating World Religion for NO_RELIGION. Please send Anton your save file and version.");
-		bool bFoundedReligion = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() == eTargetReligion;
-		bool bMajorityReligion = GetPlayer()->GetReligions()->HasReligionInMostCities(eTargetReligion);
 
-		if (bFoundedReligion)
+		ReligionTypes eFoundedReligion = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer();
+		if (eFoundedReligion != NO_RELIGION)		// if this player founded a religion
 		{
-			if (bSeekingDiploVictory || bSeekingCultureVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
-				iScore += 300;
+			bool bFoundedTargetReligion = eFoundedReligion == eTargetReligion;
+
+			// extra votes
+			int iPossibleExtraVotes = 0;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+				{
+					if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eFoundedReligion))
+					{
+						++iPossibleExtraVotes;
+					}
+				}
+			}
+			if (bFoundedTargetReligion)
+			{
+				iScore += 100 * iPossibleExtraVotes;
+			}
 			else
-				iScore += 100;
-		}
-		else if (bMajorityReligion)
-		{
-			if (bSeekingDiploVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
-				iScore += 50;
+			{
+				iScore -= 100 * iPossibleExtraVotes;		// negative because other world religion blocks our own
+			}
+
+			// Holy City Tourism
+			const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, GetPlayer()->GetID());
+			int iHolyCityTourism = pkTargetReligion->GetHolyCity()->GetBaseTourism();
+			if (bFoundedTargetReligion)
+			{
+				iScore +=  iHolyCityTourism / 10;
+			}
 			else
-				iScore += 25;
+			{
+				iScore -=  iHolyCityTourism / 10;
+			}
+
+			// Religion Spread
+			if (bFoundedTargetReligion)
+			{
+				iScore += 150;
+			}
+			else
+			{
+				iScore -= 150;
+			}
 		}
 		else
 		{
-			if (bSeekingDiploVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
-				iScore -= 50;
-			else
-				iScore -= 25;
-		}
-
-		const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, GetPlayer()->GetID());
-		CvAssertMsg(pkTargetReligion, "Evaluating World Religion for an invalid religion. Please send Anton your save file and version.");
-		if (pkTargetReligion && GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory())
-		{
-			CvCity* pHolyCity = pkTargetReligion->GetHolyCity();
-			if (pHolyCity && GET_PLAYER(pHolyCity->getOwner()).getTeam() != GetPlayer()->getTeam())
+			bool bMajorityReligion = GetPlayer()->GetReligions()->HasReligionInMostCities(eTargetReligion);
+			if (bMajorityReligion)
 			{
-				// Don't let someone going for culture get away with a world religion easily
-				if ((GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE 
-					&& GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()) == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
-					|| GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
-				{
-					iScore -= 100;
-				}
+				iScore += 100;
+			}
+			else
+			{
+				iScore -= 50;
 			}
 		}
 
-		if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
-		{
-			if (bSeekingDiploVictory || bSeekingCultureVictory || GetPlayer()->GetPlayerTraits()->IsReligious())
-				iScore -= 300;
-			else
-				iScore -= 100;
-		}
 	}
 	// World Ideology
 	if (pProposal->GetEffects()->iVotesForFollowingIdeology != 0 ||
@@ -13462,197 +12852,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore = 0;
 		}
 	}
-	// Casus Belli
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iIsWorldWar)
-	{
-		CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
-		int iPersonalityMod = GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() - 5;
-		if (iPersonalityMod > 0)
-		{
-			iScore -= (iPersonalityMod * 10);
-		}
-		else
-		{
-			iScore += (iPersonalityMod * 15);
-		}
 
-		// Factor in our default victory focus
-		if (pDiploAI->IsConqueror())
-		{
-			iScore += 50;
-		}
-		else if (pDiploAI->IsDiplomat())
-		{
-			iScore -= 50;
-		}
-
-		// Factor in our UA
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
-		{
-			iScore += 100;
-		}
-		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
-		{
-			iScore -= 100;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
-		{
-			iScore += 50;
-		}
-		else if (GetPlayer()->GetPlayerTraits()->IsSmaller())
-		{
-			iScore -= 100;
-		}
-
-		// Not attractive to us if we've lost a lot from war!
-		if (GetPlayer()->IsHasLostCapital() || pDiploAI->GetStateAllWars() == STATE_ALL_WARS_LOSING || pDiploAI->WasResurrectedByAnyone())
-		{
-			iScore -= 500;
-		}
-		else
-		{
-			int iProWar = 0;
-			int iProPeace = 0;
-
-			iProWar += pDiploAI->GetPlayerNumMajorsConquered(GetPlayer()->GetID());
-			iProWar += GetPlayer()->GetNumCapitalCities();
-
-			// Most vassals don't want a world war
-			if (iProWar == 0 && GetPlayer()->IsVassalOfSomeone())
-				iProPeace += 5;
-
-			if (bSeekingConquestVictory)
-				iProWar += 2;
-			else
-				iProPeace += 2;
-
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					iProPeace += pDiploAI->GetPlayerNumMajorsConquered(eLoopPlayer);
-					iProPeace += GET_PLAYER(eLoopPlayer).GetNumCapitalCities();
-
-					// At war
-					if (GetPlayer()->IsAtWarWith(eLoopPlayer))
-					{
-						// Losing?
-						if (pDiploAI->GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
-						{
-							iProPeace++;
-
-							if (pDiploAI->GetWarScore(eLoopPlayer) <= -25)
-							{
-								iProPeace++;
-							}
-						}
-						// Winning?
-						else if (pDiploAI->GetWarState(eLoopPlayer) >= WAR_STATE_OFFENSIVE)
-						{
-							iProWar++;
-
-							if (pDiploAI->GetWarScore(eLoopPlayer) >= 25)
-							{
-								iProWar++;
-							}
-
-							if (pDiploAI->GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
-							{
-								iProWar++;
-							}
-						}
-					}
-					// If WE have high warmonger penalties, we want to burn them off
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarmongerThreat(GetPlayer()->GetID()) >= THREAT_MAJOR)
-					{
-						iProWar++;
-					}
-					// If they have high warmonger penalties, don't want them to burn them off
-					if (pDiploAI->GetWarmongerThreat(eLoopPlayer) >= THREAT_MAJOR)
-					{
-						iProPeace++;
-					}
-					// Plotting against them?
-					if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_DECEPTIVE)
-					{
-						iProWar++;
-					}
-					// Afraid of them?
-					else if (pDiploAI->GetCivApproach(eLoopPlayer) <= CIV_APPROACH_AFRAID)
-					{
-						iProPeace++;
-					}
-					// Reckless expander / wonder spammer?
-					if (pDiploAI->IsPlayerRecklessExpander(eLoopPlayer))
-					{
-						iProWar++;
-					}
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
-					{
-						iProPeace++;
-					}
-					if (pDiploAI->IsPlayerWonderSpammer(eLoopPlayer))
-					{
-						iProWar++;
-					}
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerWonderSpammer(GetPlayer()->GetID()))
-					{
-						iProPeace++;
-					}
-					// Close to victory?
-					if (pDiploAI->IsCloseToAnyVictoryCondition())
-					{
-						if (pDiploAI->IsCloseToDominationVictory())
-						{
-							iProWar += 5;
-						}
-						else
-						{
-							iProPeace += 2;
-						}
-					}
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
-					{
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
-						{
-							iProPeace += 5;
-						}
-						else if (pDiploAI->IsEndgameAggressiveTo(eLoopPlayer) && (pDiploAI->GetVictoryDisputeLevel(eLoopPlayer) > DISPUTE_LEVEL_NONE || pDiploAI->GetVictoryBlockLevel(eLoopPlayer) > BLOCK_LEVEL_NONE))
-						{
-							iProWar += 5;
-						}
-					}
-
-					// Look at relative power
-					if (!GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
-					{
-						if ((GetPlayer()->getPower() * 0.8f) > GET_PLAYER(eLoopPlayer).getPower())
-						{
-							iProWar++;
-						}
-						if ((GetPlayer()->getNumMilitaryUnits() * 0.8f) > GET_PLAYER(eLoopPlayer).getNumMilitaryUnits())
-						{
-							iProWar++;
-						}
-					}
-					if (GetPlayer()->getPower() < (GET_PLAYER(eLoopPlayer).getPower() * 0.8f))
-					{
-						iProPeace++;
-					}
-
-					if (GetPlayer()->getNumMilitaryUnits() < (GET_PLAYER(eLoopPlayer).getNumMilitaryUnits() * 0.8f))
-					{
-						iProPeace++;
-					}
-				}
-			}
-
-			iScore += (iProWar * 25);
-			iScore -= (iProPeace * 25);
-		}
-	}
 	//COLD WAR
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->bEmbargoIdeology)
 	{
@@ -13939,7 +13139,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (pLeague)
 		{
 			int iDiploScore = 0;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID())
