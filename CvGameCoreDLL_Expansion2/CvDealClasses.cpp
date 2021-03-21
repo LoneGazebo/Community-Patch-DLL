@@ -516,35 +516,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//if (iDuration != GC.getGame().GetDealDuration())
 		//	return false;
 	}
-	// Map
-	else if(eItem == TRADE_ITEM_MAPS)
-	{
-		if(!MOD_DIPLOMACY_CIV4_FEATURES)
-			return false;
-
-		// can't if on same team
-		if (eFromTeam == eToTeam)
-			return false;
-
-		// Both need tech for Map trading
-		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
-			return false;
-
-		CvPlot* pPlot;
-		// Look at every tile on map
-		bool unrevealed = false;
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			pPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pPlot && !pPlot->isRevealed(GET_PLAYER(eToPlayer).getTeam()))
-			{
-				unrevealed = true; 
-				break;
-			}
-		}
-		if (!unrevealed)
-			return false;
-	}
 	// Resource
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
@@ -1262,12 +1233,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Maps
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
 	{
-		// We don't have the tech for Map Trading yet
-		if(!pFromTeam->isMapTrading())
+		// Both need tech for Map trading
+		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
 			return false;
+
 		// We don't have an embassy established
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
+
 		// Same team
 		if(eFromTeam == eToTeam)
 			return false;
