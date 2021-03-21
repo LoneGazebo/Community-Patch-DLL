@@ -3777,11 +3777,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 {
 	int iTourismValue = 0;
 	iTourismValue += pCity->getYieldRate(YIELD_CULTURE, false);
-#if defined(MOD_BALANCE_CORE)
 	iTourismValue += pCity->GetBaseTourism() / 100;
-#else
-	iTourismValue += pCity->GetCityCulture()->GetBaseTourism();
-#endif
 
 	if (iTourismValue > 10)
 	{

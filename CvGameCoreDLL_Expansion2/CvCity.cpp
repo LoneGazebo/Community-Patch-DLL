@@ -19755,10 +19755,10 @@ int CvCity::GetBaseTourism() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetBaseTourism(int iChange)
+void CvCity::SetBaseTourism(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iBaseTourism = iChange;
+	m_iBaseTourism = iValue;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetBaseTourismBeforeModifiers() const
@@ -19768,10 +19768,10 @@ int CvCity::GetBaseTourismBeforeModifiers() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetBaseTourismBeforeModifiers(int iChange)
+void CvCity::SetBaseTourismBeforeModifiers(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iBaseTourismBeforeModifiers = iChange;
+	m_iBaseTourismBeforeModifiers = iValue;
 }
 #endif
 #if defined(MOD_API_EXTENSIONS)
