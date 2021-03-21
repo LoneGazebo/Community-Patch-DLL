@@ -19451,8 +19451,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 			for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); ++it)
 			{
-				int iApproachValue = GetPlayerStrategicApproachValue(*it, eLoopApproach); // We use the strategic approach here for a better variance/response to circumstances.
-				vePlayerApproachValues.push_back(*it, iApproachValue);
+				// We use the strategic approach here for a better variance/response to circumstances.
+				vePlayerApproachValues.push_back(*it, GetPlayerStrategicApproachValue(*it, eLoopApproach));
 			}
 
 			// Sort the weights from highest to lowest
@@ -19507,11 +19507,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					if (iFlavorMod > 0)
 					{
 						iReduction *= 100;
-						iReduction /= (100 + iFlavorMod);
+						iReduction /= 100 + iFlavorMod;
 					}
 					else if (iFlavorMod < 0)
 					{
-						iReduction *= (100 + iFlavorMod);
+						iReduction *= 100 + iFlavorMod;
 						iReduction /= 100;
 					}
 
@@ -19713,7 +19713,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+		if (!bResurrectedUs && (GetNumCitiesLiberatedBy(ePlayer) <= 0 || GetNumCitiesLiberatedBy(ePlayer) <= GetNumCitiesCapturedBy(ePlayer)))
+		{
+			// Let's not totally turn our backs on them if we have a good opinion.
+			switch (GetCivOpinion(ePlayer))
+			{
+			case CIV_OPINION_ALLY:
+				break;
+			case CIV_OPINION_FRIEND:
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= 75;
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+				break;
+			default:
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+				break;
+			}
+		}
 	}
 
 	////////////////////////////////////
@@ -19750,7 +19765,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /=  max(100, (100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 + iNeutralMod + iOpinionWeight));
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
@@ -21932,19 +21947,22 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 		{
 			iDPValue += 15;
 		}
-
-		if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice) || IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice))
+		else if (IsPlayerLiberatedHolyCity(eChoice) || IsMasterLiberatedMeFromVassalage(eChoice))
+		{
+			iDPValue += 10;
+		}
+		else if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice) || IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice))
 		{
 			iDPValue += 5;
 		}
 
 		if (GetNumCitiesCapturedBy(eChoice) > 0)
 		{
-			iDPValue += (GetNumCitiesCapturedBy(eChoice) * -15);
+			iDPValue += GetNumCitiesCapturedBy(eChoice) * -15;
 		}
 		else if (GetNumCitiesLiberatedBy(eChoice) > 0)
 		{
-			iDPValue += (GetNumCitiesLiberatedBy(eChoice) * 5);
+			iDPValue += GetNumCitiesLiberatedBy(eChoice) * 5;
 		}
 
 		if (iDPValue > iBestDPValue)
@@ -21960,7 +21978,7 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 /// Update whether which major civs we're targeting for war. NOTE: City-State targets are handled in DoUpdateMinorCivApproaches().
 void CvDiplomacyAI::DoUpdateWarTargets()
 {
-	if (GetPlayer()->isHuman() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (GetPlayer()->isHuman() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return;
 
 	vector<PlayerTypes> vAtWarPlayers;
