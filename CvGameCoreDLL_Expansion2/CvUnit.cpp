@@ -4774,17 +4774,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
 	{
-		if(isConvertUnit())
-		{
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
-				return false;
-		}
-		else
-		{
-			bool bNoEnemy = IsCombatUnit() && !(iMoveFlags & MOVEFLAG_ATTACK);
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
-				return false;
-		}
+		//only trade units can pass through non-friendly improvements
+		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), !isTrade()))
+			return false;
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
@@ -5498,7 +5490,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
-				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost
@@ -5521,9 +5513,6 @@ bool CvUnit::jumpToNearestValidPlot()
 		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-		//want to sort by ascending area size
-		candidates[i].score = GC.getMap().numPlots() - plots2.size();
-
 		//if we have lots of room here, use the plot immediately
 		if (plots2.size() > 23)
 		{
@@ -5535,7 +5524,6 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (!pBestPlot && !candidates.empty())
 	{
 		//try again if there are only bad places
-		std::sort(candidates.begin(), candidates.end());
 		pBestPlot = candidates.front().pPlot;
 	}
 

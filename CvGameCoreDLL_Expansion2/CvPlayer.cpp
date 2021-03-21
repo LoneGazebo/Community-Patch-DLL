@@ -41978,10 +41978,9 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	return false;
 }
 
-bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
+vector<int> CvPlayer::GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit) const
 {
-	if (!pPlot)
-		return false;
+	vector<int> result;
 
 	// Loop through our units
 	int iLoop = 0;
@@ -41993,11 +41992,12 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_EXPLORE) )
 		{
 			CvPlot* pMissionPlot = pUnit->GetMissionAIPlot();
-			if (pMissionPlot && ::plotDistance(*pMissionPlot,*pPlot)<3)
-				return true;
+			if (pMissionPlot)
+				result.push_back(pMissionPlot->GetPlotIndex());
 		}
 	}
-	return false;
+
+	return result;
 }
 
 //	--------------------------------------------------------------------------------

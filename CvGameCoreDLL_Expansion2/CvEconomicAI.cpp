@@ -1008,7 +1008,7 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 				if (pLoopPlot->isIce())
 					//there is nothing interesting here
 					continue;
-				else if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
+				else if (!pLoopPlot->isWater())
 					//after all we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3 || pLoopPlot->isShallowWater())
