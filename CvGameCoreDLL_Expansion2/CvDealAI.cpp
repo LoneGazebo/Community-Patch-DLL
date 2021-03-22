@@ -6806,7 +6806,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Map with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 500;
+	int iItemValue = 0;
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
@@ -6818,7 +6818,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iPlotValue = 0;
 
 		if(pPlot == NULL)
 			continue;
@@ -6831,18 +6830,15 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		if(pPlot->isRevealed(pBuyer->getTeam()))
 			continue;
 
-		// ignore ice plots
-		if (pPlot->getFeatureType() == FEATURE_ICE)
-			continue;
-
-		// Handle terrain features
+		// Handle terrain features. A human will estimate based on map type ...
+		int iPlotValue = 1;
 		switch(pPlot->getTerrainType())
 		{
 			case TERRAIN_GRASS:
 			case TERRAIN_PLAINS:
 			case TERRAIN_HILL:
 			case TERRAIN_COAST:
-				iPlotValue = 30;
+				iPlotValue = 20;
 				break;
 			case TERRAIN_DESERT:
 			case TERRAIN_TUNDRA:
@@ -6851,60 +6847,21 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			case TERRAIN_MOUNTAIN:
 			case TERRAIN_SNOW:
 			case TERRAIN_OCEAN:
-				iPlotValue = 5;
-				break;
-			default:
-				iPlotValue = 20;
+				iPlotValue = 1;
 				break;
 		}
-
-		// Is there a Natural Wonder here? 500% of plot.
-		if(pPlot->IsNaturalWonder())
-		{
-			iPlotValue *= 500;
-			iPlotValue /= 100;
-		}
-
-		int iNumRevealed = 0;
-		TeamTypes eTeam;
-		// Value decreased based on number of teams who've seen this plot
-		for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-		{
-			eTeam = (TeamTypes) iTeamLoop;
-			// Don't evaluate us or the buyer
-			if(eTeam == pSeller->getTeam() || eTeam == pBuyer->getTeam())
-			{
-				continue;
-			}
-
-			// Don't evaluate minors/barbarians
-			if(GET_TEAM(eTeam).isMinorCiv() || GET_TEAM(eTeam).isBarbarian())
-			{
-				continue;
-			}
-
-			if(pPlot->isRevealed(eTeam) && GET_TEAM(eTeam).isAlive())
-			{
-				iNumRevealed++;
-			}
-		}
-
-		// Modifier based on uniqueness
-		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
-
-		int iNumTeams = GC.getGame().countMajorCivsAlive();
-		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
-
-		iPlotValue *= max(50,iModifier);
-		iPlotValue /= 100;
 
 		iItemValue += iPlotValue;
 	}
 
+	//nothing to be gained
+	if (iItemValue == 0)
+		return INT_MAX;
+
 	if(bFromMe)
 	{
 		//prevent AI spam
-		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -6937,11 +6894,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			break;
 		}
 
-		iItemValue /= 500;
+		iItemValue /= 100;
 	}
 	else
 	{
-		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -6974,7 +6931,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			break;
 		}
 
-		iItemValue /= 500;
+		iItemValue /= 100;
 	}
 
 	return iItemValue;
