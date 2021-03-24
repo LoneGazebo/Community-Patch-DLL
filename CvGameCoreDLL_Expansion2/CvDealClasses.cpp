@@ -5611,12 +5611,12 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn()) * 5;
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 10 : 0;
+			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 100 : 0;
+			iVal += iter->IsOpenBordersTrade(ePlayer) ? 50 : 0;
+			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 250 : 0;
 		}
 	}
 
