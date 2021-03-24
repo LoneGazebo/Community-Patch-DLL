@@ -5599,8 +5599,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
 
-			//GPT - base it on number of turns remaining
-			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * 10;
 
 			//Resources
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5611,7 +5610,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn()) * 5;
+				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 50;
 			}
 
 			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 100 : 0;
