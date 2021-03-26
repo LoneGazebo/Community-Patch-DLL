@@ -3204,7 +3204,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE)
 		{
 			bool bCapitulation = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
-			GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation);
+			GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation, eToPlayer);
 		}
 		// Revoke Vassalage
 		else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE_REVOKE)
@@ -3874,7 +3874,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE)
 				{
 					bool bCapitulation = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
-					GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation);
+					GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation, eToPlayer);
 				}
 				// Revoke Vassalage
 				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE_REVOKE)

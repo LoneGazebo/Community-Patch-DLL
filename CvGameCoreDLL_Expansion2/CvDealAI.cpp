@@ -3224,9 +3224,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetWarGoal(*it) != WAR_GOAL_DEMAND)
 					{
 						// Bold AIs will take more risks.
-						if (pDiploAI->GetBoldness() > 6 && pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+						if (pDiploAI->GetBoldness() > 6)
 						{
-							return INT_MAX;
+							if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+								return INT_MAX;
 						}
 						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 						{

@@ -1509,7 +1509,7 @@ int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
 	const bool bVoluntary = luaL_optbool(L, 3, false);
 
-	pkTeam->DoBecomeVassal(eTeam, bVoluntary);
+	pkTeam->DoBecomeVassal(eTeam, bVoluntary, NO_PLAYER);
 	return 0;
 }
 // ---------------------------------------------------------------------

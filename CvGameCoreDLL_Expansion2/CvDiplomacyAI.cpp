@@ -52813,6 +52813,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 	}
 
 	// We must be willing to go to war with everyone they're currently at war with.
+	vector<PlayerTypes> vNewWarPlayers;
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -52826,35 +52828,51 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 
 		if (GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
 		{
-			// Don't attack friends or people keeping us financially afloat.
-			if (!IsWarSane(eLoopPlayer))
-				return false;
+			if (std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), eLoopPlayer) == vNewWarPlayers.end())
+				vNewWarPlayers.push_back(eLoopPlayer);
 
-			// Don't attack if they're not a potential war target.
-			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && !IsPotentialWarTarget(eLoopPlayer))
-				return false;
-				
-			// Ignore City-States unless peace blocked, since we can just make peace as their new master if we want.
-			if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+			vector<PlayerTypes> vLinkedWarPlayers = GetLinkedWarPlayers(eLoopPlayer, false, true, false);
+			for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(eLoopPlayer) == 6 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(eLoopPlayer) == 7)
-				{
-					if (GetCivApproach(eLoopPlayer) > CIV_APPROACH_HOSTILE && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
-						return false;
-				}
+				if (!IsAtWar(*it) && std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), *it) == vNewWarPlayers.end())
+					vNewWarPlayers.push_back(*it);
 			}
-			// Avoid DoWing a powerful neighbor.
-			else if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+		}
+	}
+
+	for (std::vector<PlayerTypes>::iterator it = vNewWarPlayers.begin(); it != vNewWarPlayers.end(); it++)
+	{
+		// Don't attack friends or people keeping us financially afloat.
+		if (!IsWarSane(*it))
+			return false;
+
+		// Don't attack if they're not a potential war target.
+		if (GET_PLAYER(*it).isMajorCiv() && !IsPotentialWarTarget(*it))
+			return false;
+			
+		// Ignore City-States unless peace blocked, since we can just make peace as their new master if we want.
+		if (GET_PLAYER(*it).isMinorCiv())
+		{
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 6 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 7)
 			{
-				if (GetCivApproach(eLoopPlayer) == CIV_APPROACH_AFRAID)
+				if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 					return false;
-				else if (GetCivApproach(eLoopPlayer) != CIV_APPROACH_WAR && GetWarGoal(eLoopPlayer) != WAR_GOAL_DEMAND)
+			}
+		}
+		// Avoid DoWing a powerful neighbor.
+		else if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+		{
+			if (GetCivApproach(*it) == CIV_APPROACH_AFRAID)
+				return false;
+			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+			{
+				if (GetBoldness() > 6)
 				{
-					if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_STRONG)
-						return false;
-					else if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+					if (GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
 						return false;
 				}
+				else if (GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+					return false;
 			}
 		}
 	}

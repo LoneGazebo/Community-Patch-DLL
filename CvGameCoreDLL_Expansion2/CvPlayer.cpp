@@ -10001,7 +10001,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				{
 					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
 					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true, GetID());
 				}
 			}
 
