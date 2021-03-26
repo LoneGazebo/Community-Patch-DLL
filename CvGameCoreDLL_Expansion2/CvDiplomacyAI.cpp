@@ -12183,13 +12183,6 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 
 		if (IsPlayerValid(ePlayer))
 		{
-			// If they're spamming Wonders and we're cultural, we're angry about this even if they haven't beaten us to it as we build them
-			if (IsPlayerWonderSpammer(ePlayer) && (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism()))
-			{
-				SetWonderDisputeLevel(ePlayer, DISPUTE_LEVEL_FIERCE);
-				continue;
-			}
-
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
 			int iWonderDisputeWeight = GetNumWondersBeatenTo(ePlayer);
 
@@ -16723,6 +16716,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		iMultiplier++;
 		bBonus = false;
+
+		// Special: If they're spamming World Wonders and we're cultural, treat this as a fierce dispute level
+		if (IsCultural() || bCulturalTraits)
+			eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 	}
 
 	// Additional multiplier increase if dispute level is fierce
