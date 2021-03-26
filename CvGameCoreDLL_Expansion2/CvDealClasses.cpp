@@ -5584,12 +5584,13 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 	return false;
 }
 
-int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration)
 {
 	DealList::iterator iter;
 	DealList::iterator end = m_CurrentDeals.end();
 
 	int iVal = 0;
+	int iAvgDealDuration = GC.getGame().GetDealDuration() / 2;
 	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
 	{
 		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
@@ -5599,7 +5600,14 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
 
-			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * 10;
+			if (bConsiderDuration)
+			{
+				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+			}
+			else
+			{
+				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * iAvgDealDuration;
+			}
 
 			//Resources
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5610,12 +5618,19 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 50;
+				if (bConsiderDuration)
+				{
+					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+				}
+				else
+				{
+					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * iAvgDealDuration;
+				}
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 100 : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 50 : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 250 : 0;
+			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 200 : 0;
+			iVal += iter->IsOpenBordersTrade(ePlayer) ? 100 : 0;
+			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 500 : 0;
 		}
 	}
 
