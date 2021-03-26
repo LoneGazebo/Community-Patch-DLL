@@ -1356,6 +1356,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
+		// Voluntary vassalage has been disallowed by game options
+		if (!pFromTeam->isAtWar(eToTeam) && GC.getDIPLOAI_DISABLE_VOLUNTARY_VASSALAGE() > 0)
+			return false;
+
 		//Can't already be offering this
 		if (!bFinalizing && IsVassalageTrade( ePlayer))
 			return false;

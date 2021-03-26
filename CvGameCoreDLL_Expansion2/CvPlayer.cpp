@@ -9995,7 +9995,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GC.getDIPLOAI_DISABLE_VOLUNTARY_VASSALAGE() == 0)
 			{
 				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
