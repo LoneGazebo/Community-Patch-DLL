@@ -10,11 +10,6 @@
 #ifndef CIV5_PROJECT_PRODUCTION_AI_H
 #define CIV5_PROJECT_PRODUCTION_AI_H
 
-// Allocate array for 50% more Projects than we have now (12)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_PROJECTS 18
-
 class CvCity;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -55,8 +50,8 @@ private:
 
 	// Private data
 	CvCity* m_pCity;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_PROJECTS, true> m_ProjectAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_PROJECTS, true> m_Buildables;
+	CvWeightedVector<int> m_ProjectAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_PROJECT_PRODUCTION_AI_H

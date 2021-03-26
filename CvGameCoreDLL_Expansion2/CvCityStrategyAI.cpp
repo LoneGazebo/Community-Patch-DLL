@@ -390,7 +390,7 @@ void CvCityStrategyAI::FlavorUpdate()
 	// Broadcast to our sub AI objects
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);// m_piLatestFlavorValues[iFlavor];
+		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
 		const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str(); pcFlavorName; //for debugging
 
 		m_pBuildingProductionAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue);
@@ -3777,11 +3777,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 {
 	int iTourismValue = 0;
 	iTourismValue += pCity->getYieldRate(YIELD_CULTURE, false);
-#if defined(MOD_BALANCE_CORE)
 	iTourismValue += pCity->GetBaseTourism() / 100;
-#else
-	iTourismValue += pCity->GetCityCulture()->GetBaseTourism();
-#endif
 
 	if (iTourismValue > 10)
 	{

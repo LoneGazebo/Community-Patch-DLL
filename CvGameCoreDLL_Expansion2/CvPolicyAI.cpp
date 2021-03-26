@@ -61,31 +61,7 @@ void CvPolicyAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	CvAssertMsg(m_pCurrentPolicies->GetPolicies() != NULL, "Policy AI serialization failure: no policy data");
-	CvAssertMsg(m_pCurrentPolicies->GetPolicies()->GetNumPolicies() > 0, "Policy AI serialization failure: number of policies not greater than 0");
-
-	// Reset vector
-	m_PolicyAIWeights.clear();
-
-	uint uiPolicyArraySize = m_pCurrentPolicies->GetPolicies()->GetNumPolicies();
-	// Must set to the final size because we might not be adding in sequentially
-	m_PolicyAIWeights.resize(uiPolicyArraySize);
-	// Clear the contents in case we are loading a smaller set
-	for(uint uiIndex = 0; uiIndex < uiPolicyArraySize; ++uiIndex)
-		m_PolicyAIWeights.SetWeight(uiIndex, 0);
-
-	uint uiPolicyCount;
-	kStream >> uiPolicyCount;
-
-	for(uint uiIndex = 0; uiIndex < uiPolicyCount; ++uiIndex)
-	{
-		PolicyTypes ePolicy = (PolicyTypes)CvInfosSerializationHelper::ReadHashed(kStream);
-		kStream >> iWeight;
-		if(ePolicy != NO_POLICY && (uint)ePolicy < uiPolicyArraySize)
-			m_PolicyAIWeights.SetWeight((uint)ePolicy, iWeight);
-	}
+	kStream >> m_PolicyAIWeights;
 }
 
 /// Serialization write
@@ -96,18 +72,7 @@ void CvPolicyAI::Write(FDataStream& kStream)
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	CvAssertMsg(m_pCurrentPolicies->GetPolicies() != NULL, "Policy AI serialization failure: no policy data");
-	CvAssertMsg(m_pCurrentPolicies->GetPolicies()->GetNumPolicies() > 0, "Policy AI serialization failure: number of policies not greater than 0");
-
-	// Loop through writing each entry
-	uint uiPolicyCount = m_pCurrentPolicies->GetPolicies()->GetNumPolicies();
-	kStream << uiPolicyCount;
-
-	for(int i = 0; i < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); i++)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, static_cast<const PolicyTypes>(i));
-		kStream << m_PolicyAIWeights.GetWeight(i);
-	}
+	kStream << m_PolicyAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

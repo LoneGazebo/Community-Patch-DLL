@@ -10,8 +10,6 @@
 #ifndef CIV5_BUILDER_TASKING_AI_H
 #define CIV5_BUILDER_TASKING_AI_H
 
-#define SAFE_ESTIMATE_NUM_EXTRA_PLOTS 64
-
 class CvPlayer;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuilderTaskingAI

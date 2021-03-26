@@ -2525,7 +2525,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 	else
 	{
 		// Major civs vote for other majors based on opinion weight (our team leader towards their team leader)
-		CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veVoteCandidates;
+		CvWeightedVector<TeamTypes> veVoteCandidates;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
 			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;

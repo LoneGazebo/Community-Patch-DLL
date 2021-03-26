@@ -21,7 +21,7 @@
 //	---------------------------------------------------------------------------
 UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom /* = false */)
 {
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> UnitClassesVector;
+	CvWeightedVector<int> UnitClassesVector;
 	int iWeight;
 
 	bool bValid;

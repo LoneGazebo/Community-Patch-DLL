@@ -54,28 +54,7 @@ void CvTechAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	CvAssertMsg(m_pCurrentTechs->GetTechs() != NULL, "Tech AI serialization failure: no tech data");
-	CvAssertMsg(m_pCurrentTechs->GetTechs()->GetNumTechs() > 0, "Tech AI serialization failure: number of techs not greater than 0");
-
-	// Reset vector
-	m_TechAIWeights.clear();
-	int iTechCount = m_pCurrentTechs->GetTechs()->GetNumTechs();
-	m_TechAIWeights.resize(iTechCount);
-	for(int i = 0; i < iTechCount; ++i)
-		m_TechAIWeights.SetWeight(i, 0);
-
-	int iCount;
-	kStream >> iCount;
-
-	for(int i = 0; i < iCount; i++)
-	{
-		int iIndex = CvInfosSerializationHelper::ReadHashed(kStream);
-		kStream >> iWeight;
-		if(iIndex >= 0 && iIndex < iCount)
-			m_TechAIWeights.SetWeight(iIndex, iWeight);
-	}
+	kStream >> m_TechAIWeights;
 }
 
 /// Serialization write
@@ -86,18 +65,7 @@ void CvTechAI::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	CvAssertMsg(m_pCurrentTechs->GetTechs() != NULL, "Tech AI serialization failure: no tech data");
-	CvAssertMsg(m_pCurrentTechs->GetTechs()->GetNumTechs() > 0, "Tech AI serialization failure: number of techs not greater than 0");
-
-	uint uiCount = m_pCurrentTechs->GetTechs()->GetNumTechs();
-	kStream << uiCount;
-
-	// Loop through writing each entry
-	for(uint i = 0; i < uiCount; i++)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, (TechTypes)i);	// Write out the hash ID first
-		kStream << m_TechAIWeights.GetWeight(i);
-	}
+	kStream << m_TechAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

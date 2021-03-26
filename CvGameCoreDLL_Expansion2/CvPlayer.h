@@ -12,10 +12,6 @@
 #ifndef CIV5_PLAYER_H
 #define CIV5_PLAYER_H
 
-#define SAFE_ESTIMATE_NUM_IMPROVEMENTS 50
-#define SAFE_ESTIMATE_NUM_CITIES       64
-#define MAX_INCOMING_UNITS	20
-
 #include "CvCityAI.h"
 #include "CvUnit.h"
 #include "CvArmyAI.h"
@@ -2444,7 +2440,7 @@ public:
 	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
-	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
+	vector<int> GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit=NULL) const;
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);

@@ -8819,7 +8819,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 		return NULL;
 	}
 
-	CvWeightedVector<int, 64, true> viPlotIndexes; // 64 camps in 12 hex radius should be enough
+	CvWeightedVector<int> viPlotIndexes; // 64 camps in 12 hex radius should be enough
 
 	int iRange = /*12*/ GC.getMINOR_CIV_QUEST_KILL_CAMP_RANGE();
 
@@ -8886,7 +8886,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 		return NULL;
 	}
 
-	CvWeightedVector<int, 64, true> viPlotIndexes; // 64 camps in 12 hex radius should be enough
+	CvWeightedVector<int> viPlotIndexes; // 64 camps in 12 hex radius should be enough
 
 	int iRange = 12;
 
@@ -8987,7 +8987,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 		iTopTier = 1;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMinorRankings;
+	CvWeightedVector<PlayerTypes> veMinorRankings;
 	
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
@@ -9822,7 +9822,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 		return NO_PLAYER;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veValidTargets;
+	CvWeightedVector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -12471,7 +12471,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		iWarningMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iWarningMax /= 100;
 
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+		CvWeightedVector<PlayerTypes> veMilitaryRankings;
 		PlayerTypes eMajorLoop;
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
@@ -12667,7 +12667,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	CvWeightedVector<PlayerTypes> veMilitaryRankings;
 	PlayerTypes eMajorLoop;
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
@@ -12820,7 +12820,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+		CvWeightedVector<PlayerTypes> veMilitaryRankings;
 		PlayerTypes eMajorLoop;
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
@@ -16420,7 +16420,7 @@ void CvMinorCivAI::DoElection()
 		return;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> wvVotes;
+	CvWeightedVector<PlayerTypes> wvVotes;
 	Firaxis::Array<CvEspionageSpy*, MAX_MAJOR_CIVS> apSpy;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if(!pCapital)
@@ -17607,7 +17607,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_XML_WIDGETS, true> TechVector;
+	CvWeightedVector<int> TechVector;
 	int iValue, iProgress;
 
 

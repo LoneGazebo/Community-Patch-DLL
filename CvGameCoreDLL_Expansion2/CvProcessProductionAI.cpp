@@ -50,24 +50,7 @@ void CvProcessProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	// Reset vector
-	m_ProcessAIWeights.clear();
-	m_ProcessAIWeights.resize(GC.getNumProcessInfos());
-	for(int i = 0; i < GC.getNumProcessInfos(); ++i)
-		m_ProcessAIWeights.SetWeight(i, 0);
-
-	// Loop through reading each one and adding it to our vector
-	int iNumProcess;
-	kStream >> iNumProcess;
-	for(int i = 0; i < iNumProcess; i++)
-	{
-		int iType = CvInfosSerializationHelper::ReadHashed(kStream);
-		kStream >> iWeight;
-		if (iType >= 0 && iType < m_ProcessAIWeights.size())
-			m_ProcessAIWeights.SetWeight(iType, iWeight);
-	}
+	kStream >> m_ProcessAIWeights;
 }
 
 /// Serialization write
@@ -78,13 +61,7 @@ void CvProcessProductionAI::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	// Loop through writing each entry
-	kStream << GC.getNumProcessInfos();
-	for(int i = 0; i < GC.getNumProcessInfos(); i++)
-	{
-		CvInfosSerializationHelper::WriteHashed(kStream, GC.getProcessInfo((ProcessTypes)i));
-		kStream << m_ProcessAIWeights.GetWeight(i);
-	}
+	kStream << m_ProcessAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
