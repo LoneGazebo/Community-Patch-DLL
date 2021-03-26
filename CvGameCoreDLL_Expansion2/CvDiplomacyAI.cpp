@@ -52057,9 +52057,56 @@ void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 }
 
 /// Do we want to become the vassal of ePlayer?
-bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+
+	// Shadow AI does not make decisions for human!
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return false;
+
+	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+	int iNumTeamMembersInFavor = 0;
+	int iNumTeamMembersAgainst = 0;
+
+	// We are the MASTER receiving the request
+	if (bMasterEvaluation)
+	{
+		// Always willing to accept capitulation if we're willing to make peace
+		if (IsAtWar(ePlayer))
+			return true;
+
+		for (size_t i=0; i<vOurTeam.size(); i++)
+		{
+			if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+				continue;
+
+			bool bYes = false;
+
+			for (size_t j=0; j<vTheirTeam.size(); j++)
+			{
+				if (!GET_PLAYER(vTheirTeam[j]).isAlive() || GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
+					continue;
+
+				if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsVoluntaryVassalageRequestAcceptable(vTheirTeam[j]))
+				{
+					bYes = true;
+					iNumTeamMembersInFavor++;
+					break;
+				}
+			}
+
+			if (!bYes)
+				iNumTeamMembersAgainst++;
+		}
+
+		// More team members must agree than refuse
+		if (iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst)
+			return true;
+
+		return false;
+	}
 
 	// We are already ePlayer's vassal
 	if (IsVassal(ePlayer))
@@ -52069,19 +52116,9 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
-	// Shadow AI does not make decisions for human!
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return false;
-
 	// Can't capitulate if we have vassals
 	if (GetPlayer()->GetNumVassals() > 0)
 		return false;
-
-	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
-	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
-
-	int iNumTeamMembersInFavor = 0;
-	int iNumTeamMembersAgainst = 0;
 
 	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
@@ -52726,6 +52763,104 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	return iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+}
+
+/// Do we want to accept ePlayer as our voluntary vassal?
+bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
+{
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+	int iNumCaps = 0;
+	for (size_t i=0; i<vTheirTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
+			continue;
+
+		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
+			iNumCaps++;
+
+		iNumCaps += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
+
+		bool bWeLikeThem = IsDoFAccepted(vTheirTeam[i]) || IsHasDefensivePact(vTheirTeam[i]) || (GetCivOpinion(vTheirTeam[i]) >= CIV_OPINION_FRIEND && GetCivApproach(vTheirTeam[i]) == CIV_APPROACH_FRIENDLY);
+
+		// We must be stronger.
+		if (bWeLikeThem)
+		{
+			if (GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_STRONG)
+				return false;
+
+			if (GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_STRONG)
+				return false;
+
+			// If we like them and we can't honestly protect them, then don't agree.
+			if (GetPlayer()->GetProximityToPlayer(vTheirTeam[i]) < PLAYER_PROXIMITY_CLOSE)
+				return false;
+		}
+		else
+		{
+			if (GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_AVERAGE)
+				return false;
+
+			if (GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_AVERAGE)
+				return false;
+		}
+	}
+
+	// Do not accept voluntary capitulation if we need their capitals to win.
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		if (iNumCaps > 0)
+			return false;
+	}
+
+	// We must be willing to go to war with everyone they're currently at war with.
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!IsPlayerValid(eLoopPlayer))
+			continue;
+
+		// We're already at war - ignore
+		if (IsAtWar(eLoopPlayer))
+			continue;
+
+		if (GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+		{
+			// Don't attack friends or people keeping us financially afloat.
+			if (!IsWarSane(eLoopPlayer))
+				return false;
+
+			// Don't attack if they're not a potential war target.
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && !IsPotentialWarTarget(eLoopPlayer))
+				return false;
+				
+			// Ignore City-States unless peace blocked, since we can just make peace as their new master if we want.
+			if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(eLoopPlayer) == 6 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(eLoopPlayer) == 7)
+				{
+					if (GetCivApproach(eLoopPlayer) > CIV_APPROACH_HOSTILE && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+						return false;
+				}
+			}
+			// Avoid DoWing a powerful neighbor.
+			else if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+			{
+				if (GetCivApproach(eLoopPlayer) == CIV_APPROACH_AFRAID)
+					return false;
+				else if (GetCivApproach(eLoopPlayer) != CIV_APPROACH_WAR && GetWarGoal(eLoopPlayer) != WAR_GOAL_DEMAND)
+				{
+					if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_STRONG)
+						return false;
+					else if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+						return false;
+				}
+			}
+		}
+	}
+
+	// If everything is clear, then accept.
+	return true;
 }
 
 /// Is it acceptable for us to terminate the vassalage agreement with ePlayer?

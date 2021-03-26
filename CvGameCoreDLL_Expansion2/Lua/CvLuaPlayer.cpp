@@ -15930,7 +15930,7 @@ int CvLuaPlayer::lIsVassalageAcceptable(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer);
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, false);
 
 	lua_pushboolean(L, bValue);
 
