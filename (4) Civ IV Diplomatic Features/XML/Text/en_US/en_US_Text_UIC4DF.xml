@@ -138,7 +138,7 @@
 			<Text>VASSAL STATE</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE_TT">
-			<Text>Voluntarily become the other civilization's vassal. A voluntary vassal may choose to leave their master at any time after {1_Num} turns have passed.[NEWLINE][NEWLINE]NOTE: A master who accepts a voluntary vassal immediately declares war on everyone who is currently at war with that vassal. This may have serious consequences!</Text>
+			<Text>Voluntarily become the other civilization's vassal. A voluntary vassal may choose to leave their master at any time after {1_Num} turns have passed.[NEWLINE][NEWLINE]WARNING: A master who accepts a voluntary vassal immediately declares war on everyone who is currently at war with that vassal. This may have serious consequences!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE">
 			<Text>CAPITULATION</Text>
