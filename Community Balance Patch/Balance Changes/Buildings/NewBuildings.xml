@@ -646,8 +646,8 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_GREAT_COTHON</Type>
