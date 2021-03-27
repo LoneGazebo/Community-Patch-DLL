@@ -21,11 +21,11 @@ typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct SUnitInfo
 {
-	SUnitInfo(const CvUnit* pUnit=NULL, const UnitIdContainer& enemyUnitsToIgnore=UnitIdContainer()) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
+	SUnitInfo(const CvUnit* pUnit=NULL, const UnitIdContainer& enemyUnitsToIgnore=UnitIdContainer(), int iSelfDamage=0) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
 	{
 		m_iUnitID = pUnit ? pUnit->GetID() : 0;
 		m_iPlotIndex = pUnit ? pUnit->plot()->GetPlotIndex() : -1;
-		m_damage = pUnit ? pUnit->getDamage() : 0;
+		m_damage = pUnit ? pUnit->getDamage()+iSelfDamage : iSelfDamage;
 	}
 	const bool operator==(const SUnitInfo& rhs) const
 	{
@@ -64,7 +64,7 @@ struct CvDangerPlotContents
 		m_lastResults.clear();
 	}
 
-	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
+	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers(TeamTypes eTeamForVisibilityCheck) const;
 
@@ -152,7 +152,7 @@ public:
 	void Uninit();
 
 	void UpdateDanger(bool bKeepKnownUnits=true);
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage=0, AirActionType iAirAction=AIR_ACTION_ATTACK);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, bool bFixedDamageOnly);
 

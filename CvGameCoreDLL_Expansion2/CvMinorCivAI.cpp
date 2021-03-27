@@ -1743,13 +1743,13 @@ bool CvMinorCivQuest::IsComplete()
 	//No barbarians in the city-state, so you win!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if ((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0)
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(true) <= 0)
 			return true;
 	}
 	//You eliminated all of the rebels.
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if ((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0))
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumBarbariansInBorders(false) <= 0))
 		{
 			return true;
 		}
@@ -2222,7 +2222,7 @@ bool CvMinorCivQuest::IsExpired()
 	// The Horde is still in the City-State's threat-radius - oh no!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumBarbariansInBorders(true) > 0))
 		{
 			return true;
 		}
@@ -2230,7 +2230,7 @@ bool CvMinorCivQuest::IsExpired()
 	//Are there still rebels milling about? You lose!
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumBarbariansInBorders(false) > 0))
 		{
 			return true;
 		}
@@ -5746,7 +5746,7 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 }
 
 /// Barbs in our borders?
-int CvMinorCivAI::GetNumBarbariansInBorders()
+int CvMinorCivAI::GetNumBarbariansInBorders(bool bOnlyAdjacentToCity)
 {
 	if (GetPlayer()->getCapitalCity() == NULL)
 		return 0;
@@ -5757,7 +5757,8 @@ int CvMinorCivAI::GetNumBarbariansInBorders()
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
 		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
-			iCount++;
+			if (!bOnlyAdjacentToCity || pLoopUnit->plot()->IsAdjacentCity())
+				iCount++;
 	}
 
 	return iCount;

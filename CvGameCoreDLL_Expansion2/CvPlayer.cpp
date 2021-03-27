@@ -10658,34 +10658,37 @@ BuildingTypes CvPlayer::GetSpecificBuildingType(const char* szBuildingClass, boo
 }
 
 //	--------------------------------------------------------------------------------
-CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
+CvPlot* CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 {
-	CvPlot *pInitialPlot = pUnit->plot();
+	CvPlot* pLargestWaterAreaPlot = NULL;
+	int iLargestWaterSize = -1;
 
-	// Is this a friendly coastal city, if so we'll go with that
-	CvCity *pInitialCity = pInitialPlot->getPlotCity();
-	if (pInitialCity && pInitialCity->isCoastal())
-	{
-		// Equal okay checking this plot because this is where the unit is right now
-		if (pUnit->canEndTurnAtPlot(pInitialPlot))
-			return pInitialPlot;
-	}
-
-	// Otherwise let's look at all our other cities
-	CvCity *pLoopCity;
+	// let's look at all our cities and find the largest ocean
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != pInitialCity && pLoopCity->isCoastal())
+		if (!pLoopCity->isCoastal())
+			continue;
+
+		if (!pUnit->canEndTurnAtPlot(pLoopCity->plot()))
+			continue;
+
+		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
+		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 		{
-			if (pUnit->canEndTurnAtPlot(pLoopCity->plot()))
+			CvArea* pkArea = GC.getMap().getArea(*it);
+			if (pkArea->isWater() && pkArea->getNumTiles()>iLargestWaterSize)
 			{
-				return pLoopCity->plot();
+				iLargestWaterSize = pkArea->getNumTiles();
+				pLargestWaterAreaPlot = pLoopCity->plot();
 			}
 		}
 	}
 
-	return pInitialPlot;
+	if (pLargestWaterAreaPlot)
+		return pLargestWaterAreaPlot;
+	else
+		return pUnit->plot();
 }
 
 
@@ -47390,12 +47393,12 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iAirAction);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iExtraDamage, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------

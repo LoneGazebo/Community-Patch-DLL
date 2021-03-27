@@ -311,7 +311,7 @@ public:
 
 	bool IsThreateningBarbariansEventActiveForPlayer(PlayerTypes ePlayer);
 	int GetNumThreateningBarbarians();
-	int GetNumBarbariansInBorders();
+	int GetNumBarbariansInBorders(bool bOnlyAdjacentToCity);
 
 	void DoTestThreatenedAnnouncement();
 	int GetTurnsSinceThreatenedAnnouncement() const;

@@ -18,17 +18,13 @@ UPDATE Defines SET Value = '-40' WHERE Name = 'CITY_RANGED_ATTACK_STRENGTH_MULTI
 -- default value 100. higher -> more aggressive
 INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_DAMAGEWEIGHT', '100';
 
--- this controls whether ending the turn on a certain plot is acceptable during offense
--- default value 50. higher -> more timid
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_DANGERWEIGHT', '50';
+-- this controls whether ending the turn on a certain plot is acceptable (defense and offense)
+-- default value 100. higher -> more timid
+INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_DANGERWEIGHT', '100';
 
 -- this controls whether a 'bad' offensive move should still be considered
 -- default value 20. higher -> more reckless
 INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_OFFENSE_SCORE_BIAS', '20';
-
--- this controls whether ending the turn on a certain plot is acceptable during defense
--- default value 20. higher -> more timid
-INSERT INTO Defines (Name, Value) SELECT 'COMBAT_AI_DEFENSE_DANGERWEIGHT', '20';
 
 -- this controls whether a 'bad' defensive move should still be considered
 -- default value 200. higher -> more desperate

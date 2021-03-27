@@ -5573,16 +5573,20 @@ bool CvUnit::jumpToNearestValidPlot()
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 {
-	VALIDATE_OBJECT
-	CvPlot* pBestPlot = NULL;
-	int iBestValue = INT_MAX;
-	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
-	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
-
 	if (!pStartPlot)
 		pStartPlot = plot();
 
+	if (!pStartPlot)
+		return false;
+
+	//nothing to do?
+	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
+		return true;
+
+	CvPlot* pBestPlot = NULL;
+	int iBestValue = INT_MAX;
 	iRange = min(max(1,iRange),5);
+
 	for(int i=1; i<RING_PLOTS[iRange]; i++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots( pStartPlot, i );
@@ -8089,15 +8093,15 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer());
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer(),0);
 }
 
-int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore,iExtraDamage);
 }
 
 //	--------------------------------------------------------------------------------

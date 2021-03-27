@@ -8710,8 +8710,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 			{
 				int iLoop;
-				CvUnit* pLoopUnit;
-				for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 				{
 					if(pLoopUnit->isUnitEraUpgrade())
 					{
@@ -8739,6 +8738,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						}
 					}
 				}
+
+				//specialist food consumption changed, set all cities dirty
+				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					pLoopCity->GetCityCitizens()->SetDirty(true);
 			}
 		}
 #endif
