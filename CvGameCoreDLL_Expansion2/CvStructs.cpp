@@ -758,5 +758,3 @@ FDataStream& operator>>(FDataStream& loadFrom, MissionData& writeTo)
 	loadFrom >> writeTo.iPushTurn;
 	return loadFrom;
 }
-
-
