@@ -31555,12 +31555,9 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	iResistance /= 25;
-	iResistance *= GetCurrentEra();
+	int iHandicapCap = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
 
-	int iHandicapCap = std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
-
-	return std::min(iHandicapCap, iResistance);
+	return min(iHandicapCap, iResistance/25);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
