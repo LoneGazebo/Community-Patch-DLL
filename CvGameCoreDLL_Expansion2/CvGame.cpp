@@ -9184,6 +9184,9 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
 	}
 
+	if (veUnitRankings.size() == 0)
+		return NO_UNIT;
+
 	// Choose from weighted unit types
 	veUnitRankings.SortItems();
 	int iNumChoices = GC.getUNIT_SPAWN_NUM_CHOICES();
