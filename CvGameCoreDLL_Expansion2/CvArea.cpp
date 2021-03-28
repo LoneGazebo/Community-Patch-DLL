@@ -585,6 +585,8 @@ int CvArea::getNumResources(ResourceTypes eResource) const
 	map<ResourceTypes, int>::const_iterator it = m_aiNumResources.find(eResource);
 	if (it != m_aiNumResources.end())
 		return it->second;
+
+	return 0;
 }
 
 
@@ -623,6 +625,8 @@ int CvArea::getNumImprovements(ImprovementTypes eImprovement) const
 	map<ImprovementTypes, int>::const_iterator it = m_aiNumImprovements.find(eImprovement);
 	if (it != m_aiNumImprovements.end())
 		return it->second;
+
+	return 0;
 }
 
 
