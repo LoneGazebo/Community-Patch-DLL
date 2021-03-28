@@ -3328,7 +3328,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 /// What is the value of trading a vote commitment?
 int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue)
 {
-	int iValue = 100;
+	int iValue = 0;
 
 	if (iNumVotes == 0)
 		return INT_MAX;
@@ -3336,6 +3336,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
+		iValue += 100;
 		//Alright, so vote logic. We're giving them votes, so let's only vote on things we like.
 		//Also, make sure that whatever we vote on can't be screwed over. Ask for more if they have lots of votes.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -3357,71 +3358,42 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						return INT_MAX;
 					}
 				}
-				//Let's look real quick to see if this is the world leader vote. If so, don't give ANYTHING away if we can win.
-				if (pProposal->GetEffects()->bDiplomaticVictory)
-				{
-					// Never support the opposition if we're on a human's team.
-					if (GetPlayer()->IsAITeammateOfHuman())
-						return INT_MAX;
 
-					// If we were resurrected by someone, they're getting our votes
-					if (GetPlayer()->GetDiplomacyAI()->WasResurrectedByAnyone())
-						return INT_MAX;
-
-					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
-					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-					if (iOurVotes >= iVotesNeededToWin)
-					{
-						return INT_MAX;
-					}
-					//We can't win? Well, our votes should be super-duper valuable, then!
-					else
-					{
-						iValue *= 10;
-					}
-				}
 			}
-			int iVotesNeeded = 0;
-			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
 
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
-				{			
-					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
-				}
-			}
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 			switch(eDesire)
 			{
 				case CvLeagueAI::DESIRE_NEVER:
+					return INT_MAX;
+					break;
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-					iValue += 2500 * iNumVotes;
+					iValue += 5000 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_DISLIKE:
-					iValue += 500 * iNumVotes;
+					iValue += 3000 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					iValue += 300 * iNumVotes;
+					iValue += 2000 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
-					iValue += 200 * iNumVotes;
+					iValue += 1500 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
+					iValue += 1000 * iNumVotes;
+					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 100 * iNumVotes;
+					iValue += 500 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					iValue += 50 * iNumVotes;
+					iValue += 250 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_ALWAYS:
-					iValue += 25 * iNumVotes;
+					iValue += 100 * iNumVotes;
 					break;
 				default:
-					iValue += 150 * iNumVotes;
+					iValue += 1500 * iNumVotes;
 					break;
 			}
 			CvAssert(eOtherPlayer != NO_PLAYER);
@@ -3432,53 +3404,71 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				{
 				case CvLeagueAI::ALIGNMENT_LIBERATOR:
 				case CvLeagueAI::ALIGNMENT_LEADER:
-					iValue += -200;
+					iValue *= 1;
 					break;
 				case CvLeagueAI::ALIGNMENT_SELF:
 					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
 					break;
 				case CvLeagueAI::ALIGNMENT_ALLY:
-					iValue += -100;
+					iValue *= 110;
+					iValue /= 100;
 					break;
 				case CvLeagueAI::ALIGNMENT_CONFIDANT:
+					iValue *= 120;
+					iValue /= 100;
+					break;
 				case CvLeagueAI::ALIGNMENT_FRIEND:
-					iValue += -50;
+					iValue *= 130;
+					iValue /= 100;
 					break;
 				case CvLeagueAI::ALIGNMENT_NEUTRAL:
-					iValue += 200;
+					iValue *= 150;
+					iValue /= 100;
 					break;
 				case CvLeagueAI::ALIGNMENT_RIVAL:
-					iValue += 500;
+					iValue *= 200;
+					iValue /= 100;
 					break;
 				case CvLeagueAI::ALIGNMENT_HATRED:
+					iValue *= 250;
+					iValue /= 100;
+					break;
 				case CvLeagueAI::ALIGNMENT_ENEMY:
+					iValue *= 300;
+					iValue /= 100;
+					break;
 				case CvLeagueAI::ALIGNMENT_WAR:
-					iValue += 5000;
+					iValue *= 500;
+					iValue /= 100;
+					break;
 				default:
+					iValue *= 150;
+					iValue /= 100;
 					break;
 				}
-				CivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-				if (eOtherPlayerApproach <= CIV_APPROACH_HOSTILE)
+			}
+			//Let's look real quick to see if this is the world leader vote. If so, don't give ANYTHING away if we can win.
+			if (pProposal->GetEffects()->bDiplomaticVictory)
+			{
+				// Never support the opposition if we're on a human's team.
+				if (GetPlayer()->IsAITeammateOfHuman())
+					return INT_MAX;
+
+				// If we were resurrected by someone, they're getting our votes
+				if (GetPlayer()->GetDiplomacyAI()->WasResurrectedByAnyone())
+					return INT_MAX;
+
+				int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+				int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+				if (iOurVotes >= iVotesNeededToWin)
 				{
-					iValue += 500;
+					return INT_MAX;
 				}
-			}
-			//If the total is more than half of the total votes on the board...that probably means it'll pass.
-			if((iNumVotes + iTheirVotes) > (iVotesNeeded / 2))
-			{
-				iValue /= 2;
-			}
-			// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
-			float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-			if (fVotesRatio > 0.5f)
-			{
-				// More than half their votes...they probably aren't going to screw us
-				iValue /= 2;
-			}
-			else
-			{
-				// They have a hoard of votes
-				iValue *= 2;
+				//We can't win? Well, our votes should be super-duper valuable, then!
+				else
+				{
+					iValue *= 10;
+				}
 			}
 		}
 	}
@@ -3494,6 +3484,72 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
 			//We shouldn't ask them to vote on things that have to do with them personally.
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
+			
+			// Adjust based on LeagueAI
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			switch(eDesire)
+			{
+				case CvLeagueAI::DESIRE_NEVER:
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				case CvLeagueAI::DESIRE_DISLIKE:
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:	
+				case CvLeagueAI::DESIRE_NEUTRAL:
+					break;
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+					iValue += 100 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_LIKE:
+					iValue += 200 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+					iValue += 500 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_ALWAYS:
+					iValue += 1000 * iNumVotes;
+					break;
+				default:
+					break;
+			}
+			CvAssert(eOtherPlayer != NO_PLAYER);
+			if (eOtherPlayer != NO_PLAYER)
+			{
+				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
+				switch (eAlignment)
+				{
+				case CvLeagueAI::ALIGNMENT_LIBERATOR:
+				case CvLeagueAI::ALIGNMENT_LEADER:
+					iValue *= 120;
+					iValue /= 100;
+					break;
+				case CvLeagueAI::ALIGNMENT_SELF:
+					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
+					break;
+				case CvLeagueAI::ALIGNMENT_ALLY:
+					iValue *= 110;
+					iValue /= 100;
+					break;
+				case CvLeagueAI::ALIGNMENT_CONFIDANT:
+				case CvLeagueAI::ALIGNMENT_FRIEND:
+				case CvLeagueAI::ALIGNMENT_NEUTRAL:
+					break;
+				case CvLeagueAI::ALIGNMENT_RIVAL:
+					iValue *= 90;
+					iValue /= 100;
+					break;
+				case CvLeagueAI::ALIGNMENT_HATRED:
+					iValue *= 80;
+					iValue /= 100;
+					break;
+				case CvLeagueAI::ALIGNMENT_ENEMY:
+				case CvLeagueAI::ALIGNMENT_WAR:
+					iValue *= 70;
+					iValue /= 100;
+					break;
+				default:
+					break;
+				}
+			}
+
 			if (pProposal != NULL)
 			{
 				PlayerTypes eTargetPlayer = NO_PLAYER;
@@ -3502,8 +3558,8 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
-					eTargetPlayer = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
-					if(eTargetPlayer != NO_PLAYER)
+					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+					if (eTargetPlayer != NO_PLAYER)
 					{
 						//we don't ask them about things that involve themselves!
 						if (eTargetPlayer == eOtherPlayer)
@@ -3525,126 +3581,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 									iValue *= 2;
 							}
 							else
+							{
 								return INT_MAX;
-						}
-						//don't ask them to embargo, decolonize, or end our vassalage!
-						if (eTargetPlayer == GetPlayer()->GetID())
-						{
-							if (pProposal->GetEffects()->bEmbargoPlayer || pProposal->GetEffects()->bDecolonization || pProposal->GetEffects()->bEndAllCurrentVassals) 
-								return INT_MAX;
+							}
 						}
 					}
 				}
-				else if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
-				{
-					//Let's not ask them about religion if it's their faith.
-					ReligionTypes eReligion = (ReligionTypes)pProposal->GetProposerDecision()->GetDecision();
-					if (eReligion != NO_RELIGION)
-						if (eReligion == GET_PLAYER(eOtherPlayer).GetReligions()->GetCurrentReligion(false))
-							return INT_MAX;
-				}
-			}
-			int iVotesNeeded = 0;
-			
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
-				{			
-					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
-				}
-			}
-			// Adjust based on LeagueAI
-			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
-			switch(eDesire)
-			{
-				case CvLeagueAI::DESIRE_NEVER:
-				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-					iValue += 1 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_DISLIKE:
-					iValue += 5 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_WEAK_DISLIKE:	
-					iValue += 15 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_NEUTRAL:
-					iValue += 25 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					iValue += 50 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 100 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					iValue += 200 * iNumVotes;
-					break;
-				case CvLeagueAI::DESIRE_ALWAYS:
-					iValue += 500 * iNumVotes;
-					break;
-				default:
-					iValue += 100 * iNumVotes;
-					break;
-			}
-			CvAssert(eOtherPlayer != NO_PLAYER);
-			if (eOtherPlayer != NO_PLAYER)
-			{
-				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
-				switch (eAlignment)
-				{
-				case CvLeagueAI::ALIGNMENT_LIBERATOR:
-				case CvLeagueAI::ALIGNMENT_LEADER:
-					iValue += 400;
-					break;
-				case CvLeagueAI::ALIGNMENT_SELF:
-					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
-					break;
-				case CvLeagueAI::ALIGNMENT_ALLY:
-					iValue += 300;
-					break;
-				case CvLeagueAI::ALIGNMENT_CONFIDANT:
-				case CvLeagueAI::ALIGNMENT_FRIEND:
-					iValue += 150;
-					break;
-				case CvLeagueAI::ALIGNMENT_NEUTRAL:
-					break;
-				case CvLeagueAI::ALIGNMENT_RIVAL:
-					iValue += 50;
-					break;
-				case CvLeagueAI::ALIGNMENT_HATRED:
-					iValue += 25;
-					break;
-				case CvLeagueAI::ALIGNMENT_ENEMY:
-				case CvLeagueAI::ALIGNMENT_WAR:
-					iValue += 1;
-					break;
-				default:
-					break;
-				}
-				CivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-				if (eOtherPlayerApproach <= CIV_APPROACH_HOSTILE)
-				{
-					iValue /= 10;
-				}
-			}
-			//If the total is more than half of the total votes on the board...that probably means it'll pass.
-			if((iNumVotes + iOurVotes) > (iVotesNeeded / 2))
-			{
-				iValue /= 2;
-			}
-			// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
-			float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-			if (fVotesRatio > 0.5f)
-			{
-				// More than half their votes...they probably aren't going to screw us
-				iValue *= 2;
-			}
-			else
-			{
-				// They have a hoard of votes
-				iValue /= 2;
 			}
 		}
 	}

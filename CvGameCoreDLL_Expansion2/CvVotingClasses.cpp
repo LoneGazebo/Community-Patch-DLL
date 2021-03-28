@@ -10998,35 +10998,35 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesire(int iRawScore)
 {
 	DesireLevels eDesire = DESIRE_NEVER;
 
-	if (iRawScore < -105)
+	if (iRawScore < -2500)
 	{
 		eDesire = DESIRE_NEVER;
 	}
-	else if (iRawScore < -75)
+	else if (iRawScore < -1000)
 	{
 		eDesire = DESIRE_STRONG_DISLIKE;
 	}
-	else if (iRawScore < -45)
+	else if (iRawScore < -250)
 	{
 		eDesire = DESIRE_DISLIKE;
 	}
-	else if (iRawScore < -15)
+	else if (iRawScore < -50)
 	{
 		eDesire = DESIRE_WEAK_DISLIKE;
 	}
-	else if (iRawScore <= 15)
+	else if (iRawScore <= 50)
 	{
 		eDesire = DESIRE_NEUTRAL;
 	}
-	else if (iRawScore <= 45)
+	else if (iRawScore <= 250)
 	{
 		eDesire = DESIRE_WEAK_LIKE;
 	}
-	else if (iRawScore <= 75)
+	else if (iRawScore <= 1000)
 	{
 		eDesire = DESIRE_LIKE;
 	}
-	else if (iRawScore <= 105)
+	else if (iRawScore <= 2500)
 	{
 		eDesire = DESIRE_STRONG_LIKE;
 	}
@@ -11768,7 +11768,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iTradeDealValue += GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eLoopPlayer, true) * 100;
 					}
-					iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false);
+					iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false) / 2;
 
 					if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer) > THREAT_MAJOR)
 					{
@@ -11806,7 +11806,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				iTradeDealValue +=  GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * 100;
 			}
-			iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false);
+			iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false) / 2;
 
 			iExtra -= iTradeDealValue;
 		}
@@ -12814,42 +12814,41 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else
 		{
-			if (iScore > -20 || eProposer == GetPlayer()->GetID())
+
+			if (eProposer != NO_PLAYER)
 			{
-				if (eProposer != NO_PLAYER)
+				AlignmentLevels eAlignment = EvaluateAlignment(eProposer, false, true);
+				switch (eAlignment)
 				{
-					AlignmentLevels eAlignment = EvaluateAlignment(eProposer, false, true);
-					switch (eAlignment)
-					{
-					case ALIGNMENT_SELF:
-						iScore += 40;
-						break;
-					case ALIGNMENT_LIBERATOR:
-					case ALIGNMENT_LEADER:
-					case ALIGNMENT_ALLY:
-						iScore += 30;
-						break;
-					case ALIGNMENT_CONFIDANT:
-						iScore += 20;
-						break;
-					case ALIGNMENT_FRIEND:
-						iScore += 10;
-						break;
-					case ALIGNMENT_RIVAL:
-						iScore += -10;
-						break;
-					case ALIGNMENT_HATRED:
-						iScore += -20;
-						break;
-					case ALIGNMENT_ENEMY:
-					case ALIGNMENT_WAR:
-						iScore += -30;
-						break;
-					default:
-						break;
-					}
+				case ALIGNMENT_SELF:
+					iScore += 100;
+					break;
+				case ALIGNMENT_LIBERATOR:
+				case ALIGNMENT_LEADER:
+				case ALIGNMENT_ALLY:
+					iScore += 75;
+					break;
+				case ALIGNMENT_CONFIDANT:
+					iScore += 50;
+					break;
+				case ALIGNMENT_FRIEND:
+					iScore += 25;
+					break;
+				case ALIGNMENT_RIVAL:
+					iScore += -25;
+					break;
+				case ALIGNMENT_HATRED:
+					iScore += -50;
+					break;
+				case ALIGNMENT_ENEMY:
+				case ALIGNMENT_WAR:
+					iScore += -75;
+					break;
+				default:
+					break;
 				}
 			}
+
 		}
 	}
 
@@ -12874,11 +12873,24 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID())
 				{
-					iDiploScore += GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false);
+					iDiploScore = 0;
+					if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) != NO_CIV_OPINION)
+					{
+						iDiploScore += (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) - CIV_OPINION_NEUTRAL) * 20;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == eLoopPlayer)
+					{
+						iDiploScore -= 20;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->GetPrimeLeagueCompetitor() == eLoopPlayer)
+					{
+						iDiploScore -= 20;
+					}
+					iDiploScore *= GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false);
+					iDiploScore /= 100;
+					iScore += iDiploScore;
 				}
 			}
-			iScore += iDiploScore;
-
 		}
 	}
 #endif
