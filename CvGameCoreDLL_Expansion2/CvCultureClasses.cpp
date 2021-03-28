@@ -4422,7 +4422,7 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
 
 	//store off this data
-	m_pPlayer->changeInstantTourismValue(ePlayer, iValue);
+	m_pPlayer->changeInstantTourismPerPlayerValue(ePlayer, iValue);
 }
 
 #if defined(MOD_API_EXTENSIONS)
@@ -4646,42 +4646,10 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer)
 {
 	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurn();
-	int iNumPreviousTurnsToCount = 30;
-	int MaxTurnsBack = 0;
-	int iGameTurn = GC.getGame().getGameTurn();
-	
-		int TurnsBack = 0;
+	int iEndTurn = GC.getGame().getGameTurn();
+	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
 
-	//current turn
-	int iSum = 0;
-
-	//turn zero is strange
-	if (iGameTurn == 0)
-	{
-		iSum = m_pPlayer->getInstantYieldValue(YIELD_CULTURE, GC.getGame().getGameTurn());
-		TurnsBack++;
-	}
-	else
-	{
-		//and x turns back
-		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
-		{
-			int iTurn = iGameTurn - iI;
-			if (iTurn < 0)
-			{
-				continue;
-			}
-
-			iSum += m_pPlayer->getInstantYieldValue(YIELD_CULTURE, iTurn);
-			TurnsBack++;
-		}
-	}
-	if (TurnsBack > MaxTurnsBack)
-		MaxTurnsBack = TurnsBack;
-
-	int iAverage = iSum / max(1, MaxTurnsBack);
-
-	return iBase + iAverage;
+	return iBase + GET_PLAYER(eOtherPlayer).getInstantYieldAvg(YIELD_CULTURE, iStartTurn, iEndTurn);
 }
 
 
@@ -4691,44 +4659,13 @@ int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool
 	if (!bJustInstant)
 		iBase = GetInfluencePerTurn(ePlayer);
 
-	int iNumPreviousTurnsToCount = 30;
-	int MaxTurnsBack = 0;
-	int iGameTurn = GC.getGame().getGameTurn();
+	int iEndTurn = GC.getGame().getGameTurn();
+	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
 
-	int TurnsBack = 0;
+	int iAvgGlobal = m_pPlayer->getInstantYieldAvg(YIELD_TOURISM, iStartTurn, iEndTurn);
+	int iAvgIndividual = m_pPlayer->getInstantTourismPerPlayerAvg(ePlayer, iStartTurn, iEndTurn);
 
-	//current turn
-	int iSum = 0;
-
-	//turn zero is strange
-	if (iGameTurn == 0)
-	{
-		iSum += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, GC.getGame().getGameTurn());
-		iSum += m_pPlayer->getInstantTourismValue(ePlayer, GC.getGame().getGameTurn());
-		TurnsBack++;
-	}
-	else
-	{
-		//and x turns back
-		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
-		{
-			int iTurn = iGameTurn - iI;
-			if (iTurn < 0)
-			{
-				continue;
-			}
-
-			iSum += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, iTurn);
-			iSum += m_pPlayer->getInstantTourismValue(ePlayer, iTurn);
-			TurnsBack++;
-		}
-	}
-	if (TurnsBack > MaxTurnsBack)
-		MaxTurnsBack = TurnsBack;
-
-	int iAverage = iSum / max(1, MaxTurnsBack);
-
-	return iBase + iAverage;
+	return iBase + iAvgGlobal + iAvgIndividual;
 }
 
 /// If influence is rising, how many turns until we get to Influential? (999 if not rising fast enough to make it there eventually)

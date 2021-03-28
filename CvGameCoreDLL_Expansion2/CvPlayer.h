@@ -66,6 +66,8 @@ typedef std::vector< std::pair<UnitCombatTypes, PromotionTypes> > UnitCombatProm
 typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromotionArray;
 typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
 
+const size_t INSTANT_YIELD_HISTORY_LENGTH = 30u;
+
 class CvPlayer
 {
 	friend class CvPlayerPolicies;
@@ -2451,12 +2453,15 @@ public:
 	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
 	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
 
+	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
 	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
+
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 
-	int getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const;
-	void changeInstantTourismValue(PlayerTypes ePlayer , int iValue);
+	int getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const;
+	int getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) const;
+	void changeInstantTourismPerPlayerValue(PlayerTypes ePlayer , int iValue);
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -3629,8 +3634,8 @@ protected:
 	std::vector<CvString> m_ReplayDataSets;
 	std::vector<TurnData> m_ReplayDataSetValues;
 
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
-	std::vector< Firaxis::Array<int, MAX_MAJOR_CIVS> > m_ppiInstantTourismHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;
 
 	void doResearch();
 	void doWarnings();

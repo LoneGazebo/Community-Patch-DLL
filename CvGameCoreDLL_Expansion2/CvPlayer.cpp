@@ -1198,7 +1198,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiInstantYieldHistoryValues.clear();
-	m_ppiInstantTourismHistoryValues.clear();
+	m_ppiInstantTourismPerPlayerHistoryValues.clear();
 	m_ppiImprovementYieldChange.clear();
 	m_ppiFeatureYieldChange.clear();
 	m_ppiResourceYieldChange.clear();
@@ -2168,23 +2168,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_ppiInstantYieldHistoryValues.clear();
-		m_ppiInstantYieldHistoryValues.resize(GC.getGame().getEstimateEndTurn());
-		for (unsigned int i = 0; i < m_ppiInstantYieldHistoryValues.size(); ++i)
-		{
-			m_ppiInstantYieldHistoryValues[i] = yield;
-		}
-
-		Firaxis::Array< int, MAX_MAJOR_CIVS > players;
-		for (unsigned int j = 0; j < MAX_MAJOR_CIVS; ++j)
-		{
-			players[j] = 0;
-		}
-		m_ppiInstantTourismHistoryValues.clear();
-		m_ppiInstantTourismHistoryValues.resize(GC.getGame().getEstimateEndTurn());
-		for (unsigned int i = 0; i < m_ppiInstantTourismHistoryValues.size(); ++i)
-		{
-			m_ppiInstantTourismHistoryValues[i] = players;
-		}
+		m_ppiInstantTourismPerPlayerHistoryValues.clear();
 
 		m_ppiImprovementYieldChange.clear();
 		m_ppiImprovementYieldChange.resize(GC.getNumImprovementInfos());
@@ -18366,26 +18350,12 @@ int CvPlayer::GetCachedGoldRate() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::cacheGoldRate()
 {
-	int iGoldRate = calculateGoldRate();
+	int iBaseRate = calculateGoldRate();
 
-	// Factor in instant yields into our income as well (average of last 10 turns)
-	if (MOD_BALANCE_CORE)
-	{
-		int iTurn = GC.getGame().getGameTurn();
-		int iGoldAverage = 0;
-		for (int iI = 0; iI < 10; iI++)
-		{
-			int iYieldTurn = iTurn - iI;
-			if (iYieldTurn <= 0)
-				break;
-				
-			iGoldAverage += getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-		}
+	int iEndTurn = GC.getGame().getGameTurn();
+	int iStartTurn = GC.getGame().getGameTurn() - 10;
 
-		iGoldRate += (iGoldAverage / 10);
-	}
-
-	m_iCachedGoldRate = iGoldRate;
+	m_iCachedGoldRate = iBaseRate + getInstantYieldAvg(YIELD_GOLD, iStartTurn, iEndTurn);
 }
 
 //	--------------------------------------------------------------------------------
@@ -42097,23 +42067,46 @@ CvPlayer::TurnData CvPlayer::getReplayDataHistory(unsigned int uiDataSet) const
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
 {
-	if (iValue != 0)
+	if (iValue == 0 || eYield >= NUM_YIELD_TYPES)
+		return;
+
+	int iTurn = GC.getGame().getGameTurn();
+	if (m_ppiInstantYieldHistoryValues.empty() || m_ppiInstantYieldHistoryValues.back().first < iTurn)
 	{
-		int iTurn = GC.getGame().getGameTurn();
-		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiInstantYieldHistoryValues[iTurn];
-		yields[eYield] = (m_ppiInstantYieldHistoryValues[iTurn][eYield] + iValue);
-		m_ppiInstantYieldHistoryValues[iTurn] = yields;
+		if (m_ppiInstantYieldHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
+			m_ppiInstantYieldHistoryValues.pop_front();
+
+		m_ppiInstantYieldHistoryValues.push_back( make_pair(iTurn, vector<int>(NUM_YIELD_TYPES, 0)));
+		m_ppiInstantYieldHistoryValues.back().second[eYield] += iValue;
+	}
+	else if (m_ppiInstantYieldHistoryValues.back().first == iTurn)
+	{
+		m_ppiInstantYieldHistoryValues.back().second[eYield] += iValue;
 	}
 }
 
-//	--------------------------------------------------------------------------------
 int CvPlayer::getInstantYieldValue(YieldTypes eYield, int iTurn) const
 {
-	//catch for CTD
-	if (iTurn <= 0 || iTurn >= GC.getGame().getEstimateEndTurn())
+	return getInstantYieldAvg(eYield, iTurn, iTurn);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const
+{
+	if (eYield >= NUM_YIELD_TYPES || m_ppiInstantYieldHistoryValues.empty())
 		return 0;
 
-	return m_ppiInstantYieldHistoryValues[iTurn][eYield];
+	//we typically want the latest value only
+	if (m_ppiInstantYieldHistoryValues.back().first == iTurnA && iTurnA == iTurnB)
+		return m_ppiInstantYieldHistoryValues.back().second[eYield];
+
+	//do it the slow way
+	int iSum = 0;
+	for (size_t i = 0; i < m_ppiInstantYieldHistoryValues.size(); i++)
+		if (m_ppiInstantYieldHistoryValues[i].first >= iTurnA && m_ppiInstantYieldHistoryValues[i].first <= iTurnB)
+			iSum += m_ppiInstantYieldHistoryValues[i].second[eYield];
+
+	return iSum / (1+abs(iTurnA-iTurnB));
 }
 
 CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount)
@@ -42142,10 +42135,16 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 		//current turn
 		int iSum = 0;
 
-		//turn zero is strange
-		if (iGameTurn == 0)
+		//and x turns back
+		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
 		{
-			iSum += getInstantYieldValue(eYield, GC.getGame().getGameTurn());
+			int iTurn = iGameTurn - iI;
+			if (iTurn < 0)
+			{
+				continue;
+			}
+
+			iSum += getInstantYieldValue(eYield, iTurn);
 			int iTempSum = 0;
 			int iNumPlayers = 0;
 			if (eYield == YIELD_TOURISM)
@@ -42153,7 +42152,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-					int iTempTourism = getInstantTourismValue(ePlayer, GC.getGame().getGameTurn());
+					int iTempTourism = getInstantTourismPerPlayerValue(ePlayer, iTurn);
 					if (iTempTourism != 0)
 					{
 						iNumPlayers++;
@@ -42168,41 +42167,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 			}
 			TurnsBack++;
 		}
-		else
-		{
-			//and x turns back
-			for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
-			{
-				int iTurn = iGameTurn - iI;
-				if (iTurn < 0)
-				{
-					continue;
-				}
 
-				iSum += getInstantYieldValue(eYield, iTurn);
-				int iTempSum = 0;
-				int iNumPlayers = 0;
-				if (eYield == YIELD_TOURISM)
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-						int iTempTourism = getInstantTourismValue(ePlayer, iTurn);
-						if (iTempTourism != 0)
-						{
-							iNumPlayers++;
-							bShowPlayerTourism = true;
-						}
-
-						iTempSum += iTempTourism;
-						tourismVal[iPlayerLoop] += iTempTourism;
-					}
-					iTempSum /= max(1, iNumPlayers);
-					iSum += iTempSum;
-				}
-				TurnsBack++;
-			}
-		}
 		if (TurnsBack > MaxTurnsBack)
 			MaxTurnsBack = TurnsBack;
 
@@ -42226,7 +42191,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 
 			if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 			{
-				int iAverage = max(1, (iSum / max(1, MaxTurnsBack)));
+				int iAverage = max(1, (iSum / max(1, TurnsBack)));
 				iAverage /= max(1, getNumCities());
 				yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES", iAverage);
 			}
@@ -42263,25 +42228,48 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeInstantTourismValue(PlayerTypes ePlayer, int iValue)
+void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValue)
 {
-	if (iValue != 0)
+	if (iValue == 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
+
+	int iTurn = GC.getGame().getGameTurn();
+	if (m_ppiInstantTourismPerPlayerHistoryValues.empty() || m_ppiInstantTourismPerPlayerHistoryValues.back().first < iTurn)
 	{
-		int iTurn = GC.getGame().getGameTurn();
-		Firaxis::Array<int, MAX_MAJOR_CIVS> players = m_ppiInstantTourismHistoryValues[iTurn];
-		players[ePlayer] = (m_ppiInstantTourismHistoryValues[iTurn][ePlayer] + iValue);
-		m_ppiInstantTourismHistoryValues[iTurn] = players;
+		if (m_ppiInstantTourismPerPlayerHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
+			m_ppiInstantTourismPerPlayerHistoryValues.pop_front();
+
+		m_ppiInstantTourismPerPlayerHistoryValues.push_back( make_pair(iTurn, vector<int>(MAX_MAJOR_CIVS, 0)));
+		m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer] += iValue;
+	}
+	else if (m_ppiInstantTourismPerPlayerHistoryValues.back().first == iTurn)
+	{
+		m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer] += iValue;
 	}
 }
 
-//	--------------------------------------------------------------------------------
-int CvPlayer::getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const
+int CvPlayer::getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) const
 {
-	//catch for CTD
-	if (iTurn <= 0 || iTurn >= GC.getGame().getEstimateEndTurn())
+	return getInstantTourismPerPlayerAvg(ePlayer, iTurn, iTurn);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const
+{
+	if (ePlayer >= MAX_MAJOR_CIVS || m_ppiInstantTourismPerPlayerHistoryValues.empty())
 		return 0;
 
-	return m_ppiInstantTourismHistoryValues[iTurn][ePlayer];
+	//we typically want the latest value only
+	if (m_ppiInstantTourismPerPlayerHistoryValues.back().first == iTurnA && iTurnA == iTurnB)
+		return m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer];
+
+	//do it the slow way
+	int iSum = 0;
+	for (size_t i = 0; i < m_ppiInstantTourismPerPlayerHistoryValues.size(); i++)
+		if (m_ppiInstantTourismPerPlayerHistoryValues[i].first >= iTurnA && m_ppiInstantTourismPerPlayerHistoryValues[i].first <= iTurnB)
+			iSum += m_ppiInstantTourismPerPlayerHistoryValues[i].second[ePlayer];
+
+	return iSum / (1+abs(iTurnA-iTurnB));
 }
 
 
@@ -46074,7 +46062,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ReplayDataSetValues;
 
 	kStream >> m_ppiInstantYieldHistoryValues;
-	kStream >> m_ppiInstantTourismHistoryValues;
+	kStream >> m_ppiInstantTourismPerPlayerHistoryValues;
 
 	kStream >> m_aVote;
 	kStream >> m_aUnitExtraCosts;
@@ -46292,7 +46280,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_ReplayDataSetValues;
 	
 	kStream << m_ppiInstantYieldHistoryValues;
-	kStream << m_ppiInstantTourismHistoryValues;
+	kStream << m_ppiInstantTourismPerPlayerHistoryValues;
 
 	kStream << m_aVote;
 	kStream << m_aUnitExtraCosts;

@@ -13495,7 +13495,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 		else if (thisUnitDomain == DOMAIN_LAND)
 		{
-			if(area()->getNumTotalResources() > 0)
+			if(area()->getNumTotalResources() == 0)
 			{
 				return false;
 			}

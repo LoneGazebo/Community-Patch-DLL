@@ -13351,7 +13351,7 @@ bool CvUnit::blastTourism()
 #endif
 
 	//store off this data
-	GET_PLAYER(getOwner()).changeInstantTourismValue(eOwner, iTourismBlast);
+	GET_PLAYER(getOwner()).changeInstantTourismPerPlayerValue(eOwner, iTourismBlast);
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
