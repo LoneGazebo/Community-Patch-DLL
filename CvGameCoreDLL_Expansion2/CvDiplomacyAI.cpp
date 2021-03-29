@@ -18230,8 +18230,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// More likely to declare war for each original capital we own
 				if (GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetPlayerNumMajorsConquered(eMyPlayer);
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetPlayerNumMajorsConquered(eMyPlayer);
+					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetPlayerNumMajorsConquered(eMyPlayer) * 2;
+					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetPlayerNumMajorsConquered(eMyPlayer) * 2;
 				}
 
 				// They have another player's original capital?
@@ -18273,8 +18273,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					if (eMilitaryStrength > STRENGTH_AVERAGE)
 					{
-						int iStrengthFactor = (int)eMilitaryStrength - 3;
-						iStrengthFactor *= 2;
+						int iStrengthFactor = ((int)eMilitaryStrength - 3) * 2;
 						if (IsHasDefensivePact(ePlayer))
 						{
 							iStrengthFactor++;
@@ -19011,9 +19010,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Scale based on personality (boldness), victory issues, and difficulty level
 		iWarBonus *= (GetBoldness() + (int)GetVictoryDisputeLevel(ePlayer) + (int)GetVictoryBlockLevel(ePlayer)) * DifficultyModifier;
-		iWarBonus /= 2000;
+		iWarBonus /= 1000;
 		iHostileBonus *= (GetMeanness() + (int)GetVictoryDisputeLevel(ePlayer) + (int)GetVictoryBlockLevel(ePlayer)) * DifficultyModifier;
-		iHostileBonus /= 2000;
+		iHostileBonus /= 1000;
 
 		if (iWarBonus > 0 || iHostileBonus > 0)
 		{
@@ -19357,8 +19356,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// If either of us is sanctioned, we should be more hostile.
 			if (pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 			{
-				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
-				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
+				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
 			}
 
 			if (MOD_DIPLOMACY_CITYSTATES)
