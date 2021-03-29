@@ -2281,7 +2281,7 @@ CivApproachTypes CvDiplomacyAI::GetCachedSurfaceApproach(PlayerTypes ePlayer) co
 void CvDiplomacyAI::SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	if (eApproach < 0 || eApproach >= NUM_CIV_APPROACHES) return;
+	if (eApproach < NO_CIV_APPROACH || eApproach >= NUM_CIV_APPROACHES) return;
 	m_aeCachedSurfaceApproach[ePlayer] = eApproach;
 }
 
@@ -2315,7 +2315,7 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 			// If we were just denounced or they ended our friendship, can't be better than GUARDED
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetPlayer()->GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
 			{
-				if (eCurrentSurfaceApproach > CIV_APPROACH_GUARDED)
+				if (eSurfaceApproach > CIV_APPROACH_GUARDED)
 				{
 					eSurfaceApproach = CIV_APPROACH_GUARDED;
 				}
