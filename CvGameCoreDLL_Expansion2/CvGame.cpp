@@ -9019,7 +9019,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	CvWeightedVector<UnitTypes, SAFE_ESTIMATE_NUM_UNITS, true> veUnitRankings;
+	CvWeightedVector<UnitTypes> veUnitRankings;
 
 	// Loop through all Unit Classes
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9183,6 +9183,9 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
 	}
+
+	if (veUnitRankings.size() == 0)
+		return NO_UNIT;
 
 	// Choose from weighted unit types
 	veUnitRankings.SortItems();
@@ -14031,7 +14034,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		}
 	}
 
-	CvWeightedVector<int, 64, true> eEraWeights;
+	CvWeightedVector<int> eEraWeights;
 	eEraWeights.clear();
 	int iMaxEraWeight = 0;
 	for (int i=0; i < static_cast<int>(eHighestEra); i++)
@@ -14108,7 +14111,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
 
 	// build a weight vector
-	static CvWeightedVector<int, 128*80, true> aDigSiteWeights; // size of a HUGE world
+	static CvWeightedVector<int> aDigSiteWeights; // size of a HUGE world
 	aDigSiteWeights.resize(iGridSize);
 
 	vector<GreatWorkType> aWorksWriting;

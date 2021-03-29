@@ -1510,9 +1510,10 @@ public:
 	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
-	bool IsVassalageAcceptable(PlayerTypes ePlayer);
-	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
-	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation); // can be called in either direction, for the master or the vassal
+	bool IsCapitulationAcceptable(PlayerTypes ePlayer); // vassal only
+	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer); // vassal only
+	bool IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer); // master only, evaluates all players on the potential vassal's team
 
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // can be called in either direction, for the master or the vassal
 	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // vassal only, evaluates one master

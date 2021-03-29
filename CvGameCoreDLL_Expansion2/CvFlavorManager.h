@@ -81,10 +81,6 @@ public:
 	void ResetToBasePersonality();
 	void AdjustWeightsForMap();
 
-	// External routines to retrieve flavor values
-	int GetIndividualFlavor(FlavorTypes eType);
-	int* GetAllFlavors();
-
 	// External routines to retrieve Default Personality flavor values
 	int GetPersonalityIndividualFlavor(FlavorTypes eType);
 	int* GetAllPersonalityFlavors();

@@ -1299,7 +1299,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 				continue;
 
 		//enemy citadels are dangerous, pretend we cannot use those plots
-		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, ePlayer, false))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
 			continue;
 
 		//makes us slow

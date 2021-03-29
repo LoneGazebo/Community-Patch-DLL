@@ -5249,7 +5249,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 	int iOpenArtSlots = 0;
 	int iOpenWritingSlots = 0;
 	int iOpenMusicSlots = 0;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> artChoices;
+	CvWeightedVector<int> artChoices;
 	CvCity* pLoopCity;
 	int iLoop;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))

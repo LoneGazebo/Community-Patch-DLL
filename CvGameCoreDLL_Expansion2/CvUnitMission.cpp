@@ -401,6 +401,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
 				{
 					// if we're automated and try to attack, consider this move OVAH
+					hUnit->SetAutomateType(NO_AUTOMATE);
 					bDone = true;
 				}
 				else

@@ -424,21 +424,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 	}
 }
 
-/// Retrieve the current value of one flavor
-int CvFlavorManager::GetIndividualFlavor(FlavorTypes eType)
-{
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
-
-	return m_piActiveFlavor[eType];
-}
-
-/// Retrieve the current value of all flavors
-int* CvFlavorManager::GetAllFlavors()
-{
-	return m_piActiveFlavor;
-}
-
-/// Retrieve the value of one Personality flavor
+/// Retrieve the value of one Personality flavor, typically in the range [0,10]
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
 	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
@@ -575,7 +561,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 				// Only dump if non-zero
 				//		if (m_piLatestFlavorValues[iI] > 0)
 				{
-					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), GetIndividualFlavor((FlavorTypes) iI));
+					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piActiveFlavor[iI]);
 					strOutBuf = strBaseString + strTemp;
 					pLog->Msg(strOutBuf);
 				}
@@ -583,7 +569,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 		}
 		else
 		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), GetIndividualFlavor(eFlavor));
+			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piActiveFlavor[eFlavor]);
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 		}

@@ -57,86 +57,18 @@ void CvUnitProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	int iWeight;
-
-	// Reset vector
-	m_UnitAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	if(m_pUnits)
-	{
-		for(int i = 0; i < m_pUnits->GetNumUnits(); i++)
-		{
-			m_UnitAIWeights.push_back(i, 0);
-		}
-
-		int iNumEntries;
-		int iType;
-
-		kStream >> iNumEntries;
-
-		for(int iI = 0; iI < iNumEntries; iI++)
-		{
-			bool bValid = true;
-			iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
-			if(iType != -1 || !bValid)
-			{
-				kStream >> iWeight;
-				if(iType != -1)
-				{
-					m_UnitAIWeights.IncreaseWeight(iType, iWeight);
-				}
-				else
-				{
-					CvString szError;
-					szError.Format("LOAD ERROR: Unit Type not found");
-					GC.LogMessage(szError.GetCString());
-					CvAssertMsg(false, szError);
-				}
-			}
-		}
-	}
-	else
-	{
-		CvAssertMsg(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
-	}
+	kStream >> m_UnitAIWeights;
 }
 
 /// Serialization write
 void CvUnitProductionAI::Write(FDataStream& kStream) const
 {
-	FStringFixedBuffer(sTemp, 64);
-
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	if(m_pUnits)
-	{
-		int iNumUnits = m_pUnits->GetNumUnits();
-		kStream << iNumUnits;
-
-		// Loop through writing each entry
-		for(int iI = 0; iI < iNumUnits; iI++)
-		{
-			const UnitTypes eUnit = static_cast<UnitTypes>(iI);
-			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-			if(pkUnitInfo)
-			{
-				CvInfosSerializationHelper::WriteHashed(kStream, pkUnitInfo);
-				kStream << m_UnitAIWeights.GetWeight(iI);
-			}
-			else
-			{
-				kStream << (int)0;
-			}
-		}
-	}
-	else
-	{
-		CvAssertMsg(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
-	}
+	kStream << m_UnitAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies

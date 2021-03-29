@@ -12,10 +12,6 @@
 #ifndef CIV5_PLAYER_H
 #define CIV5_PLAYER_H
 
-#define SAFE_ESTIMATE_NUM_IMPROVEMENTS 50
-#define SAFE_ESTIMATE_NUM_CITIES       64
-#define MAX_INCOMING_UNITS	20
-
 #include "CvCityAI.h"
 #include "CvUnit.h"
 #include "CvArmyAI.h"
@@ -69,6 +65,8 @@ typedef std::list<CvPopupInfo*> CvPopupQueue;
 typedef std::vector< std::pair<UnitCombatTypes, PromotionTypes> > UnitCombatPromotionArray;
 typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromotionArray;
 typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
+
+const size_t INSTANT_YIELD_HISTORY_LENGTH = 30u;
 
 class CvPlayer
 {
@@ -2444,7 +2442,7 @@ public:
 	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
-	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
+	vector<int> GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit=NULL) const;
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);
@@ -2455,12 +2453,15 @@ public:
 	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
 	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
 
+	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
 	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
+
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 
-	int getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const;
-	void changeInstantTourismValue(PlayerTypes ePlayer , int iValue);
+	int getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const;
+	int getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) const;
+	void changeInstantTourismPerPlayerValue(PlayerTypes ePlayer , int iValue);
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -2534,7 +2535,7 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
@@ -3633,8 +3634,8 @@ protected:
 	std::vector<CvString> m_ReplayDataSets;
 	std::vector<TurnData> m_ReplayDataSetValues;
 
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
-	std::vector< Firaxis::Array<int, MAX_MAJOR_CIVS> > m_ppiInstantTourismHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;
 
 	void doResearch();
 	void doWarnings();

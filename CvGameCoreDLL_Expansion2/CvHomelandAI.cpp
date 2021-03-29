@@ -251,14 +251,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;
 
-		//Ignore plots with units in them
-		if(vExplorePlots[ui].pPlot->getNumUnits() > 0)
-			continue;
-
-		//don't send multiple explorers to the same target
-		if (m_pPlayer->IsPlotTargetedForExplorer(vExplorePlots[ui].pPlot, pUnit))
-			continue;
-
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 		int iDist2 = (iDistX*iDistX)+(iDistY*iDistY);
@@ -294,25 +286,16 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		//try to explore close to our cities first to find potential settle spots
 		int iCityDistance = m_pPlayer->GetCityDistancePathLength(pEvalPlot);
-		iRating = max(1, 2*iRating-iCityDistance); 
-
-		//reverse the score calculation below to get an upper bound on the distance
-		//minus one because we want to do better
-		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
-
-		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
-		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves(false)) )
-			continue;
+		iRating = max(1, 100 + 2*iRating - iCityDistance); 
 
 		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
 		if (it==reachablePlots.end())
 			continue;
 
-		int iDistance = it->iTurns;
-		int iPlotScore = (1000 * iRating) / max(1,iDistance);
+		//turns is actually path length
+		int iPlotScore = (1000 * iRating) / max(1,it->iTurns);
 
 		iValidCandidates++;
-
 		if (iPlotScore>iBestPlotScore)
 		{
 			pBestPlot = pEvalPlot;
@@ -1478,7 +1461,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 		{
 			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
 			{
-				iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
+				iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop);
 			}
 			if(m_pPlayer->IsAtWar())
 			{
@@ -2378,30 +2361,33 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		if(!pUnit->isEmbarked() && pEvalPlot->needsEmbarkation(pUnit))
 			continue;
 
-		//see if we can make an easy kill
-		CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
-		if (pEnemyUnit && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit,pEnemyUnit))
+		//see if we can make an easy kill (AI only - automated units cannot attack!)
+		if (!pUnit->IsAutomated())
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
+			if (pEnemyUnit && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, pEnemyUnit))
 			{
-				CvString strLogString;
-				CvString strTemp = pUnit->getUnitInfo().GetDescription();
-				strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				//continue if can still move
+				return !pUnit->canMove();
 			}
-			//continue if can still move
-			return !pUnit->canMove();
-		}
 
-		//is there a lone civilian we can capture back (or kill if embarked)
-		if (pEvalPlot->isEnemyUnit(pUnit->getOwner(), false, true, false) &&
-			!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) &&
-			pUnit->canMoveInto(*pEvalPlot,CvUnit::MOVEFLAG_ATTACK) &&
-			pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints())
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());
-			//continue if can still move
-			return !pUnit->canMove();
+			//is there a lone civilian we can capture back (or kill if embarked)
+			if (pEvalPlot->isEnemyUnit(pUnit->getOwner(), false, true, false) &&
+				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) &&
+				pUnit->canMoveInto(*pEvalPlot, CvUnit::MOVEFLAG_ATTACK) &&
+				pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());
+				//continue if can still move
+				return !pUnit->canMove();
+			}
 		}
 
 		//do this after the enemy unit check
@@ -2687,7 +2673,7 @@ void CvHomelandAI::ExecuteHeals()
 	}
 }
 
-typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
+typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)

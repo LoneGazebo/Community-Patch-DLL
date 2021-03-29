@@ -233,7 +233,7 @@ public:
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
-	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot = NULL);
+	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
@@ -337,7 +337,7 @@ public:
 	void doHeal();
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
-	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const;
+	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;

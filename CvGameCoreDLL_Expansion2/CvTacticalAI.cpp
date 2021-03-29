@@ -3200,7 +3200,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 				//now that the neighbor plots are revealed, maybe it's better to retreat?
 				CvPlot* pSafePlot = NULL;
-				if (!TacticalAIHelpers::IsEnemyCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
+				if (!TacticalAIHelpers::IsOtherPlayerCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
 				{
 					int iVal = pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT();
 					if (pUnit->IsGainsXPFromPillaging())
@@ -6955,8 +6955,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	//add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
 	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
+	//todo: score by net damage? so subtract damage taken?
 	result.iScore = iDamageDealt + iExtraScore;
-
 	if (bScoreReduction)
 		result.iScore /= 2;
 
@@ -6964,7 +6964,25 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	result.iSelfDamage = iDamageReceived;
 }
 
-bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar)
+bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
+{
+	if (!pPlot || ePlayer==NO_PLAYER || pPlot->getOwner() != ePlayer)
+		return false;
+
+	// Citadel here?
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+	{
+		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
+			return false;
+
+		return true;
+	}
+	
+	return false;
+}
+
+bool TacticalAIHelpers::IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar)
 {
 	if (!pPlot || ePlayer==NO_PLAYER || !pPlot->isOwned())
 		return false;
@@ -6973,7 +6991,7 @@ bool TacticalAIHelpers::IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer,
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
-		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() == 0)
+		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
 			return false;
 
 		if (bCheckWar)
@@ -7024,7 +7042,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 	{
 		result.eAssignmentType = A_PILLAGE;
 
-		if (TacticalAIHelpers::IsEnemyCitadel(pTestPlot, assumedPosition.getPlayer(), true))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel(pTestPlot, assumedPosition.getPlayer(), true))
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
@@ -7097,7 +7115,7 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 		return iBestAttackScore / 4;
 }
 
-int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, const CvTacticalPosition& assumedPosition)
+int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, const CvTacticalPosition& assumedPosition)
 {
 	int iResult = 0;
 
@@ -7110,7 +7128,8 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	//but unfortunately danger is not very useful here
 	// * ZOC is unclear during simulation
 	// * freshly revealed enemy units are not considered
-	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies());
+	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), iSelfDamage);
+	int iNumAdjFriendlies = testPlot.getNumAdjacentFriendliesEndTurn(eRelevantDomain);
 
 	//extra careful with siege units
 	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
@@ -7140,10 +7159,14 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 
 	if (iDanger > 0)
 	{
+		//no suicide
+		if (iNumAdjFriendlies == 0 && iDanger / 2 > (pUnit->GetCurrHitPoints() - iSelfDamage))
+			return INT_MAX;
+
 		//try to be more careful with highly promoted units
 		iDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
 
-		//penalty for high danger plots
+		//penalty for high danger plots (should this be personality dependent?)
 		iResult -= (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / max(1, pUnit->GetCurrHitPoints());
 	}
 
@@ -7158,7 +7181,6 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	}
 
 	//try to stay together, in pairs at least
-	int iNumAdjFriendlies = testPlot.getNumAdjacentFriendliesEndTurn(DomainForUnit(pUnit));
 	if (iNumAdjFriendlies > 0)
 	{
 		//carrier really want to be surrounded
@@ -7175,8 +7197,12 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		iResult++;
 
 	//try to occupy enemy citadels!
-	if (TacticalAIHelpers::IsEnemyCitadel(testPlot.getPlot(), assumedPosition.getPlayer(), true))
-		iResult+=5;
+	if (TacticalAIHelpers::IsOtherPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer(), true))
+		iResult += 11;
+
+	//also occupy our own citadels
+	if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3)
+		iResult += 23;
 
 	//try not to be a sitting duck (faster than isNativeDomain but not entirely accurate)
 	if (pUnit->getDomainType() != testPlot.getPlot()->getDomain())
@@ -7267,7 +7293,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	if (bScoreTurnEnd)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit,testPlot,movePlot,eRelevantDomain,assumedPosition);
+		iDangerScore = ScoreTurnEnd(pUnit,testPlot,movePlot,eRelevantDomain,unit.iSelfDamage,assumedPosition);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -7341,7 +7367,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	if (bScoreTurnEnd)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot, eRelevantDomain, assumedPosition);
+		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot, eRelevantDomain, unit.iSelfDamage, assumedPosition);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -7450,7 +7476,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		if (bScoreEndTurn)
 		{
 			//catch the case with infinite danger
-			int iDanger = min(1000, pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies()));
+			int iDanger = min(1000, pUnit->GetDanger(pTestPlot, assumedPosition.getKilledEnemies(), 0));
 
 			//embarked units have limited vision! but if we don't expect combat, we can afford to be less careful
 			if (testPlot.isEdgePlot())
@@ -7557,7 +7583,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		result.iScore /= 4;
 
 	//a slight boost for attacking the "real" target or a citadel
-	if (pEnemyPlot == assumedPosition.getTarget() || TacticalAIHelpers::IsEnemyCitadel(pEnemyPlot, assumedPosition.getPlayer(), true))
+	if (pEnemyPlot == assumedPosition.getTarget() || TacticalAIHelpers::IsOtherPlayerCitadel(pEnemyPlot, assumedPosition.getPlayer(), true))
 		result.iScore += 3; 
 
 	//combo bonus
@@ -7915,7 +7941,7 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 				//if the neighbor is invisible but passable be careful as well, enemies might be hiding there
 				bEdgeOfTheKnownWorld |= !pNeighbor->isImpassable();
 
-			if (TacticalAIHelpers::IsEnemyCitadel(pNeighbor, currentPosition.getPlayer(), true))
+			if (TacticalAIHelpers::IsOtherPlayerCitadel(pNeighbor, currentPosition.getPlayer(), true))
 				bAdjacentToEnemyCitadel = true;
 		}
 
@@ -8026,13 +8052,18 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			{
 				int iBonus = 0;
 				//give a bonus for potential fortifying/healing
+				//redundant with ScoreTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == pUnit->maxMoves())
 				{
 					if (pUnit->getDamage() > GC.getFRIENDLY_HEAL_RATE())
-						iBonus += 11;
+						iBonus += 23;
 					if (pUnit->IsEverFortifyable())
-						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 8 : 5;
+						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 19 : 5;
 				}
+				//give a bonus for occupying a citadel
+				if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), getPlayer()) && testPlot.getEnemyDistance() < 3)
+					iBonus += 217;
+
 				//if the current plot is good, assume we can stay here but recheck later. 
 				possibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iBonus, A_FINISH_TEMP));
 			}
@@ -8080,7 +8111,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				bool bSuicide = false;
 				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
 				{
-					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies());
+					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit.iSelfDamage);
 					if (iDanger > 2*pUnit->GetCurrHitPoints())
 						bSuicide = true;
 				}
@@ -8378,7 +8409,7 @@ bool CvTacticalPosition::isComplete() const
 	return availableUnits.empty();
 }
 
-bool STacticalAssignment::isOffensive() const
+bool STacticalAssignment::isOffensive(const CvTacticalPosition& overallposition) const
 {
 	//note: a pillage move does not count as offensive!
 	if (eAssignmentType == A_MELEEATTACK ||
@@ -8389,6 +8420,14 @@ bool STacticalAssignment::isOffensive() const
 		eAssignmentType == A_CAPTURE)
 	{
 		return true;
+	}
+
+	//also consider occupying a citadel as offensive
+	if (eAssignmentType == A_FINISH_TEMP)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iToPlotIndex);
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot,overallposition.getPlayer()))
+			return true;
 	}
 
 	return false;
@@ -8498,7 +8537,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 bool CvTacticalPosition::hasOffensiveAssignments() const
 {
 	for (size_t i = 0; i < assignedMoves.size(); i++)
-		if (assignedMoves[i].isOffensive())
+		if (assignedMoves[i].isOffensive(*this))
 			return true;
 
 	return false;
@@ -8550,7 +8589,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 		//we won't attack them but we won't ignore them either
 		it->checkEdgePlotsForSurprises(*this,landEnemies,seaEnemies);
 
-		if (TacticalAIHelpers::IsEnemyCitadel(it->getPlot(), getPlayer(), true) && !plotHasAssignmentOfType(it->getPlotIndex(), A_PILLAGE))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel(it->getPlot(), getPlayer(), true) && !plotHasAssignmentOfType(it->getPlotIndex(), A_PILLAGE))
 			citadels.push_back(it->getPlotIndex());
 	}
 
@@ -9082,7 +9121,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	}
 	case A_PILLAGE:
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
-		if (TacticalAIHelpers::IsEnemyCitadel( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer(), true))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer(), true))
 			refreshVolatilePlotProperties();
 		break;
 	case A_FINISH:

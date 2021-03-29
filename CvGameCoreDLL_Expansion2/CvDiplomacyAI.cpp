@@ -1248,6 +1248,10 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 		if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
 			continue;
 
+		// Ignore if we're already at war with them!
+		if (IsAtWar(eLoopPlayer))
+			continue;
+
 		if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			// Teammate?
@@ -1312,7 +1316,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 			if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
 				continue;
 
-			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWar(eLoopPlayer))
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
 				{
@@ -7874,15 +7878,14 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 	}
 
 	// Let's check if we're close to winning.
-	// Pick the easiest victory condition to win with first.
-	if (IsCloseToSSVictory())
+	if (IsCloseToDominationVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
+		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
 		return;
 	}
-	else if (IsCloseToDiploVictory())
+	else if (IsCloseToSSVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
+		SetVictoryFocus(VICTORY_FOCUS_SCIENCE);
 		return;
 	}
 	else if (IsCloseToCultureVictory())
@@ -7890,9 +7893,9 @@ void CvDiplomacyAI::DoUpdateVictoryFocus()
 		SetVictoryFocus(VICTORY_FOCUS_CULTURE);
 		return;
 	}
-	else if (IsCloseToDominationVictory())
+	else if (IsCloseToDiploVictory())
 	{
-		SetVictoryFocus(VICTORY_FOCUS_DOMINATION);
+		SetVictoryFocus(VICTORY_FOCUS_DIPLOMACY);
 		return;
 	}
 
@@ -12184,13 +12187,6 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 
 		if (IsPlayerValid(ePlayer))
 		{
-			// If they're spamming Wonders and we're cultural, we're angry about this even if they haven't beaten us to it as we build them
-			if (IsPlayerWonderSpammer(ePlayer) && (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism()))
-			{
-				SetWonderDisputeLevel(ePlayer, DISPUTE_LEVEL_FIERCE);
-				continue;
-			}
-
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
 			int iWonderDisputeWeight = GetNumWondersBeatenTo(ePlayer);
 
@@ -16724,6 +16720,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		iMultiplier++;
 		bBonus = false;
+
+		// Special: If they're spamming World Wonders and we're cultural, treat this as a fierce dispute level
+		if (IsCultural() || bCulturalTraits)
+			eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 	}
 
 	// Additional multiplier increase if dispute level is fierce
@@ -19448,12 +19448,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			CivApproachTypes eLoopApproach = (CivApproachTypes) iApproachLoop;
 
 			// Create a vector to store and rank the approach weights of each player from the first pass
-			CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePlayerApproachValues;
+			CvWeightedVector<PlayerTypes> vePlayerApproachValues;
 
 			for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); ++it)
 			{
-				int iApproachValue = GetPlayerStrategicApproachValue(*it, eLoopApproach); // We use the strategic approach here for a better variance/response to circumstances.
-				vePlayerApproachValues.push_back(*it, iApproachValue);
+				// We use the strategic approach here for a better variance/response to circumstances.
+				vePlayerApproachValues.push_back(*it, GetPlayerStrategicApproachValue(*it, eLoopApproach));
 			}
 
 			// Sort the weights from highest to lowest
@@ -19508,11 +19508,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					if (iFlavorMod > 0)
 					{
 						iReduction *= 100;
-						iReduction /= (100 + iFlavorMod);
+						iReduction /= 100 + iFlavorMod;
 					}
 					else if (iFlavorMod < 0)
 					{
-						iReduction *= (100 + iFlavorMod);
+						iReduction *= 100 + iFlavorMod;
 						iReduction /= 100;
 					}
 
@@ -19714,7 +19714,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+		if (!bResurrectedUs && (GetNumCitiesLiberatedBy(ePlayer) <= 0 || GetNumCitiesLiberatedBy(ePlayer) <= GetNumCitiesCapturedBy(ePlayer)))
+		{
+			// Let's not totally turn our backs on them if we have a good opinion.
+			switch (GetCivOpinion(ePlayer))
+			{
+			case CIV_OPINION_ALLY:
+				break;
+			case CIV_OPINION_FRIEND:
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= 75;
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+				break;
+			default:
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 2;
+				break;
+			}
+		}
 	}
 
 	////////////////////////////////////
@@ -19751,7 +19766,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /=  max(100, (100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 + iNeutralMod + iOpinionWeight));
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
@@ -20075,7 +20090,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	//--------------------------------//
 
 	// This vector is what we'll use to sort
-	CvWeightedVector< CivApproachTypes, 128 > vApproachScoresForSorting;
+	CvWeightedVector< CivApproachTypes> vApproachScoresForSorting;
 
 	// Transfer values from our normal int vector (which we need for logging) to the Weighted Vector we can sort
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
@@ -21933,19 +21948,22 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 		{
 			iDPValue += 15;
 		}
-
-		if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice) || IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice))
+		else if (IsPlayerLiberatedHolyCity(eChoice) || IsMasterLiberatedMeFromVassalage(eChoice))
+		{
+			iDPValue += 10;
+		}
+		else if (IsPlayerReturnedCapital(eChoice) || IsPlayerReturnedHolyCity(eChoice) || IsHappyAboutPlayerVassalagePeacefullyRevoked(eChoice))
 		{
 			iDPValue += 5;
 		}
 
 		if (GetNumCitiesCapturedBy(eChoice) > 0)
 		{
-			iDPValue += (GetNumCitiesCapturedBy(eChoice) * -15);
+			iDPValue += GetNumCitiesCapturedBy(eChoice) * -15;
 		}
 		else if (GetNumCitiesLiberatedBy(eChoice) > 0)
 		{
-			iDPValue += (GetNumCitiesLiberatedBy(eChoice) * 5);
+			iDPValue += GetNumCitiesLiberatedBy(eChoice) * 5;
 		}
 
 		if (iDPValue > iBestDPValue)
@@ -21961,7 +21979,7 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 /// Update whether which major civs we're targeting for war. NOTE: City-State targets are handled in DoUpdateMinorCivApproaches().
 void CvDiplomacyAI::DoUpdateWarTargets()
 {
-	if (GetPlayer()->isHuman() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if (GetPlayer()->isHuman() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return;
 
 	vector<PlayerTypes> vAtWarPlayers;
@@ -22263,7 +22281,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 		}
 
 		// Loop through all players and see if there are any who aren't a valid target anymore
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> viExistingSneakAttacks;
+		CvWeightedVector<PlayerTypes> viExistingSneakAttacks;
 		vector<PlayerTypes> vContinuingSneakAttacks;
 
 		for (std::vector<PlayerTypes>::iterator it = vNotAtWarPlayers.begin(); it != vNotAtWarPlayers.end(); it++)
@@ -22593,7 +22611,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 		oldApproaches.insert(std::make_pair(*it, eOldApproach));
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_MINOR_CIVS, true> vePlayerApproachWeights;
+	CvWeightedVector<PlayerTypes> vePlayerApproachWeights;
 	int iHighestWeight = 1000;
 
 	// Loop through all (known) Minors and determine the order of who we pick our Approach for first based on PROXIMITY - this is different from Majors
@@ -23602,7 +23620,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	}
 
 	// This vector is what we'll use to sort
-	CvWeightedVector< CivApproachTypes, 128 > vApproachScoresForSorting;
+	CvWeightedVector< CivApproachTypes> vApproachScoresForSorting;
 
 	// Transfer values from our normal int vector (which we need for logging) to the Weighted Vector we can sort
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
@@ -24128,7 +24146,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->IsVassalOfSomeone())
 		return;
 
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePotentialDemandTargets;
+	CvWeightedVector<PlayerTypes> vePotentialDemandTargets;
 	bool bExistingValidTarget = false;
 	int iWarCount = GetPlayer()->GetNumDangerousMajorsAtWarWith(true, false);
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -29387,10 +29405,10 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		//bWantsToBullyUnit = true;
 	}
 
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veMinorsToBuyout; // Austria UA
-	CvWeightedVector<MinorGoldGiftInfo, MAX_PLAYERS, true> veMinorsToGiveGold;
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veMinorsToBullyGold;
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veMinorsToBullyUnit;
+	CvWeightedVector<PlayerTypes> veMinorsToBuyout; // Austria UA
+	CvWeightedVector<MinorGoldGiftInfo> veMinorsToGiveGold;
+	CvWeightedVector<PlayerTypes> veMinorsToBullyGold;
+	CvWeightedVector<PlayerTypes> veMinorsToBullyUnit;
 
 	int iLargeGift = /*1000*/ GC.getMINOR_GOLD_GIFT_LARGE();
 	int iMediumGift = /*500*/ GC.getMINOR_GOLD_GIFT_MEDIUM();
@@ -37643,7 +37661,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 
 	// Most Greetings are added to a vector to be picked from randomly
 	// However, some are returned immediately, as they "fit" well enough that we DEFINITELY want to use that specific greeting
-	FStaticVector<DiploMessageTypes, NUM_DIPLO_MESSAGE_TYPES, true, c_eCiv5GameplayDLL, 0> veValidGreetings;
+	vector<DiploMessageTypes> veValidGreetings;
 
 	// Determine if the AI is being hostile to the player
 	bool bHostile = IsActHostileTowardsHuman(eHuman);
@@ -38323,7 +38341,7 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 
 	StrengthTypes eMilitaryStrengthComparedToUs = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 
-	FStaticVector<DiploMessageTypes, NUM_DIPLO_MESSAGE_TYPES, true, c_eCiv5GameplayDLL, 0> veValidInsults;
+	vector<DiploMessageTypes> veValidInsults;
 
 	// They're weak militarily
 	if(eMilitaryStrengthComparedToUs <= STRENGTH_WEAK)
@@ -51292,7 +51310,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 	if (pCity != NULL && eActivePlayer != NO_PLAYER && eCurrentOwner != NO_PLAYER)
 	{
 		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_HEADER").toUTF8();
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
+		CvWeightedVector<PlayerTypes> veWarmongerWeights;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			// Ignore minors
@@ -51403,7 +51421,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 	if (pCity != NULL && eActivePlayer != NO_PLAYER && eOriginalOwner != NO_PLAYER)
 	{
 		szRtnValue = Localization::Lookup("TXT_KEY_LIBERATOR_PREVIEW_HEADER").toUTF8();
-		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veWarmongerWeights;
+		CvWeightedVector<PlayerTypes> veWarmongerWeights;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			// Ignore minors
@@ -52040,9 +52058,56 @@ void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 }
 
 /// Do we want to become the vassal of ePlayer?
-bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+
+	// Shadow AI does not make decisions for human!
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return false;
+
+	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+	int iNumTeamMembersInFavor = 0;
+	int iNumTeamMembersAgainst = 0;
+
+	// We are the MASTER receiving the request
+	if (bMasterEvaluation)
+	{
+		// Always willing to accept capitulation if we're willing to make peace
+		if (IsAtWar(ePlayer))
+			return true;
+
+		for (size_t i=0; i<vOurTeam.size(); i++)
+		{
+			if (!GET_PLAYER(vOurTeam[i]).isAlive() || GET_PLAYER(vOurTeam[i]).getNumCities() <= 0)
+				continue;
+
+			bool bYes = false;
+
+			for (size_t j=0; j<vTheirTeam.size(); j++)
+			{
+				if (!GET_PLAYER(vTheirTeam[j]).isAlive() || GET_PLAYER(vTheirTeam[j]).getNumCities() <= 0)
+					continue;
+
+				if (GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->IsVoluntaryVassalageRequestAcceptable(vTheirTeam[j]))
+				{
+					bYes = true;
+					iNumTeamMembersInFavor++;
+					break;
+				}
+			}
+
+			if (!bYes)
+				iNumTeamMembersAgainst++;
+		}
+
+		// More team members must agree than refuse
+		if (iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst)
+			return true;
+
+		return false;
+	}
 
 	// We are already ePlayer's vassal
 	if (IsVassal(ePlayer))
@@ -52052,19 +52117,9 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer)
 	if (!GET_TEAM(GetTeam()).canBecomeVassal(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 
-	// Shadow AI does not make decisions for human!
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return false;
-
 	// Can't capitulate if we have vassals
 	if (GetPlayer()->GetNumVassals() > 0)
 		return false;
-
-	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
-	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
-
-	int iNumTeamMembersInFavor = 0;
-	int iNumTeamMembersAgainst = 0;
 
 	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
@@ -52709,6 +52764,130 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	return iWantVassalageScore >= /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+}
+
+/// Do we want to accept ePlayer as our voluntary vassal?
+bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
+{
+	// We will only accept forced capitulation from backstabbers and people who have stolen cities from us.
+	if (IsUntrustworthy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
+		return false;
+
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+	int iNumCaps = 0;
+	bool bWeLikeOneOfThem = false;
+
+	for (size_t i=0; i<vTheirTeam.size(); i++)
+	{
+		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
+			continue;
+
+		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
+			iNumCaps++;
+
+		iNumCaps += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
+
+		bool bWeLikeThem = IsDoFAccepted(vTheirTeam[i]) || IsHasDefensivePact(vTheirTeam[i]) || (GetCivOpinion(vTheirTeam[i]) >= CIV_OPINION_FRIEND && GetCivApproach(vTheirTeam[i]) == CIV_APPROACH_FRIENDLY);
+
+		// We must be stronger.
+		if (bWeLikeThem)
+		{
+			if (GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_STRONG)
+				return false;
+
+			if (GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_STRONG)
+				return false;
+
+			// If we like them and we can't honestly protect them, then don't agree.
+			if (GetPlayer()->GetProximityToPlayer(vTheirTeam[i]) < PLAYER_PROXIMITY_CLOSE)
+				return false;
+
+			bWeLikeOneOfThem = true;
+		}
+		else
+		{
+			if (GetPlayerMilitaryStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_AVERAGE)
+				return false;
+
+			if (GetPlayerEconomicStrengthComparedToUs(vTheirTeam[i]) > STRENGTH_AVERAGE)
+				return false;
+		}
+	}
+
+	// Do not accept voluntary capitulation if we need their capitals to win.
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		if (iNumCaps > 0)
+			return false;
+	}
+
+	// We must be willing to go to war with everyone they're currently at war with.
+	vector<PlayerTypes> vNewWarPlayers;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!IsPlayerValid(eLoopPlayer))
+			continue;
+
+		// We're already at war - ignore
+		if (IsAtWar(eLoopPlayer))
+			continue;
+
+		if (GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+		{
+			if (std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), eLoopPlayer) == vNewWarPlayers.end())
+				vNewWarPlayers.push_back(eLoopPlayer);
+
+			vector<PlayerTypes> vLinkedWarPlayers = GetLinkedWarPlayers(eLoopPlayer, false, true, false);
+			for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
+			{
+				if (std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), *it) == vNewWarPlayers.end())
+					vNewWarPlayers.push_back(*it);
+			}
+		}
+	}
+
+	for (std::vector<PlayerTypes>::iterator it = vNewWarPlayers.begin(); it != vNewWarPlayers.end(); it++)
+	{
+		// Don't attack friends or people keeping us financially afloat.
+		if (!IsWarSane(*it))
+			return false;
+
+		// Don't attack if they're not a potential war target.
+		if (GET_PLAYER(*it).isMajorCiv() && !IsPotentialWarTarget(*it))
+			return false;
+			
+		// Ignore City-States unless peace blocked, since we can just make peace as their new master if we want.
+		if (GET_PLAYER(*it).isMinorCiv())
+		{
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 6 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 7)
+			{
+				if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+					return false;
+			}
+		}
+		// Avoid DoWing a powerful neighbor.
+		else if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+		{
+			if (GetCivApproach(*it) == CIV_APPROACH_AFRAID)
+				return false;
+			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
+			{
+				if (GetBoldness() > 6 || bWeLikeOneOfThem)
+				{
+					if (GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+						return false;
+				}
+				else if (GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+					return false;
+			}
+		}
+	}
+
+	// If everything is clear, then accept.
+	return true;
 }
 
 /// Is it acceptable for us to terminate the vassalage agreement with ePlayer?
@@ -54739,7 +54918,7 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	CvWeightedVector<int, 20, true> aPossibleValues;	// in case changed, 100 / 5  is a safe bet for number of possible elements
+	CvWeightedVector<int> aPossibleValues;	// in case changed, 100 / 5  is a safe bet for number of possible elements
 	
 	// New tax value defaults to current tax rate
 	int iNewTaxValue = iTaxRate;
@@ -54881,13 +55060,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	CivApproachTypes eTrueApproach = GetCivApproach(ePlayer);
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 
-	FStaticVector< int, 128, true, c_eCiv5GameplayDLL > viMoveTroopsWeights;
-
-	// Push back values
-	for (int i=0; i < NUM_MOVE_TROOPS_RESPONSES; i++)
-	{
-		viMoveTroopsWeights.push_back(0);
-	}
+	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES,0);
 
 	// Initialize our parallel arrays based on various approaches
 	// i.e. more inclined to agree to leave if they like to be friendly toward civs
@@ -55082,7 +55255,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	}
 
 	// This vector is what we'll use to sort
-	CvWeightedVector< int, 128 > vMoveTroopsWeightsForSorting;
+	CvWeightedVector< int> vMoveTroopsWeightsForSorting;
 	vMoveTroopsWeightsForSorting.clear();
 
 	// Transfer values over to the sorting vector

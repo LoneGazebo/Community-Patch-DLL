@@ -822,8 +822,6 @@ private:
 	std::vector<CvTraitEntry*> m_paTraitEntries;
 };
 
-#define SAFE_ESTIMATE_NUM_FREE_UNITS 5
-
 struct FreeTraitUnit
 {
 	UnitTypes m_iFreeUnit;

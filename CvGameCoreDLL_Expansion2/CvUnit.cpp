@@ -4774,17 +4774,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
 	{
-		if(isConvertUnit())
-		{
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
-				return false;
-		}
-		else
-		{
-			bool bNoEnemy = IsCombatUnit() && !(iMoveFlags & MOVEFLAG_ATTACK);
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
-				return false;
-		}
+		//only trade units can pass through non-friendly improvements
+		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), !isTrade()))
+			return false;
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
@@ -5498,7 +5490,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
-				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost
@@ -5521,9 +5513,6 @@ bool CvUnit::jumpToNearestValidPlot()
 		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-		//want to sort by ascending area size
-		candidates[i].score = GC.getMap().numPlots() - plots2.size();
-
 		//if we have lots of room here, use the plot immediately
 		if (plots2.size() > 23)
 		{
@@ -5535,7 +5524,6 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (!pBestPlot && !candidates.empty())
 	{
 		//try again if there are only bad places
-		std::sort(candidates.begin(), candidates.end());
 		pBestPlot = candidates.front().pPlot;
 	}
 
@@ -5585,16 +5573,20 @@ bool CvUnit::jumpToNearestValidPlot()
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 {
-	VALIDATE_OBJECT
-	CvPlot* pBestPlot = NULL;
-	int iBestValue = INT_MAX;
-	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
-	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
-
 	if (!pStartPlot)
 		pStartPlot = plot();
 
+	if (!pStartPlot)
+		return false;
+
+	//nothing to do?
+	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
+		return true;
+
+	CvPlot* pBestPlot = NULL;
+	int iBestValue = INT_MAX;
 	iRange = min(max(1,iRange),5);
+
 	for(int i=1; i<RING_PLOTS[iRange]; i++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots( pStartPlot, i );
@@ -8101,15 +8093,15 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer());
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer(),0);
 }
 
-int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore,iExtraDamage);
 }
 
 //	--------------------------------------------------------------------------------
@@ -13359,7 +13351,7 @@ bool CvUnit::blastTourism()
 #endif
 
 	//store off this data
-	GET_PLAYER(getOwner()).changeInstantTourismValue(eOwner, iTourismBlast);
+	GET_PLAYER(getOwner()).changeInstantTourismPerPlayerValue(eOwner, iTourismBlast);
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
@@ -26407,6 +26399,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	int iChange;
 	int iI;
 
+	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
+		return;
+
 	if(isHasPromotion(eIndex) != bNewValue)
 	{
 		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
@@ -29966,25 +29961,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
-
-	int iFlavorDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
-	
-	int iFlavorCityDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
-	
-	int iFlavorRanged = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
-
-	int iFlavorRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
-
-	int iFlavorMobile = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
-
-	int iFlavorNaval = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
-
-	int iFlavorNavalRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
-	
-	int iFlavorAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
-	
-	int iFlavorAntiAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
+	int iFlavorOffense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
+	int iFlavorDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
+	int iFlavorCityDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
+	int iFlavorRanged = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
+	int iFlavorRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
+	int iFlavorMobile = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
+	int iFlavorNaval = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
+	int iFlavorNavalRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
+	int iFlavorAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
+	int iFlavorAntiAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())

@@ -12,8 +12,6 @@
 
 class CvReligion;
 
-#define SAFE_ESTIMATE_NUM_BELIEFS 100
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBeliefEntry
 //!  \brief		A single entry in the Belief XML file

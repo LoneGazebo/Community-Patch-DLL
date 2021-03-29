@@ -36,6 +36,12 @@ SELECT 'DIPLOAI_DISABLE_WAR_BRIBES', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
 
+-- [DISABLE VOLUNTARY VASSALAGE]
+-- If set to 1, voluntary vassalage is not permitted, but capitulation is still allowed.
+-- NOTE: Does nothing if vassalage is not enabled.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE', '0';
+
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.

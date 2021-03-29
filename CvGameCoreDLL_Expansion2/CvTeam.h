@@ -445,7 +445,7 @@ public:
 	
 	bool canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
 	bool CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
-	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
+	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false, PlayerTypes eOriginatingMaster = NO_PLAYER);
 	bool canEndVassal(TeamTypes eTeam) const;
 	bool canEndAllVassal();
 	void DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification);

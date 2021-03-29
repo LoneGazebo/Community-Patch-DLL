@@ -173,7 +173,7 @@ ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'IsCapitalOnly' BOOLEAN DEFAULT 0;
 
--- No natural religion spread to/from unowned cities
+-- No natural religion spread to/from other players' cities
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
 

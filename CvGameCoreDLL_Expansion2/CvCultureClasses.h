@@ -400,8 +400,7 @@ public:
 	void CalculateBaseTourismBeforeModifiers();
 	void CalculateBaseTourism();
 #endif
-	int GetBaseTourismBeforeModifiers();
-	int GetBaseTourism();
+
 	int GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const;
 
 	CvString GetTourismTooltip();

@@ -2559,6 +2559,8 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 		{
 			ChangeNumForcedWorkingPlots(-1);
 		}
+
+		DoReallocateCitizens(true);
 	}
 }
 

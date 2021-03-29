@@ -1681,7 +1681,7 @@ void CvGrandStrategyAI::ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 /// Runs every turn to try and figure out what other known Players' Grand Strategies are
 void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 {
-	CvWeightedVector<int, 5, true> vGrandStrategyPriorities;
+	CvWeightedVector<int> vGrandStrategyPriorities;
 	vector<int>  vGrandStrategyPrioritiesForLogging;
 
 	GuessConfidenceTypes eGuessConfidence = NO_GUESS_CONFIDENCE_TYPE;

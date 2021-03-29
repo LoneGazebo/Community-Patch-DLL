@@ -2525,7 +2525,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 	else
 	{
 		// Major civs vote for other majors based on opinion weight (our team leader towards their team leader)
-		CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veVoteCandidates;
+		CvWeightedVector<TeamTypes> veVoteCandidates;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
 			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;
@@ -8710,8 +8710,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 			{
 				int iLoop;
-				CvUnit* pLoopUnit;
-				for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 				{
 					if(pLoopUnit->isUnitEraUpgrade())
 					{
@@ -8739,6 +8738,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						}
 					}
 				}
+
+				//specialist food consumption changed, set all cities dirty
+				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					pLoopCity->GetCityCitizens()->SetDirty(true);
 			}
 		}
 #endif
@@ -9721,43 +9724,28 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 	TeamTypes eMaster = GetMaster();
 
 	// If I'm not alive I can't declare war!
-	if(!isAlive())
+	if (!isAlive())
 	{
 		return;
 	}
 
 	// Have to be someone's vassal
-	if(eMaster == NO_TEAM)
+	if (eMaster == NO_TEAM)
 	{
 		return;
 	}
 
 	// Never at war with Master
-	if(isAtWar(eMaster))
+	if (isAtWar(eMaster))
 	{
 		makePeace(eMaster, true, false, getLeaderID());
 	}
 
-	TeamTypes eTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
-		eTeam = (TeamTypes)iTeamLoop;
+		TeamTypes eTeam = (TeamTypes) iTeamLoop;
 
-		if(eTeam == NO_TEAM)
-		{
-			continue;
-		}
-		if(GET_TEAM(eTeam).isBarbarian())
-		{
-			continue;
-		}
-
-		if(eTeam == eMaster)
-		{
-			continue;
-		}
-
-		if(!GET_TEAM(eTeam).isAlive())
+		if (eTeam == NO_TEAM || eTeam == eMaster || GET_TEAM(eTeam).isBarbarian())
 		{
 			continue;
 		}
@@ -9910,7 +9898,7 @@ bool CvTeam::CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 }
 //	-----------------------------------------------------------------------------------------------
 // We become the new Vassal of eTeam
-void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
+void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOriginatingMaster)
 {
 	Localization::String locString, summaryString;
 
@@ -9920,6 +9908,34 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	// we must be able to become their vassal
 	if(!canBecomeVassal(eTeam, /*bIgnoreAlreadyVassal*/ true))
 		return;
+
+	// Immediately cancel all Defensive Pacts!
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eOtherTeam = (TeamTypes) iTeamLoop;
+		SetHasDefensivePact(eOtherTeam, false);
+		GET_TEAM(eOtherTeam).SetHasDefensivePact(GetID(), false);
+	}
+
+	// If this is voluntary vassalage, master declares war on everyone the vassal is at war with (prior to updating relationships)
+	if (bVoluntary)
+	{
+		for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eOtherTeam = (TeamTypes) iTeamLoop;
+
+			if (eOtherTeam != eTeam && eOtherTeam != GetID() && GET_TEAM(eOtherTeam).isAlive())
+			{
+				if (isAtWar(eOtherTeam) && !GET_TEAM(eTeam).isAtWar(eOtherTeam))
+				{
+					if (eOriginatingMaster != NO_PLAYER)
+						GET_TEAM(eTeam).declareWar(eOtherTeam, false, eOriginatingMaster);
+					else
+						GET_TEAM(eTeam).declareWar(eOtherTeam, false);
+				}
+			}
+		}
+	}
 
 	std::vector<PlayerTypes> aMasterTeam;
 	std::vector<PlayerTypes> aVassalTeam;
@@ -9947,7 +9963,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 				if (GET_TEAM(eOtherTeam).IsVassal(GetID()))
 				{
 					GET_TEAM(eOtherTeam).DoEndVassal(GetID(), true, true);	// these guys no longer our vassal, they become vassal of eTeam now
-					GET_TEAM(eOtherTeam).DoBecomeVassal(eTeam);
+					GET_TEAM(eOtherTeam).DoBecomeVassal(eTeam, bVoluntary, eOriginatingMaster);
 				}
 			}
 		}
@@ -9974,32 +9990,15 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	SetAllowsOpenBordersToTeam(eTeam, true);
 
 	// Update war/peace relationships for all of eTeam's vassals
-	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
-		if(GET_TEAM((TeamTypes)iTeamLoop).GetMaster() == eTeam)
+		if (GET_TEAM((TeamTypes)iTeamLoop).GetMaster() == eTeam)
 		{
 			GET_TEAM((TeamTypes)iTeamLoop).DoUpdateVassalWarPeaceRelationships();
 		}
-
-		// Remove any defensive pacts with this team
-		for(int iOtherTeam = 0; iOtherTeam < MAX_MAJOR_CIVS; iOtherTeam++)
-		{
-			TeamTypes eOtherTeam = (TeamTypes) iOtherTeam;
-			if(GET_TEAM(eOtherTeam).isAlive())
-			{
-				if(eOtherTeam != GetID())
-				{
-					if(IsHasDefensivePact(eOtherTeam))
-					{
-						SetHasDefensivePact(eOtherTeam, false);
-						GET_TEAM(eOtherTeam).SetHasDefensivePact(GetID(), false);
-					}
-				}
-			}
-		}
 	}
 
-	for(std::vector<PlayerTypes>::iterator it = aVassalTeam.begin(); it != aVassalTeam.end(); it++)
+	for (std::vector<PlayerTypes>::iterator it = aVassalTeam.begin(); it != aVassalTeam.end(); it++)
 	{
 		// Notify DiploAI that we are now eTeam's vassal
 		GET_PLAYER(*it).GetDiplomacyAI()->DoWeMadeVassalageWithSomeone(eTeam, bVoluntary);

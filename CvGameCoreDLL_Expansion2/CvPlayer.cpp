@@ -1198,7 +1198,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiInstantYieldHistoryValues.clear();
-	m_ppiInstantTourismHistoryValues.clear();
+	m_ppiInstantTourismPerPlayerHistoryValues.clear();
 	m_ppiImprovementYieldChange.clear();
 	m_ppiFeatureYieldChange.clear();
 	m_ppiResourceYieldChange.clear();
@@ -2168,23 +2168,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_ppiInstantYieldHistoryValues.clear();
-		m_ppiInstantYieldHistoryValues.resize(GC.getGame().getEstimateEndTurn());
-		for (unsigned int i = 0; i < m_ppiInstantYieldHistoryValues.size(); ++i)
-		{
-			m_ppiInstantYieldHistoryValues[i] = yield;
-		}
-
-		Firaxis::Array< int, MAX_MAJOR_CIVS > players;
-		for (unsigned int j = 0; j < MAX_MAJOR_CIVS; ++j)
-		{
-			players[j] = 0;
-		}
-		m_ppiInstantTourismHistoryValues.clear();
-		m_ppiInstantTourismHistoryValues.resize(GC.getGame().getEstimateEndTurn());
-		for (unsigned int i = 0; i < m_ppiInstantTourismHistoryValues.size(); ++i)
-		{
-			m_ppiInstantTourismHistoryValues[i] = players;
-		}
+		m_ppiInstantTourismPerPlayerHistoryValues.clear();
 
 		m_ppiImprovementYieldChange.clear();
 		m_ppiImprovementYieldChange.resize(GC.getNumImprovementInfos());
@@ -9995,13 +9979,13 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GC.getDIPLOAI_DISABLE_VOLUNTARY_VASSALAGE() == 0)
 			{
 				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
 					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
 					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true, GetID());
 				}
 			}
 
@@ -10658,34 +10642,37 @@ BuildingTypes CvPlayer::GetSpecificBuildingType(const char* szBuildingClass, boo
 }
 
 //	--------------------------------------------------------------------------------
-CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
+CvPlot* CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 {
-	CvPlot *pInitialPlot = pUnit->plot();
+	CvPlot* pLargestWaterAreaPlot = NULL;
+	int iLargestWaterSize = -1;
 
-	// Is this a friendly coastal city, if so we'll go with that
-	CvCity *pInitialCity = pInitialPlot->getPlotCity();
-	if (pInitialCity && pInitialCity->isCoastal())
-	{
-		// Equal okay checking this plot because this is where the unit is right now
-		if (pUnit->canEndTurnAtPlot(pInitialPlot))
-			return pInitialPlot;
-	}
-
-	// Otherwise let's look at all our other cities
-	CvCity *pLoopCity;
+	// let's look at all our cities and find the largest ocean
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != pInitialCity && pLoopCity->isCoastal())
+		if (!pLoopCity->isCoastal())
+			continue;
+
+		if (!pUnit->canEndTurnAtPlot(pLoopCity->plot()))
+			continue;
+
+		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
+		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 		{
-			if (pUnit->canEndTurnAtPlot(pLoopCity->plot()))
+			CvArea* pkArea = GC.getMap().getArea(*it);
+			if (pkArea->isWater() && pkArea->getNumTiles()>iLargestWaterSize)
 			{
-				return pLoopCity->plot();
+				iLargestWaterSize = pkArea->getNumTiles();
+				pLargestWaterAreaPlot = pLoopCity->plot();
 			}
 		}
 	}
 
-	return pInitialPlot;
+	if (pLargestWaterAreaPlot)
+		return pLargestWaterAreaPlot;
+	else
+		return pUnit->plot();
 }
 
 
@@ -18363,26 +18350,12 @@ int CvPlayer::GetCachedGoldRate() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::cacheGoldRate()
 {
-	int iGoldRate = calculateGoldRate();
+	int iBaseRate = calculateGoldRate();
 
-	// Factor in instant yields into our income as well (average of last 10 turns)
-	if (MOD_BALANCE_CORE)
-	{
-		int iTurn = GC.getGame().getGameTurn();
-		int iGoldAverage = 0;
-		for (int iI = 0; iI < 10; iI++)
-		{
-			int iYieldTurn = iTurn - iI;
-			if (iYieldTurn <= 0)
-				break;
-				
-			iGoldAverage += getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-		}
+	int iEndTurn = GC.getGame().getGameTurn();
+	int iStartTurn = GC.getGame().getGameTurn() - 10;
 
-		iGoldRate += (iGoldAverage / 10);
-	}
-
-	m_iCachedGoldRate = iGoldRate;
+	m_iCachedGoldRate = iBaseRate + getInstantYieldAvg(YIELD_GOLD, iStartTurn, iEndTurn);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19746,7 +19719,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 
 	int iOpenSlots = 0;
 	int iStuffStolen = 0;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> artChoices;
+	CvWeightedVector<int> artChoices;
 	const char* strTargetNameKey = pCity->getNameKey();
 	const CvCity* pLoopCity;
 	int iLoop;
@@ -24292,7 +24265,7 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 {
 	int iRank = 0;
 	int iMajorCivs = 0;
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
+	CvWeightedVector<PlayerTypes> veMajorRankings;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -24353,7 +24326,7 @@ PlayerTypes CvPlayer::AidRank()
 #else
 	int iRank = 0;
 	int iMajorCivs = 0;
-	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
+	CvWeightedVector<PlayerTypes> veMajorRankings;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -31552,12 +31525,9 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	iResistance /= 25;
-	iResistance *= GetCurrentEra();
+	int iHandicapCap = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
 
-	int iHandicapCap = std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
-
-	return std::min(iHandicapCap, iResistance);
+	return min(iHandicapCap, iResistance/25);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
@@ -41978,10 +41948,9 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	return false;
 }
 
-bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit) const
+vector<int> CvPlayer::GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit) const
 {
-	if (!pPlot)
-		return false;
+	vector<int> result;
 
 	// Loop through our units
 	int iLoop = 0;
@@ -41993,11 +41962,12 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 		if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_EXPLORE) )
 		{
 			CvPlot* pMissionPlot = pUnit->GetMissionAIPlot();
-			if (pMissionPlot && ::plotDistance(*pMissionPlot,*pPlot)<3)
-				return true;
+			if (pMissionPlot)
+				result.push_back(pMissionPlot->GetPlotIndex());
 		}
 	}
-	return false;
+
+	return result;
 }
 
 //	--------------------------------------------------------------------------------
@@ -42097,23 +42067,46 @@ CvPlayer::TurnData CvPlayer::getReplayDataHistory(unsigned int uiDataSet) const
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
 {
-	if (iValue != 0)
+	if (iValue == 0 || eYield >= NUM_YIELD_TYPES)
+		return;
+
+	int iTurn = GC.getGame().getGameTurn();
+	if (m_ppiInstantYieldHistoryValues.empty() || m_ppiInstantYieldHistoryValues.back().first < iTurn)
 	{
-		int iTurn = GC.getGame().getGameTurn();
-		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiInstantYieldHistoryValues[iTurn];
-		yields[eYield] = (m_ppiInstantYieldHistoryValues[iTurn][eYield] + iValue);
-		m_ppiInstantYieldHistoryValues[iTurn] = yields;
+		if (m_ppiInstantYieldHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
+			m_ppiInstantYieldHistoryValues.pop_front();
+
+		m_ppiInstantYieldHistoryValues.push_back( make_pair(iTurn, vector<int>(NUM_YIELD_TYPES, 0)));
+		m_ppiInstantYieldHistoryValues.back().second[eYield] += iValue;
+	}
+	else if (m_ppiInstantYieldHistoryValues.back().first == iTurn)
+	{
+		m_ppiInstantYieldHistoryValues.back().second[eYield] += iValue;
 	}
 }
 
-//	--------------------------------------------------------------------------------
 int CvPlayer::getInstantYieldValue(YieldTypes eYield, int iTurn) const
 {
-	//catch for CTD
-	if (iTurn <= 0 || iTurn >= GC.getGame().getEstimateEndTurn())
+	return getInstantYieldAvg(eYield, iTurn, iTurn);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const
+{
+	if (eYield >= NUM_YIELD_TYPES || m_ppiInstantYieldHistoryValues.empty())
 		return 0;
 
-	return m_ppiInstantYieldHistoryValues[iTurn][eYield];
+	//we typically want the latest value only
+	if (m_ppiInstantYieldHistoryValues.back().first == iTurnA && iTurnA == iTurnB)
+		return m_ppiInstantYieldHistoryValues.back().second[eYield];
+
+	//do it the slow way
+	int iSum = 0;
+	for (size_t i = 0; i < m_ppiInstantYieldHistoryValues.size(); i++)
+		if (m_ppiInstantYieldHistoryValues[i].first >= iTurnA && m_ppiInstantYieldHistoryValues[i].first <= iTurnB)
+			iSum += m_ppiInstantYieldHistoryValues[i].second[eYield];
+
+	return iSum / (1+abs(iTurnA-iTurnB));
 }
 
 CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount)
@@ -42142,10 +42135,16 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 		//current turn
 		int iSum = 0;
 
-		//turn zero is strange
-		if (iGameTurn == 0)
+		//and x turns back
+		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
 		{
-			iSum += getInstantYieldValue(eYield, GC.getGame().getGameTurn());
+			int iTurn = iGameTurn - iI;
+			if (iTurn < 0)
+			{
+				continue;
+			}
+
+			iSum += getInstantYieldValue(eYield, iTurn);
 			int iTempSum = 0;
 			int iNumPlayers = 0;
 			if (eYield == YIELD_TOURISM)
@@ -42153,7 +42152,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-					int iTempTourism = getInstantTourismValue(ePlayer, GC.getGame().getGameTurn());
+					int iTempTourism = getInstantTourismPerPlayerValue(ePlayer, iTurn);
 					if (iTempTourism != 0)
 					{
 						iNumPlayers++;
@@ -42168,41 +42167,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 			}
 			TurnsBack++;
 		}
-		else
-		{
-			//and x turns back
-			for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
-			{
-				int iTurn = iGameTurn - iI;
-				if (iTurn < 0)
-				{
-					continue;
-				}
 
-				iSum += getInstantYieldValue(eYield, iTurn);
-				int iTempSum = 0;
-				int iNumPlayers = 0;
-				if (eYield == YIELD_TOURISM)
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-						int iTempTourism = getInstantTourismValue(ePlayer, iTurn);
-						if (iTempTourism != 0)
-						{
-							iNumPlayers++;
-							bShowPlayerTourism = true;
-						}
-
-						iTempSum += iTempTourism;
-						tourismVal[iPlayerLoop] += iTempTourism;
-					}
-					iTempSum /= max(1, iNumPlayers);
-					iSum += iTempSum;
-				}
-				TurnsBack++;
-			}
-		}
 		if (TurnsBack > MaxTurnsBack)
 			MaxTurnsBack = TurnsBack;
 
@@ -42226,7 +42191,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 
 			if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 			{
-				int iAverage = max(1, (iSum / max(1, MaxTurnsBack)));
+				int iAverage = max(1, (iSum / max(1, TurnsBack)));
 				iAverage /= max(1, getNumCities());
 				yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES", iAverage);
 			}
@@ -42263,25 +42228,48 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeInstantTourismValue(PlayerTypes ePlayer, int iValue)
+void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValue)
 {
-	if (iValue != 0)
+	if (iValue == 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
+
+	int iTurn = GC.getGame().getGameTurn();
+	if (m_ppiInstantTourismPerPlayerHistoryValues.empty() || m_ppiInstantTourismPerPlayerHistoryValues.back().first < iTurn)
 	{
-		int iTurn = GC.getGame().getGameTurn();
-		Firaxis::Array<int, MAX_MAJOR_CIVS> players = m_ppiInstantTourismHistoryValues[iTurn];
-		players[ePlayer] = (m_ppiInstantTourismHistoryValues[iTurn][ePlayer] + iValue);
-		m_ppiInstantTourismHistoryValues[iTurn] = players;
+		if (m_ppiInstantTourismPerPlayerHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
+			m_ppiInstantTourismPerPlayerHistoryValues.pop_front();
+
+		m_ppiInstantTourismPerPlayerHistoryValues.push_back( make_pair(iTurn, vector<int>(MAX_MAJOR_CIVS, 0)));
+		m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer] += iValue;
+	}
+	else if (m_ppiInstantTourismPerPlayerHistoryValues.back().first == iTurn)
+	{
+		m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer] += iValue;
 	}
 }
 
-//	--------------------------------------------------------------------------------
-int CvPlayer::getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const
+int CvPlayer::getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) const
 {
-	//catch for CTD
-	if (iTurn <= 0 || iTurn >= GC.getGame().getEstimateEndTurn())
+	return getInstantTourismPerPlayerAvg(ePlayer, iTurn, iTurn);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const
+{
+	if (ePlayer >= MAX_MAJOR_CIVS || m_ppiInstantTourismPerPlayerHistoryValues.empty())
 		return 0;
 
-	return m_ppiInstantTourismHistoryValues[iTurn][ePlayer];
+	//we typically want the latest value only
+	if (m_ppiInstantTourismPerPlayerHistoryValues.back().first == iTurnA && iTurnA == iTurnB)
+		return m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer];
+
+	//do it the slow way
+	int iSum = 0;
+	for (size_t i = 0; i < m_ppiInstantTourismPerPlayerHistoryValues.size(); i++)
+		if (m_ppiInstantTourismPerPlayerHistoryValues[i].first >= iTurnA && m_ppiInstantTourismPerPlayerHistoryValues[i].first <= iTurnB)
+			iSum += m_ppiInstantTourismPerPlayerHistoryValues[i].second[ePlayer];
+
+	return iSum / (1+abs(iTurnA-iTurnB));
 }
 
 
@@ -46074,7 +46062,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ReplayDataSetValues;
 
 	kStream >> m_ppiInstantYieldHistoryValues;
-	kStream >> m_ppiInstantTourismHistoryValues;
+	kStream >> m_ppiInstantTourismPerPlayerHistoryValues;
 
 	kStream >> m_aVote;
 	kStream >> m_aUnitExtraCosts;
@@ -46292,7 +46280,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_ReplayDataSetValues;
 	
 	kStream << m_ppiInstantYieldHistoryValues;
-	kStream << m_ppiInstantTourismHistoryValues;
+	kStream << m_ppiInstantTourismPerPlayerHistoryValues;
 
 	kStream << m_aVote;
 	kStream << m_aUnitExtraCosts;
@@ -47390,12 +47378,12 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iAirAction);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iExtraDamage, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------
@@ -50692,7 +50680,7 @@ void CvPlayer::computeFoundValueThreshold()
 
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
+	//clamp it to a sensible range
 	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 

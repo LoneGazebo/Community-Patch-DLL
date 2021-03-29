@@ -39,7 +39,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
-
+#include "CvStructs.h"
 
 template<typename FirstType, typename SecondType>
 FDataStream & operator<<(FDataStream & saveTo, const std::pair<FirstType, SecondType> & readFrom)

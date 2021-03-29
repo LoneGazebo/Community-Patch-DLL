@@ -10,11 +10,6 @@
 #ifndef CIV5_TECHAI_H
 #define CIV5_TECHAI_H
 
-// Allocate array for 50% more techs than we have now (54)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_TECHS 80
-
 // Multiplier when reweighting based on cost.  Want something roughly equal to sqrt(cost of most expensive policy)
 //   Doesn't need to be exact, just used to make sure weights don't fall too low (since using integer math)
 #define TECH_COST_WEIGHTING_MULTIPLIER 100
@@ -67,8 +62,8 @@ private:
 
 	// Private data
 	CvPlayerTechs* m_pCurrentTechs;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_TECHS, true> m_TechAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_TECHS, true> m_ResearchableTechs;
+	CvWeightedVector<int> m_TechAIWeights;
+	CvWeightedVector<int> m_ResearchableTechs;
 };
 
 #endif //CIV5_TECHAI_H

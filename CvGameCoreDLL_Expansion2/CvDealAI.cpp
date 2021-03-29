@@ -3175,7 +3175,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// Player must be a potential war target
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayerDeclaringWar).GetDiplomacyAI();
-	if (!pDiploAI->IsPotentialWarTarget(eWithPlayer))
+	if (GET_PLAYER(eWithPlayer).isMajorCiv() && !pDiploAI->IsPotentialWarTarget(eWithPlayer))
 	{
 		return INT_MAX;
 	}
@@ -3224,9 +3224,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetWarGoal(*it) != WAR_GOAL_DEMAND)
 					{
 						// Bold AIs will take more risks.
-						if (pDiploAI->GetBoldness() <= 5 || pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+						if (pDiploAI->GetBoldness() > 6)
 						{
-							return INT_MAX;
+							if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
+								return INT_MAX;
 						}
 						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 						{
@@ -5291,7 +5292,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer);
+	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, false);
 	bool bRevokeMyVassals = false;
 	// Reduce war score if losing player wants to become winning player's vassal
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
@@ -6806,7 +6807,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Map with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 500;
+	int iItemValue = 0;
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
@@ -6818,7 +6819,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iPlotValue = 0;
 
 		if(pPlot == NULL)
 			continue;
@@ -6831,18 +6831,15 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		if(pPlot->isRevealed(pBuyer->getTeam()))
 			continue;
 
-		// ignore ice plots
-		if (pPlot->getFeatureType() == FEATURE_ICE)
-			continue;
-
-		// Handle terrain features
+		// Handle terrain features. A human will estimate based on map type ...
+		int iPlotValue = 1;
 		switch(pPlot->getTerrainType())
 		{
 			case TERRAIN_GRASS:
 			case TERRAIN_PLAINS:
 			case TERRAIN_HILL:
 			case TERRAIN_COAST:
-				iPlotValue = 30;
+				iPlotValue = 20;
 				break;
 			case TERRAIN_DESERT:
 			case TERRAIN_TUNDRA:
@@ -6851,60 +6848,21 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			case TERRAIN_MOUNTAIN:
 			case TERRAIN_SNOW:
 			case TERRAIN_OCEAN:
-				iPlotValue = 5;
-				break;
-			default:
-				iPlotValue = 20;
+				iPlotValue = 1;
 				break;
 		}
-
-		// Is there a Natural Wonder here? 500% of plot.
-		if(pPlot->IsNaturalWonder())
-		{
-			iPlotValue *= 500;
-			iPlotValue /= 100;
-		}
-
-		int iNumRevealed = 0;
-		TeamTypes eTeam;
-		// Value decreased based on number of teams who've seen this plot
-		for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-		{
-			eTeam = (TeamTypes) iTeamLoop;
-			// Don't evaluate us or the buyer
-			if(eTeam == pSeller->getTeam() || eTeam == pBuyer->getTeam())
-			{
-				continue;
-			}
-
-			// Don't evaluate minors/barbarians
-			if(GET_TEAM(eTeam).isMinorCiv() || GET_TEAM(eTeam).isBarbarian())
-			{
-				continue;
-			}
-
-			if(pPlot->isRevealed(eTeam) && GET_TEAM(eTeam).isAlive())
-			{
-				iNumRevealed++;
-			}
-		}
-
-		// Modifier based on uniqueness
-		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
-
-		int iNumTeams = GC.getGame().countMajorCivsAlive();
-		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
-
-		iPlotValue *= max(50,iModifier);
-		iPlotValue /= 100;
 
 		iItemValue += iPlotValue;
 	}
 
+	//nothing to be gained
+	if (iItemValue == 0)
+		return INT_MAX;
+
 	if(bFromMe)
 	{
 		//prevent AI spam
-		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -6937,11 +6895,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			break;
 		}
 
-		iItemValue /= 500;
+		iItemValue /= 100;
 	}
 	else
 	{
-		if (iItemValue <= 750 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -6974,7 +6932,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			break;
 		}
 
-		iItemValue /= 500;
+		iItemValue /= 100;
 	}
 
 	return iItemValue;
@@ -7262,7 +7220,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 
 	if (bFromMe)
 	{
-		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
+		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, false))
 		{
 			return INT_MAX;
 		}
@@ -7273,11 +7231,6 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
 			return (iItemValue / 2);
-		}
-		else
-		{
-			if (m_pPlayer->IsAtWar() || m_pPlayer->HasCityInDanger(false, 0))
-				return INT_MAX;
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
@@ -7371,8 +7324,8 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	//from them?
 	else
 	{
-		//they don't want to do it?
-		if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(m_pPlayer->GetID()))
+		// we don't want to do it?
+		if (!m_pDiploAI->IsVassalageAcceptable(m_pPlayer->GetID(), true))
 		{
 			return INT_MAX;
 		}
@@ -7383,11 +7336,6 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
 			return (iItemValue / 2);
-		}
-		else
-		{
-			if (GET_PLAYER(eOtherPlayer).IsAtWar() || GET_PLAYER(eOtherPlayer).HasCityInDanger(false, 0))
-				return INT_MAX;
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
@@ -7870,7 +7818,14 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return false;
 	}
 
-	if(!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID()))
+	// we don't want to do it?
+	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, true))
+	{
+		return false;
+	}
+
+	// they don't want to do it?
+	if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
 	{
 		return false;
 	}
@@ -7909,7 +7864,14 @@ bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal
 		return false;
 	}
 
-	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer))
+	// we don't want to do it?
+	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, false))
+	{
+		return false;
+	}
+
+	// they don't want to do it?
+	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
 	{
 		return false;
 	}

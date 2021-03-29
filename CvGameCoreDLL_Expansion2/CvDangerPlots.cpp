@@ -347,12 +347,12 @@ int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if(m_DangerPlots.empty() || !pUnit)
 		return 0;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iExtraDamage, iAirAction);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
@@ -731,7 +731,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 #define DANGER_MAX_CACHE_SIZE 9
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -807,7 +807,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 
 	//simple caching for speedup
 	//only for combat units - civilian danger depends on cover from other units, hard to cache that
-	SUnitInfo unitStats(pUnit, unitsToIgnore);
+	SUnitInfo unitStats(pUnit, unitsToIgnore, iExtraDamage);
 	for (size_t i=0; i<m_lastResults.size(); i++)
 		if (unitStats == m_lastResults[i].first)
 			return m_lastResults[i].second;
@@ -858,7 +858,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
 
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, 0, true);
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, iExtraDamage, true);
 
 			if (!m_pPlot->isVisible(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us

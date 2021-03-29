@@ -1008,7 +1008,7 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 				if (pLoopPlot->isIce())
 					//there is nothing interesting here
 					continue;
-				else if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
+				else if (!pLoopPlot->isWater())
 					//after all we're here to find new land!
 					iResultValue += iLargeScore;
 				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3 || pLoopPlot->isShallowWater())
@@ -1666,7 +1666,7 @@ void CvEconomicAI::LogCityMonitor()
 // PRIVATE METHODS
 
 /// See if we want to finish any of our builds by rushing
-void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables)
+void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> m_Buildables)
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -1815,7 +1815,7 @@ void CvEconomicAI::DoHurry()
 	CvCityBuildable bestSelection;
 	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
 
-	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
+	CvWeightedVector<CvCityBuildable> m_Buildables;
 
 	// Look at each of our cities
 	m_Buildables.clear();
@@ -4140,11 +4140,9 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 		}
 	}
 
-	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-
 	//do this last, potentially expensive!
-	if(iFlavorGrowth<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()))
+	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	if(pPlayer->GetNumCitiesFounded()<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()))
 	{
 		return true;
 	}
