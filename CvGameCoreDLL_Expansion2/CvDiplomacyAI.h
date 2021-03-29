@@ -214,6 +214,9 @@ public:
 	CivApproachTypes GetCivStrategicApproach(PlayerTypes ePlayer) const;
 	void SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
+	CivApproachTypes GetCachedSurfaceApproach(PlayerTypes ePlayer) const;
+	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
+
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 
 	// Approach Values: Cached weight for each approach
@@ -1879,6 +1882,7 @@ private:
 	short m_aiCachedOpinionWeight[MAX_MAJOR_CIVS];
 	char m_aeCivApproach[MAX_CIV_PLAYERS];
 	char m_aeCivStrategicApproach[MAX_MAJOR_CIVS];
+	char m_aeCachedSurfaceApproach[MAX_MAJOR_CIVS];
 	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 
