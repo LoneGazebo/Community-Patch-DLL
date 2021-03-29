@@ -475,6 +475,10 @@ CvPlayer::CvPlayer() :
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
+	, m_viTourismHistory("CvPlayer::m_viTourismHistory", m_syncArchive)
+	, m_viGAPHistory("CvPlayer::m_viGAPHistory", m_syncArchive)
+	, m_viCultureHistory("CvPlayer::m_viCultureHistory", m_syncArchive)
+	, m_viScienceHistory("CvPlayer::m_viScienceHistory", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
@@ -1911,6 +1915,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
+
+	m_viTourismHistory.clear();
+	m_viGAPHistory.clear();
+	m_viCultureHistory.clear();
+	m_viScienceHistory.clear();
 
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -11444,6 +11453,7 @@ void CvPlayer::doTurn()
 			DoEvents();
 		}
 	}
+	updateYieldPerTurnHistory();
 #endif
 #if defined(MOD_BALANCE_CORE)
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
@@ -19388,91 +19398,6 @@ void CvPlayer::ChangeSpecialistCultureChange(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// What is the sum of culture yield from the previous N turns?
-/// NOTE: This uses the data tracked in recording a replay, so if replays are disabled in the future then this must change!
-int CvPlayer::GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount)
-{
-	// Culture per turn yield is tracked in replay data, so use that
-	int iSum = 0;
-	for (int iI = 1; iI < iNumPreviousTurnsToCount+1; iI++)
-	{
-		int iTurn = iGameTurn - iI;
-		if (iTurn < 0)
-		{
-			break;
-		}
-
-		int iTurnCulture = getReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREPERTURN"), iTurn);
-		if (iTurnCulture >= 0)
-		{
-			iSum += iTurnCulture;
-		}
-		else if (iTurnCulture == -1) // No data for this turn (ex. late era start)
-		{
-			iSum += (3 * GetTotalJONSCulturePerTurn());
-		}
-	}
-
-	return iSum;
-}
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-/// What is the sum of tourism yield from the previous N turns?
-/// NOTE: This uses the data tracked in recording a replay, so if replays are disabled in the future then this must change!
-int CvPlayer::GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount)
-{
-	// Culture per turn yield is tracked in replay data, so use that
-	int iSum = 0;
-	for (int iI = 1; iI < iNumPreviousTurnsToCount+1; iI++)
-	{
-		int iTurn = iGameTurn - iI;
-		if (iTurn < 0)
-		{
-			break;
-		}
-
-		int iTurnTourism = getReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iTurn);
-		if (iTurnTourism >= 0)
-		{
-			iSum += iTurnTourism;
-		}
-		else if (iTurnTourism == -1) // No data for this turn (ex. late era start)
-		{
-			iSum += (3 * GetCulture()->GetTourism() / 100);
-		}
-	}
-
-	return iSum;
-}
-
-int CvPlayer::GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount)
-{
-	// Culture per turn yield is tracked in replay data, so use that
-	int iSum = 0;
-	for (int iI = 1; iI < iNumPreviousTurnsToCount + 1; iI++)
-	{
-		int iTurn = iGameTurn - iI;
-		if (iTurn < 0)
-		{
-			break;
-		}
-
-		int iTurnGAP = getReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iTurn);
-		if (iTurnGAP >= 0)
-		{
-			iSum += iTurnGAP;
-		}
-		else if (iTurnGAP == -1) // No data for this turn (ex. late era start)
-		{
-			iSum += (3 * GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
-		}
-	}
-
-	return iSum;
-}
-#endif
-
-//	--------------------------------------------------------------------------------
 /// Cities remaining to get a free culture building
 int CvPlayer::GetNumCitiesFreeCultureBuilding() const
 {
@@ -26579,13 +26504,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						if(iPassYield != 0 && !bEvent)
 						{
+							int iTemp = iPassYield;
 							int iPercent = GetPlayerTraits()->GetGAPToYield(eYield);
 							if(iPercent != 0)
 							{
-								iPassYield *= iPercent;
-								iPassYield /= 100;
+								iTemp *= iPercent;
+								iTemp /= 100;
 						
-								iValue += iPassYield;
+								iValue += iTemp;
 							}
 						}
 						if(bEvent && ePassYield == eYield)
@@ -31970,8 +31896,8 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	int iPreviousTurnsToCount = iTourism;
 
 	// Calculate boost
-	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount / 3);
-	iTotalBonus += GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+	int iTotalBonus = getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount / 3);
+	iTotalBonus += getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
 
 	// Mod for City Count
 	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
@@ -36757,35 +36683,6 @@ int CvPlayer::GetScienceFromBudgetDeficitTimes100() const
 	}
 
 	return iScience;
-}
-
-//	--------------------------------------------------------------------------------
-/// What is the sum of science yield (not counting Research Agreements or Great Scientist bonuses) from the previous N turns?
-/// NOTE: This uses the data tracked in recording a replay, so if replays are disabled in the future then this must change!
-int CvPlayer::GetScienceYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount)
-{
-	// Beakers per turn yield is tracked in replay data, so use that
-	int iSum = 0;
-	for (int iI = 1; iI < iNumPreviousTurnsToCount; iI++)
-	{
-		int iTurn = iGameTurn - iI;
-		if (iTurn < 0)
-		{
-			break;
-		}
-
-		int iTurnScience = getReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_SCIENCEPERTURN"), iTurn);
-		if (iTurnScience >= 0)
-		{
-			iSum += iTurnScience;
-		}
-		else if (iTurnScience == -1) // No data for this turn (ex. late era start)
-		{
-			iSum += (3 * GetScience());
-		}
-	}
-
-	return iSum;
 }
 
 //	--------------------------------------------------------------------------------
@@ -42062,6 +41959,74 @@ CvPlayer::TurnData CvPlayer::getReplayDataHistory(unsigned int uiDataSet) const
 	}
 
 	return CvPlayer::TurnData();
+}
+
+int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
+{
+	if (iNumTurns == 0)
+		return 0;
+
+	if (iNumTurns > GC.getGame().getElapsedGameTurns())
+		iNumTurns = GC.getGame().getElapsedGameTurns();
+
+	int iYield = 0;
+	int iLoop = 0;
+	switch (eYield)
+	{
+		case YIELD_TOURISM:
+		{
+			for (int i = m_viTourismHistory.size()-1; i >= 0; i--)
+			{
+				iYield += m_viTourismHistory[i];
+				iLoop++;
+				if (iLoop >= iNumTurns)
+					break;
+			}
+			break;
+		}
+		case YIELD_CULTURE:
+		{
+			for (int i = m_viCultureHistory.size()-1; i >= 0; i--)
+			{
+				iYield += m_viCultureHistory[i];
+				iLoop++;
+				if (iLoop >= iNumTurns)
+					break;
+			}
+			break;
+		}
+		case YIELD_GOLDEN_AGE_POINTS:
+		{
+			for (int i = m_viGAPHistory.size()-1; i >= 0; i--)
+			{
+				iYield += m_viGAPHistory[i];
+				iLoop++;
+				if (iLoop >= iNumTurns)
+					break;
+			}
+			break;
+		}
+		case YIELD_SCIENCE:
+		{
+			for (int i = m_viScienceHistory.size()-1; i >= 0; i--)
+			{
+				iYield += m_viScienceHistory[i];
+				iLoop++;
+				if (iLoop >= iNumTurns)
+					break;
+			}
+			break;
+		}
+	}
+	return iYield;
+}
+
+void CvPlayer::updateYieldPerTurnHistory()
+{
+	m_viTourismHistory.push_back(GetCulture()->GetTourism() / 100);
+	m_viCultureHistory.push_back(GetTotalJONSCulturePerTurn());
+	m_viGAPHistory.push_back(GetGoldenAgePointsFromEmpire());
+	m_viScienceHistory.push_back(calculateTotalYield(YIELD_SCIENCE));
 }
 
 //	--------------------------------------------------------------------------------
@@ -49449,7 +49414,6 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		// 	Science per Turn
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_SCIENCEPERTURN"), iGameTurn, calculateTotalYield(YIELD_SCIENCE));
 		// antonjs: This data is also used to calculate Great Scientist and Research Agreement beaker bonuses. If replay data changes
-		// or is disabled, CvPlayer::GetScienceYieldFromPreviousTurns must also change.
 
 		// 	Total Culture
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCULTURE"), iGameTurn, getJONSCulture());

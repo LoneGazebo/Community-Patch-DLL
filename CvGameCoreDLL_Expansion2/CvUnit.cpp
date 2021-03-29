@@ -11698,7 +11698,7 @@ int CvUnit::getDiscoverAmount()
 		{
 			// Beakers boost based on previous turns
 			int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
-			iValue = pPlayer->GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iValue = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
@@ -13151,7 +13151,7 @@ int CvUnit::getGivePoliciesCulture()
 		if (iPreviousTurnsToCount != 0)
 		{
 			// Calculate boost
-			iValue = kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iValue = kPlayer.getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount);
 		}
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
@@ -25209,8 +25209,8 @@ int CvUnit::getGAPBlast()
 		if (iPreviousTurnsToCount == 0)
 			return 0;
 
-		iValue = pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-		iValue += pPlayer->GetGAPYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+		iValue = pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
+		iValue += pPlayer->getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 		//GA Mod

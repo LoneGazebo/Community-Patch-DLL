@@ -518,12 +518,6 @@ public:
 	int GetSpecialistCultureChange() const;
 	void ChangeSpecialistCultureChange(int iChange);
 
-	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-#if defined(MOD_BALANCE_CORE)
-	int GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-	int GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-#endif
-
 	int GetNumCitiesFreeCultureBuilding() const;
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
 	int GetNumCitiesFreeFoodBuilding() const;
@@ -2086,8 +2080,6 @@ public:
 	int GetScienceFromResearchAgreementsTimes100() const;
 	int GetScienceFromBudgetDeficitTimes100() const;
 
-	int GetScienceYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-
 	bool IsGetsScienceFromPlayer(PlayerTypes ePlayer) const;
 	void SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bValue);
 
@@ -2452,6 +2444,9 @@ public:
 	int getReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn) const;
 	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
 	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
+
+	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
+	void updateYieldPerTurnHistory();
 
 	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
 	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
@@ -2995,6 +2990,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viTourismHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viGAPHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viCultureHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viScienceHistory;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;

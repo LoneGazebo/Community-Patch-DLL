@@ -10815,6 +10815,9 @@ void CvGame::doVictoryRandomization()
 		if (pkBestVictoryInfo == NULL)
 			return;
 
+		//Enable good victories
+		setVictoryValid(eBestVictory, true);
+
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strOutput;
@@ -10848,9 +10851,6 @@ void CvGame::doVictoryRandomization()
 			if (pkVictoryInfo == NULL)
 				continue;
 
-			if (!isVictoryValid(eVictory))
-				continue;
-
 			//Skip conquest, always valid.
 			if (pkVictoryInfo->isConquest())
 				continue;
@@ -10863,7 +10863,7 @@ void CvGame::doVictoryRandomization()
 			if (eBestVictory == eVictory)
 				continue;
 
-			//Disable all victories
+			//Disable all other victories
 			setVictoryValid(eVictory, false);
 		}
 

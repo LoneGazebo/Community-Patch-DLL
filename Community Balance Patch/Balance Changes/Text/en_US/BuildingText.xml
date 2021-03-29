@@ -19,7 +19,7 @@
 			<Text>Knowledge from Around the World</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROYAL_LIBRARY_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure both Great Works are from foreign Civilizations</Text>
+			<Text>To maximize your bonus, make sure all three Great Works are from foreign Civilizations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GA_BONUS">
 			<Text>{1_Num} [ICON_TOURISM] Tourism from {2_Num}% of the [ICON_CULTURE] Culture of your [ICON_CAPITAL] Capital</Text>

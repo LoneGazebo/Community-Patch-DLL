@@ -3392,8 +3392,7 @@ bool CvPlayerCulture::HasDigCompleteHere(CvPlot *pPlot) const
 int CvPlayerCulture::GetWrittenArtifactCulture() const
 {
 	// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
-	int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
-
+	int iValue = m_pPlayer->getYieldPerTurnHistory(YIELD_CULTURE, 8 /*iPreviousTurnsToCount */);
 	// Modify based on game speed
 	iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iValue /= 100;
@@ -3766,7 +3765,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		}
 
 		// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
-		int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
+		int iValue = m_pPlayer->getYieldPerTurnHistory(YIELD_CULTURE, 8 /*iPreviousTurnsToCount */);
 
 		// Modify based on game speed
 		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
@@ -5605,7 +5604,7 @@ int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 		{
 			iMultiplier += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 		}
-		iStrength = m_pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iMultiplier);
+		iStrength = m_pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iMultiplier);
 	}
 	else
 	{

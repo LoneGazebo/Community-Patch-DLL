@@ -15407,6 +15407,9 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 		// Convert to another yield
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			if (pkProcessInfo->getProductionToYieldModifier((YieldTypes)iI) <= 0)
+				continue;
+
 			changeProductionToYieldModifier(((YieldTypes)iI), ((pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI)) * iChange));
 #if defined(MOD_BALANCE_CORE)
 			UpdateCityYields((YieldTypes)iI);
@@ -26329,7 +26332,7 @@ int CvCity::GetSeaTourismFromEvent()
 	int iBonus = GetSeaTourismBonus();
 	int iPreviousTurnsToCount = 7;
 	// Calculate boost
-	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus *= (GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount) + GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount) / 2);
 	iBonus /= 100;
 
 	return iBonus;
@@ -26339,7 +26342,7 @@ int CvCity::GetLandTourismFromEvent()
 	int iBonus = GetLandTourismBonus();
 	int iPreviousTurnsToCount = 7;
 	// Calculate boost
-	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus *= (GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount) + GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount) / 2);
 	iBonus /= 100;
 
 	return iBonus;
@@ -31811,7 +31814,7 @@ bool CvCity::doCheckProduction()
 							{
 								//Wonders Converted into Science Points
 								iProductionGold = (iProductionGold * GC.getBALANCE_SCIENCE_PERCENTAGE_VALUE()) / 100;
-								int iBeakersBonus = thisPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iProductionGold);
+								int iBeakersBonus = thisPlayer.getYieldPerTurnHistory(YIELD_SCIENCE, iProductionGold);
 								if(iBeakersBonus > 0)
 								{
 									TechTypes eCurrentTech = thisPlayer.GetPlayerTechs()->GetCurrentResearch();

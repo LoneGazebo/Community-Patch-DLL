@@ -8198,7 +8198,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
 		{
 			int iPreviousTurnsToCount = pRewardInfo->GetBaseBeakersTurnsToCount();
-			int iBeakersBonus = GET_PLAYER(ePlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			int iBeakersBonus = GET_PLAYER(ePlayer).getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 			TechTypes eCurrentTech = GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
