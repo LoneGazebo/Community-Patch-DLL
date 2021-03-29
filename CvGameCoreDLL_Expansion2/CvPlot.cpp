@@ -4290,7 +4290,10 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 {
 	bool bIsCityOrPassable = isCity();
 	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged() && isAdjacentToShallowWater());
+		bIsCityOrPassable |= IsImprovementPassable() && !IsImprovementPillaged();
+
+	// only possible adjacent real water
+	bIsCityOrPassable &= isAdjacentToShallowWater();
 
 	// Not a city or a fort
 	if (!bIsCityOrPassable)
