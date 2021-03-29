@@ -52769,8 +52769,14 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 /// Do we want to accept ePlayer as our voluntary vassal?
 bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 {
+	// We will only accept forced capitulation from backstabbers and people who have stolen cities from us.
+	if (IsUntrustworthy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
+		return false;
+
 	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
 	int iNumCaps = 0;
+	bool bWeLikeOneOfThem = false;
+
 	for (size_t i=0; i<vTheirTeam.size(); i++)
 	{
 		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
@@ -52795,6 +52801,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 			// If we like them and we can't honestly protect them, then don't agree.
 			if (GetPlayer()->GetProximityToPlayer(vTheirTeam[i]) < PLAYER_PROXIMITY_CLOSE)
 				return false;
+
+			bWeLikeOneOfThem = true;
 		}
 		else
 		{
@@ -52867,7 +52875,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 				return false;
 			else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetWarGoal(*it) != WAR_GOAL_DEMAND)
 			{
-				if (GetBoldness() > 6)
+				if (GetBoldness() > 6 || bWeLikeOneOfThem)
 				{
 					if (GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
 						return false;
