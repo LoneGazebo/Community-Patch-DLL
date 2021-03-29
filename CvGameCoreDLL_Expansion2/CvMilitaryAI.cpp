@@ -2438,7 +2438,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		// Don't do this if we're a minor civ
 		if (!m_pPlayer->isMinorCiv())
 		{
-			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)
 			{
 				LogGiftUnit(pScrapUnit, bInDeficit, bOverSupplyCap);

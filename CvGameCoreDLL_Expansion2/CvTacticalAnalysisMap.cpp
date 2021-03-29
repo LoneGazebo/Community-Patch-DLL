@@ -727,7 +727,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			int iLoop;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if(!pLoopUnit->IsCanAttack()) //do not check for combat units because that excludes air units!
+				if(pLoopUnit->isDelayedDeath() || !pLoopUnit->IsCanAttack()) //do not check for combat units because that excludes air units!
 					continue;
 
 				CvPlot* pPlot = pLoopUnit->plot();
