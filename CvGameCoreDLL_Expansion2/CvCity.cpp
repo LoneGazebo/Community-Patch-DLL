@@ -21782,7 +21782,7 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	if (kPlayer.isHuman())
 		iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
 	else
-		iModifier += kPlayer.getHandicapInfo().getAIUnhappinessPercent();
+		iModifier += GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
 
 	if (eYield == YIELD_FAITH)
 	{

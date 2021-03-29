@@ -43,7 +43,7 @@
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<AttitudeChange>-15</AttitudeChange>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<AIHumanStrengthMod>5</AIHumanStrengthMod>
+			<AIHumanStrengthMod>10</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
