@@ -1248,6 +1248,10 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 		if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
 			continue;
 
+		// Ignore if we're already at war with them!
+		if (IsAtWar(eLoopPlayer))
+			continue;
+
 		if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			// Teammate?
@@ -1312,7 +1316,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetLinkedWarPlayers(PlayerTypes eOtherPlayer,
 			if (!bIncludeUnmet && !IsHasMet(eLoopPlayer))
 				continue;
 
-			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+			if (eLoopPlayer != eOtherPlayer && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWar(eLoopPlayer))
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
 				{
@@ -52831,7 +52835,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 			vector<PlayerTypes> vLinkedWarPlayers = GetLinkedWarPlayers(eLoopPlayer, false, true, false);
 			for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
 			{
-				if (!IsAtWar(*it) && std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), *it) == vNewWarPlayers.end())
+				if (std::find(vNewWarPlayers.begin(), vNewWarPlayers.end(), *it) == vNewWarPlayers.end())
 					vNewWarPlayers.push_back(*it);
 			}
 		}
