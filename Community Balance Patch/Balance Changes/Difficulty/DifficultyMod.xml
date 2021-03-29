@@ -43,7 +43,7 @@
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<AttitudeChange>-15</AttitudeChange>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<AIHumanStrengthMod>0</AIHumanStrengthMod>
+			<AIHumanStrengthMod>5</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -195,7 +195,7 @@
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<AttitudeChange>-5</AttitudeChange>
 			<AIDeclareWarProb>140</AIDeclareWarProb>
-			<AIHumanStrengthMod>20</AIHumanStrengthMod>
+			<AIHumanStrengthMod>15</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -271,7 +271,7 @@
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>160</AIDeclareWarProb>
-			<AIHumanStrengthMod>30</AIHumanStrengthMod>
+			<AIHumanStrengthMod>20</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -347,7 +347,7 @@
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>180</AIDeclareWarProb>
-			<AIHumanStrengthMod>40</AIHumanStrengthMod>
+			<AIHumanStrengthMod>25</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -423,7 +423,7 @@
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
-			<AIHumanStrengthMod>50</AIHumanStrengthMod>
+			<AIHumanStrengthMod>30</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -499,7 +499,7 @@
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>225</AIDeclareWarProb>
-			<AIHumanStrengthMod>65</AIHumanStrengthMod>
+			<AIHumanStrengthMod>40</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
@@ -575,7 +575,7 @@
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>250</AIDeclareWarProb>
-			<AIHumanStrengthMod>80</AIHumanStrengthMod>
+			<AIHumanStrengthMod>50</AIHumanStrengthMod>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
