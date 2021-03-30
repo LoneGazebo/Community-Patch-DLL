@@ -13656,7 +13656,7 @@ bool CvUnit::build(BuildTypes eBuild)
 									{
 										continue;
 									}
-									if(!kPlayer.canTrain(eUnit))
+									if(!kPlayer.canTrainUnit(eUnit))
 									{
 										continue;
 									}
@@ -13713,7 +13713,7 @@ bool CvUnit::build(BuildTypes eBuild)
 								}
 								else if(!bWater)
 								{
-									if(!kPlayer.canTrain(eUnit))
+									if(!kPlayer.canTrainUnit(eUnit))
 									{
 										continue;
 									}
@@ -23724,7 +23724,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 						if(pUnitEntry)
 						{
-							if(!kPlayer.canTrain(eUnit))
+							if(!kPlayer.canTrainUnit(eUnit))
 							{
 								continue;
 							}

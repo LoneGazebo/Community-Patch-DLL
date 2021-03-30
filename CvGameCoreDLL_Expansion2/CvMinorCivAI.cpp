@@ -9683,7 +9683,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		}
 
 		// Must be a Great Person for this player's civ
-		if(!GET_PLAYER(ePlayer).canTrain(eUnit, /*bContinue*/ false, /*bTestVisible*/ false, /*bIgnoreCost*/ true))
+		if(!GET_PLAYER(ePlayer).canTrainUnit(eUnit, /*bContinue*/ false, /*bTestVisible*/ false, /*bIgnoreCost*/ true))
 		{
 			continue;
 		}

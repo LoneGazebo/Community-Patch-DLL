@@ -4501,7 +4501,7 @@ bool CvGame::canTrainNukes() const
 				{
 					if(pkUnitInfo->GetNukeDamageLevel() != -1)
 					{
-						if(GET_PLAYER(ePlayer).canTrain(eUnit))
+						if(GET_PLAYER(ePlayer).canTrainUnit(eUnit))
 						{
 							return true;
 						}
@@ -8994,7 +8994,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 			}
 
 			// Must be able to train this thing
-			if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
+			if(!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
 				continue;
 
 			// Random weighting
@@ -9178,7 +9178,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			continue;
 
 		// Must be able to train this thing
-		if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
+		if(!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, true, false, /*bIgnoreUniqueUnitStatus*/ true))
 			continue;
 
 		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
@@ -9241,7 +9241,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 			continue;
 
 		// Must be able to train this thing
-		if (!kPlayer.canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) 
+		if (!kPlayer.canTrainUnit(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) 
 			continue;
 
 		// CUSTOMLOG("CS Gift considering unit type %i", eLoopUnit);

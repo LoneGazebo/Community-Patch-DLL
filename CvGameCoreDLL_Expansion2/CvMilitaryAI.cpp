@@ -2745,7 +2745,7 @@ int CvMilitaryAI::GetPowerOfStrongestBuildableUnit(DomainTypes eDomain)
 			int iThisPower = pkUnitEntry->GetPower();		// Test the power first, it is much less costly than testing canTrain
 			if(iThisPower > iRtnValue)
 			{
-				if(m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+				if(m_pPlayer->canTrainUnit(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 				{
 					iRtnValue = iThisPower;
 				}

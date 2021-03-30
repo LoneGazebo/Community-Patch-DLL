@@ -333,7 +333,7 @@ public:
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 #endif
 
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
+	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	bool canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus = false, ResourceTypes eResourceNearby = NO_RESOURCE) const;
 #endif

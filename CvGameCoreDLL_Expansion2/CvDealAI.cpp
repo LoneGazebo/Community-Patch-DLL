@@ -3259,7 +3259,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 
 	//what does a basic unit cost these days, use that as a base
-	UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayerDeclaringWar, true, true, false, true, true);
+	UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayerDeclaringWar, true, true, false, false, true);
 	int iItemValue = pCapital->GetPurchaseCost(eUnit);
 
 	// How much does this AI like to go to war?
