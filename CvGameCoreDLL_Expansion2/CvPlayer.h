@@ -2125,7 +2125,7 @@ public:
 	void DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
-	PlayerTypes GetBestGiftTarget();
+	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
 
 	UnitTypes GetIncomingUnitType(PlayerTypes eFromPlayer) const;
 	void SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType);

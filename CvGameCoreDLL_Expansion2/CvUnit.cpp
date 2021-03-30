@@ -24530,7 +24530,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-		setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
 }
 
 
@@ -24538,7 +24538,7 @@ void CvUnit::testPromotionReady()
 bool CvUnit::isDelayedDeath() const
 {
 	VALIDATE_OBJECT
-	return m_bDeathDelay;
+	return m_bDeathDelay || !m_pUnitInfo; //check m_pUnitInfo as a failsafe ...
 }
 
 //	--------------------------------------------------------------------------------
@@ -29286,7 +29286,7 @@ CvUnit* CvUnit::GetMissionAIUnit()
 bool CvUnit::IsCanAttackWithMove() const
 {
 	return IsCombatUnit() && !IsCanAttackRanged() && !isOnlyDefensive();
-    }
+}
 
 //	--------------------------------------------------------------------------------
 /// Does this unit have a ranged attack?

@@ -37611,7 +37611,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	}
 }
 //AI Routine for Gifting
-PlayerTypes CvPlayer::GetBestGiftTarget()
+PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 {
 	int iBestValue = 0;
 	PlayerTypes eBestMinor = NO_PLAYER;
@@ -37629,6 +37629,10 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 
 				//First, the exclusions!
 				if (!CanGiftUnit(eLoopMinor))
+					continue;
+
+				//No ships for landlocked players
+				if (eUnitDomain == DOMAIN_SEA && !pCity->isCoastal())
 					continue;
 
 				// Skip if not revealed.
@@ -42032,7 +42036,7 @@ void CvPlayer::updateYieldPerTurnHistory()
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
 {
-	if (iValue == 0 || eYield >= NUM_YIELD_TYPES)
+	if (iValue == 0 || eYield >= NUM_YIELD_TYPES || eYield == NO_YIELD)
 		return;
 
 	int iTurn = GC.getGame().getGameTurn();
@@ -42058,7 +42062,7 @@ int CvPlayer::getInstantYieldValue(YieldTypes eYield, int iTurn) const
 //	--------------------------------------------------------------------------------
 int CvPlayer::getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const
 {
-	if (eYield >= NUM_YIELD_TYPES || m_ppiInstantYieldHistoryValues.empty())
+	if (eYield >= NUM_YIELD_TYPES || eYield == NO_YIELD || m_ppiInstantYieldHistoryValues.empty())
 		return 0;
 
 	//we typically want the latest value only
@@ -42195,7 +42199,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValue)
 {
-	if (iValue == 0 || ePlayer >= MAX_MAJOR_CIVS)
+	if (iValue == 0 || ePlayer >= MAX_MAJOR_CIVS || ePlayer == NO_PLAYER)
 		return;
 
 	int iTurn = GC.getGame().getGameTurn();
@@ -42221,7 +42225,7 @@ int CvPlayer::getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) co
 //	--------------------------------------------------------------------------------
 int CvPlayer::getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const
 {
-	if (ePlayer >= MAX_MAJOR_CIVS || m_ppiInstantTourismPerPlayerHistoryValues.empty())
+	if (ePlayer >= MAX_MAJOR_CIVS || ePlayer == NO_PLAYER || m_ppiInstantTourismPerPlayerHistoryValues.empty())
 		return 0;
 
 	//we typically want the latest value only
