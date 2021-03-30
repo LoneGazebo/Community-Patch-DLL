@@ -3189,6 +3189,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
+	// can't be too far away
+	if (GET_PLAYER(ePlayerDeclaringWar).GetProximityToPlayer(eWithPlayer) < PLAYER_PROXIMITY_CLOSE)
+	{
+		return INT_MAX;
+	}
 
 	// Don't accept war bribes if we recently made peace.
 	if (pDiploAI->GetNumWarsFought(eWithPlayer) > 0)
