@@ -11178,7 +11178,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 		}
 
 		// Must be a Great Person for this player's civ
-		if(!m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+		if(!m_pPlayer->canTrainUnit(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 		{
 			continue;
 		}

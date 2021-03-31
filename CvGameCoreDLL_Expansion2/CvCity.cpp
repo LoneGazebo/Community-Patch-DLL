@@ -7928,7 +7928,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
-	if(!(GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
+	if(!(GET_PLAYER(getOwner()).canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
 	{
 		return false;
 	}
@@ -7937,6 +7937,18 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
+	if(MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
+	{
+		if (((pkUnitEntry->GetCombat() > 0) || (pkUnitEntry->GetRangedCombat() > 0)) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+		{
+			return false;
+		}
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	// If Zulu Player has this trait and Pikeman are an immediate upgrade to Impi, let's not let player exploit lower production cost of pikeman->impi. So, let's make it immediately obsolete.
 	CvUnitEntry& pUnitInfo = *pkUnitEntry;
@@ -7945,12 +7957,14 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
 	if(&pUnitInfo != NULL && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 	{
-		if(eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrain(eZuluImpi, false, false, true))
+		if(eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrainUnit(eZuluImpi, false, false, true))
 		{
 			return false;
 		}
 	}
 #endif
+
+	//this flag seems to be needed to check whether we should show the unit in the build list at all, and if it's greyed out generate a tooltip why
 	if(!bTestVisible)
 	{
 		CvUnitEntry& thisUnitInfo = *pkUnitEntry;
@@ -7965,6 +7979,18 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 					return false;
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
+		{
+			if ((pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+#endif
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -11682,12 +11708,11 @@ int CvCity::GetPurchaseCost(ProjectTypes eProject)
 int CvCity::GetPurchaseCostFromProduction(int iProduction)
 {
 	VALIDATE_OBJECT
-	int iPurchaseCost;
 
 	// Gold per Production
 	int iPurchaseCostBase = iProduction* /*30*/ GC.getGOLD_PURCHASE_GOLD_PER_PRODUCTION();
 	// Cost ramps up
-	iPurchaseCost = (int) pow((double) iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
+	int iPurchaseCost = (int) pow((double) iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
 
 	// Hurry Mod (Policies, etc.)
 	HurryTypes eHurry = (HurryTypes) GC.getInfoTypeForString("HURRY_GOLD");
@@ -13142,7 +13167,7 @@ UnitTypes CvCity::getConscriptUnit() const
 			if(eLoopUnit != NO_UNIT)
 			{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-				if(pkUnitInfo)
+				if(pkUnitInfo && pkUnitInfo->GetDomainType()==DOMAIN_LAND)
 				{
 					if(canTrain(eLoopUnit))
 					{

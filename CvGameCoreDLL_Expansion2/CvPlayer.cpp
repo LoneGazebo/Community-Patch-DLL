@@ -2442,7 +2442,7 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 				iFreeCount = playerCivilization.getCivilizationFreeUnitsClass(iI);
 				iDefaultAI = playerCivilization.getCivilizationFreeUnitsDefaultUnitAI(iI);
 #if defined(MOD_BALANCE_CORE)
-				if(!canTrain(eLoopUnit) && iDefaultAI != UNITAI_SETTLE) 
+				if(!canTrainUnit(eLoopUnit) && iDefaultAI != UNITAI_SETTLE) 
 				{
 					// Loop through adding the available units
 					for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
@@ -2452,7 +2452,7 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 						if(pkUnitInfo)
 						{
 							// Make sure this unit can be built now
-							if(canTrain(eUnit))
+							if(canTrainUnit(eUnit))
 							{
 								// Make sure it matches the requested unit AI type
 								if(pkUnitInfo->GetDefaultUnitAIType() == iDefaultAI)
@@ -2584,7 +2584,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
 				CvUnitEntry* pUnitInfo = GC.getUnitInfo(eLoopUnit);
 				if(pUnitInfo != NULL)
 				{
-					if(canTrain(eLoopUnit))
+					if(canTrainUnit(eLoopUnit))
 					{
 						bool bValid = true;
 						for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
@@ -4864,7 +4864,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		if(pNewCity != NULL)
 		{
-			if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrain(eFreeUnitConquest, false, false, true, true))
+			if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrainUnit(eFreeUnitConquest, false, false, true, true))
 			{
 				CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
 				CvCity* pCapital = getCapitalCity();
@@ -14874,7 +14874,9 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const
+//	this should be more or less "static" conditions, all the transient factor should be checked in CvCity::canTrain()
+//	--------------------------------------------------------------------------------
+bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const
 {
 	CvUnitEntry* pUnitInfoPtr = GC.getUnitInfo(eUnit);
 	if(pUnitInfoPtr == NULL)
@@ -14898,21 +14900,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnitInfo.IsMinorCivGift() && !isBarbarian())
 	{
 		return false;
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY && !isHuman() && !pUnitInfo.IsNoSupply())
-	{
-		if (((pUnitInfo.GetCombat() > 0) || (pUnitInfo.GetRangedCombat() > 0)) && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
-		{
-			return false;
-		}
-	}
-#endif
+
 	// Should we check whether this Unit has been blocked out by the civ XML?
 	if(!bIgnoreUniqueUnitStatus)
 	{
@@ -14943,6 +14938,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 		}
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
 	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE && !isBarbarian())
@@ -14990,18 +14986,12 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		}
 	}
 
-	if(!bContinue)
+	// Builder Limit
+	if(pUnitInfo.GetWorkRate() > 0 && pUnitInfo.GetDomainType() == DOMAIN_LAND)
 	{
-		if(!bTestVisible)
+		if(GetMaxNumBuilders() > -1 && GetNumBuilders() >= GetMaxNumBuilders())
 		{
-			// Builder Limit
-			if(pUnitInfo.GetWorkRate() > 0 && pUnitInfo.GetDomainType() == DOMAIN_LAND)
-			{
-				if(GetMaxNumBuilders() > -1 && GetNumBuilders() >= GetMaxNumBuilders())
-				{
-					return false;
-				}
-			}
+			return false;
 		}
 	}
 
@@ -15063,16 +15053,9 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		}
 	}
 
+	//this flag seems to be needed to check whether we should show the unit in the build list at all, and if it's greyed out generate a tooltip why
 	if(!bTestVisible)
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
-		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
-			if(toolTipSink == NULL)
-			return false;
-		}
-#endif
 		// Settlers
 		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
@@ -31381,7 +31364,7 @@ void CvPlayer::DoDiversity(DomainTypes eDomain)
 			if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
 				continue;
 
-			if (!canTrain(eLoopUnit))
+			if (!canTrainUnit(eLoopUnit))
 				continue;
 
 			int iNumUnits = GetNumUnitsOfType(eLoopUnit, true);

@@ -2151,7 +2151,7 @@ int CvLuaPlayer::lCanTrain(lua_State* L)
 	const bool bIgnoreCost = lua_toboolean(L, 5);
 	const bool bIgnoreUniqueUnitStatus = lua_toboolean(L, 6);
 
-	const bool bResult = pkPlayer->canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost, bIgnoreUniqueUnitStatus);
+	const bool bResult = pkPlayer->canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, bIgnoreUniqueUnitStatus);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

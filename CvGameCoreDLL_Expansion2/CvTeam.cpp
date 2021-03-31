@@ -1715,7 +1715,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
-									if(kAttackingPlayer.canTrain(eLoopUnit, false, false, true))
+									if(kAttackingPlayer.canTrainUnit(eLoopUnit, false, false, true))
 									{
 										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 									}
@@ -1738,7 +1738,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								}
 								else
 								{
-									if(kDefendingPlayer.canTrain(eLoopUnit, false, false, true))
+									if(kDefendingPlayer.canTrainUnit(eLoopUnit, false, false, true))
 									{
 										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 									}
@@ -7923,7 +7923,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				if(pLoopUnit->isFreeUpgrade() || kPlayer.GetPlayerTraits()->IsFreeUpgrade())
 				{
 					UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
-					if(eUpgradeUnit != NO_UNIT && kPlayer.canTrain(eUpgradeUnit, false, false, true))
+					if(eUpgradeUnit != NO_UNIT && kPlayer.canTrainUnit(eUpgradeUnit, false, false, true))
 					{
 						pLoopUnit->DoUpgrade(true);
 					}
@@ -7932,7 +7932,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				{
 					UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 					UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-					if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrain(eZuluImpi, false, false, true))
+					if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrainUnit(eZuluImpi, false, false, true))
 					{
 						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 						if(pkcUnitEntry)
