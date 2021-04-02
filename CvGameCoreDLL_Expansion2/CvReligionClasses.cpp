@@ -6600,7 +6600,7 @@ void CvUnitReligion::Init()
 
 int CvUnitReligion::GetMaxSpreads(const CvUnit* pUnit) const
 {
-	if (!pUnit)
+	if (!pUnit || m_iStrength <= 0) //no strength, no spread!
 		return 0;
 
 	//missionary spreads can be buffed but not prophets

@@ -7351,9 +7351,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
-		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
-		m_eHomelandMove = eMove;
-	}
+	m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+	m_eHomelandMove = eMove;
+}
 
 //	--------------------------------------------------------------------------------
 AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const

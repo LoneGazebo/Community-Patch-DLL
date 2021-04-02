@@ -2569,7 +2569,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 //workaround to make units from disbanded armies accessible to tactical AI in the same turn
 void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
 {
-	if (pUnit)
+	if (pUnit && pUnit->canMove())
 		m_CurrentTurnUnits.push_back( pUnit->GetID() );
 }
 
