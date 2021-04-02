@@ -266,6 +266,7 @@ protected:
 	LUAAPIEXTN(SetCapitalCity, void);
 	LUAAPIEXTN(SetOriginalCapitalXY, void);
 	LUAAPIEXTN(GetNumWonders, int);
+	LUAAPIEXTN(GetOriginalCapitalPlot, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
