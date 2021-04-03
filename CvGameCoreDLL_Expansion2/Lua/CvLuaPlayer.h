@@ -423,7 +423,6 @@ protected:
 	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
 	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
 	LUAAPIEXTN(GetWarDamageLevel, int);
-	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
 	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
 	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);

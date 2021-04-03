@@ -441,7 +441,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPlayerMilitaryStrengthComparedToUs);
 	Method(GetPlayerEconomicStrengthComparedToUs);
 	Method(GetWarDamageLevel);
-	Method(IsWillingToMakePeaceWithHuman);
 	Method(GetTreatyWillingToOffer);
 	Method(DoUpdateWarDamageLevel);
 	Method(DoUpdatePeaceTreatyWillingness);
@@ -6449,15 +6448,6 @@ int CvLuaPlayer::lGetWarDamageLevel(lua_State* L)
 		}
 	}
 	lua_pushinteger(L, iTotal);
-	return 1;
-}
-
-int CvLuaPlayer::lIsWillingToMakePeaceWithHuman(lua_State* L)
-{
-	CvPlayer* pkPlayer = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const bool bResult = pkPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer);
-	lua_pushboolean(L, bResult);
 	return 1;
 }
 int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
