@@ -915,7 +915,7 @@ public:
 	DesireLevels EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, ResolutionTypes eResolution, int iProposerChoice = LeagueHelpers::CHOICE_NONE);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, int iTargetResolutionID);
-	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false, bool bNoAutomaticMasterAlignment = false);
+	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false);
 
 	// Masked knowledge for other players
 	KnowledgeLevels GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);
