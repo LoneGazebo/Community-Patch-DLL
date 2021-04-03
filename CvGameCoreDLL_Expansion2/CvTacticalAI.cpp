@@ -5312,20 +5312,13 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 
 			if (!pNeighbor->isRevealed(pUnit->getTeam()))
 				iValue += 3;
-			else if (!pNeighbor->isVisible(pUnit->getTeam()))
-				iValue += 1;
-
-			if (pNeighbor->isOwned())
+			else if (!pNeighbor->isVisible(pUnit->getTeam()) && pNeighbor->isOwned())
 				iValue += 2;
 		}
 
 		// disembark if possible
-		if (pUnit->isNativeDomain(pConsiderPlot))
+		if (pUnit->isEmbarked() && pUnit->isNativeDomain(pConsiderPlot))
 			iValue += 100;
-
-		// If still have no value, score equal to distance from my current plot
-		if (iValue == 0)
-			iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
 
 		if (iValue > iBestValue)
 		{
