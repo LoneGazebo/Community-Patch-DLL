@@ -40457,7 +40457,7 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 {
 	// We have to be really treacherous to consider doing this, otherwise we'll just break up our friendships.
-	if (!IsBackstabber() && !IsUntrustworthy(ePlayer) && !WasEverBackstabbedBy(ePlayer) && GetMeanness() < 8 && GetDenounceWillingness() < 9 && GetLoyalty() > 3)
+	if (!IsBackstabber() && !IsUntrustworthy(ePlayer) && !WasEverBackstabbedBy(ePlayer) && GetDenounceWillingness() < 8 && GetLoyalty() > 3)
 		return false;
 
 	if (IsMaster(ePlayer) || GetPlayer()->IsVassalOfSomeone())
