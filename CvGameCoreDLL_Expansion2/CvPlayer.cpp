@@ -4658,17 +4658,26 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
-			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv())
+			if(!GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				if(GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(ePlayer) > 0)
 				{
-					// Must have capital to actually spawn unit
-					CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
-					if(pCapital)
+					UnitTypes eUnitType = GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer);
+					if(eUnitType != NO_UNIT)
 					{
-						if(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer) != NO_UNIT)
+						CvCity* pClosestCity = NULL; 
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+						if (pkUnitInfo)
 						{
-							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer), pCapital->getX(), pCapital->getY());
+							if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+								pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(ePlayer, pCityPlot);
+							else
+								pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCityPlot);
+						}
+
+						if (pClosestCity)
+						{
+							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
 							CvAssert(pNewUnit);
 							if (pNewUnit)
 							{

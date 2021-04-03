@@ -5530,7 +5530,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	//last chance
 	if (!pBestPlot)
 	{
-		CvCity* pClosestCity = GET_PLAYER(getOwner()).GetClosestCityByPlots( plot() );
+		CvCity* pClosestCity = (getDomainType()==DOMAIN_SEA) ? 
+			OperationalAIHelpers::GetClosestFriendlyCoastalCity(getOwner(),plot()) : 
+			GET_PLAYER(getOwner()).GetClosestCityByPlots(plot());
 		if (pClosestCity)
 			return jumpToNearestValidPlotWithinRange(6, pClosestCity->plot());
 	}
@@ -5645,7 +5647,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
 			disembark(plot());
+
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		return true;
 	}
 	else
 	{
@@ -5658,8 +5662,6 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 		CUSTOMLOG("jumpToNearestValidPlotWithinRange(%i) failed for unit %s at plot (%i, %i)", iRange, getName().GetCString(), getX(), getY());
 		return false;
 	}
-
-	return true;
 }
 
 //	--------------------------------------------------------------------------------
