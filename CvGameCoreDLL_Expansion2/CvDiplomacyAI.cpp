@@ -3673,26 +3673,6 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 	m_aiWarDamageValue[ePlayer] = range(iValue, 0, USHRT_MAX);
 }
 
-/// How much damage have we taken in a war against a particular player? (used in the UI)
-WarDamageLevelTypes CvDiplomacyAI::GetWarDamageLevel(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return WAR_DAMAGE_LEVEL_NONE;
-
-	WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
-	int iWarDamageValue = GetWarDamageValue(ePlayer);
-
-	if (iWarDamageValue >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
-	else if (iWarDamageValue >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
-	else if (iWarDamageValue >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
-	else if (iWarDamageValue >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
-
-	return eWarDamageLevel;
-}
-
 /// What is the state of war with this player?
 WarStateTypes CvDiplomacyAI::GetWarState(PlayerTypes ePlayer) const
 {
@@ -7660,7 +7640,7 @@ void CvDiplomacyAI::DoUpdateWarDamage()
 			{
 				if (iCurrentValue > 0)
 				{
-					iValueLostRatio = ((iWarValueLost * 100) / (iCurrentValue + iWarValueLost));
+					iValueLostRatio = (iWarValueLost * 100) / (iCurrentValue + iWarValueLost);
 				}
 				else
 				{
@@ -48983,8 +48963,6 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", ";
 					}
 
-					LogWarDamage(strOutBuf, eLoopPlayer);
-
 					LogProximity(strOutBuf, eLoopPlayer);
 					LogTargetValue(strOutBuf, eLoopPlayer);
 
@@ -49744,36 +49722,6 @@ void CvDiplomacyAI::LogWarProjection(CvString& strString, PlayerTypes ePlayer)
 		break;
 	default:
 		strTemp.Format("W_PRJ Unknown");
-		break;
-	}
-	strString += ", " + strTemp;
-}
-
-/// Log War Damage
-void CvDiplomacyAI::LogWarDamage(CvString& strString, PlayerTypes ePlayer)
-{
-	CvString strTemp;
-
-	// War Damage
-	switch(GetWarDamageLevel(ePlayer))
-	{
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		strTemp.Format("W_DMG **CRIPPLED**");
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		strTemp.Format("W_DMG SERIOUS");
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		strTemp.Format("W_DMG Major");
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		strTemp.Format("W_DMG mnr");
-		break;
-	case WAR_DAMAGE_LEVEL_NONE:
-		strTemp.Format("W_DMG None");
-		break;
-	default:
-		strTemp.Format("W_DMG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;

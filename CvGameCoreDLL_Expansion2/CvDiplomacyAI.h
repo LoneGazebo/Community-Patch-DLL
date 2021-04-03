@@ -418,7 +418,6 @@ public:
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 
 	// War State: How's the war with ePlayer going? (NO_WAR_STATE_TYPE if at peace)
 	WarStateTypes GetWarState(PlayerTypes ePlayer) const;
@@ -1814,7 +1813,6 @@ private:
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
 	void LogWarProjection(CvString& strString, PlayerTypes ePlayer);
-	void LogWarDamage(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogExpansionAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);

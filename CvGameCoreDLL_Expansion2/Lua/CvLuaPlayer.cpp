@@ -440,9 +440,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarScore);
 	Method(GetPlayerMilitaryStrengthComparedToUs);
 	Method(GetPlayerEconomicStrengthComparedToUs);
-	Method(GetWarDamageLevel);
+	Method(GetWarDamageValue);
+	Method(IsWantsPeaceWithPlayer);
 	Method(GetTreatyWillingToOffer);
-	Method(DoUpdateWarDamageLevel);
+	Method(DoUpdateWarDamage);
 	Method(DoUpdatePeaceTreatyWillingness);
 	Method(GetDominationResistance);
 #endif
@@ -6433,21 +6434,20 @@ int CvLuaPlayer::lGetPlayerEconomicStrengthComparedToUs(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetWarDamageLevel(lua_State* L)
+int CvLuaPlayer::lGetWarDamageValue(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	int iTotal = 0;
-	int iResult = pkPlayer->GetDiplomacyAI()->GetWarDamageLevel(ePlayer);
-	int iResult2 = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(pkPlayer->GetID());
-	if(iResult != -1 && iResult2 != -1)
-	{
-		if(iResult > iResult2)
-		{
-			iTotal = iResult - iResult2;
-		}
-	}
-	lua_pushinteger(L, iTotal);
+	int iOurWarDamage = pkPlayer->GetDiplomacyAI()->GetWarDamageValue(ePlayer);
+	lua_pushinteger(L, iOurWarDamage);
+	return 1;
+}
+int CvLuaPlayer::lIsWantsPeaceWithPlayer(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
@@ -6460,7 +6460,7 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 }
 
 // void DoUpdateWarDamageLevel();
-int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
+int CvLuaPlayer::lDoUpdateWarDamage(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	

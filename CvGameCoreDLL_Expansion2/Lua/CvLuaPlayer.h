@@ -422,9 +422,10 @@ protected:
 	LUAAPIEXTN(GetWarScore, int);
 	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
 	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
-	LUAAPIEXTN(GetWarDamageLevel, int);
+	LUAAPIEXTN(GetWarDamageValue, int);
+	LUAAPIEXTN(IsWantsPeaceWithPlayer, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
-	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
+	LUAAPIEXTN(DoUpdateWarDamage, void);
 	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetCivOpinion, int);
