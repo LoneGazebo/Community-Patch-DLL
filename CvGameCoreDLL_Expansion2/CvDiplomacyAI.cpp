@@ -19799,9 +19799,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Using weight as +/- %: more fluid than the switch table.
 	if (iOpinionWeight > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 	{
-		// We double the opinion weight for additional impact!
-		iOpinionWeight *= 2;
-
 		// Increase
 		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
@@ -19828,7 +19825,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
-		// Flip it!
+		// Flip it! If we like this player, double the weight for additional impact.
 		iOpinionWeight *= -2;
 
 		// Increase
@@ -41200,6 +41197,10 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 
 	switch (GetCivApproach(ePlayer))
 	{
+	// Do NOT denounce if friendly
+	case CIV_APPROACH_FRIENDLY:
+		return 0;
+		break;
 	// Hostile: Bonus
 	case CIV_APPROACH_HOSTILE:
 		iWeight += 6;
@@ -41211,9 +41212,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	// Let's not upset things
 	case CIV_APPROACH_NEUTRAL:
 		iWeight -= 8;
-		break;
-	case CIV_APPROACH_FRIENDLY:
-		iWeight -= 15;
 		break;
 	// Slight bump if guarded
 	case CIV_APPROACH_GUARDED:
@@ -41270,17 +41268,13 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		break;
 	// Let's not upset things
 	case CIV_OPINION_NEUTRAL:
-		iWeight -= 2;
+		iWeight -= 5;
 		break;
-	// Good Relations: Penalty
+	// Good Relations: Don't denounce
 	case CIV_OPINION_FAVORABLE:
-		iWeight -= 10;
-		break;
 	case CIV_OPINION_FRIEND:
-		iWeight -= 25;
-		break;
 	case CIV_OPINION_ALLY:
-		iWeight -= 50;
+		return 0;
 		break;
 	}
 
