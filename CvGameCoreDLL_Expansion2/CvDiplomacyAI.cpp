@@ -40502,7 +40502,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);
-	if (eApproach == CIV_APPROACH_AFRAID)
+	if (eApproach == CIV_APPROACH_AFRAID || eApproach == CIV_APPROACH_FRIENDLY)
 		return false;
 
 	if (eApproach == CIV_APPROACH_HOSTILE)
