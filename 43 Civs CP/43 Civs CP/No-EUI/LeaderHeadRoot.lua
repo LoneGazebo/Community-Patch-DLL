@@ -240,21 +240,21 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		if (iTotal > 0)
 			if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
-			else if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_SERIOUS" );
-			else if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MAJOR" );
-			else if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
 			end
 		elseif (iTotal < 0)
 			if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
-			else if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_SERIOUS" );
-			else if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MAJOR" );
-			else if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MINOR" );
 			end
 		end
