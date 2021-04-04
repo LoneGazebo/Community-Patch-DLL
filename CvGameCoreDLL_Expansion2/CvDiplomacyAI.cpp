@@ -9663,7 +9663,7 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	return iRtnValue;
 }
 
-/// What is the average (living) major civ's military rating?
+/// What is the average (living) major civ's military rating (only counting players that we know)?
 int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer /* = NO_PLAYER */)
 {
 	int iTotalRating = 0;
@@ -9676,7 +9676,7 @@ int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer
 		if (eLoopPlayer == eExcludedPlayer)
 			continue;
 		
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_PLAYER(eLoopPlayer).isMajorCiv())
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && IsHasMet(eLoopPlayer, true))
 		{
 			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
 			iNumCivs++;
