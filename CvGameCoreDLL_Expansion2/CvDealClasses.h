@@ -326,7 +326,7 @@ public:
 	uint GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	CvDeal* GetRenewableDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
-	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();
