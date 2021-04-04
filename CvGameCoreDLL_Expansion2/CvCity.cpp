@@ -8184,6 +8184,15 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
+	//puppets will only build defensive buildings and gold generating buildings if we are in deficit
+	if (IsPuppet() && pkBuildingInfo->GetGoldMaintenance() > 0 && pkBuildingInfo->GetDefenseModifier() == 0)
+	{
+		// Are we running at a deficit?
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+			return false;
+	}
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	// Religion-enabled national wonder
 	if(pkBuildingInfo && pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->IsReformation())
