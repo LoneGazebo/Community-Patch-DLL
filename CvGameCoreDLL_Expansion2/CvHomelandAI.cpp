@@ -4094,6 +4094,8 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	int nAirUnitsOffensive = 0;
 	int nAirUnitsDefensive = 0;
 
+	int iAssumedRange = 7; //don't know the concrete aircraft yet
+
 	//in general we want to go to conflict zones but not if we are in danger of losing the base
 	//unfortunately it may be necessary to do the rebasing in multiple steps if the distance is too far
 	std::vector<SPlotWithScore> vPotentialBases;
@@ -4149,7 +4151,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID());
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID(), false, iAssumedRange);
 			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
 			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
@@ -4160,7 +4162,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget, m_pPlayer->GetID());
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget, m_pPlayer->GetID(), false, iAssumedRange); //estimate a range
 		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
 		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
@@ -5613,19 +5615,8 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-	//if a carrier is in a city - bad luck :)
-	bool bIsCarrier = !(pBasePlot->isCity());
-
 	int iBaseScore = 1;
-	if (bIsCarrier)
-	{
-		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
-		if(!pDefender)  
-			return -1;
-		if (pDefender->isProjectedToDieNextTurn() && !bDesperate)
-			return -1;
-	}
-	else
+	if (pBasePlot->isCity())
 	{
 		CvCity* pCity = pBasePlot->getPlotCity();
 		//careful in cities we might lose
@@ -5641,9 +5632,24 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 
 		if (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() != 0)
 			iBaseScore++;
+
+		//during peacetime this will be the deciding factor
+		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
+		CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pCity,false);
+		iBaseScore += pLandZone ? pLandZone->GetBorderScore(NO_DOMAIN) : 0;
+		CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pCity,true);
+		iBaseScore += pWaterZone ? pWaterZone->GetBorderScore(NO_DOMAIN) : 0;
+	}
+	else //carrier outside of city
+	{
+		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
+		if(!pDefender)  
+			return -1;
+		if (pDefender->isProjectedToDieNextTurn() && !bDesperate)
+			return -1;
 	}
 
-	//check current targets
+	//check current targets during wartime
 	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
@@ -5676,12 +5682,6 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 			}
 		}
 	}
-
-	//also check if there are potential future enemies around
-	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
-	CvTacticalDominanceZone* pZone = pTactMap->GetZoneByPlot( pBasePlot );
-	if (pZone)
-		iBaseScore += pZone->GetBorderScore(NO_DOMAIN);
 
 	return iBaseScore;
 }

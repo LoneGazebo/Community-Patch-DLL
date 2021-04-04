@@ -94,19 +94,7 @@ public:
 
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
-#if defined(MOD_API_EXTENSIONS)
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
-#else
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift);
-#endif
-#else
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
-#else
-	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
-#endif
-#endif
 	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bCapture);
 	void killCities();
 	CvString getNewCityName() const;
