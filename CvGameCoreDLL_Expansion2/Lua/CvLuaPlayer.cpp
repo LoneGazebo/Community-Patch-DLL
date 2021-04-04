@@ -13516,7 +13516,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
+
+				if (iValue > 0)
+				{
+					if (pDiplo->GetTechBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TECH_BLOCK_FIERCE");
+					else
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TECH_BLOCK");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_BLOCK");
+				}
+
 				aOpinions.push_back(kOpinion);
 			}
 
@@ -13527,7 +13539,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_POLICY_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_POLICY_DISPUTE");
+
+				if (iValue > 0)
+				{
+					if (pDiplo->GetPolicyBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE");
+					else
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_POLICY_BLOCK");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_POLICY_BLOCK");
+				}
+
 				aOpinions.push_back(kOpinion);
 			}
 
