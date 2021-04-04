@@ -4295,7 +4295,7 @@ bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityM
 
 	bool bIsPassableImprovement = false;
 	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isCoastalLand();
+		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isOwned() && isCoastalLand();
 
 	// Good enough
 	if (bIsPassableImprovement)
@@ -4968,10 +4968,11 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
-		if(!pUnit || !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
-		{
+		if (!pUnit)
 			return true;
-		}
+
+		if (pUnit->getDomainType() == getDomain())
+			return !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute();
 	}
 
 	return false;
