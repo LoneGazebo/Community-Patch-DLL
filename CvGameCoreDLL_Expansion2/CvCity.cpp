@@ -193,6 +193,7 @@ CvCity::CvCity() :
 #endif
 	, m_iJONSCulturePerTurnFromPolicies("CvCity::m_iJONSCulturePerTurnFromPolicies", m_syncArchive)
 	, m_iJONSCulturePerTurnFromSpecialists("CvCity::m_iJONSCulturePerTurnFromSpecialists", m_syncArchive)
+	, m_iaAddedYieldPerTurnFromTraits("CvCity::m_iaAddedYieldPerTurnFromTraits", m_syncArchive)
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
 #endif
@@ -1378,6 +1379,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	m_iJONSCulturePerTurnFromPolicies = 0;
 	m_iJONSCulturePerTurnFromSpecialists = 0;
+	m_iaAddedYieldPerTurnFromTraits.resize(NUM_YIELD_TYPES);
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromReligion = 0;
 #endif
@@ -1999,10 +2001,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		// Set up AI and hook it up to the flavor manager
 		m_pCityStrategyAI->Init(GC.GetGameAICityStrategies(), this, true);
 		if(m_eOwner != NO_PLAYER)
-		{
 			GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI);
-			m_pCityStrategyAI->SetDefaultSpecialization(GET_PLAYER(getOwner()).GetCitySpecializationAI()->GetNextSpecializationDesired());
-		}
 
 		m_pCityCitizens->Init(this);
 		m_pCityReligions->Init(this);
@@ -6428,7 +6427,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
-			typedef CvWeightedVector<CvPlot*, SAFE_ESTIMATE_NUM_BUILDINGS, true> WeightedPlotVector;
+			typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 			WeightedPlotVector aBestPlots;
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
@@ -7036,7 +7035,7 @@ void CvCity::updateEconomicValue()
 
 	int iYieldValue = 0;
 
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> validResources;
+	CvWeightedVector<int> validResources;
 
 	//notes:
 	//- economic value is in gold, so use a rough conversion factor for the others
@@ -7931,7 +7930,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
-	if(!(GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
+	if(!(GET_PLAYER(getOwner()).canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
 	{
 		return false;
 	}
@@ -7940,6 +7939,18 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
+	if(MOD_BALANCE_CORE_MILITARY && !isHuman() && !pkUnitEntry->IsNoSupply())
+	{
+		if (((pkUnitEntry->GetCombat() > 0) || (pkUnitEntry->GetRangedCombat() > 0)) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+		{
+			return false;
+		}
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	// If Zulu Player has this trait and Pikeman are an immediate upgrade to Impi, let's not let player exploit lower production cost of pikeman->impi. So, let's make it immediately obsolete.
 	CvUnitEntry& pUnitInfo = *pkUnitEntry;
@@ -7948,12 +7959,14 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
 	if(&pUnitInfo != NULL && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 	{
-		if(eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrain(eZuluImpi, false, false, true))
+		if(eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrainUnit(eZuluImpi, false, false, true))
 		{
 			return false;
 		}
 	}
 #endif
+
+	//this flag seems to be needed to check whether we should show the unit in the build list at all, and if it's greyed out generate a tooltip why
 	if(!bTestVisible)
 	{
 		CvUnitEntry& thisUnitInfo = *pkUnitEntry;
@@ -7968,6 +7981,18 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 					return false;
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply())
+		{
+			if ((pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 15)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+#endif
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -11685,12 +11710,11 @@ int CvCity::GetPurchaseCost(ProjectTypes eProject)
 int CvCity::GetPurchaseCostFromProduction(int iProduction)
 {
 	VALIDATE_OBJECT
-	int iPurchaseCost;
 
 	// Gold per Production
 	int iPurchaseCostBase = iProduction* /*30*/ GC.getGOLD_PURCHASE_GOLD_PER_PRODUCTION();
 	// Cost ramps up
-	iPurchaseCost = (int) pow((double) iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
+	int iPurchaseCost = (int) pow((double) iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
 
 	// Hurry Mod (Policies, etc.)
 	HurryTypes eHurry = (HurryTypes) GC.getInfoTypeForString("HURRY_GOLD");
@@ -13145,7 +13169,7 @@ UnitTypes CvCity::getConscriptUnit() const
 			if(eLoopUnit != NO_UNIT)
 			{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-				if(pkUnitInfo)
+				if(pkUnitInfo && pkUnitInfo->GetDomainType()==DOMAIN_LAND)
 				{
 					if(canTrain(eLoopUnit))
 					{
@@ -15410,6 +15434,9 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 		// Convert to another yield
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			if (pkProcessInfo->getProductionToYieldModifier((YieldTypes)iI) <= 0)
+				continue;
+
 			changeProductionToYieldModifier(((YieldTypes)iI), ((pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI)) * iChange));
 #if defined(MOD_BALANCE_CORE)
 			UpdateCityYields((YieldTypes)iI);
@@ -18578,6 +18605,28 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
 }
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_iaAddedYieldPerTurnFromTraits.setAt(eIndex, m_iaAddedYieldPerTurnFromTraits[eIndex] + iChange);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			if (isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+				//DLLUI->setDirty(InfoPane_DIRTY_BIT, true );
+			}
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
@@ -18639,7 +18688,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 	}
 #endif
 
-	return iYield;
+	return (iYield + m_iaAddedYieldPerTurnFromTraits[eYield]);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -19758,10 +19807,10 @@ int CvCity::GetBaseTourism() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetBaseTourism(int iChange)
+void CvCity::SetBaseTourism(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iBaseTourism = iChange;
+	m_iBaseTourism = iValue;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetBaseTourismBeforeModifiers() const
@@ -19771,10 +19820,10 @@ int CvCity::GetBaseTourismBeforeModifiers() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetBaseTourismBeforeModifiers(int iChange)
+void CvCity::SetBaseTourismBeforeModifiers(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iBaseTourismBeforeModifiers = iChange;
+	m_iBaseTourismBeforeModifiers = iValue;
 }
 #endif
 #if defined(MOD_API_EXTENSIONS)
@@ -21785,7 +21834,7 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	if (kPlayer.isHuman())
 		iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
 	else
-		iModifier += kPlayer.getHandicapInfo().getAIUnhappinessPercent();
+		iModifier += GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
 
 	if (eYield == YIELD_FAITH)
 	{
@@ -23201,7 +23250,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 {
 	BuildingTypes eRtnValue = NO_BUILDING;
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> buildingChoices;
+	CvWeightedVector<int> buildingChoices;
 
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
 	{
@@ -23245,7 +23294,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 {
 	BuildingTypes eRtnValue = NO_BUILDING;
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> buildingChoices;
+	CvWeightedVector<int> buildingChoices;
 
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
 	{
@@ -26332,7 +26381,7 @@ int CvCity::GetSeaTourismFromEvent()
 	int iBonus = GetSeaTourismBonus();
 	int iPreviousTurnsToCount = 7;
 	// Calculate boost
-	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus *= (GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount) + GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount) / 2);
 	iBonus /= 100;
 
 	return iBonus;
@@ -26342,7 +26391,7 @@ int CvCity::GetLandTourismFromEvent()
 	int iBonus = GetLandTourismBonus();
 	int iPreviousTurnsToCount = 7;
 	// Calculate boost
-	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus *= (GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount) + GET_PLAYER(getOwner()).getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount) / 2);
 	iBonus /= 100;
 
 	return iBonus;
@@ -30437,7 +30486,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		bAccept = !pPlot->isWater();
 		break;
 	case DOMAIN_SEA:
-		bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(ePlayer) && pPlot->isCoastalLand());
+		bAccept = pPlot->isWater() || pPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true);
 		break;
 	case DOMAIN_HOVER:
 		bAccept = true;
@@ -31814,7 +31863,7 @@ bool CvCity::doCheckProduction()
 							{
 								//Wonders Converted into Science Points
 								iProductionGold = (iProductionGold * GC.getBALANCE_SCIENCE_PERCENTAGE_VALUE()) / 100;
-								int iBeakersBonus = thisPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iProductionGold);
+								int iBeakersBonus = thisPlayer.getYieldPerTurnHistory(YIELD_SCIENCE, iProductionGold);
 								if(iBeakersBonus > 0)
 								{
 									TechTypes eCurrentTech = thisPlayer.GetPlayerTechs()->GetCurrentResearch();

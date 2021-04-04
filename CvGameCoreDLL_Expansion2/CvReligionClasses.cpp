@@ -6600,7 +6600,7 @@ void CvUnitReligion::Init()
 
 int CvUnitReligion::GetMaxSpreads(const CvUnit* pUnit) const
 {
-	if (!pUnit)
+	if (!pUnit || m_iStrength <= 0) //no strength, no spread!
 		return 0;
 
 	//missionary spreads can be buffed but not prophets
@@ -6784,7 +6784,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailablePantheonBeliefs(ePlayer);
@@ -6833,7 +6833,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailableFounderBeliefs(ePlayer, eReligion);
@@ -6880,7 +6880,7 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailableFollowerBeliefs(ePlayer, eReligion);
@@ -6923,7 +6923,7 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailableEnhancerBeliefs(ePlayer, eReligion);
@@ -6966,7 +6966,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailableBonusBeliefs(ePlayer, eReligion);
@@ -7012,7 +7012,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 #endif
 {
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
-	CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true> beliefChoices;
+	CvWeightedVector<BeliefTypes> beliefChoices;
 
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = pGameReligions->GetAvailableReformationBeliefs(ePlayer, eReligion);
@@ -8513,42 +8513,35 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 		if (iI > YIELD_FAITH)
 			continue;
 
-		int iFlavor = 1;
 		int iPersonFlavor = 0;
 		CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 		switch (iI)
 		{
 		case YIELD_FOOD:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 			break;
 		case YIELD_PRODUCTION:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 			break;
 		case YIELD_GOLD:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			break;
 		case YIELD_SCIENCE:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 			break;
 		case YIELD_CULTURE:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 			break;
 		case YIELD_FAITH:
-			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 			break;
 		}
-
-		iFlavor = iPersonFlavor;
-		iFlavor /= 10;
-
-		if (iFlavor <= iPersonFlavor)
-			iFlavor = iPersonFlavor;
 
 		iRtnValue = GetValidPlotYield(pEntry, pPlot, (YieldTypes)iI);
 		if (iRtnValue <= 0)
 			continue;
 
-		iTotalRtnValue += iRtnValue*iFlavor;
+		iTotalRtnValue += iRtnValue*iPersonFlavor;
 
 		if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 		{
@@ -11185,7 +11178,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 		}
 
 		// Must be a Great Person for this player's civ
-		if(!m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+		if(!m_pPlayer->canTrainUnit(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 		{
 			continue;
 		}
@@ -11340,7 +11333,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 }
 
 /// Log choices considered for beliefs
-void CvReligionAI::LogBeliefChoices(CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true>& beliefChoices, int iChoice)
+void CvReligionAI::LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices, int iChoice)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

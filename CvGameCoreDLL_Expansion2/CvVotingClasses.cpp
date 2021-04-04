@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -276,7 +276,7 @@ CvResolutionEffects::CvResolutionEffects(void)
 #endif
 }
 
-CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
+bool CvResolutionEffects::SetType(ResolutionTypes eType)
 {
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eType);	
 	CvAssertMsg(pInfo, "Resolution info is null when instantiating ResolutionEffects. Please send Anton your save file and version.");
@@ -324,7 +324,9 @@ CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
 		iVassalMaintenanceGoldPercent		= pInfo->GetVassalMaintenanceGoldPercent();
 		bEndAllCurrentVassals				= pInfo->IsEndAllCurrentVassals();
 #endif
+		return true;
 	}
+	return false;
 }
 
 CvResolutionEffects::~CvResolutionEffects(void)
@@ -805,7 +807,7 @@ CvVoterDecision::~CvVoterDecision(void)
 
 int CvVoterDecision::GetDecision()
 {
-	CvWeightedVector<int, 64, true> vChoices;
+	CvWeightedVector<int> vChoices;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
 	{
 		bool bFirst = true;
@@ -890,7 +892,7 @@ bool CvVoterDecision::IsTie()
 
 std::vector<int> CvVoterDecision::GetTopVotedChoices(int iNumTopChoices)
 {
-	CvWeightedVector<int, 64, true> vChoices;
+	CvWeightedVector<int> vChoices;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); it++)
 	{
 		bool bFirst = true;
@@ -1148,7 +1150,7 @@ CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague)
 	m_iID = iID;
 	m_eType = eType;
 	m_eLeague = eLeague;
-	m_sEffects = CvResolutionEffects(m_eType);
+	m_sEffects.SetType(m_eType);
 }
 
 CvResolution::~CvResolution(void)
@@ -7465,7 +7467,7 @@ void CvLeague::ClearProposalPrivileges()
 
 void CvLeague::AssignProposalPrivileges()
 {
-	CvWeightedVector<Member*, MAX_CIV_PLAYERS, false> vpPossibleProposers;
+	CvWeightedVector<Member*> vpPossibleProposers;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 	{
 		if (CanEverPropose(it->ePlayer))
@@ -8196,7 +8198,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		if (pRewardInfo->GetBaseBeakersTurnsToCount() > 0)
 		{
 			int iPreviousTurnsToCount = pRewardInfo->GetBaseBeakersTurnsToCount();
-			int iBeakersBonus = GET_PLAYER(ePlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			int iBeakersBonus = GET_PLAYER(ePlayer).getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 			TechTypes eCurrentTech = GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
@@ -11059,7 +11061,6 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 	{
 		vConsiderations.SortItems();
 
-
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)
 		{
@@ -11069,7 +11070,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			}
 		}
 
-		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
+		CvWeightedVector<VoteConsideration> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
 			vConsiderations.SortItems();
@@ -13250,21 +13251,14 @@ void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iCh
 	if (vInactive.empty())
 		return;
 
-	ResolutionTypes eResolution = NO_RESOLUTION;
+	if (pProposal == NULL)
+		return;
 
-	if (pProposal->bEnact)
-	{
-		eResolution = vInactive[pProposal->iIndex];
-	}
-	else
-	{
-		eResolution = vActive[pProposal->iIndex].GetType();
-	}
+	ResolutionTypes eResolution = pProposal->bEnact ? vInactive[pProposal->iIndex] : vActive[pProposal->iIndex].GetType();
+	if (GC.getResolutionInfo(eResolution) == NULL)
+		return;
 
-	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
 	CvString sMessage = "";
-
 	sMessage += ",";
 	sMessage += GetPlayer()->getCivilizationShortDescription();
 	sMessage += ",- - -";

@@ -12,10 +12,6 @@
 #ifndef CIV5_PLAYER_H
 #define CIV5_PLAYER_H
 
-#define SAFE_ESTIMATE_NUM_IMPROVEMENTS 50
-#define SAFE_ESTIMATE_NUM_CITIES       64
-#define MAX_INCOMING_UNITS	20
-
 #include "CvCityAI.h"
 #include "CvUnit.h"
 #include "CvArmyAI.h"
@@ -69,6 +65,8 @@ typedef std::list<CvPopupInfo*> CvPopupQueue;
 typedef std::vector< std::pair<UnitCombatTypes, PromotionTypes> > UnitCombatPromotionArray;
 typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromotionArray;
 typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
+
+const size_t INSTANT_YIELD_HISTORY_LENGTH = 30u;
 
 class CvPlayer
 {
@@ -335,7 +333,7 @@ public:
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 #endif
 
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
+	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	bool canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus = false, ResourceTypes eResourceNearby = NO_RESOURCE) const;
 #endif
@@ -519,12 +517,6 @@ public:
 
 	int GetSpecialistCultureChange() const;
 	void ChangeSpecialistCultureChange(int iChange);
-
-	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-#if defined(MOD_BALANCE_CORE)
-	int GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-	int GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-#endif
 
 	int GetNumCitiesFreeCultureBuilding() const;
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
@@ -2088,8 +2080,6 @@ public:
 	int GetScienceFromResearchAgreementsTimes100() const;
 	int GetScienceFromBudgetDeficitTimes100() const;
 
-	int GetScienceYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
-
 	bool IsGetsScienceFromPlayer(PlayerTypes ePlayer) const;
 	void SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bValue);
 
@@ -2135,7 +2125,7 @@ public:
 	void DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
-	PlayerTypes GetBestGiftTarget();
+	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
 
 	UnitTypes GetIncomingUnitType(PlayerTypes eFromPlayer) const;
 	void SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType);
@@ -2444,7 +2434,7 @@ public:
 	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
-	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
+	vector<int> GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit=NULL) const;
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);
@@ -2455,12 +2445,18 @@ public:
 	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
 	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
 
+	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
+	void updateYieldPerTurnHistory();
+
+	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
 	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
+
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 
-	int getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const;
-	void changeInstantTourismValue(PlayerTypes ePlayer , int iValue);
+	int getInstantTourismPerPlayerAvg(PlayerTypes ePlayer, int iTurnA, int iTurnB) const;
+	int getInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iTurn) const;
+	void changeInstantTourismPerPlayerValue(PlayerTypes ePlayer , int iValue);
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -2534,7 +2530,7 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
@@ -2994,6 +2990,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viTourismHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viGAPHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viCultureHistory;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viScienceHistory;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3633,8 +3633,8 @@ protected:
 	std::vector<CvString> m_ReplayDataSets;
 	std::vector<TurnData> m_ReplayDataSetValues;
 
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
-	std::vector< Firaxis::Array<int, MAX_MAJOR_CIVS> > m_ppiInstantTourismHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
+	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;
 
 	void doResearch();
 	void doWarnings();

@@ -4712,7 +4712,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isEnemy(eTeam))
 		return true;
 
-	if(isRivalTerritory())
+	if(isRivalTerritory() || isTrade())
 		return true;
 
 		// Minors can't intrude into one another's territory
@@ -4765,26 +4765,18 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_AIR)
 		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
-	// Immobile can go nowhere ... except where they are
+	// Immobile can go nowhere ... except where they are or cities
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
-		if (!at(enterPlot.getX(),enterPlot.getY()))
+		if (!at(enterPlot.getX(),enterPlot.getY()) && !enterPlot.isCity())
 			return false;
 
 	// Sea units - we can exclude non-water plots right away
 	// also allow forts and cities if adjacent to real water
 	if (eDomain==DOMAIN_SEA)
 	{
-		if(isConvertUnit())
-		{
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), true))
-				return false;
-		}
-		else
-		{
-			bool bNoEnemy = IsCombatUnit() && !(iMoveFlags & MOVEFLAG_ATTACK);
-			if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy))
-				return false;
-		}
+		//only trade units can pass through non-friendly improvements
+		if (!enterPlot.isWater() && !enterPlot.isCoastalCityOrPassableImprovement(getOwner(), false, !isTrade()))
+			return false;
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
@@ -4801,8 +4793,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
 	if(enterPlot.isImpassable(getTeam()))
 	{
-		// Some special units also have it easy
-		if(canMoveImpassable() || canMoveAllTerrain())
+		// Some special units also have it easy (if we have a trade path here, don't check the units individually)
+		if(canMoveImpassable() || canMoveAllTerrain() || isTrade())
 			return true;
 
 		// if there's a route, anyone can use it (this includes city plots)
@@ -4825,7 +4817,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		// Check ice with specialty: is passable if owned
 		if (enterPlot.isIce()) 
 		{
-			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.isOwned() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
 			return bCanCross;
 		}
 
@@ -5498,7 +5490,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
-				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost
@@ -5521,9 +5513,6 @@ bool CvUnit::jumpToNearestValidPlot()
 		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-		//want to sort by ascending area size
-		candidates[i].score = GC.getMap().numPlots() - plots2.size();
-
 		//if we have lots of room here, use the plot immediately
 		if (plots2.size() > 23)
 		{
@@ -5535,14 +5524,15 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (!pBestPlot && !candidates.empty())
 	{
 		//try again if there are only bad places
-		std::sort(candidates.begin(), candidates.end());
 		pBestPlot = candidates.front().pPlot;
 	}
 
 	//last chance
 	if (!pBestPlot)
 	{
-		CvCity* pClosestCity = GET_PLAYER(getOwner()).GetClosestCityByPlots( plot() );
+		CvCity* pClosestCity = (getDomainType()==DOMAIN_SEA) ? 
+			OperationalAIHelpers::GetClosestFriendlyCoastalCity(getOwner(),plot()) : 
+			GET_PLAYER(getOwner()).GetClosestCityByPlots(plot());
 		if (pClosestCity)
 			return jumpToNearestValidPlotWithinRange(6, pClosestCity->plot());
 	}
@@ -5585,47 +5575,58 @@ bool CvUnit::jumpToNearestValidPlot()
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 {
-	VALIDATE_OBJECT
 	CvPlot* pBestPlot = NULL;
-	int iBestValue = INT_MAX;
-	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
-	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
-
 	if (!pStartPlot)
 		pStartPlot = plot();
 
-	iRange = min(max(1,iRange),5);
-	for(int i=1; i<RING_PLOTS[iRange]; i++)
+	if (!pStartPlot)
+		return false;
+
+	//nothing to do?
+	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
 	{
-		CvPlot* pLoopPlot = iterateRingPlots( pStartPlot, i );
+		if (at(pStartPlot->getX(),pStartPlot->getY()))
+			return true;
 
-		//needs to be visible so we don't run into problems with stacking
-		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
-			continue;
+		pBestPlot = pStartPlot;
+	}
+	else
+	{
+		int iBestValue = INT_MAX;
+		iRange = min(max(1, iRange), 5);
 
-		if(isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
+		for (int i = 1; i < RING_PLOTS[iRange]; i++)
 		{
-			//need to check for invisible units as well ...
-			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+			CvPlot* pLoopPlot = iterateRingPlots(pStartPlot, i);
+
+			//needs to be visible so we don't run into problems with stacking
+			if (!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
+				continue;
+
+			if (isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(), true, false) && !pLoopPlot->isNeutralUnit(getOwner(), true, false))
 			{
-				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
-
-				//avoid putting ships on lakes etc
-				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 12;
-
-				//avoid embarkation
-				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 6;
-
-				//try to stay within the same area
-				if(pLoopPlot->getArea() != getArea())
-					iValue += 5;
-
-				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+				//need to check for invisible units as well ...
+				if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 				{
-					iBestValue = iValue;
-					pBestPlot = pLoopPlot;
+					int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+					//avoid putting ships on lakes etc
+					if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+						iValue += 12;
+
+					//avoid embarkation
+					if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+						iValue += 6;
+
+					//try to stay within the same area
+					if (pLoopPlot->getArea() != getArea())
+						iValue += 5;
+
+					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
+					{
+						iBestValue = iValue;
+						pBestPlot = pLoopPlot;
+					}
 				}
 			}
 		}
@@ -5646,7 +5647,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
 			disembark(plot());
+
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		return true;
 	}
 	else
 	{
@@ -5659,8 +5662,6 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 		CUSTOMLOG("jumpToNearestValidPlotWithinRange(%i) failed for unit %s at plot (%i, %i)", iRange, getName().GetCString(), getX(), getY());
 		return false;
 	}
-
-	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7238,16 +7239,16 @@ bool CvUnit::canUseForAIOperation() const
 		CvCity* pCity = GetGarrisonedCity();
 		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		if (pLandZone && (pLandZone->GetTotalEnemyUnitCount()>0 || pLandZone->GetBorderScore(NO_DOMAIN)>5))
+		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
 			return false;
-		if (pWaterZone && (pWaterZone->GetTotalEnemyUnitCount()>0 || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
+		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
 			return false;
 	}
 	else
 	{
 		//check if it's a city zone! don't care about no-mans land.
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
-		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetTotalEnemyUnitCount() > 0)
+		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return false;
 
 		//do not call FirstTargetInRange, it's too expensive ...
@@ -7359,9 +7360,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
-		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
-		m_eHomelandMove = eMove;
-	}
+	m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+	m_eHomelandMove = eMove;
+}
 
 //	--------------------------------------------------------------------------------
 AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
@@ -8101,15 +8102,15 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer());
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer(),0);
 }
 
-int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore,iExtraDamage);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11706,7 +11707,7 @@ int CvUnit::getDiscoverAmount()
 		{
 			// Beakers boost based on previous turns
 			int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
-			iValue = pPlayer->GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iValue = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
@@ -13159,7 +13160,7 @@ int CvUnit::getGivePoliciesCulture()
 		if (iPreviousTurnsToCount != 0)
 		{
 			// Calculate boost
-			iValue = kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iValue = kPlayer.getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount);
 		}
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
@@ -13359,7 +13360,7 @@ bool CvUnit::blastTourism()
 #endif
 
 	//store off this data
-	GET_PLAYER(getOwner()).changeInstantTourismValue(eOwner, iTourismBlast);
+	GET_PLAYER(getOwner()).changeInstantTourismPerPlayerValue(eOwner, iTourismBlast);
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
@@ -13664,7 +13665,7 @@ bool CvUnit::build(BuildTypes eBuild)
 									{
 										continue;
 									}
-									if(!kPlayer.canTrain(eUnit))
+									if(!kPlayer.canTrainUnit(eUnit))
 									{
 										continue;
 									}
@@ -13721,7 +13722,7 @@ bool CvUnit::build(BuildTypes eBuild)
 								}
 								else if(!bWater)
 								{
-									if(!kPlayer.canTrain(eUnit))
+									if(!kPlayer.canTrainUnit(eUnit))
 									{
 										continue;
 									}
@@ -23732,7 +23733,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 						if(pUnitEntry)
 						{
-							if(!kPlayer.canTrain(eUnit))
+							if(!kPlayer.canTrainUnit(eUnit))
 							{
 								continue;
 							}
@@ -24538,7 +24539,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-		setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
 }
 
 
@@ -24546,7 +24547,7 @@ void CvUnit::testPromotionReady()
 bool CvUnit::isDelayedDeath() const
 {
 	VALIDATE_OBJECT
-	return m_bDeathDelay;
+	return m_bDeathDelay || !m_pUnitInfo; //check m_pUnitInfo as a failsafe ...
 }
 
 //	--------------------------------------------------------------------------------
@@ -25217,8 +25218,8 @@ int CvUnit::getGAPBlast()
 		if (iPreviousTurnsToCount == 0)
 			return 0;
 
-		iValue = pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-		iValue += pPlayer->GetGAPYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+		iValue = pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
+		iValue += pPlayer->getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 		//GA Mod
@@ -26407,6 +26408,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	int iChange;
 	int iI;
 
+	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
+		return;
+
 	if(isHasPromotion(eIndex) != bNewValue)
 	{
 		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
@@ -27300,7 +27304,7 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 			if (pLoopUnit->IsCombatUnit())
 			{
 				//inside of cities mixing domains is ok
-				if (pPlot->isFriendlyCityOrPassableImprovement(getOwner()))
+				if (pPlot->isCoastalCityOrPassableImprovement(getOwner(),true,true))
 				{
 					if (getDomainType()==pLoopUnit->getDomainType())
 						iNumUnitsOfSameType++;
@@ -29291,7 +29295,7 @@ CvUnit* CvUnit::GetMissionAIUnit()
 bool CvUnit::IsCanAttackWithMove() const
 {
 	return IsCombatUnit() && !IsCanAttackRanged() && !isOnlyDefensive();
-    }
+}
 
 //	--------------------------------------------------------------------------------
 /// Does this unit have a ranged attack?
@@ -29966,25 +29970,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
-
-	int iFlavorDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
-	
-	int iFlavorCityDefense = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
-	
-	int iFlavorRanged = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
-
-	int iFlavorRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
-
-	int iFlavorMobile = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
-
-	int iFlavorNaval = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
-
-	int iFlavorNavalRecon = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
-	
-	int iFlavorAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
-	
-	int iFlavorAntiAir = range(pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
+	int iFlavorOffense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")), 1, 20);
+	int iFlavorDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")), 1, 20);
+	int iFlavorCityDefense = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE")), 1, 20);
+	int iFlavorRanged = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")), 1, 20);
+	int iFlavorRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")), 1, 20);
+	int iFlavorMobile = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")), 1, 20);
+	int iFlavorNaval = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")), 1, 20);
+	int iFlavorNavalRecon = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")), 1, 20);
+	int iFlavorAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")), 1, 20);
+	int iFlavorAntiAir = range(pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")), 1, 20);
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())

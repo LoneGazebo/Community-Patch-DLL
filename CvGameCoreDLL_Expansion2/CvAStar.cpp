@@ -2071,7 +2071,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
-		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
+		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE) && pNewPlot->getOwner()==data.ePlayer)
 				ePlotRoute = ROUTE_ROAD;
 	}
 
@@ -2114,7 +2114,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
-	if (!pNewPlot->isWater() && !pNewPlot->isCityOrPassableImprovement(ePlayer,true))
+	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
 		return FALSE;
 
 	//finally check plot ownership
@@ -2470,7 +2470,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	{
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
-			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer());
+			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer(), 0);
 	}
 
 	switch(config.ePathType)
@@ -3187,7 +3187,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		return TRUE;
 
 	//check passable improvements
-	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false))
+	if (pNewPlot->isCoastalCityOrPassableImprovement(pCacheData->GetPlayer(), false, false))
 	{
 		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
 		//so we have to allow all cities and forts

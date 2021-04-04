@@ -4281,49 +4281,29 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 	return false;
 }
 
-bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
+bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const
 {
-	return isCityOrPassableImprovement(ePlayer, true, pUnit);
-}
-
-bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
-{
-	bool bIsCityOrPassable = isCity();
-	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsCityOrPassable |= (IsImprovementPassable() && !IsImprovementPillaged() && isAdjacentToShallowWater());
-
-	// Not a city or a fort
-	if (!bIsCityOrPassable)
-		return false;
-
-	// that's it!
-	if (!bMustBeFriendly)
-		return true;
-
-	// In friendly lands (ours, an allied CS or a major with open borders)
-	if (IsFriendlyTerritory(ePlayer))
+	bool bIsCity = isCity() && isCoastalLand();
+	// Good enough
+	if (bIsCity)
 	{
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (isCity() && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(getOwner()).isMinorCiv())
-		{
-			CvCity* pPlotCity = getPlotCity();
-			if (pUnit) 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			} 
-			else 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanTransitMinorCity, ePlayer, pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			}
-		}
-#endif
-		return true;
+		if (bCityMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
+	}
+
+	bool bIsPassableImprovement = false;
+	if (MOD_GLOBAL_PASSABLE_FORTS)
+		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isOwned() && isCoastalLand();
+
+	// Good enough
+	if (bIsPassableImprovement)
+	{
+		if (bImprovementMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
 	}
 
 	return false;
@@ -4988,10 +4968,11 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
-		if(!pUnit || !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
-		{
+		if (!pUnit)
 			return true;
-		}
+
+		if (pUnit->getDomainType() == getDomain())
+			return !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute();
 	}
 
 	return false;
@@ -7466,6 +7447,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 			}
+			
+			//must be false now
+			SetImprovementPassable(false);
+			//displace units which cannot stay here any longer (question: what if we replace one passable improvement with another? that let's ignore that case)
+			for (int i = 0; i < getNumUnits(); i++)
+				getUnitByIndex(i)->jumpToNearestValidPlotWithinRange(1);
 
 			// If this improvement can add culture to nearby improvements, update them as well
 			if(area())
@@ -13489,7 +13476,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 		else if (thisUnitDomain == DOMAIN_LAND)
 		{
-			if(area()->getNumTotalResources() > 0)
+			if(area()->getNumTotalResources() == 0)
 			{
 				return false;
 			}

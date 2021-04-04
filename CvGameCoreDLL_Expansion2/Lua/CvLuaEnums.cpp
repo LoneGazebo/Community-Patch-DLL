@@ -1102,15 +1102,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(STRENGTH_IMMENSE);
 	EnumEnd(L);
 
-	EnumStart(L, "WarDamageLevelTypes");
-	RegisterEnum(NO_WAR_DAMAGE_LEVEL_VALUE);
-	RegisterEnum(WAR_DAMAGE_LEVEL_NONE);
-	RegisterEnum(WAR_DAMAGE_LEVEL_MINOR);
-	RegisterEnum(WAR_DAMAGE_LEVEL_MAJOR);
-	RegisterEnum(WAR_DAMAGE_LEVEL_SERIOUS);
-	RegisterEnum(WAR_DAMAGE_LEVEL_CRIPPLED);
-	EnumEnd(L);
-
 	EnumStart(L, "PeaceTreatyTypes");
 	RegisterEnum(NO_PEACE_TREATY_TYPE);
 	RegisterEnum(PEACE_TREATY_WHITE_PEACE);

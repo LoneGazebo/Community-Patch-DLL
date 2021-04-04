@@ -3,9 +3,9 @@
 #ifndef CIV5_WEIGHTED_VECTOR_H
 #define CIV5_WEIGHTED_VECTOR_H
 
+#include <vector>
 #include <algorithm>
 #include "EventSystem/FastDelegate.h"
-#include "FFastVector.h"
 
 // Functor for random number callback routine
 typedef fastdelegate::FastDelegate2<int, const char *, int> RandomNumberDelegate;
@@ -19,7 +19,7 @@ typedef fastdelegate::FastDelegate2<int, const char *, int> RandomNumberDelegate
 //!  - See documentation on template parameters from FFastVector; same ones used here
 //!  - Main purpose of class is use for weighted AI selection
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-template< class T, unsigned int L = 1, bool bPODType = false> class CvWeightedVector
+template<class T> class CvWeightedVector
 {
 public:
 	/// One element stored in our weighted vector
@@ -27,7 +27,13 @@ public:
 	{
 		WeightedElement() : 
 		m_Element()
-		, m_iWeight ()
+		, m_iWeight(0)
+		{
+		}
+
+		WeightedElement(const T& e, int w) : 
+		m_Element(e)
+		, m_iWeight(w)
 		{
 		}
 
@@ -61,45 +67,45 @@ public:
 	/// Accessor for element
 	const T& GetElement (unsigned int iIndex) const
 	{
-		assert(iIndex < m_pItems.size());
-		return m_pItems[iIndex].m_Element;
+		assert(iIndex < m_items.size());
+		return m_items[iIndex].m_Element;
 	};
 
 	/// Accessor for element
 	void SetElement (unsigned int iIndex, const T& iValue)
 	{
-		assert(iIndex < m_pItems.size());
-		if (iIndex<m_pItems.size())
-			m_pItems[iIndex].m_Element = iValue;
+		assert(iIndex < m_items.size());
+		if (iIndex<m_items.size())
+			m_items[iIndex].m_Element = iValue;
 	};
 
 	/// Accessors for weight
 	int GetWeight (unsigned int	 iIndex) const
 	{
-		assert(iIndex < m_pItems.size());
-		return m_pItems[iIndex].m_iWeight;
+		assert(iIndex < m_items.size());
+		return m_items[iIndex].m_iWeight;
 	}
 	void IncreaseWeight (unsigned int iIndex, int iWeight)
 	{
-		if (iIndex<m_pItems.size())
-			m_pItems[iIndex].m_iWeight += iWeight;
-		CvAssertMsg(m_pItems[iIndex].m_iWeight >= 0, "Weight should not be negative.");
+		if (iIndex<m_items.size())
+			m_items[iIndex].m_iWeight += iWeight;
+		CvAssertMsg(m_items[iIndex].m_iWeight >= 0, "Weight should not be negative.");
 	}
 	void SetWeight (unsigned int iIndex, int iWeight)
 	{
-		if (iIndex<m_pItems.size())
-			m_pItems[iIndex].m_iWeight = iWeight;
-		CvAssertMsg(m_pItems[iIndex].m_iWeight >= 0, "Weight should not be negative.");
+		if (iIndex<m_items.size())
+			m_items[iIndex].m_iWeight = iWeight;
+		CvAssertMsg(m_items[iIndex].m_iWeight >= 0, "Weight should not be negative.");
 	}
 
 	/// Return total of all weights stored in vector
-	int GetTotalWeight ()
+	int GetTotalWeight () const
 	{
 		int rtnValue = 0;
 
-		for (unsigned int i = 0; i < m_pItems.size(); i++)
+		for (unsigned int i = 0; i < m_items.size(); i++)
 		{
-			WeightedElement elem = m_pItems[i];
+			WeightedElement elem = m_items[i];
 			rtnValue += elem.m_iWeight;
 		}
 
@@ -109,48 +115,43 @@ public:
 	/// Add an item to the end of the vector
 	unsigned int push_back (const T& element, int iWeight)
 	{
-//		FAssertMsg(iWeight >= 0, "Weight should not be negative.");
-
-		WeightedElement weightedElem;
-		weightedElem.m_Element = element;
-		weightedElem.m_iWeight = iWeight;
-
-		return m_pItems.push_back(weightedElem);
+		m_items.push_back( WeightedElement(element,iWeight) );
+		return m_items.size();
 	};
 
 	/// Clear out the vector
 	void clear ()
 	{
-		m_pItems.clear();
+		m_items.clear();
 	};
 
 	/// Resize the vector
 	void resize (uint uiNewSize)
 	{
-		m_pItems.resize(uiNewSize);
+		m_items.resize(uiNewSize);
 	};
 
 	/// Set the vector reserve
 	void reserve (uint uiNewSize)
 	{
-		m_pItems.reserve(uiNewSize);
+		m_items.reserve(uiNewSize);
 	};
 
 	/// Number of items
-	int size ()
+	int size () const
 	{
-		return m_pItems.size();
+		return m_items.size();
 	};
 
 	/// Sort this stuff from highest to lowest
 	void SortItems ()
 	{
-		std::sort(m_pItems.begin(), m_pItems.end());
+		std::sort(m_items.begin(), m_items.end());
 	}
 
 	void StableSortItems()
 	{
-		std::stable_sort(m_pItems.begin(), m_pItems.end());
+		std::stable_sort(m_items.begin(), m_items.end());
 	}
 
 	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage chance)
@@ -160,12 +161,12 @@ public:
 		int iCutoff = GetTotalWeight() * iPercent / 100;
 
 		// Create a new weighted vector for this decision
-		CvWeightedVector<T, L, bPODType> tempVector;
+		vector<T> tempVector;
 
 		// Loop through until adding each item that is above threshold
 		for (unsigned int i = 0; i < m_pItems.size(); i++)
 		{
-			WeightedElement elem = m_pItems[i];
+			WeightedElement elem = m_items[i];
 			if (elem.m_iWeight >= iCutoff)
 			{
 				tempVector.push_back (elem.m_Element, elem.m_iWeight);
@@ -190,11 +191,11 @@ public:
 	{
 		// the easy case
 		if (GC.getGame().isReallyNetworkMultiPlayer())
-			return m_pItems[0].m_Element;
+			return m_items[0].m_Element;
 
 		// Based on the number of elements we have, pick one at random
-		int iChoice = (*rndFcn)(m_pItems.size(), szRollName);
-		return m_pItems[iChoice].m_Element;
+		int iChoice = (*rndFcn)(m_items.size(), szRollName);
+		return m_items[iChoice].m_Element;
 	};
 
 	/// Choose by weight (even considering unlikely candidates)
@@ -202,15 +203,15 @@ public:
 	{
 		// the easy case
 		if (GC.getGame().isReallyNetworkMultiPlayer())
-			return m_pItems[0].m_Element;
+			return m_items[0].m_Element;
 
 		// Random roll up to total weight
 		int iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
 
 		// Loop through until we find the item that is in the range for this roll
-		for (unsigned int i = 0; i < m_pItems.size(); i++)
+		for (unsigned int i = 0; i < m_items.size(); i++)
 		{
-			WeightedElement elem = m_pItems[i];
+			WeightedElement elem = m_items[i];
 			iChoice -= elem.m_iWeight;
 			if (iChoice < 0)
 				return elem.m_Element;
@@ -225,35 +226,35 @@ public:
 	T ChooseFromTopChoices(int iNumChoices, RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
 		// Loop through the top choices, or the total vector size, whichever is smaller
-		if (iNumChoices > (int) m_pItems.size())
-			iNumChoices = (int) m_pItems.size();
+		if (iNumChoices > (int) m_items.size())
+			iNumChoices = (int) m_items.size();
 
 		assert(iNumChoices > 0);
 
 		// Get the total weight (as long as the weights are in a similar range)
-		int iTotalTopChoicesWeight = m_pItems[0].m_iWeight;
+		int iTotalTopChoicesWeight = m_items[0].m_iWeight;
 		for (int i = 1; i < iNumChoices; i++)
 		{
-			if (m_pItems[i].m_iWeight*2 < m_pItems[i-1].m_iWeight)
+			if (m_items[i].m_iWeight*2 < m_items[i-1].m_iWeight)
 			{
 				//ignore the rest
 				iNumChoices = i;
 				break;
 			}
 
-			iTotalTopChoicesWeight += m_pItems[i].m_iWeight;
+			iTotalTopChoicesWeight += m_items[i].m_iWeight;
 		}
 
 		// the easy case
 		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
-			return m_pItems[0].m_Element;
+			return m_items[0].m_Element;
 
 		int iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
 
 		// Find out which element was chosen
 		for (int i = 0; i < iNumChoices; i++)
 		{
-			WeightedElement elem = m_pItems[i];
+			WeightedElement elem = m_items[i];
 			iChoice -= elem.m_iWeight;
 
 			if (iChoice < 0)
@@ -266,7 +267,41 @@ public:
 	};
 
 private:
-	FStaticVector<WeightedElement, L, bPODType> m_pItems;
+	vector<WeightedElement> m_items;
 };
+
+//-------------------------------
+// Serialization helper templates:
+//-------------------------------
+
+template<typename T>
+FDataStream & operator<<(FDataStream & writeTo, const CvWeightedVector<T> & readFrom)
+{
+	writeTo << readFrom.size();
+	for (int i = 0; i < readFrom.size(); i++)
+	{
+		writeTo << readFrom.GetElement(i);
+		writeTo << readFrom.GetWeight(i);
+	}
+	return writeTo;
+}
+
+template<typename T>
+FDataStream & operator>>(FDataStream & readFrom, CvWeightedVector<T> & writeTo)
+{
+	int nItems;
+	readFrom >> nItems;
+
+	writeTo.clear();
+	for (int i=0; i<nItems; i++)
+	{
+		T e;
+		int w;
+		readFrom >> e;
+		readFrom >> w;
+		writeTo.push_back(e,w);
+	}
+	return readFrom;
+}
 
 #endif //CIV5_WEIGHTED_VECTOR_H

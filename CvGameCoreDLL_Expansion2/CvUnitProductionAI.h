@@ -10,11 +10,6 @@
 #ifndef CIV5_UNIT_PRODUCTION_AI_H
 #define CIV5_UNIT_PRODUCTION_AI_H
 
-// Allocate array for 50% more units than we have now (58)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_UNITS 90
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvUnitProductionAI
 //!  \brief		Handles unit production decisions for one city
@@ -57,8 +52,8 @@ private:
 	// Private data
 	CvCity* m_pCity;
 	CvUnitXMLEntries* m_pUnits;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> m_UnitAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_UNITS, true> m_Buildables;
+	CvWeightedVector<int> m_UnitAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_UNIT_PRODUCTION_AI_H

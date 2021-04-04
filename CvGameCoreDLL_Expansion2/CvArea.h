@@ -41,7 +41,7 @@ public:
 
 	void init(int iID, bool bWater);
 	void uninit();
-	void reset(int iID = 0, bool bWater = false, bool bConstructorCall = false);
+	void reset(int iID = 0, bool bWater = false);
 
 	int calculateTotalBestNatureYield() const;
 
@@ -141,22 +141,19 @@ protected:
 	int m_iTotalPopulation;
 	int m_iNumStartingPlots;
 	int m_iNumNaturalWonders;
-#if defined(MOD_BALANCE_CORE)
 	int m_iBadPlots;
-#endif
 	unsigned int m_iTotalFoundValue;
-	int m_aiUnitsPerPlayer[REALLY_MAX_PLAYERS];
-	int m_aiCitiesPerPlayer[REALLY_MAX_PLAYERS];
-	int m_aiPopulationPerPlayer[REALLY_MAX_PLAYERS];
-	int m_aiFreeSpecialist[REALLY_MAX_PLAYERS];
-	int m_aiNumRevealedTiles[REALLY_MAX_TEAMS];
 
-	IDInfo m_aTargetCities[REALLY_MAX_TEAMS];
+	map<PlayerTypes,int> m_aiUnitsPerPlayer;
+	map<PlayerTypes,int> m_aiCitiesPerPlayer;
+	map<PlayerTypes,int> m_aiPopulationPerPlayer;
+	map<PlayerTypes,int> m_aiFreeSpecialist;
+	map<TeamTypes,int> m_aiNumRevealedTiles;
+	map<PlayerTypes,IDInfo> m_aTargetCities;
+	map<PlayerTypes,vector<int>> m_aaiYieldRateModifier;
 
-	int m_aaiYieldRateModifier[REALLY_MAX_PLAYERS][NUM_YIELD_TYPES];
-
-	int* m_paiNumResources;
-	int* m_paiNumImprovements;
+	map<ResourceTypes,int> m_aiNumResources;
+	map<ImprovementTypes, int> m_aiNumImprovements;
 
 	CvAreaBoundaries m_Boundaries;
 

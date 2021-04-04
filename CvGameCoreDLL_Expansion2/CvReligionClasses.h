@@ -696,7 +696,7 @@ private:
 #endif
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
-	void LogBeliefChoices(CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true>& beliefChoices, int iChoice);
+	void LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices, int iChoice);
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;

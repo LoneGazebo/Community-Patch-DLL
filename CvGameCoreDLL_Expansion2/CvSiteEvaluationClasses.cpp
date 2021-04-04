@@ -193,13 +193,6 @@ void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer
 	// Find out if player has a desired next city specialization
 	CvCitySpecializationXMLEntry* pkCitySpecializationEntry = NULL;
 
-	//disable this, it leads to strange results
-	/*
-	CitySpecializationTypes eNextSpecialization = pPlayer->GetCitySpecializationAI()->GetNextSpecializationDesired();
-	if(eNextSpecialization != NO_CITY_SPECIALIZATION)
-		pkCitySpecializationEntry = GC.getCitySpecializationInfo(eNextSpecialization);
-	*/
-
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
 		const FlavorTypes eFlavor = static_cast<FlavorTypes>(iFlavorLoop);

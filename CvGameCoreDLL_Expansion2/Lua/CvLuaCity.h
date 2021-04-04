@@ -269,6 +269,7 @@ protected:
 	static int lChangeJONSCulturePerTurnFromSpecialists(lua_State* L);
 	static int lGetJONSCulturePerTurnFromGreatWorks(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
+	static int lChangeYieldFromTraits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetYieldPerTurnFromTraits(lua_State* L);
 	static int lGetYieldFromUnitsInCity(lua_State* L);

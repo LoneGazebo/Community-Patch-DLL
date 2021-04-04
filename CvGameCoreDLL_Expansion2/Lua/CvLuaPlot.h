@@ -142,7 +142,7 @@ protected:
 	static int lIsCity(lua_State* L);
 	static int lIsFriendlyCity(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
-	LUAAPIEXTN(IsFriendlyCityOrPassableImprovement, bool, pUnit, bCheckImprovement);
+	LUAAPIEXTN(isFriendlyCityOrPassableImprovement, bool, pUnit, bCheckImprovement);
 #endif
 	static int lIsEnemyCity(lua_State* L);
 	static int lIsBeingWorked(lua_State* L);

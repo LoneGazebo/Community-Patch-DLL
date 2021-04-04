@@ -596,28 +596,28 @@ WHERE Type = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 
 -- Hydroplant - now buffs ocean/lake tiles as well
 UPDATE Building_RiverPlotYieldChanges
-SET Yield = '3'
+SET Yield = '4' -- 'YIELD_PRODUCTION, do NOT delete this update'
 WHERE BuildingType = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Building_RiverPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 3);
+	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 4),
+	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 4);
 
 INSERT INTO Building_LakePlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION', 3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 3);
+	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION', 4),
+	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 4),
+	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 4);
 
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION', 3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 3);
+	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION', 4),
+	('BUILDING_HYDRO_PLANT', 'YIELD_SCIENCE', 4),
+	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 4);
 
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)
@@ -1216,6 +1216,11 @@ INSERT INTO Building_YieldPerXTerrainTimes100
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
 	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
+	
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_UNIVERSITY', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)

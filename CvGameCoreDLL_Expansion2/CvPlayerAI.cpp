@@ -728,7 +728,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			}
 
 			// Now let's get the event flavors.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			CvWeightedVector<int> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
 				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
@@ -788,7 +788,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
-			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			CvWeightedVector<int> randomChoices;
 			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 			{
 				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
@@ -1025,7 +1025,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		}
 
 		GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-		switch(pLoopUnit->AI_getUnitAIType())
+		switch(pLoopUnit->getUnitInfo().GetDefaultUnitAIType()) //look at the default type!
 		{
 		case UNITAI_WRITER:
 			eDirective = GetDirectiveWriter(pLoopUnit);
@@ -1728,7 +1728,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 
 CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities)
 {
-	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
+	CvWeightedVector<CvCity *> vTargets;
 
 	// Loop through each city state
 	for(int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)

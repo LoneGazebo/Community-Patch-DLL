@@ -296,7 +296,7 @@ INSERT INTO UnitClasses
 	(Type, Description, DefaultUnit)
 VALUES
 	('UNITCLASS_EXPLORER', 'TXT_KEY_UNIT_EXPLORER', 'UNIT_EXPLORER'),
-	('UNITCLASS_ZEPPELIN', 'TXT_KEY_UNIT_ZEPPELIN', 'UNIT_ZEPPELIN');
+	('UNITCLASS_ZEPPELIN', 'TXT_KEY_UNIT_ZEPPELIN_CBP', 'UNIT_ZEPPELIN');
 
 INSERT INTO Units
 	(Class, Type, Combat, RangedCombat, Range, Cost, FaithCost, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate)

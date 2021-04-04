@@ -41,11 +41,11 @@ public:
 	CvCityBuildable m_aRecommendedBuilds[NUM_ADVISOR_TYPES];
 	TechTypes m_aRecommendedTechs[NUM_ADVISOR_TYPES];
 
-	CvWeightedVector<int, 80, true> m_aResearchableTechs;
-	CvWeightedVector<int, NUM_ADVISOR_TYPES, true> m_aFinalRoundTechs;
+	CvWeightedVector<int> m_aResearchableTechs;
+	CvWeightedVector<int> m_aFinalRoundTechs;
 
-	CvWeightedVector<CvCityBuildable, (50), true> m_aCityBuildables;
-	CvWeightedVector<CvCityBuildable, NUM_ADVISOR_TYPES, true> m_aFinalRoundBuildables;
+	CvWeightedVector<CvCityBuildable> m_aCityBuildables;
+	CvWeightedVector<CvCityBuildable> m_aFinalRoundBuildables;
 };
 
 #endif	//CIV5_ADVISOR_COUNSEL_H

@@ -214,6 +214,9 @@ public:
 	CivApproachTypes GetCivStrategicApproach(PlayerTypes ePlayer) const;
 	void SetCivStrategicApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
+	CivApproachTypes GetCachedSurfaceApproach(PlayerTypes ePlayer) const;
+	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
+
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 
 	// Approach Values: Cached weight for each approach
@@ -415,7 +418,6 @@ public:
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 
 	// War State: How's the war with ePlayer going? (NO_WAR_STATE_TYPE if at peace)
 	WarStateTypes GetWarState(PlayerTypes ePlayer) const;
@@ -1510,9 +1512,10 @@ public:
 	bool IsWantToLiberateVassal(PlayerTypes ePlayer) const;
 	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 
-	bool IsVassalageAcceptable(PlayerTypes ePlayer);
-	bool IsCapitulationAcceptable(PlayerTypes ePlayer);
-	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvaluation); // can be called in either direction, for the master or the vassal
+	bool IsCapitulationAcceptable(PlayerTypes ePlayer); // vassal only
+	bool IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer); // vassal only
+	bool IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer); // master only, evaluates all players on the potential vassal's team
 
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // can be called in either direction, for the master or the vassal
 	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // vassal only, evaluates one master
@@ -1810,7 +1813,6 @@ private:
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
 	void LogWarProjection(CvString& strString, PlayerTypes ePlayer);
-	void LogWarDamage(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogExpansionAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
@@ -1878,6 +1880,7 @@ private:
 	short m_aiCachedOpinionWeight[MAX_MAJOR_CIVS];
 	char m_aeCivApproach[MAX_CIV_PLAYERS];
 	char m_aeCivStrategicApproach[MAX_MAJOR_CIVS];
+	char m_aeCachedSurfaceApproach[MAX_MAJOR_CIVS];
 	int m_aaiApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 	int m_aaiStrategicApproachValues[MAX_MAJOR_CIVS][NUM_CIV_APPROACHES];
 

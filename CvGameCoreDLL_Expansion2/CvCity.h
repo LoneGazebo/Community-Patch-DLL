@@ -673,6 +673,7 @@ public:
 	int GetJONSCulturePerTurnFromGreatWorks() const;
 
 	int GetJONSCulturePerTurnFromTraits() const;
+	void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 #endif
@@ -691,9 +692,9 @@ public:
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void SetBaseTourism(int iChange);
+	void SetBaseTourism(int iValue);
 	int GetBaseTourism() const;
-	void SetBaseTourismBeforeModifiers(int iChange);
+	void SetBaseTourismBeforeModifiers(int iValue);
 	int GetBaseTourismBeforeModifiers() const;
 #endif
 	// END Culture
@@ -850,8 +851,6 @@ public:
 
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
-
-	bool isAreaBorderObstacle() const;
 
 	bool IsResistance() const;
 	int GetResistanceTurns() const;
@@ -1812,6 +1811,7 @@ protected:
 #endif
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
+	FAutoVariable<std::vector<int>, CvCity> m_iaAddedYieldPerTurnFromTraits;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
 #endif

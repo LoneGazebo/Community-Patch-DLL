@@ -57,49 +57,7 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	// Reset vector
-	m_BuildingAIWeights.clear();
-
-	// Loop through reading each one and adding it to our vector
-	if(m_pCityBuildings)
-	{
-		for(int i = 0; i < m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings(); i++)
-		{
-			m_BuildingAIWeights.push_back(i, 0);
-		}
-
-		int iNumEntries;
-		FStringFixedBuffer(sTemp, 64);
-		int iType;
-
-		kStream >> iNumEntries;
-
-		for(int iI = 0; iI < iNumEntries; iI++)
-		{
-			bool bValid = true;
-			iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
-			if(iType != -1 || !bValid)
-			{
-				int iWeight;
-				kStream >> iWeight;
-				if(iType != -1)
-				{
-					m_BuildingAIWeights.IncreaseWeight(iType, iWeight);
-				}
-				else
-				{
-					CvString szError;
-					szError.Format("LOAD ERROR: Building Type not found");
-					GC.LogMessage(szError.GetCString());
-					CvAssertMsg(false, szError);
-				}
-			}
-		}
-	}
-	else
-	{
-		CvAssertMsg(m_pCityBuildings != NULL, "Building Production AI init failure: city buildings are NULL");
-	}
+	kStream >> m_BuildingAIWeights;
 }
 
 /// Serialization write
@@ -112,27 +70,7 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	if(m_pCityBuildings)
-	{
-		int iNumBuildings = m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings();
-		kStream << iNumBuildings;
-
-		// Loop through writing each entry
-		for(int iI = 0; iI < iNumBuildings; iI++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if(pkBuildingInfo)
-			{
-				CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
-				kStream << m_BuildingAIWeights.GetWeight(iI);
-			}
-			else
-			{
-				kStream << (int)0;
-			}
-		}
-	}
+	kStream << m_BuildingAIWeights;
 }
 
 /// Establish weights for one flavor; can be called multiple times to layer strategies
@@ -296,9 +234,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 
-		if (iValue > 300)
+		if (iValue > 500)
 		{
-			iValue = 300;
+			iValue = 500;
 		}
 
 		// we want this? ramp it up!

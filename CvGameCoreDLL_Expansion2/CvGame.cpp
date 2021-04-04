@@ -4501,7 +4501,7 @@ bool CvGame::canTrainNukes() const
 				{
 					if(pkUnitInfo->GetNukeDamageLevel() != -1)
 					{
-						if(GET_PLAYER(ePlayer).canTrain(eUnit))
+						if(GET_PLAYER(ePlayer).canTrainUnit(eUnit))
 						{
 							return true;
 						}
@@ -8994,7 +8994,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 			}
 
 			// Must be able to train this thing
-			if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
+			if(!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
 				continue;
 
 			// Random weighting
@@ -9019,7 +9019,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	CvWeightedVector<UnitTypes, SAFE_ESTIMATE_NUM_UNITS, true> veUnitRankings;
+	CvWeightedVector<UnitTypes> veUnitRankings;
 
 	// Loop through all Unit Classes
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9178,11 +9178,14 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			continue;
 
 		// Must be able to train this thing
-		if(!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true))
+		if(!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, true, false, /*bIgnoreUniqueUnitStatus*/ true))
 			continue;
 
 		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
 	}
+
+	if (veUnitRankings.size() == 0)
+		return NO_UNIT;
 
 	// Choose from weighted unit types
 	veUnitRankings.SortItems();
@@ -9238,7 +9241,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 			continue;
 
 		// Must be able to train this thing
-		if (!kPlayer.canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) 
+		if (!kPlayer.canTrainUnit(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) 
 			continue;
 
 		// CUSTOMLOG("CS Gift considering unit type %i", eLoopUnit);
@@ -10812,6 +10815,9 @@ void CvGame::doVictoryRandomization()
 		if (pkBestVictoryInfo == NULL)
 			return;
 
+		//Enable good victories
+		setVictoryValid(eBestVictory, true);
+
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strOutput;
@@ -10845,9 +10851,6 @@ void CvGame::doVictoryRandomization()
 			if (pkVictoryInfo == NULL)
 				continue;
 
-			if (!isVictoryValid(eVictory))
-				continue;
-
 			//Skip conquest, always valid.
 			if (pkVictoryInfo->isConquest())
 				continue;
@@ -10860,7 +10863,7 @@ void CvGame::doVictoryRandomization()
 			if (eBestVictory == eVictory)
 				continue;
 
-			//Disable all victories
+			//Disable all other victories
 			setVictoryValid(eVictory, false);
 		}
 
@@ -14031,7 +14034,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		}
 	}
 
-	CvWeightedVector<int, 64, true> eEraWeights;
+	CvWeightedVector<int> eEraWeights;
 	eEraWeights.clear();
 	int iMaxEraWeight = 0;
 	for (int i=0; i < static_cast<int>(eHighestEra); i++)
@@ -14108,7 +14111,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
 
 	// build a weight vector
-	static CvWeightedVector<int, 128*80, true> aDigSiteWeights; // size of a HUGE world
+	static CvWeightedVector<int> aDigSiteWeights; // size of a HUGE world
 	aDigSiteWeights.resize(iGridSize);
 
 	vector<GreatWorkType> aWorksWriting;

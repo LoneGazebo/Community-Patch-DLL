@@ -1299,7 +1299,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 				continue;
 
 		//enemy citadels are dangerous, pretend we cannot use those plots
-		if (TacticalAIHelpers::IsEnemyCitadel(pLoopPlot, ePlayer, false))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
 			continue;
 
 		//makes us slow
@@ -2438,7 +2438,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		// Don't do this if we're a minor civ
 		if (!m_pPlayer->isMinorCiv())
 		{
-			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)
 			{
 				LogGiftUnit(pScrapUnit, bInDeficit, bOverSupplyCap);
@@ -2745,7 +2745,7 @@ int CvMilitaryAI::GetPowerOfStrongestBuildableUnit(DomainTypes eDomain)
 			int iThisPower = pkUnitEntry->GetPower();		// Test the power first, it is much less costly than testing canTrain
 			if(iThisPower > iRtnValue)
 			{
-				if(m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+				if(m_pPlayer->canTrainUnit(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 				{
 					iRtnValue = iThisPower;
 				}

@@ -10,8 +10,6 @@
 #ifndef CIV5_PROCESS_PRODUCTION_AI_H
 #define CIV5_PROCESS_PRODUCTION_AI_H
 
-#define SAFE_ESTIMATE_NUM_PROCESSES 4
-
 class CvCity;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -50,8 +48,8 @@ private:
 
 	// Private data
 	CvCity* m_pCity;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_PROCESSES, true> m_ProcessAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_PROCESSES, true> m_Buildables;
+	CvWeightedVector<int> m_ProcessAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_PROJECT_PRODUCTION_AI_H

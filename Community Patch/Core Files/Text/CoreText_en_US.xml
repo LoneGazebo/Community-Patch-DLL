@@ -3005,13 +3005,19 @@
 		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
-		<Row Tag="TXT_KEY_DIPLO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">
 			<Text>You are competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK_FIERCE">
+			<Text>They are jealous of your superior technology!</Text>
 		</Row>
 
 		<!-- Cultural Dispute Mod (for cultural civs) -->
-		<Row Tag="TXT_KEY_DIPLO_POLICY_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK">
 			<Text>You are competing for cultural advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE">
+			<Text>They are jealous of your superior culture!</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
@@ -3021,10 +3027,10 @@
 		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
 			<Text>You are not competing for the favor of the same City-States.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_NO_TECH_BLOCK">
 			<Text>You are not competing for technological advancement.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_BLOCK">
 			<Text>You are not competing for cultural advancement.</Text>
 		</Row>
 		
@@ -6719,29 +6725,29 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
 		</Row>
 

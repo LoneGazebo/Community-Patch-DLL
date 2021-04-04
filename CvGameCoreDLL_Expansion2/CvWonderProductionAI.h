@@ -10,11 +10,6 @@
 #ifndef CIV5_WONDER_PRODUCTION_AI_H
 #define CIV5_WONDER_PRODUCTION_AI_H
 
-// Allocate array for 50% more wonders than we have now (34)
-//   May want to tune this number closer to shipping, though safe enough
-//   given that each entry is only 8 bytes
-#define SAFE_ESTIMATE_NUM_WONDERS 50
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvWonderProductionAI
 //!  \brief		Handles wonder production decisions for one player
@@ -60,8 +55,8 @@ private:
 	// Private data
 	CvPlayer* m_pPlayer;
 	CvBuildingXMLEntries* m_pBuildings;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> m_WonderAIWeights;
-	CvWeightedVector<int, SAFE_ESTIMATE_NUM_WONDERS, true> m_Buildables;
+	CvWeightedVector<int> m_WonderAIWeights;
+	CvWeightedVector<int> m_Buildables;
 };
 
 #endif //CIV5_WONDER_PRODUCTION_AI_H

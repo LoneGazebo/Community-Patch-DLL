@@ -237,9 +237,9 @@ private:
 	CvProjectProductionAI* m_pProjectProductionAI;
 	CvProcessProductionAI* m_pProcessProductionAI;
 
-	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
+	CvWeightedVector<CvCityBuildable> m_Buildables;
 #if defined(MOD_BALANCE_CORE)
-	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_BuildablesPrecheck;
+	CvWeightedVector<CvCityBuildable> m_BuildablesPrecheck;
 #endif
 
 	YieldTypes m_eMostDeficientYield;
