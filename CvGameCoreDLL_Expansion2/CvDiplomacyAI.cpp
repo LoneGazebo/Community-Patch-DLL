@@ -9367,7 +9367,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 				// Buffer zone to prevent abrupt shifts in strength perception
 				else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 				{
-					int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+					int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 					int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 					int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9424,7 +9424,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								// Buffer zone to prevent abrupt shifts in strength perception
 								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 								{
-									int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+									int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 									int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9476,7 +9476,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							// Buffer zone to prevent abrupt shifts in strength perception
 							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 							{
-								int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+								int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 								int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9528,7 +9528,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 									// Buffer zone to prevent abrupt shifts in strength perception
 									else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 									{
-										int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+										int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 										int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 										int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9571,7 +9571,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								// Buffer zone to prevent abrupt shifts in strength perception
 								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 								{
-									int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+									int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 									int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9924,7 +9924,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 			// Buffer zone to prevent abrupt shifts in strength perception
 			else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 			{
-				int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+				int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 				int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 				int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -10138,7 +10138,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 							// Buffer zone to prevent abrupt shifts in strength perception
 							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 							{
-								int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+								int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 								int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -10327,7 +10327,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						// Buffer zone to prevent abrupt shifts in strength perception
 						else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 						{
-							int iDifference = iHumanStrengthMod - (100 + iBufferValue);
+							int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
 							int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 							int iBufferMod = iBufferPercentMod * iDifference / 100;
 
