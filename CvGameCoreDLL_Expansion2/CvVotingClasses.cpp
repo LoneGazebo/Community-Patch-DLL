@@ -11085,7 +11085,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			}
 
 			//count how often we voted for one thing already
-			//and reduce the weight for what we chose by 10%, so we introduce more variety into our options.
+			//and reduce the weight for what we chose by 15%, so we introduce more variety into our options.
 			for (int i = 0; i < vConsiderations.size(); i++)
 			{
 				VoteConsideration vc = vConsiderations.GetElement(i);
