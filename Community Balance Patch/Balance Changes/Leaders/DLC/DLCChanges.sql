@@ -487,6 +487,11 @@ INSERT INTO Building_FeatureYieldChanges
 	(BuildingType, FeatureType, YieldType, Yield)
 VALUES
 	('BUILDING_SEOWON', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 1);
+	
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_SEOWON', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
