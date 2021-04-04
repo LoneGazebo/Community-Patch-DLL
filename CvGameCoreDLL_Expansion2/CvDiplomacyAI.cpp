@@ -9356,7 +9356,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			{
 				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
 				int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
-				int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+				int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 				// Only apply the human strength mod if their performance is at least average
 				if (iSkillRatingMod >= 0)
@@ -9367,7 +9367,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 				// Buffer zone to prevent abrupt shifts in strength perception
 				else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 				{
-					int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+					int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 					int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 					int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9413,7 +9413,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							{
 								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
 								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
-								int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+								int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 								// Only apply the human strength mod if their performance is at least average
 								if (iSkillRatingMod >= 0)
@@ -9424,7 +9424,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								// Buffer zone to prevent abrupt shifts in strength perception
 								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 								{
-									int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+									int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 									int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9465,7 +9465,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
 							int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
-							int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+							int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 							// Only apply the human strength mod if their performance is at least average
 							if (iSkillRatingMod >= 0)
@@ -9476,7 +9476,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							// Buffer zone to prevent abrupt shifts in strength perception
 							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 							{
-								int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+								int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 								int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9517,7 +9517,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								{
 									int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
 									int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
-									int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+									int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 									// Only apply the human strength mod if their performance is at least average
 									if (iSkillRatingMod >= 0)
@@ -9528,7 +9528,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 									// Buffer zone to prevent abrupt shifts in strength perception
 									else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 									{
-										int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+										int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 										int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 										int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9560,7 +9560,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							{
 								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
 								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
-								int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+								int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 								// Only apply the human strength mod if their performance is at least average
 								if (iSkillRatingMod >= 0)
@@ -9571,7 +9571,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								// Buffer zone to prevent abrupt shifts in strength perception
 								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 								{
-									int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+									int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 									int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -9654,10 +9654,9 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	{
 		iRtnValue = min((100 + iPercentageDifference), 200);
 	}
-	// If below average, apply half the % difference as a negative modifier to strength, cap below at -50%
+	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
 	else if (iCivRating < iAverageRating)
 	{
-		iPercentageDifference /= 2;
 		iRtnValue = max((100 - iPercentageDifference), 50);
 	}
 
@@ -9914,7 +9913,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 		{
 			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
 			int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
-			int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+			int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 			// Only apply the human strength mod if their performance is at least average
 			if (iSkillRatingMod >= 0)
@@ -9925,7 +9924,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 			// Buffer zone to prevent abrupt shifts in strength perception
 			else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 			{
-				int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+				int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 				int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 				int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -10129,7 +10128,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
 							int iSkillRatingMod = ComputeRatingStrengthAdjustment(*it) - 100;
-							int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+							int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 							if (iSkillRatingMod >= 0)
 							{
@@ -10139,7 +10138,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 							// Buffer zone to prevent abrupt shifts in strength perception
 							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 							{
-								int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+								int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 								int iBufferMod = iBufferPercentMod * iDifference / 100;
 
@@ -10318,7 +10317,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 					{
 						int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getAIHumanStrengthMod());
 						int iSkillRatingMod = ComputeRatingStrengthAdjustment(eAllyPlayer);
-						int iBufferValue = max(-25, /*-10*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE() / 2);
+						int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
 
 						if (iSkillRatingMod >= 0)
 						{
@@ -10328,7 +10327,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						// Buffer zone to prevent abrupt shifts in strength perception
 						else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
 						{
-							int iDifference = 100 + iHumanStrengthMod - (100 + max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE()));
+							int iDifference = iHumanStrengthMod - (100 + iBufferValue);
 							int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
 							int iBufferMod = iBufferPercentMod * iDifference / 100;
 
