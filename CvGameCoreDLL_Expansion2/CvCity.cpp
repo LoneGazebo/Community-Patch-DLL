@@ -193,6 +193,7 @@ CvCity::CvCity() :
 #endif
 	, m_iJONSCulturePerTurnFromPolicies("CvCity::m_iJONSCulturePerTurnFromPolicies", m_syncArchive)
 	, m_iJONSCulturePerTurnFromSpecialists("CvCity::m_iJONSCulturePerTurnFromSpecialists", m_syncArchive)
+	, m_iaAddedYieldPerTurnFromTraits("CvCity::m_iaAddedYieldPerTurnFromTraits", m_syncArchive)
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
 #endif
@@ -1378,6 +1379,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	m_iJONSCulturePerTurnFromPolicies = 0;
 	m_iJONSCulturePerTurnFromSpecialists = 0;
+	m_iaAddedYieldPerTurnFromTraits.resize(NUM_YIELD_TYPES);
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromReligion = 0;
 #endif
@@ -18603,6 +18605,28 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
 }
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_iaAddedYieldPerTurnFromTraits.setAt(eIndex, m_iaAddedYieldPerTurnFromTraits[eIndex] + iChange);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			if (isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+				//DLLUI->setDirty(InfoPane_DIRTY_BIT, true );
+			}
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
@@ -18664,7 +18688,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 	}
 #endif
 
-	return iYield;
+	return (iYield + m_iaAddedYieldPerTurnFromTraits[eYield]);
 }
 #endif
 //	--------------------------------------------------------------------------------
