@@ -10189,7 +10189,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		}
 		else
 		{
-			return ALIGNMENT_LIBERATOR;
+			return ALIGNMENT_TEAMMATE;
 		}
 	}
 	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
@@ -10474,7 +10474,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 
 	}
 	// Liberator?
-	if (pDiplo->IsPlayerLiberatedCapital(ePlayer) || pDiplo->IsPlayerLiberatedHolyCity(ePlayer))
+	if (pDiplo->IsPlayerLiberatedCapital(ePlayer) || pDiplo->IsPlayerLiberatedHolyCity(ePlayer) || pDiplo->WasResurrectedBy(ePlayer))
 	{
 		if (!pDiplo->IsCompetingForVictory() && !bUntrustworthy && !GetPlayer()->IsAtWarWith(ePlayer))
 		{
@@ -10531,6 +10531,10 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	else if (iAlignment <= 8)
 	{
 		eAlignment = ALIGNMENT_CONFIDANT;
+	}
+	else if (pDiplo->WasResurrectedBy(ePlayer))
+	{
+		eAlignment = ALIGNMENT_LIBERATOR;
 	}
 	else
 	{
@@ -12804,6 +12808,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 			case ALIGNMENT_SELF:
 			case ALIGNMENT_LIBERATOR:
+			case ALIGNMENT_TEAMMATE:
 			case ALIGNMENT_LEADER:
 				iScore += 150;
 				break;
@@ -12883,6 +12888,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					switch (eAlignment)
 					{
 					case ALIGNMENT_SELF:
+					case ALIGNMENT_TEAMMATE:
 					case ALIGNMENT_LIBERATOR:
 					case ALIGNMENT_LEADER:
 						iDiploScore = 100;
@@ -12951,11 +12957,12 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		case ALIGNMENT_SELF:
 			iScore += 200 * (iOurVotes + 1);
 			break;
-		case ALIGNMENT_LIBERATOR:
-			iScore += 200 * (iTheirVotes + 1);
-			break;
 		case ALIGNMENT_LEADER:
 			iScore += 100000;
+			break;
+		case ALIGNMENT_TEAMMATE:
+		case ALIGNMENT_LIBERATOR:
+			iScore += 200 * (iTheirVotes + 1);
 			break;
 		case ALIGNMENT_ALLY:
 			if (bIsLiked)
@@ -12999,11 +13006,12 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		case ALIGNMENT_SELF:
 			iScore += 200 * (iOurVotes + 1);
 			break;
-		case ALIGNMENT_LIBERATOR:
-			iScore += 200 * (iTheirVotes + 1);
-			break;
 		case ALIGNMENT_LEADER:
 			iScore += 100000;
+			break;
+		case ALIGNMENT_TEAMMATE:
+		case ALIGNMENT_LIBERATOR:
+			iScore += 200 * (iTheirVotes + 1);
 			break;
 		case ALIGNMENT_ALLY:
 			if (bIsLiked)

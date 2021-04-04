@@ -838,7 +838,7 @@ public:
 	// Increments of how much we think our interests are aligned with another player's
 	enum AlignmentLevels {
 		ALIGNMENT_WAR,
-		
+
 		ALIGNMENT_ENEMY,
 		ALIGNMENT_HATRED,
 		ALIGNMENT_RIVAL,
@@ -846,8 +846,9 @@ public:
 		ALIGNMENT_FRIEND,
 		ALIGNMENT_CONFIDANT,
 		ALIGNMENT_ALLY,
-
 		ALIGNMENT_LIBERATOR,
+
+		ALIGNMENT_TEAMMATE,
 		ALIGNMENT_LEADER,
 
 		ALIGNMENT_SELF,

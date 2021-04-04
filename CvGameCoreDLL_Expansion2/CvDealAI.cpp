@@ -3408,6 +3408,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				{
 				case CvLeagueAI::ALIGNMENT_LIBERATOR:
 				case CvLeagueAI::ALIGNMENT_LEADER:
+				case CvLeagueAI::ALIGNMENT_TEAMMATE:
 					iValue *= 1;
 					break;
 				case CvLeagueAI::ALIGNMENT_SELF:
@@ -3504,6 +3505,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				{
 				case CvLeagueAI::ALIGNMENT_LIBERATOR:
 				case CvLeagueAI::ALIGNMENT_LEADER:
+				case CvLeagueAI::ALIGNMENT_TEAMMATE:
 					iValue *= 120;
 					iValue /= 100;
 					break;
