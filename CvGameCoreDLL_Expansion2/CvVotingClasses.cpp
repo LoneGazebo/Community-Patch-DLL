@@ -11581,7 +11581,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 					}
 				}
-				int iSeaMightPercent = (iOurSeaMight * 100) / iHighestSeaMight;
+				int iSeaMightPercent = (iOurSeaMight * 100) / max(1,iHighestSeaMight);
 				iExtra += (iPercentofWinning * iSeaMightPercent) / 5;
 			}
 			if (bCanSilver)
@@ -11640,7 +11640,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 					}
 				}
-				int iMilitaryMightPercent = (iOurMilitaryMight * 100) / iHighestMilitaryMight;
+				int iMilitaryMightPercent = (iOurMilitaryMight * 100) / max(1,iHighestMilitaryMight);
 				iExtra += iMilitaryMightPercent * 10;
 			}
 			if (bCanBronze)
