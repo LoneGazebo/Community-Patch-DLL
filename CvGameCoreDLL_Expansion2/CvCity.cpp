@@ -553,10 +553,6 @@ CvCity::~CvCity()
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
-#elif defined(MOD_API_EXTENSIONS)
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName)
-#elif defined(MOD_BALANCE_CORE)
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, CvUnitEntry* pkSettlerUnitEntry)
 #else
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
@@ -2231,11 +2227,7 @@ void CvCity::setupSpaceshipGraphics()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvCity::PreKill(bool bVenice)
-#else
 void CvCity::PreKill()
-#endif
 {
 	VALIDATE_OBJECT
 
@@ -2244,6 +2236,7 @@ void CvCity::PreKill()
 	{
 		DLLUI->clearSelectedCities();
 	}
+
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	setAutomatons(0);
 #endif
@@ -2291,14 +2284,7 @@ void CvCity::PreKill()
 		}
 	}
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	plot()->removeMinorResources(bVenice);
-#else
-	if(GET_PLAYER(getOwner()).isMinorCiv())
-	{
-		GET_PLAYER(getOwner()).GetMinorCivAI()->DoRemoveStartingResources(plot());
-	}
-#endif
+	plot()->removeMinorResources();
 
 	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2432,11 +2418,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvCity::kill(bool bVenice)
-#else
 void CvCity::kill()
-#endif
 {
 	VALIDATE_OBJECT
 	CvPlot* pPlot = plot();
@@ -2471,11 +2453,7 @@ void CvCity::kill()
 		}
 	}
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	PreKill(bVenice);
-#else
 	PreKill();
-#endif
 
 	// get spies out of city
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
@@ -2632,9 +2610,6 @@ void CvCity::doTurn()
 	UpdateTerrainImprovementNeed();
 
 	GetCityStrategyAI()->DoTurn();
-#if !defined(MOD_BALANCE_CORE)
-	GetCityCitizens()->DoTurn();
-#endif
 	AI_doTurn();
 
 #if defined(MOD_BALANCE_CORE)
@@ -2905,8 +2880,9 @@ void CvCity::doTurn()
 		{
 			doGrowth();
 		}
-		GetCityCitizens()->DoTurn();
 #endif
+		GetCityCitizens()->DoTurn();
+
 		// sending notifications on when routes are connected to the capital
 		if(!isCapital())
 		{
@@ -8206,6 +8182,15 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	if(!isValidBuildingLocation(eBuilding))
 	{
 		return false;
+	}
+
+	//puppets will only build defensive buildings and gold generating buildings if we are in deficit
+	if (IsPuppet() && pkBuildingInfo->GetGoldMaintenance() > 0 && pkBuildingInfo->GetDefenseModifier() == 0)
+	{
+		// Are we running at a deficit?
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+			return false;
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)

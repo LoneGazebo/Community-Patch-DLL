@@ -74,6 +74,10 @@ void CvCityAI::AI_doTurn()
 	if(!isHuman())
 	{
 		AI_stealPlots();
+
+		//might want to reconsider our build
+		if (m_iDamageTakenLastTurn > getHealRate())
+			AI_setChooseProductionDirty(true);
 	}
 }
 

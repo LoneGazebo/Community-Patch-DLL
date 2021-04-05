@@ -7237,23 +7237,14 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 //	--------------------------------------------------------------------------------
-// Lifted from CvMinorCivAI::DoRemoveStartingResources()
-void CvPlot::removeMinorResources(bool bVenice)
+void CvPlot::removeMinorResources()
 {
-	bool bRemoveUniqueLuxury = false;
+	//we keep the resources!
+	if (MOD_BALANCE_CORE)
+		return;
 
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
-		bRemoveUniqueLuxury = true;
-
-	if (MOD_BALANCE_CORE)
-		bRemoveUniqueLuxury = false;
-		
-	if (bVenice)
-		bRemoveUniqueLuxury = false;
-
-	if (bRemoveUniqueLuxury)
 	{
 		ResourceTypes eOldResource = getResourceType();
 		if (eOldResource != NO_RESOURCE)
@@ -7266,7 +7257,6 @@ void CvPlot::removeMinorResources(bool bVenice)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvPlot::getImprovementType() const

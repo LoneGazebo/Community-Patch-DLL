@@ -12379,25 +12379,9 @@ bool CvUnit::buyCityState()
 
 	if (eMinor != NO_PLAYER)
 	{
-		CvCity* pMinorCapital = GET_PLAYER(eMinor).getCapitalCity();
-		if (pMinorCapital)
-		{
-			pMinorCapital = NULL; // we shouldn't use this pointer because DoAcquire invalidates it
-			int iNumUnits, iCapitalX, iCapitalY;
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-			// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoAcquire(getOwner(), iNumUnits, iCapitalX, iCapitalY, true);
-#else
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoAcquire(getOwner(), iNumUnits, iCapitalX, iCapitalY);
-#endif
-			pMinorCapital = GC.getMap().plot(iCapitalX, iCapitalY)->getPlotCity();
-			if (pMinorCapital)
-			{
-				// reduce the resistence to 0 turns because we bought it fairly
-				pMinorCapital->ChangeResistanceTurns(-pMinorCapital->GetResistanceTurns());
-			}
-
-		}
+		int iNumUnits, iCapitalX, iCapitalY;
+		// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
+		GET_PLAYER(eMinor).GetMinorCivAI()->DoPassCitiesToMajor(getOwner(), iNumUnits, iCapitalX, iCapitalY);
 	}
 
 	if (getOwner() == GC.getGame().getActivePlayer())
