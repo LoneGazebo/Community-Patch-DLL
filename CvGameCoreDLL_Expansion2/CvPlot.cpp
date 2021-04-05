@@ -4281,52 +4281,29 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 	return false;
 }
 
-bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
+bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const
 {
-	return isCityOrPassableImprovement(ePlayer, true, pUnit);
-}
-
-bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
-{
-	bool bIsCityOrPassable = isCity();
-	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsCityOrPassable |= IsImprovementPassable() && !IsImprovementPillaged();
-
-	// only possible adjacent real water
-	bIsCityOrPassable &= isAdjacentToShallowWater();
-
-	// Not a city or a fort
-	if (!bIsCityOrPassable)
-		return false;
-
-	// that's it!
-	if (!bMustBeFriendly)
-		return true;
-
-	// In friendly lands (ours, an allied CS or a major with open borders)
-	if (IsFriendlyTerritory(ePlayer))
+	bool bIsCity = isCity() && isCoastalLand();
+	// Good enough
+	if (bIsCity)
 	{
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (isCity() && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(getOwner()).isMinorCiv())
-		{
-			CvCity* pPlotCity = getPlotCity();
-			if (pUnit) 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			} 
-			else 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanTransitMinorCity, ePlayer, pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			}
-		}
-#endif
-		return true;
+		if (bCityMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
+	}
+
+	bool bIsPassableImprovement = false;
+	if (MOD_GLOBAL_PASSABLE_FORTS)
+		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isOwned() && isCoastalLand();
+
+	// Good enough
+	if (bIsPassableImprovement)
+	{
+		if (bImprovementMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
 	}
 
 	return false;
@@ -4991,10 +4968,11 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
-		if(!pUnit || !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
-		{
+		if (!pUnit)
 			return true;
-		}
+
+		if (pUnit->getDomainType() == getDomain())
+			return !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute();
 	}
 
 	return false;
@@ -7259,23 +7237,14 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 //	--------------------------------------------------------------------------------
-// Lifted from CvMinorCivAI::DoRemoveStartingResources()
-void CvPlot::removeMinorResources(bool bVenice)
+void CvPlot::removeMinorResources()
 {
-	bool bRemoveUniqueLuxury = false;
+	//we keep the resources!
+	if (MOD_BALANCE_CORE)
+		return;
 
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
-		bRemoveUniqueLuxury = true;
-
-	if (MOD_BALANCE_CORE)
-		bRemoveUniqueLuxury = false;
-		
-	if (bVenice)
-		bRemoveUniqueLuxury = false;
-
-	if (bRemoveUniqueLuxury)
 	{
 		ResourceTypes eOldResource = getResourceType();
 		if (eOldResource != NO_RESOURCE)
@@ -7288,7 +7257,6 @@ void CvPlot::removeMinorResources(bool bVenice)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvPlot::getImprovementType() const

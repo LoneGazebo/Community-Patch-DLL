@@ -295,8 +295,7 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit) const;
-	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit = NULL) const;
-	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit = NULL) const;
+	bool isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -566,9 +565,7 @@ public:
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void removeMinorResources(bool bVenice = false);
-#endif
+	void removeMinorResources();
 
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);

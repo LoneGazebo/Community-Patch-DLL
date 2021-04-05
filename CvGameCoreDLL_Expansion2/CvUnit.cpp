@@ -4712,7 +4712,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isEnemy(eTeam))
 		return true;
 
-	if(isRivalTerritory())
+	if(isRivalTerritory() || isTrade())
 		return true;
 
 		// Minors can't intrude into one another's territory
@@ -4765,9 +4765,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_AIR)
 		return (enterPlot.isCity() && enterPlot.getPlotCity()->getOwner()==getOwner()) || canLoad(enterPlot);
 
-	// Immobile can go nowhere ... except where they are
+	// Immobile can go nowhere ... except where they are or cities
 	if (eDomain==DOMAIN_IMMOBILE || m_bImmobile)
-		if (!at(enterPlot.getX(),enterPlot.getY()))
+		if (!at(enterPlot.getX(),enterPlot.getY()) && !enterPlot.isCity())
 			return false;
 
 	// Sea units - we can exclude non-water plots right away
@@ -4775,7 +4775,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	if (eDomain==DOMAIN_SEA)
 	{
 		//only trade units can pass through non-friendly improvements
-		if (!enterPlot.isWater() && !enterPlot.isCityOrPassableImprovement(getOwner(), !isTrade()))
+		if (!enterPlot.isWater() && !enterPlot.isCoastalCityOrPassableImprovement(getOwner(), false, !isTrade()))
 			return false;
 	}
 
@@ -4793,8 +4793,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	// If the plot is impassable, we need to check for positive promotions / traits and their exceptions
 	if(enterPlot.isImpassable(getTeam()))
 	{
-		// Some special units also have it easy
-		if(canMoveImpassable() || canMoveAllTerrain())
+		// Some special units also have it easy (if we have a trade path here, don't check the units individually)
+		if(canMoveImpassable() || canMoveAllTerrain() || isTrade())
 			return true;
 
 		// if there's a route, anyone can use it (this includes city plots)
@@ -4817,7 +4817,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		// Check ice with specialty: is passable if owned
 		if (enterPlot.isIce()) 
 		{
-			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.isOwned() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
 			return bCanCross;
 		}
 
@@ -5530,7 +5530,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	//last chance
 	if (!pBestPlot)
 	{
-		CvCity* pClosestCity = GET_PLAYER(getOwner()).GetClosestCityByPlots( plot() );
+		CvCity* pClosestCity = (getDomainType()==DOMAIN_SEA) ? 
+			OperationalAIHelpers::GetClosestFriendlyCoastalCity(getOwner(),plot()) : 
+			GET_PLAYER(getOwner()).GetClosestCityByPlots(plot());
 		if (pClosestCity)
 			return jumpToNearestValidPlotWithinRange(6, pClosestCity->plot());
 	}
@@ -5573,6 +5575,7 @@ bool CvUnit::jumpToNearestValidPlot()
 //	--------------------------------------------------------------------------------
 bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 {
+	CvPlot* pBestPlot = NULL;
 	if (!pStartPlot)
 		pStartPlot = plot();
 
@@ -5581,43 +5584,49 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 
 	//nothing to do?
 	if (canMoveInto(*pStartPlot, CvUnit::MOVEFLAG_DESTINATION))
-		return true;
-
-	CvPlot* pBestPlot = NULL;
-	int iBestValue = INT_MAX;
-	iRange = min(max(1,iRange),5);
-
-	for(int i=1; i<RING_PLOTS[iRange]; i++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots( pStartPlot, i );
+		if (at(pStartPlot->getX(),pStartPlot->getY()))
+			return true;
 
-		//needs to be visible so we don't run into problems with stacking
-		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
-			continue;
+		pBestPlot = pStartPlot;
+	}
+	else
+	{
+		int iBestValue = INT_MAX;
+		iRange = min(max(1, iRange), 5);
 
-		if(isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
+		for (int i = 1; i < RING_PLOTS[iRange]; i++)
 		{
-			//need to check for invisible units as well ...
-			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+			CvPlot* pLoopPlot = iterateRingPlots(pStartPlot, i);
+
+			//needs to be visible so we don't run into problems with stacking
+			if (!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
+				continue;
+
+			if (isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(), true, false) && !pLoopPlot->isNeutralUnit(getOwner(), true, false))
 			{
-				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
-
-				//avoid putting ships on lakes etc
-				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 12;
-
-				//avoid embarkation
-				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 6;
-
-				//try to stay within the same area
-				if(pLoopPlot->getArea() != getArea())
-					iValue += 5;
-
-				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+				//need to check for invisible units as well ...
+				if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 				{
-					iBestValue = iValue;
-					pBestPlot = pLoopPlot;
+					int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+					//avoid putting ships on lakes etc
+					if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+						iValue += 12;
+
+					//avoid embarkation
+					if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+						iValue += 6;
+
+					//try to stay within the same area
+					if (pLoopPlot->getArea() != getArea())
+						iValue += 5;
+
+					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
+					{
+						iBestValue = iValue;
+						pBestPlot = pLoopPlot;
+					}
 				}
 			}
 		}
@@ -5638,7 +5647,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
 			disembark(plot());
+
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		return true;
 	}
 	else
 	{
@@ -5651,8 +5662,6 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 		CUSTOMLOG("jumpToNearestValidPlotWithinRange(%i) failed for unit %s at plot (%i, %i)", iRange, getName().GetCString(), getX(), getY());
 		return false;
 	}
-
-	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7230,16 +7239,16 @@ bool CvUnit::canUseForAIOperation() const
 		CvCity* pCity = GetGarrisonedCity();
 		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		if (pLandZone && (pLandZone->GetTotalEnemyUnitCount()>0 || pLandZone->GetBorderScore(NO_DOMAIN)>5))
+		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
 			return false;
-		if (pWaterZone && (pWaterZone->GetTotalEnemyUnitCount()>0 || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
+		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
 			return false;
 	}
 	else
 	{
 		//check if it's a city zone! don't care about no-mans land.
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
-		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetTotalEnemyUnitCount() > 0)
+		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return false;
 
 		//do not call FirstTargetInRange, it's too expensive ...
@@ -7351,9 +7360,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
-		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
-		m_eHomelandMove = eMove;
-	}
+	m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+	m_eHomelandMove = eMove;
+}
 
 //	--------------------------------------------------------------------------------
 AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
@@ -12370,25 +12379,9 @@ bool CvUnit::buyCityState()
 
 	if (eMinor != NO_PLAYER)
 	{
-		CvCity* pMinorCapital = GET_PLAYER(eMinor).getCapitalCity();
-		if (pMinorCapital)
-		{
-			pMinorCapital = NULL; // we shouldn't use this pointer because DoAcquire invalidates it
-			int iNumUnits, iCapitalX, iCapitalY;
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-			// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoAcquire(getOwner(), iNumUnits, iCapitalX, iCapitalY, true);
-#else
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoAcquire(getOwner(), iNumUnits, iCapitalX, iCapitalY);
-#endif
-			pMinorCapital = GC.getMap().plot(iCapitalX, iCapitalY)->getPlotCity();
-			if (pMinorCapital)
-			{
-				// reduce the resistence to 0 turns because we bought it fairly
-				pMinorCapital->ChangeResistanceTurns(-pMinorCapital->GetResistanceTurns());
-			}
-
-		}
+		int iNumUnits, iCapitalX, iCapitalY;
+		// CvUnit::buyCityState() is only ever called via CvTypes::getMISSION_BUY_CITY_STATE(), so this MUST be a "Merchant of Venice" type unit
+		GET_PLAYER(eMinor).GetMinorCivAI()->DoPassCitiesToMajor(getOwner(), iNumUnits, iCapitalX, iCapitalY);
 	}
 
 	if (getOwner() == GC.getGame().getActivePlayer())
@@ -27295,7 +27288,7 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 			if (pLoopUnit->IsCombatUnit())
 			{
 				//inside of cities mixing domains is ok
-				if (pPlot->isFriendlyCityOrPassableImprovement(getOwner()))
+				if (pPlot->isCoastalCityOrPassableImprovement(getOwner(),true,true))
 				{
 					if (getDomainType()==pLoopUnit->getDomainType())
 						iNumUnitsOfSameType++;

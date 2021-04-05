@@ -5613,45 +5613,6 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 	}
 }
 
-/// Our city got destroyed or taken! Do cleanup for special starting resources we had.
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvMinorCivAI::DoRemoveStartingResources(CvPlot* pCityPlot, bool bVenice)
-#else
-void CvMinorCivAI::DoRemoveStartingResources(CvPlot* pCityPlot)
-#endif
-{
-	CvAssertMsg(pCityPlot != NULL, "City's plot should not be NULL. Please send Anton your save file and version.");
-	if (pCityPlot == NULL) return;
-
-	MinorCivTraitTypes eTrait = GetTrait();
-
-	// Mercantile
-	if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-	{
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-		pCityPlot->removeMinorResources(bVenice);
-#else
-		bool bRemoveUniqueLuxury = false;
-
-		if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
-			bRemoveUniqueLuxury = true;
-
-		if (bRemoveUniqueLuxury)
-		{
-			ResourceTypes eOldResource = pCityPlot->getResourceType();
-			if (eOldResource != NO_RESOURCE)
-			{
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eOldResource);
-				if (pkResourceInfo && pkResourceInfo->isOnlyMinorCivs())
-				{
-					pCityPlot->setResourceType(NO_RESOURCE, 0, true);
-				}
-			}
-		}
-#endif
-	}
-}
-
 /// Notifications
 void CvMinorCivAI::AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX, int iY)
 {
@@ -14890,7 +14851,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	int iNumUnits = 0;
 	int iCapitalX = 0;
 	int iCapitalY = 0;
-	DoAcquire(eMajor, iNumUnits, iCapitalX, iCapitalY);
+	DoPassCitiesToMajor(eMajor, iNumUnits, iCapitalX, iCapitalY);
 
 	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
 
@@ -14927,11 +14888,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 #endif
 }
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY, bool bVenice)
-#else
-void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY)
-#endif
+void CvMinorCivAI::DoPassCitiesToMajor(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX, int& iCapitalY)
 {
 	// Take their units
 	CvUnit* pLoopUnit = NULL;
@@ -14952,25 +14909,22 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity, true))
 	{
 		vpCitiesToAcquire.push_back(pLoopCity);
-	}
-	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
-	{
-		CvCity* pCity = vpCitiesToAcquire[iI];
-		CvAssertMsg(pCity, "pCity should not be NULL. Please send Anton your save file and version.");
-		if (pCity)
+		if (pLoopCity->isCapital())
 		{
-			if (pCity->isCapital())
-			{
-				iCapitalX = pCity->getX();
-				iCapitalY = pCity->getY();
-			}
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-			GET_PLAYER(eMajor).acquireCity(pCity, false, true, bVenice); // deletes pCity, don't reuse the pointer
-#else
-			GET_PLAYER(eMajor).acquireCity(pCity, false, true); // deletes pCity, don't reuse the pointer
-#endif
+			iCapitalX = pLoopCity->getX();
+			iCapitalY = pLoopCity->getY();
 		}
 	}
+
+	//do this in two steps, don't invalidate the iterator
+	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
+	{
+		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], false, true); 
+		if (pNewCity)
+			// reduce the resistence to 0 turns because we bought it fairly
+			pNewCity->ChangeResistanceTurns(-pNewCity->GetResistanceTurns());
+	}
+
 	SetDisableNotifications(false);
 
 	SetMajorBoughtOutBy(eMajor);
@@ -14978,7 +14932,6 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 	GC.getGame().DoUpdateDiploVictory();
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-
 }
 
 // ******************************
@@ -15906,7 +15859,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
 
-					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true, false);
+					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true);
 					return;
 				}
 			}

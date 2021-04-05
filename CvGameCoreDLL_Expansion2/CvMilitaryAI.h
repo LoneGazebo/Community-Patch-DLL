@@ -248,7 +248,7 @@ public:
 	void LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogPeace(PlayerTypes eOpponent);
 	void LogPeace(TeamTypes eOpponentTeam);
-	void LogDeficitScrapUnit(CvUnit* pUnit);
+	void LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted);
 
 #if defined(MOD_BALANCE_CORE)
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);

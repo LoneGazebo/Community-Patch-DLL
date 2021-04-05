@@ -1543,24 +1543,26 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 }
 
 /// Log that a unit is being scrapped because of the deficit checks
-void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit)
+void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strTemp;
-		CvString playerName;
-		FILogFile* pLog;
 
 		// Open the right file
-		playerName = m_pPlayer->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+		CvString playerName = m_pPlayer->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		strOutBuf.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strOutBuf += playerName + ", ";
-		strTemp.Format("Scrapping %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
+		if (bGifted)
+			strTemp.Format("Gifting away %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
+		else
+			strTemp.Format("Scrapping %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
 		strOutBuf += strTemp;
 		strOutBuf += "by DoDeficit(), , ";   //extra space so format is consistent with LogScrapUnit()
+
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{
 			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits);
@@ -1569,8 +1571,10 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit)
 		{
 			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec Size %d, ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits);
 		}
+
 		strOutBuf += strTemp;
-		pLog->Msg(strOutBuf);
+		if (pLog)
+			pLog->Msg(strOutBuf);
 	}
 }
 
@@ -2581,10 +2585,25 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 			}
 		}
 
-		// Can I scrap this unit?
-		if( !bCheckObsolete || bIsObsolete )
+		bool bResourceDeficit = false;
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel();
+			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
+			if (iNumResourceInUse > 0 && m_pPlayer->getNumResourceAvailable(eResource) < 0)
+			{
+				bResourceDeficit = true;
+				break;
+			}
+		}
+
+		// Can I scrap this unit?
+		if( !bCheckObsolete || bIsObsolete || bResourceDeficit)
+		{
+			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel(); //tiebreaker
+			if (bResourceDeficit)
+				iScore /= 2;
+
 			if(iScore < iBestScore)
 			{
 				iBestScore = iScore;

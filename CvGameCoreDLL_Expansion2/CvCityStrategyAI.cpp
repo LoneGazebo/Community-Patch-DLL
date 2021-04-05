@@ -4659,7 +4659,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (iModifier > 0)
 	{
 		//Modifiers are more important as the game goes on, exponentially so.
-		iModifier *= (100 + (iEra * iEra * iEra * iEra));
+		iModifier *= (100 + (iEra * iEra * iEra));
 		iModifier /= 100;
 		//Let's see how much this is compared to our actual rate.
 		//We multiply, as we want to see what the 'new' value will be with this modifier intact.
@@ -4674,6 +4674,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 	if (iYieldValue > 0)
 	{
+		//consider the modifiers we have in the city anyway!
+		int iBaseModifier = pCity->getBaseYieldRateModifier(eYield);
+		iYieldValue *= iBaseModifier;
+		iYieldValue /= 100;
+
 		switch (eYield)
 		{
 		case YIELD_CULTURE:

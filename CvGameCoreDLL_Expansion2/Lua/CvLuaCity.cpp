@@ -275,6 +275,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeJONSCulturePerTurnFromSpecialists);
 	Method(GetJONSCulturePerTurnFromGreatWorks);
 	Method(GetJONSCulturePerTurnFromTraits);
+	Method(ChangeYieldFromTraits);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetYieldPerTurnFromTraits);
 	Method(GetYieldFromUnitsInCity);
@@ -3098,6 +3099,11 @@ int CvLuaCity::lGetJONSCulturePerTurnFromGreatWorks(lua_State* L)
 int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromTraits);
+}
+//void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
+int CvLuaCity::lChangeYieldFromTraits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::ChangeYieldFromTraits);
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------

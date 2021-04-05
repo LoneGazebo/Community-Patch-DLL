@@ -2901,31 +2901,14 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 
 //	--------------------------------------------------------------------------------
 // NOTE: bGift set to true if the city is given as a gift, as in the case for trades and Austria UA of annexing city-states
-#if defined(MOD_API_EXTENSIONS)
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift, bool bVenice)
-#else
 CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
-#endif
-#else
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift, bool bVenice)
-#else
-void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
-#endif
-#endif
 {
 	if(pOldCity == NULL)
-#if defined(MOD_API_EXTENSIONS)
 		return NULL;
-#else
-		return;
-#endif
 
 	IDInfo* pUnitNode;
 	CvCity* pNewCity;
 	CvUnit* pLoopUnit;
-	CvPlot* pCityPlot;
 
 	CvString strBuffer;
 	CvString strName;
@@ -2934,20 +2917,21 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	PlayerTypes eOriginalOwner;
 	BuildingTypes eBuilding;
 	bool bRecapture;
-	int iCaptureGold;
-	int iCaptureCulture;
-	int iCaptureGreatWorks;
+	int iCaptureGold = 0;
+	int iCaptureCulture = 0;
+	int iCaptureGreatWorks = 0;
 	int iGameTurnFounded;
 	int iPopulation;
 	int iHighestPopulation;
 	int iOldPopulation;
 	int iBattleDamage;
 	int iI;
+
 	FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
 	CvCityReligions tempReligions;
 	bool bIsMinorCivBuyout = (pOldCity->GetPlayer()->isMinorCiv() && bGift && (IsAbleToAnnexCityStates() || GetPlayerTraits()->IsNoAnnexing())); // Austria and Venice UA
 
-	pCityPlot = pOldCity->plot();
+	CvPlot* pCityPlot = pOldCity->plot();
 
 	pUnitNode = pCityPlot->headUnitNode();
 
@@ -3202,20 +3186,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		strName.Format("%s (%s)", pOldCity->getName().GetCString(), GET_PLAYER(pOldCity->getOwner()).getName());
 
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		if(GetID() != GC.getGame().getActivePlayer())
 		{
-			if((PlayerTypes)iI == GC.getGame().getActivePlayer())
+			CvPlayer& activePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+			if((activePlayer.isAlive() || activePlayer.isObserver()) && activePlayer.GetNotifications())
 			{
-				if((GET_PLAYER((PlayerTypes)iI).isAlive() || GET_PLAYER((PlayerTypes)iI).isObserver()) && GET_PLAYER((PlayerTypes)iI).GetNotifications())
+				if(pOldCity->isRevealed(activePlayer.getTeam(), false))
 				{
-					if(iI != GetID())
-					{
-						if(pOldCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
-						{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-							GC.GetEngineUserInterface()->AddCityMessage(0, pOldCity->GetIDInfo(), ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_CITYCAPTURED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pOldCity->getX(), pOldCity->getY(), true, true*/);
-						}
-					}
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+					GC.GetEngineUserInterface()->AddCityMessage(0, pOldCity->GetIDInfo(), activePlayer.GetID(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_CITYCAPTURED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pOldCity->getX(), pOldCity->getY(), true, true*/);
 				}
 			}
 		}
@@ -3249,15 +3228,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 	}
 
-	iCaptureGold = 0;
-	iCaptureCulture = 0;
-	iCaptureGreatWorks = 0;
-
 	if(bConquest)
 	{
-		iCaptureGold = 0;
-
-		iCaptureGold += GC.getBASE_CAPTURE_GOLD();
+		iCaptureGold = GC.getBASE_CAPTURE_GOLD();
 		iCaptureGold += (pOldCity->getPopulation() * GC.getCAPTURE_GOLD_PER_POPULATION());
 		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND1(), pOldCity->plot()->GetPlotIndex()) * 2;
 		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND2(), GET_PLAYER(pOldCity->getOwner()).GetPseudoRandomSeed()) * 2;
@@ -3270,12 +3243,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		iCaptureGold *= (100 + pOldCity->getCapturePlunderModifier()) / 100;
 		iCaptureGold *= (100 + GetPlayerTraits()->GetPlunderModifier()) / 100;
-	}
 
-	GetTreasury()->ChangeGold(iCaptureGold);
+		GetTreasury()->ChangeGold(iCaptureGold);
 
-	if(bConquest)
-	{
 		iCaptureCulture = pOldCity->getJONSCulturePerTurn();
 		iCaptureCulture *= GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER);
 
@@ -3283,10 +3253,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 			changeJONSCulture(iCaptureCulture);
 		}
-	}
 
-	if(bConquest)
-	{
 		if (GetPlayerTraits()->IsTechFromCityConquer())
 		{
 			// Will this be the first time we have owned this city?
@@ -3864,11 +3831,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	int iOldCityRings = pOldCity->getWorkPlotDistance();
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	pOldCity->PreKill(bVenice);
-#else
 	pOldCity->PreKill();
-#endif
 
 	{
 		auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pOldCity));
@@ -3916,11 +3879,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
-
-#ifdef _MSC_VER
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) 
-#endif
 
 	// For buyouts, set it up like a new city founded by this player, to avoid liberation later on etc.
 	if(bIsMinorCivBuyout)
@@ -4285,7 +4243,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #endif
-	bool bKeepBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || bVenice;
+
+	bool bKeepBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest;
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -4658,17 +4617,26 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
-			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv())
+			if(!GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				if(GET_PLAYER(eOldOwner).GetIncomingUnitCountdown(ePlayer) > 0)
 				{
-					// Must have capital to actually spawn unit
-					CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
-					if(pCapital)
+					UnitTypes eUnitType = GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer);
+					if(eUnitType != NO_UNIT)
 					{
-						if(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer) != NO_UNIT)
+						CvCity* pClosestCity = NULL; 
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+						if (pkUnitInfo)
 						{
-							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(GET_PLAYER(eOldOwner).GetIncomingUnitType(ePlayer), pCapital->getX(), pCapital->getY());
+							if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+								pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(ePlayer, pCityPlot);
+							else
+								pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCityPlot);
+						}
+
+						if (pClosestCity)
+						{
+							CvUnit* pNewUnit = GET_PLAYER(ePlayer).initUnit(eUnitType, pClosestCity->getX(), pClosestCity->getY());
 							CvAssert(pNewUnit);
 							if (pNewUnit)
 							{
@@ -4779,10 +4747,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// Venice MUST liberate their own capital
 			if (GetPlayerTraits()->IsNoAnnexing() && pNewCity->getX() == GetOriginalCapitalX() && pNewCity->getY() == GetOriginalCapitalY())
 			{
-				if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0) {
-					if (iCaptureCulture == 0 && iCaptureGreatWorks == 0) {
+				if (iCaptureGold > 0 || iCaptureCulture > 0 || iCaptureGreatWorks > 0)
+				{
+					if (iCaptureCulture == 0 && iCaptureGreatWorks == 0)
+					{
 						strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_CITY_CAPTURE", iCaptureGold, pNewCity->getNameKey());
-					} else {
+					} 
+					else
+					{
 						strBuffer = GetLocalizedText("TXT_KEY_POPUP_GOLD_AND_CULTURE_CITY_CAPTURE", iCaptureGold, iCaptureCulture, iCaptureGreatWorks, pNewCity->getNameKey());
 					}
 					GC.GetEngineUserInterface()->AddCityMessage(0, pNewCity->GetIDInfo(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
@@ -4922,13 +4894,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
 	}
 
-#if defined(MOD_API_EXTENSIONS)
-		return pNewCity;
-#endif
-#ifdef _MSC_VER
-#pragma warning ( pop ) // restore warning level suppressed for pNewCity null check
-#endif// _MSC_VER
+	return pNewCity;
 }
+
 bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bRecapture)
 {
 	CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -4994,7 +4962,7 @@ void CvPlayer::killCities()
 	for (std::vector<int>::iterator it=citiesToKill.begin(); it!=citiesToKill.end(); ++it)
 	{
 		CvCity* pLoopCity = getCity(*it);
-		pLoopCity->kill(false);
+		pLoopCity->kill();
 	}
 }
 
@@ -36699,78 +36667,54 @@ void CvPlayer::SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue)
 /// Player spending too much cash?
 void CvPlayer::DoDeficit()
 {
-	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE) {
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE)
 		return;
-	}
+
 	if(isBarbarian())
-	{
 		return;
-	}
-
-	int iNumMilitaryUnits = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
-		if(pLoopUnit->IsCombatUnit())
-			iNumMilitaryUnits++;
-	}
 
 	// If the player has more units than cities, start disbanding things
-	int iMax = isMinorCiv() ? ((GetCurrentEra() + 4) * getNumCities()) : max(10, getNumCities());
-	if(iNumMilitaryUnits >= iMax)
+	if( getNumMilitaryUnits() > 3 + GetCurrentEra() + getNumCities() )
 	{
-		int iRand = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed());
-		if (iRand < 50)
+		int iLandScore = MAX_INT;
+		int iNavalScore = MAX_INT;
+		CvUnit* pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
+		CvUnit* pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore);
+
+		//keep the more useful one
+		CvUnit *pScrapUnit = (iLandScore < iNavalScore) ? pLandUnit : pNavalUnit;
+
+		//unless we need one kind much more urgently
+		if (pLandUnit && GetMilitaryAI()->GetLandDefenseState() < GetMilitaryAI()->GetNavalDefenseState())
+			pScrapUnit = pLandUnit;
+		else if (pNavalUnit && GetMilitaryAI()->GetLandDefenseState() > GetMilitaryAI()->GetNavalDefenseState())
+			pScrapUnit = pNavalUnit;
+
+		//AI players try to gift their units away
+		if (!isMinorCiv() && !isHuman())
 		{
-			CvUnit* pLandUnit = NULL;
-			CvUnit* pNavalUnit = NULL;
-			int iLandScore = MAX_INT;
-			int iNavalScore = MAX_INT;
-
-			// Look for obsolete land units if in deficit or have sufficient units
-			if (iRand <= 25)
+			PlayerTypes eMinor = GetBestGiftTarget(pScrapUnit->getDomainType());
+			if (eMinor != NO_PLAYER)
 			{
-				pLandUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_LAND, false, iLandScore);
+				GetMilitaryAI()->LogDeficitScrapUnit(pScrapUnit,true);
+				GET_PLAYER(eMinor).AddIncomingUnit(GetID(), pScrapUnit);
+				pScrapUnit = NULL;
 			}
-			// Look for obsolete naval units if in deficit or have sufficient units
-			else
+		}
+
+		//get rid of it
+		if(pScrapUnit)
+		{
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
 			{
-				pNavalUnit = GetMilitaryAI()->FindUnitToScrap(DOMAIN_SEA, false, iNavalScore);
+				Localization::String locString = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED");
+				Localization::String locSummary = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED_S");
+				pNotifications->Add(NOTIFICATION_UNIT_DIED, locString.toUTF8(), locSummary.toUTF8(), pScrapUnit->getX(), pScrapUnit->getY(), pScrapUnit->getUnitType(), GetID());
 			}
 
-			if(iLandScore < MAX_INT && (GetMilitaryAI()->GetLandDefenseState() <= GetMilitaryAI()->GetNavalDefenseState() || iLandScore <= iNavalScore))
-			{
-				if(pLandUnit)
-				{
-					CvNotifications* pNotifications = GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String locString = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED");
-						Localization::String locSummary = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED_S");
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, locString.toUTF8(), locSummary.toUTF8(), pLandUnit->getX(), pLandUnit->getY(), pLandUnit->getUnitType(), GetID());
-					}
-
-					pLandUnit->scrap();
-					GetMilitaryAI()->LogDeficitScrapUnit(pLandUnit);
-				}
-			}
-			else if(iNavalScore < MAX_INT)
-			{
-				if(pNavalUnit)
-				{
-					CvNotifications* pNotifications = GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String locString = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED");
-						Localization::String locSummary = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED_S");
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, locString.toUTF8(), locSummary.toUTF8(), pNavalUnit->getX(), pNavalUnit->getY(), pNavalUnit->getUnitType(), GetID());
-					}
-
-					pNavalUnit->scrap();
-					GetMilitaryAI()->LogDeficitScrapUnit(pNavalUnit);
-				}
-			}
+			GetMilitaryAI()->LogDeficitScrapUnit(pScrapUnit,false);
+			pScrapUnit->scrap();
 		}
 	}
 }

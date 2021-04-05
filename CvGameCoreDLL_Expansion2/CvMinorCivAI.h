@@ -295,11 +295,6 @@ public:
 	MinorCivStatusTypes GetStatus() const;
 
 	void DoAddStartingResources(CvPlot* pCityPlot);
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void DoRemoveStartingResources(CvPlot* pCityPlot, bool bVenice);
-#else
-	void DoRemoveStartingResources(CvPlot* pCityPlot);
-#endif
 
 	void AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
 	void AddQuestNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1, bool bNewQuest = false);
@@ -654,11 +649,7 @@ public:
 	int GetBuyoutCost(PlayerTypes eMajor);
 	void DoBuyout(PlayerTypes eMajor);
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void DoAcquire(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY, bool bVenice = false);
-#else
-	void DoAcquire(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY);
-#endif
+	void DoPassCitiesToMajor(PlayerTypes eMajor, int& iNumUnits, int& iCapitalX, int& iCapitalY);
 
 	// ************************************
 	// ***** Bullying *****

@@ -281,6 +281,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetCapitalCity);
 	Method(SetOriginalCapitalXY);
 	Method(GetNumWonders);
+	Method(GetOriginalCapitalPlot);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
@@ -440,10 +441,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarScore);
 	Method(GetPlayerMilitaryStrengthComparedToUs);
 	Method(GetPlayerEconomicStrengthComparedToUs);
-	Method(GetWarDamageLevel);
-	Method(IsWillingToMakePeaceWithHuman);
+	Method(GetWarDamageValue);
+	Method(IsWantsPeaceWithPlayer);
 	Method(GetTreatyWillingToOffer);
-	Method(DoUpdateWarDamageLevel);
+	Method(DoUpdateWarDamage);
 	Method(DoUpdatePeaceTreatyWillingness);
 	Method(GetDominationResistance);
 #endif
@@ -3182,6 +3183,15 @@ int CvLuaPlayer::lGetNumWonders(lua_State* L)
 	
 	const int iResult = pkPlayer->GetNumWonders();
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetOriginalCapitalPlot(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	CvPlot *pOriginalCapitalPlot = GC.getMap().plot(pkPlayer->GetOriginalCapitalX(), pkPlayer->GetOriginalCapitalY());
+	CvLuaPlot::Push(L, pOriginalCapitalPlot);
 	return 1;
 }
 #endif
@@ -6434,25 +6444,15 @@ int CvLuaPlayer::lGetPlayerEconomicStrengthComparedToUs(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetWarDamageLevel(lua_State* L)
+int CvLuaPlayer::lGetWarDamageValue(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	int iTotal = 0;
-	int iResult = pkPlayer->GetDiplomacyAI()->GetWarDamageLevel(ePlayer);
-	int iResult2 = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageLevel(pkPlayer->GetID());
-	if(iResult != -1 && iResult2 != -1)
-	{
-		if(iResult > iResult2)
-		{
-			iTotal = iResult - iResult2;
-		}
-	}
-	lua_pushinteger(L, iTotal);
+	int iOurWarDamage = pkPlayer->GetDiplomacyAI()->GetWarDamageValue(ePlayer);
+	lua_pushinteger(L, iOurWarDamage);
 	return 1;
 }
-
-int CvLuaPlayer::lIsWillingToMakePeaceWithHuman(lua_State* L)
+int CvLuaPlayer::lIsWantsPeaceWithPlayer(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
@@ -6470,7 +6470,7 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 }
 
 // void DoUpdateWarDamageLevel();
-int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
+int CvLuaPlayer::lDoUpdateWarDamage(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
@@ -13526,7 +13526,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
+
+				if (iValue > 0)
+				{
+					if (pDiplo->GetTechBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TECH_BLOCK_FIERCE");
+					else
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TECH_BLOCK");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_BLOCK");
+				}
+
 				aOpinions.push_back(kOpinion);
 			}
 
@@ -13537,7 +13549,19 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_POLICY_DISPUTE") : Localization::Lookup("TXT_KEY_DIPLO_NO_POLICY_DISPUTE");
+
+				if (iValue > 0)
+				{
+					if (pDiplo->GetPolicyBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE");
+					else
+						kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_POLICY_BLOCK");
+				}
+				else
+				{
+					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_POLICY_BLOCK");
+				}
+
 				aOpinions.push_back(kOpinion);
 			}
 

@@ -1216,6 +1216,11 @@ INSERT INTO Building_YieldPerXTerrainTimes100
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
 	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
+	
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_UNIVERSITY', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)

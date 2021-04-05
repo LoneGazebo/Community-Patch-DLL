@@ -193,6 +193,7 @@ CvCity::CvCity() :
 #endif
 	, m_iJONSCulturePerTurnFromPolicies("CvCity::m_iJONSCulturePerTurnFromPolicies", m_syncArchive)
 	, m_iJONSCulturePerTurnFromSpecialists("CvCity::m_iJONSCulturePerTurnFromSpecialists", m_syncArchive)
+	, m_iaAddedYieldPerTurnFromTraits("CvCity::m_iaAddedYieldPerTurnFromTraits", m_syncArchive)
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
 #endif
@@ -552,10 +553,6 @@ CvCity::~CvCity()
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
-#elif defined(MOD_API_EXTENSIONS)
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName)
-#elif defined(MOD_BALANCE_CORE)
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, CvUnitEntry* pkSettlerUnitEntry)
 #else
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
@@ -1378,6 +1375,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	m_iJONSCulturePerTurnFromPolicies = 0;
 	m_iJONSCulturePerTurnFromSpecialists = 0;
+	m_iaAddedYieldPerTurnFromTraits.resize(NUM_YIELD_TYPES);
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromReligion = 0;
 #endif
@@ -2229,11 +2227,7 @@ void CvCity::setupSpaceshipGraphics()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvCity::PreKill(bool bVenice)
-#else
 void CvCity::PreKill()
-#endif
 {
 	VALIDATE_OBJECT
 
@@ -2242,6 +2236,7 @@ void CvCity::PreKill()
 	{
 		DLLUI->clearSelectedCities();
 	}
+
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	setAutomatons(0);
 #endif
@@ -2289,14 +2284,7 @@ void CvCity::PreKill()
 		}
 	}
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	plot()->removeMinorResources(bVenice);
-#else
-	if(GET_PLAYER(getOwner()).isMinorCiv())
-	{
-		GET_PLAYER(getOwner()).GetMinorCivAI()->DoRemoveStartingResources(plot());
-	}
-#endif
+	plot()->removeMinorResources();
 
 	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2430,11 +2418,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-void CvCity::kill(bool bVenice)
-#else
 void CvCity::kill()
-#endif
 {
 	VALIDATE_OBJECT
 	CvPlot* pPlot = plot();
@@ -2469,11 +2453,7 @@ void CvCity::kill()
 		}
 	}
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	PreKill(bVenice);
-#else
 	PreKill();
-#endif
 
 	// get spies out of city
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
@@ -2630,9 +2610,6 @@ void CvCity::doTurn()
 	UpdateTerrainImprovementNeed();
 
 	GetCityStrategyAI()->DoTurn();
-#if !defined(MOD_BALANCE_CORE)
-	GetCityCitizens()->DoTurn();
-#endif
 	AI_doTurn();
 
 #if defined(MOD_BALANCE_CORE)
@@ -2903,8 +2880,9 @@ void CvCity::doTurn()
 		{
 			doGrowth();
 		}
-		GetCityCitizens()->DoTurn();
 #endif
+		GetCityCitizens()->DoTurn();
+
 		// sending notifications on when routes are connected to the capital
 		if(!isCapital())
 		{
@@ -8204,6 +8182,15 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	if(!isValidBuildingLocation(eBuilding))
 	{
 		return false;
+	}
+
+	//puppets will only build defensive buildings and gold generating buildings if we are in deficit
+	if (IsPuppet() && pkBuildingInfo->GetGoldMaintenance() > 0 && pkBuildingInfo->GetDefenseModifier() == 0)
+	{
+		// Are we running at a deficit?
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+		if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+			return false;
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -18603,6 +18590,28 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
 }
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_iaAddedYieldPerTurnFromTraits.setAt(eIndex, m_iaAddedYieldPerTurnFromTraits[eIndex] + iChange);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			if (isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+				//DLLUI->setDirty(InfoPane_DIRTY_BIT, true );
+			}
+		}
+	}
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
@@ -18664,7 +18673,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 	}
 #endif
 
-	return iYield;
+	return (iYield + m_iaAddedYieldPerTurnFromTraits[eYield]);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -30462,7 +30471,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 		bAccept = !pPlot->isWater();
 		break;
 	case DOMAIN_SEA:
-		bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(ePlayer) && pPlot->isCoastalLand());
+		bAccept = pPlot->isWater() || pPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true);
 		break;
 	case DOMAIN_HOVER:
 		bAccept = true;
