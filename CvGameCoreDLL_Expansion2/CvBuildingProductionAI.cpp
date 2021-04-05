@@ -1080,13 +1080,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iYieldValue *= 5;
 				iYieldTrait *= 5;
 			}
-			
-			//Puppets should focus on yield buildings.
-			if (m_pCity->IsPuppet())
-			{
-				iYieldValue *= 2;
-				iYieldTrait *= 2;
-			}
 		}
 
 		iBonus += iYieldValue;

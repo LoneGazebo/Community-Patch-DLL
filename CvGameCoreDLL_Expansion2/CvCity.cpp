@@ -8184,13 +8184,19 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-	//puppets will only build defensive buildings and gold generating buildings if we are in deficit
-	if (IsPuppet() && pkBuildingInfo->GetGoldMaintenance() > 0 && pkBuildingInfo->GetDefenseModifier() == 0)
+	//puppets will only build (old) defensive buildings and gold generating buildings if we are in deficit
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		// Are we running at a deficit?
-		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-		if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+		if (pkBuildingInfo->GetDefenseModifier() == 0 || pkBuildingInfo->GetEra() > GET_PLAYER(getOwner()).GetCurrentEra() - 1)
+		{
+			/*
+			EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+			if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+				return false;
+			*/
+
 			return false;
+		}
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
