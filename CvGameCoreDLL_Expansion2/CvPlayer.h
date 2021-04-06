@@ -2073,7 +2073,7 @@ public:
 
 	// END Science
 
-	void DoDeficit();
+	void DoBankruptcy();
 
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);

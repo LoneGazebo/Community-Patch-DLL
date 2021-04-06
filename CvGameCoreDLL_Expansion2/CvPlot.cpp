@@ -676,7 +676,7 @@ void CvPlot::updateCenterUnit()
 		return;
 	}
 
-	if(!isActiveVisible(true))
+	if(!isActiveVisible())
 	{
 		setCenterUnit(NULL);
 		return;
@@ -4002,49 +4002,36 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 	if (eTeam == NO_TEAM)
 		return false;
 
-	/*
-	//experimental hack: observer visibility is determined by the player they will return as
-	if (GET_TEAM(eTeam).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
-		eTeam = GET_PLAYER(GC.getGame().GetAutoPlayReturnPlayer()).getTeam();
-	*/
-
 	return ((getVisibilityCount(eTeam) > 0));
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::isActiveVisible(bool bDebug) const
-{
-	return isVisible(GC.getGame().getActiveTeam(), bDebug);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible() const
 {
+	if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
+		//this is relevant for animations etc, do not show them in observer mode, makes everything faster
+		return false;
+
 	return isVisible(GC.getGame().getActiveTeam());
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-bool CvPlot::isVisibleToCivTeam(bool bNoObserver, bool bNoMinor) const
-#else
-bool CvPlot::isVisibleToCivTeam() const
-#endif
+bool CvPlot::isVisibleToAnyTeam(bool bNoMinor) const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	//barbarians are excluded here!
+	for(int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
-#if defined(MOD_BALANCE_CORE)
 		//Skip observer here.
-		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		if(GET_TEAM((TeamTypes)iI).isObserver())
 		{
 			continue;
 		}
+
 		if (bNoMinor && GET_TEAM((TeamTypes)iI).isMinorCiv())
 		{
 			continue;
 		}
-#endif
+
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -4100,19 +4087,10 @@ bool CvPlot::isVisibleToWatchingHuman() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isVisible(eTeam, bDebug))
@@ -4128,19 +4106,10 @@ bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isVisible(eTeam))
@@ -12524,7 +12493,7 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 	if (ePlayer == NO_PLAYER || isVisible(GET_PLAYER(ePlayer).getTeam()))
 	{
 		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
-		if (GC.getGame().getAIAutoPlay() < 10)
+		if (!GET_PLAYER( GC.getGame().getActivePlayer() ).isObserver())
 		{
 			DLLUI->AddPopupText(getX(), getY(), szMessage, GC.getMap().GetPopupCount(m_iPlotIndex)*0.5f);
 			GC.getMap().IncreasePopupCount(m_iPlotIndex);
@@ -13185,7 +13154,7 @@ void CvPlot::getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked)
 	eType = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
 
 	// worked state
-	if(isActiveVisible(false) && isBeingWorked())
+	if(isActiveVisible() && isBeingWorked())
 	{
 		bWorked = true;
 	}

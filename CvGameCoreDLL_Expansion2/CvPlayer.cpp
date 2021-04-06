@@ -36665,7 +36665,7 @@ void CvPlayer::SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue)
 
 //	--------------------------------------------------------------------------------
 /// Player spending too much cash?
-void CvPlayer::DoDeficit()
+void CvPlayer::DoBankruptcy()
 {
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE)
 		return;

@@ -543,11 +543,10 @@ void CvBarbarians::DoCamps()
 
 			bool bMinors = MOD_BALANCE_CORE_BARBARIAN_THEFT;
 			if (GC.getGame().getGameTurn() <= 5)
-			{
 				bMinors = false;
-			}
+
 			// No new camps on plots in sight of a player
-			if (pLoopPlot->isVisibleToCivTeam(true, bMinors))
+			if (pLoopPlot->isVisibleToAnyTeam(bMinors))
 				continue;
 
 			iNumNotVisiblePlots++;

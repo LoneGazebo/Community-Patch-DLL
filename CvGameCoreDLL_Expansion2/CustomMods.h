@@ -239,6 +239,9 @@
 // Barbarians can heal outside of camps
 #define MOD_BARBARIANS_HEAL_EVERYWHERE
 
+// Puppets can only build old defensive buildings
+#define MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS
+
 // Ability to add new natural wonder features with graphics
 #define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 

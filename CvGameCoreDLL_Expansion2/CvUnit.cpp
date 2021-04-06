@@ -4963,7 +4963,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			}
 		}
 
-		if(plot.isActiveVisible(false))
+		if(plot.isActiveVisible())
 		{
 			if(canMoveInto(plot, MOVEFLAG_ATTACK))
 			{
@@ -4987,7 +4987,7 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 	VALIDATE_OBJECT
 	CvAssert(isHuman());
 
-	if(plot.isActiveVisible(false))
+	if(plot.isActiveVisible())
 	{
 		if(canRangeStrikeAt(plot.getX(), plot.getY(), false))
 		{
@@ -8694,7 +8694,7 @@ bool CvUnit::paradrop(int iX, int iY)
 #endif
 
 	//play paradrop animation
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitParadrop(pDllUnit.get());
@@ -9375,7 +9375,7 @@ bool CvUnit::createGreatWork()
 #endif
 		pCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, iGWindex);
 
-		if(pPlot->isActiveVisible(false))
+		if(pPlot->isActiveVisible())
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -10647,7 +10647,7 @@ bool CvUnit::foundCity()
 		CUSTOMLOG("  ... success!  They founded %s", plot()->getPlotCity()->getName().c_str());
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -10779,7 +10779,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 		pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) + 1);
 	}
 
-	if(plot()->isActiveVisible(false))
+	if(plot()->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11332,7 +11332,7 @@ bool CvUnit::DoSpreadReligion()
 			}
 #endif
 
-			bool bShow = plot()->isActiveVisible(false);
+			bool bShow = plot()->isActiveVisible();
 			if(bShow)
 			{
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11438,7 +11438,7 @@ bool CvUnit::DoRemoveHeresy()
 	{
 		if(CanRemoveHeresy(plot()))
 		{
-			bool bShow = plot()->isActiveVisible(false);
+			bool bShow = plot()->isActiveVisible();
 			if(bShow)
 			{
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11754,7 +11754,7 @@ bool CvUnit::greatperson()
 	CvAssertMsg(pTeam, "Owner team of unit not expected to be NULL. Please send Anton your save file and version.");
 	if (!pTeam) return false;
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11824,7 +11824,7 @@ bool CvUnit::discover()
 		pPlayer->chooseTech(iNumFreeTechs, strBuffer.GetCString());
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11899,7 +11899,7 @@ bool CvUnit::DoRushBuilding()
 
 	pCity->setProduction(pCity->getProductionNeeded());
 
-	if(plot()->isActiveVisible(false))
+	if(plot()->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12044,7 +12044,7 @@ bool CvUnit::hurry()
 #endif
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 #if !defined(NO_ACHIEVEMENTS)
 		//Achievement check
@@ -12299,7 +12299,7 @@ bool CvUnit::trade()
 	}
 
 	//there was a strange crash here where the unit suddenly was at an invalid plot
-	if(pPlot->isActiveVisible(false) && plot()==pPlot)
+	if(pPlot->isActiveVisible() && plot()==pPlot)
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12400,7 +12400,7 @@ bool CvUnit::buyCityState()
 		DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE"));
 	}
 
-	if (pPlot->isActiveVisible(false))
+	if (pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12483,7 +12483,7 @@ bool CvUnit::repairFleet()
 		}
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12653,7 +12653,7 @@ bool CvUnit::DoCultureBomb()
 
 		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius() + GET_PLAYER(getOwner()).GetCultureBombBoost());
 
-		if(pThisPlot->isActiveVisible(false))
+		if(pThisPlot->isActiveVisible())
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13049,7 +13049,7 @@ bool CvUnit::goldenAge()
 		kPlayer.changeNumUnitGoldenAges(1);
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13212,7 +13212,7 @@ bool CvUnit::givePolicies()
 		kPlayer.ChangeNumFreePolicies(iFreePolicies);
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13370,7 +13370,7 @@ bool CvUnit::blastTourism()
 		}
 	}
 
-	if(pPlot->isActiveVisible(false))
+	if(pPlot->isActiveVisible())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13830,7 +13830,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 			if(pkBuildInfo->isKill())
 			{
-				if (pPlot->isActiveVisible(false))
+				if (pPlot->isActiveVisible())
 				{
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitActivate(pDllUnit.get());

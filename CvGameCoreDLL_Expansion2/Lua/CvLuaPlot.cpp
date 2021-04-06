@@ -851,10 +851,10 @@ int CvLuaPlot::lIsActiveVisible(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const bool bDebug = luaL_optbool(L, 2, false);
 
-	if (!bDebug)
-		lua_pushboolean(L, pkPlot->isActiveVisible());
+	if (bDebug)
+		lua_pushboolean(L, pkPlot->isVisible(GC.getGame().getActiveTeam(), true) );
 	else
-		lua_pushboolean(L, pkPlot->isActiveVisible(true));
+		lua_pushboolean(L, pkPlot->isActiveVisible());
 
 	return 1;
 }

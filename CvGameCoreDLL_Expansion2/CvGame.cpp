@@ -4608,7 +4608,7 @@ void CvGame::ReviveActivePlayer()
 		setAIAutoPlay(0, m_eAIAutoPlayReturnPlayer);
 
 		// If no player specified, returning as an observer
-		if(m_eAIAutoPlayReturnPlayer == NO_PLAYER)
+		if(m_eAIAutoPlayReturnPlayer == NO_PLAYER || !GET_PLAYER(m_eAIAutoPlayReturnPlayer).isAlive())
 		{
 			CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_ASSIGNED);
 			CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
@@ -5303,15 +5303,14 @@ int CvGame::getAIAutoPlay()
 //	--------------------------------------------------------------------------------
 void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 {
-	int iOldValue;
-
-	iOldValue = getAIAutoPlay();
+	int iOldValue = getAIAutoPlay();
 
 	if(iOldValue != iNewValue)
 	{
 		m_iAIAutoPlay = std::max(0, iNewValue);
 		m_eAIAutoPlayReturnPlayer = eReturnAsPlayer;
 
+		//activating
 		if((iOldValue == 0) && (getAIAutoPlay() > 0))
 		{
 			int iObserver = NO_PLAYER;

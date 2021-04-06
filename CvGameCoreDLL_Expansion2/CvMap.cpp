@@ -878,7 +878,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 			{
 				if(iFlags & RANDPLOT_NOT_VISIBLE_TO_CIV)
 				{
-					if(pTestPlot->isVisibleToCivTeam())
+					if(pTestPlot->isVisibleToAnyTeam())
 					{
 						bValid = false;
 					}
