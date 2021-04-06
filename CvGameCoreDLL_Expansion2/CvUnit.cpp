@@ -11682,9 +11682,11 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 
 int CvUnit::GetScaleAmount(int iAmountToScale) const
 {
-	int iScaleTotal = 0;
+	int iScaleTotal = iAmountToScale;
+	int iExtra = 0;
 	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
 	{
+		iExtra = 0;
 		ImprovementTypes eImprovement = (ImprovementTypes)i;
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
@@ -11694,10 +11696,10 @@ int CvUnit::GetScaleAmount(int iAmountToScale) const
 			continue;
 
 		int iOwned = GET_PLAYER(getOwner()).CountAllImprovement(eImprovement, true);
-		iAmountToScale *= ((iOwned * iScaleAmount) + 100);
-		iAmountToScale /= 100;
+		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
+		iExtra /= 100;
 
-		iScaleTotal += iAmountToScale;
+		iScaleTotal += iExtra;
 	}
 
 	return iScaleTotal;
