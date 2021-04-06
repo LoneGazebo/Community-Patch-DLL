@@ -10673,6 +10673,17 @@ bool CvUnit::foundCity()
 			}
 		}
 	}
+	if (kPlayer.GetPlayerTraits()->IsBuyOwnedTiles())
+	{
+		kPlayer.SetNumPlotsBought(0);
+		CvNotifications* pNotifications = kPlayer.GetNotifications();
+		if (pNotifications)
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_RESET_PLOT_COST");
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_RESET_PLOT_COST");
+			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, plot()->getX(), plot()->getY(), -1, -1);
+		}
+	}
 #endif
 		
 #if defined(MOD_EVENTS_UNIT_FOUNDED)
