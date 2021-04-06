@@ -19972,6 +19972,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Using weight as +/- %: more fluid than the switch table.
 	if (iOpinionWeight > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 	{
+		// We double the opinion weight for additional impact.
+		iOpinionWeight *= 2;
+
 		// Increase
 		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
@@ -19998,7 +20001,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
-		// Flip it! If we like this player, double the weight for additional impact.
+		// Flip it!
 		iOpinionWeight *= -2;
 
 		// Increase
