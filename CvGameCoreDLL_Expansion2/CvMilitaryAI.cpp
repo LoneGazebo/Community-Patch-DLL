@@ -1557,11 +1557,11 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 		strOutBuf.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strOutBuf += playerName + ", ";
 		if (bGifted)
-			strTemp.Format("Gifting away %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
+			strTemp.Format("Gifting %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
 		else
 			strTemp.Format("Scrapping %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
 		strOutBuf += strTemp;
-		strOutBuf += "by DoDeficit(), , ";   //extra space so format is consistent with LogScrapUnit()
+		strOutBuf += "b/c bankrupt, , ";   //extra space so format is consistent with LogScrapUnit()
 
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{

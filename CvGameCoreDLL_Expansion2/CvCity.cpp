@@ -8184,20 +8184,28 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-	//puppets will only build (old) defensive buildings and gold generating buildings if we are in deficit
-	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && pkBuildingInfo->GetGoldMaintenance() > 0)
+#if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
+	//puppets will only build very few buildings
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
-		if (pkBuildingInfo->GetDefenseModifier() == 0 || pkBuildingInfo->GetEra() > GET_PLAYER(getOwner()).GetCurrentEra() - 1)
+		//too new? not ok
+		if (pkBuildingInfo->GetEra() > GET_PLAYER(getOwner()).GetCurrentEra() - 1)
+			return false;
+
+		//no defensive value? not ok
+		if (pkBuildingInfo->GetDefenseModifier() == 0)
 		{
 			/*
-			EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
-			if (GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+			//option: disallow everything that costs maintenance if we are running a deficit
+			static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+			if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_eOwner).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 				return false;
 			*/
 
 			return false;
 		}
 	}
+#endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	// Religion-enabled national wonder
