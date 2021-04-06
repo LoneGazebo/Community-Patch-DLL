@@ -33097,14 +33097,14 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 		if(!CvPreGame::quickCombat())
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				DLLUI->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
-			kCombatInfo.setVisualizeCombat(pPlot->isActiveVisible(false));
+			kCombatInfo.setVisualizeCombat(pPlot->isActiveVisible());
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());

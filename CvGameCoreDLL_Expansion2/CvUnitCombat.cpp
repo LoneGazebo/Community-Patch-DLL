@@ -3701,7 +3701,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 			uint uiParentEventID = 0;
 			// Send the combat message if the target plot is visible.
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			bool quickCombat = CvPreGame::quickCombat();
 			if(!quickCombat)
 			{
@@ -3798,7 +3798,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
@@ -3832,7 +3832,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
@@ -3916,7 +3916,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -3953,7 +3953,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -4016,7 +4016,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		if(!bDoImmediate)
 		{
 			// Center camera here!
-			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
@@ -4121,7 +4121,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 		kAttacker.setMadeAttack(true);
 
 		// Send the combat message if the target plot is visible.
-		bool isTargetVisibleToActivePlayer = plot.isActiveVisible(false);
+		bool isTargetVisibleToActivePlayer = plot.isActiveVisible();
 
 		uint uiParentEventID = 0;
 		bool bDoImmediate = CvPreGame::quickCombat();
@@ -4217,7 +4217,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 		// is involved in the combat
 		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 
-		bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);
+		bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 		if(!isTargetVisibleToActivePlayer)
 		{
 			// Is the attacker part of the local team?

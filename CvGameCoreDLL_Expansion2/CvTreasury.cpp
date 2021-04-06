@@ -97,6 +97,16 @@ void CvTreasury::DoGold()
 		ChangeGoldTimes100(iGoldChange);
 	}
 
+	//instant yields are tracked in ChangeGoldTimes100. we ignore expenses (negative values) there.
+	//but here we have to consider a negative gold rate, so fix it after the fact
+	if (iGoldChange < 0)
+	{
+		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+			m_GoldChangeForTurnTimes100.push_back(iGoldChange);
+		else
+			m_GoldChangeForTurnTimes100.back() += iGoldChange;
+	}
+
 	// Update the amount of gold grossed across lifetime of game
 	int iGrossGoldChange = CalculateGrossGold();
 	if(iGrossGoldChange > 0)
@@ -104,16 +114,9 @@ void CvTreasury::DoGold()
 		m_iLifetimeGrossGoldIncome += iGrossGoldChange;
 	}
 
-	FAssertMsg(m_GoldBalanceForTurnTimes100.size() <= (unsigned int) GC.getGame().getGameTurn(), "History of Gold Balances corrupted");
 	if(m_GoldBalanceForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
 	{
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
-	}
-
-	FAssertMsg(m_GoldChangeForTurnTimes100.size() <= (unsigned int) GC.getGame().getGameTurn(), "History of Gold Changes corrupted");
-	if(m_GoldChangeForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
-	{
-		m_GoldChangeForTurnTimes100.push_back(iGoldChange);
 	}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -190,6 +193,15 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 void CvTreasury::ChangeGoldTimes100(int iChange)
 {
 	SetGoldTimes100(GetGoldTimes100() + iChange);
+
+	//track the income for each turn (instant yields and regular)
+	if (iChange > 0)
+	{
+		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+			m_GoldChangeForTurnTimes100.push_back(iChange);
+		else
+			m_GoldChangeForTurnTimes100.back() += iChange;
+	}
 }
 
 // Gold from Cities
