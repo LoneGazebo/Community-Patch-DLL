@@ -234,9 +234,9 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BIGGEST_COMPE
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BIGGEST_LEAGUE_RIVAL', '-15'; -- mutual denouncement against AI's biggest World Congress rival
 
 -- Other civs that they like more than you have denounced you!
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND', '20';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT', '8'; -- any after the first
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND', '15'; -- additional penalty if the denouncement comes from a teammate or their most valued friend/ally
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND', '10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT', '5'; -- any after the first
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND', '10'; -- additional penalty if the denouncement comes from a teammate or their most valued friend/ally
 
 --	//////////////////////////////////////
 --	// PROMISES

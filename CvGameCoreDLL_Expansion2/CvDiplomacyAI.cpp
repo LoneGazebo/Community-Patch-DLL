@@ -43794,31 +43794,31 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 			if (GetDoFType(ePlayer) > GetDoFType(eLoopPlayer))
 				continue;
 
-			if (GetCachedOpinionWeight(ePlayer) <= GetCachedOpinionWeight(eLoopPlayer))
+			if (GetCivOpinion(ePlayer) >= GetCivOpinion(eLoopPlayer))
 				continue;
 		}
 
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedByPlayer(eLoopPlayer))
 		{
-			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || (GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_NEUTRAL))
+			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer))
 			{
 				iNumDenouncements++;
 			}
 
 			if (IsTeammate(eLoopPlayer) || (GetMostValuableFriend() == eLoopPlayer && IsDoFAccepted(eLoopPlayer)) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
 			{
-				iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
+				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
 			}
 		}
 	}
 
 	if (iNumDenouncements > 0)
 	{
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
 
 		if (iNumDenouncements > 1)
 		{
-			iOpinionWeight += /*8*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
+			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
 		}
 	}
 
