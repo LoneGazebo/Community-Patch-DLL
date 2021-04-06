@@ -36691,7 +36691,7 @@ void CvPlayer::DoDeficit()
 			pScrapUnit = pNavalUnit;
 
 		//AI players try to gift their units away
-		if (!isMinorCiv() && !isHuman())
+		if (pScrapUnit && !isMinorCiv() && !isHuman())
 		{
 			PlayerTypes eMinor = GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)

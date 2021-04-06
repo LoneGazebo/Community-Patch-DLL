@@ -3528,7 +3528,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) 
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
 		{
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true; 
@@ -3664,7 +3664,7 @@ int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bo
 				continue;
 			}
 
-			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()))
+			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()) && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
 			{
 				iRtnValue++;
 			}
@@ -3731,7 +3731,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
+			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()) )
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
