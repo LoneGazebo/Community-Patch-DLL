@@ -43782,6 +43782,14 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 {
+	// This penalty only applies if we're not friends or allies.
+	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+		return 0;
+
+	// Ignore for liberators.
+	if (WasResurrectedBy(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer) || GetNumCitiesLiberatedBy(ePlayer) > 0)
+		return 0;
+
 	int iOpinionWeight = 0;
 	int iNumDenouncements = 0;
 
