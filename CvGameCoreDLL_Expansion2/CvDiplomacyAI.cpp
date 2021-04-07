@@ -26255,9 +26255,6 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 
 	int iReturnValue = GetOtherPlayerWarmongerAmount(ePlayer);
 
-	if (iReturnValue < 10)
-		return 0;
-
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
 	iReturnValue /= 20;
 
