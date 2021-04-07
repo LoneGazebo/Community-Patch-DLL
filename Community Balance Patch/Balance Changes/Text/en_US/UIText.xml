@@ -775,18 +775,39 @@
 
 		<!-- New Musician Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
-			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with them, and +{3_num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.</Text>
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]50%[ENDCOLOR] [ICON_TOURISM] Tourism with all Civs for {2_Num} Turns, and +[COLOR_POSITIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with the target Civ for {2_Num} Turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S">
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET">
 			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S">
 			<Text>{1_PlayerName} Musicians arrive!</Text>
 		</Row>
+
+		<!-- Tourism Bonus Turns Change for GM -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS">
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with them, and +{3_num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S">
+			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET">
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} gains +[COLOR_NEGATIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with you for [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] Turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S">
+			<Text>{1_PlayerName} Musicians arrive!</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
+			<Text>+{1_Num}% Bonus from Great Musician Tour[NEWLINE]</Text>
+		</Row>
+		
+
+		
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
 			<Text>{1_Num} {2_IconString} from Yield Conversion</Text>

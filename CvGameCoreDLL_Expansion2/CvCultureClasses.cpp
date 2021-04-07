@@ -5203,6 +5203,10 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	{
 		iMultiplier += iFranchiseBonus;
 	}
+	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	{
+		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
+	}
 
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
 	{
@@ -5414,6 +5418,10 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	if (iFranchiseBonus != 0)
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES", iFranchiseBonus) + "[ENDCOLOR]";
+	}
+	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS", kPlayer.getTourismBonusTurnsPlayer(ePlayer)) + "[ENDCOLOR]";
 	}
 
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
@@ -7803,6 +7811,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 
 	//Corporations
 	iMultiplier += kCityPlayer.GetCulture()->GetFranchiseModifier(ePlayer);
+
+	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	{
+		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
+	}
 
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();

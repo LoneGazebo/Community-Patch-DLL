@@ -393,6 +393,7 @@ CvPlayer::CvPlayer() :
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
 	, m_aiIncomingUnitCountdowns("CvPlayer::m_aiIncomingUnitCountdowns", m_syncArchive, true)
 	, m_aiSiphonLuxuryCount("CvPlayer::m_aiSiphonLuxuryCount", m_syncArchive)
+	, m_aiTourismBonusTurnsPlayer("CvPlayer::m_aiSiphonLuxuryCount", m_syncArchive)
 	, m_aiGreatWorkYieldChange("CvPlayer::m_aiGreatWorkYieldChange", m_syncArchive)
 	, m_aOptions("CvPlayer::m_aOptions", m_syncArchive, true)
 	, m_strReligionKey("CvPlayer::m_strReligionKey", m_syncArchive)
@@ -813,6 +814,7 @@ CvPlayer::CvPlayer() :
 
 	m_aiGreatWorkYieldChange.clear();
 	m_aiSiphonLuxuryCount.clear();
+	m_aiTourismBonusTurnsPlayer.clear();
 
 	reset(NO_PLAYER, true);
 }
@@ -1965,6 +1967,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiSiphonLuxuryCount.clear();
 	m_aiSiphonLuxuryCount.resize(MAX_PLAYERS, 0);
+	
+	m_aiTourismBonusTurnsPlayer.clear();
+	m_aiTourismBonusTurnsPlayer.resize(MAX_PLAYERS, 0);
 
 	m_aOptions.clear();
 
@@ -24820,6 +24825,28 @@ void CvPlayer::ChangeTourismBonusTurns(int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::getTourismBonusTurnsPlayer(PlayerTypes eWithPlayer) const
+{
+	CvAssertMsg(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+
+	return m_aiTourismBonusTurnsPlayer[eWithPlayer];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeTourismBonusTurnsPlayer(PlayerTypes eWithPlayer, int iChange)
+{
+	CvAssertMsg(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiTourismBonusTurnsPlayer.setAt(eWithPlayer, m_aiTourismBonusTurnsPlayer[eWithPlayer] + iChange);
+		CvAssert(getTourismBonusTurnsPlayer(eWithPlayer) >= 0);
+	}
+}
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 void CvPlayer::DoProcessVotes()
@@ -38872,6 +38899,7 @@ void CvPlayer::changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange)
 		UpdateResourcesSiphoned();
 	}
 }
+
 
 //	--------------------------------------------------------------------------------
 /// Count up the number of resources we have been siphoning from others and compare it to how many 

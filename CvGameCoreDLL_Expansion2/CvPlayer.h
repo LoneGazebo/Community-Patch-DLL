@@ -923,6 +923,9 @@ public:
 	int GetTourismBonusTurns() const;
 	void ChangeTourismBonusTurns(int iChange);
 
+	int getTourismBonusTurnsPlayer(PlayerTypes eWithPlayer) const;
+	void changeTourismBonusTurnsPlayer(PlayerTypes eWithPlayer, int iChange);
+
 	// Golden Age Stuff
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -3504,6 +3507,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSiphonLuxuryCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGreatWorkYieldChange;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiTourismBonusTurnsPlayer;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
 	typedef std::vector< PlayerOptionEntry > PlayerOptionsVector;

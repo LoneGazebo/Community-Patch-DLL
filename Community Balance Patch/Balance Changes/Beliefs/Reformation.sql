@@ -3,6 +3,10 @@ UPDATE Beliefs
 SET CityStateInfluenceModifier = '0'
 WHERE Type = 'BELIEF_CHARITABLE_MISSIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+UPDATE Beliefs
+SET SpreadStrengthModifier = '15'
+WHERE Type = 'BELIEF_CHARITABLE_MISSIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- Evangelism (Now Crusader Zeal)
 UPDATE Beliefs
 SET OtherReligionPressureErosion = '0'
