@@ -2133,11 +2133,13 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
-	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
-	int GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerTypes eCityOwner, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
+	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, PlayerTypes eObserver = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	void ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner);
+	void ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner);
+	int GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver);
+	int GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H
