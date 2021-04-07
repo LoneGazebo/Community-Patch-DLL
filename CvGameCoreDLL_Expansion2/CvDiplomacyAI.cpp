@@ -26193,7 +26193,7 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 		if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsProtectedByMajor(GetID()))
 		{
 			// Only apply this penalty if they haven't bullied them already
-			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer))
+			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer) != -1)
 			{
 				ChangeOtherPlayerNumProtectedMinorsBullied(ePlayer, 1);
 			}
@@ -26254,9 +26254,6 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	int iReturnValue = GetOtherPlayerWarmongerAmount(ePlayer);
-
-	if (iReturnValue < 10)
-		return 0;
 
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
 	iReturnValue /= 20;
@@ -51593,10 +51590,10 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 				{
 					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 				}
-				// Have we BEEN denounced by the city taker?
+				// Have we BEEN denounced by the liberator?
 				if (pDiplo->IsDenouncedByPlayer(eLiberator))
 				{
-					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 				}
 				// Is this a backstabber?
 				if (pDiplo->IsUntrustworthy(eLiberator))
@@ -51605,49 +51602,49 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 				}
 			}
 
-			// Religious brothers/sisters should be more supportive of each other.
-			if (pDiplo->IsPlayerSameReligion(eLiberator))
+			// We're happy when you liberate our religious brothers/sisters.
+			if (pDiplo->IsPlayerSameReligion(eNewOwner))
 			{
 				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 
-				// We don't like when you liberate enemies of the faith.
-				if (pDiplo->IsPlayerOpposingReligion(eNewOwner) && !pDiplo->IsIgnoreReligionDifferences(eNewOwner))
-				{
-					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-				}
-			}
-			// Religious enemies will not be allowed to expand!
-			else if (pDiplo->IsPlayerOpposingReligion(eLiberator) && !pDiplo->IsIgnoreReligionDifferences(eLiberator))
-			{
-				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-
-				// We like it when you liberate brothers of the faith.
-				if (pDiplo->IsPlayerSameReligion(eNewOwner))
+				// Even moreso when you're also of our faith!
+				if (pDiplo->IsPlayerSameReligion(eLiberator))
 				{
 					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 				}
 			}
+			// We don't like when you liberate enemies of the faith.
+			else if (pDiplo->IsPlayerOpposingReligion(eNewOwner) && !pDiplo->IsIgnoreReligionDifferences(eNewOwner))
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 
-			// Are the liberator and I of the same ideology?
-			if (pDiplo->IsPlayerSameIdeology(eLiberator))
+				// Even moreso if you're also of another faith.
+				if (pDiplo->IsPlayerOpposingReligion(eLiberator) && !pDiplo->IsIgnoreReligionDifferences(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+			}
+
+			// If they're liberating our ideological companions, we like this!
+			if (pDiplo->IsPlayerSameIdeology(eNewOwner))
 			{
 				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 
-				// We dislike the liberation of our ideological opponents!
-				if (pDiplo->IsPlayerOpposingIdeology(eNewOwner) && !pDiplo->IsIgnoreIdeologyDifferences(eNewOwner))
+				// Are the liberator and I also of the same ideology?
+				if (pDiplo->IsPlayerSameIdeology(eLiberator))
 				{
-					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 				}
 			}
-			// Are the liberator and I of different ideologies?
-			else if (pDiplo->IsPlayerOpposingIdeology(eLiberator) && !pDiplo->IsIgnoreIdeologyDifferences(eLiberator))
+			// We dislike the liberation of our ideological opponents!
+			else if (pDiplo->IsPlayerOpposingIdeology(eNewOwner) && !pDiplo->IsIgnoreIdeologyDifferences(eNewOwner))
 			{
 				iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
 
-				// If they're liberating our ideological companions, we like this!
-				if (pDiplo->IsPlayerSameIdeology(eNewOwner))
+				// Are the liberator and I also of different ideologies?
+				if (pDiplo->IsPlayerOpposingIdeology(eLiberator) && !pDiplo->IsIgnoreIdeologyDifferences(eLiberator))
 				{
-					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
 				}
 			}
 
