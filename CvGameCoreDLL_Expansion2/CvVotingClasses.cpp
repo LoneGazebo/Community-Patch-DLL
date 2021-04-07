@@ -5656,6 +5656,18 @@ int CvLeague::GetUnitMaintenanceMod()
 	}
 	return iMod;
 }
+bool CvLeague::IsCityStateEmbargo()
+{
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	{
+		if (it->GetEffects()->bEmbargoCityStates)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	CvAssertMsg(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader. Please send Anton your save file and version.");
@@ -9376,6 +9388,22 @@ int CvGameLeagues::GetUnitMaintenanceMod(PlayerTypes ePlayer)
 		}
 	}
 	return iValue;
+}
+
+bool CvGameLeagues::IsCityStateEmbargo(PlayerTypes ePlayer)
+{
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); ++it)
+	{
+		if (it->IsMember(ePlayer))
+		{
+			if (it->IsCityStateEmbargo())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 bool CvGameLeagues::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)

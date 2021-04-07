@@ -602,6 +602,7 @@ public:
 	int GetSpaceShipPurchaseMod();
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
+	bool IsCityStateEmbargo();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -765,6 +766,7 @@ public:
 	int GetSpaceShipPurchaseMod(PlayerTypes ePlayer);
 	int IsWorldWar(PlayerTypes ePlayer);
 	int GetUnitMaintenanceMod(PlayerTypes ePlayer);
+	bool IsCityStateEmbargo(PlayerTypes ePlayer);
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 

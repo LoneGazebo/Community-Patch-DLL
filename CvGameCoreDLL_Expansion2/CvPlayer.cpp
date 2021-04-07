@@ -3567,7 +3567,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		if (bDoWarmonger)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity);
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pOldCity, GetID(), pOldCity->getOwner());
 		}
 	}
 
@@ -10067,19 +10067,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		// Reduce liberator's warmongering penalties (if any), unless this is their own team's city
 		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
-			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-			{
-				PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-				if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
-				{
-					// Only with players who have met them
-					if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
-					{
-						int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
-						GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
-					}
-				}
-			}
+			CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
 		}
 	}
 
@@ -12938,7 +12926,7 @@ void CvPlayer::raze(CvCity* pCity)
 		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
 		if (eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity);
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(pCity, GetID(), eFormerOwner);
 			pCity->SetNoWarmonger(false);
 		}
 	}

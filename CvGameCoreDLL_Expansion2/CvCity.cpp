@@ -20947,7 +20947,7 @@ void CvCity::SetPuppet(bool bValue)
 			PlayerTypes eFormerOwner = getPreviousOwner();
 			if (eFormerOwner != NO_PLAYER)
 			{
-				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, this);
+				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(this, getOwner(), eFormerOwner);
 				SetNoWarmonger(false);
 			}
 		}
@@ -21044,7 +21044,7 @@ void CvCity::DoAnnex()
 		PlayerTypes eFormerOwner = getPreviousOwner();
 		if (eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(getOwner(), eFormerOwner, this);
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(this, getOwner(), eFormerOwner);
 			SetNoWarmonger(false);
 		}
 	}
