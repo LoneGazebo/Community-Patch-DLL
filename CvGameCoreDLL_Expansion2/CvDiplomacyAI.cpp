@@ -9778,7 +9778,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				}
 
 				// Decay faster if we have a good relationship with this player.
-				if (!GetPlayer()->isHuman() && (GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer))
+				if (!GetPlayer()->isHuman() && ((IsDoFAccepted(eLoopPlayer) && GetMostValuableFriend() == eLoopPlayer) || (IsHasDefensivePact(eLoopPlayer) && GetMostValuableAlly() == eLoopPlayer)))
 				{
 					iDecayModifier *= 3;
 				}
