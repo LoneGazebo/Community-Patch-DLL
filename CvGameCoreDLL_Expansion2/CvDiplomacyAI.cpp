@@ -26193,7 +26193,7 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 		if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsProtectedByMajor(GetID()))
 		{
 			// Only apply this penalty if they haven't bullied them already
-			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer))
+			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer) != -1)
 			{
 				ChangeOtherPlayerNumProtectedMinorsBullied(ePlayer, 1);
 			}
