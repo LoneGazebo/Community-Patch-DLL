@@ -9777,6 +9777,16 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 					break;
 				}
 
+				// Decay faster if we have a good relationship with this player.
+				if (!GetPlayer()->isHuman() && (GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer))
+				{
+					iDecayModifier *= 3;
+				}
+				else if (IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS)
+				{
+					iDecayModifier *= 2;
+				}
+
 				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetID()) > 0)
 				{
 					iDecayModifier *= /*200*/ GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED();
@@ -51294,6 +51304,15 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		return 0;
 
 	// ////////////////////////////////////
+	// RESURRECTION MODIFIER
+	// ////////////////////////////////////
+
+	if (pDiplo->WasResurrectedBy(eConqueror) || GET_PLAYER(eConqueror).GetDiplomacyAI()->WasResurrectedBy(eObserver))
+	{
+		iWarmongerValue /= 2;
+	}
+
+	// ////////////////////////////////////
 	// GLOBAL WARMONGERING MODIFIERS
 	// ////////////////////////////////////
 
@@ -51659,6 +51678,15 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	if (iLiberationValue >= 0)
 		return 0;
+
+	// ////////////////////////////////////
+	// RESURRECTION MODIFIER
+	// ////////////////////////////////////
+
+	if (pDiplo->WasResurrectedBy(eLiberator) || GET_PLAYER(eLiberator).GetDiplomacyAI()->WasResurrectedBy(eObserver))
+	{
+		iLiberationValue *= 2;
+	}
 
 	// ////////////////////////////////////
 	// GLOBAL WARMONGERING MODIFIERS
