@@ -12093,7 +12093,7 @@ void CvCity::changeProductionTimes100(int iChange)
 											if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 												break;
 
-											int iYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -18410,6 +18410,12 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 	// Culture from having trade routes
 	iCulture += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Process production into culture
+	if (getProductionToYieldModifier(YIELD_CULTURE)>0)
+		iCulture += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+#endif
+
 	return iCulture;
 }
 
@@ -18472,12 +18478,6 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// Process production into culture
-	if (getProductionToYieldModifier(YIELD_CULTURE)>0)
-		iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
-
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
@@ -18717,11 +18717,7 @@ void CvCity::ChangeJONSCulturePerTurnFromReligion(int iChange)
 int CvCity::GetJONSCulturePerTurnFromLeagues() const
 {
 	VALIDATE_OBJECT
-	int iValue = 0;
-
-	iValue += (getNumWorldWonders() * GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(getOwner(), YIELD_CULTURE));
-
-	return iValue;
+	return (getNumWorldWonders() * GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(getOwner(), YIELD_CULTURE));
 }
 
 //	--------------------------------------------------------------------------------
@@ -18782,14 +18778,6 @@ int CvCity::GetFaithPerTurn() const
 #endif
 	iFaith += GetFaithPerTurnFromReligion();
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	// Process production into faith
-	if (getProductionToYieldModifier(YIELD_FAITH)>0)
-		iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
-
-	// Faith from having trade routes
-	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
@@ -18857,6 +18845,15 @@ int CvCity::GetFaithPerTurn() const
 		iFaith *= (100 + iModifier);
 		iFaith /= 100;
 	}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Process production into faith
+	if (getProductionToYieldModifier(YIELD_FAITH)>0)
+		iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+
+	// Faith from having trade routes
+	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
 #endif
 
 	return iFaith;
@@ -24524,25 +24521,30 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 #endif
 	}
 
-	int iProcessYield = 0;
+	int iPostModifierYield = 0;
 
 	if(getProductionToYieldModifier(eIndex) != 0)
 	{
 #if defined(MOD_PROCESS_STOCKPILE)
 		// We want to process production to production and call it stockpiling!
-		iProcessYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex)) / 100;
+		iPostModifierYield += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 100;
 #else
 		CvAssertMsg(eIndex != YIELD_PRODUCTION, "GAMEPLAY: should not be trying to convert Production into Production via process.");
 
-		iProcessYield = getYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
+		iPostModifierYield += getYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
 #endif
 	}
 
+	if (!bIgnoreTrade)
+	{
+		iPostModifierYield += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eIndex);
+	}
+
 #if defined(MOD_PROCESS_STOCKPILE)
-	return getBasicYieldRateTimes100(eIndex, bIgnoreTrade) + iProcessYield;
+	return getBasicYieldRateTimes100(eIndex) + iPostModifierYield;
 }
 
-int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
+int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 {
 #endif
 	// Sum up yield rate
@@ -24570,12 +24572,6 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 #if !defined(MOD_PROCESS_STOCKPILE)
 	iModifiedYield += iProcessYield;
 #endif
-
-	if (!bIgnoreTrade)
-	{
-		int iTradeYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eIndex);
-		iModifiedYield += iTradeYield;
-	}
 
 	return iModifiedYield;
 }
@@ -24910,7 +24906,7 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
-	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex)) / 10000;
+	return (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 10000;
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -27397,7 +27393,7 @@ int CvCity::getProcessProductionTimes100(ProcessTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumProcessInfos(), "eIndex expected to be < GC.getNumProcessInfos()");
 	
 	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE")) {
-		return getBasicYieldRateTimes100(YIELD_PRODUCTION, false);
+		return getBasicYieldRateTimes100(YIELD_PRODUCTION);
 	}
 
 	return 0;

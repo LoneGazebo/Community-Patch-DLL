@@ -1047,7 +1047,7 @@ public:
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 #if defined(MOD_PROCESS_STOCKPILE)
-	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+	int getBasicYieldRateTimes100(YieldTypes eIndex) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
