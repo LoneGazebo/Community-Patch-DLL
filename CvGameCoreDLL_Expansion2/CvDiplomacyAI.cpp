@@ -51353,7 +51353,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
 	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
-	int iLocalEconomicPower = pCity->getEconomicValue(eNewOwner);
+	int iLocalEconomicPower = pCity->getEconomicValue(eLiberator); // rationale for using the liberator: how much is the liberator giving up instead of conquering?
 	int iLiberationValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
 
 	// Modders can change this value to apply a multiplier to the worth of all cities
