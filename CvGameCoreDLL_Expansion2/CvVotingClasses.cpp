@@ -6343,7 +6343,7 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 	}
 
 	// Total cost
-	if (eObserver != NO_PLAYER && IsProjectActive(eProject))
+	if (eObserver != NO_PLAYER && IsProjectActive(eProject) && GetProjectCost(eProject)>0)
 	{
 		int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
 		iPercentCompleted = MIN(100, iPercentCompleted);
@@ -11467,7 +11467,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				
 			}
 		}
-		int iProductionMightPercent = (iOurProductionMight * 100) / iHighestProduction;
+		int iProductionMightPercent = (iOurProductionMight * 100) / max(1,iHighestProduction);
 		bool bCanGold = iProductionMightPercent >= 80;
 		if (bCanGold)
 		{
@@ -11574,7 +11574,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			// Gives a percent we are above or below global mean techs
-			int iTechPercent = ((iOurTechs * iTeams * 100) / iTotalTechs) - 100;
+			int iTechPercent = ((iOurTechs * iTeams * 100) / max(1,iTotalTechs)) - 100;
 
 			if (bCanGold)
 			{
@@ -12513,7 +12513,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (eAlliedPlayer != ePlayer)
 				{
 					int iAllyInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer);
-					iAllyDesire *= (iInfluence * 100) / iAllyInfluence;
+					iAllyDesire *= (iInfluence * 100) / max(1,iAllyInfluence);
 					iAllyDesire /= 100;
 				}
 			}
@@ -12635,7 +12635,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			// Gives a percent we are above or below global mean techs
-			int iTechPercent = ((iOurTechs * iTeams * 100) / iTotalTechs) - 100;
+			int iTechPercent = ((iOurTechs * iTeams * 100) / max(1,iTotalTechs)) - 100;
 			if (iTechPercent > 0)
 			{
 				iExtra -= iTechPercent * 400;
