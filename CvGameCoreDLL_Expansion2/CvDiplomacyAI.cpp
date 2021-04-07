@@ -19972,6 +19972,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Using weight as +/- %: more fluid than the switch table.
 	if (iOpinionWeight > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 	{
+		// We double the opinion weight for additional impact.
+		iOpinionWeight *= 2;
+
 		// Increase
 		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
@@ -19998,7 +20001,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
-		// Flip it! If we like this player, double the weight for additional impact.
+		// Flip it!
 		iOpinionWeight *= -2;
 
 		// Increase
@@ -43779,6 +43782,14 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 {
+	// This penalty only applies if we're not friends or allies.
+	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+		return 0;
+
+	// Ignore for liberators.
+	if (WasResurrectedBy(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer) || GetNumCitiesLiberatedBy(ePlayer) > 0)
+		return 0;
+
 	int iOpinionWeight = 0;
 	int iNumDenouncements = 0;
 
@@ -43794,31 +43805,31 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 			if (GetDoFType(ePlayer) > GetDoFType(eLoopPlayer))
 				continue;
 
-			if (GetCachedOpinionWeight(ePlayer) <= GetCachedOpinionWeight(eLoopPlayer))
+			if (GetCivOpinion(ePlayer) >= GetCivOpinion(eLoopPlayer))
 				continue;
 		}
 
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedByPlayer(eLoopPlayer))
 		{
-			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || (GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_NEUTRAL))
+			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer))
 			{
 				iNumDenouncements++;
 			}
 
 			if (IsTeammate(eLoopPlayer) || (GetMostValuableFriend() == eLoopPlayer && IsDoFAccepted(eLoopPlayer)) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
 			{
-				iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
+				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
 			}
 		}
 	}
 
 	if (iNumDenouncements > 0)
 	{
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
 
 		if (iNumDenouncements > 1)
 		{
-			iOpinionWeight += /*8*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
+			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
 		}
 	}
 

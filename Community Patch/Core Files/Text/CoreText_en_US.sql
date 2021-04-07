@@ -715,7 +715,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
 -- Denounced by Friend
 UPDATE Language_en_US
-SET Text = 'Other civs that they like more than you have denounced you!'
+SET Text = 'Their friends found reason to Denounce you!'
 WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
 
 -- Friend Betrayal

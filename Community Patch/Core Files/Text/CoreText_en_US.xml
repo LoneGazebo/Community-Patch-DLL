@@ -3009,7 +3009,7 @@
 			<Text>You are competing for technological advancement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK_FIERCE">
-			<Text>They are jealous of your superior technology!</Text>
+			<Text>They are jealous of our superior technology!</Text>
 		</Row>
 
 		<!-- Cultural Dispute Mod (for cultural civs) -->
@@ -3017,7 +3017,7 @@
 			<Text>You are competing for cultural advancement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE">
-			<Text>They are jealous of your superior culture!</Text>
+			<Text>They are jealous of our superior culture!</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
