@@ -26248,58 +26248,6 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	if (iReturnValue < 10)
 		return 0;
 
-	if (GetPlayer()->isHuman())
-		return iReturnValue / 4;
-
-	// Modify warmonger amount based on current diplomatic status with this player
-	bool bUntrustworthy = false;
-
-	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
-	{
-		bUntrustworthy = true;
-	}
-
-	if (!bUntrustworthy)
-	{
-		if (IsDoFAccepted(ePlayer) || GetDoFType(ePlayer) >= DOF_TYPE_ALLIES || GetCoopWarScore(ePlayer) > 0)
-		{
-			iReturnValue /= 2;
-		}
-		else if (IsHasDefensivePact(ePlayer))
-		{
-			iReturnValue *= 75;
-			iReturnValue /= 100;
-		}
-		else if (GetDoFType(ePlayer) == DOF_TYPE_FRIENDS)
-		{
-			iReturnValue *= 90;
-			iReturnValue /= 100;
-		}
-
-		if (IsPlayerDPWithAnyFriend(ePlayer) || IsPlayerDoFWithAnyFriend(ePlayer) || IsPlayerDenouncedEnemy(ePlayer))
-		{
-			iReturnValue *= 75;
-			iReturnValue /= 100;
-		}
-	}
-
-	if (bUntrustworthy)
-	{
-		iReturnValue *= 150;
-		iReturnValue /= 100;
-	}
-	if (IsPlayerDPWithAnyEnemy(ePlayer) || IsPlayerDoFWithAnyEnemy(ePlayer) || IsPlayerDenouncedFriend(ePlayer))
-	{
-		iReturnValue *= 125;
-		iReturnValue /= 100;
-	}
-
-	// Large reduction if either of us resurrected the other
-	if (WasResurrectedBy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
-	{
-		iReturnValue /= 2;
-	}
-
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
 	iReturnValue /= 20;
 
