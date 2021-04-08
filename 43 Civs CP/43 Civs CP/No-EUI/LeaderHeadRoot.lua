@@ -237,7 +237,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		local iTheirWarDamage = Players[g_iAIPlayer]:GetWarDamageValue(Game.GetActivePlayer());
 		local iTotal = iTheirWarDamage - iOurWarDamage;
 
-		if (iTotal > 0)
+		if (iTotal > 0) then
 			if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
 			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
@@ -247,7 +247,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
 			end
-		elseif (iTotal < 0)
+		elseif (iTotal < 0) then
 			if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
 			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)

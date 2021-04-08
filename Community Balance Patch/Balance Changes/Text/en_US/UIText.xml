@@ -775,7 +775,7 @@
 
 		<!-- New Musician Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
-			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]50%[ENDCOLOR] [ICON_TOURISM] Tourism with all Civs for {2_Num} Turns, and +[COLOR_POSITIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with the target Civ for {2_Num} Turns.</Text>
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with them, and +{3_num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S">
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
@@ -790,7 +790,7 @@
 		<!-- Tourism Bonus Turns Change for GM -->
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS">
-			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with them, and +{3_num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.</Text>
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]50%[ENDCOLOR] [ICON_TOURISM] Tourism with all Civs for {2_Num} Turns, and +[COLOR_POSITIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with the target Civ for {2_Num} Turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S">
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
@@ -803,11 +803,15 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+{1_Num}% Bonus from Great Musician Tour[NEWLINE]</Text>
+			<Text>+100% Bonus from Great Musician Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
-		
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
+			<Text>+50% Bonus from Great Musician Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+		</Row>
 
-		
+		<Row Tag="TXT_KEY_UPANEL_TOURISM_TURNS_TT">
+			<Text>This indicates the length of a Concert Tour. The length is based on number of owned Great Works of Music controlled by the owning Civilization.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
 			<Text>{1_Num} {2_IconString} from Yield Conversion</Text>

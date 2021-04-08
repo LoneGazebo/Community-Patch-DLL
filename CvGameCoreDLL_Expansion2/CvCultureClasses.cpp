@@ -5203,9 +5203,13 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	{
 		iMultiplier += iFranchiseBonus;
 	}
-	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) != 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
+	}
+	else if (m_pPlayer->GetTourismBonusTurns() != 0)
+	{
+		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
@@ -5419,9 +5423,13 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES", iFranchiseBonus) + "[ENDCOLOR]";
 	}
-	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) != 0)
 	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS", kPlayer.getTourismBonusTurnsPlayer(ePlayer)) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS", m_pPlayer->getTourismBonusTurnsPlayer(ePlayer)) + "[ENDCOLOR]";
+	}
+	else if (m_pPlayer->GetTourismBonusTurns() != 0)
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF", m_pPlayer->GetTourismBonusTurns()) + "[ENDCOLOR]";
 	}
 
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
@@ -7590,11 +7598,6 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += iTechSpreadModifier;
 	}
 
-	if (kPlayer.GetTourismBonusTurns() != 0)
-	{
-		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
-	}
-
 	int iNumCities = kPlayer.GetNumEffectiveCities();
 	if (iNumCities != 0)
 	{
@@ -7812,9 +7815,13 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	//Corporations
 	iMultiplier += kCityPlayer.GetCulture()->GetFranchiseModifier(ePlayer);
 
-	if (kPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (kCityPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
+	}
+	else if (kPlayer.GetTourismBonusTurns() != 0)
+	{
+		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
 

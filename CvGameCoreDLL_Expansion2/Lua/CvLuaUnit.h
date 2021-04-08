@@ -617,6 +617,7 @@ protected:
 #endif
 
 	static int lGetTourismBlastStrength(lua_State* L);
+	static int lGetTourismBlastLength(lua_State* L);
 
 	static int lGetGreatWorkSlotType(lua_State* L);
 

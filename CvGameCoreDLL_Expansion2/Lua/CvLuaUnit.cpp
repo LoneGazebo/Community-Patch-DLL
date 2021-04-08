@@ -606,6 +606,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 
 	Method(GetTourismBlastStrength);
+	Method(GetTourismBlastLength);
 
 	Method(GetGreatWorkSlotType);
 
@@ -5945,6 +5946,18 @@ int CvLuaUnit::lGetTourismBlastStrength(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	int iStrength = pkUnit->GetTourismBlastStrength();
+
+	lua_pushinteger(L, iStrength);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTourismBlastLtrength();
+int CvLuaUnit::lGetTourismBlastLength(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	int iStrength = pkUnit->getUnitInfo().GetTourismBonusTurns();
 
 	lua_pushinteger(L, iStrength);
 
