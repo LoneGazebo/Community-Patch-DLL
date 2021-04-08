@@ -139,42 +139,33 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 #if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
-
 	if(eProject == NO_PROJECT)
 		return 0;
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
-	{
 		return 0;
-	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(iTempWeight == 0)
+	if(iTempWeight < 1)
 		return 0;
 
-	//Sanitize...
-	if(iTempWeight > 5000)
-	{
-		iTempWeight = 5000;
-	}
+	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
+	iTempWeight = sqrti(10 * iTempWeight);
+
 	if (pkProjectInfo->IsRepeatable())
 	{
 		if (m_pCity->isUnderSiege() || m_pCity->IsResistance() || m_pCity->IsBlockaded(false) || m_pCity->IsBlockaded(true))
 			return 0;
-		
-		if (iTempWeight > 350)
-		{
-			iTempWeight = 350;
-		}
 	}
 
 	if(kPlayer.isMinorCiv())
 	{
 		return 0;
 	}
-	if(m_pCity->IsPuppet())
+
+	if(CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		return 0;
 	}
@@ -250,8 +241,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	}
 
 	bool bGoodforHappiness = false;
-
-
 	if (pkProjectInfo->GetHappiness() > 0)
 	{
 		bGoodforHappiness = true;
@@ -292,10 +281,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		bGoodforHappiness = true;
 	}
-
-	//emphasis on keeping the task on hand.
-	if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProject)
-		iTempWeight *= 2;
 
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;

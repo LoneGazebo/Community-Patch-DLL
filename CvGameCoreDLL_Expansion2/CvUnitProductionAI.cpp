@@ -96,16 +96,8 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 }
 
 /// Recommend highest-weighted unit
-#if defined(MOD_BALANCE_CORE)
 UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource)
-#else
-UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
-#endif
 {
-	int iUnitLoop;
-	int iWeight;
-	int iTurnsLeft;
-
 	if(eUnitAIType <= NO_UNITAI)
 	{
 		return NO_UNIT;
@@ -115,7 +107,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 	m_Buildables.clear();
 
 	// Loop through adding the available units
-	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
+	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
 		const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
@@ -125,10 +117,9 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 			bool bBad = false;
 			if(!bUsesStrategicResource)
 			{
-				ResourceTypes eResource;
 				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 				{
-					eResource = (ResourceTypes) iResourceLoop;
+					ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 					int iNumResource = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 					if (iNumResource > 0)
 					{
@@ -160,7 +151,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 				if(eUnitAIType == NO_UNITAI || pkUnitInfo->GetUnitAIType(eUnitAIType))
 				{
 					// Update weight based on turns to construct
-					iTurnsLeft = m_pCity->getProductionTurnsLeft(eUnit, 0);
+					int iTurnsLeft = m_pCity->getProductionTurnsLeft(eUnit, 0);
 					int iTempWeight = m_UnitAIWeights.GetWeight(eUnit);
 					if (iTempWeight == 0)
 					{
@@ -170,15 +161,10 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 							iTempWeight += pkUnitInfo->GetFlavorValue(iFlavorLoop);
 						}
 					}
-					iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsLeft);
-#if defined(MOD_BALANCE_CORE)
+
+					int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsLeft);
 					if(iWeight > 0)
-					{
-#endif
-					m_Buildables.push_back(iUnitLoop, iWeight);
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
+						m_Buildables.push_back(iUnitLoop, iWeight);
 				}
 			}
 		}
@@ -201,35 +187,21 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree, bool bInterruptBuildings)
+int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
 {
-	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
-	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
-
-	if(iTempWeight <= 0)
+	if(iTempWeight < 1)
 		return 0;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
+	iTempWeight = sqrti(10 * iTempWeight);
 
-	//Sanitize...
-	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
-	{
-		if (iTempWeight > 250)
-		{
-			iTempWeight = 250;
-		}
-	}
-	else
-	{
-		if (iTempWeight > 100)
-		{
-			iTempWeight = 100;
-		}
-	}
-
+	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	if (!pkUnitEntry)
 		return 0;
 
+	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
+
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	if (!bFree && bForPurchase && !m_pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 	{
 		return 0;
@@ -1046,17 +1018,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += iWaterRoutes;
 			}
-			if(iGPT <= 0)
-			{
-				iBonus += (iGPT * iGPT * 100);
-			}
+
 			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
 			if (iUnhappyGold > 0)
 			{
 				iBonus += (iUnhappyGold * 10);
 			}
 			//Less often if at war.
-			if (bAtWar && iGPT > 0)
+			if (bAtWar)
 			{
 				iBonus -= 100;
 			}
@@ -1708,13 +1677,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Debt is worth considering.
 		bool bCloseToDebt = false;
 		int iAverageGoldPerUnit = 0;
+		int iAvgGPT = kPlayer.GetTreasury()->AverageIncome100(10) / 100;
 
 		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
 		{
 			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
 			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
 
-			if (iGPT < iAverageGoldPerUnit * 3 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 20)
+			if (iAvgGPT < 0 && kPlayer.GetTreasury()->GetGold() < iAverageGoldPerUnit * 23)
 			{
 				bCloseToDebt = true;
 			}
@@ -1725,11 +1695,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//At zero? Even more negative!
 			if (kPlayer.GetTreasury()->GetGold() <= 0)
 			{
-				iBonus += -100;
-			}
-			if (iGPT <= 0)
-			{
-				iBonus += iGPT;
+				iBonus -= 100;
 			}
 		}
 	}
@@ -1738,12 +1704,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	///WEIGHT
 	//////
 
-	if (bInterruptBuildings && bCombat)
-		iBonus += 100;
-	else if (bInterruptBuildings && !bCombat)
-		iBonus -= 100;
-
-	if (iBonus <= 0)
+	if (iBonus < 0)
 		return 0;
 
 	//iValue modified by iBonus

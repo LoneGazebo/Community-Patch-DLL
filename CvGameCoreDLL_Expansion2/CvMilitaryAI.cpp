@@ -553,7 +553,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 {
 	// No units in puppet cities except for Venice!
-	if (pCity->IsPuppet() && !m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pCity))
 	{
 		return NULL;
 	}

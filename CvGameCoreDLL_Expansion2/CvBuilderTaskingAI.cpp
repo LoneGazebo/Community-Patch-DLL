@@ -1693,6 +1693,9 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
 	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
+	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
+		iWeight *= 10;
+
 	if (iWeight > 0)
 	{
 		BuilderDirective directive;

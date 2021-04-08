@@ -295,7 +295,7 @@ void CvCityCitizens::DoTurn()
 		}
 	}
 
-	if (m_pCity->IsPuppet())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 
@@ -2751,7 +2751,7 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 {
-	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		return 0;
 
 	int iGPPChange = 0;
