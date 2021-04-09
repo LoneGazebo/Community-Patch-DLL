@@ -393,8 +393,8 @@ public:
 	int calculateResearchModifier(TechTypes eTech);
 	int calculateGoldRate() const;
 	int calculateGoldRateTimes100() const;
-	int GetCachedGoldRate() const;
-	void cacheGoldRate();
+	int getAvgGoldRate() const;
+	void cacheAvgGoldRate();
 
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;

@@ -5232,11 +5232,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
-		iValue += 2 * abs((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()) * abs(kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()));
+		iValue += 2 * abs((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()));
 	}
 	if(pkBuildingInfo->GetPlotBuyCostModifier() < 0)
 	{
-		iValue += 2 * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier()));
+		iValue += 2 * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier()));
 	}
 	if(pkBuildingInfo->GetNumTradeRouteBonus())
 	{
@@ -5252,7 +5252,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	if (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal())
 	{
-		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() + (pCity->GetCityCitizens()->GetSpecialistSlotsTotal() * pCity->GetCityCitizens()->GetSpecialistSlotsTotal()));
+		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() + (pCity->GetCityCitizens()->GetSpecialistSlotsTotal()));
 	}
 	
 	if(pkBuildingInfo->GetPolicyCostModifier() <= 0)

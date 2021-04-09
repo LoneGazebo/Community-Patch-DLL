@@ -1153,7 +1153,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iEraValue =  kPlayer.GetCurrentEra() - iEra;
-	iBonus += (250 * iEraValue);
+	iBonus += (150 * iEraValue);
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))

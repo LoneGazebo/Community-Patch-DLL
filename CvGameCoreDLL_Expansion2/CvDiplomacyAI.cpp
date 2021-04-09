@@ -7421,7 +7421,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	DoUpdateWarmongerThreats();
 	DoUpdatePlayerTargetValues();
 	DoUpdateWarProjections();
-	GetPlayer()->cacheGoldRate();
+	GetPlayer()->cacheAvgGoldRate();
 	GetPlayer()->DoTestEmpireInBadShapeForWar();
 	DoUpdateEasyTargets();
 	DoUpdateWarGoals();
@@ -13517,7 +13517,7 @@ bool CvDiplomacyAI::IsWarWouldBankruptUs(PlayerTypes ePlayer, bool bIgnoreDPs, i
 		return false;
 
 	int iTreasuryGold = GetPlayer()->GetTreasury()->GetGold();
-	int iIncome = GetPlayer()->GetCachedGoldRate();
+	int iIncome = GetPlayer()->getAvgGoldRate();
 	int iGoldPerTurnLostFromWar = CalculateGoldPerTurnLostFromWar(ePlayer, bIgnoreDPs);
 
 	// Would we actually lose gold from this war declaration?
@@ -14334,7 +14334,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		DoUpdateWarmongerThreats();
 		DoUpdatePlayerTargetValues();
 		DoUpdateWarProjections();
-		GetPlayer()->cacheGoldRate();
+		GetPlayer()->cacheAvgGoldRate();
 		GetPlayer()->DoTestEmpireInBadShapeForWar();
 		DoUpdateEasyTargets();
 		DoUpdateWarGoals();
@@ -17997,7 +17997,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// BANKRUPTCY
 	////////////////////////////////////
 
-	bool bBankrupt = GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0;
+	bool bBankrupt = GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->getAvgGoldRate() <= 0;
 	int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bIgnoreDPs*/ false);
 
 	// We're bankrupt!

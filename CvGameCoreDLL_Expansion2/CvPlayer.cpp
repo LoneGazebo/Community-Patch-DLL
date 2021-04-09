@@ -18275,31 +18275,20 @@ int CvPlayer::calculateGoldRate() const
 	return calculateGoldRateTimes100() / 100;
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateGoldRateTimes100() const
 {
-	// If we're in anarchy, then no Gold is collected!
-	if(IsAnarchy())
-	{
-		return 0;
-	}
-
-	int iRate = 0;
-
-	iRate = GetTreasury()->CalculateBaseNetGoldTimes100();
-
-	return iRate;
+	return GetTreasury()->CalculateBaseNetGoldTimes100();
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetCachedGoldRate() const
+int CvPlayer::getAvgGoldRate() const
 {
 	return m_iCachedGoldRate;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::cacheGoldRate()
+void CvPlayer::cacheAvgGoldRate()
 {
 	int iBaseRate = calculateGoldRate();
 
@@ -20720,7 +20709,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	}
 
 	// Bankrupt?
-	if (GetTreasury()->GetGold() <= 0 && GetCachedGoldRate() <= 0)
+	if (GetTreasury()->GetGold() <= 0 && getAvgGoldRate() <= 0)
 	{
 		SetNoNewWars(true);
 		return;
