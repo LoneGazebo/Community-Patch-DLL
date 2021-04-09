@@ -94,8 +94,6 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 			}
 		}
 	}
-
-	hUnit->doDelayedDeath();
 }
 
 //	---------------------------------------------------------------------------
@@ -219,7 +217,6 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 		}
 
 		////gDLL->getEventReporterIFace()->selectionGroupPushMission(this, eMission);
-		hUnit->doDelayedDeath();
 	}
 }
 
@@ -2110,16 +2107,12 @@ MissionData* CvUnitMission::DeleteMissionData(CvUnit* hUnit, MissionData* pNode)
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
 	MissionQueue& kQueue = hUnit->m_missionQueue;
-
 	if(pNode == HeadMissionData(kQueue))
 	{
 		DeactivateHeadMission(hUnit, /*iUnitCycleTimer*/ 1);
 	}
 
 	pNextMissionNode = kQueue.deleteNode(pNode);
-	if(pNextMissionNode == NULL)
-		hUnit->ClearPathCache();
-
 	if(pNextMissionNode == HeadMissionData(kQueue))
 	{
 		ActivateHeadMission(hUnit);

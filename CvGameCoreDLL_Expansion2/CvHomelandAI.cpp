@@ -401,7 +401,7 @@ void CvHomelandAI::FindHomelandTargets()
 			if (!pLoopPlot->isWater() &&
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
-				pLoopPlot->isRevealedFortification(eTeam))
+				pLoopPlot->isFortification(eTeam))
 			{
 				//this check is a bit expensive
 				if (pLoopPlot->IsBorderLand(m_pPlayer->GetID()))

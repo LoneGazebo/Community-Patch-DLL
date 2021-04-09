@@ -10022,8 +10022,6 @@ void CvGame::updateMoves()
 									pLoopUnit->kill(false);
 								break;
 							}
-
-							pLoopUnit->doDelayedDeath();
 						}
 					}
 

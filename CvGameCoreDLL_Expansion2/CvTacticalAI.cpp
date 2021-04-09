@@ -2055,6 +2055,8 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 		return;
 
 	//sometimes there is nothing to do ...
+	if (pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
+		return;
 	if (pTargetZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
@@ -2076,10 +2078,13 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 			if (pUnit->getOwner()==m_pPlayer->GetID() && pUnit->canUseForTacticalAI())
 			{
 				//do not pull units from zones which need defense (unless it's pointless)
-				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-				if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
-					if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
-						continue;
+				if (!pUnit->isEmbarked())
+				{
+					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
+					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
+						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
+							continue;
+				}
 
 				// Carriers have special moves
 				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
