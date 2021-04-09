@@ -154,23 +154,23 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		local iTotal = iTheirWarDamage - iOurWarDamage;
 
 		if (iTotal > 0) then
-			if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
+			if (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
-			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_SERIOUS" );
-			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MAJOR" );
-			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
+			elseif (iTotal >= GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
 			end
 		elseif (iTotal < 0) then
-			if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED)
+			if (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
-			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_SERIOUS" );
-			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MAJOR) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MAJOR" );
-			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR)
+			elseif (iTotal <= -GameDefines.WAR_DAMAGE_LEVEL_THRESHOLD_MINOR) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MINOR" );
 			end
 		end
