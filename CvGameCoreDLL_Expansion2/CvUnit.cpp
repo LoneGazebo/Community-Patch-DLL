@@ -13323,6 +13323,13 @@ bool CvUnit::blastTourism()
 		PlayerTypes eOwner = pPlot->getOwner();
 		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, iNumTurns);
 
+		// Give happiness to Musician owner
+		int iCap = GC.getBALANCE_CORE_MUSICIAN_BLAST_HAPPINESS();
+
+		if (kUnitOwner.getCapitalCity() != NULL)
+		{
+			kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
+		}
 		
 
 		// Send notifications

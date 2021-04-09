@@ -271,10 +271,15 @@
 			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
 		</Row>
 
+		<!--<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
+			<Text>{1_Num}% [ICON_TOURISM] Tourism from difference in [ICON_PUPPET] non-Puppet Cities</Text>
+		</Row>-->
+
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
-			<Text>{1_Num}% [ICON_TOURISM] Tourism from number of [ICON_PUPPET] non-Puppet Cities</Text>
+			<Text>-{1_NumTurns}% from Empire Size difference[NEWLINE]</Text>
 		</Row>
-		
+
+
 		<!-- Resource Monopoly Text-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY">
 			<Text>(You) {1_Monopoly}%</Text>
@@ -803,10 +808,10 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+100% Bonus from Great Musician Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
-			<Text>+50% Bonus from Great Musician Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UPANEL_TOURISM_TURNS_TT">

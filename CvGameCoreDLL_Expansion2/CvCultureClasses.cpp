@@ -5222,6 +5222,19 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		}
 	}
 
+	//city difference - do we have more than them?
+	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	if (iNumCities > 0)
+	{
+		// Mod for City Count
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		iMod -= kPlayer.GetTourismCostXCitiesMod();
+
+		iMod *= iNumCities;
+
+		iMultiplier -= iMod;
+	}
+
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
@@ -5441,6 +5454,21 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_WARSCORE", iWarScore) + "[ENDCOLOR]";
 		}
 	}
+
+	//city difference - do we have more than them?
+	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	if (iNumCities > 0)
+	{
+		// Mod for City Count
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		iMod -= kPlayer.GetTourismCostXCitiesMod();
+
+		iMod *= iNumCities;
+
+		if (iMod != 0)
+			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
+	}
+
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
@@ -7598,25 +7626,6 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += iTechSpreadModifier;
 	}
 
-	int iNumCities = kPlayer.GetNumEffectiveCities();
-	if (iNumCities != 0)
-	{
-		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= kPlayer.GetTourismCostXCitiesMod();
-
-		iMod *= (iNumCities - 1);
-
-		if (iMod >= 75)
-			iMod = 75;
-
-		if (iMod <= 0)
-			iMod = 0;
-
-		iMod *= -1;
-		iModifier += iMod;
-	}
-
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
 	if (iLeagueCityModifier != 0)
 	{
@@ -7844,6 +7853,19 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 				iMultiplier += iWarScore;
 			}
 		}
+	}
+
+	//city difference - do we have more than them?
+	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	if (iNumCities > 0)
+	{
+		// Mod for City Count
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		iMod -= kPlayer.GetTourismCostXCitiesMod();
+
+		iMod *= iNumCities;
+
+		iMultiplier -= iMod;
 	}
 #endif
 	// LATER add top science city and research agreement with this player???
@@ -8310,37 +8332,6 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CARNIVAL_BONUS", kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier());
 		szRtnValue += szTemp;
-	}
-
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetNumEffectiveCities() > 0)
-	{
-		int iNumCities = kCityPlayer.GetNumEffectiveCities();
-		int iMod = 0;
-		if (iNumCities != 0)
-		{
-			// Mod for City Count
-			iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-			iMod -= kCityPlayer.GetTourismCostXCitiesMod();
-
-			iMod *= (iNumCities - 1);
-
-			if (iMod >= 75)
-				iMod = 75;
-
-			if (iMod <= 0)
-				iMod = 0;
-
-			iMod *= -1;
-		}
-		if (iMod != 0)
-		{
-			if (szRtnValue.length() > 0)
-			{
-				szRtnValue += "[NEWLINE][NEWLINE]";
-			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod);
-			szRtnValue += szTemp;
-		}
 	}
 
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
