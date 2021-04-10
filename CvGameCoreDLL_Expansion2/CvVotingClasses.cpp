@@ -11610,7 +11610,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				int iSeaMightPercent = (iOurSeaMight * 100) / max(1,iHighestSeaMight);
-				iExtra += (iPercentofWinning * iSeaMightPercent) / 5;
+				iExtra += (iPercentofWinning * iSeaMightPercent) / 7;
 			}
 			if (bCanSilver)
 			{
@@ -11635,11 +11635,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 				if (eFort != NO_IMPROVEMENT)
 				{
-					iImprovements += GetPlayer()->getImprovementCount(eLandmark);
+					iImprovements += GetPlayer()->getImprovementCount(eFort);
 				}
 				if (eCitadel != NO_IMPROVEMENT)
 				{
-					iImprovements += GetPlayer()->getImprovementCount(eLandmark);
+					iImprovements += GetPlayer()->getImprovementCount(eCitadel);
 				}
 				iExtra += (5 * iPercentofWinning * iImprovements) / 100;
 			}
@@ -11924,9 +11924,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// What is the ratio of our current maintenance costs to our gross GPT?
 		int iUnitMaintenance = GetPlayer()->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 		int iGPT = GetPlayer()->GetTreasury()->CalculateGrossGold();
-		int iPercent = (iUnitMaintenance * 100) / iGPT;
+		int iPercent = (iUnitMaintenance * 100) / max (1,iGPT);
 
-		iExtra -= (iPercent * iFactor) / 2;
+		iExtra -= (max(0, iPercent - 10) * iFactor) / 2;
 
 		iScore += iExtra;
 	}
@@ -12409,6 +12409,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iExtra += 15 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); // was 10..30, gonna be 0..50
 				}
+				// can't have arts and science funding
+				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+				{
+					iExtra -= 15 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40); // was 10..30, gonna be 0..50
+				}
 #else
 			if (GetPlayer()->AidRank() != NO_PLAYER)
 			{
@@ -12430,6 +12435,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
 				{ 
 					iExtra += 15 * max (0, GetPlayer()->ScoreDifferencePercent(2) - 40); // was 10..30, gonna be 0..50
+				}
+				// can't have arts and science funding
+				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+				{
+					iExtra -= 15 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); // was 10..30, gonna be 0..50
 				}
 #else
 				if (GetPlayer()->AidRank() != NO_PLAYER)
