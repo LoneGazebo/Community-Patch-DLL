@@ -578,6 +578,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<AllowsWaterRoutes>true</AllowsWaterRoutes>
 			<HurryCostModifier>25</HurryCostModifier>
+			<CitySupplyFlat>1</CitySupplyFlat>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
