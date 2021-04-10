@@ -148,7 +148,7 @@
 	WHERE Tag = 'TXT_KEY_CIV5_FEATURES_EL_DORADO_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = 'Workers, Workboats, Missionaries, Inquisitors, and Settlers produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]Sacred Steps[ENDCOLOR] Promotion, granting them +2 [ICON_MOVES] Movement.'
+	SET Text = 'Workers, Work Boats, Missionaries, Inquisitors, and Settlers produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]Sacred Steps[ENDCOLOR] Promotion, granting them +2 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_CIV5_FEATURES_EL_DORADO_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
 
@@ -174,3 +174,6 @@
 	SET Text = 'Cinnamon is obtained from the inner bark of Cinnamonum trees and is commonly used as an aromatic spice for savory foods. Spices are plant-derived substances used to preserve and enhance the flavor, color, or texture of food. In addition to merely enhancing food, some spices have medicinal benefits, religious significance, or are useful in food preservation. Generally, spices must be dried and ground before being applied to food; this distinguishes them from herbs like sage or oregano, which are green and leafy and may be used fresh or dried.'
 	WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_SPICES_TEXT'AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+	UPDATE Language_en_US
+	SET Text = 'Mines are among the most important improvements in Civilization V. Not only do they increase a hex''s productivity output - and high productivity allows quicker construction of units, buildings, and wonders - but they also provide access to some of the most important resources in the game: iron, coal, and uranium, to name a few.'
+	WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MINE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
