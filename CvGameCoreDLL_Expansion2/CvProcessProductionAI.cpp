@@ -91,31 +91,17 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 	return m_ProcessAIWeights.GetWeight(eProject);
 }
 #if defined(MOD_BALANCE_CORE)
-int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight, int iNumBuildables, int iGPT)
+int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
 	if(!pProcess)
-	{
-		return 0;
-	}
-
-	if(iTempWeight == 0)
 		return 0;
 
-	if(iNumBuildables > 0)
-	{
-		if(iTempWeight > 100)
-		{
-			iTempWeight = 100;
-		}
-	}
-	else
-	{
-		if(iTempWeight > 250)
-		{
-			iTempWeight = 250;
-		}
-	}
+	if(iTempWeight < 1)
+		return 0;
+
+	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
+	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
@@ -130,7 +116,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if (pProcess->getDefenseValue() == 0)
 	{
 		//Fewer processes while at war.
-		if (!m_pCity->IsPuppet())
+		if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 			if (iNumWar > 0)
@@ -168,7 +154,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	else
 	{
 		//Unless it is defense.
-		if (!m_pCity->IsPuppet())
+		if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 			if (iNumWar > 0)
@@ -200,6 +186,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			else
 				return 0;
 		}
+
 		//Tiny army? Eek!
 		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
 		{
@@ -233,7 +220,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//Yield value.
 	
 	//Base value of production.
-	iModifier += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
+	int iProduction = m_pCity->getYieldRate(YIELD_PRODUCTION, false);
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
@@ -243,10 +230,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-			{
 				iModifier += 150;
-			}
-			iModifier += m_pCity->GetYieldFromProcessModifier(eYield);
+
+			int iConvertedYield = (iProduction * m_pCity->GetYieldFromProcessModifier(eYield)) / 100;
+
+			iModifier += iConvertedYield;
 
 			switch(eYield)
 			{
@@ -261,11 +249,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					}
 					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
-						iModifier += 30;
-					}
-					if (kPlayer.GetTreasury()->GetGold() <= 0 && kPlayer.GetTreasury()->AverageIncome100(5) <= 0)
-					{
-						iModifier += 500;
+						iModifier += 50;
 					}
 				}
 				break;
@@ -364,7 +348,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							int iValue = 2000;
 							if(kPlayer.getCapitalCity() != NULL)
 							{
-								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5, 1);
+								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5);
 								iModifier += iValue;
 							}
 							else
@@ -451,7 +435,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 								int iValue = 1500;
 								if(kPlayer.getCapitalCity() != NULL)
 								{
-									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue, 1);
+									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue);
 								}
 								iModifier += iValue;
 							}
@@ -496,17 +480,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 		}
 	}
-	if(iGPT <= 0)
-	{
-		iModifier += (iGPT *= -1);
-	}
 
-	if(m_pCity->IsPuppet())
-	{
-		iTempWeight *= (75 + iModifier);
-		iTempWeight /= 100;
-	}
-	else if (bIsProject)
+	if (bIsProject)
 	{
 		iTempWeight +=iModifier;
 	}

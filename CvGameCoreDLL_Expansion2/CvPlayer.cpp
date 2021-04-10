@@ -11974,21 +11974,18 @@ void CvPlayer::updateTimers()
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 		pLoopUnit->UpdateMission();
 
-	//unit cleanup - this should probably also be done in a two-pass scheme like below
-	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
-	bool bKilledAtLeastOne = false;
-	bool bKilledOneThisPass = false;
-	do
-	{
-		bKilledOneThisPass = false;
-		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			bKilledOneThisPass |= pLoopUnit->doDelayedDeath();
-		bKilledAtLeastOne |= bKilledOneThisPass;
-	} while (bKilledOneThisPass);
+	//unit cleanup (two step approach because deleting a unit invalidates the iterator)
+	std::vector<CvUnit*> unitsToDelete;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		if (pLoopUnit->isDelayedDeath())
+			unitsToDelete.push_back(pLoopUnit);
+
+	for (size_t i = 0; i < unitsToDelete.size(); i++)
+		unitsToDelete[i]->doDelayedDeath();
 
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
 	//force explicit visibility update for killed units (but not if the player is currently active) 
-	if (bKilledAtLeastOne && GetID()!=GC.getGame().getActivePlayer())
+	if (!unitsToDelete.empty() && GetID()!=GC.getGame().getActivePlayer())
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
@@ -18074,7 +18071,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		{
 			int iPopulation = 0;
 			int iSupply = (iStartingSupply + pLoopCity->getCitySupplyModifier() + m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation());
-			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			{
 				iPopulation = (pLoopCity->getPopulation() / 2) * 100;
 			}
@@ -18278,31 +18275,20 @@ int CvPlayer::calculateGoldRate() const
 	return calculateGoldRateTimes100() / 100;
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateGoldRateTimes100() const
 {
-	// If we're in anarchy, then no Gold is collected!
-	if(IsAnarchy())
-	{
-		return 0;
-	}
-
-	int iRate = 0;
-
-	iRate = GetTreasury()->CalculateBaseNetGoldTimes100();
-
-	return iRate;
+	return GetTreasury()->CalculateBaseNetGoldTimes100();
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetCachedGoldRate() const
+int CvPlayer::getAvgGoldRate() const
 {
 	return m_iCachedGoldRate;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::cacheGoldRate()
+void CvPlayer::cacheAvgGoldRate()
 {
 	int iBaseRate = calculateGoldRate();
 
@@ -20421,7 +20407,7 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 
 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
 
 		pLoopCity->ResetHappinessFromEmpire();
@@ -20435,11 +20421,10 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 		bool bAllFull = true;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
 			int iTotalHappiness = pLoopCity->GetLocalHappiness();
-
 			if (iTotalHappiness < pLoopCity->getPopulation())
 			{
 				bAllFull = false;
@@ -20451,11 +20436,10 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
 			int iTotalHappiness = pLoopCity->GetLocalHappiness();
-
 			if (iTotalHappiness >= pLoopCity->getPopulation())
 				continue;
 
@@ -20498,7 +20482,7 @@ int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
 	if (pCity == NULL)
 		return 0;
 
-	if (pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pCity))
 		return 0;
 
 	return pCity->GetHappinessFromEmpire() + pCity->GetLuxuryHappinessFromEmpire();
@@ -20510,7 +20494,7 @@ int CvPlayer::GetEmpireUnhappinessForCity(CvCity* pCity) const
 	if (pCity == NULL)
 		return 0;
 
-	if (pCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pCity))
 		return 0;
 
 	return pCity->GetUnhappinessFromEmpire();
@@ -20543,7 +20527,7 @@ void CvPlayer::SetUnhappiness(int iNewValue)
 		int iLoop;
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
 			pLoopCity->UpdateUnhappinessFromEmpire();
@@ -20725,7 +20709,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 	}
 
 	// Bankrupt?
-	if (GetTreasury()->GetGold() <= 0 && GetCachedGoldRate() <= 0)
+	if (GetTreasury()->GetGold() <= 0 && getAvgGoldRate() <= 0)
 	{
 		SetNoNewWars(true);
 		return;
@@ -47387,7 +47371,7 @@ int CvPlayer::GetNumRealCities() const
 	int iLoop;
 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
 
 		if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
@@ -47845,7 +47829,7 @@ int CvPlayer::GetNumEffectiveCoastalCities() const
 		if (pLoopCity->IsIgnoreCityForHappiness() || pLoopCity->IsRazing())
 			continue;
 
-		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
 
 		if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
@@ -48290,7 +48274,6 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::SetBestWonderCities()
 {
-	int iGPT = GetTreasury()->CalculateBaseNetGold();
 	bool bIsCapitalCompetitive = isCapitalCompetitive();
 	
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -48356,7 +48339,7 @@ void CvPlayer::SetBestWonderCities()
 			}
 
 			//Best? Do it!
-			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, iGPT, false, true);
+			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, true);
 
 			iValue += (-50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
 

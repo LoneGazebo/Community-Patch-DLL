@@ -3247,7 +3247,7 @@ void CvCity::ResetHappinessFromLuxuries()
 void CvCity::UpdateUnhappinessFromEmpire()
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 	{
 		m_iUnhappinessFromEmpire = 0;
 		return;
@@ -3270,7 +3270,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 	{
 		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
-			if (pLoopCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
 			if (pLoopCity->GetID() == GetID())
@@ -7895,7 +7895,8 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	if(eUnit == NO_UNIT)
+	//no units in puppets except venice
+	if(eUnit == NO_UNIT || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 	{
 		return false;
 	}
@@ -8112,9 +8113,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 #endif
 {
-	VALIDATE_OBJECT
-	int iI;
-
 	if(eBuilding == NO_BUILDING)
 	{
 		return false;
@@ -8124,6 +8122,15 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	if(pkBuildingInfo == NULL)
 	{
 		return false;
+	}
+
+	//no wonders in puppets except venice
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+	{
+		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+		{
+			return false;
+		}
 	}
 
 	if(!(GET_PLAYER(getOwner()).canConstruct(eBuilding, vPreExistingBuildings, bContinue, bTestVisible, bIgnoreCost, toolTipSink)))
@@ -8186,7 +8193,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 
 #if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
 	//puppets will only build very few buildings
-	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 	{
 		//too new? not ok
 		if (pkBuildingInfo->GetEra() > GET_PLAYER(getOwner()).GetCurrentEra() - 1)
@@ -8308,7 +8315,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 #if defined(MOD_BALANCE_CORE)
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	//Check for uniques of the same type.
-	for(iI = 0; iI < iNumBuildingInfos; iI++)
+	for(int iI = 0; iI < iNumBuildingInfos; iI++)
 	{
 		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo((BuildingTypes)iI);
 		if(pkBuildingInfo2 == NULL)
@@ -8380,7 +8387,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 
 	// Locked Buildings (Mutually Exclusive Buildings?) - not quite sure how this works
-	for(iI = 0; iI < iNumBuildingClassInfos; iI++)
+	for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
 	{
 		BuildingClassTypes eLockedBuildingClass = (BuildingClassTypes) pkBuildingInfo->GetLockedBuildingClasses(iI);
 
@@ -8402,7 +8409,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	if(pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
 	{
 		int iNumBuildingInfos = GC.getNumBuildingInfos();
-		for(iI = 0; iI < iNumBuildingInfos; iI++)
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
 			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
 
@@ -8499,6 +8506,12 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
+
+	//no projects in puppets except venice
+	if(eProject == NO_PROJECT || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+	{
+		return false;
+	}
 
 	if(!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible)))
 	{
@@ -16176,12 +16189,13 @@ bool CvCity::IsTraded(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
 	return m_abTraded[ePlayer];
 }
+
 void CvCity::CheckForOperationUnits()
 {
 	VALIDATE_OBJECT
 	UnitTypes eBestUnit;
 	UnitAITypes eUnitAI;
-	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this) || IsRazing())
 		return;
 
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
@@ -16189,9 +16203,8 @@ void CvCity::CheckForOperationUnits()
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	int iGPT = GET_PLAYER(getOwner()).GetTreasury()->CalculateBaseNetGold();
 	//Don't if we're in debt.
-	if(iGPT <= 0)
+	if(kPlayer.GetTreasury()->AverageIncome100(10)<0)
 	{
 		return;
 	}
@@ -16238,7 +16251,7 @@ void CvCity::CheckForOperationUnits()
 			}
 			if(eBestUnit != NO_UNIT)
 			{
-				iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
+				iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, -1, -1, true);
 				if(iTempWeight > 0)
 				{
 					int iGoldCost = GetPurchaseCost(eBestUnit);
@@ -16261,7 +16274,7 @@ void CvCity::CheckForOperationUnits()
 							if (eUnitClass != NO_UNITCLASS)
 							{
 								SetUnitInvestment(eUnitClass, true);
-								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+								if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 								{
 									if (getProductionProcess() != NO_PROCESS)
 									{
@@ -16309,7 +16322,7 @@ void CvCity::CheckForOperationUnits()
 						return;
 					}
 
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, -1, -1);
 					if (iTempWeight > 0)
 					{
 						pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
@@ -16384,7 +16397,7 @@ void CvCity::CheckForOperationUnits()
 					if (eUnitClass != NO_UNITCLASS)
 					{
 						SetUnitInvestment(eUnitClass, true);
-						if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 						{
 							if (getProductionProcess() != NO_PROCESS)
 							{
@@ -31145,7 +31158,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if(eUnitClass != NO_UNITCLASS)
 					{
 						SetUnitInvestment(eUnitClass, true);
-						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 						{
 							if (getProductionProcess() != NO_PROCESS)
 							{
@@ -31248,7 +31261,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					if(eBuildingClass != NO_BUILDINGCLASS)
 					{
 						SetBuildingInvestment(eBuildingClass, true);
-						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 						{
 							if (getProductionProcess() != NO_PROCESS)
 							{

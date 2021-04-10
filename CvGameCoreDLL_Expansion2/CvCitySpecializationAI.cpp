@@ -386,6 +386,7 @@ void CvCitySpecializationAI::DoTurn()
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
 		AssignSpecializations();
+
 		m_bSpecializationsDirty = false;
 		m_iLastTurnEvaluated = GC.getGame().getGameTurn();
 
@@ -395,7 +396,7 @@ void CvCitySpecializationAI::DoTurn()
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if(pLoopCity->isProductionBuilding())
+				if(pLoopCity->isProductionBuilding() && pLoopCity->AI_isChooseProductionDirty())
 				{
 					pLoopCity->AI_chooseProduction(m_bInterruptWonders, m_bInterruptBuildings);
 				}

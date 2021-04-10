@@ -7188,7 +7188,8 @@ bool CvUnit::TurnProcessed() const
 void CvUnit::SetTurnProcessed(bool bValue)
 {
 	VALIDATE_OBJECT
-	if(TurnProcessed() != bValue)
+	//failsafe, setting any value on a zombie unit leads to a crash
+	if(TurnProcessed() != bValue && !isDelayedDeath())
 	{
 		m_bAITurnProcessed = bValue;
 	}

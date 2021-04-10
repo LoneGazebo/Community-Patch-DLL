@@ -1017,6 +1017,7 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	if (iToX==-1 || iToY==-1)
 		return false;
 
+	int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
 	if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2) )
 	{
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
@@ -1026,8 +1027,8 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		//the main check
-		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (iDistance > 2 || iDistance < 1)
 			return false;
 
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
@@ -1050,7 +1051,8 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 1)
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (iDistance != 1)
 			return false;
 
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
@@ -3085,7 +3087,11 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 
 	//try to avoid rough plots
 	if (pToPlot->isRoughGround() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/2;
+		iCost += PATH_BASE_COST/4;
+
+	//avoid hills when in doubt
+	if (!pToPlot->isFlatlands() && iRouteFactor==1)
+		iCost += PATH_BASE_COST/8;
 
 	//bonus for oasis
 	if (eFeature == FEATURE_OASIS && iRouteFactor==1)

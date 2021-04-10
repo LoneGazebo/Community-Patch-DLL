@@ -36,13 +36,9 @@ public:
 	int GetWeight(UnitTypes eUnit);
 
 	// Recommend highest-weighted unit
-#if defined(MOD_BALANCE_CORE)
-	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes = 0, int iLandRoutes = 0, bool bForPurchase = false, bool bFree = false, bool bInterruptBuildings = false);
+	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, 
+		int iWaterRoutes = 0, int iLandRoutes = 0, bool bForPurchase = false, bool bFree = false);
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
-	bool IsHighestCombatExperienceCity(UnitTypes eUnit);
-#else
-	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);
-#endif
 
 	// Logging
 	void LogPossibleBuilds(UnitAITypes eUnitAIType = NO_UNITAI);

@@ -81,7 +81,7 @@ void CvTreasury::Uninit()
 /// Update treasury for a turn
 void CvTreasury::DoGold()
 {
-	int iGoldChange = m_pPlayer->calculateGoldRateTimes100();
+	int iGoldChange = CalculateBaseNetGoldTimes100();
 	int iGoldAfterThisTurn = iGoldChange + GetGoldTimes100();
 
 	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
@@ -513,14 +513,11 @@ int CvTreasury::CalculateBaseNetGold()
 /// Net income for turn
 int CvTreasury::CalculateBaseNetGoldTimes100()
 {
-	int iNetGold = CalculateGrossGoldTimes100();
+	if (m_pPlayer->IsAnarchy())
+		return 0;
 
-	// Remove costs
-	iNetGold -= CalculateInflatedCosts() * 100;
-
-	return iNetGold;
+	return CalculateGrossGoldTimes100() - CalculateInflatedCosts() * 100;
 }
-
 
 /// Compute unit maintenance cost for the turn (returns component info)
 int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost)

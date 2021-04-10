@@ -205,10 +205,7 @@ public:
 
 private:
 
-	void ReweightByCost();
-#if defined(MOD_BALANCE_CORE)
-	void ReweightPreCheckByCost();
-#endif
+	void ReweightByDuration(CvWeightedVector<CvCityBuildable>& options);
 
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
@@ -283,7 +280,7 @@ bool IsTestCityStrategy_FirstGoldBuilding(CvCity* pCity);
 bool IsTestCityStrategy_FirstFaithBuilding(CvCity* pCity);
 bool IsTestCityStrategy_FirstProductionBuilding(CvCity* pCity);
 bool IsTestCityStrategy_UnderBlockade(CvCity* pCity);
-bool IsTestCityStrategy_IsPuppet(CvCity* pCity);
+bool IsTestCityStrategy_IsPuppetAndAnnexable(const CvCity* pCity);
 bool IsTestCityStrategy_MediumCityHighDifficulty(CvCity* pCity);
 bool IsTestCityStrategy_OriginalCapital(CvCity* pCity);
 bool IsTestCityStrategy_RiverCity(CvCity* pCity);
@@ -317,7 +314,7 @@ bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
 
 
-int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield);
+int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iFlatYield);
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);

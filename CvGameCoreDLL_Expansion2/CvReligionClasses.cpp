@@ -10031,7 +10031,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 					if (pBuildingEntry)
 					{
-						int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold() * iIdealEmpireSize;
 						////Sanity and AI Optimization Check
 
 						//stats to decide whether to disband a unit
@@ -10060,11 +10059,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 						if (pHolyCity != NULL)
 						{
-							iBuildingTemp += pHolyCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, iGPT, false, false, true, true);
+							iBuildingTemp += pHolyCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, false, true, true);
 						}
 						else
 						{
-							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, iGPT, false, true, true, true);
+							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, true, true, true);
 						}
 
 						//Do we already have a faith building? Let's not double down.									
@@ -10995,7 +10994,6 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 			{
 				int iBest = 0;
 				BuildingClassTypes eBestBuilding = NO_BUILDINGCLASS;
-				int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 				////Sanity and AI Optimization Check
 
 				//stats to decide whether to disband a unit
@@ -11019,7 +11017,7 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
 					if (eBuilding != NO_BUILDING)
 					{
-						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, iLandRoutes, iWaterRoutes, iGPT, false, false, true, true);
+						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, iLandRoutes, iWaterRoutes, false, true, true);
 						if (iValue > iBest)
 						{
 							iBest = iValue;
