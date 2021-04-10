@@ -175,5 +175,5 @@
 	WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_SPICES_TEXT'AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Mines are among the most important improvements in Civilization V. Not only do they increase a hex''s productivity output - and high productivity allows quicker construction of units, buildings, and wonders - but they also provide access to some of the most important resources in the game: iron, coal, and uranium, to name a few.'
+	SET Text = 'Mines are among the most important improvements in Civilization V. Not only do they increase a hex''s productivity output - and high productivity allows quicker construction of units, buildings, and wonders - but they also provide access to some of the most important resources in the game: iron, coal, and aluminium, to name a few.'
 	WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MINE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
