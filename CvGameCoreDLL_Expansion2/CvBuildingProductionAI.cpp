@@ -1064,11 +1064,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			return 0;
 		}
 
-		//careful if it does not generate noteworthy yields or defense
+		/*
+		// it would be useful to have a check whether a building is worth building at all (eg skip hotel in a city without culture)
+		// however yields are not everything (eg growth bonus, resources etc). so it's difficult to write down a good condition ...
 		if (iTotalYield < pkBuildingInfo->GetGoldMaintenance() * 3 && pkBuildingInfo->GetDefenseModifier() == 0)
 		{
 			return 0;
 		}
+		*/
 	}
 
 	/////////
