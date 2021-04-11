@@ -1056,10 +1056,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse)
+	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse && !bGoodforGPT)
 	{
 		//careful if it would bankrupt us
-		if (!bGoodforGPT && iAvgGPT<0 && pkBuildingInfo->GetGoldMaintenance()*13 > kPlayer.GetTreasury()->GetGold())
+		if (kPlayer.getTurnsToBankruptcy(pkBuildingInfo->GetGoldMaintenance()) < 9)
 		{
 			return 0;
 		}

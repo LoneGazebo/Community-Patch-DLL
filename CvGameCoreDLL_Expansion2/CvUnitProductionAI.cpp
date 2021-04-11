@@ -189,6 +189,9 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesS
 #if defined(MOD_BALANCE_CORE)
 int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
 {
+	//value to be added
+	int iBonus = 0;
+
 	if(iTempWeight < 1)
 		return 0;
 
@@ -213,10 +216,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
-
 	if (!bFree && bDesperate && !bCombat)
 	{
 		return 0;
+	}
+
+	if (!kPlayer.isMinorCiv() && !bDesperate && !bFree)
+	{
+		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
+		{
+			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
+			int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
+			int iTurnsLeft = kPlayer.getTurnsToBankruptcy(iAverageGoldPerUnit);
+
+			if (iTurnsLeft < 7)
+				return 0;
+			else if (iTurnsLeft < 13)
+				iBonus -= iAverageGoldPerUnit*25;
+		}
 	}
 
 	//don't build land/sea units if there's no place to put them
@@ -240,9 +257,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (iFreePlots == 0)
 			return 0;
 	}
-
-	//% Value that will modify the base value.
-	int iBonus = 0;
 
 	//only war with majors count
 	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
@@ -1612,39 +1626,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	//prioritize siege cities for purchase
-	if (bForPurchase && bCombat)
+	//prioritize besieged cities for purchase
+	if (bForPurchase && bCombat && bDesperate)
 	{
-		if (bDesperate)
-			iBonus += 250;
-	}
-
-	if (!kPlayer.isMinorCiv())
-	{
-		//Debt is worth considering.
-		bool bCloseToDebt = false;
-		int iAverageGoldPerUnit = 0;
-		int iAvgGPT = kPlayer.GetTreasury()->AverageIncome100(10) / 100;
-
-		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
-		{
-			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
-			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
-
-			if (iAvgGPT < 0 && kPlayer.GetTreasury()->GetGold() < iAverageGoldPerUnit * 23)
-			{
-				bCloseToDebt = true;
-			}
-		}
-		if (bCloseToDebt && iAverageGoldPerUnit != 0)
-		{
-			iBonus += iAverageGoldPerUnit * -25;
-			//At zero? Even more negative!
-			if (kPlayer.GetTreasury()->GetGold() <= 0)
-			{
-				iBonus -= 100;
-			}
-		}
+		iBonus += 250;
 	}
 
 	/////
