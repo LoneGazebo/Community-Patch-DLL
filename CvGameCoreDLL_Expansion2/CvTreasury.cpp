@@ -743,19 +743,11 @@ int CvTreasury::CalculateInflationRate()
 	iInflationPerTurnTimes10000 *= playerHandicap.getInflationPercent();
 	iInflationPerTurnTimes10000 /= 100;
 
-	int iModifier = 0;
-
-	if(!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
+	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
 	{
-		int iAIModifier = gameHandicap.getAIInflationPercent();
-		iAIModifier *= std::max(0, ((gameHandicap.getAIPerEraModifier() * m_pPlayer->GetCurrentEra()) + 100));
-		iAIModifier /= 100;
-
-		iModifier += iAIModifier - 100;
+		iInflationPerTurnTimes10000 *= gameHandicap.getAIInflationPercent();
+		iInflationPerTurnTimes10000 /= 100;
 	}
-
-	iInflationPerTurnTimes10000 *= std::max(0, 100 + iModifier);
-	iInflationPerTurnTimes10000 /= 100;
 
 	// Keep up to second order terms in binomial series
 	int iRatePercent = (iTurns * iInflationPerTurnTimes10000) / 100;

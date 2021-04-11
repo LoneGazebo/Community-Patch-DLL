@@ -17995,7 +17995,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	{
 		if (GC.getGame().getStartEra() > 0)
 		{
-			iSupply += (GC.getGame().getStartEra() * 2);
+			iSupply += GC.getGame().getStartEra() * 2;
 		}
 		
 		if (!bIgnoreReduction)
@@ -20316,7 +20316,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 {
 	// Start level
 	m_iHappiness = getHandicapInfo().getHappinessDefault();
-		
+
 	// Gamespeed Bonus level
 	m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
 
@@ -20366,9 +20366,8 @@ void CvPlayer::DoUpdateTotalHappiness()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		m_iHappiness += pLoopCity->GetEventHappiness();
 	}
@@ -20397,10 +20396,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 
 void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 {
-	CvCity* pLoopCity;
 	int iLoop;
 
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
@@ -20414,7 +20412,7 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 	while(iTempTotal > 0)
 	{
 		bool bAllFull = true;
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
@@ -20429,7 +20427,7 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 		if (bAllFull)
 			break;
 
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
