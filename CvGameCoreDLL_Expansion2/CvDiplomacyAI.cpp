@@ -42784,7 +42784,7 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(2000, 3000 - (iBlockEra * 250));
+			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else
 		{
@@ -42848,7 +42848,7 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(2000, 3000 - (iBlockEra * 250));
+			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
 		}
 		else
 		{
