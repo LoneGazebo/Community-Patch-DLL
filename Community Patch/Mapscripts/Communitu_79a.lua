@@ -1858,7 +1858,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.2.0",
+		Name = "Communitu_79a v2.3.0",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -2567,10 +2567,8 @@ function ConnectSeasToOceans()
 				for _, plot in pairs(pathPlots) do
 					local plotID = Plot_GetID(plot)
 					newWater[Plot_GetID(plot)] = elevationMap.seaLevelThreshold - 0.01
-					if seaArea.size <= 2 * mg.lakeSize then
-						print("ConnectSeasToOceans: x = ", plot:GetX(), " y = ", plot:GetY())
-						table.insert(mg.seaPlots, plot)
-					end
+					print("ConnectSeasToOceans: x = ", plot:GetX(), " y = ", plot:GetY(), "elevation = ", GetElevationByPlotID(Plot_GetID(plot)));
+					table.insert(mg.seaPlots, plot)
 					--plot:SetFeatureType(FeatureTypes.FEATURE_ICE, -1)
 				end
 			end
@@ -2582,6 +2580,7 @@ function ConnectSeasToOceans()
 end
 
 function ConnectPolarSeasToOceans()
+	
 	local areaMap = PWAreaMap:New(elevationMap.width,elevationMap.height,elevationMap.wrapX,elevationMap.wrapY)
 	areaMap:DefineAreas(oceanButNotIceMatch)
 	local oceanArea, oceanSize = GetLargestArea(areaMap)
@@ -2600,6 +2599,11 @@ function ConnectPolarSeasToOceans()
 		-- if y < 2 or y > mapH - 3 then
 			-- return false
 		-- end
+		
+		if Map.GetCustomOption(5) == 1 then
+			-- Terra-style formation, don't remove land
+			return plot:GetFeatureType() == FeatureTypes.FEATURE_ICE
+		end
 		return not Plot_IsWater(plot, false) or plot:GetFeatureType() == FeatureTypes.FEATURE_ICE or Plot_IsLake(plot)
 	end
 
@@ -2611,7 +2615,7 @@ function ConnectPolarSeasToOceans()
 			local pathPlots, distance, airDistance = GetPathBetweenAreas(areaMap, seaArea, oceanArea, true, plotFunc)
 			print("ConnectPolarSeasToOceans: Connect seaArea.size = ", seaArea.size, " distance = ", distance, " airDistance = ", airDistance)
 			for _, plot in pairs(pathPlots) do
-				print("ConnectPolarSeasToOceans: x = ", plot:GetX(), " y = ", plot:GetY())
+				print("ConnectPolarSeasToOceans: x = ", plot:GetX(), " y = ", plot:GetY(), "elevation = ", GetElevationByPlotID(Plot_GetID(plot)));
 				local plotID = Plot_GetID(plot)
 				newWater[plotID] = elevationMap.seaLevelThreshold - 0.01
 				plot:SetPlotType(PlotTypes.PLOT_OCEAN, false, true)
@@ -2710,15 +2714,10 @@ function ConnectTerraContinents()
 
 	for index, area in ipairs(continents) do
 		if index ~= 1 and area.distance < mg.oceanRiftWidth + 2 and area.size / math.max(1, area.distance) > mg.terraConnectWeight then
-			log:Info("ConnectTerraContinents: Connect continents[%s].size = %-3s distance = %-3s airDistance = %-3s size/distance = %s",
-				index,
-				area.size,
-				area.distance,
-				area.airDistance,
-				Round(area.size / math.max(1, area.distance))
-			)
+			print("ConnectTerraContinents: Connect continent ", index, "size = ", "distance = ", area.distance, "airDistance = ", area.airDistance);
 			for _, plot in pairs(area.pathPlots) do
 				newLand[Plot_GetID(plot)] = elevationMap.seaLevelThreshold
+				print("ConnectTerraContinents: x = ", plot:GetX(), " y = ", plot:GetY(), "elevation = ", GetElevationByPlotID(Plot_GetID(plot)));
 			end
 			largestSize = largestSize + area.size
 			if largestSize > mg.percentLargestContinent * totalLand then
@@ -2739,7 +2738,7 @@ end
 function GetPathBetweenAreas(areaMap, areaA, areaB, findLowest, plotMatchFunc)
 	-- using Dijkstra's algorithm
 	local mapW, mapH = Map.GetGridSize()
-
+	
 	-- initialize
 	local plots = {}
 	for plotID = 0, areaMap.length - 1 do
@@ -2749,24 +2748,30 @@ function GetPathBetweenAreas(areaMap, areaA, areaB, findLowest, plotMatchFunc)
 
 		if plots[plotID].areaID == areaA.id or plots[plotID].areaID == areaB.id then
 			-- consider all plots equal in start and end areas
-			plots[plotID].elevation	= 0
+			plots[plotID].elevation	= 0;
 		else
 			if findLowest then
 				-- connect oceans
-				plots[plotID].elevation	= GetElevationByPlotID(plotID) ^ 2
+				plots[plotID].elevation	= 2 ^ ((GetElevationByPlotID(plotID) - elevationMap.seaLevelThreshold) * 10);
+				if plots[plotID].elevation < 1 then
+					plots[plotID].elevation	= 0;
+				end
 				if plots[plotID].plot:GetFeatureType() == FeatureTypes.FEATURE_ICE then
-					plots[plotID].elevation	= plots[plotID].elevation + 10
+					plots[plotID].elevation	= 0.5;
 				end
 			else
 				-- connect continents
-				plots[plotID].elevation	= 1000 - GetElevationByPlotID(plotID) ^ 2
+				plots[plotID].elevation	= 2 ^ ((GetElevationByPlotID(plotID) - elevationMap.seaLevelThreshold) * 10);
+				if plots[plotID].elevation < 1 then
+					plots[plotID].elevation	= 0;
+				end
 			end
 		end
 
 		if plots[plotID].areaID == areaA.id then
 			plots[plotID].sumElevation = 0
 		else
-			plots[plotID].sumElevation = 30000
+			plots[plotID].sumElevation = 10000
 		end
 	end
 
