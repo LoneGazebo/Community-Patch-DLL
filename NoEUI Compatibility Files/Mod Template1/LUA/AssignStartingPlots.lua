@@ -5637,7 +5637,7 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
-	if self:Plot_GetFertilityInRange(plot, 3) < 16 then
+	if self:Plot_GetFertilityInRange(plot, 3) < 28 then
 		return false
 	end
 	return true
@@ -6445,7 +6445,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			self:PlaceResourceImpact(x, y, 1, 1)					-- Strategic layer
 			self:PlaceResourceImpact(x, y, 2, 1)					-- Luxury layer
 			self:PlaceResourceImpact(x, y, 3, 1)					-- Bonus layer
-			self:PlaceResourceImpact(x, y, 5, 1)					-- City State layer
+			self:PlaceResourceImpact(x, y, 5, 3)					-- City State layer
 			self:PlaceResourceImpact(x, y, 7, 1)					-- Marble layer
 			local plotIndex = y * iW + x + 1;
 			self.playerCollisionData[plotIndex] = true				-- Record exact plot of wonder in the collision list.
