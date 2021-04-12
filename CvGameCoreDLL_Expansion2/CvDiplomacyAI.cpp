@@ -13520,39 +13520,26 @@ bool CvDiplomacyAI::IsWarWouldBankruptUs(PlayerTypes ePlayer, bool bIgnoreDPs, i
 	int iIncome = GetPlayer()->getAvgGoldRate();
 	int iGoldPerTurnLostFromWar = CalculateGoldPerTurnLostFromWar(ePlayer, bIgnoreDPs);
 
-	// Would we actually lose gold from this war declaration?
+	// Would we actually gain gold from this war declaration?
 	if (iGoldPerTurnLostFromWar <= 0)
 		return false;
 
-	// No? Then if we're already bankrupt, don't bother with further checks.
+	// If we're already bankrupt, don't bother with further checks.
 	if (iTreasuryGold <= 0 && iIncome <= 0)
 		return true;
 
-	int iAdjustedGPT = iIncome - iGoldPerTurnLostFromWar;
-
 	// If we set a minimum income threshold and we're below that, abort!
-	if (iMinimumIncome != 0)
+	if (iMinimumIncome > 0)
 	{
+		int iAdjustedGPT = iIncome - iGoldPerTurnLostFromWar;
+
 		if (iAdjustedGPT < iMinimumIncome)
 		{
 			return true;
 		}
 	}
 
-	// Play it safe if we're exactly at 0
-	if (iAdjustedGPT == 0)
-	{
-		return true;
-	}
-	// If we're above 0, it's cool
-	else if (iAdjustedGPT > 0)
-	{
-		return false;
-	}
-
-	iAdjustedGPT *= -1; // flip the sign!
-	int iTurnsUntilBankruptcy = iTreasuryGold / iAdjustedGPT;
-
+	int iTurnsUntilBankruptcy = GetPlayer()->getTurnsToBankruptcy(iGoldPerTurnLostFromWar);
 	if (iTurnsUntilBankruptcy <= 30)
 		return true;
 
