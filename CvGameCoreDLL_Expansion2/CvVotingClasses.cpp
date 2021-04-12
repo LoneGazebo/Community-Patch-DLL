@@ -12438,10 +12438,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				// can't have arts and science funding
 				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
 				{
-					if (bConsiderGlobal)
-					{
-						iExtra -= 5 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40); 
-					}
+					iExtra -= 5 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40);
 				}
 #else
 			if (GetPlayer()->AidRank() != NO_PLAYER)
@@ -12468,10 +12465,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				// can't have arts and science funding
 				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
 				{
-					if (bConsiderGlobal)
-					{
-						iExtra -= 5 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); 
-					}
+					iExtra -= 5 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40);
 				}
 #else
 				if (GetPlayer()->AidRank() != NO_PLAYER)
