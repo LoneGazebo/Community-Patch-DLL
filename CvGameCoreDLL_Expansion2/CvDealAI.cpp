@@ -3678,6 +3678,10 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 		// Can't already be a Vote Commitment in the Deal
 		if(!pDeal->IsVoteCommitmentTrade(eThem) && !pDeal->IsVoteCommitmentTrade(eMyPlayer))
 		{
+			if (!GetPlayer()->GetLeagueAI()->CanCommitVote(eThem))
+			{
+				return;
+			}
 			CvLeagueAI::VoteCommitmentList vDesiredCommitments;
 			if (GET_PLAYER(eThem).isHuman())
 			{
