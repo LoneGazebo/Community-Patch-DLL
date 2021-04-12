@@ -1222,13 +1222,13 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 			return iItemValue;
 		}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		if (MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
 			// Item is worth 20% less if its owner is a vassal
-			if(bFromMe)
+			if (bFromMe)
 			{
 				// If it's my item and I'm the vassal of the other player, reduce it.
-				if(GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster() == GET_PLAYER(it->m_eFromPlayer).getTeam())
+				if (GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster() == GET_PLAYER(it->m_eFromPlayer).getTeam())
 				{
 					iItemValue *= 80;
 					iItemValue /= 100;
@@ -1237,12 +1237,20 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 			else
 			{
 				// If it's their item and they're my vassal, reduce it.
-				if(GET_TEAM(GET_PLAYER(it->m_eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(eMyPlayer).getTeam())
+				if (GET_TEAM(GET_PLAYER(it->m_eFromPlayer).getTeam()).GetMaster() == GET_PLAYER(eMyPlayer).getTeam())
 				{
 					iItemValue *= 80;
 					iItemValue /= 100;
 				}
 			}
+		}
+
+		// Difficulty option to modify the AI's buying and selling prices towards humans.
+		if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			int iDifficultyModifier = 100 + (it->m_eItemType == TRADE_ITEM_TECHS ? GET_PLAYER(eOtherPlayer).getHandicapInfo().getTechTradeKnownModifier() : GET_PLAYER(eOtherPlayer).getHandicapInfo().getNoTechTradeModifier());
+			iItemValue *= max(1, iDifficultyModifier);
+			iItemValue /= 100;
 		}
 
 		iItemValue *= iValueMultiplier;
@@ -1252,7 +1260,6 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 			pDeal->ChangeFromPlayerValue(iItemValue);
 		else
 			pDeal->ChangeToPlayerValue(iItemValue);
-#endif
 	}
 
 	return iDealValue;

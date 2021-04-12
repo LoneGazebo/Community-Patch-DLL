@@ -2962,7 +2962,6 @@ bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //======================================================================================================
 CvHandicapInfo::CvHandicapInfo() :
 	m_iStartingLocationPercent(0),
-	m_iAdvancedStartPointsMod(0),
 	m_iHappinessDefault(0),
 	m_iHappinessDefaultCapital(0),
 	m_iExtraHappinessPerLuxury(0),
@@ -2996,9 +2995,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iBarbarianLandTargetRange(0),
 	m_iBarbarianSeaTargetRange(0),
 	m_iStartingDefenseUnits(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingMinorDefenseUnits(0),
-#endif
 	m_iStartingWorkerUnits(0),
 	m_iStartingExploreUnits(0),
 	m_iAIStartingUnitMultiplier(0),
@@ -3022,17 +3019,14 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIUnitUpgradePercent(0),
 	m_iAIInflationPercent(0),
 	m_iAIPerEraModifier(0),
-	m_iAIAdvancedStartPercent(0),
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iResistanceCap(0),
 	m_iDifficultyBonusBase(0),
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
 	m_iDifficultyBonusLate(0),
 	m_iVisionBonus(0),
-#endif
 	m_iNumGoodies(0),
 	m_piGoodies(NULL),
 	m_pbFreeTechs(NULL),
@@ -3050,11 +3044,6 @@ CvHandicapInfo::~CvHandicapInfo()
 int CvHandicapInfo::getStartingLocationPercent() const
 {
 	return m_iStartingLocationPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAdvancedStartPointsMod() const
-{
-	return m_iAdvancedStartPointsMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingPolicyPoints() const
@@ -3221,12 +3210,11 @@ int CvHandicapInfo::getStartingDefenseUnits() const
 {
 	return m_iStartingDefenseUnits;
 }
-#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingMinorDefenseUnits() const
 {
 	return m_iStartingMinorDefenseUnits;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingWorkerUnits() const
 {
@@ -3343,11 +3331,6 @@ int CvHandicapInfo::getAIPerEraModifier() const
 	return m_iAIPerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIAdvancedStartPercent() const
-{
-	return m_iAIAdvancedStartPercent;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIFreeXP() const
 {
 	return m_iAIFreeXP;
@@ -3362,7 +3345,6 @@ int CvHandicapInfo::getNumGoodies() const
 {
 	return m_iNumGoodies;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getResistanceCap() const
 {
@@ -3391,7 +3373,6 @@ int CvHandicapInfo::getAIVisionBonus() const
 {
 	return m_iVisionBonus;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getGoodies(int i) const
 {
@@ -3420,7 +3401,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		return false;
 
 	m_iStartingLocationPercent = kResults.GetInt("StartingLocPercent");
-	m_iAdvancedStartPointsMod = kResults.GetInt("AdvancedStartPointsMod");
 	m_iStartingPolicyPoints = kResults.GetInt("StartingPolicyPoints");
 	m_iHappinessDefault = kResults.GetInt("HappinessDefault");
 	m_iHappinessDefaultCapital = kResults.GetInt("HappinessDefaultCapital");
@@ -3454,9 +3434,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iBarbarianLandTargetRange = kResults.GetInt("BarbarianLandTargetRange");
 	m_iBarbarianSeaTargetRange = kResults.GetInt("BarbarianSeaTargetRange");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
-#endif
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
 	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
@@ -3480,17 +3458,14 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
 	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
 	m_iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
-	m_iAIAdvancedStartPercent = kResults.GetInt("AIAdvancedStartPercent");
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
-#if defined(MOD_BALANCE_CORE)
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
-#endif
 
 	//Arrays
 	const char* szHandicapType = GetType();
@@ -7116,7 +7091,6 @@ CvWorldInfo::CvWorldInfo() :
 	m_iTerrainGrainChange(0),
 	m_iFeatureGrainChange(0),
 	m_iResearchPercent(0),
-	m_iAdvancedStartPointsMod(0),
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
@@ -7208,11 +7182,6 @@ int CvWorldInfo::getResearchPercent() const
 	return m_iResearchPercent;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::getAdvancedStartPointsMod() const
-{
-	return m_iAdvancedStartPointsMod;
-}
-//------------------------------------------------------------------------------
 int CvWorldInfo::getNumCitiesUnhappinessPercent() const
 {
 	return m_iNumCitiesUnhappinessPercent;
@@ -7302,7 +7271,6 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iTerrainGrainChange			= kResults.GetInt("TerrainGrainChange");
 	m_iFeatureGrainChange			= kResults.GetInt("FeatureGrainChange");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");
-	m_iAdvancedStartPointsMod		= kResults.GetInt("AdvancedStartPointsMod");
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
@@ -7341,7 +7309,6 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange) return false;
 	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange) return false;
 	if(m_iResearchPercent != rhs.m_iResearchPercent) return false;
-	if(m_iAdvancedStartPointsMod != rhs.m_iAdvancedStartPointsMod) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
 #if defined(MOD_TRADE_ROUTE_SCALING)
@@ -7385,7 +7352,6 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	loadFrom >> m_iTerrainGrainChange;
 	loadFrom >> m_iFeatureGrainChange;
 	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iAdvancedStartPointsMod;
 	loadFrom >> m_iNumCitiesUnhappinessPercent;
 	loadFrom >> m_iNumCitiesPolicyCostMod;
 
@@ -7426,7 +7392,6 @@ void CvWorldInfo::readFromVersion0(FDataStream& loadFrom)
 	loadFrom >> m_iTerrainGrainChange;
 	loadFrom >> m_iFeatureGrainChange;
 	loadFrom >> m_iResearchPercent;
-	loadFrom >> m_iAdvancedStartPointsMod;
 	loadFrom >> m_iNumCitiesUnhappinessPercent;
 	loadFrom >> m_iNumCitiesPolicyCostMod;
 }
@@ -7454,7 +7419,6 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iTerrainGrainChange;
 	saveTo << m_iFeatureGrainChange;
 	saveTo << m_iResearchPercent;
-	saveTo << m_iAdvancedStartPointsMod;
 	saveTo << m_iNumCitiesUnhappinessPercent;
 	saveTo << m_iNumCitiesPolicyCostMod;
 	saveTo << m_iNumCitiesTechCostMod;

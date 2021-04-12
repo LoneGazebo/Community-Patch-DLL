@@ -1510,9 +1510,8 @@ public:
 	bool PlayerHasContract(ContractTypes eContract) const;
 	void SetActiveContract(ContractTypes eContract, bool bValue);
 
-	//DONE
-	void DoDiversity(DomainTypes eDomain);
-	int GetDiversity(DomainTypes eDomain) const;
+	void DoUnitDiversity();
+	bool IsUnderrepresentedUnitType(UnitAITypes eType) const;
 
 	int GetDominationResistance(PlayerTypes ePlayer);
 
@@ -3487,7 +3486,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
+	FAutoVariable<std::vector<UnitAITypes>, CvPlayer> m_neededUnitAITypes;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
 #endif

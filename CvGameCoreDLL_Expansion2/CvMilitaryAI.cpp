@@ -3806,7 +3806,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 	{
-		if (pPlayer->GetDiversity(DOMAIN_LAND) == (int)UNITAI_RANGED || pPlayer->GetDiversity(DOMAIN_LAND) == (int)UNITAI_CITY_BOMBARD)
+		if (pPlayer->IsUnderrepresentedUnitType(UNITAI_RANGED) || pPlayer->IsUnderrepresentedUnitType(UNITAI_CITY_BOMBARD))
 		{
 			return true;
 		}

@@ -453,7 +453,7 @@ CvPlayer::CvPlayer() :
 	, m_bProcessedAutoMoves(false)
 	, m_kPlayerAchievements(*this)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	, m_aiDomainDiversity("CvPlayer::m_aiDomainDiversity", m_syncArchive)
+	, m_neededUnitAITypes("CvPlayer::m_neededUnitAITypes", m_syncArchive)
 	, m_aiCityYieldModFromMonopoly("CvPlayer::m_aiCityYieldModFromMonopoly", m_syncArchive)
 	, m_iUnhappiness("CvPlayer::m_iUnhappiness", m_syncArchive)
 	, m_iHappinessTotal("CvPlayer::m_iHappinessTotal", m_syncArchive)
@@ -1904,8 +1904,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiCityYieldModFromMonopoly.clear();
 	m_aiCityYieldModFromMonopoly.resize(NUM_YIELD_TYPES, 0);
 
-	m_aiDomainDiversity.clear();
-	m_aiDomainDiversity.resize(NUM_DOMAIN_TYPES, -1);
+	m_neededUnitAITypes.clear();
 
 	m_abActiveContract.clear();
 	m_abActiveContract.resize(GC.getNumContractInfos(), false);
@@ -11216,14 +11215,10 @@ void CvPlayer::doTurn()
 	}
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
-		for (int i = 0; i < NUM_DOMAIN_TYPES; i++)
-		{
-			DoDiversity((DomainTypes)i);
-		}
-
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
 #endif
+		DoUnitDiversity();
 		DoUpdateCramped();
 
 		DoUpdateUprisings();
@@ -18000,7 +17995,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	{
 		if (GC.getGame().getStartEra() > 0)
 		{
-			iSupply += (GC.getGame().getStartEra() * 2);
+			iSupply += GC.getGame().getStartEra() * 2;
 		}
 		
 		if (!bIgnoreReduction)
@@ -20321,7 +20316,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 {
 	// Start level
 	m_iHappiness = getHandicapInfo().getHappinessDefault();
-		
+
 	// Gamespeed Bonus level
 	m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
 
@@ -20371,9 +20366,8 @@ void CvPlayer::DoUpdateTotalHappiness()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		m_iHappiness += pLoopCity->GetEventHappiness();
 	}
@@ -20402,10 +20396,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 
 void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 {
-	CvCity* pLoopCity;
 	int iLoop;
 
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
@@ -20419,7 +20412,7 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 	while(iTempTotal > 0)
 	{
 		bool bAllFull = true;
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
@@ -20434,7 +20427,7 @@ void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
 		if (bAllFull)
 			break;
 
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
@@ -31305,91 +31298,62 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 	}
 }
 
-//JFD DONE
-void CvPlayer::DoDiversity(DomainTypes eDomain)
+void CvPlayer::DoUnitDiversity()
 {
-	//////Let's get sum total of all land military unit AI types and boost the lowest type.
-	int iLowest = MAX_INT;
-	int iUnitAI = -1;
-
-	vector<int> veAITypeTotals;
-	for (int i = 0; i < NUM_UNITAI_TYPES; i++)
-	{
-		veAITypeTotals.push_back(-1);
-	}
-
-
+	//find out which types we can build
+	map<DomainTypes, map<UnitAITypes, int>> countByType;
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
 		if (pkUnitInfo)
 		{
-			if (pkUnitInfo->GetDomainType() != eDomain)
-				continue;
-
+			//must be a combat unit
 			if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
 				continue;
 
 			if (!canTrainUnit(eLoopUnit))
 				continue;
 
-			int iNumUnits = GetNumUnitsOfType(eLoopUnit, true);
-
-			if (veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] == -1)
-				veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] = 0;
-
-			veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] += iNumUnits;
-		}
-	}
-
-	for (int i = 0; i < NUM_UNITAI_TYPES; i++)
-	{
-		if (veAITypeTotals[i] == -1)
-			continue;
-
-		UnitAITypes UnitAI = (UnitAITypes)i;
-		int iNumUnits = veAITypeTotals[i];
-		if (iNumUnits < iLowest)
-		{
-			iLowest = iNumUnits;
-			iUnitAI = (int)UnitAI;
-		}
-	}
-
-	if (iUnitAI == NO_UNITAI)
-		return;
-
-	if (iUnitAI != m_aiDomainDiversity[eDomain])
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			CvString strAI;
-			getUnitAIString(strAI, (UnitAITypes)iUnitAI);
-
-			switch (eDomain)
+			switch (pkUnitInfo->GetDefaultUnitAIType())
 			{
-			case DOMAIN_LAND:
-				strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: ");
+			case UNITAI_EXPLORE:
+			case UNITAI_EXPLORE_SEA:
+			case UNITAI_CARRIER_SEA:
+				//ignore these types, they are handled separately
 				break;
-			case DOMAIN_SEA:
-				strLogString.Format("NAVY DIVERSITY CHANGE! WE NEED: ");
-				break;
-			case DOMAIN_AIR:
-				strLogString.Format("AIR DIVERSITY CHANGE! WE NEED: ");
-				break;
+			default:
+				//for now straight count, no fancy type dependent logic
+				countByType[pkUnitInfo->GetDomainType()][pkUnitInfo->GetDefaultUnitAIType()] += GetNumUnitsOfType(eLoopUnit, true);
 			}
-			strLogString += strAI;
-			GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
+	}
 
-		m_aiDomainDiversity.setAt(eDomain, iUnitAI);
+	m_neededUnitAITypes.clear();
+	for (map<DomainTypes, map<UnitAITypes, int>>::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
+	{
+		int minCount = INT_MAX;
+		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
+			minCount = min(minCount, itType->second);
+
+		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
+		{
+			if (itType->second == minCount)
+			{
+				m_neededUnitAITypes.push_back(itType->first);
+				CvString strLogString;
+				CvString strAI;
+				getUnitAIString(strAI, itType->first);
+				strLogString.Format("UNIT DIVERSITY - WE NEED ");
+				GetHomelandAI()->LogHomelandMessage(strLogString + strAI);
+			}
+		}
 	}
 }
-int CvPlayer::GetDiversity(DomainTypes eDomain) const
+
+bool CvPlayer::IsUnderrepresentedUnitType(UnitAITypes eType) const
 {
-	return m_aiDomainDiversity[eDomain];
+	return std::find(m_neededUnitAITypes.begin(),m_neededUnitAITypes.end(),eType) != m_neededUnitAITypes.end();
 }
 
 int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)

@@ -12717,7 +12717,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
 
-			int iEra = GET_PLAYER(eMajor).getCurrentEra();
+			int iEra = GET_PLAYER(eMajor).GetCurrentEra();
 			if (iEra <= 0 || !MOD_BALANCE_CORE_MINORS)
 				iEra = 1;
 
