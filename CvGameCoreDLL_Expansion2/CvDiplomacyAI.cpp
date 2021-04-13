@@ -12439,7 +12439,7 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 			else if (iWonderDisputeWeight >= /*12*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if (iWonderDisputeWeight >= /*5*/ GC.getWONDER_DISPUTE_WEAK_THRESHOLD())
+			else if (iWonderDisputeWeight >= /*1*/ GC.getWONDER_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			SetWonderDisputeLevel(ePlayer, eDisputeLevel);
