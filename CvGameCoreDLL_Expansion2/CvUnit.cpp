@@ -12947,12 +12947,11 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	bool bAlreadyShownLeader = false;
 
 	// Now that we know who was hit, figure the diplo ramifications
-	CvPlayer* pPlayer;
 	for (int iSlotLoop = 0; iSlotLoop < MAX_CIV_PLAYERS; iSlotLoop++)
 	{
 		if (vePlayersBombed[iSlotLoop])
 		{
-			pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
+			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 			
 			if (pPlayer->isBarbarian())

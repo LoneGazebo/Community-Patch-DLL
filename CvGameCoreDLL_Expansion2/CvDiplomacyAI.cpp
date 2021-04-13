@@ -6030,9 +6030,17 @@ void CvDiplomacyAI::SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange)
 {
-	// No diplomacy penalties for stealing territory while at war.
-	if (IsAtWar(ePlayer) && !GetPlayer()->isHuman())
-		return;
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// No diplomacy penalties for stealing territory while at war.
+		if (IsAtWar(ePlayer))
+			return;
+
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v, true);
+	}
 
 	SetNumTimesCultureBombed(ePlayer, GetNumTimesCultureBombed(ePlayer) + iChange);
 }
@@ -6156,6 +6164,14 @@ void CvDiplomacyAI::ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer,
 		{
 			SetPlayerNoConvertPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
+
+		if (!GetPlayer()->isHuman())
+		{
+			// Time to reevaluate this thief!
+			vector<PlayerTypes> v;
+			v.push_back(ePlayer);
+			DoReevaluatePlayers(v);
+		}
 	}
 }
 
@@ -6183,6 +6199,14 @@ void CvDiplomacyAI::SetNumTimesRobbedBy(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 {
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v);
+	}
+
 	SetNumTimesRobbedBy(ePlayer, GetNumTimesRobbedBy(ePlayer) + iChange);
 }
 
@@ -6210,6 +6234,14 @@ void CvDiplomacyAI::SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int i
 
 void CvDiplomacyAI::ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange)
 {
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v);
+	}
+
 	SetNumTimesPerformedCoupAgainstUs(ePlayer, GetNumTimesPerformedCoupAgainstUs(ePlayer) + iChange);
 }
 
@@ -6402,6 +6434,14 @@ void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iCh
 		if (IsPlayerMadeNoDiggingPromise(ePlayer))
 		{
 			SetPlayerNoDiggingPromiseState(ePlayer, PROMISE_STATE_BROKEN);
+		}
+
+		if (!GetPlayer()->isHuman())
+		{
+			// Time to reevaluate this thief!
+			vector<PlayerTypes> v;
+			v.push_back(ePlayer);
+			DoReevaluatePlayers(v);
 		}
 	}
 }
@@ -9674,7 +9714,7 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 		return 100;
 
 	// Calculate the percentage difference from the average
-	int iPercentageDifference = ((iCivRating - iAverageRating) * 100) / max(iAverageRating, 1);
+	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / max(iAverageRating, 1);
 	if (iPercentageDifference < 0)
 		iPercentageDifference *= -1; // need the absolute value
 
@@ -14386,8 +14426,9 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 /// Updates our general Diplomatic Approach towards each major civilization we've met
 void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic)
 {
-	std::vector<PlayerTypes> vPlayersToUpdate;
-	std::vector<PlayerTypes> vPostUpdatePlayers;
+	vector<PlayerTypes> vValidPlayers;
+	vector<PlayerTypes> vPlayersToUpdate;
+	vector<PlayerTypes> vPostUpdatePlayers;
 	std::map<PlayerTypes, CivApproachTypes> oldApproaches;
 	bool bReevaluation = !vPlayersToReevaluate.empty();
 	bool bHuman = GetPlayer()->isHuman();
@@ -14441,6 +14482,12 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 			// Otherwise, add the old approach to the map ...
 			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 
+			// Mark this player as valid if they don't fit the post update criteria.
+			if (!IsVassal(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+			{
+				vValidPlayers.push_back(eLoopPlayer);
+			}
+
 			// If this is a between turns (reevaluation) update, we only reevaluate the players on the list (for performance reasons).
 			if (bReevaluation)
 			{
@@ -14463,7 +14510,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	// Now loop through each player and update their approach!
 	for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 	{
-		SelectBestApproachTowardsMajorCiv(*it, bStrategic, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
+		SelectBestApproachTowardsMajorCiv(*it, bStrategic, vValidPlayers, vPlayersToReevaluate, oldApproaches);
 	}
 
 	// Lastly we handle any post update cases
@@ -15192,7 +15239,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 /// What is the best Diplomatic Approach to take towards this major civilization?
 /// This is the most important calculation in determining AI diplomatic behavior!
-void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches)
+void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vValidPlayers, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || GET_PLAYER(ePlayer).getTeam() == GetTeam()) return;
 
@@ -19700,7 +19747,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
-	if (!bFirstPass && vPlayersToUpdate.size() > 1)
+	if (!bFirstPass && vValidPlayers.size() > 1)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
@@ -19709,7 +19756,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Create a vector to store and rank the approach weights of each player from the first pass
 			CvWeightedVector<PlayerTypes> vePlayerApproachValues;
 
-			for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); ++it)
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 			{
 				// We use the strategic approach here for a better variance/response to circumstances.
 				vePlayerApproachValues.push_back(*it, GetPlayerStrategicApproachValue(*it, eLoopApproach));
@@ -20000,8 +20047,34 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Using weight as +/- %: more fluid than the switch table.
 	if (iOpinionWeight > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 	{
-		// We double the opinion weight for additional impact.
-		iOpinionWeight *= 2;
+		// Let's also see how much we don't like this guy compared to others that we hate.
+		// If we hate a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumBadOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+					continue;
+
+				if (GetCachedOpinionWeight(*it) > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+				{
+					iAverage += GetCachedOpinionWeight(*it);
+					iNumBadOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumBadOpinions, 1);
+
+			if (iNumBadOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range(iPercentDifferenceFromAverage, (iHostileMod + 50), max(100,(iFriendlyMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
 
 		// Increase
 		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
@@ -20021,16 +20094,45 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease
 		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 + iFriendlyMod + iOpinionWeight));	
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
-		// Flip it!
-		iOpinionWeight *= -2;
+		// Flip the sign!
+		iOpinionWeight *= -1;
+
+		// Let's also see how much we like this guy compared to others that we like.
+		// If we like a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumGoodOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+					continue;
+
+				if (GetCachedOpinionWeight(*it) < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+				{
+					iAverage -= GetCachedOpinionWeight(*it);
+					iNumGoodOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumGoodOpinions, 1);
+
+			if (iNumGoodOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range(iPercentDifferenceFromAverage, (iFriendlyMod + 50), max(100,(iHostileMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
 
 		// Increase
 		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iFriendlyMod + iOpinionWeight;
@@ -20038,23 +20140,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease
 		vApproachScores[CIV_APPROACH_WAR] *= 100;
-		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 + iWarMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 - iWarMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_HOSTILE] *= 100;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 + iHostileMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 - iHostileMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 + iDeceptiveMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 - iDeceptiveMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_GUARDED] *= 100;
-		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 + iGuardedMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 - iGuardedMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
-		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 + iAfraidMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100,(100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100,(100 - iNeutralMod + iOpinionWeight));
 	}
 	else
 	{
