@@ -3217,15 +3217,13 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 {
 	if (iChange > 0)
 	{
-		// If we're at permanent war anyway, this means nothing.
-		if (IsAlwaysAtWar(ePlayer))
+		// If we're at war, this means nothing.
+		if (IsAtWar(ePlayer))
 			return;
 
 		// Capitulated vassals don't care.
 		if (MOD_DIPLOMACY_CIV4_FEATURES && !GetPlayer()->isHuman() && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
-		{
 			return;
-		}
 
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iScaledAmount);
@@ -3254,6 +3252,10 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bo
 {
 	if (!bDecay)
 	{
+		// Don't care if we're at war.
+		if (iChange < 0 && IsAtWar(ePlayer))
+			return;
+
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetRecentAssistValue(ePlayer, GetRecentAssistValue(ePlayer) + iScaledAmount);
 	}
@@ -3648,12 +3650,41 @@ void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (eLoopPlayer != GetID() && IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
 				// Are they at war with me too? Then they're happy that this player damaged us!
 				if (IsAtWar(eLoopPlayer))
 				{
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange);
+					// How much they're happy about it depends on how strong we are compared to them.
+					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetID()))
+					{
+					case STRENGTH_IMMENSE:
+						iChange *= 300;
+						break;
+					case STRENGTH_POWERFUL:
+						iChange *= 200;
+						break;
+					case STRENGTH_STRONG:
+						iChange *= 150;
+						break;
+					case STRENGTH_AVERAGE:
+						iChange *= 100;
+						break;
+					case STRENGTH_POOR:
+						iChange *= 75;
+						break;
+					case STRENGTH_WEAK:
+						iChange *= 50;
+						break;
+					case STRENGTH_PATHETIC:
+						iChange *= 25;
+						break;
+					default:
+						iChange *= 100;
+						break;
+					}
+
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange/100);
 				}
 			}
 		}
@@ -22167,11 +22198,14 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 			}
 		}
 
+		// Have they assisted us in wars?
+		iDPValue += GetCommonFoeScore(eChoice) / -2;
+
+		// Have they liberated us?
 		if (WasResurrectedBy(eChoice))
 		{
 			iDPValue += 50;
 		}
-
 		if (IsPlayerLiberatedCapital(eChoice))
 		{
 			iDPValue += 15;
@@ -26051,8 +26085,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					SetNumLandmarksBuiltForMe(ePlayer, 0);
 					SetNumTimesIntrigueSharedBy(ePlayer, 0);
 					
-					// Clear positive diplomatic values					
+					// Clear positive diplomatic values
 					SetCommonFoeValue(ePlayer, 0);
+					SetVassalProtectValue(ePlayer, 0);
 					if (GetRecentAssistValue(ePlayer) < 0)
 						SetRecentAssistValue(ePlayer, 0);
 				}
@@ -39403,6 +39438,10 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 			iScore += 15;
 		}
+
+		// Have they helped us in war before?
+		iScore += GetCoopWarScore(eAllyPlayer) * 3;
+		iScore += GetCommonFoeScore(eAllyPlayer) / -2;
 	}
 
 	// Are we in danger of getting conquered by the target?
@@ -39423,6 +39462,13 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer) && bTheyHaveGoodAttackTarget)
 		{
 			iDangerMod += 2;
+		}
+
+		// Have they helped us in war before?
+		if (iDangerMod > 0)
+		{
+			iDangerMod += GetCoopWarScore(eAllyPlayer);
+			iDangerMod += GetCommonFoeScore(eAllyPlayer) / -10;
 		}
 
 		// Dangerous player is a neighbor, other player is at least close
@@ -43157,7 +43203,7 @@ int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer)
 
 		if (iCurrentValuePercent > 0)
 		{
-			iOpinionWeight = /*-50*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * iCurrentValuePercent / 100;
+			iOpinionWeight = /*-100*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * iCurrentValuePercent / 100;
 		}
 	}
 

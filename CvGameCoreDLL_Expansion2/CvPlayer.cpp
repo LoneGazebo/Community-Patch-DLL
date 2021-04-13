@@ -3117,6 +3117,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
 			pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
 			pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
+			pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
 			if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
 				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			
