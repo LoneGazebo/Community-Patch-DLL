@@ -22199,6 +22199,15 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 		}
 
 		// Have they assisted us in wars?
+		if (GetCoopWarScore(eChoice) > 0)
+		{
+			iDPValue += GetCoopWarScore(eChoice) * 5;
+		}
+		else if (GetCoopWarScore(eChoice) < 0)
+		{
+			iDPValue += GetCoopWarScore(eChoice) * 3;
+		}
+
 		iDPValue += GetCommonFoeScore(eChoice) / -2;
 
 		// Have they liberated us?
