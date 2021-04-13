@@ -12435,9 +12435,9 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 			// Add weight for player's competitiveness (1 - 10)
 			iWonderDisputeWeight *= iCompetitiveness;
 
-			if (iWonderDisputeWeight >= /*30*/ GC.getWONDER_DISPUTE_FIERCE_THRESHOLD())
+			if (iWonderDisputeWeight >= /*24*/ GC.getWONDER_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if (iWonderDisputeWeight >= /*15*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
+			else if (iWonderDisputeWeight >= /*12*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
 			else if (iWonderDisputeWeight >= /*5*/ GC.getWONDER_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
