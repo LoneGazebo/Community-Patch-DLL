@@ -15985,7 +15985,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsCompetingForVictory())
 	{
-		bVictoryConcern = GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
+		bVictoryConcern |= GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
 		bVictoryConcern |= GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG;
 		bVictoryConcern |= GetTechBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
 		bVictoryConcern |= GetPolicyBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
