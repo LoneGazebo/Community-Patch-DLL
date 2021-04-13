@@ -20071,7 +20071,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iNumBadOpinions > 0)
 			{
 				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range(iPercentDifferenceFromAverage, (iHostileMod + 50), max(100,(iFriendlyMod * 10)));
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10)));
 				iOpinionWeight /= 100;
 			}
 		}
@@ -20129,7 +20129,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iNumGoodOpinions > 0)
 			{
 				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range(iPercentDifferenceFromAverage, (iFriendlyMod + 50), max(100,(iHostileMod * 10)));
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10)));
 				iOpinionWeight /= 100;
 			}
 		}
@@ -20161,7 +20161,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	else
 	{
 		// Increase Neutral
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + iNeutralMod;
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 	}
 
