@@ -491,6 +491,7 @@ CvCity::CvCity() :
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
 	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
+	, m_iWorkedWaterTileDamage("CvCity::m_iWorkedWaterTileDamage", m_syncArchive)
 	, m_iNumNearbyMountains("CvCity::m_iNumNearbyMountains", m_syncArchive)
 	, m_iLocalUnhappinessMod("CvCity::m_iLocalUnhappinessMod", m_syncArchive)
 #endif
@@ -1507,6 +1508,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
+	m_iWorkedWaterTileDamage = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
 	m_iTradePriorityLand = 0;
@@ -14590,6 +14592,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeBorderObstacleWater(pBuildingInfo->GetBorderObstacleWater() * iChange);
 		}
+		if ((pBuildingInfo->GetWorkedWaterTileDamage() > 0))
+		{
+			ChangeWorkedWaterTileDamage(pBuildingInfo->GetWorkedWaterTileDamage() * iChange);
+		}
 		if(bFirst && (iChange > 0) && (pBuildingInfo->GetWLTKDTurns() > 0))
 		{
 			int iWLTKD = pBuildingInfo->GetWLTKDTurns();
@@ -23459,7 +23465,19 @@ void CvCity::SetBorderObstacleWater(int iValue)
 	m_iBorderObstacleWater = iValue;
 }
 
+//	--------------------------------------------------------------------------------
+int CvCity::GetWorkedWaterTileDamage() const
+{
+	VALIDATE_OBJECT
+	return m_iWorkedWaterTileDamage;
+}
 
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeWorkedWaterTileDamage(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iWorkedWaterTileDamage += iChange;
+}
 //	--------------------------------------------------------------------------------
 int CvCity::GetNearbyMountains() const
 {

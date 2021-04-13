@@ -11820,6 +11820,17 @@ void CvPlayer::DoUnitReset()
 #endif
 		}
 
+		int iMinefieldDamage = 0;
+		CvPlot* pUnitPlot = pLoopUnit->plot();
+		if (pUnitPlot->isWater() && pUnitPlot->isBeingWorked() && pUnitPlot->getOwningCity() != NULL)
+		{
+			iMinefieldDamage = pUnitPlot->getOwningCity()->GetWorkedWaterTileDamage();
+			pLoopUnit->changeDamage(iMinefieldDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+			pLoopUnit->addDamageReceivedThisTurn(iMinefieldDamage);
+#endif
+		}
+
 		// Bonus for entrenched units
 		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
 			pLoopUnit->SetFortified(true);

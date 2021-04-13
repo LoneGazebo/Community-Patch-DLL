@@ -967,6 +967,9 @@ public:
 	int GetBorderObstacleWater() const;
 	void SetBorderObstacleWater(int iValue);
 
+	void ChangeWorkedWaterTileDamage(int iNewValue);
+	int GetWorkedWaterTileDamage() const;
+
 	void ChangeNearbyMountains(int iNewValue);
 	int GetNearbyMountains() const;
 	void SetNearbyMountains(int iValue);
@@ -1967,6 +1970,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
+	FAutoVariable<int, CvCity> m_iWorkedWaterTileDamage;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;

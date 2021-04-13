@@ -5203,11 +5203,11 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	{
 		iMultiplier += iFranchiseBonus;
 	}
-	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) > 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
 	}
-	else if (m_pPlayer->GetTourismBonusTurns() != 0)
+	else if (m_pPlayer->GetTourismBonusTurns() > 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
@@ -5436,11 +5436,11 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES", iFranchiseBonus) + "[ENDCOLOR]";
 	}
-	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (m_pPlayer->getTourismBonusTurnsPlayer(ePlayer) > 0)
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS", m_pPlayer->getTourismBonusTurnsPlayer(ePlayer)) + "[ENDCOLOR]";
 	}
-	else if (m_pPlayer->GetTourismBonusTurns() != 0)
+	else if (m_pPlayer->GetTourismBonusTurns() > 0)
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF", m_pPlayer->GetTourismBonusTurns()) + "[ENDCOLOR]";
 	}
@@ -7810,11 +7810,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	//Corporations
 	iMultiplier += kCityPlayer.GetCulture()->GetFranchiseModifier(ePlayer);
 
-	if (kCityPlayer.getTourismBonusTurnsPlayer(ePlayer) != 0)
+	if (kCityPlayer.getTourismBonusTurnsPlayer(ePlayer) > 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD() * 2;
 	}
-	else if (kPlayer.GetTourismBonusTurns() != 0)
+	else if (kPlayer.GetTourismBonusTurns() > 0)
 	{
 		iMultiplier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}

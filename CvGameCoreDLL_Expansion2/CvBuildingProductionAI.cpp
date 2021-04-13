@@ -640,6 +640,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iDefense += 25;
 		}
+		if (pkBuildingInfo->GetWorkedWaterTileDamage() > 0)
+		{
+			iDefense += 25;
+		}
 	}
 	int iDefenseMod = 100;
 	if (m_pCity->isBorderCity() || m_pCity->isCoastal(12) )
