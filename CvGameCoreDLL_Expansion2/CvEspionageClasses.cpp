@@ -29,14 +29,7 @@ const int iSpyTurnsToRevive = 5;
 #endif
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
-const int iRandomRollSpyAction = 300;
-const int iChancetoIdentifyCounterSpy = 275;
-const int iChancetoDetectCounterSpy = 175;
-const int iChancetoIdentifyNoCounterSpy = 275;
-const int iChancetoDetectNoCounterSpy = 175;
-const int iChancetoKillAA = 225;
-const int iChancetoIdentifyAA = 125;
-const int iSpyRankPower = 150;
+const int iSpyRankPower = 50;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
@@ -737,32 +730,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			kHeistLocation.m_iY = pCity->getY();
 			m_aHeistLocations[eCityOwner].push_back(kHeistLocation);
 
-			int iSpyResult;
+			CvSpyResult eResult = GetSpyRollResult(pCity, uiSpyIndex, false);
+			pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, eResult);
 			if(pCityEspionage->HasCounterSpy())
-			{
-				//Higher better for defense; lower better for offense.
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
-				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-				iSpyResult /= 100;
-				if (iSpyResult < iChancetoDetectCounterSpy /* 150 */)
-				{
-#if defined(MOD_EVENTS_ESPIONAGE)
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-#else
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
-#endif
-				}
-				else if (iSpyResult < iChancetoIdentifyCounterSpy /* 250 */ )
-				{
-#if defined(MOD_EVENTS_ESPIONAGE)
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
-#else
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
-#endif
-				}
-				else
+			{			
+				if (eResult == SPY_RESULT_KILLED)
 				{
 #if defined(MOD_EVENTS_ESPIONAGE)
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_KILLED);
@@ -785,36 +757,6 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_25);
 						}
 					}
-#endif
-				}
-			}
-			else
-			{
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-				iSpyResult /= 100;
-				if (iSpyResult < iChancetoDetectNoCounterSpy /* 150 */ )
-				{
-#if defined(MOD_EVENTS_ESPIONAGE)
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
-#else
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_UNDETECTED);
-#endif
-				}
-				else if (iSpyResult < iChancetoIdentifyNoCounterSpy /* 250 */ )
-				{
-#if defined(MOD_EVENTS_ESPIONAGE)
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-#else
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
-#endif
-				}
-				else
-				{
-#if defined(MOD_EVENTS_ESPIONAGE)
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
-#else
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
 #endif
 				}
 			}
@@ -1136,70 +1078,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				kHeistLocation.m_iY = pCity->getY();
 				m_aHeistLocations[eCityOwner].push_back(kHeistLocation);
 
-				int iSpyResult;
-				if (pCityEspionage->HasCounterSpy())
-				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
-					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-					iSpyResult /= 100;
-					if (iSpyResult < iChancetoDetectCounterSpy)
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
-#endif
-					}
-					else if (iSpyResult < iChancetoIdentifyCounterSpy)
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
-#endif
-					}
-					else
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_KILLED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
-#endif
-
-					}
-				}
-				else
-				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-					iSpyResult /= 100;
-					if (iSpyResult < iChancetoDetectNoCounterSpy)
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_UNDETECTED);
-#endif
-					}
-					else if (iSpyResult < iChancetoIdentifyNoCounterSpy)
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
-#endif
-					}
-					else
-					{
-#if defined(MOD_EVENTS_ESPIONAGE)
-						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
-#else
-						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
-#endif
-					}
-				}
+				CvSpyResult eResult = GetSpyRollResult(pCity, uiSpyIndex, false);
+				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, eResult);
 
 				CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
 				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
@@ -1755,49 +1635,13 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 		//Do we have at least something good in here?
 		if(aiAdvancedAction.size() > 1)
 		{
-			int	iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-			if (iSpyResult <= 75)
-				return;
+			CvSpyResult eResult = GetSpyRollResult(pCity, uiSpyIndex, true);
+			pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, eResult);
 
-			iSpyResult *= 100 + ((pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier()) * -1);
-			iSpyResult /= 100;
-
-			iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-			iSpyResult /= 100;
-
-			iSpyResult -= iCityValue;
-
-			bool bCanDie = false;
-			if (pCityEspionage->HasCounterSpy())
-			{
-				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) + 1) * iSpyRankPower;
-
-				int iHeat = GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner);
-
-				if (iHeat < pSpy->GetAdvancedActions())
-				{
-					bCanDie = true;
-				}
-			}
-			
-			if (bCanDie && iSpyResult > iChancetoKillAA /* 275 */ )
-			{
-				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_KILLED);
-			}
-			else if (iSpyResult > iChancetoIdentifyAA /* 175 */)
-			{
-				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
-			}
-			else
-			{
-				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-			}
 			if(GC.getLogging())
 			{
 				CvString strMsg;
-				strMsg.Format("Advanced Action: Attempting advanced action. Roll: %d,", iSpyResult);
+				strMsg.Format("Advanced Action: Attempting advanced action. Result: %d,", (int)eResult);
 				strMsg += " , ";
 				strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
 				strMsg += " , ";
@@ -2508,7 +2352,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 			{
 				if (pCity->getPopulation() > 0)
 				{
-					iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 10) / pCity->getPopulation());
+					iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 100) / pCity->getPopulation());
 					iUnhappinessMod *= -1;
 				}
 			}
@@ -2536,15 +2380,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL");
 			
-			int iOurSpyPower = iRandomRollSpyAction;
-			iOurSpyPower += (pSpy->GetSpyRank(m_pPlayer->GetID()) * iSpyRankPower);
-			iOurSpyPower *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-			iOurSpyPower /= 100;
-
-			int iKillChance = ((iOurSpyPower - iChancetoIdentifyCounterSpy) * 100) / iOurSpyPower;
-			int iIdentifyChance = (((iChancetoIdentifyCounterSpy - iChancetoDetectCounterSpy) * 100) / iOurSpyPower);
-			//Remainder
-			int iDetectChance = (100 - iKillChance - iIdentifyChance);
+			int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, false);
+			int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, false);
+			int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, false);
 
 			strSpyAtCity += "[NEWLINE]";
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL", max(0, iKillChance));
@@ -2574,18 +2412,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL_AA");
 
-				int iSpyTotal = iRandomRollSpyAction;
-				iSpyTotal += (100 + (pCity->GetEspionageModifier() + m_pPlayer->GetEspionageModifier() * -1));
-				iSpyTotal *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-				iSpyTotal /= 100;
-				int iCityValue = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-				iSpyTotal += (pSpy->GetSpyRank(m_pPlayer->GetID()) + 1) * iSpyRankPower;
-				iSpyTotal -= iCityValue;
-
-				int iKillChance = (((iSpyTotal - (bCanDie ? iChancetoKillAA : 0)) * 100) / iSpyTotal);
-				int iIdentifyChance = ((((bCanDie ? iChancetoKillAA - iChancetoIdentifyAA : iChancetoIdentifyAA)) * 100) / iSpyTotal);
-				//Remainder
-				int iDetectChance = (100 - iKillChance - iIdentifyChance);
+				iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, true);
+				iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, true);
+				iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, true);
 
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_KILL", max(0, iKillChance));
@@ -2671,7 +2500,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				{
 					if (pCity->getPopulation() > 0)
 					{
-						iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 10) / pCity->getPopulation());
+						iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 100) / pCity->getPopulation());
 					}
 				}
 
@@ -2743,46 +2572,22 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RISKS");
 
-				int iTheirSpyPower = iRandomRollSpyAction;
-				if (pCity->GetCityEspionage()->HasCounterSpy())
-				{
-					int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-					iTheirSpyPower += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) * iSpyRankPower;
-				}
-				iTheirSpyPower *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-				iTheirSpyPower /= 100;
+				int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, false);
+				int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, false);
+				int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, false);
 
 				if (pCity->GetCityEspionage()->HasCounterSpy())
 				{
 					strSpyAtCity += "[NEWLINE]";
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT");
-
-					int iKillChance = (((iTheirSpyPower - iChancetoIdentifyCounterSpy) * 100) / iTheirSpyPower);
-					int iIdentifyChance = (((iChancetoIdentifyCounterSpy - iChancetoDetectCounterSpy) * 100) / iTheirSpyPower);
-					//Remainder
-					int iDetectChance = (100 - iKillChance - iIdentifyChance);
-
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_KILL", max(0, iKillChance));
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT", max(0, iDetectChance));
 				}
-				else
-				{
-					int iIdentifyChance = (((iTheirSpyPower - iChancetoIdentifyNoCounterSpy) * 100) / iTheirSpyPower);
-					int iDetectChance = (((iChancetoIdentifyNoCounterSpy - iChancetoDetectNoCounterSpy) * 100) / iTheirSpyPower);
-					//Remainder
-					int iUndetectChance = (100 - iIdentifyChance - iDetectChance);
 
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT", max(0, iDetectChance));
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_UNDETECTED", max(0, iUndetectChance));
-				}
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_KILL", max(0, iKillChance));
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT", max(0, iDetectChance));
 
 				//City Rank:
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -2791,28 +2596,14 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RISKS_AA");
 
-					int iSpyTotal = iRandomRollSpyAction;
-					iSpyTotal += (100 + (pCity->GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetEspionageModifier() * -1));
-					iSpyTotal *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-					iSpyTotal /= 100;
-					int iCityValue = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-					if (pCity->GetCityEspionage()->HasCounterSpy())
-					{
-						int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-						iSpyTotal += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) * 100;
-					}
-					iSpyTotal -= iCityValue;
+					int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, true);
+					int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, true);
+					int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, true);
 
 					if (bCanDie)
 					{
 						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT");
-
-						int iKillChance = (((iSpyTotal - iChancetoKillAA) * 100) / iSpyTotal);
-						int iIdentifyChance = (((iChancetoKillAA - iChancetoIdentifyAA) * 100) / iSpyTotal);
-						//Remainder
-						int iDetectChance = (100 - iKillChance - iIdentifyChance);
-
 						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
 						strSpyAtCity += "[NEWLINE]";
@@ -2822,10 +2613,6 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 					else
 					{
-						int iIdentifyChance = (((iSpyTotal - iChancetoIdentifyAA) * 100) / iSpyTotal);
-						//Remainder
-						int iDetectChance = (100 - iIdentifyChance);
-
 						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
 						strSpyAtCity += "[NEWLINE]";
@@ -3047,6 +2834,132 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	}
 
 	return strSpyAtCity;
+}
+
+int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, uint uiSpyIndex, bool bForAA)
+{
+	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
+	int iRandomRollSpyAction = 100;
+	int iChancetoIdentify = 50;
+	int iChancetoIdentifyAA = 25;
+	int iChancetoKill = 25;
+	int iChancetoKillAA = 10;
+
+	//chance to detect starts at 0% + Counterspy Power.
+	int iDefensePower = 0;
+	PlayerTypes eOwner = pCity->getOwner();
+	CvPlayer& kPlayer = GET_PLAYER(eOwner);
+	if (pCity->GetCityEspionage()->HasCounterSpy())
+	{
+		int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
+		iDefensePower += kPlayer.GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eOwner) * iSpyRankPower;
+
+		if (bForAA)
+		{
+			int iHeatMax = kPlayer.GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eOwner);
+
+			if (iHeatMax > m_aSpyList[iCounterspyIndex].GetAdvancedActions())
+			{
+				iChancetoKillAA = 0;
+			}
+		}
+	}
+	else
+	{
+		iChancetoKill = 0;
+		iChancetoKillAA = 0;
+	}
+
+
+	//Chance to detect decreases based on city potency.
+	int iCityValue = pCity->GetEspionageRanking() * 10;
+
+	iDefensePower *= iCityValue;
+	iDefensePower /= 100;
+
+	//and increased again by player potency
+	int iDefModifiers = (pCity->GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetEspionageModifier()) * -1;
+	iDefModifiers += GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
+
+	iDefensePower *= (100 + iDefModifiers);
+	iDefensePower /= 100;
+
+	//0% Chance at start, increases with spy power.
+	CvSpyState eState = m_aSpyList[uiSpyIndex].m_eSpyState;
+	int iOffensiveSpyPower = CalcPerTurn(eState, pCity, uiSpyIndex);
+
+	iDefensePower *= 100;
+	iDefensePower /= max(1, iOffensiveSpyPower);
+
+	if (bForAA)
+	{
+		switch (eEspionage)
+		{
+			case ESPIONAGE_TYPE_DETECT:
+			{
+				break;
+			}
+			case ESPIONAGE_TYPE_IDENTIFY:
+			{
+				iDefensePower *= iChancetoIdentifyAA;
+				iDefensePower /= 100;
+				break;
+			}
+			case ESPIONAGE_TYPE_KILL:
+			{
+				iDefensePower *= iChancetoKillAA;
+				iDefensePower /= 100;
+				break;
+			}
+		}
+	}
+	else
+	{
+		switch (eEspionage)
+		{
+			case ESPIONAGE_TYPE_DETECT:
+			{
+				break;
+			}
+			case ESPIONAGE_TYPE_IDENTIFY:
+			{
+				iDefensePower *= iChancetoIdentify;
+				iDefensePower /= 100;
+				break;
+			}
+			case ESPIONAGE_TYPE_KILL:
+			{
+				iDefensePower *= iChancetoKill;
+				iDefensePower /= 100;
+				break;
+			}
+		}
+	}
+
+	//Defense can never be greater than 100% or less than 0%
+	return range(iDefensePower, 0, 100);
+}
+
+CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, uint uiSpyIndex, bool bForAA)
+{
+	int iResult = GC.getGame().getSmallFakeRandNum(100, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
+	if (iResult <= 0)
+		iResult = 1;
+
+	int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, bForAA);
+	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, bForAA);
+	int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, bForAA);
+
+	//success! we didn't die...
+	if (iResult > iKillChance)
+	{
+		if (iResult > iIdentifyChance)
+			return SPY_RESULT_DETECTED;
+		else
+			return SPY_RESULT_IDENTIFIED;
+	}
+	else
+		return SPY_RESULT_KILLED;
 }
 #endif
 

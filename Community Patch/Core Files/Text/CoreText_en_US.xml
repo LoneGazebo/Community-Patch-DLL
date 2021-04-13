@@ -7036,6 +7036,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
+			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">

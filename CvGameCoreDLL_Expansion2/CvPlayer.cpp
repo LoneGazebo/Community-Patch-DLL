@@ -26874,7 +26874,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					iValue += pLoopCity->GetYieldFromPillage(eYield);
 					break;
-				}			
+				}
+				case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+				{
+					if (eYield == ePassYield)
+						iValue += iPassYield;
+				}
 				case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
 				{
 					// The building versions of the YieldFromPillage are hardcoded to be era scaling due to no additional column in the tables to denote era scaling or not.
@@ -28157,6 +28162,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_LUA:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_INSTANT");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT");
 				localizedText << totalyieldString;
 				break;
 			}

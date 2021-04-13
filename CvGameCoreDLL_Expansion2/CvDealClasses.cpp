@@ -4628,7 +4628,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
-				toPlayer.changeOverflowResearch(iBeakersBonus);
+				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, NULL, false, false, false, YIELD_SCIENCE);
 			}
 			else
 			{
