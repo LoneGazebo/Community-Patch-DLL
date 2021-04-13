@@ -395,6 +395,7 @@ public:
 	int calculateGoldRateTimes100() const;
 	int getAvgGoldRate() const;
 	void cacheAvgGoldRate();
+	int getTurnsToBankruptcy(int iAssumedExtraExpense) const;
 
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;

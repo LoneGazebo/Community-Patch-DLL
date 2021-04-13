@@ -126,7 +126,7 @@ INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', '5';
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_TURN_DECAY', '3'; -- how fast recent assist value decays
 
 -- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
-UPDATE Defines SET Value = '-50' WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
+UPDATE Defines SET Value = '-100' WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
 UPDATE Defines SET Value = '50' WHERE Name = 'COMMON_FOE_VALUE_PER_OPINION_WEIGHT'; -- how much common foe value equals -1 opinion weight
 UPDATE Defines SET Value = '25' WHERE Name = 'COMMON_FOE_VALUE_PER_TURN_DECAY'; -- how fast common foe value decays
 

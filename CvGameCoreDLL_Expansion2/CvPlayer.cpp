@@ -3117,6 +3117,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
 			pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
 			pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
+			pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
 			if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
 				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			
@@ -18285,12 +18286,18 @@ int CvPlayer::getAvgGoldRate() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::cacheAvgGoldRate()
 {
-	int iBaseRate = calculateGoldRate();
+	m_iCachedGoldRate = calculateGoldRate() + GetTreasury()->AverageIncome100(10)/100;
+}
 
-	int iEndTurn = GC.getGame().getGameTurn();
-	int iStartTurn = GC.getGame().getGameTurn() - 10;
+int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
+{
+	int iGold = GetTreasury()->GetGold();
+	int iAvgGPT = getAvgGoldRate() - iAssumedExtraExpense;
 
-	m_iCachedGoldRate = iBaseRate + getInstantYieldAvg(YIELD_GOLD, iStartTurn, iEndTurn);
+	if (iAvgGPT > 0)
+		return INT_MAX;
+
+	return -iGold/max(1,iAvgGPT);
 }
 
 //	--------------------------------------------------------------------------------
