@@ -5223,12 +5223,12 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	}
 
 	//city difference - do we have more than them?
-	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
 		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= kPlayer.GetTourismCostXCitiesMod();
+		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
 
@@ -5456,12 +5456,12 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	//city difference - do we have more than them?
-	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
 		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= kPlayer.GetTourismCostXCitiesMod();
+		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
 
@@ -6841,23 +6841,9 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 
 	if (iDissatisfaction<1)
 		return 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	float fPerCityUnhappy = 0.0f;
-	float fUnhappyPerXPop = 0.0f;
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		fPerCityUnhappy = 0.5f;
-		fUnhappyPerXPop = 15.0f;
-	}
-	else
-	{
-#endif
-	fPerCityUnhappy = 1.0f;
-	fUnhappyPerXPop = 10.0f;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	}
-#endif
-
+	float fPerCityUnhappy = 1.0f;
+	float fUnhappyPerXPop = 10.0f;
+	
 	//important!
 	float fPerCityUnhappySlope = 0.2f;
 	float fUnhappyPerXPopSlope = -1.0f;
@@ -7856,12 +7842,12 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	}
 
 	//city difference - do we have more than them?
-	int iNumCities = kPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	int iNumCities = kCityPlayer.GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
 	if (iNumCities > 0)
 	{
 		// Mod for City Count
 		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= kPlayer.GetTourismCostXCitiesMod();
+		iMod -= kCityPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= iNumCities;
 

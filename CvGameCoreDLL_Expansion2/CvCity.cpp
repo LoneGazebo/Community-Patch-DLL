@@ -27678,7 +27678,7 @@ void CvCity::updateStrengthValue()
 	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
 	// Population mod
-	if (!MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+	if (GET_PLAYER(getOwner()).isMinorCiv() || !MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
 		iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
 
 	// Building Defense

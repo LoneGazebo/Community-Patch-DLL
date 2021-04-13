@@ -11592,7 +11592,15 @@ void CvGame::SetHighestSpyPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
+				int iPotential = 0;
+				int iRequired = kLoopPlayer.GetEspionage()->CalcRequired(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
+				if (iRequired <= 0)
+					continue;
+				else
+					iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
+
+				iPotential *= 100;
+				iPotential /= max(1, iRequired);
 
 				iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
 			}
@@ -11635,10 +11643,21 @@ void CvGame::SetHighestSpyPotential()
 		int iLoop = 0;
 		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 		{				
-			int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
+			int iPotential = 0;
+			int iRequired = kLoopPlayer.GetEspionage()->CalcRequired(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
+			if (iRequired <= 0)
+			{
+				pLoopCity->SetEspionageRanking(1, bNotify);
+				continue;
+			}
+			else
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
+
+			iPotential *= 100;
+			iPotential /= max(1, iRequired);
 
 			//We want a value between 1 and 10
-			int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
+			int iRank = max(1, (iPotential * 10) / max(1,iHighestEspionagePotential));
 
 			pLoopCity->SetEspionageRanking(iRank, bNotify);
 		}

@@ -11525,6 +11525,13 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 		ChangeTourismBonusTurns(-1);
 	}
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+		if (getTourismBonusTurnsPlayer(eLoopPlayer) > 0)
+			changeTourismBonusTurnsPlayer(eLoopPlayer, -1);
+	}
 #if defined(MOD_BALANCE_CORE)
 	if(GetCultureBonusTurnsConquest() > 0)
 	{

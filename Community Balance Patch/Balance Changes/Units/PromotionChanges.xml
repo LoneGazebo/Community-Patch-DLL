@@ -2938,7 +2938,6 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<AttackWoundedMod>50</AttackWoundedMod>
 			<PortraitIndex>59</PortraitIndex>
-			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ATLATL_ATTACK</PediaEntry>

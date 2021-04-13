@@ -244,8 +244,8 @@ public:
 	void UpdateSpies();
 	void UpdateCity(CvCity* pCity);
 
-	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex);
-	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex);
+	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
+	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
 	const char* GetSpyRankName(int iRank) const;
 
