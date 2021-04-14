@@ -3458,7 +3458,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				{
 					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-					int iOurPercent = (iOurVotes * 100) / iNeededVotes;
+					int iOurPercent = (iOurVotes * 100) / max(1,iNeededVotes);
 					if (iOurPercent >= 50)
 					{
 						return INT_MAX;

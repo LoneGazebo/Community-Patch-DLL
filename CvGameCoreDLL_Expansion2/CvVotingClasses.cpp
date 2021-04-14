@@ -11686,7 +11686,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (iNeededVotes > 0)
 				{
-					iVoteRatio = (iVotes * 100) / iNeededVotes;
+					iVoteRatio = (iVotes * 100) / max(1,iNeededVotes);
 					if (iVoteRatio >= 100)
 					{
 						iExtra += 10000;
@@ -12296,25 +12296,28 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague)
 		{
-			int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
-			int iVotesNeeded = GC.getGame().GetVotesNeededForDiploVictory();
-			int iPercent = iVotes * 100;
-			iPercent /= iVotesNeeded;
-			if (iPercent >= 100)
+			if (bDiploVictoryEnabled)
 			{
-				iExtra += 10000;
-			}
-			if (iPercent >= 80)
-			{
-				iExtra += 5000;
-			}
-			else if (iPercent >= 60)
-			{
-				iExtra += 2500;
-			}
-			else if (iPercent >= 40)
-			{
-				iExtra += 600;
+				int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+				int iVotesNeeded = GC.getGame().GetVotesNeededForDiploVictory();
+				int iPercent = iVotes * 100;
+				iPercent /= max(1, iVotesNeeded);
+				if (iPercent >= 100)
+				{
+					iExtra += 10000;
+				}
+				if (iPercent >= 80)
+				{
+					iExtra += 5000;
+				}
+				else if (iPercent >= 60)
+				{
+					iExtra += 2500;
+				}
+				else if (iPercent >= 40)
+				{
+					iExtra += 600;
+				}
 			}
 		}
 
@@ -13035,7 +13038,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	int iScore = 0;
 	int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
 	int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
-	int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+	int iNeededVotes = max(1,GC.getGame().GetVotesNeededForDiploVictory());
 	int iTheirPercent = (iTheirVotes * 100) / iNeededVotes;
 	int iOurPercent = (iOurVotes * 100) / iNeededVotes;
 	AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false);
