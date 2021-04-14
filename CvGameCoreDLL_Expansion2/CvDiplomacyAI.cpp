@@ -29700,7 +29700,11 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			DoUpdateMinorCivProtection(eMinor, eApproach);
 
 			// Do we want to connect to this player?
-			if (eApproach == CIV_APPROACH_FRIENDLY && GetPlayer()->getAvgGoldRate() > 50)
+			int iEra = GetPlayer()->GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
+			if (eApproach == CIV_APPROACH_FRIENDLY && GetPlayer()->getAvgGoldRate() > min(20 * iEra,50))
 			{
 				if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
