@@ -18284,7 +18284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						bThinkingAboutDogpiling = true;
 					}
 
-					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40)
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 5;
@@ -18303,7 +18303,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
 					// On the flipside, is this guy suffering from being at war with this player?
-					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 15)
+					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer))
 					{
 						// Do we like them? Then we should defend our ally, if we can!
 						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || GetNumCitiesLiberatedBy(eLoopPlayer) > 0 || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
