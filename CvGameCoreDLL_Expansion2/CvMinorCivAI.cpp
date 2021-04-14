@@ -12479,7 +12479,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		}
 	}
 
-	int iPercent = GET_PLAYER(ePlayer).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+	int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
 	int iMinimumPercent = /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP();
 
 	if (iPercent < iMinimumPercent)
@@ -12624,7 +12624,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		}
 	}
 
-	int iPercent = GET_PLAYER(ePlayer).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+	int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
 
 	if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 	{
@@ -12773,7 +12773,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			}
 		}
 
-		int iPercent = GET_PLAYER(ePlayer).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
+		int iPercent = GET_PLAYER(eMajor).GetMilitaryMight() * 100 / max(iHighestStrength, 1);
 
 		if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 		{
