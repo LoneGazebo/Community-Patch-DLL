@@ -12436,6 +12436,27 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		return;
 	}
 
+	// If they've fallen below 0 Influence, end protection immediately.
+	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
+	{
+		DoChangeProtectionFromMajor(eMajor, false, true);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
+
+		CvCity* pCity = m_pPlayer->getCapitalCity();
+		if (pCity != NULL)
+		{
+			pCity->updateStrengthValue();
+		}
+
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
+		strMessage << GetPlayer()->getNameKey();
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE");
+		strSummary << GetPlayer()->getNameKey();
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+
+		return;
+	}
+
 	int iMaxWarningTurns = 12;
 	iMaxWarningTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iMaxWarningTurns /= 100;
@@ -12470,6 +12491,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
 	{
 		DoChangeProtectionFromMajor(eMajor, false, true);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
 
 		CvCity* pCity = m_pPlayer->getCapitalCity();
 		if (pCity != NULL)

@@ -6642,7 +6642,12 @@
 		</Row>
 
 
-
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">
+			<Text>Because of {1_CSName}'s anger with you, they no longer value your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL">
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
