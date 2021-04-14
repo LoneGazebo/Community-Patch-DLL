@@ -12481,7 +12481,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
 	int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
-	int iMinimumPercent = (int)(100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP());
+	int iMinimumPercent = /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP();
 
 	if (iPercent < iMinimumPercent)
 	{
@@ -12628,7 +12628,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
 	int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
 
-	if (iPercent < (100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP()))
+	if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 	{
 		Localization::String sMilitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
 		sMilitaryPower << iPercent;
@@ -12778,7 +12778,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 		double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
 		int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
 
-		if (iPercent < (100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP()))
+		if (iPercent < /*60*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 		{
 			return false;
 		}
