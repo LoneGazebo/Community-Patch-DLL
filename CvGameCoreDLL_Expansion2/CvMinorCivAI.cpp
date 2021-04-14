@@ -11432,11 +11432,7 @@ int CvMinorCivAI::GetAlliedTurns() const
 /// Is ePlayer Allies with this minor?
 bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 {
-#if defined(MOD_BALANCE_CORE)
-	return ((m_eAlly == ePlayer) || (MOD_DIPLOMACY_CITYSTATES && (GetPermanentAlly() == ePlayer) && !IsNoAlly()));
-#else
-	return m_eAlly == ePlayer;
-#endif
+	return (m_eAlly == ePlayer || (MOD_DIPLOMACY_CITYSTATES && GetPermanentAlly() == ePlayer && !IsNoAlly()));
 }
 
 /// Is ePlayer Friends with this minor?
@@ -12403,7 +12399,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	strSummary << GetPlayer()->getNameKey();
 	AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eLiberator);
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvMinorCivAI::SetTurnLiberated(int iValue)
 {
 	if(iValue != GetTurnLiberated())
@@ -12415,183 +12411,145 @@ int CvMinorCivAI::GetTurnLiberated()
 {
 	return m_iTurnLiberated;
 }
+
 void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 		return;
 
-	bool bProtect = IsProtectedByMajor(eMajor);
+	if (!IsProtectedByMajor(eMajor))
+		return;
+
+	if (CanMajorProtect(eMajor))
+	{
+		if (GetNumTurnsSincePtPWarning(eMajor) > 0)
+		{
+			SetNumTurnsSincePtPWarning(eMajor, 0);
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		return;
+	}
+
+	int iMaxWarningTurns = 12;
+	iMaxWarningTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iMaxWarningTurns /= 100;
 
 	bool bBadMilitary = false;
-	if(bProtect)
+	int iHighestStrength = 1;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		int iWarningMax = 12;
-		iWarningMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iWarningMax /= 100;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		CvWeightedVector<PlayerTypes> veMilitaryRankings;
-		PlayerTypes eMajorLoop;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			eMajorLoop = (PlayerTypes) iMajorLoop;
-			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+			if (iStrength > iHighestStrength)
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+				iHighestStrength = iStrength;
 			}
 		}
-		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-		veMilitaryRankings.SortItems();
-		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	}
+
+	double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
+	int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
+	int iMinimumPercent = (int)(100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP());
+
+	if (iPercent < iMinimumPercent)
+	{
+		bBadMilitary = true;
+	}
+
+	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
+	{
+		DoChangeProtectionFromMajor(eMajor, false, true);
+
+		CvCity* pCity = m_pPlayer->getCapitalCity();
+		if (pCity != NULL)
 		{
-			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
+			pCity->updateStrengthValue();
+		}
+
+		if (bBadMilitary)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		else
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL");
+			strMessage << GetPlayer()->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+	}
+	else if (GetNumTurnsSincePtPWarning(eMajor) <= 0)
+	{
+		if (bBadMilitary)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
+			strMessage << GetPlayer()->getNameKey();
+			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+			strMessage << (iMinimumPercent - iPercent);
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+		else
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL");
+			strMessage << GetPlayer()->getNameKey();
+			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL");
+			strSummary << GetPlayer()->getNameKey();
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		}
+
+		ChangeNumTurnsSincePtPWarning(eMajor, 1);
+	}
+	else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
+	{
+		if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
+		{
+			if (bBadMilitary)
 			{
-				int iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
-				bBadMilitary = (iRankRatio < 60);
-				if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
-				{
-					DoChangeProtectionFromMajor(eMajor, false, true);
-
-					CvCity* pCity = m_pPlayer->getCapitalCity();
-					if(pCity != NULL)
-					{
-						pCity->updateStrengthValue();
-					}
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
-					strMessage << GetPlayer()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
-					strSummary << GetPlayer()->getNameKey();
-
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					break;
-				}
-				else if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) <= 0)
-				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
-					strMessage << GetPlayer()->getNameKey();
-					strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-					strMessage << (60 - iRankRatio);
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
-					strSummary << GetPlayer()->getNameKey();
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-					break;
-				}
-				else if (bBadMilitary && GetNumTurnsSincePtPWarning(eMajor) > 0)
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
-						strMessage << GetPlayer()->getNameKey(); 
-						strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-						strMessage << (60 - iRankRatio);
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-					break;
-				}
-				else
-				{
-					if(GetNumTurnsSincePtPWarning(eMajor) > 0)
-					{
-						SetNumTurnsSincePtPWarning(eMajor, 0);
-						if ((GetTurnLastPledgedProtectionByMajor(eMajor) > GC.getGame().getGameTurn() - 1))
-						{
-							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
-							strMessage << GetPlayer()->getNameKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
-							strSummary << GetPlayer()->getNameKey();
-							AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-						}
-					}
-					break;
-				}
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
+				strMessage << GetPlayer()->getNameKey(); 
+				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+				strMessage << (iMinimumPercent - iPercent);
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
+				strSummary << GetPlayer()->getNameKey();
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+			}
+			else
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL");
+				strMessage << GetPlayer()->getNameKey();
+				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL");
+				strSummary << GetPlayer()->getNameKey();
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		if (!bBadMilitary && MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-		{
-			bool bValid = false;
 
-			if (IsAllies(eMajor))
-			{
-				bValid = true;
-			}
-			else if (GET_PLAYER(eMajor).GetTrade()->IsConnectedToPlayer(GetPlayer()->GetID()))
-			{
-				bValid = true;
-			}
-			// This player must be able to build a trade route either by land or sea
-			else if (GC.getGame().GetGameTrade()->CanCreateTradeRoute(eMajor, GetPlayer()->GetID(), DOMAIN_LAND) || GC.getGame().GetGameTrade()->CanCreateTradeRoute(eMajor, GetPlayer()->GetID(), DOMAIN_SEA))
-			{
-				bValid = true;
-			}
-			if (!bValid)
-			{
-				if (GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
-				{
-					DoChangeProtectionFromMajor(eMajor, false, true);
-
-					CvCity* pCity = m_pPlayer->getCapitalCity();
-					if (pCity != NULL)
-					{
-						pCity->updateStrengthValue();
-					}
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL");
-					strMessage << GetPlayer()->getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL");
-					strSummary << GetPlayer()->getNameKey();
-
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-				}
-				else if (GetNumTurnsSincePtPWarning(eMajor) <= 0)
-				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL");
-					strMessage << GetPlayer()->getNameKey();
-					strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL");
-					strSummary << GetPlayer()->getNameKey();
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-				}
-				else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL");
-						strMessage << GetPlayer()->getNameKey();
-						strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-					ChangeNumTurnsSincePtPWarning(eMajor, 1);
-				}
-				else
-				{
-					if (GetNumTurnsSincePtPWarning(eMajor) > 0)
-					{
-						SetNumTurnsSincePtPWarning(eMajor, 0);
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_OPTIONAL");
-						strMessage << GetPlayer()->getNameKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT_OPTIONAL");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-					}
-				}
-			}
-		}
-#endif
+		ChangeNumTurnsSincePtPWarning(eMajor, 1);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
+
 CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 {
 	CvString sFactors = "";
@@ -12614,7 +12572,6 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sInf.toUTF8();
 	}
 
-
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
@@ -12629,32 +12586,31 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	CvWeightedVector<PlayerTypes> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	int iHighestStrength = 1;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eMajorLoop = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-		}
-	}
-	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-	veMilitaryRankings.SortItems();
-	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if (veMilitaryRankings.GetElement(iRanking) == eMajor)
-		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-			if (fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+			if (iStrength > iHighestStrength)
 			{
-				Localization::String sMlitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
-				int iRank = (int)(fRankRatio * 100);
-				sMlitaryPower << iRank;
-				sFactors += sMlitaryPower.toUTF8();
-				break;
+				iHighestStrength = iStrength;
 			}
 		}
+	}
+
+	double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
+	int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
+
+	if (iPercent < (100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP()))
+	{
+		Localization::String sMilitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
+		sMilitaryPower << iPercent;
+		sFactors += sMilitaryPower.toUTF8();
 	}
 
 	Localization::String sOptions = Localization::Lookup("TXT_KEY_POP_CSTATE_PTP_ANY_CORRECT");
@@ -12687,21 +12643,18 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	}
 	return sFactors;
 }
-#endif
+
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
 	if(bProtect == IsProtectedByMajor(eMajor)) return;
 
-	if(bProtect)
+	if (bProtect)
 	{
-		if(!CanMajorProtect(eMajor))
-		{
+		if (!CanMajorProtect(eMajor))
 			return;
-		}
+
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
 		
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
@@ -12735,14 +12688,13 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 	// In case we had a Pledge to Protect quest active, complete it now
 	DoTestActiveQuestsForPlayer(eMajor, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_PLEDGE_TO_PROTECT);
-#if defined(MOD_BALANCE_CORE)
+
 	CvCity* pCity = m_pPlayer->getCapitalCity();
-	if(pCity != NULL)
+	if (pCity != NULL)
 	{
 		pCity->updateStrengthValue();
 	}
 	RecalculateRewards(eMajor);
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -12750,75 +12702,69 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	// If at war, may not protect
-	if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
+	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
 		return false;
 
 	// Must have positive INF
-	if(GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
+	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
 		return false;
 
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
 	const int iGracePeriod = 20; //antonjs: todo: xml
-#if defined(MOD_BALANCE_CORE)
+
 	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod <= iCurrentTurn)
 	{
-		SetTurnLastPledgeBrokenByMajor(eMajor, -1);
+		if ((iLastPledgeBrokenTurn + iGracePeriod) <= iCurrentTurn)
+			SetTurnLastPledgeBrokenByMajor(eMajor, -1);
+		else
+			return false;
 	}
-#endif
-	
-	if(iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
-		return false;
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
+	if (MOD_EVENTS_MINORS_INTERACTION) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
-		CvWeightedVector<PlayerTypes> veMilitaryRankings;
-		PlayerTypes eMajorLoop;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		int iHighestStrength = 1;
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eMajorLoop = (PlayerTypes) iMajorLoop;
-			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+
+			if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
-			}
-		}
-		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-		veMilitaryRankings.SortItems();
-		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-		{
-			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
-			{
-				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
+				int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+
+				if (iStrength > iHighestStrength)
 				{
-					return false;
+					iHighestStrength = iStrength;
 				}
 			}
 		}
-	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-	{
+		double fMilitaryMight = (double)GET_PLAYER(eMajor).GetMilitaryMight();
+		int iPercent = (int)(fMilitaryMight / (double)iHighestStrength * 100);
+
+		if (iPercent < (100 * /*0.6*/ GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP()))
+		{
+			return false;
+		}
+
+		// Do they meet one of the three conditions?
 		bool bValid = false;
 
-		if (IsAllies(eMajor) || GetPermanentAlly() == eMajor)
+		if (IsAllies(eMajor))
 		{
 			bValid = true;
 		}
@@ -12831,28 +12777,23 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 		{
 			bValid = true;
 		}
+
 		if (!bValid)
 			return false;
 	}
-#endif
 	
 	return true;
 }
 
 bool CvMinorCivAI::CanMajorStartProtection(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 	return (CanMajorProtect(eMajor) && !IsProtectedByMajor(eMajor));
 }
 
 bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	if (!IsProtectedByMajor(eMajor))
 		return false;
@@ -12860,22 +12801,19 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	// Pledge is locked in for a certain time
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeTurn = GetTurnLastPledgedProtectionByMajor(eMajor);
-#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
 	int iGracePeriod = 10; //antonjs: todo: xml
-#else
-	const int iGracePeriod = 10; //antonjs: todo: xml
-#endif
-#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
-	if(MOD_BALANCE_CORE_MINOR_PROTECTION)
+
+	if (MOD_BALANCE_CORE_MINOR_PROTECTION)
 	{
 		iGracePeriod = /*50*/ GC.getBALANCE_MINOR_PROTECTION_MINIMUM_DURATION();
 	}
-#endif
+
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
+	if (MOD_EVENTS_MINORS_INTERACTION) 
+	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanRevoke, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
@@ -12887,9 +12825,7 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 
 bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 {
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	if (!GET_PLAYER(eMajor).isAlive())
 		return false;
