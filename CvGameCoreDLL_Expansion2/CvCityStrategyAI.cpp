@@ -4870,11 +4870,13 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	int iConquestInterest = 0;
 	int iScienceInterest = 0;
 	int iCultureInterest = 0;
+	int iTourismInterest = 0;
 
 	int iDiploValue = 0;
 	int iScienceValue = 0;
 	int iConquestValue = 0;
 	int iCultureValue = 0;
+	int iTourismValue = 0;
 
 	int iGrandStrategiesLoop;
 	AIGrandStrategyTypes eGrandStrategy;
@@ -4894,7 +4896,8 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		}
 		else if (strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
 		{
-			iCultureInterest += kPlayer.GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
+			iCultureInterest += kPlayer.GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy) / 2;
+			iTourismInterest += kPlayer.GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
 		}
 		else if (strGrandStrategyName == "AIGRANDSTRATEGY_UNITED_NATIONS")
 		{
@@ -4908,23 +4911,35 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 
 	if (kPlayer.GetPlayerTraits()->IsExpansionist() || kPlayer.GetPlayerTraits()->IsWarmonger())
 	{
-		iConquestInterest *= 3;
-		iDiploInterest *= 2;
+		iConquestInterest *= 6;
+		iDiploInterest *= 5;
+		iTourismInterest *= 3;
+		iCultureInterest *= 2;
+		iScienceInterest *= 4;
 	}
 	if (kPlayer.GetPlayerTraits()->IsNerd())
 	{
 		iConquestInterest *= 2;
-		iScienceInterest *= 3;
+		iDiploInterest *= 4;
+		iTourismInterest *= 3;
+		iCultureInterest *= 5;
+		iScienceInterest *= 6;
 	}
 	if (kPlayer.GetPlayerTraits()->IsDiplomat() || kPlayer.GetPlayerTraits()->IsSmaller())
 	{
-		iCultureInterest *= 2;
-		iDiploInterest *= 3;
+		iConquestInterest *= 2;
+		iDiploInterest *= 6;
+		iTourismInterest *= 5;
+		iCultureInterest *= 4;
+		iScienceInterest *= 3;
 	}
 	if (kPlayer.GetPlayerTraits()->IsTourism() || kPlayer.GetPlayerTraits()->IsReligious())
 	{
-		iCultureInterest *= 3;
-		iScienceInterest *= 2;
+		iConquestInterest *= 2;
+		iDiploInterest *= 4;
+		iTourismInterest *= 6;
+		iCultureInterest *= 5;
+		iScienceInterest *= 3;
 	}
 
 	//Let's look at building special traits.
@@ -5079,11 +5094,11 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	
 	if(pkBuildingInfo->GetEventTourism() > 0)
 	{
-		iCultureValue += (pkBuildingInfo->GetEventTourism() * 10);
+		iTourismValue += (pkBuildingInfo->GetEventTourism() * 10);
 	}
 	if(pkBuildingInfo->GetFreeGreatWork() > 0)
 	{
-		iCultureValue += 50;
+		iTourismValue += 50;
 		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
 			iCultureValue += 100;
@@ -5095,51 +5110,51 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}	
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
-		iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
+		iTourismValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
 		if (pCity != NULL && pCity->GetCityCulture()->GetNumGreatWorkSlots() <= pkBuildingInfo->GetGreatWorkCount())
-			iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
+			iTourismValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
 	}
-	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
+	
+	if (pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
 	{
-		iCultureValue += pkBuildingInfo->GetGreatWorksTourismModifier();
+		iTourismValue += pkBuildingInfo->GetGreatWorksTourismModifier();
 	}
-	if(pkBuildingInfo->GetLandmarksTourismPercent() > 0)
+	if (pkBuildingInfo->GetLandmarksTourismPercent() > 0)
 	{
-		iCultureValue += pkBuildingInfo->GetLandmarksTourismPercent();
+		iTourismValue += pkBuildingInfo->GetLandmarksTourismPercent();
 	}
 	if (pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0)
 	{
-		iCultureValue += pkBuildingInfo->GetGreatWorksTourismModifierGlobal() * kPlayer.getNumCities();
+		iTourismValue += pkBuildingInfo->GetGreatWorksTourismModifierGlobal() * kPlayer.getNumCities();
+	}
+	if (pkBuildingInfo->GetLandTourismEnd() > 0)
+	{
+		iTourismValue += (pkBuildingInfo->GetLandTourismEnd() * 10);
+	}
+	if (pkBuildingInfo->GetSeaTourismEnd() > 0)
+	{
+		iTourismValue += (pkBuildingInfo->GetSeaTourismEnd() * 10);
+	}
+	if (pkBuildingInfo->GetTechEnhancedTourism() > 0)
+	{
+		iTourismValue += (pkBuildingInfo->GetTechEnhancedTourism() * 10);
 	}
 	if (pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0)
 	{
-		iCultureValue += pkBuildingInfo->GetLandmarksTourismPercentGlobal() * kPlayer.getNumCities();
+		iTourismValue += pkBuildingInfo->GetLandmarksTourismPercentGlobal() * kPlayer.getNumCities();
 	}
-	if(pkBuildingInfo->GetLandTourismEnd() > 0)
-	{
-		iCultureValue += (pkBuildingInfo->GetLandTourismEnd() * 10);
-	}
-	if(pkBuildingInfo->GetSeaTourismEnd() > 0)
-	{
-		iCultureValue += (pkBuildingInfo->GetSeaTourismEnd() * 10);
-	}
-	if(pkBuildingInfo->GetTechEnhancedTourism() > 0)
-	{
-		iCultureValue += (pkBuildingInfo->GetTechEnhancedTourism() * 10);
-	}
-
-	if(pCity != NULL && (pkBuildingInfo->GetLandmarksTourismPercent() > 0 || pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0))
+	if (pCity != NULL && (pkBuildingInfo->GetLandmarksTourismPercent() > 0 || pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0))
 	{
 		int iTest = pCity->getYieldRate(YIELD_CULTURE, false);
 
-		iCultureValue += (iTest / max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
+		iTourismValue += (iTest / max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
 	}
-	if(pCity != NULL && (pkBuildingInfo->GetGreatWorksTourismModifier() > 0 || pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0))
+	if (pCity != NULL && (pkBuildingInfo->GetGreatWorksTourismModifier() > 0 || pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0))
 	{
 		int iWorks = max(3, pCity->GetCityCulture()->GetNumGreatWorkSlots());
 
 		//Higher value the higher the number of works.
-		iCultureValue += (iWorks * (pkBuildingInfo->GetGreatWorksTourismModifier() + pkBuildingInfo->GetGreatWorksTourismModifierGlobal()));
+		iTourismValue += (iWorks * (pkBuildingInfo->GetGreatWorksTourismModifier() + pkBuildingInfo->GetGreatWorksTourismModifierGlobal()));
 	}
 
 	//Take the bonus from above and multiply it by the priority value / 10 (as most are 100+, so we're getting a % interest here).
@@ -5150,20 +5165,24 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	iCultureValue *= (100 + (iCultureInterest / 10));
 	iCultureValue /= 100;
 
+	iTourismValue *= (100 + (iTourismInterest / 10));
+	iTourismValue /= 100;
+
 	iDiploValue *= (100 + (iDiploInterest / 10));
 	iDiploValue /= 100;
 
 	iScienceValue *= (100 + (iScienceInterest / 10));
 	iScienceValue /= 100;
 
-	//And now add them in. Halve if not our main focus.
+	int iEra = kPlayer.GetCurrentEra() + 1;
+	//And now add them in. Reduce if not our main focus.
 	if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() || kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 	{
-		iValue += iCultureValue;
+		iValue += iTourismValue;
 	}
 	else
 	{
-		iValue += (iCultureValue / 2);
+		iValue += (iTourismValue / iEra);
 	}
 	if (kPlayer.GetDiplomacyAI()->IsGoingForDiploVictory() || kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory())
 	{
@@ -5171,7 +5190,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	else
 	{
-		iValue += (iDiploValue / 2);
+		iValue += (iDiploValue / iEra);
 	}
 	if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 	{
@@ -5179,7 +5198,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	else
 	{
-		iValue += (iScienceValue / 2);
+		iValue += (iScienceValue / iEra);
 	}
 
 	if (kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest() || kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest())
@@ -5188,10 +5207,12 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	else
 	{
-		iValue += (iConquestValue / 2);
+		iValue += (iConquestValue / iEra);
 	}
+
+	iValue += iCultureValue;
 	
-	return iValue * (kPlayer.GetCurrentEra()+1);
+	return iValue;
 }
 int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding)
 {

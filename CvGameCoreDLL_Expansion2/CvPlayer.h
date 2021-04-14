@@ -303,6 +303,12 @@ public:
 	void receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit);
 	void doGoody(CvPlot* pPlot, CvUnit* pUnit);
 
+	//building step chains
+	void BuildBuildingStepValues();
+	std::vector<BuildingTypes> FindInitialBuildings();
+	void SetChainLength(BuildingTypes eBuilding);
+	int GetChainLength(BuildingTypes eBuilding);
+
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
@@ -3490,6 +3496,7 @@ protected:
 	FAutoVariable<std::vector<UnitAITypes>, CvPlayer> m_neededUnitAITypes;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
+	
 #endif
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_piDomainFreeExperience;
@@ -3532,6 +3539,8 @@ protected:
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	std::map<RouteTypes, int> m_piResponsibleForRouteCount;
 	std::map<ImprovementTypes, int> m_piResponsibleForImprovementCount;
+
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingChainSteps;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;

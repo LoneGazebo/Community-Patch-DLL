@@ -715,18 +715,33 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			bCourthouse = true;
 		}
 	}
-	
-	//Unlocks another building?
+
 
 	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
-		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), true);
+		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
 		//need in all?
 		if (iNumNeeded > 0)
 		{
 			int iNumHave = kPlayer.getNumBuildings(eBuilding);
-			iBonus += iNumNeeded * max(1, iNumHave) * 10;
+			iBonus += iNumNeeded * max(1, iNumHave) * 100;
+		}
+	}
+
+	//unlocks a unit?
+	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	{
+		const UnitTypes eUnit = static_cast<UnitTypes>(i);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetBuildingClassRequireds(pkBuildingInfo->GetBuildingClassType()))
+		{
+			if (pkUnitInfo->GetPrereqAndTech() == NO_TECH)
+				iBonus += 1000;
+			else if (kPlayer.HasTech((TechTypes)pkUnitInfo->GetPrereqAndTech()))
+				iBonus += 1000;
+			else
+				iBonus += 50;
 		}
 	}
 
@@ -1159,8 +1174,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iEra = pEntry->GetEra();
 		}
 	}
-	int iEraValue =  kPlayer.GetCurrentEra() - iEra;
+	int iEraValue =  max(1, kPlayer.GetCurrentEra() - iEra);
 	iBonus += (150 * iEraValue);
+
+	//Unlocks another building?
+	int iPrereqChain = kPlayer.GetChainLength(eBuilding);
+	if (iPrereqChain > 0)
+		iBonus += iPrereqChain * 50 * iEraValue;
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))

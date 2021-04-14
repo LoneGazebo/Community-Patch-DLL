@@ -648,6 +648,7 @@ CvPlayer::CvPlayer() :
 	, m_iCityAutomatonWorkersChange("CvPlayer::m_iCityAutomatonWorkersChange", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	, m_paiBuildingChainSteps("CvPlayer::m_paiBuildingChainSteps", m_syncArchive)
 	, m_paiJFDPoliticPercent("CvPlayer::m_paiJFDPoliticPercent", m_syncArchive)
 	, m_paiResourceFromCSAlliances("CvPlayer::m_paiResourceFromCSAlliances", m_syncArchive)
 	, m_paiResourceShortageValue("CvPlayer::m_paiResourceShortageValue", m_syncArchive)
@@ -1100,6 +1101,8 @@ void CvPlayer::init(PlayerTypes eID)
 	m_aiPlots.clear();
 	m_bfEverConqueredBy.ClearAll();
 
+	BuildBuildingStepValues();
+
 	AI_init();
 }
 
@@ -1126,6 +1129,7 @@ void CvPlayer::uninit()
 	m_piResponsibleForImprovementCount.clear();
 #endif
 	m_paiFreeBuildingCount.clear();
+	m_paiBuildingChainSteps.clear();
 	m_paiFreePromotionCount.clear();
 	m_paiUnitCombatProductionModifiers.clear();
 	m_paiUnitCombatFreeExperiences.clear();
@@ -2030,6 +2034,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiUnitCombatFreeExperiences.clear();
 		m_paiUnitCombatFreeExperiences.resize(GC.getNumUnitCombatClassInfos(), 0);
+
+		m_paiBuildingChainSteps.clear();
+		m_paiBuildingChainSteps.resize(GC.getNumBuildingInfos(), 0);
 
 		m_paiFreeBuildingCount.clear();
 		m_paiFreeBuildingCount.resize(GC.getNumBuildingInfos(), 0);
@@ -14556,6 +14563,128 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 	}
 }
 
+//this is an AI helper to let it know if a building is part of a prereq chain
+void CvPlayer::BuildBuildingStepValues()
+{
+	std::vector<BuildingTypes>v_StarterBuildings = FindInitialBuildings();
+	for (uint i = 0; i < v_StarterBuildings.size(); i++)
+	{
+		BuildingTypes eCurrent = v_StarterBuildings[i];
+		if (eCurrent == NO_BUILDING)
+			continue;
+		SetChainLength(eCurrent);
+	}
+}
+std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
+{
+	std::vector<BuildingTypes>v_StarterBuildings;
+
+	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+	if (pkCivilizationInfo == NULL)
+		return v_StarterBuildings;
+
+	//first, loop through all buildings...
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (!pkBuildingInfo)
+			continue;
+
+		//skip wonders
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+		if (pkBuildingClassInfo)
+			if (pkBuildingClassInfo->getMaxGlobalInstances() > 0 || pkBuildingClassInfo->getMaxPlayerInstances() > 0 || pkBuildingClassInfo->getMaxTeamInstances() > 0)
+				continue;
+
+		bool bHasPrereq = false;
+		if (pkBuildingInfo)
+		{
+			BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+			if (eCivBuilding != eBuilding)
+				continue;
+
+			// Does this building have prereq buildings?
+			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				//if it has a prereq, skip it!
+				if (pkBuildingInfo->IsBuildingClassNeededInCity(iI))
+				{
+					bHasPrereq = true;
+					break;
+				}
+			}
+			if (!bHasPrereq)
+			{
+				v_StarterBuildings.push_back(eBuilding);
+			}
+		}
+	}
+	//return all standard buildings with no prereqs
+	return v_StarterBuildings;
+}
+void CvPlayer::SetChainLength(BuildingTypes eBuilding)
+{
+	std::vector<BuildingTypes>v_ChainBuildings;
+	v_ChainBuildings.push_back(eBuilding);
+
+	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+	if (pkCivilizationInfo == NULL)
+		return;
+
+	//check our current building
+	while (v_ChainBuildings.size() > 0)
+	{
+		std::vector<BuildingTypes>v_TempChainBuildings;
+		for (uint i = 0; i < v_ChainBuildings.size(); i++)
+		{
+			BuildingTypes eCurrent = v_ChainBuildings[i];
+			if (eCurrent == NO_BUILDING)
+				break;
+
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eCurrent);
+			if (!pkBuildingInfo)
+				break;
+
+			//find the class
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
+			if (eBuildingClass == NO_BUILDINGCLASS)
+				break;
+
+			//next, loop through all other buildings...
+			for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+			{
+				const BuildingTypes eBuilding2 = static_cast<BuildingTypes>(iBuildingLoop);
+
+				CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(eBuilding2);
+				if (!pkBuildingInfo2)
+					continue;
+
+				BuildingTypes eCivBuilding = (BuildingTypes)pkCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkBuildingInfo2->GetBuildingClassType());
+				if (eCivBuilding != eBuilding2)
+					continue;
+
+				//if it has a prereq, count it!
+				if (pkBuildingInfo2->IsBuildingClassNeededInCity((int)eBuildingClass))
+				{
+					m_paiBuildingChainSteps.setAt(eCurrent, m_paiBuildingChainSteps[eCurrent] + 1);
+					m_paiBuildingChainSteps.setAt(eBuilding, m_paiBuildingChainSteps[eBuilding] + 1);
+					v_TempChainBuildings.push_back(eBuilding2);
+				}
+			}
+		}
+		
+		v_ChainBuildings = v_TempChainBuildings;
+		v_TempChainBuildings.clear();
+
+	}
+}
+int CvPlayer::GetChainLength(BuildingTypes eBuilding)
+{
+	CvAssertMsg(eBuilding >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiBuildingChainSteps[eBuilding];
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::AwardFreeBuildings(CvCity* pCity)

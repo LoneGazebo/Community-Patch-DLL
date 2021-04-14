@@ -3461,7 +3461,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue /= 100;
 					break;
 				}
-				if (pProposal->GetEffects()->bDiplomaticVictory)
+				if (pProposal != NULL && pProposal->GetEffects()->bDiplomaticVictory)
 				{
 					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();

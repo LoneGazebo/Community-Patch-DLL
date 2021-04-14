@@ -23,7 +23,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>35</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -103,7 +103,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -183,7 +183,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>9</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -263,7 +263,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>8</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -343,7 +343,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>8</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -423,7 +423,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -503,7 +503,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -583,7 +583,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
@@ -662,7 +662,7 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
