@@ -15624,27 +15624,25 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	bool bFirstPass = bStrategic && !bReevaluation;
 
-	if (!bFirstPass)
+	// Deliberately ignore first pass check here to make it more likely that the AI will maintain long-term relationships...
+	if (IsWantsDoFWithPlayer(ePlayer))
 	{
-		if (IsWantsDoFWithPlayer(ePlayer))
-		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-			vApproachScores[CIV_APPROACH_WAR] = 0;
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-			vApproachScores[CIV_APPROACH_GUARDED] = 0;
-			vApproachScores[CIV_APPROACH_AFRAID] = 0;
-		}
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_WAR] = 0;
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		vApproachScores[CIV_APPROACH_GUARDED] = 0;
+		vApproachScores[CIV_APPROACH_AFRAID] = 0;
+	}
 
-		if (IsWantsDefensivePactWithPlayer(ePlayer))
-		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-			vApproachScores[CIV_APPROACH_WAR] = 0;
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-			vApproachScores[CIV_APPROACH_GUARDED] = 0;
-			vApproachScores[CIV_APPROACH_AFRAID] = 0;
-		}
+	if (IsWantsDefensivePactWithPlayer(ePlayer))
+	{
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_WAR] = 0;
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		vApproachScores[CIV_APPROACH_GUARDED] = 0;
+		vApproachScores[CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -16179,7 +16177,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (!bFirstPass && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
-			if (GetBiggestCompetitor() == eLoopPlayer)
+			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 4;
 			}
@@ -16215,7 +16213,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (!bFirstPass && GET_TEAM(eLoopTeam).isAtWar(eTeam))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
-			if (GetBiggestCompetitor() == eLoopPlayer)
+			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 2;
 			}
@@ -18262,6 +18260,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	int iBonus = 0;
 	bool bThinkingAboutDogpiling = false;
+	bool bFriendUnderAttack = false;
+	bool bCompetitorUnderAttack = false;
 	bool bAllowDogpiling = true;
 	bool bOtherWarPlayerCloseToTarget;
 
@@ -18284,7 +18284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						bThinkingAboutDogpiling = true;
 					}
 
-					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40)
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 5;
@@ -18302,6 +18302,50 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 2;
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
+					// On the flipside, is this guy suffering from being at war with this player?
+					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer))
+					{
+						// Do we like them? Then we should defend our ally, if we can!
+						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || GetNumCitiesLiberatedBy(eLoopPlayer) > 0 || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
+						{
+							bFriendUnderAttack = true;
+
+							if (eMilitaryStrength < STRENGTH_POWERFUL)
+							{
+								vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty() / 2;
+								vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty() / 2;
+								bThinkingAboutDogpiling = true;
+							}
+							else if (eMilitaryStrength < STRENGTH_AVERAGE)
+							{
+								vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty();
+								vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty();
+								bThinkingAboutDogpiling = true;
+							}
+						}
+						// Do we hate the other guy? Then let's be more reluctant to go to war.
+						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && (!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) < 10))
+						{
+							if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer || IsEndgameAggressiveTo(eLoopPlayer))
+							{
+								vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetVictoryCompetitiveness();
+								vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * GetVictoryCompetitiveness() * 2;
+								vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * GetVictoryCompetitiveness();
+								bCompetitorUnderAttack = true;
+							}
+							else if (GetCivOpinion(eLoopPlayer) < GetCivOpinion(ePlayer) && GetBiggestCompetitor() != ePlayer && GetPrimeLeagueCompetitor() != ePlayer)
+							{
+								vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetVictoryCompetitiveness() / 2;
+								vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * GetVictoryCompetitiveness() / 4;
+								vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * GetVictoryCompetitiveness() / 4;
+								bCompetitorUnderAttack = true;
+							}
+						}
+					}
+
+					// Let's let our enemy fall before we take them on.
+					if (!bFriendUnderAttack && bCompetitorUnderAttack)
+						bAllowDogpiling = false;
 
 					// If we can't take them, we don't want them attacking us after finishing with this guy
 					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_DEFEAT && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer) && GetCoopWarState(eLoopPlayer, ePlayer) < COOP_WAR_STATE_PREPARING)
@@ -18324,8 +18368,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (bAllowDogpiling && iBonus > 0)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] + iBonus;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iBonus;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iBonus / 2;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iBonus / 2;
 		}
 	}
 
