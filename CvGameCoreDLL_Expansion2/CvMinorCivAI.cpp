@@ -12516,7 +12516,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
 
-		ChangeNumTurnsSincePtPWarning(eMajor, 1);
+		SetNumTurnsSincePtPWarning(eMajor, 1);
 	}
 	else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
 	{
