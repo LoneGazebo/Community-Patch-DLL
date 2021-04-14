@@ -227,7 +227,7 @@ public:
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
 
-	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, uint uiSpyIndex, bool bForAA);
+	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, uint uiSpyIndex, bool bForAA, bool bPreview = false);
 	CvSpyResult GetSpyRollResult(CvCity* pCity, uint uiSpyIndex, bool bForAA);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);

@@ -233,8 +233,15 @@ INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
 
 -- Landship
 
--- Explorer, Pioneer, Colonist
+-- Explorer, Pioneer, Colonist, Tercio
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
 	VALUES	('ART_DEF_UNIT_EXPLORER_CBP', 'Unit', 'SV_Explorer.dds'),
 		('ART_DEF_UNIT_PIONEER', 'Unit', 'SV_Settler.dds'),
 		('ART_DEF_UNIT_COLONIST', 'Unit', 'SV_Settler.dds');
+
+UPDATE ArtDefine_StrategicView
+SET Asset = 'tercio_flag2.dds'
+WHERE StrategicViewType = 'ART_DEF_UNIT_U_SPANISH_TERCIO';
+
+UPDATE Units SET UnitFlagAtlas = 'TERCIO_FLAG_ATLAS' WHERE Type = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET UnitFlagIconOffset = 0 WHERE Type = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

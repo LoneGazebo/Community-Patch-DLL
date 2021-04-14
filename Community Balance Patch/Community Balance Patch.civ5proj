@@ -717,7 +717,6 @@
     <Folder Include="Art\Units\ArmoredCar" />
     <Folder Include="Art\Units\FieldGun" />
     <Folder Include="Art\Units\Corvette" />
-    <Folder Include="Art\Units\Tercio\" />
     <Folder Include="Balance Changes\AI\Diplomacy\" />
     <Folder Include="Balance Changes\AI\Flavors" />
     <Folder Include="Balance Changes\Barbarians" />
@@ -1687,6 +1686,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Art\Units\Icons\tercio_flag2.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Units\Icons\tercio_flag_white.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Art\Units\Icons\volleyflag.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1760,14 +1767,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Units\MountedXbow\u_french_musketeer_sref.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Units\Tercio\sv_tercio2.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Units\Tercio\tercio_flag2.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
