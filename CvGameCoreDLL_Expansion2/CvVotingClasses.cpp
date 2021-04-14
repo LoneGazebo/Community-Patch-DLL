@@ -11376,7 +11376,7 @@ int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool b
 }
 
 // Score a particular choice on a particular proposal which is a decision between Yes and No
-int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal)
+int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf)
 {
 	CvAssert(pProposal != NULL);
 	if (!(pProposal != NULL)) return 0;
@@ -11798,7 +11798,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iTradeDealValue += GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eLoopPlayer, true) * 100;
 					}
-					iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false) / 4;
+					iTradeDealValue += min(400, GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false) / 4);
 
 					if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer) > THREAT_MAJOR)
 					{
@@ -11814,31 +11814,34 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (GET_PLAYER(eTargetPlayer).isMajorCiv())
 		{
-			if (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer) < CIV_APPROACH_GUARDED && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer) != NO_CIV_APPROACH)
+			if (bForSelf)
 			{
-				if (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) > TARGET_VALUE_AVERAGE)
+				if (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer) < CIV_APPROACH_GUARDED && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetPlayer) != NO_CIV_APPROACH)
 				{
-					iExtra += (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) - TARGET_VALUE_AVERAGE) * 100;
+					if (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) > TARGET_VALUE_AVERAGE)
+					{
+						iExtra += (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) - TARGET_VALUE_AVERAGE) * 100;
+					}
 				}
+
+				if (GetPlayer()->IsAtWarWith(eTargetPlayer))
+				{
+					iExtra += 200;
+				}
+
+				if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) > CIV_OPINION_NEUTRAL)
+				{
+					iExtra -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) - CIV_OPINION_NEUTRAL) * 100;
+				}
+
+				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer, true))
+				{
+					iTradeDealValue += 400,GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * 100;
+				}
+				iTradeDealValue += min(400,GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false) / 4);
+
+				iExtra -= iTradeDealValue;
 			}
-			
-			 if (GetPlayer()->IsAtWarWith(eTargetPlayer))
-			 {
-				 iExtra += 200;
-			 }
-
-			 if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) > CIV_OPINION_NEUTRAL)
-			 {
-				 iExtra -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) - CIV_OPINION_NEUTRAL) * 100;
-			 }
-
-			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eTargetPlayer, true))
-			{
-				iTradeDealValue +=  GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * 100;
-			}
-			iTradeDealValue += GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false) / 4;
-
-			iExtra -= iTradeDealValue;
 		}
 
 		iScore += iExtra;
@@ -12225,7 +12228,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				if (bConsiderGlobal)
+				if (bForSelf)
 				{
 					iExtra -= 100 * iPossibleExtraVotes;		// negative because other world religion blocks our own
 				}
@@ -12236,10 +12239,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			// Holy City Tourism
 			const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, GetPlayer()->GetID());
-			int iHolyCityTourism = pkTargetReligion->GetHolyCity()->GetBaseTourism();
+			int iHolyCityTourism = min(20000,pkTargetReligion->GetHolyCity()->GetBaseTourism());
 			if (!bCultureVictoryEnabled)
 			{
-				iHolyCityTourism /= 5;
+				iHolyCityTourism /= 10;
 			}
 			if (bFoundedTargetReligion)
 			{
@@ -12247,7 +12250,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				if (bConsiderGlobal)
+				if (bForSelf)
 				{
 					iExtra -= iHolyCityTourism / 10;
 				}
@@ -12260,7 +12263,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				if (bConsiderGlobal)
+				if (bForSelf)
 				{
 					iExtra -= 150;
 				}
@@ -12275,7 +12278,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				if (bConsiderGlobal)
+				if (bForSelf)
 				{
 					iExtra -= 50;
 				}
@@ -12356,7 +12359,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				if (bConsiderGlobal)
+				if (bForSelf)
 				{
 					iExtra -= iPotentialExtraVotes * 100 + iIdeologyPressure * 50;
 				}
@@ -12547,7 +12550,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iAllyDesire = iAllyDesire + iProximity + iResourceDesire;
 				PlayerTypes eAlliedPlayer = NO_PLAYER;
 				eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
-				if (eAlliedPlayer != ePlayer)
+				if (eAlliedPlayer != NO_PLAYER && eAlliedPlayer != ePlayer)
 				{
 					int iAllyInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer);
 					iAllyDesire *= (iInfluence * 100) / max(1,iAllyInfluence);
@@ -12556,7 +12559,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			if (iAllyDesire < 0)
 			{
-				iAllyDesire = iAllyDesire - iProximity - iResourceDesire;
+				int iTargetValue = 0;
+				if (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetCityState) > TARGET_VALUE_AVERAGE)
+				{
+					iTargetValue = 100 * (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetCityState) - TARGET_VALUE_AVERAGE);
+				}
+				iAllyDesire = iAllyDesire - iTargetValue;
 			}
 			
 			iExtra -= iAllyDesire;
@@ -12803,7 +12811,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iAllyDesire = 0;
 			if (eApproach > CIV_APPROACH_GUARDED)
 			{
-				iAllyDesire = (eApproach - CIV_APPROACH_GUARDED) * 200;
+				iAllyDesire = (eApproach - CIV_APPROACH_GUARDED) * 100;
 			}
 			if (iAllyDesire > 0)
 			{
@@ -12845,7 +12853,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 				else
 				{
-					if (bConsiderGlobal)
+					if (bForSelf)
 					{
 						iExtra -= iAllyDesire;
 						iExtra -= iInfluence;
@@ -12864,7 +12872,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 					else
 					{
-						if (bConsiderGlobal)
+						if (bForSelf)
 						{
 							iExtra += iAllyDesire;
 							iExtra += iInfluence;
@@ -12996,7 +13004,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						break;
 					}
 
-					iDiploScore *= GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false);
+					iDiploScore *= GET_PLAYER(eLoopPlayer).GetLeagueAI()->ScoreVoteChoiceYesNo(pProposal, iChoice, bEnact, /*bConsiderGlobal*/ false, /*bForSelf*/ false);
 					iDiploScore /= 100;
 					iScore += iDiploScore;
 				}
@@ -13025,8 +13033,11 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	PlayerTypes ePlayer = GetPlayer()->GetID();
 	// How much do we like this choice for this proposal?  Positive is like, negative is dislike
 	int iScore = 0;
-	int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
 	int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
+	int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
+	int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+	int iTheirPercent = (iTheirVotes * 100) / iNeededVotes;
+	int iOurPercent = (iOurVotes * 100) / iNeededVotes;
 	AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false);
 	bool bIsLiked = GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eChoicePlayer) > CIV_OPINION_NEUTRAL;
 	// == Diplomatic Victory ==
@@ -13035,42 +13046,42 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		switch (eAlignment)
 		{
 		case ALIGNMENT_SELF:
-			iScore += 200 * (iOurVotes + 1);
+			iScore += 1000 + 30 * iOurPercent;
 			break;
 		case ALIGNMENT_LEADER:
 			iScore += 100000;
 			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:
-			iScore += 200 * (iTheirVotes + 1);
+			iScore += 1000 + 30 * iTheirPercent;
 			break;
 		case ALIGNMENT_ALLY:
 			if (bIsLiked)
 			{
-				iScore += 100 * (iTheirVotes + 1);
+				iScore += 25 * iTheirPercent;
 			}
 			break;
 		case ALIGNMENT_CONFIDANT:
 			if (bIsLiked)
 			{
-				iScore += 30 * (iTheirVotes + 1);
+				iScore += 15 * iTheirPercent;
 			}
 			break;
 		case ALIGNMENT_FRIEND:
 			if (bIsLiked)
 			{
-				iScore += 15 * (iTheirVotes + 1);
+				iScore += 10 * iTheirPercent;
 			}
 			break;
 		case ALIGNMENT_RIVAL:
-			iScore += -50 * (iTheirVotes + 1);
+			iScore += -25 * iTheirPercent;
 			break;
 		case ALIGNMENT_HATRED:
-			iScore += -150 * (iTheirVotes + 1);
+			iScore += -100 * iTheirPercent;
 			break;
 		case ALIGNMENT_ENEMY:
 		case ALIGNMENT_WAR:
-			iScore += -500 * (iTheirVotes + 1);
+			iScore += -250 * iTheirPercent;
 			break;
 		default:
 			break;

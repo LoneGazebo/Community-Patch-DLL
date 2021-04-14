@@ -3339,12 +3339,13 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	if (iNumVotes == 0)
 		return INT_MAX;
 
+	int iDealDuration = GC.getGame().getGameSpeedInfo().GetDealDuration();
+
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
-		iValue += 100;
+		iValue += 2 * iDealDuration;
 		//Alright, so vote logic. We're giving them votes, so let's only vote on things we like.
-		//Also, make sure that whatever we vote on can't be screwed over. Ask for more if they have lots of votes.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if(pLeague)
 		{
@@ -3352,10 +3353,6 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
 			if (pProposal != NULL)
 			{
-				if (pProposal->GetEffects()->bDiplomaticVictory)
-				{
-					return INT_MAX;
-				}
 				PlayerTypes eTargetPlayer = NO_PLAYER;
 				ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
 				if (eProposerDecision == RESOLUTION_DECISION_ANY_MEMBER ||
@@ -3379,31 +3376,31 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					return INT_MAX;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-					iValue += 5000 * iNumVotes;
+					iValue += 100 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_DISLIKE:
-					iValue += 3000 * iNumVotes;
+					iValue += 60 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					iValue += 2000 * iNumVotes;
+					iValue += 40 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
-					iValue += 1500 * iNumVotes;
+					iValue += 30 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					iValue += 1000 * iNumVotes;
+					iValue += 20 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 500 * iNumVotes;
+					iValue += 10 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					iValue += 250 * iNumVotes;
+					iValue += 5 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_ALWAYS:
-					iValue += 100 * iNumVotes;
+					iValue += 2 * iNumVotes * iDealDuration;
 					break;
 				default:
-					iValue += 1500 * iNumVotes;
+					iValue += 30 * iNumVotes * iDealDuration;
 					break;
 			}
 			CvAssert(eOtherPlayer != NO_PLAYER);
@@ -3457,26 +3454,31 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue /= 100;
 					break;
 				}
+				if (pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+					int iOurPercent = (iOurVotes * 100) / iNeededVotes;
+					if (iOurPercent >= 50)
+					{
+						return INT_MAX;
+					}
+					else
+					{
+						iValue *= 20;
+					}
+				}
 			}
 		}
 	}
 	// Giving their votes to something we want - Higher value for voting on things we like
 	else
 	{
-		//They're offering us a vote...but on what? If we like it, it's worth more. If we don't, it's worth less.
-		//Also, if they have tons of extra votes, it's worth less (cuz they'll screw us, probably).
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if(pLeague)
 		{
 
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
-			if (pProposal != NULL)
-			{
-				if (pProposal->GetEffects()->bDiplomaticVictory)
-				{
-					return INT_MAX;
-				}
-			}
 			
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
@@ -3489,16 +3491,16 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				case CvLeagueAI::DESIRE_NEUTRAL:
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					iValue += 100 * iNumVotes;
+					iValue += 2 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 200 * iNumVotes;
+					iValue += 4 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					iValue += 500 * iNumVotes;
+					iValue += 10 * iNumVotes * iDealDuration;
 					break;
 				case CvLeagueAI::DESIRE_ALWAYS:
-					iValue += 1000 * iNumVotes;
+					iValue += 20 * iNumVotes * iDealDuration;
 					break;
 				default:
 					break;
@@ -3546,6 +3548,21 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 
 			if (pProposal != NULL)
 			{
+				if (pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+					if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != GetPlayer()->GetID())
+					{
+						return INT_MAX;
+					}
+					else
+					{
+						iValue *= 10;
+					}
+				}
+
 				PlayerTypes eTargetPlayer = NO_PLAYER;
 				ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
 				if (eProposerDecision == RESOLUTION_DECISION_ANY_MEMBER ||

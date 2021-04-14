@@ -952,7 +952,7 @@ private:
 	void FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderationList& considerations);
 	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
 	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
-	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal);
+	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf = true);
 	int ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	// Proposing
