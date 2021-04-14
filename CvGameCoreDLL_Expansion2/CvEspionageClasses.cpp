@@ -2839,7 +2839,6 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, uint uiSpyIndex, bool bForAA)
 {
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iRandomRollSpyAction = 100;
 	int iChancetoIdentify = 50;
 	int iChancetoIdentifyAA = 25;
 	int iChancetoKill = 25;
@@ -2948,7 +2947,7 @@ CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, uint uiSpyIndex, 
 
 	int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, uiSpyIndex, bForAA);
 	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, uiSpyIndex, bForAA);
-	int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, bForAA);
+	//int iDetectChance = GetDefenseChance(ESPIONAGE_TYPE_DETECT, pCity, uiSpyIndex, bForAA);
 
 	//success! we didn't die...
 	if (iResult > iKillChance)
