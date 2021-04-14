@@ -12462,7 +12462,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	iMaxWarningTurns /= 100;
 
 	bool bBadMilitary = false;
-	int iHighestStrength = 1;
+	int iHighestStrength = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
