@@ -18324,7 +18324,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							}
 						}
 						// Do we hate the other guy? Then let's be more reluctant to go to war.
-						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && (!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) < 10))
+						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && (!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) > -10))
 						{
 							if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer || IsEndgameAggressiveTo(eLoopPlayer))
 							{
