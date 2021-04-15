@@ -1767,7 +1767,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	int iValueScale = 10;
 
 	//more or less arbitrary base value
-	int iItemValue = (GC.getGame().getCurrentEra()+3)*iValueScale;
+	int iItemValue = (GC.getGame().getCurrentEra()+2)*iValueScale;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);

@@ -1405,7 +1405,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	//during war we want field commanders
 	int iWars = (int)GetPlayersAtWarWith().size();
-	if (iCommanders < iWars+1 || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+	//just a rough estimation
+	int iPotentialArmies = max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
+
+	int iDesiredNumCommanders = max(1, (iWars+iPotentialArmies)/2);
+	if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	//build one citadel at a time
