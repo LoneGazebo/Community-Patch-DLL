@@ -25462,7 +25462,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 
 	// War state too high or too low
 	WarStateTypes eWarState = GetWarState(ePlayer);
-	if (eWarState == WAR_STATE_NEARLY_WON || eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+	if (eWarState >= WAR_STATE_OFFENSIVE || eWarState <= WAR_STATE_DEFENSIVE)
 		return false;
 
 	// War score is too high
@@ -25644,7 +25644,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 
 			// Any reason for them to be mad at us?
 			PlayerTypes eMyPlayer = GetID();
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(ePlayer) > 0)
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eMyPlayer) > 0)
 				return true;
 
 			CivApproachTypes eApproachTowardsUs = GetVisibleApproachTowardsUs(ePlayer);
