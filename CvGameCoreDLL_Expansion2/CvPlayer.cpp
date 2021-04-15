@@ -6554,7 +6554,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 		return false;
 
 	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
