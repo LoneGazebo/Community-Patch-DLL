@@ -13448,14 +13448,32 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			// Land Dispute
 			if (bPretendNoDisputes)
 			{
+				int iEra = (int)pkPlayer->GetCurrentEra();
+				if (iEra <= 0)
+					iEra = 1;
+
 				iValue = /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE();
+
 				if (pDiplo->IsConqueror())
 				{
-					iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
+					iValue += (/*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER() - pDiplo->GetNeediness()) * iEra / 2;
 				}
-				if (pkPlayer->GetCurrentEra() <= 1)
+
+				iValue *= pDiplo->GetBoldness();
+
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
 				{
-					iValue += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else
+				{
+					iValue /= 5;
 				}
 			}
 			else if (bHideDisputes)
@@ -13476,9 +13494,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Wonder Dispute
-			if (bPretendNoDisputes && pDiplo->IsCultural() && !pDiplo->IsPlayerWonderSpammer(ePlayer))
+			if (bPretendNoDisputes && !pDiplo->IsPlayerWonderSpammer(ePlayer))
 			{
-				iValue = /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
+				int iEra = (int)pkPlayer->GetCurrentEra();
+				if (iEra <= 0)
+					iEra = 1;
+
+				iValue = /*0*/ GC.getOPINION_WEIGHT_WONDER_NONE();
+
+				if (pDiplo->IsCultural())
+				{
+					iValue += (/*-5*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL() - pDiplo->GetNeediness()) * iEra / 2;
+				}
+
+				iValue *= pDiplo->GetWonderCompetitiveness();
+
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else
+				{
+					iValue /= 5;
+				}
 			}
 			else if (bHideDisputes)
 			{
@@ -13498,9 +13542,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Minor Civ Dispute
-			if (bPretendNoDisputes && pDiplo->IsDiplomat() && pDiplo->GetNumTimesTheyLoweredOurInfluence(ePlayer) < 8 && !pDiplo->IsMinorCivTroublemaker(ePlayer, true))
+			if (bPretendNoDisputes && pDiplo->GetNumTimesTheyLoweredOurInfluence(ePlayer) < 8 && !pDiplo->IsMinorCivTroublemaker(ePlayer, true))
 			{
-				iValue = /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
+				int iEra = (int)pkPlayer->GetCurrentEra();
+				if (iEra <= 0)
+					iEra = 1;
+
+				iValue = /*0*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE();
+
+				if (pDiplo->IsDiplomat())
+				{
+					iValue += (/*-5*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT() - pDiplo->GetNeediness()) * iEra / 2;
+				}
+
+				iValue *= pDiplo->GetMinorCivCompetitiveness();
+
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				{
+					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+					iValue /= 1000;
+				}
+				else
+				{
+					iValue /= 5;
+				}
 			}
 			else if (bHideDisputes)
 			{
