@@ -10960,7 +10960,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				}
 
 				// Approach isn't war anymore and we're at a stalemate, let's make peace.
-				if (!bWarApproach && GetWarState(ePlayer) <= WAR_STATE_STALEMATE && GetWarScore(ePlayer) < 20)
+				if (!bWarApproach && GetWarState(ePlayer) <= WAR_STATE_STALEMATE && GetWarScore(ePlayer) < 25)
 				{
 					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
 					continue;
