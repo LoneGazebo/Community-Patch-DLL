@@ -11828,8 +11828,6 @@ void CvPlayer::DoUnitReset()
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
 #endif
 		}
-
-		int iMinefieldDamage = 0;
 		
 		if (pUnitPlot->isWater())
 		{
