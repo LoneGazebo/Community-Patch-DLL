@@ -10202,6 +10202,7 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateProposalForProposer(CvLeague* pLeag
 CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar)
 {
 	int iAlignment = 0;
+	CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
 
 	if (ePlayer == NO_PLAYER||!GET_PLAYER(ePlayer).isAlive()||GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -10224,24 +10225,24 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 	{
-		if (!bIgnoreWar)
+		if (!bIgnoreWar && pDiplo->IsWantsToConquer(ePlayer))
 		{
 			return ALIGNMENT_WAR;
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsAggressor(GetPlayer()->GetID()))
+			if (pDiplo->IsPhonyWar(ePlayer))
 			{
-				iAlignment -= 2;
+				iAlignment -= 1;
 			}
 			else
 			{
-				iAlignment -= 1;
+				iAlignment -= 2;
 			}
 		}
 	}
 
-	CvDiplomacyAI* pDiplo = GetPlayer()->GetDiplomacyAI();
+
 	bool bUntrustworthy = pDiplo->IsUntrustworthy(ePlayer);
 
 	// Ideology
