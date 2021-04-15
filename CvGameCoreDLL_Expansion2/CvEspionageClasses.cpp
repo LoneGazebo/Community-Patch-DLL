@@ -4115,7 +4115,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 						continue;
 					}
 
-					if (eLoopPlayer == m_pPlayer->GetID())
+					if (eLoopPlayer == m_pPlayer->GetID() || GET_PLAYER(eLoopPlayer).GetEspionage()->m_aaPlayerStealableTechList.empty())
 					{
 						continue;
 					}
