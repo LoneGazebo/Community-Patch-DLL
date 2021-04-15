@@ -103,7 +103,7 @@ public:
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 
-	bool DoValidateForcedWorkingPlots();
+	void DoValidateForcedWorkingPlots();
 	bool DoDemoteWorstForcedWorkingPlot();
 
 	int GetNumForcedWorkingPlots() const;
