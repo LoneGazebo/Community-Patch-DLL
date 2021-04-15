@@ -42591,14 +42591,6 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_WARMONGER();
 		}
-		if (GetPlayer()->GetCurrentEra() == 0)
-		{
-			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_ANCIENT_ERA();
-		}
-		else if (GetPlayer()->GetCurrentEra() == 1)
-		{
-			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_LAND_CLASSICAL_ERA();
-		}
 	}
 	else if (iOpinionWeight < 0)
 	{
@@ -42633,11 +42625,6 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 			else
 			{
 				iOpinionWeight /= 5;
-			}
-
-			if (iEra <= 1)
-			{
-				iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
 			}
 		}
 	}
