@@ -4108,6 +4108,13 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 				{
 					PlayerTypes eLoopPlayer = (PlayerTypes)ui;
 
+					CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+					if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+					{
+						continue;
+					}
+
 					if (eLoopPlayer == m_pPlayer->GetID())
 					{
 						continue;
@@ -4186,6 +4193,13 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 				for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 				{
 					PlayerTypes eLoopPlayer = (PlayerTypes)ui;
+
+					CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+					if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+					{
+						continue;
+					}
 
 					if (eLoopPlayer == m_pPlayer->GetID())
 					{

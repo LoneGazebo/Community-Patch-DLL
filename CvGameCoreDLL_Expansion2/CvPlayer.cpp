@@ -11812,30 +11812,49 @@ void CvPlayer::DoUnitReset()
 		gTactMovesCount[pLoopUnit->getTacticalMove()]++;
 		gHomeMovesCount[pLoopUnit->getHomelandMove()]++;
 
+		CvPlot* pUnitPlot = pLoopUnit->plot();
+
 		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pUnitPlot->getNumUnits() == 1)
 			OutputDebugString( CvString::format("ouch, general about to be captured at %d:%d!\n",pLoopUnit->getX(),pLoopUnit->getY()).c_str());
 
 		// then damage it again
-		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
+		int iCitadelDamage = pUnitPlot->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
 		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			
-			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+			pLoopUnit->changeDamage(iCitadelDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
 #endif
 		}
 
 		int iMinefieldDamage = 0;
-		CvPlot* pUnitPlot = pLoopUnit->plot();
-		if (pUnitPlot->isWater() && pUnitPlot->isBeingWorked() && pUnitPlot->getOwningCity() != NULL)
+		
+		if (pUnitPlot->isWater())
 		{
-			iMinefieldDamage = pUnitPlot->getOwningCity()->GetWorkedWaterTileDamage();
-			pLoopUnit->changeDamage(iMinefieldDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+			CvCity* pOwner = pUnitPlot->getOwningCity();
+			if (pOwner != NULL)
+			{
+				int iTempDamage = pUnitPlot->getOwningCity()->GetWorkedWaterTileDamage();
+				if (iTempDamage > 0)
+				{
+					//only affected BY adjacent plots
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnitPlot->getX(), pUnitPlot->getY(), ((DirectionTypes)iI));
+
+						if (pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->getOwningCity() == pOwner && pAdjacentPlot->isBeingWorked())
+						{
+							pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-			pLoopUnit->addDamageReceivedThisTurn(iMinefieldDamage);
+							pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
 #endif
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		// Bonus for entrenched units
