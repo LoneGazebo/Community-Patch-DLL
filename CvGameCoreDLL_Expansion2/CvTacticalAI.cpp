@@ -1021,11 +1021,9 @@ struct STargetWithTwoScoresTiebreak
 };
 
 /// Assign a group of units to attack each unit we think we can destroy
-void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds)
+void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, eAggressionLevel aggLvl)
 {
 	vector<STargetWithTwoScoresTiebreak> targets;
-
-	eAggressionLevel aggLvl = bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM;
 
 	// See how many moves of this type we can execute
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType, aggLvl); pTarget!=NULL; pTarget = GetNextZoneTarget(aggLvl))
@@ -1270,9 +1268,9 @@ void CvTacticalAI::PlotBarbarianAttacks()
 	//the Execute* functions are generic, need to set the current tactical move before calling them
 	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_HUNT);
 	ExecuteBarbarianTheft();
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, AL_BRAVEHEART);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, AL_BRAVEHEART);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, AL_BRAVEHEART);
 	ExecuteCaptureCityMoves();
 }
 
@@ -1955,12 +1953,12 @@ void CvTacticalAI::PlotSteamrollMoves(CvTacticalDominanceZone* /*pZone*/)
 	ClearCurrentMoveUnits(AI_TACTICAL_STEAMROLL);
 
 	// See if there are any kill attacks we can make.
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, AL_HIGH);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 	// We have superiority, so let's attack high prio targets even with bad odds
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, AL_HIGH);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
 
@@ -6831,7 +6829,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
-		int iLimit = pUnit->getOwner() == BARBARIAN_PLAYER ? -5 : 0;
+		//braveheart allows attacks for which you need luck to survive
+		int iLimit = (eAggLvl==AL_BRAVEHEART) ? -5 : 0;
 		if (pUnit->GetCurrHitPoints() - iDamageReceived < iLimit)
 		{
 			result.iScore = -INT_MAX;
@@ -6936,6 +6935,10 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			if ((iDamageReceived + 23) < pUnit->GetCurrHitPoints()*fAggBias)
 				fAggFactor *= 2.3f;
 			break;
+		case AL_BRAVEHEART:
+			//basically suicide
+			fAggFactor *= 4.2f;
+			break;
 		default:
 			result.iScore = -INT_MAX;
 			return;
@@ -6959,7 +6962,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		result.iScore /= 2;
 
 	result.iDamage = iDamageDealt;
-	result.iSelfDamage = iDamageReceived;
+	result.iSelfDamage = (eAggLvl==AL_BRAVEHEART) ? iDamageReceived/2 : iDamageReceived;
 }
 
 bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)

@@ -15,7 +15,7 @@
 class FDataStream;
 
 //for tactical combat
-enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH };
+enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
 
 // STL "find_if" predicate
 class UnitIDMatch
@@ -374,7 +374,7 @@ private:
 	// Routines to manage identifying and implementing tactical moves
 	void ExecuteCaptureCityMoves();
 	void PlotGrabGoodyMoves();
-	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
+	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, eAggressionLevel aggLvl=AL_MEDIUM);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
