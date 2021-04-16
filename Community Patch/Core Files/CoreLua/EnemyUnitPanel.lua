@@ -569,17 +569,19 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 
 			-- Policy Attack bonus
-			local iTurns = pMyPlayer:GetAttackBonusTurns();
-			iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
-			if (iTurns > 0 and bonusCount < maxBonusDisplay) then
-				
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iTurns > 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;
+			if (not bRanged) then
+				local iTurns = pMyPlayer:GetAttackBonusTurns();
+				iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
+				if (iTurns > 0 and bonusCount < maxBonusDisplay) then
+					
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iTurns > 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
 			end
 
 			-- CBP (Monopoly)
@@ -1248,16 +1250,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end			
 
 			-- Policy Attack bonus
-			local iTurns = pMyPlayer:GetAttackBonusTurns();
-			iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
-			if (iTurns > 0 and bonusCount < maxBonusDisplay) then			
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iTurns > 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+			if (not bRanged) then
+				local iTurns = pMyPlayer:GetAttackBonusTurns();
+				iModifier = GameDefines["POLICY_ATTACK_BONUS_MOD"];
+				if (iTurns > 0 and bonusCount < maxBonusDisplay) then
+					
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_POLICY_ATTACK_BONUS", iTurns );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iTurns > 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
 			end
 
 			-- CBP (Monopoly)
