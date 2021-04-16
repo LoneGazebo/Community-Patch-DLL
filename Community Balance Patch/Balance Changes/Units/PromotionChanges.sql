@@ -70,13 +70,13 @@
 	DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_2';
 	DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_3';
 
--- Air Promotions -- Update Air Targeting to Hit all Domains
+-- Air Promotions -- Update Air Targeting to Hit Water Domain (PROMOTION_AIR_TARGETING_3 not working at all here)
 	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
+	SET Modifier = '15'
 	WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
+	SET Modifier = '15'
 	WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Siege Promotions -- Weaken them slightly
