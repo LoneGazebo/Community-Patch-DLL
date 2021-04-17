@@ -1101,7 +1101,7 @@ protected:
 
 	mutable bool m_bIsFreshwater:1;						// Cached value, do not serialize
 	mutable bool m_bIsAdjacentToLand:1;					// Cached value, do not serialize
-	mutable bool m_bIsAdjacentToOcean:1;				// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToWater:1;				// Cached value, do not serialize
 	mutable bool m_bIsLake:1;							// Cached value, do not serialize
 
 	CvArchaeologyData m_kArchaeologyData;

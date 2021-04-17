@@ -254,7 +254,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_bIsFreshwater = false;
 	m_bIsAdjacentToLand = false;
-	m_bIsAdjacentToOcean = false;
+	m_bIsAdjacentToWater = false;
 	m_bIsLake = false;
 
 	m_eOwner = NO_PLAYER;
@@ -1100,7 +1100,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		updateWaterFlags();
 
 	if (iMinWaterSize == -1)
-		return m_bIsAdjacentToOcean;
+		return m_bIsAdjacentToWater;
 	else
 	{
 		//we don't have a cached value for non-standard lake sizes
@@ -1108,8 +1108,11 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 		{
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
+			if(pAdjacentPlot && pAdjacentPlot->isWater())
 			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+
 				if (iMinWaterSize < 2)
 					return true;
 
@@ -1139,7 +1142,7 @@ void CvPlot::updateWaterFlags() const
 	{
 		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
-		m_bIsAdjacentToOcean = !m_bIsLake; //always false for ocean plots (by definition)
+		m_bIsAdjacentToWater = false; //by definition
 		m_bIsAdjacentToLand = false; //may be set to true later
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1156,7 +1159,7 @@ void CvPlot::updateWaterFlags() const
 	else //land plots
 	{
 		m_bIsLake = false;
-		m_bIsAdjacentToOcean = false; //maybe set to true later
+		m_bIsAdjacentToWater = false; //maybe set to true later
 		m_bIsAdjacentToLand = false; //always false for land plots (by definition)
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1165,12 +1168,8 @@ void CvPlot::updateWaterFlags() const
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= GC.getMIN_WATER_SIZE_FOR_OCEAN())
-				{
-					m_bIsAdjacentToOcean = true;
-					break;
-				}
+				m_bIsAdjacentToWater = true;
+				break;
 			}
 		}
 	}

@@ -839,7 +839,7 @@ protected:
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
-	bool canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const;
+	bool canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
 	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
