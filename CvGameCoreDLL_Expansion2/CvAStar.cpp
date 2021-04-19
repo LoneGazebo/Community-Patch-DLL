@@ -2073,8 +2073,12 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
-		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE) && pNewPlot->getOwner()==data.ePlayer)
+		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
+		{
+			//pure community patch does not require plot ownership
+			if (!gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
 				ePlotRoute = ROUTE_ROAD;
+		}
 	}
 
 	if(ePlotRoute == NO_ROUTE)

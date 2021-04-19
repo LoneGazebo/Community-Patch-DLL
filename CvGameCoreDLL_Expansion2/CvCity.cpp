@@ -8126,8 +8126,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-	//no wonders in puppets except venice
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+	//no wonders in puppets (also affects venice)
+	if (IsPuppet())
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
