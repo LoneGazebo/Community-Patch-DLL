@@ -23885,7 +23885,11 @@ void CvUnit::DoFinishBuildIfSafe()
 	int iBuildTimeLeft = -1;
 	BuildTypes eBuild = getBuildType();
 	if (eBuild != NO_BUILD && canMove())
-		iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (pkBuildInfo->getRoute()!=NO_ROUTE)
+			iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+	}
 
 	if (iBuildTimeLeft == 0 && GetDanger() == 0)
 		CvUnitMission::ContinueMission(this);
