@@ -21450,8 +21450,9 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chText
 		if (!pSplashPlot)
 			continue;
 
-		//splash damage only for range-attackable plots
-		if (!canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
+		//splash damage only for range-attackable plots around the target
+		//if the target is the current unit plot (for roman pilum) check is not needed
+		if (!at(pWhere->getX(),pWhere->getY()) && !canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
 			continue;
 
 		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)

@@ -7138,7 +7138,6 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), iSelfDamage);
 	int iNumAdjFriendlies = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(eRelevantDomain) : testPlot.getNumAdjacentFriendlies(eRelevantDomain, -1);
 
-
 	//extra careful with siege units
 	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
 		return INT_MAX;
@@ -7170,6 +7169,11 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		//no suicide
 		if (iNumAdjFriendlies == 0 && iDanger / 2 > (pUnit->GetCurrHitPoints() - iSelfDamage))
 			return INT_MAX;
+
+		//danger values can get very high if there are many enemy units around, so try to normalize this a bit
+		//this maps 100 to 100, higher values get flattened
+		if (iDanger > 100)
+			iDanger = 10*sqrti(iDanger);
 
 		//try to be more careful with highly promoted units
 		iDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
@@ -8580,7 +8584,6 @@ void CvTacticalPosition::countEnemies()
 	else
 		isIsolatedTarget = false;
 }
-
 
 void CvTacticalPosition::refreshVolatilePlotProperties()
 {
