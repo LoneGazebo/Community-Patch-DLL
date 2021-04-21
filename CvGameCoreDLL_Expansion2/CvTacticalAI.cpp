@@ -1974,7 +1974,7 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves(CvTacticalDominanceZone* /*pZone*
 }
 
 /// Build a defensive shell around this city
-void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* /*pZone*/)
+void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* pZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_HEDGEHOG);
 
@@ -1982,6 +1982,9 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* /*pZone*/)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+
+	// Then go on the defense
+	PlotReinforcementMoves(pZone);
 }
 
 /// Try to push back the invader
@@ -2014,19 +2017,31 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && pUnit->canUseForTacticalAI())
 		{
-			//Recent, healthy deployments need to attack!
+			// Recent, healthy deployments need to attack!
 			if (pUnit->IsRecentlyDeployedFromOperation() && (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2))
 				continue;
 
-			//special moves for support units
+			// Special moves for support units
 			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 				continue;
 
 			// Am I in the current dominance zone?
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-			if (pUnitZone == pZone)
-				m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
+			if (pUnitZone != pZone)
+				continue;
+
+			// However, zones might overlap borders, so double check that we don't give up our border forts
+			if (pZone->GetTerritoryType() != TACTICAL_TERRITORY_FRIENDLY)
+			{
+				if (TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner()))
+					continue;
+
+				if (pUnit->plot()->IsFriendlyTerritory(pUnit->getOwner()) && !pUnit->plot()->IsAdjacentOwnedByEnemy(pUnit->getTeam()))
+					continue;
+			}
+
+			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
 		}
 	}
 
@@ -2039,7 +2054,7 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 /// Close units in on primary target of this dominance zone
 void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 {
-	ClearCurrentMoveUnits(AI_TACTICAL_CLOSE_ON_TARGET);
+	ClearCurrentMoveUnits(AI_TACTICAL_REINFORCE);
 
 	//don't try to reinforce wilderness zones
 	if (!pTargetZone || pTargetZone->GetZoneCity()==NULL)
@@ -6063,7 +6078,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
 
 		bool bIsZeroDanger = (iDanger <= 0);
-		bool bIsInCity = pPlot->isFriendlyCity(*pUnit);
+		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) || TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner());
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 
 		//taking cover only works if the defender will not move away!
@@ -6119,10 +6134,9 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (bWrongDomain)
 			iScore += 250;
 
-		if(bIsInCity)
+		if(bIsInCityOrCitadel)
 		{
-			if (!pPlot->getPlotCity()->isInDangerOfFalling())
-				aCityList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
+			aCityList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
 		else if(bIsInCover) //mostly relevant for civilians
 		{
@@ -6979,7 +6993,11 @@ bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
-		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
+		CvImprovementEntry* pInfo = GC.getImprovementInfo(eImprovement);
+		if (pInfo->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
+			return false;
+
+		if (pInfo->GetDefenseModifier() < 50)
 			return false;
 
 		return true;
@@ -6997,7 +7015,11 @@ bool TacticalAIHelpers::IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes eP
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
-		if (GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
+		CvImprovementEntry* pInfo = GC.getImprovementInfo(eImprovement);
+		if (pInfo->GetNearbyEnemyDamage() <= GC.getENEMY_HEAL_RATE())
+			return false;
+
+		if (pInfo->GetDefenseModifier() < 50)
 			return false;
 
 		if (bCheckWar)
@@ -7126,17 +7148,19 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 {
 	int iResult = 0;
 
-	//don't do it if it's a death trap (unless there is no other choice ...)
-	int iNumAdjEnemies = testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
-	if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
-		return INT_MAX;
-
 	//the danger value reflects any defensive terrain bonuses
 	//but unfortunately danger is not very useful here
 	// * ZOC is unclear during simulation
 	// * freshly revealed enemy units are not considered
 	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), iSelfDamage);
 	int iNumAdjFriendlies = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(eRelevantDomain) : testPlot.getNumAdjacentFriendlies(eRelevantDomain, -1);
+	bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3;
+
+	//don't do it if it's a death trap (unless there is no other choice ...)
+	int iNumAdjEnemies = testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
+	if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
+		if (!bIsFrontlineCitadel)
+			return INT_MAX;
 
 	//extra careful with siege units
 	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
@@ -7166,20 +7190,27 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 
 	if (iDanger > 0)
 	{
-		//no suicide
-		if (iNumAdjFriendlies == 0 && iDanger / 2 > (pUnit->GetCurrHitPoints() - iSelfDamage))
+		//no suicide, unless citadel!
+		if (iNumAdjFriendlies == 0 && iDanger / 2 > (pUnit->GetCurrHitPoints() - iSelfDamage) && !bIsFrontlineCitadel)
 			return INT_MAX;
 
+		//if we have friends around assume they will absorb some damage
+		//of course the enemy will tend to focus fire, but then raw danger does not consider ZoC
+		iDanger /= (iNumAdjFriendlies + 1);
+
+		//make it relative to current hitpoints
+		int iScaledDanger = (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / max(1, pUnit->GetCurrHitPoints());
+
 		//danger values can get very high if there are many enemy units around, so try to normalize this a bit
-		//this maps 100 to 100, higher values get flattened
-		if (iDanger > 100)
-			iDanger = 10*sqrti(iDanger);
+		//this maps 400 to 400, higher values get flattened
+		if (iScaledDanger > 400)
+			iScaledDanger = 20*sqrti(iScaledDanger);
 
 		//try to be more careful with highly promoted units
-		iDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
+		iScaledDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
 
 		//penalty for high danger plots (should this be personality dependent?)
-		iResult -= (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / max(1, pUnit->GetCurrHitPoints());
+		iResult -= iScaledDanger;
 	}
 
 	//minor bonus for staying put and healing
@@ -7213,7 +7244,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		iResult += 11;
 
 	//also occupy our own citadels
-	if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3)
+	if (bIsFrontlineCitadel)
 		iResult += 23;
 
 	//try not to be a sitting duck (faster than isNativeDomain but not entirely accurate)
@@ -10187,7 +10218,7 @@ const char* tacticalMoveNames[] =
 	"T_HEDGEHOG",
 	"T_COUNTERATTACK",
 	"T_WITHDRAW",
-	"T_CLOSE_ON_TARGET",
+	"T_REINFORCE",
 	"T_ATTRITION",
 	"T_SURGICAL_STRIKE",
 	"T_STEAMROLL",
