@@ -3153,9 +3153,9 @@ void CvUnit::doTurn()
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD); //this is after a skip mission
-	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && !IsHurt(); //done healing?
-	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY || eActivityType == ACTIVITY_HEAL) && SentryAlert(true); //on alert or healing
-	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn() && SentryAlert(true); //fortified but about to die
+	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (m_iDamageTakenLastTurn>0 || !IsHurt()); //done healing or under attack?
+	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true); //on alert
+	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn(); //fortified but about to die
 	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(); //AI interceptors reconsider each turn
 
 	if (bHoldCheck || bHealCheck || bSentryCheck || bFortifyCheck || bInterceptCheck)	
@@ -7888,7 +7888,9 @@ void CvUnit::doHeal()
 			if (IsHurt() && !hasMoved() && (plot()->getImprovementType() == eCamp || plot()->getOwner() == BARBARIAN_PLAYER))
 #endif
 			{
-				changeDamage(-GC.getBALANCE_BARBARIAN_HEAL_RATE());
+				//barbarians consider all territory as neutral
+				int iHealRate = GC.getBALANCE_BARBARIAN_HEAL_RATE() + getExtraNeutralHeal(); 
+				changeDamage(-iHealRate);
 			}
 		}
 	}
@@ -23881,19 +23883,20 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		}
 	}
 }
+
+//finish improvements (mostly roads) at the beginning of the turn so we can use them immediately
 void CvUnit::DoFinishBuildIfSafe()
 {
-	int iBuildTimeLeft = -1;
-	BuildTypes eBuild = getBuildType();
-	if (eBuild != NO_BUILD && canMove())
-	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-		if (pkBuildInfo->getRoute()!=NO_ROUTE)
-			iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
-	}
+	if (isHuman())
+		return;
 
-	if (iBuildTimeLeft == 0 && GetDanger() == 0)
-		CvUnitMission::ContinueMission(this);
+	BuildTypes eBuild = getBuildType();
+	if (eBuild != NO_BUILD)
+	{
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+			CvUnitMission::ContinueMission(this);
+	}
 }
 #endif 
 
@@ -28276,7 +28279,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
 
-	return GetDanger() > iDangerLimit;
+	return GetDanger() > iDangerLimit || m_iDamageTakenLastTurn > iDangerLimit;
 }
 
 //	--------------------------------------------------------------------------------

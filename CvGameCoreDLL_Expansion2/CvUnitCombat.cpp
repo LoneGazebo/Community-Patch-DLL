@@ -1094,10 +1094,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
 #if defined(MOD_BALANCE_CORE)
-						if(pkDefender->IsFortified() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
-						{
-							pkDefender->SetActivityType(ACTIVITY_AWAKE);
-						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
 							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());

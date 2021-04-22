@@ -2087,7 +2087,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				if (!pUnit->isEmbarked())
 				{
 					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
+					if (pZone && pZone != pTargetZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
 							continue;
 				}
@@ -6078,8 +6078,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
 
 		bool bIsZeroDanger = (iDanger <= 0);
-		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) || TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner());
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
+		// citadels have low danger but not zero. so we need to make sure we're not abandoning them too easily
+		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) || 
+										(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pUnit->plot(), pUnit->getOwner()));
 
 		//taking cover only works if the defender will not move away!
 		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
