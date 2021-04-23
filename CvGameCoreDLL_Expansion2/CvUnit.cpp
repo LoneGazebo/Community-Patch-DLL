@@ -827,6 +827,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 #endif
 
+	//---
+	if (getDomainType() == DOMAIN_SEA && plot()->isLake())
+		OutputDebugString("warning, ship spawning on lake\n");
+	//---
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)

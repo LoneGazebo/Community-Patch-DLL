@@ -359,6 +359,8 @@ void CvArea::changeUnitsPerPlayer(PlayerTypes eIndex, int iChange)
 	}
 	else
 		m_aiUnitsPerPlayer.insert(make_pair(eIndex,iChange));
+
+	m_iNumUnits += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -402,6 +404,8 @@ void CvArea::changeCitiesPerPlayer(PlayerTypes eIndex, int iChange)
 	}
 	else
 		m_aiCitiesPerPlayer.insert(make_pair(eIndex,iChange));
+
+	m_iNumCities += iChange;
 }
 
 
@@ -429,6 +433,8 @@ void CvArea::changePopulationPerPlayer(PlayerTypes eIndex, int iChange)
 	}
 	else
 		m_aiPopulationPerPlayer.insert(make_pair(eIndex,iChange));
+
+	m_iTotalPopulation += iChange;
 }
 
 
