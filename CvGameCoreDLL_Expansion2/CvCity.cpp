@@ -28350,7 +28350,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 #endif			
 
 				ReachablePlots::iterator it = influencePlots.find( pLoopPlot->GetPlotIndex() );
-				int iInfluenceCost = ( it != influencePlots.end() ) ? it->iNormalizedDistanceRaw : -1;
+				int iInfluenceCost = ( it != influencePlots.end() ) ? (it->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase()) : -1;
 
 				if (iInfluenceCost >= 0)
 				{

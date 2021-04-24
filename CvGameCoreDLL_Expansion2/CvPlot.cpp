@@ -244,7 +244,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bImprovementPillaged = false;
 	m_bRoutePillaged = false;
 	m_bBarbCampNotConverting = false;
-	m_bHighMoveCost = false;
+	m_bRoughPlot = false;
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
@@ -1442,11 +1442,9 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 {
-	int iLevel;
-
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
+	int iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
 
 	if(bIncludeShubbery && getFeatureType() != NO_FEATURE)
 	{
@@ -1454,7 +1452,7 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (isMountain() && (getFeatureType() == NO_FEATURE))
+	if (isMountain() && (getFeatureType() == NO_FEATURE)) //natural wonders are features on mountain sometimes
 #else
 	if (isMountain())
 #endif
@@ -12650,7 +12648,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> bitPackWorkaround;
 	m_bBarbCampNotConverting = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
-	m_bHighMoveCost = bitPackWorkaround;
+	m_bRoughPlot = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bResourceLinkedCityActive = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
@@ -12841,7 +12839,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bImprovementPillaged;
 	kStream << m_bRoutePillaged;
 	kStream << m_bBarbCampNotConverting;
-	kStream << m_bHighMoveCost;
+	kStream << m_bRoughPlot;
 	kStream << m_bResourceLinkedCityActive;
 	kStream << m_bImprovedByGiftFromMajor;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -13825,8 +13823,9 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
-	//not really related but a good chance to update it
-	m_bHighMoveCost = false;
+	//not really related but a good place to update this
+	//if we have any visibility limiting features here, consider the plot as rough
+	m_bRoughPlot = (seeThroughLevel()>1);
 
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
@@ -13868,12 +13867,6 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}
-
-				//update the "rough plot" flag as well
-				int iMoveCost = pkTerrainInfo->getMovementCost();
-				if (isHills() || isMountain())
-					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 		else
@@ -13905,12 +13898,6 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}	
-
-				//update the "rough plot" flag as well
-				int iMoveCost = pkFeatureInfo->getMovementCost();
-				if (isHills() || isMountain())
-					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 	}

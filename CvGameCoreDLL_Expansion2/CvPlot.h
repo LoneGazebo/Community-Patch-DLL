@@ -541,7 +541,7 @@ public:
 
 	bool isRoughGround() const
 	{
-		return m_bHighMoveCost;
+		return m_bRoughPlot; //limited visibility
 	}
 
 	bool isFlatlands() const;
@@ -1094,7 +1094,7 @@ protected:
 	bool m_bPlotLayoutDirty:1;
 	bool m_bLayoutStateWorked:1;
 	bool m_bBarbCampNotConverting:1;
-	bool m_bHighMoveCost:1;
+	bool m_bRoughPlot:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsImpassable:1;

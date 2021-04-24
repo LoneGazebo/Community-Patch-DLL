@@ -2677,23 +2677,23 @@ void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 	if (!pUnit)
 		return;
 
-		//a bit tricky: we know that we should be able to reach the plot
-		//but maybe the mission is aborted (new enemy discovered etc)
-		//can happen for AI civilians ...
-		CvPlot* pBestPlot = NULL;
-		for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
-		{
-			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+	//a bit tricky: we know that we should be able to reach the plot
+	//but maybe the mission is aborted (new enemy discovered etc)
+	//can happen for AI civilians ...
+	CvPlot* pBestPlot = NULL;
+	for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
+	{
+		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 
-			//can we move?
-			if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
-				break;
+		//can we move?
+		if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
+			break;
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-		} 
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+	} 
 
-		//important, else we can't end the turn
-		UnitProcessed(pUnit->GetID());
+	//important, else we can't end the turn
+	UnitProcessed(pUnit->GetID());
 
 	if(GC.getLogging() && GC.getAILogging() && pBestPlot)
 	{
