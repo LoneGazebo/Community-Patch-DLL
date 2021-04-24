@@ -871,7 +871,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	m_BuildablesPrecheck.SortItems();
 
-	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
+	LogPossibleBuilds();
 
 	if(m_BuildablesPrecheck.size() > 0)
 	{
@@ -990,7 +990,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	m_Buildables.SortItems();
 
-	LogPossibleBuilds(m_Buildables,"POST");
+	LogPossibleBuildsPostCheck();
 
 	if (m_Buildables.size() <= 0)
 		m_Buildables = m_BuildablesPrecheck;
@@ -1267,7 +1267,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	ReweightByDuration(m_BuildablesPrecheck);
 
-	LogPossibleHurries(m_BuildablesPrecheck,"PRE");
+	LogPossibleHurries();
 
 	if(m_BuildablesPrecheck.size() > 0)
 	{
@@ -1363,7 +1363,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	m_Buildables.SortItems();
 
-	LogPossibleHurries(m_Buildables,"POST");
+	LogPossibleHurriesPostCheck();
 
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
@@ -1862,30 +1862,34 @@ void CvCityStrategyAI::LogStrategy(AICityStrategyTypes eStrategy, bool bValue)
 }
 
 /// Log all potential builds
-void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix)
+#if defined(MOD_BALANCE_CORE)
+void CvCityStrategyAI::LogPossibleHurries()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
+		CvString playerName;
+		CvString cityName;
 		CvString strDesc;
 
 		// Find the name of this civ and city
-		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-		CvString cityName = m_pCity->getName();
+		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog = LOGFILEMGR.GetLog(GetHurryLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetHurryLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
-		strBaseString.Format("%03d, %s, %s, %s: ", GC.getGame().getElapsedGameTurns(), playerName.c_str(), cityName.c_str(), prefix);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", " + cityName + ", PRE: ";
 
 		// Dump out the weight of each buildable item
-		for(int iI = 0; iI < builds.size(); iI++)
+		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 		{
-			CvCityBuildable buildable = builds.GetElement(iI);
-			int iWeight = builds.GetWeight(iI);
+			CvCityBuildable buildable = m_BuildablesPrecheck.GetElement(iI);
 
 			switch(buildable.m_eBuildableType)
 			{
@@ -1895,7 +1899,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Building, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Building, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1905,7 +1909,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Unit, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1915,7 +1919,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Project, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Project, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1925,7 +1929,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if (pProcess != NULL)
 				{
 					strDesc = pProcess->GetDescription();
-					strTemp.Format("Process, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Process, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1935,7 +1939,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Operation unit, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Operation unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1945,7 +1949,7 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Army unit, %s, %d, %d", strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Army unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -1955,7 +1959,198 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 		}
 	}
 }
+void CvCityStrategyAI::LogPossibleHurriesPostCheck()
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString playerName;
+		CvString cityName;
+		CvString strDesc;
 
+		// Find the name of this civ and city
+		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		cityName = m_pCity->getName();
+
+		// Open the log file
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetHurryLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", " + cityName + ", POST: ";
+
+		// Dump out the weight of each buildable item
+		for(int iI = 0; iI < m_Buildables.size(); iI++)
+		{
+			CvCityBuildable buildable = m_Buildables.GetElement(iI);
+
+			switch(buildable.m_eBuildableType)
+			{
+			case CITY_BUILDABLE_BUILDING:
+			{
+				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Building, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_PROJECT:
+			{
+				CvProjectEntry* pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Project, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_PROCESS:
+			{
+				CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+				if (pProcess != NULL)
+				{
+					strDesc = pProcess->GetDescription();
+					strTemp.Format("Process, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Operation unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT_FOR_ARMY:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Army unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			}
+			strOutBuf = strBaseString + strTemp;
+			pLog->Msg(strOutBuf);
+		}
+	}
+}
+void CvCityStrategyAI::LogPossibleBuildsPostCheck()
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString playerName;
+		CvString cityName;
+		CvString strDesc;
+
+		// Find the name of this civ and city
+		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		cityName = m_pCity->getName();
+
+		// Open the log file
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", " + cityName + ", POST: ";
+
+		// Dump out the weight of each buildable item
+		for(int iI = 0; iI < m_Buildables.size(); iI++)
+		{
+			CvCityBuildable buildable = m_Buildables.GetElement(iI);
+
+			switch(buildable.m_eBuildableType)
+			{
+			case CITY_BUILDABLE_BUILDING:
+			{
+				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Building, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_PROJECT:
+			{
+				CvProjectEntry* pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Project, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_PROCESS:
+			{
+				CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+				if (pProcess != NULL)
+				{
+					strDesc = pProcess->GetDescription();
+					strTemp.Format("Process, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Operation unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			case CITY_BUILDABLE_UNIT_FOR_ARMY:
+			{
+				CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+				if(pEntry != NULL)
+				{
+					strDesc = pEntry->GetDescription();
+					strTemp.Format("Army unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI), buildable.m_iTurnsToConstruct);
+				}
+			}
+			break;
+			}
+			strOutBuf = strBaseString + strTemp;
+			pLog->Msg(strOutBuf);
+		}
+	}
+}
 void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -1981,31 +2176,34 @@ void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
 		pLog->Msg(strOutBuf);
 	}
 }
-
-void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix)
+#endif
+void CvCityStrategyAI::LogPossibleBuilds()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
+		CvString playerName;
+		CvString cityName;
 		CvString strDesc;
 
 		// Find the name of this civ and city
-		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-		CvString cityName = m_pCity->getName();
+		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
-		strBaseString.Format("%03d, %s, %s, %s: ", GC.getGame().getElapsedGameTurns(), playerName.c_str(), cityName.c_str(), prefix);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", " + cityName + ", PRE: ";
 
 		// Dump out the weight of each buildable item
-		for(int iI = 0; iI < builds.size(); iI++)
+		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 		{
-			CvCityBuildable buildable = builds.GetElement(iI);
-			int iWeight = builds.GetWeight(iI);
+			CvCityBuildable buildable = m_BuildablesPrecheck.GetElement(iI);
 
 			switch(buildable.m_eBuildableType)
 			{
@@ -2015,7 +2213,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Building %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Building, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2025,7 +2223,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Unit %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2035,7 +2233,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Project %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Project, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2045,7 +2243,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if (pProcess != NULL)
 				{
 					strDesc = pProcess->GetDescription();
-					strTemp.Format("Process %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Process, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2055,7 +2253,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Operation unit %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Operation unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2065,7 +2263,7 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 				if(pEntry != NULL)
 				{
 					strDesc = pEntry->GetDescription();
-					strTemp.Format("Army unit %d, %s, %d, %d", buildable.m_iIndex, strDesc.GetCString(), iWeight, buildable.m_iTurnsToConstruct);
+					strTemp.Format("Army unit, %s, %d, %d", strDesc.GetCString(), m_BuildablesPrecheck.GetWeight(iI), buildable.m_iTurnsToConstruct);
 				}
 			}
 			break;
@@ -2205,8 +2403,8 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SKIPPED: %s (%d), Val: %d, TURNS: %d",
-			strDesc.c_str(), buildable.m_iIndex, iVal, buildable.m_iTurnsToConstruct);
+		strTemp.Format("SKIPPED: %s, Val: %d, TURNS: %d",
+			strDesc.c_str(), iVal, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

@@ -267,16 +267,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.getNumMilitaryUnits() > max(4, ((kPlayer.GetCurrentEra() + 3) * max(1, kPlayer.getNumCities()))))
 				return 0;
 
-			if (pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+			if (pkUnitEntry->GetDomainType() == DOMAIN_SEA && kPlayer.getCapitalCity() != NULL && kPlayer.getCapitalCity()->isCoastal())
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_SEA, true);
 				if (iNumUnits <= 2)
 					iBonus += max(0, 300 - (iNumUnits * 100));
 
-				int iLimit = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
-				if (iNumUnits <= iLimit)
+				int iNumCities = kPlayer.getNumCities();
+				int iEra = (kPlayer.GetCurrentEra() + 1) * iNumCities;
+				if (iNumUnits <= iEra)
 				{
-					iBonus += (iLimit - iNumUnits) * 100;
+					iBonus += (iEra - iNumUnits) * 100;
 					if (kPlayer.GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
 					{
 						iBonus += 100;
@@ -285,16 +286,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				else
 					return 0;
 			}
-			else if (pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+			else
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_LAND, true);
 				if (iNumUnits <= 2)
 					iBonus += max(0, 800 - (iNumUnits * 100));
 
-				int iLimit = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
-				if (iNumUnits <= iLimit)
+				int iNumCities = kPlayer.getNumCities();
+				int iEra = (kPlayer.GetCurrentEra() + 2) * iNumCities;
+
+				if (iNumUnits <= iEra)
 				{
-					iBonus += (iLimit - iNumUnits) * 150;
+					iBonus += (iEra - iNumUnits) * 150;
 					if (kPlayer.GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
 					{
 						iBonus += 250;
@@ -377,7 +380,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	// sanity check for building ships on isolated small inland seas (not lakes)
 	// if needed allow workboats...
-	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetCombat() > 0) 
+	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) 
 	{
 		int iWaterTiles = 0;
 		int iNumUnitsofMine = 0;
@@ -404,7 +407,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Are we mustering a naval attack here?
 		bool bOperationalOverride = (bForOperation && kPlayer.IsMusterCityForOperation(m_pCity, true));
 		bool bTooManyUnits = (iNumUnitsofMine * iFactor > iWaterTiles);
-		bool bNoEnemies = (iNumUnitsOther < 1 && iNumCitiesOther < 1);
+		bool bNoEnemies = (iNumUnitsOther == 0 && iNumCitiesOther == 0);
 
 		if (!bFree && !bOperationalOverride && (bTooManyUnits || bNoEnemies))
 		{
@@ -598,7 +601,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 				iValue *= 1 + kPlayer.GetCurrentEra();
 
-				if (iCurrent * 2 < iDesired)
+				int iNumCoastal = 0;
+				int iLoop;
+				for (CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
+				{
+					if (pCity != NULL && pCity->isCoastal())
+					{
+						iNumCoastal++;
+					}
+				}
+				if (iCurrent <= iNumCoastal)
 					iValue *= 2;
 
 				if (iValue > 0)

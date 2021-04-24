@@ -210,8 +210,12 @@ private:
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
-	void LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
-	void LogPossibleHurries(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
+	void LogPossibleBuilds();
+#if defined(MOD_BALANCE_CORE)
+	void LogPossibleHurries();
+	void LogPossibleHurriesPostCheck();
+	void LogPossibleBuildsPostCheck();
+#endif
 	void LogSpecializationChange(CitySpecializationTypes eSpecialization);
 
 	CvCity* m_pCity;
@@ -231,7 +235,9 @@ private:
 	CvProcessProductionAI* m_pProcessProductionAI;
 
 	CvWeightedVector<CvCityBuildable> m_Buildables;
+#if defined(MOD_BALANCE_CORE)
 	CvWeightedVector<CvCityBuildable> m_BuildablesPrecheck;
+#endif
 
 	YieldTypes m_eMostDeficientYield;
 	YieldTypes m_eMostAbundantYield;

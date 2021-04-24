@@ -769,10 +769,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iTotalMultiplier;
 				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iTotalMultiplier;
 
-				//consider citadels ... they actually boost defensive strength but whatever
-				if (TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner()))
-					iUnitStrength *= 2;
-
 				if(bReducedStrength)
 				{
 					iUnitStrength /= 2;
