@@ -328,6 +328,9 @@ ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
 -- Adds Culture from experience to owner of unit when disbanded or upgraded
 ALTER TABLE Units ADD COLUMN 'CulExpOnDisbandUpgrade' BOOLEAN DEFAULT 0;
 
+-- Increases the cost by this amount every time you build the unit
+ALTER TABLE Units ADD CostScalerNumRepeats INTEGER DEFAULT 0;
+
 -- Adds minimum national population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
 

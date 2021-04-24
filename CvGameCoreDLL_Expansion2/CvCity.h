@@ -1568,6 +1568,10 @@ public:
 	void changeProjectCount(ProjectTypes eProject, int iValue);
 	int getProjectCount(ProjectTypes eProject) const;
 
+	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
+	int getUnitsBuiltCount(UnitTypes eUnitType) const;
+	
+
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
@@ -1933,6 +1937,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;
+	FAutoVariable<std::vector<int>, CvCity> m_aiNumUnitsBuilt;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;

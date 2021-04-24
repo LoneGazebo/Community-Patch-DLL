@@ -387,6 +387,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiResourcePlotsToPlace(),
 	m_piYieldPerFriend(NULL),
 	m_piYieldPerAlly(NULL),
+	m_piYieldChangeWorldWonder(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -519,6 +520,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
 	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
 	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
+	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -1024,6 +1026,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+
+	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
@@ -3712,6 +3716,13 @@ int CvBuildingEntry::GetYieldPerAlly(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
+}
+
+int CvBuildingEntry::GetYieldChangeWorldWonder(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangeWorldWonder ? m_piYieldChangeWorldWonder[i] : 0;
 }
 #endif
 /// Free units which appear near the capital
