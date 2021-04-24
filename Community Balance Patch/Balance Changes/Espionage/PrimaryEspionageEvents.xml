@@ -140,6 +140,7 @@
 		</Row>
 	</CityEvents>
 	<CityEventChoices>
+		<!-- Focus -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Description>
@@ -180,47 +181,130 @@
 			<SpyFocus>EVENT_CLASS_ALL</SpyFocus>
 			<EventDuration>0</EventDuration>
 		</Row>
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT_HELP</Help>
-			<IsEspionageEffect>true</IsEspionageEffect>
-			<PotentialScaling>true</PotentialScaling>
-			<EventDuration>0</EventDuration>
-			<IDModifier>-25</IDModifier>
-			<DeathModifier>-25</DeathModifier>
-		</Row>
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON_HELP</Help>
-			<IsEspionageEffect>true</IsEspionageEffect>
-			<PotentialScaling>true</PotentialScaling>
-			<IsSpyBenefit>true</IsSpyBenefit>
-			<EventDuration>0</EventDuration>
-		</Row>
+		<!-- ECONOMIC -->
+			<!-- PRODUCTION -->
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<EventDuration>0</EventDuration>
+				<IDModifier>-25</IDModifier>
+				<DeathModifier>-25</DeathModifier>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<IsSpyBenefit>true</IsSpyBenefit>
+				<EventDuration>0</EventDuration>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<EventDuration>10</EventDuration>
+				<Expires>true</Expires>
+				<IDModifier>25</IDModifier>
+				<DeathModifier>25</DeathModifier>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<CityWideBuildingDestructionChance>3</CityWideBuildingDestructionChance>
+				<IDModifier>50</IDModifier>
+				<DeathModifier>50</DeathModifier>
+				<EventDuration>0</EventDuration>
+			</Row>
+			<!-- GOLD -->
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<EventDuration>0</EventDuration>
+				<IDModifier>-25</IDModifier>
+				<DeathModifier>-25</DeathModifier>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<IsSpyBenefit>true</IsSpyBenefit>
+				<EventDuration>0</EventDuration>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<EventDuration>10</EventDuration>
+				<IDModifier>25</IDModifier>
+				<DeathModifier>25</DeathModifier>
+			</Row>
+			<Row>
+				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4</Type>
+				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4</Description>
+				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4_HELP</Help>
+				<IsEspionageEffect>true</IsEspionageEffect>
+				<PotentialScaling>true</PotentialScaling>
+				<CityWideBuildingDestructionChance>3</CityWideBuildingDestructionChance>
+				<IDModifier>50</IDModifier>
+				<DeathModifier>50</DeathModifier>
+				<EventDuration>0</EventDuration>
+			</Row>
+			<!-- TILES -->
 	</CityEventChoices>
 	<CityEventChoice_InstantYield>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>-15</Yield>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>25</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
+	<CityEventChoice_EventCostYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>100</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>250</Yield>
+		</Row>
+	</CityEventChoice_EventCostYield>
+	<CityEventChoice_MinimumStartYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>100</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>250</Yield>
+		</Row>
+	</CityEventChoice_MinimumStartYield>
 	<CityEvent_ParentEvents>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
-			<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
-			<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-		</Row>
+		<!-- FOCUS-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
@@ -241,18 +325,27 @@
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
+		<!-- ECONOMIC -->
+			<!-- PRODUCTION-->
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
+				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
+				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
+				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
+				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+			</Row>
 	</CityEvent_ParentEvents>
 	<CityEventChoiceFlavors>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
+		<!-- FOCUS -->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -278,17 +371,27 @@
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
+		<!-- ECONOMIC -->
+			<!-- PRODUCTION -->
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
+				<FlavorType>FLAVOR_DEFENSE</FlavorType>
+				<Flavor>10</Flavor>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
+				<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+				<Flavor>10</Flavor>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
+				<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+				<Flavor>10</Flavor>
+			</Row>
+			<Row>
+				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
+				<FlavorType>FLAVOR_OFFENSE</FlavorType>
+				<Flavor>10</Flavor>
+			</Row>
 	</CityEventChoiceFlavors>
-	
-	<!-- ECONOMIC EVENTS -->
-		<!-- PRODUCTION SAP-->
-
-	<!--	<CityEventChoice_Notification>
-		<Row>
-			<CityEventChoiceType></CityEventChoiceType>
-			<NotificationType></NotificationType>
-			<Description></Description>
-			<ShortDescription></ShortDescription>
-		</Row>
-	</CityEventChoice_Notification>-->
 </GameData>

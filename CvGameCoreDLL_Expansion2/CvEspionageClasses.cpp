@@ -407,6 +407,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 				{
+					if (GC.getLogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Here for Spy Event!, %d,", uiSpyIndex);
+						strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+						LogEspionageMsg(strMsg);
+					}
+
 					pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
 					pCityEspionage->ResetProgress(ePlayer);
 					int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
@@ -1116,7 +1124,15 @@ CvSpyResult CvPlayerEspionage::ProcessAdvancedActionResult(PlayerTypes ePlayer, 
 		pSpy->SetSpyFocus((EventClassTypes)pkEventChoiceInfo->GetSpyFocus());
 
 	if (!pkEventChoiceInfo->IsEspionageEffect())
+	{
+		pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
+		int iRate = CalcPerTurn(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
+		int iGoal = CalcRequired(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
+		pCity->GetCityEspionage()->SetActivity(m_pPlayer->GetID(), 0, iRate, iGoal);
+		pCity->GetCityEspionage()->SetLastProgress(m_pPlayer->GetID(), iRate);
+
 		return NUM_SPY_RESULTS;
+	}
 
 	PlayerTypes eCityOwner = pCity->getOwner();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();

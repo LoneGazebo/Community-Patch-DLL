@@ -873,7 +873,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 
 			// Now let's get the event flavors.
 			CvWeightedVector<int> flavorChoices;
-			for (int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
 				if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -927,13 +927,13 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 				if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 				{
-					pCity->DoEventChoice(eBestEventChoice);
+					pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 					return;
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
 			CvWeightedVector<int> randomChoices;
-			for (int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
 				if (eEventChoice != NO_EVENT_CHOICE)
@@ -983,7 +983,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 			if (eBestEventChoice != NO_EVENT_CHOICE)
 			{
-				pCity->DoEventChoice(eBestEventChoice);
+				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 				return;
 			}
 		}

@@ -7550,13 +7550,13 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	//limiters
 	if (m_iCitySpyRank <= 0)
 		m_iCitySpyRank = 0;
-	if (m_iCitySpyRank >= (GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() * 2))
-		m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() * 2;
+	if (m_iCitySpyRank >= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
+		m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 }
 void CvCity::ResetEspionageRanking()
 {
 	//ostensibly, 1000
-	m_iCitySpyRank = (GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT()*2);
+	m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 	if (GC.getLogging())
 	{
 		CvString strMsg;
@@ -7570,7 +7570,7 @@ void CvCity::ResetEspionageRanking()
 }
 void CvCity::InitEspionageRanking()
 {
-	//ostensibly, 500
+	//ostensibly, 1000
 	m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 	if (GC.getLogging())
 	{
