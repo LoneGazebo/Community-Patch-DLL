@@ -133,6 +133,7 @@ public:
 	int GetObsoleteTech() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetEra() const;
+	int GetCostScalerNumberBuilt() const;
 #endif
 	int GetPolicyType() const;
 	int GetGoodyHutUpgradeUnitClass() const;
@@ -395,6 +396,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;
+	int m_iCostScalerNumBuilt;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bMinorCivGift;
 	bool m_bNoMinorCivGift;

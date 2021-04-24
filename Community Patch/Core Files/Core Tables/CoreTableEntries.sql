@@ -328,6 +328,9 @@ ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
 -- Adds Culture from experience to owner of unit when disbanded or upgraded
 ALTER TABLE Units ADD COLUMN 'CulExpOnDisbandUpgrade' BOOLEAN DEFAULT 0;
 
+-- Increases the cost by this amount every time you build the unit
+ALTER TABLE Units ADD 'CostScalerNumRepeats' INTEGER DEFAULT 0;
+
 -- Tourism Bomb can now alternative give 50% of tourism to all civs, and 100% of tourism output to target civ for x turns
 ALTER TABLE Units ADD COLUMN 'TourismBonusTurns' INTEGER DEFAULT 0;
 
