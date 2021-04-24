@@ -290,7 +290,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 		{
-			return 0;
+			return -1;
 		}
 	}
 
@@ -355,7 +355,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		//do not check fog of war!
 		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
 		if (!pLoopPlot)
-			continue;
+		{
+			//AI never settle at the edge of the map
+			if (iI < RING1_PLOTS)
+				return -1;
+			else
+				continue;
+		}
 
 		//ignore some plots (typically enemy or close to enemy)
 		if (plotDistance(*pLoopPlot,*pPlot)>1) //but only if we can't instantly claim them

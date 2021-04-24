@@ -30,9 +30,6 @@ UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_LAND_FIERCE';
 UPDATE Defines SET Value = '25' WHERE Name = 'OPINION_WEIGHT_LAND_STRONG';
 UPDATE Defines SET Value = '15' WHERE Name = 'OPINION_WEIGHT_LAND_WEAK';
 UPDATE Defines SET Value = '-10' WHERE Name = 'OPINION_WEIGHT_LAND_NONE';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_ANCIENT_ERA', '10';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_CLASSICAL_ERA', '5';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_EARLY_GAME', '-5';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_WARMONGER', '10'; -- penalty for Conqueror AIs
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-5'; -- bonus for Conqueror AIs (increases based on Neediness flavor)
 
@@ -126,7 +123,7 @@ INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_OPINION_WEIGHT', '5';
 INSERT INTO Defines (Name, Value) SELECT 'ASSIST_VALUE_PER_TURN_DECAY', '3'; -- how fast recent assist value decays
 
 -- We fought together against a common foe. (n.b. maximum common foe value = OPINION_WEIGHT_COMMON_FOE_MAX * COMMON_FOE_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
-UPDATE Defines SET Value = '-50' WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
+UPDATE Defines SET Value = '-100' WHERE Name = 'OPINION_WEIGHT_COMMON_FOE_MAX';
 UPDATE Defines SET Value = '50' WHERE Name = 'COMMON_FOE_VALUE_PER_OPINION_WEIGHT'; -- how much common foe value equals -1 opinion weight
 UPDATE Defines SET Value = '25' WHERE Name = 'COMMON_FOE_VALUE_PER_TURN_DECAY'; -- how fast common foe value decays
 
@@ -234,9 +231,9 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BIGGEST_COMPE
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BIGGEST_LEAGUE_RIVAL', '-15'; -- mutual denouncement against AI's biggest World Congress rival
 
 -- Other civs that they like more than you have denounced you!
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND', '20';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT', '8'; -- any after the first
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND', '15'; -- additional penalty if the denouncement comes from a teammate or their most valued friend/ally
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND', '10';
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT', '5'; -- any after the first
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND', '10'; -- additional penalty if the denouncement comes from a teammate or their most valued friend/ally
 
 --	//////////////////////////////////////
 --	// PROMISES

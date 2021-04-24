@@ -153,6 +153,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iFreePolicies(0),
 	m_iOneShotTourism(0),
 	m_iOneShotTourismPercentOthers(0),
+	m_iTourismBonusTurns(0),
 	m_bIgnoreBuildingDefense(false),
 	m_bPrereqResources(false),
 	m_bMechanized(false),
@@ -366,6 +367,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
 	m_iOneShotTourism = kResults.GetInt("OneShotTourism");
 	m_iOneShotTourismPercentOthers = kResults.GetInt("OneShotTourismPercentOthers");
+	m_iTourismBonusTurns = kResults.GetInt("TourismBonusTurns");
 	m_bIgnoreBuildingDefense = kResults.GetBool("IgnoreBuildingDefense");
 	m_bPrereqResources = kResults.GetBool("PrereqResources");
 	m_bMechanized = kResults.GetBool("Mechanized");
@@ -1377,6 +1379,12 @@ int CvUnitEntry::GetOneShotTourism() const
 int CvUnitEntry::GetOneShotTourismPercentOthers() const
 {
 	return m_iOneShotTourismPercentOthers;
+}
+
+/// Trickle over to civs other than primary target from one-shot tourism blast
+int CvUnitEntry::GetTourismBonusTurns() const
+{
+	return m_iTourismBonusTurns;
 }
 
 /// Not affected by walls?

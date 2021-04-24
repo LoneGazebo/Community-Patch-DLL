@@ -94,19 +94,7 @@ public:
 
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
-#if defined(MOD_API_EXTENSIONS)
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
-#else
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift);
-#endif
-#else
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
-#else
-	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
-#endif
-#endif
 	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bCapture);
 	void killCities();
 	CvString getNewCityName() const;
@@ -315,6 +303,12 @@ public:
 	void receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit);
 	void doGoody(CvPlot* pPlot, CvUnit* pUnit);
 
+	//building step chains
+	void BuildBuildingStepValues();
+	std::vector<BuildingTypes> FindInitialBuildings();
+	void SetChainLength(BuildingTypes eBuilding);
+	int GetChainLength(BuildingTypes eBuilding);
+
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
@@ -405,8 +399,9 @@ public:
 	int calculateResearchModifier(TechTypes eTech);
 	int calculateGoldRate() const;
 	int calculateGoldRateTimes100() const;
-	int GetCachedGoldRate() const;
-	void cacheGoldRate();
+	int getAvgGoldRate() const;
+	void cacheAvgGoldRate();
+	int getTurnsToBankruptcy(int iAssumedExtraExpense) const;
 
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;
@@ -934,6 +929,9 @@ public:
 #endif
 	int GetTourismBonusTurns() const;
 	void ChangeTourismBonusTurns(int iChange);
+
+	int getTourismBonusTurnsPlayer(PlayerTypes eWithPlayer) const;
+	void changeTourismBonusTurnsPlayer(PlayerTypes eWithPlayer, int iChange);
 
 	// Golden Age Stuff
 
@@ -1519,9 +1517,8 @@ public:
 	bool PlayerHasContract(ContractTypes eContract) const;
 	void SetActiveContract(ContractTypes eContract, bool bValue);
 
-	//DONE
-	void DoDiversity(DomainTypes eDomain);
-	int GetDiversity(DomainTypes eDomain) const;
+	void DoUnitDiversity();
+	bool IsUnderrepresentedUnitType(UnitAITypes eType) const;
 
 	int GetDominationResistance(PlayerTypes ePlayer);
 
@@ -2085,7 +2082,7 @@ public:
 
 	// END Science
 
-	void DoDeficit();
+	void DoBankruptcy();
 
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
@@ -3496,9 +3493,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
+	FAutoVariable<std::vector<UnitAITypes>, CvPlayer> m_neededUnitAITypes;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
+	
 #endif
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_piDomainFreeExperience;
@@ -3516,6 +3514,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSiphonLuxuryCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGreatWorkYieldChange;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiTourismBonusTurnsPlayer;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
 	typedef std::vector< PlayerOptionEntry > PlayerOptionsVector;
@@ -3540,6 +3539,8 @@ protected:
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	std::map<RouteTypes, int> m_piResponsibleForRouteCount;
 	std::map<ImprovementTypes, int> m_piResponsibleForImprovementCount;
+
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingChainSteps;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;

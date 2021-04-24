@@ -3005,13 +3005,19 @@
 		</Row>
 		
 		<!-- Tech Dispute Mod (for scientific civs) -->
-		<Row Tag="TXT_KEY_DIPLO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK">
 			<Text>You are competing for technological advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECH_BLOCK_FIERCE">
+			<Text>They are jealous of our superior technology!</Text>
 		</Row>
 
 		<!-- Cultural Dispute Mod (for cultural civs) -->
-		<Row Tag="TXT_KEY_DIPLO_POLICY_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK">
 			<Text>You are competing for cultural advancement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_POLICY_BLOCK_FIERCE">
+			<Text>They are jealous of our superior culture!</Text>
 		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
@@ -3021,10 +3027,10 @@
 		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
 			<Text>You are not competing for the favor of the same City-States.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_TECH_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_NO_TECH_BLOCK">
 			<Text>You are not competing for technological advancement.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_DISPUTE">
+		<Row Tag="TXT_KEY_DIPLO_NO_POLICY_BLOCK">
 			<Text>You are not competing for cultural advancement.</Text>
 		</Row>
 		
@@ -6599,7 +6605,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
-			<Text>Your military status in the world has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+			<Text>Your military status in the world and/or alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
 			<Text>Pledge of Protection secured.</Text>
@@ -6609,7 +6615,7 @@
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET]Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be above 60% of the world in terms of Military Power. Your military is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least 60% of the world's highest Military Power. Your military is ranked at {1_Num}% of the highest Military Power.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
@@ -6636,7 +6642,12 @@
 		</Row>
 
 
-
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">
+			<Text>Because of {1_CSName}'s anger with you, they no longer value your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL">
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
@@ -6657,13 +6668,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL">
 			<Text>Pledge of Protection in jeopardy!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_OPTIONAL">
-			<Text>Your alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT_OPTIONAL">
-			<Text>Pledge of Protection secured.</Text>
 		</Row>
 
 		
@@ -6719,29 +6723,29 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
 		</Row>
 
@@ -7029,6 +7033,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
+			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->

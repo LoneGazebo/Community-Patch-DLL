@@ -40,6 +40,16 @@ enum CvAdvancedAction
 	NUM_ADVANCED_ACTIONS
 };
 
+enum CvEspionageType
+{
+	NO_ESPIONAGE_TYPE,
+	ESPIONAGE_TYPE_KILL,
+	ESPIONAGE_TYPE_IDENTIFY,
+	ESPIONAGE_TYPE_DETECT,
+	ESPIONAGE_TYPE_ADVANCED_ACTION,
+	NUM_ESPIONAGE_TYPES
+};
+
 enum CvSpyState
 {
     SPY_STATE_UNASSIGNED,
@@ -216,6 +226,9 @@ public:
 
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
+
+	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, uint uiSpyIndex, bool bForAA, bool bPreview = false);
+	CvSpyResult GetSpyRollResult(CvCity* pCity, uint uiSpyIndex, bool bForAA);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE)
@@ -244,8 +257,8 @@ public:
 	void UpdateSpies();
 	void UpdateCity(CvCity* pCity);
 
-	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex);
-	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex);
+	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
+	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
 	const char* GetSpyRankName(int iRank) const;
 

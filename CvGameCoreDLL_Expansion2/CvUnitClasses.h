@@ -125,7 +125,7 @@ public:
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
-	inline int CvUnitEntry::GetDomainType() const { return m_iDomainType; } //this is used very often
+	inline DomainTypes CvUnitEntry::GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
 	UnitAITypes GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;
@@ -170,6 +170,7 @@ public:
 	int GetFreePolicies() const;
 	int GetOneShotTourism() const;
 	int GetOneShotTourismPercentOthers() const;
+	int GetTourismBonusTurns() const;
 	bool IsIgnoreBuildingDefense() const;
 	bool IsPrereqResources() const;
 	bool IsMechUnit() const;
@@ -421,6 +422,7 @@ private:
 	int m_iFreePolicies;
 	int m_iOneShotTourism;
 	int m_iOneShotTourismPercentOthers;
+	int m_iTourismBonusTurns;
 	bool m_bIgnoreBuildingDefense;
 	bool m_bPrereqResources;
 	bool m_bMechanized;

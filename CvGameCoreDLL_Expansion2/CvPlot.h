@@ -241,13 +241,9 @@ public:
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 	bool isVisible(TeamTypes eTeam) const;
 
-	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
-#if defined(MOD_BALANCE_CORE)
-	bool isVisibleToCivTeam(bool bNoObserver = false, bool bNoMinor = false) const;
-#else
-	bool isVisibleToCivTeam() const;
-#endif
+	bool isVisibleToAnyTeam(bool bNoMinor = false) const;
+
 	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
@@ -295,8 +291,7 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit) const;
-	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit = NULL) const;
-	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit = NULL) const;
+	bool isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -566,9 +561,7 @@ public:
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void removeMinorResources(bool bVenice = false);
-#endif
+	void removeMinorResources();
 
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
@@ -1108,7 +1101,7 @@ protected:
 
 	mutable bool m_bIsFreshwater:1;						// Cached value, do not serialize
 	mutable bool m_bIsAdjacentToLand:1;					// Cached value, do not serialize
-	mutable bool m_bIsAdjacentToOcean:1;				// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToWater:1;				// Cached value, do not serialize
 	mutable bool m_bIsLake:1;							// Cached value, do not serialize
 
 	CvArchaeologyData m_kArchaeologyData;

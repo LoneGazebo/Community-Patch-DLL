@@ -3217,15 +3217,13 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 {
 	if (iChange > 0)
 	{
-		// If we're at permanent war anyway, this means nothing.
-		if (IsAlwaysAtWar(ePlayer))
+		// If we're at war, this means nothing.
+		if (IsAtWar(ePlayer))
 			return;
 
 		// Capitulated vassals don't care.
 		if (MOD_DIPLOMACY_CIV4_FEATURES && !GetPlayer()->isHuman() && IsVassal(ePlayer) && !IsVoluntaryVassalage(ePlayer))
-		{
 			return;
-		}
 
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetCommonFoeValue(ePlayer, GetCommonFoeValue(ePlayer) + iScaledAmount);
@@ -3254,6 +3252,10 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bo
 {
 	if (!bDecay)
 	{
+		// Don't care if we're at war.
+		if (iChange < 0 && IsAtWar(ePlayer))
+			return;
+
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
 		SetRecentAssistValue(ePlayer, GetRecentAssistValue(ePlayer) + iScaledAmount);
 	}
@@ -3648,12 +3650,41 @@ void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (eLoopPlayer != GetID() && IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
 				// Are they at war with me too? Then they're happy that this player damaged us!
 				if (IsAtWar(eLoopPlayer))
 				{
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange);
+					// How much they're happy about it depends on how strong we are compared to them.
+					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetID()))
+					{
+					case STRENGTH_IMMENSE:
+						iChange *= 300;
+						break;
+					case STRENGTH_POWERFUL:
+						iChange *= 200;
+						break;
+					case STRENGTH_STRONG:
+						iChange *= 150;
+						break;
+					case STRENGTH_AVERAGE:
+						iChange *= 100;
+						break;
+					case STRENGTH_POOR:
+						iChange *= 75;
+						break;
+					case STRENGTH_WEAK:
+						iChange *= 50;
+						break;
+					case STRENGTH_PATHETIC:
+						iChange *= 25;
+						break;
+					default:
+						iChange *= 100;
+						break;
+					}
+
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange/100);
 				}
 			}
 		}
@@ -3671,26 +3702,6 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_aiWarDamageValue[ePlayer] = range(iValue, 0, USHRT_MAX);
-}
-
-/// How much damage have we taken in a war against a particular player? (used in the UI)
-WarDamageLevelTypes CvDiplomacyAI::GetWarDamageLevel(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return WAR_DAMAGE_LEVEL_NONE;
-
-	WarDamageLevelTypes eWarDamageLevel = WAR_DAMAGE_LEVEL_NONE;
-	int iWarDamageValue = GetWarDamageValue(ePlayer);
-
-	if (iWarDamageValue >= /*90*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_CRIPPLED())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_CRIPPLED;
-	else if (iWarDamageValue >= /*65*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_SERIOUS())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_SERIOUS;
-	else if (iWarDamageValue >= /*35*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MAJOR())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_MAJOR;
-	else if (iWarDamageValue >= /*15*/ GC.getWAR_DAMAGE_LEVEL_THRESHOLD_MINOR())
-		eWarDamageLevel = WAR_DAMAGE_LEVEL_MINOR;
-
-	return eWarDamageLevel;
 }
 
 /// What is the state of war with this player?
@@ -4200,7 +4211,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), eAttackedTeam, WARMONGER_MINOR_ATTACKED) * 100;
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MINOR_ATTACKED) * 100;
 	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 	DoUpdateWarmongerThreats(true);
 }
@@ -4292,7 +4303,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), eAttackedTeam, WARMONGER_MAJOR_ATTACKED) * 100;
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MAJOR_ATTACKED) * 100;
 	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 	DoUpdateWarmongerThreats(true);
 }
@@ -6019,9 +6030,17 @@ void CvDiplomacyAI::SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange)
 {
-	// No diplomacy penalties for stealing territory while at war.
-	if (IsAtWar(ePlayer) && !GetPlayer()->isHuman())
-		return;
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// No diplomacy penalties for stealing territory while at war.
+		if (IsAtWar(ePlayer))
+			return;
+
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v, true);
+	}
 
 	SetNumTimesCultureBombed(ePlayer, GetNumTimesCultureBombed(ePlayer) + iChange);
 }
@@ -6145,6 +6164,14 @@ void CvDiplomacyAI::ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer,
 		{
 			SetPlayerNoConvertPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
+
+		if (!GetPlayer()->isHuman())
+		{
+			// Time to reevaluate this thief!
+			vector<PlayerTypes> v;
+			v.push_back(ePlayer);
+			DoReevaluatePlayers(v);
+		}
 	}
 }
 
@@ -6172,6 +6199,14 @@ void CvDiplomacyAI::SetNumTimesRobbedBy(PlayerTypes ePlayer, int iValue)
 
 void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 {
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v);
+	}
+
 	SetNumTimesRobbedBy(ePlayer, GetNumTimesRobbedBy(ePlayer) + iChange);
 }
 
@@ -6199,6 +6234,14 @@ void CvDiplomacyAI::SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int i
 
 void CvDiplomacyAI::ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange)
 {
+	if (iChange > 0 && !GetPlayer()->isHuman())
+	{
+		// Time to reevaluate this thief!
+		vector<PlayerTypes> v;
+		v.push_back(ePlayer);
+		DoReevaluatePlayers(v);
+	}
+
 	SetNumTimesPerformedCoupAgainstUs(ePlayer, GetNumTimesPerformedCoupAgainstUs(ePlayer) + iChange);
 }
 
@@ -6392,6 +6435,14 @@ void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iCh
 		{
 			SetPlayerNoDiggingPromiseState(ePlayer, PROMISE_STATE_BROKEN);
 		}
+
+		if (!GetPlayer()->isHuman())
+		{
+			// Time to reevaluate this thief!
+			vector<PlayerTypes> v;
+			v.push_back(ePlayer);
+			DoReevaluatePlayers(v);
+		}
 	}
 }
 
@@ -6445,7 +6496,7 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	{
 		SetBackstabbedBy(ePlayer, true);
 
-		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetID(), GetTeam(), WARMONGER_NUKED_PLAYER) * 100;
+		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, GetTeam(), GetID(), WARMONGER_NUKED_PLAYER) * 100;
 		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 		DoUpdateWarmongerThreats(true);
 
@@ -6460,7 +6511,7 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 			if (!IsHasMet(eLoopPlayer) || !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer))
 				continue;
 
-			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, eLoopPlayer, GetTeam(), WARMONGER_NUKED_PLAYER) * 100;
+			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, GetTeam(), eLoopPlayer, WARMONGER_NUKED_PLAYER) * 100;
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
 		}
@@ -7441,7 +7492,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	DoUpdateWarmongerThreats();
 	DoUpdatePlayerTargetValues();
 	DoUpdateWarProjections();
-	GetPlayer()->cacheGoldRate();
+	GetPlayer()->cacheAvgGoldRate();
 	GetPlayer()->DoTestEmpireInBadShapeForWar();
 	DoUpdateEasyTargets();
 	DoUpdateWarGoals();
@@ -7660,7 +7711,7 @@ void CvDiplomacyAI::DoUpdateWarDamage()
 			{
 				if (iCurrentValue > 0)
 				{
-					iValueLostRatio = ((iWarValueLost * 100) / (iCurrentValue + iWarValueLost));
+					iValueLostRatio = (iWarValueLost * 100) / (iCurrentValue + iWarValueLost);
 				}
 				else
 				{
@@ -9371,16 +9422,41 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 		{
 			int iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
 
-			// If we're an AI evaluating a human, modify their strength estimate based on difficulty level (not if they're a vassal, though)
+			// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 			if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 			{
-				iOtherPlayerMilitaryStrength *= (100 + max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod()));
+				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+				int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+				int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+				// Only apply the human strength mod in full if their performance is at least average
+				if (iSkillRatingMod >= 0)
+				{
+					iOtherPlayerMilitaryStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+					iOtherPlayerMilitaryStrength /= 100;
+				}
+				// Buffer zone to prevent abrupt shifts in strength perception
+				else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+				{
+					int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+					int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+					int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+					iOtherPlayerMilitaryStrength *= 100 + iHumanStrengthMod - iBufferMod;
+					iOtherPlayerMilitaryStrength /= 100;
+				}
+				else
+				{
+					iOtherPlayerMilitaryStrength *= 100 + iSkillRatingMod;
+					iOtherPlayerMilitaryStrength /= 100;
+				}
+			}
+			else
+			{
+				// Modify their strength based on military rating (combat skill)
+				iOtherPlayerMilitaryStrength *= ComputeRatingStrengthAdjustment(ePlayer);
 				iOtherPlayerMilitaryStrength /= 100;
 			}
-
-			// Modify their strength based on military rating (combat skill)
-			iOtherPlayerMilitaryStrength *= ComputeRatingStrengthAdjustment(ePlayer);
-			iOtherPlayerMilitaryStrength /= 100;
 
 			int iDPUs = 0;
 			int iDPThem = 0;
@@ -9393,9 +9469,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 				{
 					// If this guy isn't near either of us, ignore them.
 					if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetID()) < PLAYER_PROXIMITY_CLOSE && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
-					{
 						continue;
-					}
 
 					bool bCountDefensivePact = (!IsAtWar(ePlayer) || IsAtWar(eLoopPlayer));
 
@@ -9408,13 +9482,38 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
+								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+								int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+								// Only apply the human strength mod in full if their performance is at least average
+								if (iSkillRatingMod >= 0)
+								{
+									iLoopPlayerStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+									iLoopPlayerStrength /= 100;
+								}
+								// Buffer zone to prevent abrupt shifts in strength perception
+								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+								{
+									int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+									int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+									iLoopPlayerStrength *= 100 + iHumanStrengthMod - iBufferMod;
+									iLoopPlayerStrength /= 100;
+								}
+								else
+								{
+									iLoopPlayerStrength *= 100 + iSkillRatingMod;
+									iLoopPlayerStrength /= 100;
+								}
+							}
+							else
+							{
+								// Modify their strength based on military rating (combat skill)
+								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 								iLoopPlayerStrength /= 100;
 							}
-
-							// Modify their strength estimate based on military rating (combat skill)
-							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
-							iLoopPlayerStrength /= 100;
 
 							// Count teammates twice, they're more likely to defend each other
 							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer))
@@ -9433,15 +9532,40 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 						// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-						if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+						if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 						{
-							iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
+							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+							int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+							int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+							// Only apply the human strength mod in full if their performance is at least average
+							if (iSkillRatingMod >= 0)
+							{
+								iLoopPlayerStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+								iLoopPlayerStrength /= 100;
+							}
+							// Buffer zone to prevent abrupt shifts in strength perception
+							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+							{
+								int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+								int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+								iLoopPlayerStrength *= 100 + iHumanStrengthMod - iBufferMod;
+								iLoopPlayerStrength /= 100;
+							}
+							else
+							{
+								iLoopPlayerStrength *= 100 + iSkillRatingMod;
+								iLoopPlayerStrength /= 100;
+							}
+						}
+						else
+						{
+							// Modify their strength based on military rating (combat skill)
+							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 							iLoopPlayerStrength /= 100;
 						}
-
-						// Modify their strength estimate based on military rating (combat skill)
-						iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
-						iLoopPlayerStrength /= 100;
 
 						// Count teammates twice, they're more likely to defend each other
 						if (IsTeammate(eLoopPlayer))
@@ -9462,13 +9586,38 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 								// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 								if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 								{
-									iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
+									int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+									int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+									int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+									// Only apply the human strength mod in full if their performance is at least average
+									if (iSkillRatingMod >= 0)
+									{
+										iLoopPlayerStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+										iLoopPlayerStrength /= 100;
+									}
+									// Buffer zone to prevent abrupt shifts in strength perception
+									else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+									{
+										int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+										int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+										int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+										iLoopPlayerStrength *= 100 + iHumanStrengthMod - iBufferMod;
+										iLoopPlayerStrength /= 100;
+									}
+									else
+									{
+										iLoopPlayerStrength *= 100 + iSkillRatingMod;
+										iLoopPlayerStrength /= 100;
+									}
+								}
+								else
+								{
+									// Modify their strength based on military rating (combat skill)
+									iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 									iLoopPlayerStrength /= 100;
 								}
-
-								// Modify their strength estimate based on military rating (combat skill)
-								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
-								iLoopPlayerStrength /= 100;
 
 								iDPThem += iLoopPlayerStrength;
 							}
@@ -9478,15 +9627,40 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							int iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
+							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsNoNewWars() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								iLoopPlayerStrength *= (100 + max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod()));
+								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+								int iSkillRatingMod = ComputeRatingStrengthAdjustment(eLoopPlayer) - 100;
+								int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+								// Only apply the human strength mod in full if their performance is at least average
+								if (iSkillRatingMod >= 0)
+								{
+									iLoopPlayerStrength *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+									iLoopPlayerStrength /= 100;
+								}
+								// Buffer zone to prevent abrupt shifts in strength perception
+								else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+								{
+									int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+									int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+									int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+									iLoopPlayerStrength *= 100 + iHumanStrengthMod - iBufferMod;
+									iLoopPlayerStrength /= 100;
+								}
+								else
+								{
+									iLoopPlayerStrength *= 100 + iSkillRatingMod;
+									iLoopPlayerStrength /= 100;
+								}
+							}
+							else
+							{
+								// Modify their strength based on military rating (combat skill)
+								iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
 								iLoopPlayerStrength /= 100;
 							}
-
-							// Modify their strength estimate based on military rating (combat skill)
-							iLoopPlayerStrength *= ComputeRatingStrengthAdjustment(eLoopPlayer);
-							iLoopPlayerStrength /= 100;
 
 							iDPUs += iLoopPlayerStrength;
 						}
@@ -9535,12 +9709,12 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
 	int iAverageRating = ComputeAverageMajorMilitaryRating(/*eExcludedPlayer*/ ePlayer);
 
-	// There are no other players - don't adjust
+	// There are no other major civs - don't adjust
 	if (iAverageRating == -1)
 		return 100;
 
 	// Calculate the percentage difference from the average
-	int iPercentageDifference = ((iCivRating - iAverageRating) * 100) / max(iAverageRating, 1);
+	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / max(iAverageRating, 1);
 	if (iPercentageDifference < 0)
 		iPercentageDifference *= -1; // need the absolute value
 
@@ -9551,17 +9725,16 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	{
 		iRtnValue = min((100 + iPercentageDifference), 200);
 	}
-	// If below average, apply half the % difference as a negative modifier to strength, cap below at -50%
+	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
 	else if (iCivRating < iAverageRating)
 	{
-		iPercentageDifference /= 2;
 		iRtnValue = max((100 - iPercentageDifference), 50);
 	}
 
 	return iRtnValue;
 }
 
-/// What is the average (living) major civ's military rating?
+/// What is the average (living) major civ's military rating (only counting players that we know)?
 int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer /* = NO_PLAYER */)
 {
 	int iTotalRating = 0;
@@ -9574,7 +9747,7 @@ int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer
 		if (eLoopPlayer == eExcludedPlayer)
 			continue;
 		
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && IsHasMet(eLoopPlayer, true))
 		{
 			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
 			iNumCivs++;
@@ -9673,6 +9846,16 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				case STRENGTH_PATHETIC:
 					iDecayModifier = /*300*/ GC.getWARMONGER_THREAT_STRENGTH_DECAY_PATHETIC();
 					break;
+				}
+
+				// Decay faster if we have a good relationship with this player.
+				if (!GetPlayer()->isHuman() && ((IsDoFAccepted(eLoopPlayer) && GetMostValuableFriend() == eLoopPlayer) || (IsHasDefensivePact(eLoopPlayer) && GetMostValuableAlly() == eLoopPlayer)))
+				{
+					iDecayModifier *= 3;
+				}
+				else if (IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS)
+				{
+					iDecayModifier *= 2;
 				}
 
 				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetID()) > 0)
@@ -9804,18 +9987,40 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	// First calculate this power's military power
 	int iStrengthEstimate = GET_PLAYER(ePlayer).GetMilitaryMight();
 
-	// Human? Strength perception is modified...
+	// Human? Strength perception is modified if they're reasonably strong...
 	if (GET_PLAYER(ePlayer).isHuman() && !bSelfEvaluation && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsNoNewWars())
 	{
 		if (!GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 		{
-			iStrengthEstimate *= (100 + max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod()));
-			iStrengthEstimate /= 100;
+			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+			int iSkillRatingMod = ComputeRatingStrengthAdjustment(ePlayer) - 100;
+			int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+			// Only apply the human strength mod in full if their performance is at least average
+			if (iSkillRatingMod >= 0)
+			{
+				iStrengthEstimate *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+				iStrengthEstimate /= 100;
+			}
+			// Buffer zone to prevent abrupt shifts in strength perception
+			else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+			{
+				int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+				int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+				int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+				iStrengthEstimate *= 100 + iHumanStrengthMod - iBufferMod;
+				iStrengthEstimate /= 100;
+			}
+			else
+			{
+				iStrengthEstimate *= 100 + iSkillRatingMod;
+				iStrengthEstimate /= 100;
+			}
 		}
 	}
-
 	// Major Civ? Modify their strength estimate based on military rating (combat skill)
-	if (GET_PLAYER(ePlayer).isMajorCiv())
+	else if (GET_PLAYER(ePlayer).isMajorCiv())
 	{
 		iStrengthEstimate *= ComputeRatingStrengthAdjustment(ePlayer);
 		iStrengthEstimate /= 100;
@@ -9995,22 +10200,46 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// Calculate this player's perceived military power
 				int iMight = GET_PLAYER(*it).GetMilitaryMight();
 
-				// Human? Strength perception is modified...
+				// Human? Strength perception is modified if they're reasonably strong...
 				if (!bSelfEvaluation || !GET_PLAYER(ePlayer).isHuman())
 				{
 					if (GET_PLAYER(*it).isHuman() && !GET_PLAYER(*it).IsVassalOfSomeone())
 					{
 						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
 						{
-							iMight *= (100 + max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod()));
-							iMight /= 100;
+							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
+							int iSkillRatingMod = ComputeRatingStrengthAdjustment(*it) - 100;
+							int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+							// Only apply the human strength mod in full if their performance is at least average
+							if (iSkillRatingMod >= 0)
+							{
+								iMight *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+								iMight /= 100;
+							}
+							// Buffer zone to prevent abrupt shifts in strength perception
+							else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+							{
+								int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+								int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+								int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+								iMight *= 100 + iHumanStrengthMod - iBufferMod;
+								iMight /= 100;
+							}
+							else
+							{
+								iMight *= 100 + iSkillRatingMod;
+								iMight /= 100;
+							}
 						}
 					}
 				}
-
-				// Modify based on military rating (combat skill)
-				iMight *= ComputeRatingStrengthAdjustment(*it);
-				iMight /= 100;
+				else
+				{
+					iMight *= ComputeRatingStrengthAdjustment(*it);
+					iMight /= 100;
+				}
 
 				// Reduce if the third party is already at war with other players
 				int iThirdPartyWarCount = (bSelfEvaluation && !GET_PLAYER(*it).isHuman()) ? GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(true, true) : GET_PLAYER(*it).GetNumDangerousMajorsAtWarWith(false, true);
@@ -10163,19 +10392,44 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// Calculate this player's perceived military power
 				int iMight = kPlayer.GetMilitaryMight();
 
-				// Human? Strength perception is modified...
+				// Human? Strength perception is modified if they're reasonably strong...
 				if (!GET_PLAYER(eComparedToPlayer).isHuman() && kPlayer.isHuman() && !kPlayer.IsVassalOfSomeone())
 				{
 					if (!kPlayer.IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(eAllyPlayer) < WAR_STATE_OFFENSIVE)
 					{
-						iMight *= (100 + max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getAIHumanStrengthMod()));
-						iMight /= 100;
+						int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getAIHumanStrengthMod());
+						int iSkillRatingMod = ComputeRatingStrengthAdjustment(eAllyPlayer);
+						int iBufferValue = max(-50, /*-20*/ GC.getMILITARY_RATING_HUMAN_BUFFER_VALUE());
+
+						// Only apply the human strength mod in full if their performance is at least average
+						if (iSkillRatingMod >= 0)
+						{
+							iMight *= 100 + max(iHumanStrengthMod, iSkillRatingMod);
+							iMight /= 100;
+						}
+						// Buffer zone to prevent abrupt shifts in strength perception
+						else if (iSkillRatingMod > iBufferValue && iHumanStrengthMod > 0)
+						{
+							int iDifference = (100 + iHumanStrengthMod) - (100 + iBufferValue);
+							int iBufferPercentMod = iSkillRatingMod * 100 / iBufferValue;
+							int iBufferMod = iBufferPercentMod * iDifference / 100;
+
+							iMight *= 100 + iHumanStrengthMod - iBufferMod;
+							iMight /= 100;
+						}
+						else
+						{
+							iMight *= 100 + iSkillRatingMod;
+							iMight /= 100;
+						}
 					}
 				}
-
-				// Modify based on military rating (combat skill)
-				iMight *= ComputeRatingStrengthAdjustment(eAllyPlayer);
-				iMight /= 100;
+				else
+				{
+					// Modify based on military rating (combat skill)
+					iMight *= ComputeRatingStrengthAdjustment(eAllyPlayer);
+					iMight /= 100;
+				}
 
 				// Add a % of the military might of this friend in to the overall eval
 				iStrengthEstimate += (iThirdPartyValue * iMight / 100);
@@ -10706,7 +10960,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 				}
 
 				// Approach isn't war anymore and we're at a stalemate, let's make peace.
-				if (!bWarApproach && GetWarState(ePlayer) <= WAR_STATE_STALEMATE)
+				if (!bWarApproach && GetWarState(ePlayer) <= WAR_STATE_STALEMATE && GetWarScore(ePlayer) < 25)
 				{
 					SetWarGoal(ePlayer, WAR_GOAL_PEACE);
 					continue;
@@ -12252,11 +12506,11 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 			// Add weight for player's competitiveness (1 - 10)
 			iWonderDisputeWeight *= iCompetitiveness;
 
-			if (iWonderDisputeWeight >= /*10*/ GC.getWONDER_DISPUTE_FIERCE_THRESHOLD())
+			if (iWonderDisputeWeight >= /*24*/ GC.getWONDER_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if (iWonderDisputeWeight >= /*7*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
+			else if (iWonderDisputeWeight >= /*12*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if (iWonderDisputeWeight >= /*5*/ GC.getWONDER_DISPUTE_WEAK_THRESHOLD())
+			else if (iWonderDisputeWeight >= /*1*/ GC.getWONDER_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			SetWonderDisputeLevel(ePlayer, eDisputeLevel);
@@ -13334,42 +13588,29 @@ bool CvDiplomacyAI::IsWarWouldBankruptUs(PlayerTypes ePlayer, bool bIgnoreDPs, i
 		return false;
 
 	int iTreasuryGold = GetPlayer()->GetTreasury()->GetGold();
-	int iIncome = GetPlayer()->GetCachedGoldRate();
+	int iIncome = GetPlayer()->getAvgGoldRate();
 	int iGoldPerTurnLostFromWar = CalculateGoldPerTurnLostFromWar(ePlayer, bIgnoreDPs);
 
-	// Would we actually lose gold from this war declaration?
+	// Would we actually gain gold from this war declaration?
 	if (iGoldPerTurnLostFromWar <= 0)
 		return false;
 
-	// No? Then if we're already bankrupt, don't bother with further checks.
+	// If we're already bankrupt, don't bother with further checks.
 	if (iTreasuryGold <= 0 && iIncome <= 0)
 		return true;
 
-	int iAdjustedGPT = iIncome - iGoldPerTurnLostFromWar;
-
 	// If we set a minimum income threshold and we're below that, abort!
-	if (iMinimumIncome != 0)
+	if (iMinimumIncome > 0)
 	{
+		int iAdjustedGPT = iIncome - iGoldPerTurnLostFromWar;
+
 		if (iAdjustedGPT < iMinimumIncome)
 		{
 			return true;
 		}
 	}
 
-	// Play it safe if we're exactly at 0
-	if (iAdjustedGPT == 0)
-	{
-		return true;
-	}
-	// If we're above 0, it's cool
-	else if (iAdjustedGPT > 0)
-	{
-		return false;
-	}
-
-	iAdjustedGPT *= -1; // flip the sign!
-	int iTurnsUntilBankruptcy = iTreasuryGold / iAdjustedGPT;
-
+	int iTurnsUntilBankruptcy = GetPlayer()->getTurnsToBankruptcy(iGoldPerTurnLostFromWar);
 	if (iTurnsUntilBankruptcy <= 30)
 		return true;
 
@@ -14151,7 +14392,7 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		DoUpdateWarmongerThreats();
 		DoUpdatePlayerTargetValues();
 		DoUpdateWarProjections();
-		GetPlayer()->cacheGoldRate();
+		GetPlayer()->cacheAvgGoldRate();
 		GetPlayer()->DoTestEmpireInBadShapeForWar();
 		DoUpdateEasyTargets();
 		DoUpdateWarGoals();
@@ -14185,8 +14426,9 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 /// Updates our general Diplomatic Approach towards each major civilization we've met
 void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic)
 {
-	std::vector<PlayerTypes> vPlayersToUpdate;
-	std::vector<PlayerTypes> vPostUpdatePlayers;
+	vector<PlayerTypes> vValidPlayers;
+	vector<PlayerTypes> vPlayersToUpdate;
+	vector<PlayerTypes> vPostUpdatePlayers;
 	std::map<PlayerTypes, CivApproachTypes> oldApproaches;
 	bool bReevaluation = !vPlayersToReevaluate.empty();
 	bool bHuman = GetPlayer()->isHuman();
@@ -14240,6 +14482,12 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 			// Otherwise, add the old approach to the map ...
 			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 
+			// Mark this player as valid if they don't fit the post update criteria.
+			if (!IsVassal(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+			{
+				vValidPlayers.push_back(eLoopPlayer);
+			}
+
 			// If this is a between turns (reevaluation) update, we only reevaluate the players on the list (for performance reasons).
 			if (bReevaluation)
 			{
@@ -14262,7 +14510,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToRe
 	// Now loop through each player and update their approach!
 	for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); it++)
 	{
-		SelectBestApproachTowardsMajorCiv(*it, bStrategic, vPlayersToUpdate, vPlayersToReevaluate, oldApproaches);
+		SelectBestApproachTowardsMajorCiv(*it, bStrategic, vValidPlayers, vPlayersToReevaluate, oldApproaches);
 	}
 
 	// Lastly we handle any post update cases
@@ -14991,7 +15239,7 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 /// What is the best Diplomatic Approach to take towards this major civilization?
 /// This is the most important calculation in determining AI diplomatic behavior!
-void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches)
+void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vValidPlayers, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS || GET_PLAYER(ePlayer).getTeam() == GetTeam()) return;
 
@@ -15376,27 +15624,25 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	bool bFirstPass = bStrategic && !bReevaluation;
 
-	if (!bFirstPass)
+	// Deliberately ignore first pass check here to make it more likely that the AI will maintain long-term relationships...
+	if (IsWantsDoFWithPlayer(ePlayer))
 	{
-		if (IsWantsDoFWithPlayer(ePlayer))
-		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-			vApproachScores[CIV_APPROACH_WAR] = 0;
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-			vApproachScores[CIV_APPROACH_GUARDED] = 0;
-			vApproachScores[CIV_APPROACH_AFRAID] = 0;
-		}
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableFriend() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_WAR] = 0;
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		vApproachScores[CIV_APPROACH_GUARDED] = 0;
+		vApproachScores[CIV_APPROACH_AFRAID] = 0;
+	}
 
-		if (IsWantsDefensivePactWithPlayer(ePlayer))
-		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
-			vApproachScores[CIV_APPROACH_WAR] = 0;
-			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
-			vApproachScores[CIV_APPROACH_GUARDED] = 0;
-			vApproachScores[CIV_APPROACH_AFRAID] = 0;
-		}
+	if (IsWantsDefensivePactWithPlayer(ePlayer))
+	{
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GetMostValuableAlly() == ePlayer ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+		vApproachScores[CIV_APPROACH_WAR] = 0;
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
+		vApproachScores[CIV_APPROACH_GUARDED] = 0;
+		vApproachScores[CIV_APPROACH_AFRAID] = 0;
 	}
 
 	////////////////////////////////////
@@ -15815,7 +16061,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (IsCompetingForVictory())
 	{
-		bVictoryConcern = GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
+		bVictoryConcern |= GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG;
 		bVictoryConcern |= GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG;
 		bVictoryConcern |= GetTechBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
 		bVictoryConcern |= GetPolicyBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE;
@@ -15931,7 +16177,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (!bFirstPass && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
-			if (GetBiggestCompetitor() == eLoopPlayer)
+			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 4;
 			}
@@ -15967,7 +16213,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (!bFirstPass && GET_TEAM(eLoopTeam).isAtWar(eTeam))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
-			if (GetBiggestCompetitor() == eLoopPlayer)
+			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetMeanness() / 2;
 			}
@@ -17814,7 +18060,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// BANKRUPTCY
 	////////////////////////////////////
 
-	bool bBankrupt = GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0;
+	bool bBankrupt = GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->getAvgGoldRate() <= 0;
 	int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bIgnoreDPs*/ false);
 
 	// We're bankrupt!
@@ -18014,6 +18260,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	int iBonus = 0;
 	bool bThinkingAboutDogpiling = false;
+	bool bFriendUnderAttack = false;
+	bool bCompetitorUnderAttack = false;
 	bool bAllowDogpiling = true;
 	bool bOtherWarPlayerCloseToTarget;
 
@@ -18036,7 +18284,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						bThinkingAboutDogpiling = true;
 					}
 
-					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40)
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) >= 40 && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 5;
@@ -18054,6 +18302,50 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 2;
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
+					// On the flipside, is this guy suffering from being at war with this player?
+					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarDamageValue(eLoopPlayer))
+					{
+						// Do we like them? Then we should defend our ally, if we can!
+						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || GetNumCitiesLiberatedBy(eLoopPlayer) > 0 || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
+						{
+							bFriendUnderAttack = true;
+
+							if (eMilitaryStrength < STRENGTH_POWERFUL)
+							{
+								vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty() / 2;
+								vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty() / 2;
+								bThinkingAboutDogpiling = true;
+							}
+							else if (eMilitaryStrength < STRENGTH_AVERAGE)
+							{
+								vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetLoyalty();
+								vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetLoyalty();
+								bThinkingAboutDogpiling = true;
+							}
+						}
+						// Do we hate the other guy? Then let's be more reluctant to go to war.
+						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && GetWarScore(ePlayer) < 25 && (!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) > -10))
+						{
+							if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer || IsEndgameAggressiveTo(eLoopPlayer))
+							{
+								vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetVictoryCompetitiveness();
+								vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * GetVictoryCompetitiveness() * 2;
+								vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * GetVictoryCompetitiveness();
+								bCompetitorUnderAttack = true;
+							}
+							else if (GetCivOpinion(eLoopPlayer) < GetCivOpinion(ePlayer) && GetBiggestCompetitor() != ePlayer && GetPrimeLeagueCompetitor() != ePlayer)
+							{
+								vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetVictoryCompetitiveness() / 2;
+								vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * GetVictoryCompetitiveness() / 4;
+								vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * GetVictoryCompetitiveness() / 4;
+								bCompetitorUnderAttack = true;
+							}
+						}
+					}
+
+					// Let's let our enemy fall before we take them on.
+					if (!bFriendUnderAttack && bCompetitorUnderAttack)
+						bAllowDogpiling = false;
 
 					// If we can't take them, we don't want them attacking us after finishing with this guy
 					if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_DEFEAT && !IsTeammate(eLoopPlayer) && !IsDoFAccepted(eLoopPlayer) && !IsHasDefensivePact(eLoopPlayer) && GetCoopWarState(eLoopPlayer, ePlayer) < COOP_WAR_STATE_PREPARING)
@@ -18076,8 +18368,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (bAllowDogpiling && iBonus > 0)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] + iBonus;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iBonus;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iBonus / 2;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iBonus / 2;
 		}
 	}
 
@@ -19499,7 +19791,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
-	if (!bFirstPass && vPlayersToUpdate.size() > 1)
+	if (!bFirstPass && vValidPlayers.size() > 1)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
@@ -19508,7 +19800,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Create a vector to store and rank the approach weights of each player from the first pass
 			CvWeightedVector<PlayerTypes> vePlayerApproachValues;
 
-			for (std::vector<PlayerTypes>::iterator it = vPlayersToUpdate.begin(); it != vPlayersToUpdate.end(); ++it)
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
 			{
 				// We use the strategic approach here for a better variance/response to circumstances.
 				vePlayerApproachValues.push_back(*it, GetPlayerStrategicApproachValue(*it, eLoopApproach));
@@ -19701,16 +19993,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		switch (eProximity)
 		{
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*300*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS_EARLY_GAME() : /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
-			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*300*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS_EARLY_GAME() : /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
+			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() : /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
+			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() : /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			vApproachScores[CIV_APPROACH_AFRAID] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			vApproachScores[CIV_APPROACH_GUARDED] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*225*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE_EARLY_GAME() : /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
-			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*225*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE_EARLY_GAME() : /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
+			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE() : /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
+			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE() : /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
 			vApproachScores[CIV_APPROACH_AFRAID] *= /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
 			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
 			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*125*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
@@ -19799,8 +20091,34 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Using weight as +/- %: more fluid than the switch table.
 	if (iOpinionWeight > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 	{
-		// We double the opinion weight for additional impact!
-		iOpinionWeight *= 2;
+		// Let's also see how much we don't like this guy compared to others that we hate.
+		// If we hate a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumBadOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+					continue;
+
+				if (GetCachedOpinionWeight(*it) > /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+				{
+					iAverage += GetCachedOpinionWeight(*it);
+					iNumBadOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumBadOpinions, 1);
+
+			if (iNumBadOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
 
 		// Increase
 		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
@@ -19820,16 +20138,45 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease
 		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 + iFriendlyMod + iOpinionWeight));	
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
 	}
 	else if (iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 	{
-		// Flip it!
-		iOpinionWeight *= -2;
+		// Flip the sign!
+		iOpinionWeight *= -1;
+
+		// Let's also see how much we like this guy compared to others that we like.
+		// If we like a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumGoodOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (GET_PLAYER(*it).GetID() == GET_PLAYER(ePlayer).GetID())
+					continue;
+
+				if (GetCachedOpinionWeight(*it) < /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+				{
+					iAverage -= GetCachedOpinionWeight(*it);
+					iNumGoodOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumGoodOpinions, 1);
+
+			if (iNumGoodOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
 
 		// Increase
 		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iFriendlyMod + iOpinionWeight;
@@ -19837,28 +20184,28 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		// Decrease
 		vApproachScores[CIV_APPROACH_WAR] *= 100;
-		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 + iWarMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 - iWarMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_HOSTILE] *= 100;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 + iHostileMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 - iHostileMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 + iDeceptiveMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 - iDeceptiveMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_GUARDED] *= 100;
-		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 + iGuardedMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 - iGuardedMod + iOpinionWeight));
 
 		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
-		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 + iAfraidMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
 
 		// Decrease Neutral
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100,(100 + iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100,(100 - iNeutralMod + iOpinionWeight));
 	}
 	else
 	{
 		// Increase Neutral
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + iNeutralMod;
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 	}
 
@@ -21997,11 +22344,23 @@ PlayerTypes CvDiplomacyAI::GetHighestScoringDefensivePact(vector<PlayerTypes>& v
 			}
 		}
 
+		// Have they assisted us in wars?
+		if (GetCoopWarScore(eChoice) > 0)
+		{
+			iDPValue += GetCoopWarScore(eChoice) * 5;
+		}
+		else if (GetCoopWarScore(eChoice) < 0)
+		{
+			iDPValue += GetCoopWarScore(eChoice) * 3;
+		}
+
+		iDPValue += GetCommonFoeScore(eChoice) / -2;
+
+		// Have they liberated us?
 		if (WasResurrectedBy(eChoice))
 		{
 			iDPValue += 50;
 		}
-
 		if (IsPlayerLiberatedCapital(eChoice))
 		{
 			iDPValue += 15;
@@ -25103,7 +25462,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 
 	// War state too high or too low
 	WarStateTypes eWarState = GetWarState(ePlayer);
-	if (eWarState == WAR_STATE_NEARLY_WON || eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+	if (eWarState >= WAR_STATE_OFFENSIVE || eWarState <= WAR_STATE_DEFENSIVE)
 		return false;
 
 	// War score is too high
@@ -25285,7 +25644,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 
 			// Any reason for them to be mad at us?
 			PlayerTypes eMyPlayer = GetID();
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(ePlayer) > 0)
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eMyPlayer) > 0)
 				return true;
 
 			CivApproachTypes eApproachTowardsUs = GetVisibleApproachTowardsUs(ePlayer);
@@ -25881,8 +26240,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					SetNumLandmarksBuiltForMe(ePlayer, 0);
 					SetNumTimesIntrigueSharedBy(ePlayer, 0);
 					
-					// Clear positive diplomatic values					
+					// Clear positive diplomatic values
 					SetCommonFoeValue(ePlayer, 0);
+					SetVassalProtectValue(ePlayer, 0);
 					if (GetRecentAssistValue(ePlayer) < 0)
 						SetRecentAssistValue(ePlayer, 0);
 				}
@@ -26010,7 +26370,7 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 		if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsProtectedByMajor(GetID()))
 		{
 			// Only apply this penalty if they haven't bullied them already
-			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer))
+			if (GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetTurnLastBulliedByMajor(ePlayer) == -1)
 			{
 				ChangeOtherPlayerNumProtectedMinorsBullied(ePlayer, 1);
 			}
@@ -26071,61 +26431,6 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	int iReturnValue = GetOtherPlayerWarmongerAmount(ePlayer);
-
-	if (iReturnValue < 10)
-		return 0;
-
-	if (GetPlayer()->isHuman())
-		return iReturnValue / 4;
-
-	// Modify warmonger amount based on current diplomatic status with this player
-	bool bUntrustworthy = false;
-
-	if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer) || IsUntrustworthy(ePlayer))
-	{
-		bUntrustworthy = true;
-	}
-
-	if (!bUntrustworthy)
-	{
-		if (IsDoFAccepted(ePlayer) || GetDoFType(ePlayer) >= DOF_TYPE_ALLIES || GetCoopWarScore(ePlayer) > 0)
-		{
-			iReturnValue /= 2;
-		}
-		else if (IsHasDefensivePact(ePlayer))
-		{
-			iReturnValue *= 75;
-			iReturnValue /= 100;
-		}
-		else if (GetDoFType(ePlayer) == DOF_TYPE_FRIENDS)
-		{
-			iReturnValue *= 90;
-			iReturnValue /= 100;
-		}
-
-		if (IsPlayerDPWithAnyFriend(ePlayer) || IsPlayerDoFWithAnyFriend(ePlayer) || IsPlayerDenouncedEnemy(ePlayer))
-		{
-			iReturnValue *= 75;
-			iReturnValue /= 100;
-		}
-	}
-
-	if (bUntrustworthy)
-	{
-		iReturnValue *= 150;
-		iReturnValue /= 100;
-	}
-	if (IsPlayerDPWithAnyEnemy(ePlayer) || IsPlayerDoFWithAnyEnemy(ePlayer) || IsPlayerDenouncedFriend(ePlayer))
-	{
-		iReturnValue *= 125;
-		iReturnValue /= 100;
-	}
-
-	// Large reduction if either of us resurrected the other
-	if (WasResurrectedBy(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(GetID()))
-	{
-		iReturnValue /= 2;
-	}
 
 	iReturnValue *= GetWarmongerHate(); // ranges from 1 to 10
 	iReturnValue /= 20;
@@ -29201,76 +29506,25 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 /// Any Minor Civs we want to chat with?
 void CvDiplomacyAI::DoContactMinorCivs()
 {
-	// If the player has deleted the DIPLOMACY Flavor we have to account for that
-	int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
-	int iDiplomacyFlavor = iDefaultFlavorValue;
-	int iGoldFlavor = iDefaultFlavorValue;
-	int iTileImprovementFlavor = iDefaultFlavorValue;
-	int iExpansionFlavor = iDefaultFlavorValue;
+	int iDiplomacyFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iGoldFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+	int iTileImprovementFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_TILE_IMPROVEMENT"));
 
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
-		{
-			iDiplomacyFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
-		{
-			iGoldFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
-		{
-			iTileImprovementFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_EXPANSION")
-		{
-			iExpansionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
-	}
-	EconomicAIStrategyTypes eFoundCity = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-	EconomicAIStrategyTypes eExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
-	EconomicAIStrategyTypes eLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	bool bFoundCity = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eFoundCity) : false;
-	bool bExpandToOtherContinents = (eExpandToOtherContinents != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eExpandToOtherContinents) : false;
-	bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
-	bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
-	bool bLosingMoney = (eLosingMoney != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eLosingMoney) : false;
+	bool bExpandToOtherContinents = GetPlayer()->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"));
+	bool bNeedHappiness = GetPlayer()->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS"));
+	bool bNeedHappinessCritical = GetPlayer()->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL"));
+	bool bLosingMoney = GetPlayer()->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY"));
 
 	// **************************
 	// Would we like to buyout a minor this turn?  (Venice / Austria UA)
 	// **************************
-	bool bWantsToBuyout = false;
-	if(GetPlayer()->IsAbleToAnnexCityStates())
-	{
-		if(bFoundCity || bExpandToOtherContinents ||
-		        GetStateAllWars() == STATE_ALL_WARS_LOSING ||
-		        IsGoingForWorldConquest() ||
-		        m_pPlayer->calculateGoldRate() > 100)
-		{
-			bWantsToBuyout = true;
-		}
-		else
-		{
-			int iThreshold = iExpansionFlavor; //antonjs: todo: xml
-			int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iExpansionFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-			if(iRandRoll < iThreshold)
-				bWantsToBuyout = true;
-		}
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(GetPlayer()->IsDiplomaticMarriage())
-	{
-		//Always yes please
-		bWantsToBuyout = true;
-	}
-#endif
+	bool bWantsToBuyout = GetPlayer()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
 
 	// **************************
 	// Would we like to give a gold gift this turn?
 	// **************************
+
 	bool bWantsToMakeGoldGift = false;
 
 	// If we're a highly diplomatic leader, then always look for an opportunity
@@ -29299,142 +29553,50 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// **************************
 	// Would we like to get a unit by bullying this turn?
 	// **************************
+
 	bool bWantsToBullyUnit = false;
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+
 	// Would we like to get Heavy Tribute by bullying this turn?
-	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	// Loop through all (known) Minors
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
-		// Loop through all (known) Minors
-		PlayerTypes eMinor;
-		int iValue = 0;
-		for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		if (!GET_PLAYER(eMinor).isMinorCiv())
+			continue;
+
+		if (GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
+			continue;
+
+		if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
-			eMinor = (PlayerTypes) iMinorLoop;
-
-			if(GET_PLAYER(eMinor).isMinorCiv())
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->CalculateBullyScore(GetID(), false) >= 50)
 			{
-				if((iScienceFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-				{
-					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE));
-					int iThreshold = (iValue / 100);
-					if (iThreshold <= 10)
-					{
-						iThreshold = 10;
-						}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iScienceFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				bWantsToBullyUnit = true;
+			}
+		}
+		else
+		{
+			if (GetPlayer()->GetEconomicAI()->GetWorkersToCitiesRatio() < 0.25 && GetPlayer()->GetEconomicAI()->GetImprovedToImprovablePlotsRatio() < 0.50)
+			{
+				bWantsToBullyUnit = true;
+			}
+			// Otherwise, do a random roll
+			else
+			{
+				int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
+				int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
-				else if((iProductionFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-				{
-					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION));
-					int iThreshold = (iValue / 100);
-					if (iThreshold <= 10)
-						{
-						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iProductionFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
-				else if((iCultureFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-				{
-					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE));
-					int iThreshold = (iValue / 100);
-					if (iThreshold <= 10)
-						{
-						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iCultureFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
-				else if((iFaithFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-				{
-					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH));
-					int iThreshold = (iValue / 100);
-					if (iThreshold <= 10)
-					{
-						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iFaithFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
-				else if((iGrowthFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-				{
-					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD));
-					int iThreshold = (iValue / 100);
-					if (iThreshold <= 10)
-					{
-						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGrowthFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
-				else
-				{
-					if(GetPlayer()->GetEconomicAI()->GetWorkersToCitiesRatio() < 0.25 &&  //antonjs: todo: XML
-			        GetPlayer()->GetEconomicAI()->GetImprovedToImprovablePlotsRatio() < 0.50) //antonjs: todo: XML
-					{
-						bWantsToBullyUnit = true;
-					}
-					// Otherwise, do a random roll
-					else
-					{
-						int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-						if(iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-					}
-				}
+				if (iRandRoll < iThreshold)
+					bWantsToBullyUnit = true;
 			}
 		}
 	}
-	else
-	{
-#endif	
-	if(GetPlayer()->GetEconomicAI()->GetWorkersToCitiesRatio() < 0.25 &&  //antonjs: todo: XML
-	        GetPlayer()->GetEconomicAI()->GetImprovedToImprovablePlotsRatio() < 0.50) //antonjs: todo: XML
-	{
-		bWantsToBullyUnit = true;
-	}
-	// Otherwise, do a random roll
-	else
-	{
-		int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-		if(iRandRoll < iThreshold)
-			bWantsToBullyUnit = true;
-	}
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-	}
-#endif
-
-	//antonjs: todo: if too many workers then set to false (ex. want to disband workers you have)
 
 	// **************************
 	// Would we like to get some gold by bullying this turn?
 	// **************************
+
 	bool bWantsToBullyGold = false;
 
 	if(iGoldFlavor >= 6 ||  //antonjs: todo: GC.getMC_ALWAYS_BULLY_GOLD_THRESHOLD()
@@ -29471,24 +29633,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	int iLargeGift = /*1000*/ GC.getMINOR_GOLD_GIFT_LARGE();
 	int iMediumGift = /*500*/ GC.getMINOR_GOLD_GIFT_MEDIUM();
 	int iSmallGift = /*250*/ GC.getMINOR_GOLD_GIFT_SMALL();
-	int iLargeGiftFriendship;
-	int iMediumGiftFriendship;
-	int iSmallGiftFriendship;
-	bool bMediumGiftAllies;
-	bool bSmallGiftAllies;
 
 	PlayerTypes eID = GetID();
-
-	CvMinorCivInfo* pMinorInfo;
-	CvPlayer* pMinor;
-	CvMinorCivAI* pMinorCivAI;
-
-	int iOtherMajorLoop;
-	PlayerTypes eOtherMajor;
-	int iFriendshipWithMinor;
-	int iOtherPlayerFriendshipWithMinor;
-
-	bool bWantsToConnect;
 
 	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
 
@@ -29529,14 +29675,14 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	}
 #endif
 	// Loop through all (known) Minors
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
-		pMinor = &GET_PLAYER(eMinor);
-		pMinorCivAI = pMinor->GetMinorCivAI();
+		CvPlayer* pMinor = &GET_PLAYER(eMinor);
+		CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 
-		bWantsToConnect = false;
+		bool bWantsToConnect = false;
 		bool bWantsToGiveGoldToThisMinor = false;
 		bool bWantsToBullyUnitFromThisMinor = false;
 		bool bWantsToBullyGoldFromThisMinor = false;
@@ -29554,12 +29700,22 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			DoUpdateMinorCivProtection(eMinor, eApproach);
 
 			// Do we want to connect to this player?
-			if(pMinorCivAI->IsActiveQuestForPlayer(eID, MINOR_CIV_QUEST_ROUTE))
+			int iEra = GetPlayer()->GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
+			if (eApproach == CIV_APPROACH_FRIENDLY && GetPlayer()->getAvgGoldRate() > min(20 * iEra,50))
 			{
-				if(eApproach == CIV_APPROACH_FRIENDLY)
+				if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
-					if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
+					if (pMinorCivAI->IsAllies(eID))
+					{
 						bWantsToConnect = true;
+					}
+					else if (pMinorCivAI->IsActiveQuestForPlayer(eID, MINOR_CIV_QUEST_ROUTE))
+					{
+						bWantsToConnect = true;
+					}
 				}
 			}
 
@@ -29609,9 +29765,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// How many units does the city-state have?
 					int iMinorMilitaryUnits = 0;
 					int iMinorUnits = 0;
-					CvUnit* pLoopUnit;
 					int iLoop;
-					for(pLoopUnit = pMinor->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pMinor->nextUnit(&iLoop))
+					for (CvUnit* pLoopUnit = pMinor->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pMinor->nextUnit(&iLoop))
 					{
 						if(pLoopUnit->IsCanAttack() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 						{
@@ -29743,7 +29898,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// if we are rich we are more likely to, conversely if we are poor...
 					iValue += min(max(0, m_pPlayer->calculateGoldRate() - 50),100);
 
-					pMinorInfo = GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType());
+					CvMinorCivInfo* pMinorInfo = GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType());
 
 					// Diplo victory makes us more likely to spend gold
 					if(IsGoingForDiploVictory())
@@ -29812,26 +29967,25 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					else if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_FAR)
 						iValue += /*3*/ GC.getMC_GIFT_WEIGHT_FAR();
 
-					iLargeGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iLargeGift);
-					iMediumGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iMediumGift);
-					iSmallGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iSmallGift);
+					int iMediumGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iMediumGift);
+					int iSmallGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iSmallGift);
 
-					iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
+					int iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
 
 					// Only care if we'll actually be Allies or better
-					bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
-					bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+					bool bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+					bool bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
 
 					// Loop through other players to see if we can pass them
-					for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
+					for(int iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 					{
-						eOtherMajor = (PlayerTypes) iOtherMajorLoop;
+						PlayerTypes eOtherMajor = (PlayerTypes) iOtherMajorLoop;
 
 						// Player must be alive
 						if(!GET_PLAYER(eOtherMajor).isAlive())
 							continue;
 
-						iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
+						int iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
 
 						// Player must have friendship with this major
 						if(iOtherPlayerFriendshipWithMinor <= 0)
@@ -39288,6 +39442,10 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 			iScore += 15;
 		}
+
+		// Have they helped us in war before?
+		iScore += GetCoopWarScore(eAllyPlayer) * 3;
+		iScore += GetCommonFoeScore(eAllyPlayer) / -2;
 	}
 
 	// Are we in danger of getting conquered by the target?
@@ -39308,6 +39466,13 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		if (GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->IsEasyTarget(eTargetPlayer) && bTheyHaveGoodAttackTarget)
 		{
 			iDangerMod += 2;
+		}
+
+		// Have they helped us in war before?
+		if (iDangerMod > 0)
+		{
+			iDangerMod += GetCoopWarScore(eAllyPlayer);
+			iDangerMod += GetCommonFoeScore(eAllyPlayer) / -10;
 		}
 
 		// Dangerous player is a neighbor, other player is at least close
@@ -40457,7 +40622,7 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 {
 	// We have to be really treacherous to consider doing this, otherwise we'll just break up our friendships.
-	if (!IsBackstabber() && !IsUntrustworthy(ePlayer) && !WasEverBackstabbedBy(ePlayer) && GetMeanness() < 8 && GetDenounceWillingness() < 9 && GetLoyalty() > 3)
+	if (!IsBackstabber() && !IsUntrustworthy(ePlayer) && !WasEverBackstabbedBy(ePlayer) && GetDenounceWillingness() < 8 && GetLoyalty() > 3)
 		return false;
 
 	if (IsMaster(ePlayer) || GetPlayer()->IsVassalOfSomeone())
@@ -40502,7 +40667,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);
-	if (eApproach == CIV_APPROACH_AFRAID)
+	if (eApproach == CIV_APPROACH_AFRAID || eApproach == CIV_APPROACH_FRIENDLY)
 		return false;
 
 	if (eApproach == CIV_APPROACH_HOSTILE)
@@ -41200,6 +41365,10 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 
 	switch (GetCivApproach(ePlayer))
 	{
+	// Do NOT denounce if friendly
+	case CIV_APPROACH_FRIENDLY:
+		return 0;
+		break;
 	// Hostile: Bonus
 	case CIV_APPROACH_HOSTILE:
 		iWeight += 6;
@@ -41211,9 +41380,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	// Let's not upset things
 	case CIV_APPROACH_NEUTRAL:
 		iWeight -= 8;
-		break;
-	case CIV_APPROACH_FRIENDLY:
-		iWeight -= 15;
 		break;
 	// Slight bump if guarded
 	case CIV_APPROACH_GUARDED:
@@ -41270,17 +41436,13 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		break;
 	// Let's not upset things
 	case CIV_OPINION_NEUTRAL:
-		iWeight -= 2;
+		iWeight -= 5;
 		break;
-	// Good Relations: Penalty
+	// Good Relations: Don't denounce
 	case CIV_OPINION_FAVORABLE:
-		iWeight -= 10;
-		break;
 	case CIV_OPINION_FRIEND:
-		iWeight -= 25;
-		break;
 	case CIV_OPINION_ALLY:
-		iWeight -= 50;
+		return 0;
 		break;
 	}
 
@@ -42429,14 +42591,6 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_WARMONGER();
 		}
-		if (GetPlayer()->GetCurrentEra() == 0)
-		{
-			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_ANCIENT_ERA();
-		}
-		else if (GetPlayer()->GetCurrentEra() == 1)
-		{
-			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_LAND_CLASSICAL_ERA();
-		}
 	}
 	else if (iOpinionWeight < 0)
 	{
@@ -42454,7 +42608,7 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1000;
+			iOpinionWeight /= 1500;
 		}
 		else
 		{
@@ -42471,11 +42625,6 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 			else
 			{
 				iOpinionWeight /= 5;
-			}
-
-			if (iEra <= 1)
-			{
-				iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
 			}
 		}
 	}
@@ -42526,7 +42675,7 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1000;
+			iOpinionWeight /= 1500;
 		}
 		else
 		{
@@ -42595,7 +42744,7 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			if (iOpinionWeight > 0)
 			{
 				iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight /= 1500;
 			}
 			else
 			{
@@ -43045,7 +43194,7 @@ int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer)
 
 		if (iCurrentValuePercent > 0)
 		{
-			iOpinionWeight = /*-50*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * iCurrentValuePercent / 100;
+			iOpinionWeight = /*-100*/ GC.getOPINION_WEIGHT_COMMON_FOE_MAX() * iCurrentValuePercent / 100;
 		}
 	}
 
@@ -43612,6 +43761,14 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 {
+	// This penalty only applies if we're not friends or allies.
+	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+		return 0;
+
+	// Ignore for liberators.
+	if (WasResurrectedBy(ePlayer) || IsPlayerReturnedCapital(ePlayer) || IsPlayerReturnedHolyCity(ePlayer) || GetNumCitiesLiberatedBy(ePlayer) > 0)
+		return 0;
+
 	int iOpinionWeight = 0;
 	int iNumDenouncements = 0;
 
@@ -43627,31 +43784,31 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 			if (GetDoFType(ePlayer) > GetDoFType(eLoopPlayer))
 				continue;
 
-			if (GetCachedOpinionWeight(ePlayer) <= GetCachedOpinionWeight(eLoopPlayer))
+			if (GetCivOpinion(ePlayer) >= GetCivOpinion(eLoopPlayer))
 				continue;
 		}
 
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedByPlayer(eLoopPlayer))
 		{
-			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || (GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS && GetCivOpinion(eLoopPlayer) >= CIV_OPINION_NEUTRAL))
+			if (IsTeammate(eLoopPlayer) || IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer))
 			{
 				iNumDenouncements++;
 			}
 
 			if (IsTeammate(eLoopPlayer) || (GetMostValuableFriend() == eLoopPlayer && IsDoFAccepted(eLoopPlayer)) || (GetMostValuableAlly() == eLoopPlayer && IsHasDefensivePact(eLoopPlayer)))
 			{
-				iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
+				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_KEY_FRIEND();
 			}
 		}
 	}
 
 	if (iNumDenouncements > 0)
 	{
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND();
 
 		if (iNumDenouncements > 1)
 		{
-			iOpinionWeight += /*8*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
+			iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_THEIR_FRIEND_SUBSEQUENT() * (iNumDenouncements - 1);
 		}
 	}
 
@@ -48989,8 +49146,6 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", ";
 					}
 
-					LogWarDamage(strOutBuf, eLoopPlayer);
-
 					LogProximity(strOutBuf, eLoopPlayer);
 					LogTargetValue(strOutBuf, eLoopPlayer);
 
@@ -49750,36 +49905,6 @@ void CvDiplomacyAI::LogWarProjection(CvString& strString, PlayerTypes ePlayer)
 		break;
 	default:
 		strTemp.Format("W_PRJ Unknown");
-		break;
-	}
-	strString += ", " + strTemp;
-}
-
-/// Log War Damage
-void CvDiplomacyAI::LogWarDamage(CvString& strString, PlayerTypes ePlayer)
-{
-	CvString strTemp;
-
-	// War Damage
-	switch(GetWarDamageLevel(ePlayer))
-	{
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		strTemp.Format("W_DMG **CRIPPLED**");
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		strTemp.Format("W_DMG SERIOUS");
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		strTemp.Format("W_DMG Major");
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		strTemp.Format("W_DMG mnr");
-		break;
-	case WAR_DAMAGE_LEVEL_NONE:
-		strTemp.Format("W_DMG None");
-		break;
-	default:
-		strTemp.Format("W_DMG Unknown");
 		break;
 	}
 	strString += ", " + strTemp;
@@ -50658,426 +50783,308 @@ FDataStream& operator>>(FDataStream& loadFrom, DeclarationLogData& writeTo)
 
 // AI HELPER ROUTINES
 
-int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmonger, PlayerTypes ePlayer, TeamTypes eDefendingTeam, WarmongerTriggerTypes eWarmongerTrigger)
+int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, TeamTypes eDefendingTeam, PlayerTypes eObserver, WarmongerTriggerTypes eWarmongerTrigger)
 {
+	if (eObserver < 0 || eObserver >= MAX_MAJOR_CIVS || !GET_PLAYER(eObserver).isAlive() || !GET_PLAYER(eObserver).isMajorCiv())
+		return 0;
+
+	int iWarmongerValue = 0;
+
 	switch (eWarmongerTrigger)
 	{
 		case WARMONGER_MAJOR_ATTACKED:
 		{
-			int iWarmongerValue = /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT();
-			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT() / 2;
-
-			if (iWarmongerValue <= 0)
-				return 0;
-
-			int iWarmongerStrengthModifier = 0;
-
-			// INCREASE if he's big and nasty, DECREASE if he's not.
-			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
-			{
-			case STRENGTH_IMMENSE:
-				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
-				break;
-			case STRENGTH_POWERFUL:
-				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
-				break;
-			case STRENGTH_STRONG:
-				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
-				break;
-			case STRENGTH_AVERAGE:
-				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
-				break;
-			case STRENGTH_POOR:
-				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
-				break;
-			case STRENGTH_WEAK:
-				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
-				break;
-			case STRENGTH_PATHETIC:
-				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
-				break;
-			}
-
-			// Do any additional factors affect this amount?
-			bool bSanctioned = false;
-			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-
-			if (eTeam != eDefendingTeam && !GET_TEAM(eDefendingTeam).IsVassal(eTeam) && !GET_TEAM(eTeam).IsVassal(eDefendingTeam) && !GET_TEAM(eTeam).IsHasDefensivePact(eDefendingTeam))
-			{
-				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
-				vector<PlayerTypes> vDefendingTeam = GET_TEAM(eDefendingTeam).getPlayers();
-
-				for (size_t i=0; i<vDefendingTeam.size(); i++)
-				{
-					if (!GET_PLAYER(vDefendingTeam[i]).isAlive())
-						continue;
-
-					StrengthTypes eStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vDefendingTeam[i]);
-					if (eStrength > eHighestStrength)
-					{
-						eHighestStrength = eStrength;
-					}
-
-					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(ePlayer, vDefendingTeam[i]))
-					{
-						bSanctioned = true;
-					}
-				}
-
-				// DECREASE if opponent is big and nasty.
-				switch (eHighestStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
-					break;
-				case STRENGTH_POWERFUL:
-					iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
-					break;
-				case STRENGTH_STRONG:
-					iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
-					break;
-				case STRENGTH_AVERAGE:
-					iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
-					break;
-				}
-			}
-
-			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
-			iWarmongerValue /= 100;
-
-			// DECREASE if opponent is sanctioned.
-			if (bSanctioned)
-			{
-				iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
-				iWarmongerValue /= 100;
-			}
-
-			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-			{
-				// Casus Belli?
-				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-					iWarmongerValue /= 100;
-				}
-				// Global Peace Accords?
-				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-					iWarmongerValue /= 100;
-				}
-			}
-
-			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
-			iWarmongerValue /= 100;
-
-			return iWarmongerValue;
+			iWarmongerValue = /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT();
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * /*10*/ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT() / 2;
+			break;
 		}
 		case WARMONGER_MINOR_ATTACKED:
 		{
-			int iWarmongerValue = /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT();
-			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT() / 2;
-
-			if (iWarmongerValue <= 0)
-				return 0;
-
-			int iWarmongerStrengthModifier = 0;
-
-			// INCREASE if he's big and nasty, DECREASE if he's not.
-			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
-			{
-			case STRENGTH_IMMENSE:
-				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
-				break;
-			case STRENGTH_POWERFUL:
-				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
-				break;
-			case STRENGTH_STRONG:
-				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
-				break;
-			case STRENGTH_AVERAGE:
-				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
-				break;
-			case STRENGTH_POOR:
-				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
-				break;
-			case STRENGTH_WEAK:
-				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
-				break;
-			case STRENGTH_PATHETIC:
-				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
-				break;
-			}
-
-			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
-			iWarmongerValue /= 100;
-
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-			{
-				// Casus Belli?
-				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-					iWarmongerValue /= 100;
-				}
-				// Global Peace Accords?
-				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-					iWarmongerValue /= 100;
-				}
-			}
-
-			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
-			iWarmongerValue /= 100;
-
-			return iWarmongerValue;
+			iWarmongerValue = /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT();
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * /*5*/ GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT() / 2;
+			break;
 		}
 		case WARMONGER_NUKED_PLAYER:
 		{
-			int iWarmongerValue = /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
-			iWarmongerValue += GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
-
-			if (iWarmongerValue <= 0)
-				return 0;
-
-			int iWarmongerStrengthModifier = 0;
-
-			// INCREASE if he's big and nasty, DECREASE if he's not.
-			switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
-			{
-			case STRENGTH_IMMENSE:
-				iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
-				break;
-			case STRENGTH_POWERFUL:
-				iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
-				break;
-			case STRENGTH_STRONG:
-				iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
-				break;
-			case STRENGTH_AVERAGE:
-				iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
-				break;
-			case STRENGTH_POOR:
-				iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
-				break;
-			case STRENGTH_WEAK:
-				iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
-				break;
-			case STRENGTH_PATHETIC:
-				iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
-				break;
-			}
-
-			// Do any additional factors affect this amount?
-			bool bSanctioned = false;
-			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-
-			if (eTeam != eDefendingTeam && !GET_TEAM(eDefendingTeam).IsVassal(eTeam) && !GET_TEAM(eTeam).IsVassal(eDefendingTeam) && !GET_TEAM(eTeam).IsHasDefensivePact(eDefendingTeam))
-			{
-				StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
-				vector<PlayerTypes> vDefendingTeam = GET_TEAM(eDefendingTeam).getPlayers();
-
-				for (size_t i=0; i<vDefendingTeam.size(); i++)
-				{
-					if (!GET_PLAYER(vDefendingTeam[i]).isAlive())
-						continue;
-
-					StrengthTypes eStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vDefendingTeam[i]);
-					if (eStrength > eHighestStrength)
-					{
-						eHighestStrength = eStrength;
-					}
-
-					if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(ePlayer, vDefendingTeam[i]))
-					{
-						bSanctioned = true;
-					}
-				}
-
-				// DECREASE if opponent is big and nasty.
-				switch (eHighestStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
-					break;
-				case STRENGTH_POWERFUL:
-					iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
-					break;
-				case STRENGTH_STRONG:
-					iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
-					break;
-				case STRENGTH_AVERAGE:
-					iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
-					break;
-				}
-			}
-
-			iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
-			iWarmongerValue /= 100;
-
-			// DECREASE if opponent is sanctioned.
-			if (bSanctioned)
-			{
-				iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
-				iWarmongerValue /= 100;
-			}
-
-			if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-			{
-				// Casus Belli?
-				if (GC.getGame().GetGameLeagues()->IsWorldWar(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-					iWarmongerValue /= 100;
-				}
-				// Global Peace Accords?
-				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(ePlayer) > 0)
-				{
-					iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-					iWarmongerValue /= 100;
-				}
-			}
-
-			iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
-			iWarmongerValue /= 100;
-
-			return iWarmongerValue;
+			iWarmongerValue = /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * /*20*/ GC.getWARMONGER_THREAT_USED_NUKE_WEIGHT();
+			break;
+		}
+		default:
+		{
+			return 0;
+			break;
 		}
 	}
 
-	// If we got this far, a city was captured (or liberated)
-	if (pCity == NULL)
+	if (iWarmongerValue <= 0)
 		return 0;
 
-	int iWarmongerWeight = 0;
+	int iWarmongerStrengthModifier = 0;
 
-	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
-	int iLocalEconomicPower = pCity->getEconomicValue(pCity->getOwner());
-	//cities rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
-	iWarmongerWeight = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
-
-	iWarmongerWeight *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
-	iWarmongerWeight /= 100;
-
-	if (pCity->IsOriginalCapitalForPlayer(ePlayer) && pCity->IsOriginalMajorCapital())
+	// INCREASE if he's big and nasty, DECREASE if he's not.
+	switch (GET_PLAYER(eObserver).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
 	{
-		iWarmongerWeight *= /*150*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
-		iWarmongerWeight /= 100;
+	case STRENGTH_IMMENSE:
+		iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+		break;
+	case STRENGTH_POWERFUL:
+		iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+		break;
+	case STRENGTH_STRONG:
+		iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
+		break;
+	case STRENGTH_AVERAGE:
+		iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
+		break;
+	case STRENGTH_POOR:
+		iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+		break;
+	case STRENGTH_WEAK:
+		iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+		break;
+	case STRENGTH_PATHETIC:
+		iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
+		break;
 	}
 
-	//we reduce value significantly if we've owned before.
-	if (eWarmonger != NO_PLAYER)
+	// Do any additional factors affect this amount?
+	bool bSanctioned = false;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	TeamTypes eTeam = GET_PLAYER(eObserver).getTeam();
+
+	if (eWarmongerTrigger != WARMONGER_MINOR_ATTACKED)
 	{
-		int iNumTimesOwned(pCity->GetNumTimesOwned(eWarmonger));
+		if (eTeam != eDefendingTeam && !GET_TEAM(eDefendingTeam).IsVassal(eTeam) && !GET_TEAM(eTeam).IsVassal(eDefendingTeam) && !GET_TEAM(eTeam).IsHasDefensivePact(eDefendingTeam))
+		{
+			StrengthTypes eHighestStrength = STRENGTH_PATHETIC;
+			vector<PlayerTypes> vDefendingTeam = GET_TEAM(eDefendingTeam).getPlayers();
+
+			for (size_t i=0; i<vDefendingTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vDefendingTeam[i]).isAlive())
+					continue;
+
+				StrengthTypes eStrength = GET_PLAYER(eObserver).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(vDefendingTeam[i]);
+				if (eStrength > eHighestStrength)
+				{
+					eHighestStrength = eStrength;
+				}
+
+				if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague->IsTradeEmbargoed(eObserver, vDefendingTeam[i]))
+				{
+					bSanctioned = true;
+				}
+			}
+
+			// DECREASE if opponent is big and nasty.
+			switch (eHighestStrength)
+			{
+			case STRENGTH_IMMENSE:
+				iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+				break;
+			case STRENGTH_POWERFUL:
+				iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+				break;
+			case STRENGTH_STRONG:
+				iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+				break;
+			case STRENGTH_AVERAGE:
+				iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+				break;
+			}
+		}
+	}
+	else if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GC.getGame().GetGameLeagues()->IsCityStateEmbargo(eObserver))
+	{
+		bSanctioned = true;
+	}
+
+	iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
+	iWarmongerValue /= 100;
+
+	// DECREASE if opponent is sanctioned.
+	if (bSanctioned)
+	{
+		iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+		iWarmongerValue /= 100;
+	}
+
+	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		// Casus Belli?
+		if (GC.getGame().GetGameLeagues()->IsWorldWar(eObserver) > 0)
+		{
+			iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+			iWarmongerValue /= 100;
+		}
+		// Global Peace Accords?
+		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eObserver) > 0)
+		{
+			iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+			iWarmongerValue /= 100;
+		}
+	}
+
+	iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
+	iWarmongerValue /= 100;
+
+	return iWarmongerValue;
+}
+
+void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner)
+{
+	if (!pCity || eConqueror == NO_PLAYER || !GET_PLAYER(eConqueror).isMajorCiv() || eCityOwner == NO_PLAYER || GET_PLAYER(eCityOwner).isBarbarian())
+		return;
+
+	for (int iObservingMajorLoop = 0; iObservingMajorLoop < MAX_MAJOR_CIVS; iObservingMajorLoop++)
+	{
+		PlayerTypes eObserver = (PlayerTypes) iObservingMajorLoop;
+
+		if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eObserver).isAlive() && GET_PLAYER(eObserver).isMajorCiv())
+		{
+			int iWarmonger = GetCityWarmongerValue(pCity, eConqueror, eCityOwner, eObserver);
+			if (iWarmonger > 0)
+			{
+				CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
+				GET_PLAYER(eObserver).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmonger * 100);
+			}
+		}
+	}
+}
+
+void CvDiplomacyAIHelpers::ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner)
+{
+	if (!pCity || eLiberator == NO_PLAYER || !GET_PLAYER(eLiberator).isMajorCiv() || eNewOwner == NO_PLAYER || GET_PLAYER(eNewOwner).isBarbarian())
+		return;
+
+	for (int iObservingMajorLoop = 0; iObservingMajorLoop < MAX_MAJOR_CIVS; iObservingMajorLoop++)
+	{
+		PlayerTypes eObserver = (PlayerTypes) iObservingMajorLoop;
+
+		if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eLiberator).getTeam() && GET_PLAYER(eObserver).isAlive() && GET_PLAYER(eObserver).isMajorCiv())
+		{
+			int iLiberation = GetCityLiberationValue(pCity, eLiberator, eNewOwner, eObserver);
+			if (iLiberation < 0)
+			{
+				CUSTOMLOG("LiberationTimes100: Total=%i", iLiberation);
+				GET_PLAYER(eObserver).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eLiberator, iLiberation * 100);
+			}
+		}
+	}
+}
+
+int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver)
+{
+	CvDiplomacyAI* pDiplo = GET_PLAYER(eObserver).GetDiplomacyAI();
+
+	// Must have met the conqueror - no cheating!
+	if (!pDiplo->IsHasMet(eConqueror))
+		return 0;
+
+	// Vassals ignore their master's warmongering.
+	if (pDiplo->IsVassal(eConqueror))
+		return 0;
+
+	// Vassals receive no warmongering penalties, they have no rights.
+	if (GET_PLAYER(eConqueror).IsVassalOfSomeone())
+		return 0;
+
+	// Are we at war with the conquered player?
+	if (pDiplo->IsAtWar(eCityOwner))
+	{
+		// If our warscore is negative, ignore warmongering. They've done us a favor!
+		vector<PlayerTypes> vMyTeam = GET_TEAM(GET_PLAYER(eObserver).getTeam()).getPlayers();
+		for (size_t i=0; i<vMyTeam.size(); i++)
+		{
+			if (GET_PLAYER(vMyTeam[i]).isAlive() && GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetWarScore(eCityOwner) < 0)
+				return 0;
+		}
+	}
+
+	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
+	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	int iLocalEconomicPower = pCity->getEconomicValue(eCityOwner);
+	int iWarmongerValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+
+	// Modders can change this value to apply a multiplier to the worth of all cities
+	iWarmongerValue *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
+	iWarmongerValue /= 100;
+
+	// Original major capitals are worth more.
+	if (pCity->IsOriginalCapitalForPlayer(eCityOwner) && pCity->IsOriginalMajorCapital())
+	{
+		iWarmongerValue *= /*150*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
+		iWarmongerValue /= 100;
+	}
+
+	// Reduce value significantly if conqueror has owned the city before.
+	if (GET_PLAYER(eConqueror).isMajorCiv() && eConqueror != NO_PLAYER)
+	{
+		int iNumTimesOwned = pCity->GetNumTimesOwned(eConqueror);
 
 		if (pCity->IsNoWarmongerYet())
 			iNumTimesOwned--;
 
-		if (iNumTimesOwned > 0)
-		{
-			iWarmongerWeight -= (iNumTimesOwned * 20);
-		}
+		iWarmongerValue /= max(1, iNumTimesOwned + 2);
 	}
 
-	if (iWarmongerWeight <= 0)
-		iWarmongerWeight = 1;
+	if (iWarmongerValue <= 0)
+		iWarmongerValue = 1;
 
-	CUSTOMLOG("GetWarmongerOffset = %i for %s, Turn %i", iWarmongerWeight, pCity->getNameKey(), GC.getGame().getGameTurn());
-	return iWarmongerWeight;
-}
-
-int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerTypes eCityOwner, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation)
-{
-	if (!GET_PLAYER(eCaringPlayer).isAlive() || !GET_PLAYER(eCaringPlayer).isMajorCiv() || GET_PLAYER(eCaringPlayer).getTeam() == GET_PLAYER(eCityTaker).getTeam())
-		return 0;
-
-	CvPlayer& kCityTaker = GET_PLAYER(eCityTaker);
-	CvPlayer& kCityOwner = GET_PLAYER(eCityOwner);
-	CvPlayer &kCaringPlayer = GET_PLAYER(eCaringPlayer);
-	CvDiplomacyAI* pCarerDiplo = GET_PLAYER(eCaringPlayer).GetDiplomacyAI();
-	CvTeam &kCaringTeam = GET_TEAM(GET_PLAYER(eCaringPlayer).getTeam());
-
-	// Must have met the conqueror/liberator - no cheating!
-	if (!kCaringTeam.isHasMet(kCityTaker.getTeam()))
-		return 0;
-
-	// Vassals ignore their master's warmongering.
-	if (pCarerDiplo->IsVassal(eCityTaker))
-		return 0;
-
-	// Vassals receive no warmongering penalties, they have no rights.
-	if (kCityTaker.IsVassalOfSomeone())
-		return 0;
-
-	// Did they liberate a city that we previously owned by giving it to someone else? No bonuses!
-	if (bLiberation && pCity->GetNumTimesOwned(eCaringPlayer) > 0 && eCaringPlayer != eCityOwner)
-		return 0;
-	
-	// Am I at war with the owner of the conquered/liberated city?
-	if (kCaringTeam.isAtWar(kCityOwner.getTeam()))
-	{
-		// No bonuses for liberation if we're at war with the liberated player!
-		if (bLiberation)
-			return 0;
-
-		// If our warscore with the conquered player is negative, ignore warmongering.
-		vector<PlayerTypes> vCaringTeam = kCaringTeam.getPlayers();
-		for (size_t i=0; i<vCaringTeam.size(); i++)
-		{
-			if (GET_PLAYER(vCaringTeam[i]).isAlive() && GET_PLAYER(vCaringTeam[i]).GetDiplomacyAI()->GetWarScore(eCityOwner) < 0)
-				return 0;
-		}
-	}
+	// ////////////////////////////////////
+	// STATUS MODIFIER : this one mainly deals with defensive pacts and vassalage
+	// ////////////////////////////////////
 
 	int iWarmongerStatusModifier = 100;
 	bool bHisLossIsOurOwn = false;
 
 	// Vassalage?
-	if (pCarerDiplo->IsVassal(eCityOwner) || pCarerDiplo->IsMaster(eCityOwner))
+	if (pDiplo->IsVassal(eCityOwner) || pDiplo->IsMaster(eCityOwner))
 	{
-		iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+		iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
 		bHisLossIsOurOwn = true;
 	}
 	// Alliances? Unmet defender?
 	else
 	{
-		// The affected player is in a co-op war with the attacker against the defender - this trumps everything!
-		if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetCoopWarState(eCityTaker, eCityOwner) == COOP_WAR_STATE_ONGOING)
+		// The observing player is in a co-op war with the attacker against the defender - this trumps everything!
+		if (pDiplo->GetCoopWarState(eConqueror, eCityOwner) == COOP_WAR_STATE_ONGOING)
 		{
 			iWarmongerStatusModifier = /*10*/ GC.getWARMONGER_THREAT_COOP_WAR_PERCENT();
 		}
-		// The affected player is in a co-op war with the defender against the attacker, or has a Defensive Pact/is a teammate - his loss is our own!
-		else if (pCarerDiplo->GetCoopWarState(eCityOwner, eCityTaker) == COOP_WAR_STATE_ONGOING || pCarerDiplo->IsHasDefensivePact(eCityOwner) || kCaringPlayer.getTeam() == kCityOwner.getTeam())
+		// The observing player is in a co-op war with the defender against the attacker, or has a Defensive Pact/is a teammate - his loss is our own!
+		else if (pDiplo->GetCoopWarState(eCityOwner, eConqueror) == COOP_WAR_STATE_ONGOING || pDiplo->IsHasDefensivePact(eCityOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eCityOwner).getTeam())
 		{
-			iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+			iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
 			bHisLossIsOurOwn = true;
-
-			// A city? For me? Thanks!!
-			if (bLiberation && kCaringPlayer.getTeam() == kCityOwner.getTeam())
-			{
-				iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT();
-			}
 		}
 		// Do we not know the defender?
-		else if (!kCaringTeam.isHasMet(kCityOwner.getTeam()))
+		else if (!pDiplo->IsHasMet(eCityOwner))
 		{
 			iWarmongerStatusModifier = /*50*/ GC.getWARMONGER_THREAT_KNOWS_ATTACKER_PERCENT();
 		}
 		// Care less if we're also at war with the city owner
-		else if (pCarerDiplo->IsAtWar(eCityOwner))
+		else if (pDiplo->IsAtWar(eCityOwner))
 		{
 			iWarmongerStatusModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 		}
 	}
 
+	iWarmongerValue *= max(0, iWarmongerStatusModifier);
+	iWarmongerValue /= 100;
+
+	if (iWarmongerValue <= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// STRENGTH MODIFIER : this one mainly deals with relative power
+	// ////////////////////////////////////
+
 	int iWarmongerStrengthModifier = 0;
 
 	// INCREASE if he's big and nasty, DECREASE if he's not.
-	switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityTaker))
+	switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eConqueror))
 	{
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
@@ -51109,7 +51116,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 	if (!bHisLossIsOurOwn)
 	{
 		// DECREASE if opponent is big and nasty.
-		switch (pCarerDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityOwner))
+		switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityOwner))
 		{
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
@@ -51126,18 +51133,31 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 		}
 	}
 
+	iWarmongerValue *= max(25, 100 + iWarmongerStrengthModifier);
+	iWarmongerValue /= 100;
+
+	if (iWarmongerValue <= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// POLITICAL MODIFIER : this is the big one - geopolitics etc.
+	// ////////////////////////////////////
+
 	int iWarmongerPoliticalModifier = 0;
-	if (kCaringPlayer.getTeam() != kCityOwner.getTeam())
+
+	if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eCityOwner).getTeam())
 	{
 		// City-State
-		if (kCityOwner.isMinorCiv())
+		if (GET_PLAYER(eCityOwner).isMinorCiv())
 		{
+			CvMinorCivAI* pMinorAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
+
 			// Allies?
-			if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) >= GC.getFRIENDSHIP_THRESHOLD_ALLIES() || kCityOwner.GetMinorCivAI()->GetPermanentAlly() == eCaringPlayer)
+			if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) >= GC.getFRIENDSHIP_THRESHOLD_ALLIES() || pMinorAI->GetPermanentAlly() == eObserver)
 			{
 				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 			}
-			else if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) >= GC.getFRIENDSHIP_THRESHOLD_FRIENDS())
+			else if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) >= GC.getFRIENDSHIP_THRESHOLD_FRIENDS())
 			{
 				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 			}
@@ -51146,11 +51166,11 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 			}
 
-			if (kCityOwner.GetMinorCivAI()->IsProtectedByMajor(eCaringPlayer))
+			if (pMinorAI->IsProtectedByMajor(eObserver))
 			{
 				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 			}
-			else if (kCityOwner.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eCaringPlayer) < GC.getFRIENDSHIP_THRESHOLD_ALLIES())
+			else if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) < GC.getFRIENDSHIP_THRESHOLD_ALLIES())
 			{
 				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 			}
@@ -51159,9 +51179,9 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 		else
 		{
 			// Are we friends with the city owner?
-			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDoFAccepted(eCityOwner) || GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsHasDefensivePact(eCityOwner))
+			if (pDiplo->IsDoFAccepted(eCityOwner) || pDiplo->IsHasDefensivePact(eCityOwner))
 			{
-				switch (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetDoFType(eCityOwner))
+				switch (pDiplo->GetDoFType(eCityOwner))
 				{
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
@@ -51174,30 +51194,29 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 					break;
 				}
 			}
-			else if (!bLiberation)
+			else
 			{
 				// Have we denounced the city owner?
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eCityOwner))
+				if (pDiplo->IsDenouncedPlayer(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 				}
 				// Have we BEEN denounced by the city owner?
-				if (GET_PLAYER(eCityOwner).GetDiplomacyAI()->IsDenouncedPlayer(eCaringPlayer))
+				if (pDiplo->IsDenouncedByPlayer(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 				}
-
 				// Is this a backstabber?
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsUntrustworthy(eCityOwner))
+				if (pDiplo->IsUntrustworthy(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
 				}
 			}
 
 			// Are we friends with the city taker?
-			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDoFAccepted(eCityTaker) || GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsHasDefensivePact(eCityTaker))
+			if (pDiplo->IsDoFAccepted(eConqueror) || pDiplo->IsHasDefensivePact(eConqueror))
 			{
-				switch (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->GetDoFType(eCityTaker))
+				switch (pDiplo->GetDoFType(eConqueror))
 				{
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
@@ -51208,154 +51227,520 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerType
 					break;
 				}
 			}
-			else if (!bLiberation)
+			else
 			{
 				// Have we denounced the city taker?
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eCityTaker))
+				if (pDiplo->IsDenouncedPlayer(eConqueror))
 				{
 					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 				}
 				// Have we BEEN denounced by the city taker?
-				if (GET_PLAYER(eCityTaker).GetDiplomacyAI()->IsDenouncedPlayer(eCaringPlayer))
+				if (pDiplo->IsDenouncedByPlayer(eConqueror))
 				{
 					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 				}
-
 				// Is this a backstabber?
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsUntrustworthy(eCityTaker))
+				if (pDiplo->IsUntrustworthy(eConqueror))
 				{
 					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 				}
 			}
 
 			// Religious brothers/sisters should turn a blind eye to war conducted on different faiths.
-			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameReligion(eCityTaker))
+			if (pDiplo->IsPlayerSameReligion(eConqueror))
 			{
 				// Reduced penalties for religious friends.
 				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 
 				// We don't mind when you war on enemies of the faith.
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingReligion(eCityOwner) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreReligionDifferences(eCityOwner))
+				if (pDiplo->IsPlayerOpposingReligion(eCityOwner) && !pDiplo->IsIgnoreReligionDifferences(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
 				}
 			}
 			// Religious enemies will not be allowed to expand!
-			else if (!bLiberation && GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingReligion(eCityTaker) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreReligionDifferences(eCityTaker))
+			else if (pDiplo->IsPlayerOpposingReligion(eConqueror) && !pDiplo->IsIgnoreReligionDifferences(eConqueror))
 			{
 				// Increased penalties for religious enemies.
 				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 
 				// We don't like it when you war on brothers of the faith.
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameReligion(eCityOwner))
+				if (pDiplo->IsPlayerSameReligion(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
 				}
 			}
 
 			// Are the city taker and I of the same ideology?
-			if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eCityTaker))
+			if (pDiplo->IsPlayerSameIdeology(eConqueror))
 			{
 				// Reduced penalties for ideological companions.
 				iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
 
 				// We overlook war on our ideological opponents!
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingIdeology(eCityOwner) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eCityOwner))
+				if (pDiplo->IsPlayerOpposingIdeology(eCityOwner) && !pDiplo->IsIgnoreIdeologyDifferences(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
 				}
 			}
 			// Are the city taker and I of different ideologies? We shall not overlook this!
-			else if (!bLiberation && GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerOpposingIdeology(eCityTaker) && !GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsIgnoreIdeologyDifferences(eCityTaker))
+			else if (pDiplo->IsPlayerOpposingIdeology(eConqueror) && !pDiplo->IsIgnoreIdeologyDifferences(eConqueror))
 			{
 				// Increased penalties for ideological enemies.
 				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 
 				// If they're warring our ideological companions, this will really irritate us.
-				if (GET_PLAYER(eCaringPlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eCityOwner))
+				if (pDiplo->IsPlayerSameIdeology(eCityOwner))
 				{
 					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
 				}
 			}
 
-			// Proximity should matter.
-			switch (GET_PLAYER(eCityTaker).GetProximityToPlayer(eCaringPlayer))
+			if (!bHisLossIsOurOwn)
 			{
-			case PLAYER_PROXIMITY_DISTANT:
-				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-				break;
-			case PLAYER_PROXIMITY_FAR:
-				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
-				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-				break;
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-				break;
+				// Proximity should matter.
+				switch (GET_PLAYER(eConqueror).GetProximityToPlayer(eObserver))
+				{
+				case PLAYER_PROXIMITY_DISTANT:
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+					break;
+				}
 			}
 		}
 	}
 
-	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(pCity, eCityTaker, eCityOwner);
+	iWarmongerValue *= max(25, 100 + iWarmongerPoliticalModifier);
+	iWarmongerValue /= 100;
 
-	//this is the big one - geopolitics etc.
-	iWarmongerOffset *= 100 + max(-75, iWarmongerPoliticalModifier);
-	iWarmongerOffset /= 100;
+	if (iWarmongerValue <= 0)
+		return 0;
 
-	//this one mainly deals with relative power - with liberation it applies in reverse
-	iWarmongerOffset *= bLiberation ? max(25, 100 - iWarmongerStrengthModifier) : max(0, 100 + iWarmongerStrengthModifier);
-	iWarmongerOffset /= 100;
+	// ////////////////////////////////////
+	// RESURRECTION MODIFIER
+	// ////////////////////////////////////
 
-	//this one mainly deals with defensive pacts and vassalage
-	iWarmongerOffset *= max(0, iWarmongerStatusModifier);
-	iWarmongerOffset /= 100;
-
-	//global warmongering modifiers
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bHisLossIsOurOwn)
+	if (pDiplo->WasResurrectedBy(eConqueror) || GET_PLAYER(eConqueror).GetDiplomacyAI()->WasResurrectedBy(eObserver))
 	{
-		if (!bLiberation && pLeague->IsTradeEmbargoed(eCaringPlayer, eCityOwner))
+		iWarmongerValue /= 2;
+	}
+
+	// ////////////////////////////////////
+	// GLOBAL WARMONGERING MODIFIERS
+	// ////////////////////////////////////
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		// Sanctioned player? Worth half.
+		if (pLeague->IsTradeEmbargoed(eObserver, eCityOwner) && !bHisLossIsOurOwn)
 		{
-			iWarmongerOffset *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
-			iWarmongerOffset /= 100;
+			iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+			iWarmongerValue /= 100;
 		}
 		// Casus Belli? Warmongering and liberation are worth half.
-		if (GC.getGame().GetGameLeagues()->IsWorldWar(eCaringPlayer) > 0)
+		if (GC.getGame().GetGameLeagues()->IsWorldWar(eObserver) > 0)
 		{
-			iWarmongerOffset *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-			iWarmongerOffset /= 100;
+			iWarmongerValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+			iWarmongerValue /= 100;
 		}
 		// Global Peace Accords? Warmongering and liberation are worth double.
-		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eCaringPlayer) > 0)
+		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eObserver) > 0)
 		{
-			iWarmongerOffset *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
-			iWarmongerOffset /= 100;
+			iWarmongerValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+			iWarmongerValue /= 100;
 		}
 	}
 
-	// scale the final amount by era
-	iWarmongerOffset *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
-	iWarmongerOffset /= 100;
+	// Scale the final amount by era
+	iWarmongerValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
+	iWarmongerValue /= 100;
 
-	return iWarmongerOffset;
+	return max(iWarmongerValue, 0);
 }
 
-void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity)
+int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver)
 {
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	CvDiplomacyAI* pDiplo = GET_PLAYER(eObserver).GetDiplomacyAI();
+
+	// Must have met the liberator - no cheating!
+	if (!pDiplo->IsHasMet(eLiberator))
+		return 0;
+
+	// Vassals ignore their master's warmongering.
+	if (pDiplo->IsVassal(eLiberator))
+		return 0;
+
+	// Vassals receive no warmongering penalties, they have no rights.
+	if (GET_PLAYER(eLiberator).IsVassalOfSomeone())
+		return 0;
+
+	// Are we at war with the liberated player? No liberation bonuses!
+	if (pDiplo->IsAtWar(eNewOwner))
+		return 0;
+
+	// Is this a city we've previously owned, and they're giving it to someone else? No liberation bonuses!
+	if (GET_PLAYER(eNewOwner).getTeam() != GET_PLAYER(eObserver).getTeam() && pCity->GetNumTimesOwned(eObserver) > 0)
+		return 0;
+
+	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
+	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
+	int iLocalEconomicPower = pCity->getEconomicValue(eLiberator); // rationale for using the liberator: how much is the liberator giving up instead of conquering?
+	int iLiberationValue = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
+
+	// Modders can change this value to apply a multiplier to the worth of all cities
+	iLiberationValue *= /*100*/ GC.getWARMONGER_THREAT_CITY_VALUE_MULTIPLIER();
+	iLiberationValue /= 100;
+
+	// Original major capitals are worth more.
+	if (pCity->IsOriginalCapitalForPlayer(eNewOwner) && pCity->IsOriginalMajorCapital())
 	{
-		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
+		iLiberationValue *= /*150*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
+		iLiberationValue /= 100;
+	}
+
+	if (iLiberationValue <= 0)
+		iLiberationValue = 1;
+
+	// Flip it!
+	iLiberationValue *= -1;
+
+	// ////////////////////////////////////
+	// STATUS MODIFIER : this one mainly deals with defensive pacts and vassalage
+	// ////////////////////////////////////
+
+	int iWarmongerStatusModifier = 100;
+	bool bHisGainIsOurOwn = false;
+
+	// Vassalage?
+	if (pDiplo->IsVassal(eNewOwner) || pDiplo->IsMaster(eNewOwner))
+	{
+		iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+		bHisGainIsOurOwn = true;
+	}
+	// Alliances? Unmet defender?
+	else
+	{
+		// The observing player has a Defensive Pact/is a teammate - his gain is our own!
+		if (pDiplo->IsHasDefensivePact(eNewOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
 		{
-			int iWarmonger = GetPlayerCaresValue(eConqueror, eConquered, pCity, eMajor);
-			if (iWarmonger > 0)
+			iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+			bHisGainIsOurOwn = true;
+
+			// A city? For me? Thanks!!
+			if (GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
 			{
-				CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmonger * 100);
+				iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT();
+			}
+		}
+		// Do we not know the defender?
+		else if (!pDiplo->IsHasMet(eNewOwner))
+		{
+			iWarmongerStatusModifier = /*50*/ GC.getWARMONGER_THREAT_KNOWS_ATTACKER_PERCENT();
+		}
+	}
+
+	iLiberationValue *= max(0, iWarmongerStatusModifier);
+	iLiberationValue /= 100;
+
+	if (iLiberationValue >= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// STRENGTH MODIFIER : this one mainly deals with relative power
+	// ////////////////////////////////////
+
+	int iWarmongerStrengthModifier = 0;
+
+	// DECREASE if he's big and nasty, INCREASE if he's not.
+	switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eLiberator))
+	{
+	case STRENGTH_IMMENSE:
+		iWarmongerStrengthModifier = /*100*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE();
+		break;
+	case STRENGTH_POWERFUL:
+		iWarmongerStrengthModifier = /*75*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL();
+		break;
+	case STRENGTH_STRONG:
+		iWarmongerStrengthModifier = /*50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_STRONG();
+		break;
+	case STRENGTH_AVERAGE:
+		iWarmongerStrengthModifier = /*33*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE();
+		break;
+	case STRENGTH_POOR:
+		iWarmongerStrengthModifier = /*0*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_POOR();
+		break;
+	case STRENGTH_WEAK:
+		iWarmongerStrengthModifier = /*-25*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_WEAK();
+		break;
+	case STRENGTH_PATHETIC:
+		iWarmongerStrengthModifier = /*-50*/ GC.getWARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC();
+		break;
+	}
+
+	// Flip this for liberation. Higher strength = less bonus.
+	iWarmongerStrengthModifier *= -1;
+
+	// No strength-based reductions if it's our gain...
+	if (bHisGainIsOurOwn && iWarmongerStrengthModifier < 0)
+		iWarmongerStrengthModifier = 0;
+
+	if (!bHisGainIsOurOwn)
+	{
+		// DECREASE if opponent is big and nasty.
+		switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eNewOwner))
+		{
+		case STRENGTH_IMMENSE:
+			iWarmongerStrengthModifier += /*-75*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE();
+			break;
+		case STRENGTH_POWERFUL:
+			iWarmongerStrengthModifier += /*-50*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL();
+			break;
+		case STRENGTH_STRONG:
+			iWarmongerStrengthModifier += /*-25*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_STRONG();
+			break;
+		case STRENGTH_AVERAGE:
+			iWarmongerStrengthModifier += /*0*/ GC.getWARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE();
+			break;
+		}
+	}
+
+	iLiberationValue *= max(25, 100 + iWarmongerStrengthModifier);
+	iLiberationValue /= 100;
+
+	if (iLiberationValue >= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// POLITICAL MODIFIER : this is the big one - geopolitics etc.
+	// ////////////////////////////////////
+
+	int iWarmongerPoliticalModifier = 0;
+
+	if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eNewOwner).getTeam())
+	{
+		// City-State
+		if (GET_PLAYER(eNewOwner).isMinorCiv())
+		{
+			CvMinorCivAI* pMinorAI = GET_PLAYER(eNewOwner).GetMinorCivAI();
+
+			// Allies?
+			if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) >= GC.getFRIENDSHIP_THRESHOLD_ALLIES() || pMinorAI->GetPermanentAlly() == eObserver)
+			{
+				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+			}
+			else if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) >= GC.getFRIENDSHIP_THRESHOLD_FRIENDS())
+			{
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+			}
+			else
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+			}
+
+			if (pMinorAI->IsProtectedByMajor(eObserver))
+			{
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+			}
+			else if (pMinorAI->GetEffectiveFriendshipWithMajor(eObserver) < GC.getFRIENDSHIP_THRESHOLD_ALLIES())
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+			}
+		}
+		// Major Civ
+		else
+		{
+			// Are we friends with the city owner?
+			if (pDiplo->IsDoFAccepted(eNewOwner) || pDiplo->IsHasDefensivePact(eNewOwner))
+			{
+				switch (pDiplo->GetDoFType(eNewOwner))
+				{
+				case DOF_TYPE_FRIENDS:
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+					break;
+				case DOF_TYPE_ALLIES:
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					break;
+				case DOF_TYPE_BATTLE_BROTHERS:
+					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+					break;
+				}
+			}
+			else
+			{
+				// Have we denounced the city owner?
+				if (pDiplo->IsDenouncedPlayer(eNewOwner))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+				// Have we BEEN denounced by the city owner?
+				if (pDiplo->IsDenouncedByPlayer(eNewOwner))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+				// Is this a backstabber?
+				if (pDiplo->IsUntrustworthy(eNewOwner))
+				{
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+				}
+			}
+
+			// Are we friends with the liberator?
+			if (pDiplo->IsDoFAccepted(eLiberator) || pDiplo->IsHasDefensivePact(eLiberator))
+			{
+				switch (pDiplo->GetDoFType(eLiberator))
+				{
+				case DOF_TYPE_FRIENDS:
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+					break;
+				case DOF_TYPE_ALLIES:
+				case DOF_TYPE_BATTLE_BROTHERS:
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					break;
+				}
+			}
+			else
+			{
+				// Have we denounced the liberator?
+				if (pDiplo->IsDenouncedPlayer(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+				// Have we BEEN denounced by the liberator?
+				if (pDiplo->IsDenouncedByPlayer(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+				// Is this a backstabber?
+				if (pDiplo->IsUntrustworthy(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+				}
+			}
+
+			// We're happy when you liberate our religious brothers/sisters.
+			if (pDiplo->IsPlayerSameReligion(eNewOwner))
+			{
+				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+
+				// Even moreso when you're also of our faith!
+				if (pDiplo->IsPlayerSameReligion(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				}
+			}
+			// We don't like when you liberate enemies of the faith.
+			else if (pDiplo->IsPlayerOpposingReligion(eNewOwner) && !pDiplo->IsIgnoreReligionDifferences(eNewOwner))
+			{
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+
+				// Even moreso if you're also of another faith.
+				if (pDiplo->IsPlayerOpposingReligion(eLiberator) && !pDiplo->IsIgnoreReligionDifferences(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				}
+			}
+
+			// If they're liberating our ideological companions, we like this!
+			if (pDiplo->IsPlayerSameIdeology(eNewOwner))
+			{
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+
+				// Are the liberator and I also of the same ideology?
+				if (pDiplo->IsPlayerSameIdeology(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				}
+			}
+			// We dislike the liberation of our ideological opponents!
+			else if (pDiplo->IsPlayerOpposingIdeology(eNewOwner) && !pDiplo->IsIgnoreIdeologyDifferences(eNewOwner))
+			{
+				iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+
+				// Are the liberator and I also of different ideologies?
+				if (pDiplo->IsPlayerOpposingIdeology(eLiberator) && !pDiplo->IsIgnoreIdeologyDifferences(eLiberator))
+				{
+					iWarmongerPoliticalModifier += /*-50*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM();
+				}
+			}
+
+			if (!bHisGainIsOurOwn)
+			{
+				// Proximity should matter.
+				switch (GET_PLAYER(eLiberator).GetProximityToPlayer(eObserver))
+				{
+				case PLAYER_PROXIMITY_DISTANT:
+					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+					break;
+				}
 			}
 		}
 	}
+
+	iLiberationValue *= max(25, 100 + iWarmongerPoliticalModifier);
+	iLiberationValue /= 100;
+
+	if (iLiberationValue >= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// RESURRECTION MODIFIER
+	// ////////////////////////////////////
+
+	if (pDiplo->WasResurrectedBy(eLiberator) || GET_PLAYER(eLiberator).GetDiplomacyAI()->WasResurrectedBy(eObserver))
+	{
+		iLiberationValue *= 2;
+	}
+
+	// ////////////////////////////////////
+	// GLOBAL WARMONGERING MODIFIERS
+	// ////////////////////////////////////
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		// Sanctioned player? Worth half.
+		if (pLeague->IsTradeEmbargoed(eObserver, eNewOwner) && !bHisGainIsOurOwn)
+		{
+			iLiberationValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER();
+			iLiberationValue /= 100;
+		}
+		// Casus Belli? Warmongering and liberation are worth half.
+		if (GC.getGame().GetGameLeagues()->IsWorldWar(eObserver) > 0)
+		{
+			iLiberationValue *= /*50*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+			iLiberationValue /= 100;
+		}
+		// Global Peace Accords? Warmongering and liberation are worth double.
+		else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(eObserver) > 0)
+		{
+			iLiberationValue *= /*200*/ GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+			iLiberationValue /= 100;
+		}
+	}
+
+	// Scale the final amount by era
+	iLiberationValue *= GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent();
+	iLiberationValue /= 100;
+
+	return min(iLiberationValue, 0);
 }
 
 CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwner, CvCity* pCity, PlayerTypes eActivePlayer)
@@ -51378,7 +51763,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 				if (!GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
 					continue;
 
-				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eCurrentOwner, pCity, (PlayerTypes)iPlayerLoop);
+				int iWarmongerCare = CvDiplomacyAIHelpers::GetCityWarmongerValue(pCity, eActivePlayer, eCurrentOwner, (PlayerTypes)iPlayerLoop);
 
 				if (iWarmongerCare > 0)
 				{
@@ -51450,20 +51835,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 	}
 	else
 	{
-		int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(pCity, eActivePlayer, eActivePlayer);
-
-		if (iWarmongerOffset <= 30)
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_MINOR").toUTF8();
-		}
-		else if (iWarmongerOffset <= 60)
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_MAJOR").toUTF8();
-		}
-		else
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_EXTREME").toUTF8();
-		}
+		szRtnValue = "";
 	}
 
 	return szRtnValue;
@@ -51488,7 +51860,10 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 				if (!GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
 					continue;
 				
-				int iWarmongerCare = CvDiplomacyAIHelpers::GetPlayerCaresValue(eActivePlayer, eOriginalOwner, pCity, (PlayerTypes)iPlayerLoop, true);
+				int iWarmongerCare = CvDiplomacyAIHelpers::GetCityLiberationValue(pCity, eActivePlayer, eOriginalOwner, (PlayerTypes)iPlayerLoop);
+
+				// Flip this for liberation!
+				iWarmongerCare *= -1;
 
 				if (iWarmongerCare > 0)
 				{
@@ -51557,19 +51932,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 	}
 	else
 	{
-		int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(pCity, eActivePlayer, eActivePlayer);
-		if (iWarmongerOffset <= 30)
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_MINOR").toUTF8();
-		}
-		else if (iWarmongerOffset <= 60)
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_MAJOR").toUTF8();
-		}
-		else
-		{
-			szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_EXTREME").toUTF8();
-		}
+		szRtnValue = "";
 	}
 
 	return szRtnValue;

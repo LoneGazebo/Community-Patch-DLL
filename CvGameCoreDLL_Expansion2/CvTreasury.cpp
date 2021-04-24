@@ -81,19 +81,30 @@ void CvTreasury::Uninit()
 /// Update treasury for a turn
 void CvTreasury::DoGold()
 {
-	int iGoldChange = m_pPlayer->calculateGoldRateTimes100();
+	int iGoldChange = CalculateBaseNetGoldTimes100();
 	int iGoldAfterThisTurn = iGoldChange + GetGoldTimes100();
 
 	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
 	{
 		SetGold(0);
+
 		//forced disbanding
 		if(iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
-			m_pPlayer->DoDeficit();
+			m_pPlayer->DoBankruptcy();
 	}
 	else
 	{
 		ChangeGoldTimes100(iGoldChange);
+	}
+
+	//instant yields are tracked in ChangeGoldTimes100. we ignore expenses (negative values) there.
+	//but here we have to consider a negative gold rate, so fix it after the fact
+	if (iGoldChange < 0)
+	{
+		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+			m_GoldChangeForTurnTimes100.push_back(iGoldChange);
+		else
+			m_GoldChangeForTurnTimes100.back() += iGoldChange;
 	}
 
 	// Update the amount of gold grossed across lifetime of game
@@ -103,16 +114,9 @@ void CvTreasury::DoGold()
 		m_iLifetimeGrossGoldIncome += iGrossGoldChange;
 	}
 
-	FAssertMsg(m_GoldBalanceForTurnTimes100.size() <= (unsigned int) GC.getGame().getGameTurn(), "History of Gold Balances corrupted");
 	if(m_GoldBalanceForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
 	{
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
-	}
-
-	FAssertMsg(m_GoldChangeForTurnTimes100.size() <= (unsigned int) GC.getGame().getGameTurn(), "History of Gold Changes corrupted");
-	if(m_GoldChangeForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
-	{
-		m_GoldChangeForTurnTimes100.push_back(iGoldChange);
 	}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -189,6 +193,15 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 void CvTreasury::ChangeGoldTimes100(int iChange)
 {
 	SetGoldTimes100(GetGoldTimes100() + iChange);
+
+	//track the income for each turn (instant yields and regular)
+	if (iChange > 0)
+	{
+		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
+			m_GoldChangeForTurnTimes100.push_back(iChange);
+		else
+			m_GoldChangeForTurnTimes100.back() += iChange;
+	}
 }
 
 // Gold from Cities
@@ -500,14 +513,11 @@ int CvTreasury::CalculateBaseNetGold()
 /// Net income for turn
 int CvTreasury::CalculateBaseNetGoldTimes100()
 {
-	int iNetGold = CalculateGrossGoldTimes100();
+	if (m_pPlayer->IsAnarchy())
+		return 0;
 
-	// Remove costs
-	iNetGold -= CalculateInflatedCosts() * 100;
-
-	return iNetGold;
+	return CalculateGrossGoldTimes100() - CalculateInflatedCosts() * 100;
 }
-
 
 /// Compute unit maintenance cost for the turn (returns component info)
 int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost)
@@ -733,19 +743,11 @@ int CvTreasury::CalculateInflationRate()
 	iInflationPerTurnTimes10000 *= playerHandicap.getInflationPercent();
 	iInflationPerTurnTimes10000 /= 100;
 
-	int iModifier = 0;
-
-	if(!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
+	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
 	{
-		int iAIModifier = gameHandicap.getAIInflationPercent();
-		iAIModifier *= std::max(0, ((gameHandicap.getAIPerEraModifier() * m_pPlayer->GetCurrentEra()) + 100));
-		iAIModifier /= 100;
-
-		iModifier += iAIModifier - 100;
+		iInflationPerTurnTimes10000 *= gameHandicap.getAIInflationPercent();
+		iInflationPerTurnTimes10000 /= 100;
 	}
-
-	iInflationPerTurnTimes10000 *= std::max(0, 100 + iModifier);
-	iInflationPerTurnTimes10000 /= 100;
 
 	// Keep up to second order terms in binomial series
 	int iRatePercent = (iTurns * iInflationPerTurnTimes10000) / 100;

@@ -295,7 +295,7 @@ void CvCityCitizens::DoTurn()
 		}
 	}
 
-	if (m_pCity->IsPuppet())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
 		bForceCheck |= SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 
@@ -1944,9 +1944,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 		// If we were force-working this Plot, turn it off
 		if (bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow);
-			SetForcedWorkingPlot(pWorstPlot, false);
-
+			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow); //this automatically removes forced status
 			return true;
 		}
 		else if (!IsForcedWorkingPlot(pWorstPlot))
@@ -2063,7 +2061,6 @@ bool CvCityCitizens::NeedReworkCitizens()
 {
 	if (IsDirty())
 	{
-		SetDirty(false);
 		return true;
 	}
 
@@ -2145,11 +2142,11 @@ bool CvCityCitizens::IsBlockade()
 
 void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 {
+	DoValidateForcedWorkingPlots();
+
 	//Let's check if we need to do this.
-	if (!DoValidateForcedWorkingPlots() && !bForce && !NeedReworkCitizens())
-	{
+	if (!bForce && !NeedReworkCitizens())
 		return;
-	}
 
 	// Remove all of the allocated guys
 	int iNumCitizensToRemove = GetNumCitizensWorkingPlots();
@@ -2227,6 +2224,8 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCity()->GetCityCulture()->CalculateBaseTourism();
 	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+
+	SetDirty(false);
 }
 
 
@@ -2271,10 +2270,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 	{
 		if (it != m_vWorkedPlots.end())
 			m_vWorkedPlots.erase(it);
+
 		//make sure we stay consistent
 		SetForcedWorkingPlot(pPlot, false);
 	}
-
 
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
@@ -2426,16 +2425,12 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 	// Clicking ON the city "resets" it to default setup
 	if (iIndex == CITY_HOME_PLOT)
 	{
-		CvPlot* pLoopPlot;
-
 		// If we've forced any plots to be worked, reset them to the normal state
-
 		for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 		{
 			if (iPlotLoop != CITY_HOME_PLOT)
 			{
-				pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-
+				CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
 				if (pLoopPlot != NULL)
 				{
 					if (IsForcedWorkingPlot(pLoopPlot))
@@ -2452,6 +2447,12 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 	}
 	else
 	{
+		//we have multiple types of citizens and need to do some bookkeeping when switching between categories
+		// * working a plot
+		// * specialists (in buildings)
+		// * laborers (default specialists)
+		// * unassigned (should be only temporary)
+
 		CvPlot* pPlot = GetCityPlotFromIndex(iIndex);
 
 		if (pPlot != NULL)
@@ -2461,8 +2462,7 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
-					SetWorkingPlot(pPlot, false);
-					SetForcedWorkingPlot(pPlot, false);
+					SetWorkingPlot(pPlot, false); //this automatically removes the forced status
 					ChangeNumDefaultSpecialists(1);
 					ChangeNumForcedDefaultSpecialists(1);
 				}
@@ -2479,23 +2479,16 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 						SetWorkingPlot(pPlot, true);
 						SetForcedWorkingPlot(pPlot, true);
-						
+					
 					}
 					// No Default Specialists, so grab a better allocated guy
 					else
 					{
-						// Working Plot
+						// Shift a citizen to the new plot
 						if (DoRemoveWorstCitizen(true))
 						{
 							SetWorkingPlot(pPlot, true);
 							SetForcedWorkingPlot(pPlot, true);
-							//ChangeNumUnassignedCitizens(-1);
-						}
-
-						// Good Specialist
-						else
-						{
-							CvAssert(false);
 						}
 					}
 				}
@@ -2550,36 +2543,24 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 			ChangeNumForcedWorkingPlots(1);
 
 			// More forced plots than we have citizens working?  If so, then pick someone to lose their forced status
-			if (GetNumForcedWorkingPlots() > GetNumCitizensWorkingPlots())
-			{
-				DoValidateForcedWorkingPlots();
-			}
+			DoValidateForcedWorkingPlots();
 		}
 		else
 		{
 			ChangeNumForcedWorkingPlots(-1);
 		}
-
-		DoReallocateCitizens(true);
 	}
 }
 
 /// Make sure we don't have more forced working plots than we have citizens to work
-bool CvCityCitizens::DoValidateForcedWorkingPlots()
+void CvCityCitizens::DoValidateForcedWorkingPlots()
 {
-	bool bValue = false;
 	int iNumForcedWorkingPlotsToDemote = GetNumForcedWorkingPlots() - GetNumCitizensWorkingPlots();
-
 	if (iNumForcedWorkingPlotsToDemote > 0)
 	{
 		for (int iLoop = 0; iLoop < iNumForcedWorkingPlotsToDemote; iLoop++)
-		{
-			bValue = DoDemoteWorstForcedWorkingPlot();
-
-		}
+			DoDemoteWorstForcedWorkingPlot();
 	}
-
-	return bValue;
 }
 
 /// Remove the Forced status from the worst ForcedWorking plot
@@ -2751,7 +2732,7 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 {
-	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		return 0;
 
 	int iGPPChange = 0;

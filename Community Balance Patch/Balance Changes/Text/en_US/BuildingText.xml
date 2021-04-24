@@ -318,7 +318,7 @@
 			<Text>The Refinery is a Modern-era building which can only be constructed in 5 Cities total. The Refinery helps your Production and produces 1 Coal and 1 Iron Resource, however it has a high maintenance cost. Only construct if you find yourself without these vital late-game strategic resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
-			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. The Minefield increases City Defense and Hit Points, and reduces the movement of enemy naval units and embarked units by 1.</Text>
+			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. The Minefield increases City Defense and Hit Points, and reduces the movement of enemy naval units and embarked units by 1 around the city. Also damages enemy naval units for 10 Hit Points every time they end their turn adjacent to a water tile worked by the city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_HELP">
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
@@ -345,7 +345,7 @@
 			<Text>Produces 1 [ICON_RES_COAL] Coal and [ICON_RES_IRON] Iron.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a water tile worked by this City, and units ending turns adjacent to water tiles worked by this city take[COLOR_NEGATIVE_TEXT]10 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
@@ -616,7 +616,7 @@
 			<Text>The Flavian Amphitheater, or Colosseum, is one of the most famous venues in all of history. Though Ancient Rome had only one Colosseum, variations on the design were reproduced throughout the empire, and to the present day. A colosseum is an outdoor venue where the public can watch sports events. Depending upon the time and place, the events might be gladiatorial contests, American football games, or soccer matches. Of the three contests mentioned, the gladiatorial battles were perhaps the hardest on the players involved, the soccer matches (occasionally) just about as dangerous for the participants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>+2 [ICON_TOURISM] Tourism. When a unit defeats an enemy unit in battle, receive +5 [ICON_GOLDEN_AGE] Golden Age Points in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive +10 [ICON_GREAT_GENERAL] Great General points (if Land) or +10 [ICON_GREAT_ADMIRAL] Great Admiral points (if Sea), scaling with Era.[NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED]City Connections produce +2% more [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
+			<Text>+1 [ICON_TOURISM] Tourism for every 2 [ICON_CITIZEN] Citizens in the City. When a unit defeats an enemy unit in battle, receive +5 [ICON_GOLDEN_AGE] Golden Age Points in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive +10 [ICON_GREAT_GENERAL] Great General points (if Land) or +10 [ICON_GREAT_ADMIRAL] Great Admiral points (if Sea), scaling with Era.[NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED]City Connections produce +2% more [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Arena. Build the Colosseum to boost your city's Culture, Tourism, and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
@@ -713,7 +713,7 @@
 			<Text>Seowon were the most common educational institution of Korea during the mid- to late Joseon Dynasty. They were private institutions, and combined the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. +1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>+1 [ICON_RESEARCH] Science from Jungle and Snow tiles worked by the City. +1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
 			<Text>Unique Korean replacement for the University. Generates more Science and Production than the University, generates Faith, and is available earlier. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>

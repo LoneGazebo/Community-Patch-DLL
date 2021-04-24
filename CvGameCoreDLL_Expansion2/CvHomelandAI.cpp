@@ -401,7 +401,7 @@ void CvHomelandAI::FindHomelandTargets()
 			if (!pLoopPlot->isWater() &&
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
-				pLoopPlot->isRevealedFortification(eTeam))
+				pLoopPlot->isFortification(eTeam))
 			{
 				//this check is a bit expensive
 				if (pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
@@ -596,7 +596,6 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
-		bool bGoingToSettle = false;
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && !pUnit->isHuman())
 		{
@@ -607,7 +606,6 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 					CvHomelandUnit unit;
 					unit.SetID(pUnit->GetID());
 					m_CurrentMoveUnits.push_back(unit);
-					bGoingToSettle = true;
 				}
 			}
 		}
@@ -2106,129 +2104,127 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (pUnit)
+		if (!pUnit)
+			continue;
+
+		//Minor players don't move, it might break scenarios.
+		if (m_pPlayer->isMinorCiv() && pUnit->canFoundCity(pUnit->plot()))
 		{
-			if (m_pPlayer->isMajorCiv() || !pUnit->canFoundCity(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
+			if (GC.getLogging() && GC.getAILogging())
 			{
-				//Let's check for a river estuary - those are always good
-				if (pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFoundCity(pUnit->plot()))
+				CvString strLogString;
+				strLogString.Format("Founded city state in place, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+			continue;
+		}
+
+		//Let's check for a river estuary - those are always good
+		if (pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFoundCity(pUnit->plot()))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+			continue;
+		}
+
+		//look for a better place
+		CvPlot* pBetterPlot = NULL;
+		int iCurrentValue = m_pPlayer->getPlotFoundValue(pUnit->getX(), pUnit->getY());
+		if (GC.getGame().getElapsedGameTurns()<3) //move in the first three turns only!
+		{
+			int iMinMovesLeft = (GC.getGame().getElapsedGameTurns() == 2) ? 1 : 0; //must found in the third turn
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false, iMinMovesLeft);
+			for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+			{
+				CvPlot* pAltPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+				if (pAltPlot != NULL && pUnit->canFoundCity(pAltPlot) && pUnit->GetDanger(pAltPlot)<INT_MAX)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_FOUND());
-					UnitProcessed(pUnit->GetID());
-					if (GC.getLogging() && GC.getAILogging())
+					int iAltValue = m_pPlayer->getPlotFoundValue(pAltPlot->getX(), pAltPlot->getY());
+					if (iAltValue > iCurrentValue*1.1f) //should be at least ten percent better to justify the hassle
 					{
-						CvString strLogString;
-						strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
+						iCurrentValue = iAltValue;
+						pBetterPlot = pAltPlot;
 					}
-					break;
-				}
-				else
-				{
-					//can be zero if we not on a local maximum ...
-					int iCurrentValue = pUnit->canFoundCity(pUnit->plot()) ? m_pPlayer->getPlotFoundValue(pUnit->getX(), pUnit->getY()) : 0;
-					CvPlot* pBetterPlot = NULL;
-
-					if (GC.getGame().getElapsedGameTurns()<3 || iCurrentValue==0) //first two turns or we're in a bad spot
-					{
-						ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
-						for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
-						{
-							CvPlot* pAltPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-							if (pAltPlot != NULL && pUnit->canFoundCity(pAltPlot) && pUnit->GetDanger(pAltPlot)<INT_MAX)
-							{
-								int iAltValue = m_pPlayer->getPlotFoundValue(pAltPlot->getX(), pAltPlot->getY());
-								if (iAltValue > iCurrentValue*1.1f) //should be at least ten percent better to justify the hassle
-								{
-									iCurrentValue = iAltValue;
-									pBetterPlot = pAltPlot;
-								}
-							}
-						}
-					}
-
-					if (pBetterPlot != NULL)
-					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBetterPlot->getX(), pBetterPlot->getY());
-						if (pUnit->plot() == pBetterPlot && pUnit->canMove())
-						{
-							pUnit->PushMission(CvTypes::getMISSION_FOUND());
-							UnitProcessed(pUnit->GetID());
-							if (GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
-							}
-							break;
-						}
-						//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
-						else
-						{
-							UnitProcessed(pUnit->GetID());
-							if (GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
-							}
-							break;
-						}
-					}
-					else if (pUnit->canFoundCity(pUnit->plot()))
-					{
-						pUnit->PushMission(CvTypes::getMISSION_FOUND());
-						UnitProcessed(pUnit->GetID());
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-						break;
-					}
-
-					//apparently no good plot around. move in a random direction to explore
-					CvPlot* pLoopPlotSearch = NULL;
-					for (int iI = 0; iI < 3; iI++)
-					{
-						int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
-						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-						if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
-						{
-							if (pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
-							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-								break;
-							}
-						}
-					}
-					if (pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && pUnit->canFoundCity(pLoopPlotSearch))
-					{
-						pUnit->PushMission(CvTypes::getMISSION_FOUND());
-						UnitProcessed(pUnit->GetID());
-					}
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-					break;
 				}
 			}
-			else
+		}
+		//should move
+		if (pBetterPlot != NULL)
+		{
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBetterPlot->getX(), pBetterPlot->getY());
+			if (pUnit->plot() == pBetterPlot && pUnit->canMove())
 			{
-				//default behavior
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
+			//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
+			else
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
+
+			UnitProcessed(pUnit->GetID());
+			continue;
+		}
+
+		//did not find a better plot (ideal case in fact)
+		if (pUnit->canFoundCity(pUnit->plot()))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+			continue;
+		}
+
+		//emergency: cannot found! move in a random direction to explore
+		CvPlot* pLoopPlotSearch = NULL;
+		for (int iI = 0; iI < 3; iI++)
+		{
+			int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
+			pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
+
+			if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
+			{
+				if (pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+						LogHomelandMessage(strLogString);
+					}
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+					break;
+				}
+			}
+		}
+		if (pLoopPlotSearch != NULL && pUnit->canMove() && pUnit->plot() == pLoopPlotSearch && pUnit->canFoundCity(pLoopPlotSearch))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -4094,6 +4090,8 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	int nAirUnitsOffensive = 0;
 	int nAirUnitsDefensive = 0;
 
+	int iAssumedRange = 7; //don't know the concrete aircraft yet
+
 	//in general we want to go to conflict zones but not if we are in danger of losing the base
 	//unfortunately it may be necessary to do the rebasing in multiple steps if the distance is too far
 	std::vector<SPlotWithScore> vPotentialBases;
@@ -4149,7 +4147,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				}
 			}
 
-			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID());
+			int iScore = HomelandAIHelpers::ScoreAirBase(pLoopUnitPlot,m_pPlayer->GetID(), false, iAssumedRange);
 			vPotentialBases.push_back( SPlotWithScore( pLoopUnitPlot, iScore) );
 			scoreLookup[pLoopUnitPlot->GetPlotIndex()] = iScore;
 		}
@@ -4160,7 +4158,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	{
 		CvPlot* pTarget = pLoopCity->plot();
 
-		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget, m_pPlayer->GetID());
+		int iScore = HomelandAIHelpers::ScoreAirBase(pTarget, m_pPlayer->GetID(), false, iAssumedRange); //estimate a range
 		vPotentialBases.push_back( SPlotWithScore( pTarget, iScore ) );
 		scoreLookup[pTarget->GetPlotIndex()] = iScore;
 	}
@@ -5613,19 +5611,8 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-	//if a carrier is in a city - bad luck :)
-	bool bIsCarrier = !(pBasePlot->isCity());
-
 	int iBaseScore = 1;
-	if (bIsCarrier)
-	{
-		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
-		if(!pDefender)  
-			return -1;
-		if (pDefender->isProjectedToDieNextTurn() && !bDesperate)
-			return -1;
-	}
-	else
+	if (pBasePlot->isCity())
 	{
 		CvCity* pCity = pBasePlot->getPlotCity();
 		//careful in cities we might lose
@@ -5641,9 +5628,24 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 
 		if (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() != 0)
 			iBaseScore++;
+
+		//during peacetime this will be the deciding factor
+		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
+		CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pCity,false);
+		iBaseScore += pLandZone ? pLandZone->GetBorderScore(NO_DOMAIN) : 0;
+		CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pCity,true);
+		iBaseScore += pWaterZone ? pWaterZone->GetBorderScore(NO_DOMAIN) : 0;
+	}
+	else //carrier outside of city
+	{
+		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
+		if(!pDefender)  
+			return -1;
+		if (pDefender->isProjectedToDieNextTurn() && !bDesperate)
+			return -1;
 	}
 
-	//check current targets
+	//check current targets during wartime
 	const TacticalList& allTargets = kPlayer.GetTacticalAI()->GetTacticalTargets();
 	for(unsigned int iI = 0; iI < allTargets.size(); iI++)
 	{
@@ -5676,12 +5678,6 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 			}
 		}
 	}
-
-	//also check if there are potential future enemies around
-	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
-	CvTacticalDominanceZone* pZone = pTactMap->GetZoneByPlot( pBasePlot );
-	if (pZone)
-		iBaseScore += pZone->GetBorderScore(NO_DOMAIN);
 
 	return iBaseScore;
 }

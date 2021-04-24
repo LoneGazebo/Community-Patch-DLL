@@ -1938,9 +1938,6 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 -- END CBP
 
-	-- Vox Populi Base Yield from Process
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
-
 -- Base Yield from League Art (CSD)
 	if(yieldID == YieldTypes.YIELD_SCIENCE) then
 		local iYieldFromLeague = city:GetBaseYieldRateFromLeague(yieldID);
@@ -1985,6 +1982,9 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes( yieldID )/100.0, yieldIconString)
 	end
 	
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
+
 	-- Total
 	tips:insert( "----------------" )
 	tips:insertLocalized( totalYield >= 0 and "TXT_KEY_YIELD_TOTAL" or "TXT_KEY_YIELD_TOTAL_NEGATIVE", totalYield, yieldIconString )
@@ -2299,12 +2299,6 @@ local function GetCultureTooltip( city )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
 	
-	-- Vox Populi Base Yield from Trade Routes
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0, "[ICON_CULTURE]")
-	
-	-- Vox Populi Base Yield from Process
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
-	
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
 		tips:insert( "----------------" )
@@ -2365,6 +2359,12 @@ local function GetCultureTooltip( city )
 	--	tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
 	--end
 	-- Vox Populi end
+
+	-- Vox Populi Base Yield from Trade Routes
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0, "[ICON_CULTURE]")
+	
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
 
 	-- Total
 	tips:insert( "----------------" )

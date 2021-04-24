@@ -66,10 +66,6 @@ public:
 
 #if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
-#elif defined(MOD_API_EXTENSIONS)
-	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
-#elif defined(MOD_BALANCE_CORE)
-	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -81,20 +77,11 @@ public:
 	void setupSpaceshipGraphics();
 
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
-	void kill(bool bVenice = false);
-	void PreKill(bool bVenice = false);
-#else
 	void kill();
 	void PreKill();
-#endif
 	void PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner);
 
-#if defined(MOD_BALANCE_CORE)
 	CvPlayer* GetPlayer() const;
-#else
-	CvPlayer* GetPlayer();
-#endif
 
 	void doTurn();
 
@@ -673,6 +660,7 @@ public:
 	int GetJONSCulturePerTurnFromGreatWorks() const;
 
 	int GetJONSCulturePerTurnFromTraits() const;
+	void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 #endif
@@ -979,6 +967,9 @@ public:
 	int GetBorderObstacleWater() const;
 	void SetBorderObstacleWater(int iValue);
 
+	void ChangeWorkedWaterTileDamage(int iNewValue);
+	int GetWorkedWaterTileDamage() const;
+
 	void ChangeNearbyMountains(int iNewValue);
 	int GetNearbyMountains() const;
 	void SetNearbyMountains(int iValue);
@@ -1059,7 +1050,7 @@ public:
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 #if defined(MOD_PROCESS_STOCKPILE)
-	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+	int getBasicYieldRateTimes100(YieldTypes eIndex) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1814,6 +1805,7 @@ protected:
 #endif
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
+	FAutoVariable<std::vector<int>, CvCity> m_iaAddedYieldPerTurnFromTraits;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
 #endif
@@ -1983,6 +1975,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 	FAutoVariable<int, CvCity> m_iBorderObstacleWater;
+	FAutoVariable<int, CvCity> m_iWorkedWaterTileDamage;
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;

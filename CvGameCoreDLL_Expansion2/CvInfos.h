@@ -948,7 +948,6 @@ public:
 	virtual ~CvHandicapInfo();
 
 	int getStartingLocationPercent() const;
-	int getAdvancedStartPointsMod() const;
 	int getStartingPolicyPoints() const;
 	int getHappinessDefault() const;
 	int getHappinessDefaultCapital() const;
@@ -983,9 +982,7 @@ public:
 	int getBarbarianSeaTargetRange() const;
 
 	int getStartingDefenseUnits() const;
-#if defined(MOD_BALANCE_CORE)
 	int getStartingMinorDefenseUnits() const;
-#endif
 	int getStartingWorkerUnits() const;
 	int getStartingExploreUnits() const;
 	int getAIStartingUnitMultiplier() const;
@@ -1009,18 +1006,15 @@ public:
 	int getAIUnitUpgradePercent() const;
 	int getAIInflationPercent() const;
 	int getAIPerEraModifier() const;
-	int getAIAdvancedStartPercent() const;
 	int getAIFreeXP() const;
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
-#if defined(MOD_BALANCE_CORE)
 	int getResistanceCap() const;
 	int getAIDifficultyBonusBase() const;
 	int getAIDifficultyBonusEarly() const;
 	int getAIDifficultyBonusMid() const;
 	int getAIDifficultyBonusLate() const;
 	int getAIVisionBonus() const;
-#endif
 
 	// Arrays
 	int getGoodies(int i) const;
@@ -1031,7 +1025,6 @@ public:
 
 protected:
 	int m_iStartingLocationPercent;
-	int m_iAdvancedStartPointsMod;
 	int m_iStartingPolicyPoints;
 	int m_iHappinessDefault;
 	int m_iHappinessDefaultCapital;
@@ -1066,9 +1059,7 @@ protected:
 	int m_iBarbarianSeaTargetRange;
 
 	int m_iStartingDefenseUnits;
-#if defined(MOD_BALANCE_CORE)
 	int m_iStartingMinorDefenseUnits;
-#endif
 	int m_iStartingWorkerUnits;
 	int m_iStartingExploreUnits;
 	int m_iAIStartingUnitMultiplier;
@@ -1092,18 +1083,15 @@ protected:
 	int m_iAIUnitUpgradePercent;
 	int m_iAIInflationPercent;
 	int m_iAIPerEraModifier;
-	int m_iAIAdvancedStartPercent;
 	int m_iAIFreeXP;
 	int m_iAIFreeXPPercent;
 	int m_iNumGoodies;
-#if defined(MOD_BALANCE_CORE)
 	int m_iResistanceCap;
 	int m_iDifficultyBonusBase;
 	int m_iDifficultyBonusEarly;
 	int m_iDifficultyBonusMid;
 	int m_iDifficultyBonusLate;
 	int m_iVisionBonus;
-#endif
 
 	CvString m_strHandicapName;
 
@@ -2192,7 +2180,6 @@ public:
 	int getTerrainGrainChange() const;
 	int getFeatureGrainChange() const;
 	int getResearchPercent() const;
-	int getAdvancedStartPointsMod() const;
 	int getNumCitiesUnhappinessPercent() const;
 	int GetNumCitiesPolicyCostMod() const;
 	int GetNumCitiesTechCostMod() const;
@@ -2239,7 +2226,6 @@ protected:
 	int m_iTerrainGrainChange;
 	int m_iFeatureGrainChange;
 	int m_iResearchPercent;
-	int m_iAdvancedStartPointsMod;
 	int m_iNumCitiesUnhappinessPercent;
 	int m_iNumCitiesPolicyCostMod;
 	int m_iNumCitiesTechCostMod;

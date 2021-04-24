@@ -106,7 +106,7 @@ public:
 
 	// Methods to query financial history
 	int AverageIncome100(int iTurns);
-	void CvTreasury::LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
+	void LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalGoldMaintenance() const;

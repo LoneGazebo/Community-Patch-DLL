@@ -418,7 +418,6 @@ public:
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
-	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
 
 	// War State: How's the war with ePlayer going? (NO_WAR_STATE_TYPE if at peace)
 	WarStateTypes GetWarState(PlayerTypes ePlayer) const;
@@ -1158,7 +1157,7 @@ public:
 	void SelectApproachTowardsVassal(PlayerTypes ePlayer);
 
 	// Main approach update function
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vPlayersToUpdate, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vValidPlayers, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
 
 	// Planning Exchanges
 	void DoRelationshipPairing();
@@ -1814,7 +1813,6 @@ private:
 	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
 	void LogWarProjection(CvString& strString, PlayerTypes ePlayer);
-	void LogWarDamage(CvString& strString, PlayerTypes ePlayer);
 	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogExpansionAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
@@ -2135,11 +2133,13 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
-	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
-	int GetPlayerCaresValue(PlayerTypes eCityTaker, PlayerTypes eCityOwner, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
+	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, PlayerTypes eObserver = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	void ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner);
+	void ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner);
+	int GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver);
+	int GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

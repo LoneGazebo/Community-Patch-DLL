@@ -602,6 +602,7 @@ public:
 	int GetSpaceShipPurchaseMod();
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
+	bool IsCityStateEmbargo();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -765,6 +766,7 @@ public:
 	int GetSpaceShipPurchaseMod(PlayerTypes ePlayer);
 	int IsWorldWar(PlayerTypes ePlayer);
 	int GetUnitMaintenanceMod(PlayerTypes ePlayer);
+	bool IsCityStateEmbargo(PlayerTypes ePlayer);
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 #endif
 
@@ -838,7 +840,7 @@ public:
 	// Increments of how much we think our interests are aligned with another player's
 	enum AlignmentLevels {
 		ALIGNMENT_WAR,
-		
+
 		ALIGNMENT_ENEMY,
 		ALIGNMENT_HATRED,
 		ALIGNMENT_RIVAL,
@@ -846,10 +848,13 @@ public:
 		ALIGNMENT_FRIEND,
 		ALIGNMENT_CONFIDANT,
 		ALIGNMENT_ALLY,
-		
-		ALIGNMENT_SELF,
-		ALIGNMENT_LEADER,
 		ALIGNMENT_LIBERATOR,
+
+		ALIGNMENT_TEAMMATE,
+		ALIGNMENT_LEADER,
+
+		ALIGNMENT_SELF,
+
 
 		NUM_ALIGNMENT_LEVELS,
 	};
@@ -915,7 +920,7 @@ public:
 	DesireLevels EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, ResolutionTypes eResolution, int iProposerChoice = LeagueHelpers::CHOICE_NONE);
 	DesireLevels EvaluateProposalForProposer(CvLeague* pLeague, PlayerTypes eProposer, int iTargetResolutionID);
-	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false, bool bNoAutomaticMasterAlignment = false);
+	AlignmentLevels EvaluateAlignment(PlayerTypes ePlayer, bool bIgnoreWar = false);
 
 	// Masked knowledge for other players
 	KnowledgeLevels GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);
@@ -945,9 +950,9 @@ private:
 	void AllocateVotes(CvLeague* pLeague);
 	void FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderationList& considerations);
 	void FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderationList& considerations);
-	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice);
-	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice);
-	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact);
+	int ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal = false);
+	int ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf = true);
 	int ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	// Proposing

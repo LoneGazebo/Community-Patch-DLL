@@ -271,10 +271,15 @@
 			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
 		</Row>
 
+		<!--<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
+			<Text>{1_Num}% [ICON_TOURISM] Tourism from difference in [ICON_PUPPET] non-Puppet Cities</Text>
+		</Row>-->
+
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
-			<Text>{1_Num}% [ICON_TOURISM] Tourism from number of [ICON_PUPPET] non-Puppet Cities</Text>
+			<Text>-{1_NumTurns}% from Empire Size difference[NEWLINE]</Text>
 		</Row>
-		
+
+
 		<!-- Resource Monopoly Text-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY">
 			<Text>(You) {1_Monopoly}%</Text>
@@ -780,12 +785,37 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S">
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET">
 			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S">
 			<Text>{1_PlayerName} Musicians arrive!</Text>
+		</Row>
+
+		<!-- Tourism Bonus Turns Change for GM -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS">
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]50%[ENDCOLOR] [ICON_TOURISM] Tourism with all Civs for {2_Num} Turns, and +[COLOR_POSITIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with the target Civ for {2_Num} Turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_S">
+			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET">
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} gains +[COLOR_NEGATIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with you for [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] Turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S">
+			<Text>{1_PlayerName} Musicians arrive!</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
+			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
+			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UPANEL_TOURISM_TURNS_TT">
+			<Text>This indicates the length of a Concert Tour. The length is based on number of owned Great Works of Music controlled by the owning Civilization.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">

@@ -125,7 +125,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsCity);
 	Method(IsFriendlyCity);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
-	Method(IsFriendlyCityOrPassableImprovement);
+	Method(isFriendlyCityOrPassableImprovement);
 #endif
 	Method(IsEnemyCity);
 	Method(IsBeingWorked);
@@ -851,10 +851,10 @@ int CvLuaPlot::lIsActiveVisible(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const bool bDebug = luaL_optbool(L, 2, false);
 
-	if (!bDebug)
-		lua_pushboolean(L, pkPlot->isActiveVisible());
+	if (bDebug)
+		lua_pushboolean(L, pkPlot->isVisible(GC.getGame().getActiveTeam(), true) );
 	else
-		lua_pushboolean(L, pkPlot->isActiveVisible(true));
+		lua_pushboolean(L, pkPlot->isActiveVisible());
 
 	return 1;
 }
@@ -950,7 +950,7 @@ int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 }
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_PASSABLE_FORTS)
 //bool isFriendlyCityOrPassableImprovement(CyUnit* pUnit, bool bCheckImprovement);
-int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
+int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
@@ -958,7 +958,7 @@ int CvLuaPlot::lIsFriendlyCityOrPassableImprovement(lua_State* L)
 	//unused, only for backward compatibility
 	const bool bCheckImprovement = lua_toboolean(L, 3); bCheckImprovement;
 
-	const bool bResult = pkPlot->isCityOrPassableImprovement(pkUnit->getOwner(), true);
+	const bool bResult = pkPlot->isCoastalCityOrPassableImprovement(pkUnit->getOwner(), true, true);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

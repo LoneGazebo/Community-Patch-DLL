@@ -148,5 +148,13 @@
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>
 		</Row>
+		
+		<!-- America UA Tweak -->
+		<Row Tag="TXT_KEY_NOTIFICATION_RESET_PLOT_COST">
+			<Text>Founding a new City has reset the cost increase of Tile purchases in all owned cities!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_RESET_PLOT_COST">
+			<Text>Manifest Destiny!</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

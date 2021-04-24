@@ -266,6 +266,7 @@ protected:
 	LUAAPIEXTN(SetCapitalCity, void);
 	LUAAPIEXTN(SetOriginalCapitalXY, void);
 	LUAAPIEXTN(GetNumWonders, int);
+	LUAAPIEXTN(GetOriginalCapitalPlot, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
@@ -422,10 +423,10 @@ protected:
 	LUAAPIEXTN(GetWarScore, int);
 	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
 	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
-	LUAAPIEXTN(GetWarDamageLevel, int);
-	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
+	LUAAPIEXTN(GetWarDamageValue, int);
+	LUAAPIEXTN(IsWantsPeaceWithPlayer, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
-	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
+	LUAAPIEXTN(DoUpdateWarDamage, void);
 	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetCivOpinion, int);

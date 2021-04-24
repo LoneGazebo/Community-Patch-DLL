@@ -4628,7 +4628,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
-				toPlayer.changeOverflowResearch(iBeakersBonus);
+				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, NULL, false, false, false, YIELD_SCIENCE);
 			}
 			else
 			{
@@ -5561,12 +5561,13 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 	return false;
 }
 
-int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration)
 {
 	DealList::iterator iter;
 	DealList::iterator end = m_CurrentDeals.end();
 
 	int iVal = 0;
+	int iAvgDealDuration = GC.getGame().GetDealDuration() / 2;
 	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
 	{
 		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
@@ -5576,8 +5577,14 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
 
-			//GPT - base it on number of turns remaining
-			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+			if (bConsiderDuration)
+			{
+				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+			}
+			else
+			{
+				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * iAvgDealDuration;
+			}
 
 			//Resources
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5588,12 +5595,19 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+				if (bConsiderDuration)
+				{
+					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+				}
+				else
+				{
+					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * iAvgDealDuration;
+				}
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 10 : 0;
+			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 200 : 0;
+			iVal += iter->IsOpenBordersTrade(ePlayer) ? 100 : 0;
+			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 500 : 0;
 		}
 	}
 

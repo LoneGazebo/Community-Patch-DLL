@@ -1017,6 +1017,7 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	if (iToX==-1 || iToY==-1)
 		return false;
 
+	int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
 	if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2) )
 	{
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
@@ -1026,8 +1027,8 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		//the main check
-		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (iDistance > 2 || iDistance < 1)
 			return false;
 
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
@@ -1050,7 +1051,8 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
 			return false;
 
-		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 1)
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (iDistance != 1)
 			return false;
 
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
@@ -2071,8 +2073,12 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
-		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE) && pNewPlot->getOwner()==data.ePlayer)
+		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
+		{
+			//pure community patch does not require plot ownership
+			if (!gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
 				ePlotRoute = ROUTE_ROAD;
+		}
 	}
 
 	if(ePlotRoute == NO_ROUTE)
@@ -2114,7 +2120,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
-	if (!pNewPlot->isWater() && !pNewPlot->isCityOrPassableImprovement(ePlayer,true))
+	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
 		return FALSE;
 
 	//finally check plot ownership
@@ -3085,7 +3091,11 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 
 	//try to avoid rough plots
 	if (pToPlot->isRoughGround() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/2;
+		iCost += PATH_BASE_COST/4;
+
+	//avoid hills when in doubt
+	if (!pToPlot->isFlatlands() && iRouteFactor==1)
+		iCost += PATH_BASE_COST/8;
 
 	//bonus for oasis
 	if (eFeature == FEATURE_OASIS && iRouteFactor==1)
@@ -3187,7 +3197,7 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 		return TRUE;
 
 	//check passable improvements
-	if (pNewPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(), false))
+	if (pNewPlot->isCoastalCityOrPassableImprovement(pCacheData->GetPlayer(), false, false))
 	{
 		//most of the time we check for reachable plots so we can't decide if a city is the target city or not
 		//so we have to allow all cities and forts

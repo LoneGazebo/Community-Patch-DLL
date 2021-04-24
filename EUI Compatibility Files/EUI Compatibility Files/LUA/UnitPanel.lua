@@ -1342,6 +1342,9 @@ local function UpdateUnitStats(unit)
 	elseif bnw_mode and unit:GetTourismBlastStrength() > 0 then
 		Controls.UnitStatStrength:SetText( unit:GetTourismBlastStrength() .. "[ICON_TOURISM]" )
 		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_STRENGTH_TT" )
+	elseif bnw_mode and unit:GetTourismBlastLength() > 0 then
+		Controls.UnitStatStrength:SetText( unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
+		Controls.UnitStatStrength:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_TOURISM_TURNS_TT" )
 	else
 		Controls.UnitStatStrength:SetText()
 	end
@@ -1711,7 +1714,11 @@ function ActionToolTipHandler( control )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )
-			toolTip:insert( "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]" )
+			if(unit:GetBlastTourism() > 0) then
+				toolTip:insert( "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]" )
+			elseif(unit:GetTourismBlastLength() > 0) then
+				toolTip:insert( "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
+			end
 		end
 
 	-- Help text

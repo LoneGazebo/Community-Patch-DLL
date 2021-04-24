@@ -169,8 +169,6 @@
 #define MOD_GLOBAL_CS_GIFTS                         gCustomMods.isGLOBAL_CS_GIFTS()
 // Units gifted from City States receive XP from their spawning city, not the CS capital (v84)
 #define MOD_GLOBAL_CS_GIFTS_LOCAL_XP                gCustomMods.isGLOBAL_CS_GIFTS_LOCAL_XP()
-// Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22)
-#define MOD_GLOBAL_VENICE_KEEPS_RESOURCES           gCustomMods.isGLOBAL_VENICE_KEEPS_RESOURCES()
 // Units attacking from cities, forts or citadels will not follow-up if they kill the defender
 #define MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES          gCustomMods.isGLOBAL_NO_FOLLOWUP_FROM_CITIES()
 // Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32)
@@ -240,6 +238,9 @@
 
 // Barbarians can heal outside of camps
 #define MOD_BARBARIANS_HEAL_EVERYWHERE
+
+// Puppets can only build old defensive buildings
+#define MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS
 
 // Ability to add new natural wonder features with graphics
 #define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()

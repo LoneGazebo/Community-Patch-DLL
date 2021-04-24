@@ -329,7 +329,10 @@ ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
 ALTER TABLE Units ADD COLUMN 'CulExpOnDisbandUpgrade' BOOLEAN DEFAULT 0;
 
 -- Increases the cost by this amount every time you build the unit
-ALTER TABLE Units ADD CostScalerNumRepeats INTEGER DEFAULT 0;
+ALTER TABLE Units ADD 'CostScalerNumRepeats' INTEGER DEFAULT 0;
+
+-- Tourism Bomb can now alternative give 50% of tourism to all civs, and 100% of tourism output to target civ for x turns
+ALTER TABLE Units ADD COLUMN 'TourismBonusTurns' INTEGER DEFAULT 0;
 
 -- Adds minimum national population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
@@ -345,6 +348,9 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 
 -- Movement speed penalty (like Great Wall) for water plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
+
+-- x damage to units that end turn on a worked water tile in a city
+ALTER TABLE Buildings ADD COLUMN 'WorkedWaterTileDamage' INTEGER DEFAULT 0;
 
 -- One building gives all cities this ability
 ALTER TABLE Buildings ADD COLUMN 'AllowsFoodTradeRoutesGlobal' BOOLEAN DEFAULT 0;

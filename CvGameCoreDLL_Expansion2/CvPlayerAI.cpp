@@ -169,26 +169,23 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 
 	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
 
-	//unit cleanup - this should probably also be done in a two-pass scheme like below
-	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
-	bool bKilledAtLeastOne = false;
-	bool bKilledOneThisPass = false;
-	do
-	{
-		bKilledOneThisPass = false;
-		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			bKilledOneThisPass |= pLoopUnit->doDelayedDeath();
-		bKilledAtLeastOne |= bKilledOneThisPass;
-	} while (bKilledOneThisPass);
+	//unit cleanup (two step approach because deleting a unit invalidates the iterator)
+	std::vector<CvUnit*> unitsToDelete;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		if (pLoopUnit->isDelayedDeath())
+			unitsToDelete.push_back(pLoopUnit);
+
+	for (size_t i = 0; i < unitsToDelete.size(); i++)
+		unitsToDelete[i]->doDelayedDeath();
 
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
 	//force explicit visibility update for killed units
-	if (bKilledAtLeastOne)
+	if (!unitsToDelete.empty())
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
-	//army cleanup
+	//army cleanup (two step approach because deleting a unit invalidates the iterator)
 	std::vector<int> itemsToDelete;
 	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
 		if (pLoopArmyAI->IsDelayedDeath())
@@ -1408,7 +1405,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	//during war we want field commanders
 	int iWars = (int)GetPlayersAtWarWith().size();
-	if (iCommanders < iWars+1 || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+	//just a rough estimation
+	int iPotentialArmies = max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
+
+	int iDesiredNumCommanders = max(1, (iWars+iPotentialArmies)/2);
+	if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	//build one citadel at a time

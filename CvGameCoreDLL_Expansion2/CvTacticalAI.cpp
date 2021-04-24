@@ -1021,11 +1021,9 @@ struct STargetWithTwoScoresTiebreak
 };
 
 /// Assign a group of units to attack each unit we think we can destroy
-void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds)
+void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, eAggressionLevel aggLvl)
 {
 	vector<STargetWithTwoScoresTiebreak> targets;
-
-	eAggressionLevel aggLvl = bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM;
 
 	// See how many moves of this type we can execute
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType, aggLvl); pTarget!=NULL; pTarget = GetNextZoneTarget(aggLvl))
@@ -1208,16 +1206,9 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					if (!pUnit->IsCombatUnit() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
 						continue;
 
-					if(pUnit->isBarbarian())
-					{
-						// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
-						if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->getDamage()>0)
-						{
-							bAddUnit = true;
-						}
-					}
 					//if danger is high or we took a lot of damage last turn
-					else if(iDangerLevel>pUnit->GetMaxHitPoints() || pUnit->isProjectedToDieNextTurn())
+					//counterintuitively, barbarians always flee, because if we get here it means we did not attack this turn!
+					if(iDangerLevel>pUnit->GetMaxHitPoints() || pUnit->isProjectedToDieNextTurn() || pUnit->isBarbarian())
 					{
 						bAddUnit = true;
 					}
@@ -1270,9 +1261,9 @@ void CvTacticalAI::PlotBarbarianAttacks()
 	//the Execute* functions are generic, need to set the current tactical move before calling them
 	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_HUNT);
 	ExecuteBarbarianTheft();
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, AL_BRAVEHEART);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, AL_BRAVEHEART);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, AL_BRAVEHEART);
 	ExecuteCaptureCityMoves();
 }
 
@@ -1955,12 +1946,12 @@ void CvTacticalAI::PlotSteamrollMoves(CvTacticalDominanceZone* /*pZone*/)
 	ClearCurrentMoveUnits(AI_TACTICAL_STEAMROLL);
 
 	// See if there are any kill attacks we can make.
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, AL_HIGH);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 	// We have superiority, so let's attack high prio targets even with bad odds
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, AL_HIGH);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
 
@@ -2055,6 +2046,8 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 		return;
 
 	//sometimes there is nothing to do ...
+	if (pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
+		return;
 	if (pTargetZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
@@ -2076,10 +2069,13 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 			if (pUnit->getOwner()==m_pPlayer->GetID() && pUnit->canUseForTacticalAI())
 			{
 				//do not pull units from zones which need defense (unless it's pointless)
-				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-				if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
-					if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
-						continue;
+				if (!pUnit->isEmbarked())
+				{
+					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
+					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
+						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
+							continue;
+				}
 
 				// Carriers have special moves
 				if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
@@ -2569,7 +2565,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 //workaround to make units from disbanded armies accessible to tactical AI in the same turn
 void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
 {
-	if (pUnit)
+	if (pUnit && pUnit->canMove())
 		m_CurrentTurnUnits.push_back( pUnit->GetID() );
 }
 
@@ -4057,12 +4053,16 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 					
 				//civilian to capture?
 				bool bMoved = false;
-				if (pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true) && !pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true))
+				bool bTargetIsUnit = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true);
+
+				if (!bTargetIsUnit && pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 					bMoved = pUnit->at(pBestPlot->getX(), pBestPlot->getY());
 				}
-				else
+				//if we're already adjacent, we cannot move closer
+				//in fact, since we apparently did not attack this turn, we should flee (handled later)
+				else if (!bTargetIsUnit || plotDistance(*pBestPlot,*pUnit->plot()) > 1 )
 					bMoved = MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_LAND, 12);
 
 				if (bMoved)
@@ -4078,11 +4078,19 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 			else
 			{
 				CvPlot* pBestPlot = FindBestBarbarianSeaTarget(pUnit);
+				if(!pBestPlot)
+					continue;
+
 				//no naval pillaging, it's just too annoying
-				if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
+				//same logic as above, if we're already at the target we should flee instead of staying
+				bool bTargetIsUnit = pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, true, true);
+				if (!bTargetIsUnit || plotDistance(*pBestPlot, *pUnit->plot()) > 1)
 				{
-					TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
-					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+					if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
+					{
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+					}
 				}
 			}
 		}
@@ -5312,20 +5320,13 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 
 			if (!pNeighbor->isRevealed(pUnit->getTeam()))
 				iValue += 3;
-			else if (!pNeighbor->isVisible(pUnit->getTeam()))
-				iValue += 1;
-
-			if (pNeighbor->isOwned())
+			else if (!pNeighbor->isVisible(pUnit->getTeam()) && pNeighbor->isOwned())
 				iValue += 2;
 		}
 
 		// disembark if possible
-		if (pUnit->isNativeDomain(pConsiderPlot))
+		if (pUnit->isEmbarked() && pUnit->isNativeDomain(pConsiderPlot))
 			iValue += 100;
-
-		// If still have no value, score equal to distance from my current plot
-		if (iValue == 0)
-			iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
 
 		if (iValue > iBestValue)
 		{
@@ -6833,7 +6834,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
-		int iLimit = pUnit->getOwner() == BARBARIAN_PLAYER ? -5 : 0;
+		//braveheart allows attacks for which you need luck to survive
+		int iLimit = (eAggLvl==AL_BRAVEHEART) ? -5 : 0;
 		if (pUnit->GetCurrHitPoints() - iDamageReceived < iLimit)
 		{
 			result.iScore = -INT_MAX;
@@ -6934,9 +6936,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			fAggFactor *= 0.90f + fAggBias / 10; //bias is at least 0.9
 			break;
 		case AL_HIGH:
-			//don't care how much damage we do but we want to be able to survive a counterattack ...
-			if ((iDamageReceived + 23) < pUnit->GetCurrHitPoints()*fAggBias)
-				fAggFactor *= 2.3f;
+			//we check whether we can survive a counterattack in ScoreTurnEnd
+			fAggFactor *= 2.3f;
+			break;
+		case AL_BRAVEHEART:
+			//basically suicide
+			fAggFactor *= 4.2f;
 			break;
 		default:
 			result.iScore = -INT_MAX;
@@ -6960,8 +6965,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	if (bScoreReduction)
 		result.iScore /= 2;
 
+	//braveheart does not care about self-damage
+	result.iSelfDamage = (eAggLvl==AL_BRAVEHEART) ? iDamageReceived/2 : iDamageReceived;
 	result.iDamage = iDamageDealt;
-	result.iSelfDamage = iDamageReceived;
 }
 
 bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
@@ -8433,7 +8439,7 @@ bool STacticalAssignment::isOffensive(const CvTacticalPosition& overallposition)
 	return false;
 }
 
-bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const
+bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const
 { 
 	//copy the unit ... we want to modify it
 	const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
@@ -8453,21 +8459,9 @@ bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextT
 	if (iNextTurnScore > -10 * nOurUnits)
 		return true;
 
-	//second chance, see if we're better than the reference
-	//first the reference
-	int iInitialScore = 0;
-	for (size_t i = 0; i < assignedMoves.size(); i++)
-	{
-		if (assignedMoves[i].iUnitID == unit.iUnitID && assignedMoves[i].eAssignmentType == A_INITIAL)
-		{
-			iInitialScore = assignedMoves[i].iScore;
-			break;
-		}
-	}
-
 	//initial score could have been even more negative
 	//must be better than before to catch the case where both are invalid
-	return (iNextTurnScore - iInitialScore) > 0;
+	return (iNextTurnScore > iInitialScore);
 }
 
 //see if all the plots where our units would end their turn are acceptable
@@ -8494,8 +8488,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 			bHaveException = true;
 
 		//make sure we don't leave a unit in an impossible position
-		int iNextTurnScore = pInitial->iScore;
-		if (!bHaveException && !canStayInPlotUntilNextTurn(unit,iNextTurnScore))
+		int iNextTurnScore = 0;
+		if (!bHaveException && !canStayInPlotUntilNextTurn(unit,pInitial->iScore,iNextTurnScore))
 			return false;
 
 		//everyone ends their turn unless the unit is blocked, then we may use them for other tasks
@@ -8523,8 +8517,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		}
 
 		//if the unit is adjacent to the enemy, we want it to stay and provide cover if possible
-		int iNextTurnScore = pInitial->iScore;
-		if (!canStayInPlotUntilNextTurn(*itUnit,iNextTurnScore))
+		int iNextTurnScore = 0;
+		if (!canStayInPlotUntilNextTurn(*itUnit,pInitial->iScore,iNextTurnScore))
 			return false;
 
 		assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, iNextTurnScore, A_FINISH));

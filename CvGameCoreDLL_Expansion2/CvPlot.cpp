@@ -254,7 +254,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_bIsFreshwater = false;
 	m_bIsAdjacentToLand = false;
-	m_bIsAdjacentToOcean = false;
+	m_bIsAdjacentToWater = false;
 	m_bIsLake = false;
 
 	m_eOwner = NO_PLAYER;
@@ -676,7 +676,7 @@ void CvPlot::updateCenterUnit()
 		return;
 	}
 
-	if(!isActiveVisible(true))
+	if(!isActiveVisible())
 	{
 		setCenterUnit(NULL);
 		return;
@@ -1100,7 +1100,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		updateWaterFlags();
 
 	if (iMinWaterSize == -1)
-		return m_bIsAdjacentToOcean;
+		return m_bIsAdjacentToWater;
 	else
 	{
 		//we don't have a cached value for non-standard lake sizes
@@ -1108,8 +1108,11 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 		{
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
+			if(pAdjacentPlot && pAdjacentPlot->isWater())
 			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+
 				if (iMinWaterSize < 2)
 					return true;
 
@@ -1139,7 +1142,7 @@ void CvPlot::updateWaterFlags() const
 	{
 		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
-		m_bIsAdjacentToOcean = !m_bIsLake; //always false for ocean plots (by definition)
+		m_bIsAdjacentToWater = false; //by definition
 		m_bIsAdjacentToLand = false; //may be set to true later
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1156,7 +1159,7 @@ void CvPlot::updateWaterFlags() const
 	else //land plots
 	{
 		m_bIsLake = false;
-		m_bIsAdjacentToOcean = false; //maybe set to true later
+		m_bIsAdjacentToWater = false; //maybe set to true later
 		m_bIsAdjacentToLand = false; //always false for land plots (by definition)
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1165,12 +1168,8 @@ void CvPlot::updateWaterFlags() const
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= GC.getMIN_WATER_SIZE_FOR_OCEAN())
-				{
-					m_bIsAdjacentToOcean = true;
-					break;
-				}
+				m_bIsAdjacentToWater = true;
+				break;
 			}
 		}
 	}
@@ -3528,7 +3527,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) 
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
 		{
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true; 
@@ -3664,7 +3663,7 @@ int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, DomainTypes eDomain, bo
 				continue;
 			}
 
-			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()))
+			if(pAdjacentPlot->getTeam() != eTeam && (bCountUnowned || pAdjacentPlot->isOwned()) && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
 			{
 				iRtnValue++;
 			}
@@ -3731,7 +3730,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
+			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()) )
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
@@ -4002,49 +4001,36 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 	if (eTeam == NO_TEAM)
 		return false;
 
-	/*
-	//experimental hack: observer visibility is determined by the player they will return as
-	if (GET_TEAM(eTeam).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
-		eTeam = GET_PLAYER(GC.getGame().GetAutoPlayReturnPlayer()).getTeam();
-	*/
-
 	return ((getVisibilityCount(eTeam) > 0));
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::isActiveVisible(bool bDebug) const
-{
-	return isVisible(GC.getGame().getActiveTeam(), bDebug);
 }
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible() const
 {
+	if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
+		//this is relevant for animations etc, do not show them in observer mode, makes everything faster
+		return false;
+
 	return isVisible(GC.getGame().getActiveTeam());
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-bool CvPlot::isVisibleToCivTeam(bool bNoObserver, bool bNoMinor) const
-#else
-bool CvPlot::isVisibleToCivTeam() const
-#endif
+bool CvPlot::isVisibleToAnyTeam(bool bNoMinor) const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	//barbarians are excluded here!
+	for(int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
 	{
-#if defined(MOD_BALANCE_CORE)
 		//Skip observer here.
-		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		if(GET_TEAM((TeamTypes)iI).isObserver())
 		{
 			continue;
 		}
+
 		if (bNoMinor && GET_TEAM((TeamTypes)iI).isMinorCiv())
 		{
 			continue;
 		}
-#endif
+
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
@@ -4100,19 +4086,10 @@ bool CvPlot::isVisibleToWatchingHuman() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isVisible(eTeam, bDebug))
@@ -4128,19 +4105,10 @@ bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isVisible(eTeam))
@@ -4281,52 +4249,29 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 	return false;
 }
 
-bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
+bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const
 {
-	return isCityOrPassableImprovement(ePlayer, true, pUnit);
-}
-
-bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
-{
-	bool bIsCityOrPassable = isCity();
-	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsCityOrPassable |= IsImprovementPassable() && !IsImprovementPillaged();
-
-	// only possible adjacent real water
-	bIsCityOrPassable &= isAdjacentToShallowWater();
-
-	// Not a city or a fort
-	if (!bIsCityOrPassable)
-		return false;
-
-	// that's it!
-	if (!bMustBeFriendly)
-		return true;
-
-	// In friendly lands (ours, an allied CS or a major with open borders)
-	if (IsFriendlyTerritory(ePlayer))
+	bool bIsCity = isCity() && isCoastalLand();
+	// Good enough
+	if (bIsCity)
 	{
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (isCity() && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(getOwner()).isMinorCiv())
-		{
-			CvCity* pPlotCity = getPlotCity();
-			if (pUnit) 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			} 
-			else 
-			{
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanTransitMinorCity, ePlayer, pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
-				{
-					return false;
-				}
-			}
-		}
-#endif
-		return true;
+		if (bCityMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
+	}
+
+	bool bIsPassableImprovement = false;
+	if (MOD_GLOBAL_PASSABLE_FORTS)
+		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isOwned() && isCoastalLand();
+
+	// Good enough
+	if (bIsPassableImprovement)
+	{
+		if (bImprovementMustBeFriendly)
+			return IsFriendlyTerritory(ePlayer);
+		else
+			return true;
 	}
 
 	return false;
@@ -4991,10 +4936,11 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
-		if(!pUnit || !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
-		{
+		if (!pUnit)
 			return true;
-		}
+
+		if (pUnit->getDomainType() == getDomain())
+			return !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute();
 	}
 
 	return false;
@@ -7259,23 +7205,14 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
-#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 //	--------------------------------------------------------------------------------
-// Lifted from CvMinorCivAI::DoRemoveStartingResources()
-void CvPlot::removeMinorResources(bool bVenice)
+void CvPlot::removeMinorResources()
 {
-	bool bRemoveUniqueLuxury = false;
+	//we keep the resources!
+	if (MOD_BALANCE_CORE)
+		return;
 
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
-		bRemoveUniqueLuxury = true;
-
-	if (MOD_BALANCE_CORE)
-		bRemoveUniqueLuxury = false;
-		
-	if (bVenice)
-		bRemoveUniqueLuxury = false;
-
-	if (bRemoveUniqueLuxury)
 	{
 		ResourceTypes eOldResource = getResourceType();
 		if (eOldResource != NO_RESOURCE)
@@ -7288,7 +7225,6 @@ void CvPlot::removeMinorResources(bool bVenice)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvPlot::getImprovementType() const
@@ -12556,7 +12492,7 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 	if (ePlayer == NO_PLAYER || isVisible(GET_PLAYER(ePlayer).getTeam()))
 	{
 		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
-		if (GC.getGame().getAIAutoPlay() < 10)
+		if (!GET_PLAYER( GC.getGame().getActivePlayer() ).isObserver())
 		{
 			DLLUI->AddPopupText(getX(), getY(), szMessage, GC.getMap().GetPopupCount(m_iPlotIndex)*0.5f);
 			GC.getMap().IncreasePopupCount(m_iPlotIndex);
@@ -13217,7 +13153,7 @@ void CvPlot::getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked)
 	eType = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
 
 	// worked state
-	if(isActiveVisible(false) && isBeingWorked())
+	if(isActiveVisible() && isBeingWorked())
 	{
 		bWorked = true;
 	}

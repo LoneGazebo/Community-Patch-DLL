@@ -300,6 +300,29 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if (pPlot->getTerrainType() != NO_FEATURE)
 				iPlotDamage += (GC.getTerrainInfo(pPlot->getTerrainType())->getTurnDamage());
 
+			if (pPlot->isWater())
+			{
+				CvCity* pOwner = pPlot->getOwningCity();
+				if (pOwner != NULL)
+				{
+					int iTempDamage = pPlot->getOwningCity()->GetWorkedWaterTileDamage();
+					if (iTempDamage > 0)
+					{
+						//only affected BY adjacent plots
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+							if (pAdjacentPlot != NULL && pAdjacentPlot->isWater() && pAdjacentPlot->getOwningCity() == pOwner && pAdjacentPlot->isBeingWorked())
+							{
+								iPlotDamage += iTempDamage;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			m_DangerPlots[iPlotLoop].m_bFlatPlotDamage = (iPlotDamage>0);
 
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);

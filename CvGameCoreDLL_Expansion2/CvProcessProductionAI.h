@@ -38,7 +38,7 @@ public:
 	int GetWeight(ProcessTypes eProject);
 
 #if defined(MOD_BALANCE_CORE)
-	int CheckProcessBuildSanity(ProcessTypes eProject, int iTempWeight, int iNumBuildables, int iGPT);
+	int CheckProcessBuildSanity(ProcessTypes eProject, int iTempWeight);
 #endif
 
 	// Logging
