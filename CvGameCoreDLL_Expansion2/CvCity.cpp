@@ -406,7 +406,6 @@ CvCity::CvCity() :
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
 	, m_aiNumProjects("CvCity::m_aiNumProjects", m_syncArchive)
-	, m_aiNumUnitsBuilt("CvCity::m_aiNumUnitsBuilt", m_syncArchive)
 	, m_aiStaticGlobalYield("CvCity::m_aiStaticGlobalYield", m_syncArchive)
 	, m_aiStaticNeedAdditives("CvCity::m_aiStaticNeedAdditives", m_syncArchive)
 	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
@@ -1530,7 +1529,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
-	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
 	m_aiStaticGlobalYield.resize(NUM_YIELD_TYPES);
 	m_aiStaticNeedAdditives.resize(NUM_YIELD_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
@@ -1719,11 +1717,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
 		m_aiNumProjects.setAt(iI, 0);
-	}
-
-	for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
-	{
-		m_aiNumUnitsBuilt.setAt(iI, 0);
 	}
 
 	m_abTraded.resize(REALLY_MAX_PLAYERS);
@@ -10743,8 +10736,6 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 			}
 		}
 
-		iNumProductionNeeded += (pGameUnit->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
-
 		// Cost modifiers must be applied before the investment code
 		iNumProductionNeeded *= (iCostMod + 100);
 		iNumProductionNeeded /= 100;
@@ -15213,12 +15204,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if(pkLocalBuilding)
 					{
 						int iYieldChange = pBuildingInfo->GetBuildingClassLocalYieldChange(iJ, iI);
-
-						if (isWorldWonderClass(*pkBuildingClassLocalInfo) && pBuildingInfo->GetYieldChangeWorldWonder(iI) != 0)
-						{
-							iYieldChange += pBuildingInfo->GetYieldChangeWorldWonder(iI);
-						}
-
 						if(iYieldChange != 0)
 						{
 							m_pCityBuildings->ChangeBuildingYieldChange(eBuildingClassLocal, eYield, (iYieldChange * iChange));
@@ -30289,9 +30274,6 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 		IncrementUnitStatCount(pUnit);
 	}
 
-	if (eReason == REASON_TRAIN || eReason == REASON_BUY)
-		changeUnitsBuiltCount(eUnitType, 1);
-
 	return pUnit->GetID();
 }
 
@@ -30513,24 +30495,6 @@ int CvCity::getProjectCount(ProjectTypes eProject) const
 		CvAssertMsg(eProject >= 0, "ePlayer expected to be >= 0");
 	CvAssertMsg(eProject < GC.getNumProjectInfos(), "ePlayer expected to be < NUM_DOMAIN_TYPES");
 	return m_aiNumProjects[eProject];
-}
-
-void CvCity::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
-	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
-
-	m_aiNumUnitsBuilt.setAt(eUnitType, m_aiNumUnitsBuilt[eUnitType] + iValue);
-}
-
-int CvCity::getUnitsBuiltCount(UnitTypes eUnitType) const
-{
-	VALIDATE_OBJECT
-		CvAssertMsg(eUnitType >= 0, "eUnitType expected to be >= 0");
-	CvAssertMsg(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
-
-	return m_aiNumUnitsBuilt[eUnitType];
 }
 
 bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkUnitInfo)
