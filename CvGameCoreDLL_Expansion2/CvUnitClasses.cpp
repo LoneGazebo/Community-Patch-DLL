@@ -182,7 +182,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iGlobalFaithCooldown(0),
 	m_iLocalFaithCooldown(0),
 	m_iFriendlyLandsPromotion(NO_PROMOTION),
-	m_iCostScalerNumBuilt(0),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -417,9 +416,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iSpecialUnitCargoLoad = GC.getInfoTypeForString(szTextVal, true);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	
-	m_iCostScalerNumBuilt = kResults.GetInt("CostScalerNumRepeats");
-
 	szTextVal = kResults.GetText("ResourceType");
 	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
 
@@ -1211,11 +1207,6 @@ int CvUnitEntry::GetEra() const
 	}
 
 	return -1;
-}
-
-int CvUnitEntry::GetCostScalerNumberBuilt() const
-{
-	return m_iCostScalerNumBuilt;
 }
 #endif
 

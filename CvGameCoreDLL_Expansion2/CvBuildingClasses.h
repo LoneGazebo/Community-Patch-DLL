@@ -583,7 +583,6 @@ public:
 	bool IsResourcePlotsToPlace() const;
 	int GetYieldPerFriend(int i) const;
 	int GetYieldPerAlly(int i) const;
-	int GetYieldChangeWorldWonder(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -1034,7 +1033,6 @@ private:
 	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
 	int* m_piYieldPerFriend;
 	int* m_piYieldPerAlly;
-	int* m_piYieldChangeWorldWonder;
 #endif
 	int* m_piNumFreeUnits;
 

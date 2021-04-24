@@ -1178,12 +1178,6 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer" default="0"/>
 	</Table>
-	<!-- Can add yields to all World Wonders in the city -->	   
-	<Table name="Building_YieldChangeWorldWonder">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/> 
-	</Table>
 
 	<!-- Make a building specifically improve a GP rate of one specialist type -->
 	<Table name="Building_SpecificGreatPersonRateModifier">
