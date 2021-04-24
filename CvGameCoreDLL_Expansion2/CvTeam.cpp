@@ -4866,7 +4866,7 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 							strNotification << pCapitalCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
-						GET_PLAYER(ePlayer1).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false, false);
+						GET_PLAYER(ePlayer1).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
 					}
 				}
 			}
@@ -7615,11 +7615,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 
 #endif
 
-	if (pTech->IsUnlocksEspionageAdvancedActions())
-	{
-		InitAdvancedActionsEspionage();
-	}
-
 #if defined(MOD_BALANCE_CORE)
 	if (pTech->IsCorporationsEnabled())
 	{
@@ -10352,55 +10347,6 @@ int CvTeam::GetNumVassals()
 	}
 
 	return iVassals;
-}
-
-void CvTeam::InitAdvancedActionsEspionage()
-{
-	// Effects in every City on this Team
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-		if (kPlayer.getTeam() == m_eID && kPlayer.isAlive())
-		{
-			kPlayer.SetAdvancedActionsEnabled(true);
-
-			if (kPlayer.GetAdvancedActionGold() < 4)
-			{
-				kPlayer.changeAdvancedActionGold(4);
-			}
-			if (kPlayer.GetAdvancedActionScience() < 4)
-			{
-				kPlayer.changeAdvancedActionScience(4);
-			}
-			if (kPlayer.GetAdvancedActionUnrest() < 2)
-			{
-				kPlayer.changeAdvancedActionUnrest(2);
-			}
-			if (kPlayer.GetAdvancedActionRebellion() < 2)
-			{
-				kPlayer.changeAdvancedActionRebellion(2);
-			}
-			if (kPlayer.GetAdvancedActionGP() < 2)
-			{
-				kPlayer.changeAdvancedActionGP(2);
-			}
-			if (kPlayer.GetAdvancedActionWonder() < 2)
-			{
-				kPlayer.changeAdvancedActionWonder(2);
-			}
-			if (kPlayer.GetAdvancedActionBuilding() < 2)
-			{
-				kPlayer.changeAdvancedActionBuilding(2);
-			}
-
-			if ((PlayerTypes)iPlayerLoop == GC.getGame().getActivePlayer())
-			{
-				Localization::String strTemp = Localization::Lookup("TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED");
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED_S");
-				kPlayer.GetNotifications()->Add(NOTIFICATION_GENERIC, strTemp.toUTF8(), strSummary.toUTF8(), -1, -1, (PlayerTypes)iPlayerLoop);
-			}
-		}
-	}
 }
 
 //	--------------------------------------------------------------------------------

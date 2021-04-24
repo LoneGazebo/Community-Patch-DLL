@@ -2107,6 +2107,20 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if (!pUnit)
 			continue;
 
+		//Minor players don't move, it might break scenarios.
+		if (m_pPlayer->isMinorCiv() && pUnit->canFoundCity(pUnit->plot()))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Founded city state in place, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+			continue;
+		}
+
 		//Let's check for a river estuary - those are always good
 		if (pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFoundCity(pUnit->plot()))
 		{
@@ -2120,99 +2134,97 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 			}
 			continue;
 		}
-		else
+
+		//look for a better place
+		CvPlot* pBetterPlot = NULL;
+		int iCurrentValue = m_pPlayer->getPlotFoundValue(pUnit->getX(), pUnit->getY());
+		if (GC.getGame().getElapsedGameTurns()<3) //move in the first three turns only!
 		{
-			//can be zero if we not on a local maximum ...
-			int iCurrentValue = pUnit->canFoundCity(pUnit->plot()) ? m_pPlayer->getPlotFoundValue(pUnit->getX(), pUnit->getY()) : 0;
-			CvPlot* pBetterPlot = NULL;
-
-			if (GC.getGame().getElapsedGameTurns()<3 || iCurrentValue<1) //first two turns or we're in a bad spot
+			int iMinMovesLeft = (GC.getGame().getElapsedGameTurns() == 2) ? 1 : 0; //must found in the third turn
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false, iMinMovesLeft);
+			for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 			{
-				ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
-				for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+				CvPlot* pAltPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+				if (pAltPlot != NULL && pUnit->canFoundCity(pAltPlot) && pUnit->GetDanger(pAltPlot)<INT_MAX)
 				{
-					CvPlot* pAltPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-					if (pAltPlot != NULL && pUnit->canFoundCity(pAltPlot) && pUnit->GetDanger(pAltPlot)<INT_MAX)
+					int iAltValue = m_pPlayer->getPlotFoundValue(pAltPlot->getX(), pAltPlot->getY());
+					if (iAltValue > iCurrentValue*1.1f) //should be at least ten percent better to justify the hassle
 					{
-						int iAltValue = m_pPlayer->getPlotFoundValue(pAltPlot->getX(), pAltPlot->getY());
-						if (iAltValue > iCurrentValue*1.1f) //should be at least ten percent better to justify the hassle
-						{
-							iCurrentValue = iAltValue;
-							pBetterPlot = pAltPlot;
-						}
+						iCurrentValue = iAltValue;
+						pBetterPlot = pAltPlot;
 					}
 				}
 			}
-
-			if (pBetterPlot != NULL)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBetterPlot->getX(), pBetterPlot->getY());
-				if (pUnit->plot() == pBetterPlot && pUnit->canMove())
-				{
-					pUnit->PushMission(CvTypes::getMISSION_FOUND());
-					UnitProcessed(pUnit->GetID());
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-					continue;
-				}
-				//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
-				else
-				{
-					UnitProcessed(pUnit->GetID());
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-					continue;
-				}
-			}
-			else if (pUnit->canFoundCity(pUnit->plot()))
+		}
+		//should move
+		if (pBetterPlot != NULL)
+		{
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBetterPlot->getX(), pBetterPlot->getY());
+			if (pUnit->plot() == pBetterPlot && pUnit->canMove())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-				continue;
 			}
-
-			//apparently no good plot around. move in a random direction to explore
-			CvPlot* pLoopPlotSearch = NULL;
-			for (int iI = 0; iI < 3; iI++)
+			//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
+			else
 			{
-				int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
-				pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
-				if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
+				if (GC.getLogging() && GC.getAILogging())
 				{
-					if (pLoopPlotSearch != NULL && pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
-					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
-						continue;
-					}
+					CvString strLogString;
+					strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 
-			if (pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && pUnit->canFoundCity(pLoopPlotSearch))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
-			}
+			UnitProcessed(pUnit->GetID());
+			continue;
+		}
 
+		//did not find a better plot (ideal case in fact)
+		if (pUnit->canFoundCity(pUnit->plot()))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+				strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
+			continue;
+		}
+
+		//emergency: cannot found! move in a random direction to explore
+		CvPlot* pLoopPlotSearch = NULL;
+		for (int iI = 0; iI < 3; iI++)
+		{
+			int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
+			pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
+
+			if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
+			{
+				if (pUnit->canMoveOrAttackInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+						LogHomelandMessage(strLogString);
+					}
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+					break;
+				}
+			}
+		}
+		if (pLoopPlotSearch != NULL && pUnit->canMove() && pUnit->plot() == pLoopPlotSearch && pUnit->canFoundCity(pLoopPlotSearch))
+		{
+			pUnit->PushMission(CvTypes::getMISSION_FOUND());
+			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -2665,23 +2677,23 @@ void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 	if (!pUnit)
 		return;
 
-		//a bit tricky: we know that we should be able to reach the plot
-		//but maybe the mission is aborted (new enemy discovered etc)
-		//can happen for AI civilians ...
-		CvPlot* pBestPlot = NULL;
-		for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
-		{
-			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+	//a bit tricky: we know that we should be able to reach the plot
+	//but maybe the mission is aborted (new enemy discovered etc)
+	//can happen for AI civilians ...
+	CvPlot* pBestPlot = NULL;
+	for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
+	{
+		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 
-			//can we move?
-			if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
-				break;
+		//can we move?
+		if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
+			break;
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-		} 
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+	} 
 
-		//important, else we can't end the turn
-		UnitProcessed(pUnit->GetID());
+	//important, else we can't end the turn
+	UnitProcessed(pUnit->GetID());
 
 	if(GC.getLogging() && GC.getAILogging() && pBestPlot)
 	{

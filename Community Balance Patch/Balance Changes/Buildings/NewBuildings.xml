@@ -196,8 +196,6 @@
 			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
-			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -685,14 +683,6 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<PrereqTech>TECH_WRITING</PrereqTech>
-			<BlockGoldTheft>1</BlockGoldTheft>
-			<BlockScienceTheft>1</BlockScienceTheft>
-			<BlockUnrestSpies>1</BlockUnrestSpies>
-			<BlockRebellionSpies>1</BlockRebellionSpies>
-			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
-			<BlockUDestructionSpies>1</BlockUDestructionSpies>
-			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
-			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>
 			<NationalPopRequired>10</NationalPopRequired>
 			<CitySupplyFlat>5</CitySupplyFlat>
 			<NumCityCostMod>10</NumCityCostMod>

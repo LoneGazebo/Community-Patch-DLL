@@ -15,7 +15,7 @@
 class FDataStream;
 
 //for tactical combat
-enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH };
+enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
 
 // STL "find_if" predicate
 class UnitIDMatch
@@ -374,7 +374,7 @@ private:
 	// Routines to manage identifying and implementing tactical moves
 	void ExecuteCaptureCityMoves();
 	void PlotGrabGoodyMoves();
-	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
+	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, eAggressionLevel aggLvl=AL_MEDIUM);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
@@ -515,6 +515,7 @@ private:
 	std::vector<CvFocusArea> m_focusAreas;
 };
 
+enum eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, 
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_FINISH_TEMP };
@@ -839,7 +840,7 @@ protected:
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
-	bool canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const;
+	bool canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
 	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
@@ -876,6 +877,7 @@ public:
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID);
 	const STacticalAssignment* getInitialAssignment(int iUnitID);
+	STacticalAssignment* getInitialAssignmentMutable(int iUnitID);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;

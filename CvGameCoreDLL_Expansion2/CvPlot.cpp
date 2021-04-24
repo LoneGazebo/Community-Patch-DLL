@@ -244,7 +244,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bImprovementPillaged = false;
 	m_bRoutePillaged = false;
 	m_bBarbCampNotConverting = false;
-	m_bHighMoveCost = false;
+	m_bRoughPlot = false;
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
@@ -254,7 +254,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_bIsFreshwater = false;
 	m_bIsAdjacentToLand = false;
-	m_bIsAdjacentToOcean = false;
+	m_bIsAdjacentToWater = false;
 	m_bIsLake = false;
 
 	m_eOwner = NO_PLAYER;
@@ -1100,7 +1100,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		updateWaterFlags();
 
 	if (iMinWaterSize == -1)
-		return m_bIsAdjacentToOcean;
+		return m_bIsAdjacentToWater;
 	else
 	{
 		//we don't have a cached value for non-standard lake sizes
@@ -1108,8 +1108,11 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 		{
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
+			if(pAdjacentPlot && pAdjacentPlot->isWater())
 			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+
 				if (iMinWaterSize < 2)
 					return true;
 
@@ -1139,7 +1142,7 @@ void CvPlot::updateWaterFlags() const
 	{
 		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
-		m_bIsAdjacentToOcean = !m_bIsLake; //always false for ocean plots (by definition)
+		m_bIsAdjacentToWater = false; //by definition
 		m_bIsAdjacentToLand = false; //may be set to true later
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1156,7 +1159,7 @@ void CvPlot::updateWaterFlags() const
 	else //land plots
 	{
 		m_bIsLake = false;
-		m_bIsAdjacentToOcean = false; //maybe set to true later
+		m_bIsAdjacentToWater = false; //maybe set to true later
 		m_bIsAdjacentToLand = false; //always false for land plots (by definition)
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -1165,12 +1168,8 @@ void CvPlot::updateWaterFlags() const
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 			if(pAdjacentPlot && pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if(pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= GC.getMIN_WATER_SIZE_FOR_OCEAN())
-				{
-					m_bIsAdjacentToOcean = true;
-					break;
-				}
+				m_bIsAdjacentToWater = true;
+				break;
 			}
 		}
 	}
@@ -1443,11 +1442,9 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 {
-	int iLevel;
-
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-	iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
+	int iLevel = (getTerrainType()!=NO_TERRAIN) ? GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() : 0;
 
 	if(bIncludeShubbery && getFeatureType() != NO_FEATURE)
 	{
@@ -1455,7 +1452,7 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (isMountain() && (getFeatureType() == NO_FEATURE))
+	if (isMountain() && (getFeatureType() == NO_FEATURE)) //natural wonders are features on mountain sometimes
 #else
 	if (isMountain())
 #endif
@@ -12651,7 +12648,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> bitPackWorkaround;
 	m_bBarbCampNotConverting = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
-	m_bHighMoveCost = bitPackWorkaround;
+	m_bRoughPlot = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bResourceLinkedCityActive = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
@@ -12842,7 +12839,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bImprovementPillaged;
 	kStream << m_bRoutePillaged;
 	kStream << m_bBarbCampNotConverting;
-	kStream << m_bHighMoveCost;
+	kStream << m_bRoughPlot;
 	kStream << m_bResourceLinkedCityActive;
 	kStream << m_bImprovedByGiftFromMajor;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -13826,8 +13823,9 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
 
-	//not really related but a good chance to update it
-	m_bHighMoveCost = false;
+	//not really related but a good place to update this
+	//if we have any visibility limiting features here, consider the plot as rough
+	m_bRoughPlot = (seeThroughLevel()>1);
 
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();
@@ -13869,12 +13867,6 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}
-
-				//update the "rough plot" flag as well
-				int iMoveCost = pkTerrainInfo->getMovementCost();
-				if (isHills() || isMountain())
-					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 		else
@@ -13906,12 +13898,6 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 						}
 					}
 				}	
-
-				//update the "rough plot" flag as well
-				int iMoveCost = pkFeatureInfo->getMovementCost();
-				if (isHills() || isMountain())
-					iMoveCost += GC.getHILLS_EXTRA_MOVEMENT();
-				m_bHighMoveCost = (iMoveCost > 1);
 			}
 		}
 	}

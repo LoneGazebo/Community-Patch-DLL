@@ -2934,6 +2934,7 @@ public:
 	virtual ~CvModEventChoiceInfo();
 
 	bool isParentEvent(EventTypes eEvent) const;
+	int getAdvancedActionID() const;
 	int getEventPolicy() const;
 	int getEventBuilding() const;
 	int getEventDuration() const;
@@ -3213,7 +3214,12 @@ public:
 	bool lacksPlayerReligion() const;
 	bool hasPlayerMajority() const;
 	bool lacksPlayerMajority() const;
-	
+
+	bool isEspionage() const;
+	bool isEspionageSetup() const;
+	int getSpyLevelRequired() const;
+	bool isRequiresCounterSpy() const;
+
 	CvCityEventLinkingInfo *GetLinkerInfo(int i) const;
 	int GetNumLinkers() const {return m_iCityLinkerInfos;};
 
@@ -3279,6 +3285,12 @@ protected:
 	bool m_bLacksPlayerReligion;
 	bool m_bHasPlayerMajority;
 	bool m_bLacksPlayerMajority;
+
+	bool m_bEspionage;
+	bool m_bEspionageSetup;
+	int m_iSpyLevelRequired;
+	bool m_bRequiresCounterSpy;
+
 	
 	CvCityEventLinkingInfo* m_paCityLinkerInfo;
 	int m_iCityLinkerInfos;
@@ -3297,6 +3309,7 @@ class CvCityEventNotificationInfo
 public:
 	CvCityEventNotificationInfo() :
 	  m_bWorldEvent(false),
+	  m_bEspionageEvent(false),
 	  m_bNeedCityCoordinates(false),
 	  m_iVariable(-1),
 	  m_bNeedPlayerID(false)
@@ -3306,6 +3319,7 @@ public:
 	  CvString GetDescription() {return m_strDescription;};
 	  CvString GetShortDescription() {return m_strShortDescription;};
 	  bool IsWorldEvent() {return m_bWorldEvent;};
+	  bool IsEspionageEvent() { return m_bEspionageEvent;};
 	  bool IsNeedPlayerID() {return m_bNeedPlayerID;};
 	  bool IsNeedCityCoordinates() {return m_bNeedCityCoordinates;};
 	  CvString GetNotificationString() {return m_strNotificationType;};
@@ -3317,6 +3331,7 @@ protected:
 	CvString m_strDescription;
 	CvString m_strShortDescription;
 	bool m_bWorldEvent;
+	bool m_bEspionageEvent;
 	bool m_bNeedPlayerID;
 };
 
@@ -3402,6 +3417,13 @@ public:
 	int getEventPromotion() const;
 	int ConvertsCityToPlayerReligion() const;
 	int ConvertsCityToPlayerMajorityReligion() const;
+	bool IsEspionageEffect() const;
+	EventClassTypes GetSpyFocus() const;
+	bool IsApplyEffectToSpyOwner() const;
+	int GetIdentificationModifier() const;
+	int GetDeathModifier() const;
+	bool IsPotentialScaling() const;
+	int GetTriggerPlayerEventChoice() const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -3503,6 +3525,13 @@ protected:
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;
 	int m_iConvertsCityToPlayerMajorityReligion;
+	bool m_bEspionageEffect;
+	int m_iSpyFocus;
+	bool m_bApplyEffectToSpyOwner;
+	int m_iTriggerPlayerEventChoice;
+	bool m_bPotentialScaling;
+	int m_iIdentificationModifier;
+	int m_iDeathModifier;
 
 	//Filters
 	int m_iPrereqTech;

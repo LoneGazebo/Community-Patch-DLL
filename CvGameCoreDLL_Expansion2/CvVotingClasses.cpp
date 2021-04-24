@@ -10822,6 +10822,9 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(PlayerTypes ePlayer)
 {
 	DiplomatUsefulnessLevels eUsefulness = DIPLOMAT_USEFULNESS_NONE;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague == NULL)
+		return eUsefulness;
 
 	int iScore = 0;
 	if (GetExtraVotesPerDiplomat() > 0)
@@ -10833,14 +10836,10 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 		iScore += 1;
 	}
 #if defined(MOD_BALANCE_CORE)
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(pLeague != NULL)
+	int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
+	if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
 	{
-		int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
-		if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
-		{
-			iScore += 1;
-		}
+		iScore += 1;
 	}
 	if (iScore >= 3)
 	{

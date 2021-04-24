@@ -1376,10 +1376,6 @@
 			<Text>{1_Build} needs {2_Turns} Turn(s) to complete.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_ALLOWS_ADVANCED_ACTIONS">
-			<Text>Enables Advanced Actions for Spies.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
 			<Text>Resolution proposed prior Session, cannot be proposed again until next Session.</Text>
 		</Row>

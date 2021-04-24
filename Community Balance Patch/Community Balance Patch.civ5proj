@@ -621,6 +621,16 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Buildings/CityDefense.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Espionage/PrimaryEspionageEvents.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Text/en_US/EspionageEventText.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -736,6 +746,7 @@
     <Folder Include="Balance Changes\Buildings" />
     <Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Ideologies" />
+    <Folder Include="Balance Changes\Espionage" />
     <Folder Include="Balance Changes\Worlds" />
     <Folder Include="Balance Changes\Projects" />
     <Folder Include="Balance Changes\Text" />
@@ -1890,6 +1901,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Espionage\PrimaryEspionageEvents.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Ideologies\Autocracy\Autocracy.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -2039,6 +2054,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Text\en_US\BuildingText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Text\en_US\EspionageEventText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

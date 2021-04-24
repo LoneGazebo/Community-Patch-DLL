@@ -1987,37 +1987,6 @@ public:
 
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	bool IsAdvancedActionsEnabled() const;
-	void SetAdvancedActionsEnabled(bool bValue);
-
-	int GetAdvancedActionGold() const;
-	void changeAdvancedActionGold(int iChange);
-	void setAdvancedActionGold(int iChange);
-	int GetAdvancedActionScience() const;
-	void changeAdvancedActionScience(int iChange);
-	void setAdvancedActionScience(int iChange);
-	int GetAdvancedActionUnrest() const;
-	void changeAdvancedActionUnrest(int iChange);
-	void setAdvancedActionUnrest(int iChange);
-	int GetAdvancedActionRebellion() const;
-	void changeAdvancedActionRebellion(int iChange);
-	void setAdvancedActionRebellion(int iChange);
-	int GetAdvancedActionGP() const;
-	void changeAdvancedActionGP(int iChange);
-	void setAdvancedActionGP(int iChange);
-	int GetAdvancedActionUnit() const;
-	void changeAdvancedActionUnit(int iChange);
-	void setAdvancedActionUnit(int iChange);
-	int GetAdvancedActionWonder() const;
-	void changeAdvancedActionWonder(int iChange);
-	void setAdvancedActionWonder(int iChange);
-	int GetAdvancedActionBuilding() const;
-	void changeAdvancedActionBuilding(int iChange);
-	void setAdvancedActionBuilding(int iChange);
-	bool IsCannotFailSpies() const;
-	int GetCannotFailSpies() const;
-	void changeCannotFailSpies(int iChange);
-	
 	void changeMaxAirUnits(int iChange);
 	int getMaxAirUnits() const;
 
@@ -2823,6 +2792,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
+	virtual void AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity) = 0;
 #endif
 
 	virtual void computeFoundValueThreshold();
@@ -3188,16 +3158,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityStateCombatModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	FAutoVariable<bool, CvPlayer> m_bAdvancedActionsEnabled;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionGold;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionScience;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnrest;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionRebellion;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionGP;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnit;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionWonder;
-	FAutoVariable<int, CvPlayer> m_iAdvancedActionBuilding;
-	FAutoVariable<int, CvPlayer> m_iCannotFailSpies;
 	FAutoVariable<int, CvPlayer> m_iMaxAirUnits;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)

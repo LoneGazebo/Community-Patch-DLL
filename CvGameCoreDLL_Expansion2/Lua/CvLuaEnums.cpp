@@ -180,6 +180,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(BUTTONPOPUP_MODDER_9);
 	RegisterEnum(BUTTONPOPUP_MODDER_10);
 	RegisterEnum(BUTTONPOPUP_MODDER_11);
+	RegisterEnum(BUTTONPOPUP_MODDER_12);
 
 	RegisterEnum(BUTTONPOPUP_LEAGUE_OVERVIEW);
 	RegisterEnum(BUTTONPOPUP_DECLAREWAR_PLUNDER_TRADE_ROUTE);
@@ -934,21 +935,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	//Contracts
 	EnumStart(L, "ContractTypes");
 	RegisterEnum(NO_CONTRACT);
-	EnumEnd(L);
-
-	//AdvancedActions
-	EnumStart(L, "AdvancedActionTypes");
-	RegisterEnum(ADVANCED_ACTION_NONE);
-	RegisterEnum(ADVANCED_ACTION_UNIT);
-	RegisterEnum(ADVANCED_ACTION_GP);
-	RegisterEnum(ADVANCED_ACTION_BUILDING);
-	RegisterEnum(ADVANCED_ACTION_WW);
-	RegisterEnum(ADVANCED_ACTION_GOLD_THEFT);
-	RegisterEnum(ADVANCED_ACTION_SCIENCE_THEFT);
-	RegisterEnum(ADVANCED_ACTION_UNREST);
-	RegisterEnum(ADVANCED_ACTION_REBELLION);
-	RegisterEnum(ADVANCED_ACTION_FAILURE);
-	RegisterEnum(NUM_ADVANCED_ACTIONS);
 	EnumEnd(L);
 #endif
 

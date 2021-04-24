@@ -8809,7 +8809,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
 	m_bTradeCapped = kResults.GetBool("LessThanMaximumTradeRoutes");
-
+	
 	const char* szEventType = GetType();
 	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
 
@@ -8980,6 +8980,7 @@ int CvModEventChoiceInfo::getEventTech() const
 {
 	return m_iEventTech;
 }
+
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventPolicy() const
 {
@@ -9852,6 +9853,10 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bLacksPlayerMajority(false),
+	 m_bEspionage(false),
+	 m_bEspionageSetup(false),
+	 m_iSpyLevelRequired(0),
+	 m_bRequiresCounterSpy(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
 {
@@ -10159,6 +10164,22 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 {
 	return m_bLacksPlayerMajority;
 }
+bool CvModCityEventInfo::isEspionage() const
+{
+	return m_bEspionage;
+}
+bool CvModCityEventInfo::isEspionageSetup() const
+{
+	return m_bEspionageSetup;
+}
+bool CvModCityEventInfo::isRequiresCounterSpy() const
+{
+	return m_bRequiresCounterSpy;
+}
+int CvModCityEventInfo::getSpyLevelRequired() const
+{
+	return m_iSpyLevelRequired;
+}
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
 	CvAssertMsg(i < GC.getNumCityEventLinkingInfos(), "Index out of bounds");
@@ -10292,6 +10313,12 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
+	m_bEspionage = kResults.GetBool("IsEspionage");
+	m_bEspionageSetup = kResults.GetBool("EspionageSetup");
+
+	m_iSpyLevelRequired = kResults.GetBool("SpyLevelRequired");
+	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
+
 	{
 		//Initialize Linker Table
 		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
@@ -10417,6 +10444,13 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_strDisabledTooltip(""),
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
+	 m_bEspionageEffect(false),
+	 m_bApplyEffectToSpyOwner(false),
+	 m_bPotentialScaling(false),
+	 m_iIdentificationModifier(0),
+	 m_iDeathModifier(0),
+	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
+	 m_iSpyFocus(NO_EVENT_CLASS),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
@@ -10489,6 +10523,37 @@ int CvModEventCityChoiceInfo::ConvertsCityToPlayerMajorityReligion() const
 {
 	return m_iConvertsCityToPlayerMajorityReligion;
 }
+
+bool CvModEventCityChoiceInfo::IsEspionageEffect() const
+{
+	return m_bEspionageEffect;
+}
+EventClassTypes CvModEventCityChoiceInfo::GetSpyFocus() const
+{
+	return (EventClassTypes)m_iSpyFocus;
+}
+bool CvModEventCityChoiceInfo::IsApplyEffectToSpyOwner() const
+{
+	return m_bApplyEffectToSpyOwner;
+}
+int CvModEventCityChoiceInfo::GetIdentificationModifier() const
+{
+	return m_iIdentificationModifier;
+}
+int CvModEventCityChoiceInfo::GetDeathModifier() const
+{
+	return m_iDeathModifier;
+}
+
+bool CvModEventCityChoiceInfo::IsPotentialScaling() const
+{
+	return m_bPotentialScaling;
+}
+int CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
+{
+	return m_iTriggerPlayerEventChoice;
+}
+
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventBuilding() const
 {
@@ -11000,6 +11065,18 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bOneShot = kResults.GetBool("IsOneShot");
 
+	szTextVal = kResults.GetText("TriggerPlayerEventChoice");
+	m_iTriggerPlayerEventChoice = GC.getInfoTypeForString(szTextVal, true);
+
+	m_bEspionageEffect = kResults.GetBool("IsEspionageEffect");
+	m_bApplyEffectToSpyOwner = kResults.GetBool("IsSpyBenefit");
+	m_bPotentialScaling = kResults.GetBool("PotentialScaling");
+	m_iIdentificationModifier = kResults.GetBool("IDModifier");
+	m_iDeathModifier = kResults.GetBool("DeathModifier");
+
+	szTextVal = kResults.GetText("SpyFocus");
+	m_iSpyFocus = GC.getInfoTypeForString(szTextVal, true);
+
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
 	m_bHasPlayerReligion = kResults.GetBool("CityHasPlayerReligion");
@@ -11081,6 +11158,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 			pCityEventNotificationInfo.m_strDescription = pCityEventChoiceTypes->GetText("Description");
 			pCityEventNotificationInfo.m_strShortDescription = pCityEventChoiceTypes->GetText("ShortDescription");
 			pCityEventNotificationInfo.m_bWorldEvent = pCityEventChoiceTypes->GetBool("IsWorldEvent");
+			pCityEventNotificationInfo.m_bEspionageEvent = pCityEventChoiceTypes->GetBool("EspionageEvent");
 			pCityEventNotificationInfo.m_bNeedCityCoordinates = pCityEventChoiceTypes->GetInt("NeedCityCoordinates");
 			pCityEventNotificationInfo.m_bNeedPlayerID = pCityEventChoiceTypes->GetBool("NeedPlayerID");
 			pCityEventNotificationInfo.m_iVariable = pCityEventChoiceTypes->GetInt("ExtraVariable");

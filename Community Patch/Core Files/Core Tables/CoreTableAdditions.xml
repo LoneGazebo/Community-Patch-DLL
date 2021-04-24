@@ -1645,5 +1645,8 @@
 		<Row>
 			<NotificationType>NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES</NotificationType>
 		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_ESPIONAGE_AA</NotificationType>
+		</Row>
 	</Notifications>
 </GameData>

@@ -6786,11 +6786,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			case TERRAIN_PLAINS:
 			case TERRAIN_HILL:
 			case TERRAIN_COAST:
-				iPlotValue = 20;
+				iPlotValue = 10;
 				break;
 			case TERRAIN_DESERT:
 			case TERRAIN_TUNDRA:
-				iPlotValue = 10;
+				iPlotValue = 5;
 				break;
 			case TERRAIN_MOUNTAIN:
 			case TERRAIN_SNOW:

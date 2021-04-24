@@ -1262,7 +1262,6 @@ protected:
 	static int lGetEspionageCityStatus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetRandomIntrigue(lua_State* L);
-	static int lDoAdvancedAction(lua_State* L);
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);
@@ -1482,6 +1481,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
+	static int lGetEspionageValues(lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);
 	static int lDoEventChoice (lua_State* L);
 	static int lDoStartEvent (lua_State* L);

@@ -138,11 +138,6 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<DisplayPosition>1</DisplayPosition>
 			<FreePolicies>1</FreePolicies>
-			<BlockRebellionSpies>1</BlockRebellionSpies>
-			<BlockUnrestSpies>1</BlockUnrestSpies>
-			<AdvancedActionUnrest>20</AdvancedActionUnrest>
-			<AdvancedActionRebellion>20</AdvancedActionRebellion>
-			<AdvancedActionBuilding>10</AdvancedActionBuilding>
 			<ConquestProb>100</ConquestProb>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -169,8 +164,6 @@
 			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
 			<EspionageModifier>-15</EspionageModifier>
 			<ExtraSpies>2</ExtraSpies>
-			<AdvancedActionScience>15</AdvancedActionScience>
-			<AdvancedActionWonder>15</AdvancedActionWonder>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>
 			<InstantSpyRankChange>1</InstantSpyRankChange>

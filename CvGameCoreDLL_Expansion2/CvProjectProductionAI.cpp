@@ -253,6 +253,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += ((m_pCity->getEmpireSizeMod()/2) * (pkProjectInfo->GetEmpireMod() * -1));
 	}
 
+	if (pkProjectInfo->GetEspionageMod() < 0)
+	{
+		int iEsp = ((GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() * 2) - m_pCity->GetEspionageRankingForEspionage());
+		iTempWeight += (iEsp/2);
+	}
+
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
 	{
 		int iMod = pkProjectInfo->GetHappinessNeedModifier(i) * -1;

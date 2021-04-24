@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/22/2021 10:21:25 AM -->
+<GameData>
+	<!-- Focus Event -->
+	<CityEvents>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP</Help>
+			<CityEventArt>Focus.dds</CityEventArt>
+			<EspionageSetup>true</EspionageSetup>
+		</Row>
+	<!-- ECONOMIC -->
+		<!-- PRODUCTION -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION_HELP</Help>
+			<CityEventArt>Industrial.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- GOLD -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_ECONOMIC_GOLD</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD_HELP</Help>
+			<CityEventArt>Industrial.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- TILES -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_ECONOMIC_TILES</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_TILES</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_TILES_HELP</Help>
+			<CityEventArt>Industrial.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+
+	<!-- SCIENTIFIC -->
+		
+		<!-- SCIENCE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE_HELP</Help>
+			<CityEventArt>Research.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- GOLDEN AGE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_SCIENTIFIC_GAP</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GAP</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GAP_HELP</Help>
+			<CityEventArt>Research.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- GREAT PEOPLE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE_HELP</Help>
+			<CityEventArt>Research.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+	<!-- MILITARY -->
+		
+		<!-- SECURITY LEVEL -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_MILITARY_SECURITY</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_SECURITY</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_SECURITY_HELP</Help>
+			<CityEventArt>Military.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- DAMAGE CITY -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_MILITARY_CITY</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_CITY</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_CITY_HELP</Help>
+			<CityEventArt>Military.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- DAMAGE GARRISON -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_MILITARY_GARRISON</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_GARRISON</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_GARRISON_HELP</Help>
+			<CityEventArt>Military.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+	<!-- URBAN -->
+		
+		<!-- CULTURE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_URBAN_CULTURE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_CULTURE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_CULTURE_HELP</Help>
+			<CityEventArt>Urban.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- UNREST -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_URBAN_UNREST</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNREST</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNREST_HELP</Help>
+			<CityEventArt>Urban.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+		<!-- UNHAPPINESS -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_URBAN_UNHAPPINESS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNHAPPINESS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNHAPPINESS_HELP</Help>
+			<CityEventArt>Urban.dds</CityEventArt>
+			<IsEspionage>true</IsEspionage>
+			<RandomChance>10</RandomChance>
+			<RandomChanceDelta>10</RandomChanceDelta>
+		</Row>
+	</CityEvents>
+	<CityEventChoices>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC_HELP</Help>
+			<IsEspionageEffect>false</IsEspionageEffect>
+			<SpyFocus>EVENT_CLASS_ECONOMIC</SpyFocus>
+			<EventDuration>0</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC_HELP</Help>
+			<IsEspionageEffect>false</IsEspionageEffect>
+			<SpyFocus>EVENT_CLASS_SCIENTIFIC</SpyFocus>
+			<EventDuration>0</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY_HELP</Help>
+			<IsEspionageEffect>false</IsEspionageEffect>
+			<SpyFocus>EVENT_CLASS_MILITARY</SpyFocus>
+			<EventDuration>0</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN_HELP</Help>
+			<IsEspionageEffect>false</IsEspionageEffect>
+			<SpyFocus>EVENT_CLASS_URBAN</SpyFocus>
+			<EventDuration>0</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE_HELP</Help>
+			<IsEspionageEffect>false</IsEspionageEffect>
+			<SpyFocus>EVENT_CLASS_ALL</SpyFocus>
+			<EventDuration>0</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<PotentialScaling>true</PotentialScaling>
+			<EventDuration>0</EventDuration>
+			<IDModifier>-25</IDModifier>
+			<DeathModifier>-25</DeathModifier>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<PotentialScaling>true</PotentialScaling>
+			<IsSpyBenefit>true</IsSpyBenefit>
+			<EventDuration>0</EventDuration>
+		</Row>
+	</CityEventChoices>
+	<CityEventChoice_InstantYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>-15</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</CityEventChoice_InstantYield>
+	<CityEvent_ParentEvents>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+	</CityEvent_ParentEvents>
+	<CityEventChoiceFlavors>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT</CityEventChoiceType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON</CityEventChoiceType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</CityEventChoiceType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</CityEventChoiceType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</CityEventChoiceType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</CityEventChoiceType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</CityEventChoiceFlavors>
+	
+	<!-- ECONOMIC EVENTS -->
+		<!-- PRODUCTION SAP-->
+
+	<!--	<CityEventChoice_Notification>
+		<Row>
+			<CityEventChoiceType></CityEventChoiceType>
+			<NotificationType></NotificationType>
+			<Description></Description>
+			<ShortDescription></ShortDescription>
+		</Row>
+	</CityEventChoice_Notification>-->
+</GameData>

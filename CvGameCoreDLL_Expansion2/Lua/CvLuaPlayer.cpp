@@ -1187,7 +1187,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalValueToMeNormal);
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
-	Method(DoAdvancedAction);
 	Method(GetCachedValueOfPeaceWithHuman);
 	Method(GetSpyChanceAtCity);
 	Method(GetCityPotentialInfo);
@@ -1205,9 +1204,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsSpyDiplomat);
 	Method(IsSpySchmoozing);
 	Method(CanSpyStageCoup);
-#if defined(MOD_BALANCE_CORE)
-	Method(ValidHeistLocation);
-#endif
 	Method(GetAvailableSpyRelocationCities);
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
@@ -1486,6 +1482,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
+	Method(GetEspionageValues);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
 	Method(DoEventChoice);
@@ -15236,23 +15233,6 @@ int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 	pkPlayerEspionage->GetRandomIntrigue(pkCity, iSpyIndex);
 	return 0;
 }
-
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lDoAdvancedAction(lua_State* L)
-{
-	CvPlayerAI* pkThisPlayer = GetInstance(L);
-	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
-	int iSpyIndex = lua_tointeger(L, 3);
-	CvAdvancedAction eAdvancedAction = (CvAdvancedAction)lua_tointeger(L, 4);
-	int iRank = lua_tointeger(L, 5);
-	BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 6);
-	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 7);
-	SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 8);
-
-	pkPlayerEspionage->DoAdvancedAction(iSpyIndex, pkCity, eAdvancedAction, iRank, eBuilding, eUnit, eSpecialist);
-	return 0;
-}
 #endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
@@ -15492,9 +15472,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
 			break;
-		case SPY_STATE_PREPARING_HEIST:
-			lua_pushstring(L, "TXT_KEY_SPY_STATE_PREPARING_HEIST");
-			break;
 #endif
 		default:
 			CvAssertMsg(false, "pSpy->m_eSpyState not in case statement");
@@ -15513,9 +15490,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 
 		lua_pushboolean(L, pkPlayerEspionage->IsDiplomat(uiSpy));
 		lua_setfield(L, t, "IsDiplomat");
-
-		lua_pushboolean(L, pkPlayerEspionage->IsThief(uiSpy));
-		lua_setfield(L, t, "IsThief");
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
 		lua_pushboolean(L, pSpy->m_bPassive);
@@ -15607,24 +15581,6 @@ int CvLuaPlayer::lCanSpyStageCoup(lua_State* L)
 	lua_pushboolean(L, bCanStageCoup);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lValidHeistLocation(lua_State* L)
-{
-	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		lua_pushboolean(L, false);
-		return 1;
-	}
-	CvPlayer* pkPlayer = GetInstance(L);
-	int iSpyIndex = lua_tointeger(L, 2);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
-	bool bCanMoveInto = pkPlayer->GetEspionage()->CanMoveSpyTo(pkCity, iSpyIndex, false, true);
-
-	lua_pushboolean(L, bCanMoveInto);
-	return 1;
-}
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 {
@@ -15647,11 +15603,7 @@ int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 			// Just find first coastal city
 			for(CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
 			{
-#if defined(MOD_BALANCE_CORE)
-				if (pkPlayerEspionage->CanMoveSpyTo(pCity, uiSpyIndex, false, false))
-#else
 				if(pkPlayerEspionage->CanMoveSpyTo(pCity, uiSpyIndex, false))
-#endif
 				{
 					lua_createtable(L, 0, 0);
 					const int t = lua_gettop(L);
@@ -16853,6 +16805,20 @@ int CvLuaPlayer::lGetDisabledTooltip(lua_State* L)
 	lua_pushstring(L, DisabledTT.c_str());
 	return 1;
 }
+int CvLuaPlayer::lGetEspionageValues(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	CvString CoreYieldTip = "";
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const int uiSpyIndex = lua_tointeger(L, 3);
+	if (eEvent != NO_EVENT)
+	{
+		CoreYieldTip = pkPlayer->GetEspionage()->GetEventHelpText(eEvent, uiSpyIndex);
+	}
+
+	lua_pushstring(L, CoreYieldTip.c_str());
+	return 1;
+}
 int CvLuaPlayer::lGetScaledEventChoiceValue(lua_State* L)
 {
 	CvString CoreYieldTip = "";
@@ -16994,6 +16960,8 @@ int CvLuaPlayer::lIsEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+
+
 int CvLuaPlayer::lGetEventHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);

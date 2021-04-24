@@ -1145,6 +1145,7 @@ ALTER TABLE Projects ADD COLUMN 'CostScalerNumRepeats' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IsRepeatable' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'Happiness' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'EmpireMod' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'EspionageMod' INTEGER DEFAULT 0;
 
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
@@ -1152,33 +1153,6 @@ ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
 -- require x tier 3 tenets prior to construction
 ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
-
--- Advanced Action Spy Stuff (for CBP)
-
--- Spies cannot fail advanced actions -- they won't trigger unless they can do damage
-ALTER TABLE Buildings ADD COLUMN 'CannotFailSpies' INTEGER DEFAULT 0;
-
--- Each point in these columns increases the chances of the event happening by 1
--- All possible events are pooled and then selected from at random - each point in these adds that value to the pool again
--- Are empire-wide values - affect all spies
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGold' INTEGER DEFAULT 0; -- starts at 3 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionScience' INTEGER DEFAULT 0; -- starts at 3 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnrest' INTEGER DEFAULT 0; -- starts at 1 
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionRebellion' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGP' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnit' INTEGER DEFAULT 0; -- starts at 2
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionWonder' INTEGER DEFAULT 0; -- starts at 1
-ALTER TABLE Buildings ADD COLUMN 'AdvancedActionBuilding' INTEGER DEFAULT 0; -- starts at 2
-
--- Blocks advanced actions entirely in a city -- 1 enables
-ALTER TABLE Buildings ADD COLUMN 'BlockBuildingDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockWWDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGPDestructionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockRebellionSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 --Increase Air Unit Support Per City Global
 ALTER TABLE Buildings ADD COLUMN 'AirModifierGlobal' INTEGER DEFAULT 0;
@@ -1200,9 +1174,6 @@ ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
-
--- Choose Enabling Point for Advanced Actions
-ALTER TABLE Technologies ADD COLUMN 'UnlocksEspionageAdvancedActions' BOOLEAN;
 
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;

@@ -747,6 +747,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityEventChoiceCooldown);
 	Method(SetCityEventChoiceCooldown);
 	Method(IsCityEventChoiceValid);
+	Method(IsCityEventChoiceValidEspionage);
 #endif
 
 
@@ -6389,7 +6390,9 @@ int CvLuaCity::lDoCityEventChoice(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
-	pkCity->DoEventChoice(eEventChoice);
+	const int iSpyID = luaL_optint(L, 3, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, -1);
+	pkCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, iSpyID, eSpyOwner);
 	return 1;
 }
 int CvLuaCity::lDoCityStartEvent(lua_State* L)
@@ -6461,7 +6464,19 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+int CvLuaCity::lIsCityEventChoiceValidEspionage(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const int uiSpyIndex = lua_tointeger(L, 4);
+	const PlayerTypes eSpyOwner = (PlayerTypes)lua_tointeger(L, 5);
+	const bool bValue = pkCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, eSpyOwner);
 
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE_JFD)

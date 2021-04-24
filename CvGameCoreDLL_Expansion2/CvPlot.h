@@ -541,7 +541,7 @@ public:
 
 	bool isRoughGround() const
 	{
-		return m_bHighMoveCost;
+		return m_bRoughPlot; //limited visibility
 	}
 
 	bool isFlatlands() const;
@@ -1094,14 +1094,14 @@ protected:
 	bool m_bPlotLayoutDirty:1;
 	bool m_bLayoutStateWorked:1;
 	bool m_bBarbCampNotConverting:1;
-	bool m_bHighMoveCost:1;
+	bool m_bRoughPlot:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
 	bool m_bIsImpassable:1;
 
 	mutable bool m_bIsFreshwater:1;						// Cached value, do not serialize
 	mutable bool m_bIsAdjacentToLand:1;					// Cached value, do not serialize
-	mutable bool m_bIsAdjacentToOcean:1;				// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToWater:1;				// Cached value, do not serialize
 	mutable bool m_bIsLake:1;							// Cached value, do not serialize
 
 	CvArchaeologyData m_kArchaeologyData;

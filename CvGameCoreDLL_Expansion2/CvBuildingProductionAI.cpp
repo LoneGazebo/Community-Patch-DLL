@@ -346,64 +346,53 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	bool bGoodforHappiness = false;
 	bool bGoodforGPT = false;
 
-	//No Sea Trade Connections?
-	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->AllowsWaterRoutes())
+	//this is not about trade routes but city connections
+	if (pkBuildingInfo->AllowsWaterRoutes()) 
 	{
-		//we know the city must be coastal. but if this is a lake and there are no other cities reachable via water, then it makes no sense to build this
-		if (!m_pCity->plot()->isCoastalLand(-1) && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity,true).empty())
-			return 0;
-
-		if (pkBuildingInfo->AllowsWaterRoutes()) //this is not about trade routes but city connections
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 		{
-			CvCity* pCapital = kPlayer.getCapitalCity();
-			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
-			{
-				iBonus -= 50;
-			}
-			else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
-			{
-				iBonus += 10 * max(1, m_pCity->getPopulation());
-			}
-			else
-			{
-				iBonus += 5 * max(1, m_pCity->getPopulation());
-			}
-
-			//Higher value the higher the number of routes.
-			iBonus += iNumSeaConnection;
-			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
-			{
-				iBonus += 5 * max(1, iNumSeaConnection);
-			}
-
-			int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
-			if (iUnhappyConnection > 0)
-			{
-				iBonus += (iUnhappyConnection * 10);
-				bGoodforHappiness = true;
-				bGoodforGPT = true;
-			}
+			iBonus -= 50;
+		}
+		else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+		{
+			iBonus += 10 * max(1, m_pCity->getPopulation());
 		}
 		else
 		{
-			if (iNumSeaConnection <= 0 && !bFreeBuilding)
-			{
-				if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
-				{
-					iBonus -= 10;
-				}
-				else
-				{
-					iBonus -= 5;
-				}
-			}
-			//Higher value the higher the number of routes.
-			iBonus += iNumSeaConnection;
-			if (kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
-			{
-				iBonus += 5 * max(1, iNumSeaConnection);
-			}
+			iBonus += 5 * max(1, m_pCity->getPopulation());
 		}
+
+		//Higher value the higher the number of routes.
+		iBonus += iNumSeaConnection;
+		if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
+		{
+			iBonus += 5 * max(1, iNumSeaConnection);
+		}
+
+		int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
+		if (iUnhappyConnection > 0)
+		{
+			iBonus += (iUnhappyConnection * 10);
+			bGoodforHappiness = true;
+			bGoodforGPT = true;
+		}
+	}
+
+	//bonus to sea trade
+	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
+	{
+		//can we even have sea trade here
+		if (m_pCity->plot()->isCoastalLand() && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).size() > 0)
+			iBonus += 10;
+		else
+			iBonus -= 100;
+	}
+
+	if (pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0)
+	{
+		//Higher value the higher the number of routes.
+		iBonus += 5 * iNumSeaConnection;
 	}
 
 	if(pkBuildingInfo->IsAddsFreshWater() && !m_pCity->plot()->isFreshWater())
@@ -763,42 +752,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus += 1000;
 		}
-	}
-
-	//Espionage!
-	if (pkBuildingInfo->GetBlockBuildingDestruction() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockWWDestruction() > 0)
-	{
-		iBonus += (m_pCity->getNumWorldWonders() * 25);
-	}
-	if (pkBuildingInfo->GetBlockUDestruction() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockGPDestruction() > 0)
-	{
-		iBonus += m_pCity->getGreatPeopleRate() / 10;
-	}
-	if (pkBuildingInfo->GetBlockRebellion() > 0)
-	{
-		//Less happy = better!
-		iBonus += (100 - kPlayer.GetHappiness());
-	}
-	if (pkBuildingInfo->GetBlockUnrest() > 0)
-	{
-		//Less happy = better!
-		iBonus += (50 - kPlayer.GetHappiness());
-	}
-	if (pkBuildingInfo->GetBlockScience() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 100);
-	}
-	if (pkBuildingInfo->GetBlockGold() > 0)
-	{
-		iBonus += (m_pCity->getYieldRate(YIELD_GOLD, false) / 100);
 	}
 
 	///////////////////

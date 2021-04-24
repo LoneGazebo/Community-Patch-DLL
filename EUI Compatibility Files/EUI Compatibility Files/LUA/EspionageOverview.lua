@@ -540,17 +540,10 @@ function RefreshAgents()
 			agentEntry.DiplomatIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.DiplomatIcon:SetHide(false);
 			agentEntry.AgentIcon:SetHide(true);
-			agentEntry.ThiefIcon:SetHide(true);
-		elseif(v.IsThief)then
-			agentEntry.ThiefIcon:SetToolTipString(szSpyRankTooltip);
-			agentEntry.ThiefIcon:SetHide(false);
-			agentEntry.AgentIcon:SetHide(true);
-			agentEntry.DiplomatIcon:SetHide(true);
 		else
 			agentEntry.AgentIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.AgentIcon:SetHide(false);
 			agentEntry.DiplomatIcon:SetHide(true);
-			agentEntry.ThiefIcon:SetHide(true);
 		end
 		
 		
@@ -1339,14 +1332,6 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				bCheckDiplomat = true;
 			end
 
-			--CBP
-			local bCheckThief = false;
-			if (pActivePlayer:ValidHeistLocation(selectedAgentIndex, city)) then
-				bCheckDiplomat = true;
-				bCheckThief = true;
-			end
-			--END
-
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
 
 			if (bCheckDiplomat) then
@@ -1360,13 +1345,9 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						Refresh();
 					end
 
-					if(bCheckThief)then			
-						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_THIEF");
-						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_THIEF");
-					else
-						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
-						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
-					end
+					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
+					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
+				
 					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();

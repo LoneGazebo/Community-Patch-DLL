@@ -137,12 +137,13 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	void DoEvents();
-	bool IsCityEventValid(CityEventTypes eEvent);
-	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent);
+	void DoEvents(bool bEspionage = false);
+	bool IsCityEventValid(CityEventTypes eEvent, bool bEspionage = false);
+	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent, bool bEspionage = false);
+	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, int ePassedResult = -1, CvCity* pOriginalCity = NULL);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice);
 
@@ -1062,7 +1063,10 @@ public:
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetEspionageRanking() const;
-	void SetEspionageRanking(int iRank, bool bNotify);
+	int GetEspionageRankingForEspionage(PlayerTypes ePlayer = NO_PLAYER) const;
+	void ChangeEspionageRanking(int iRank, bool bNotify);
+	void ResetEspionageRanking();
+	void InitEspionageRanking();
 
 	void SetTurnsSinceLastRankMessage(int iTurns);
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
@@ -1291,43 +1295,9 @@ public:
 
 	void DoBarbIncursion();
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	void ChangeBlockBuildingDestruction(int iNewValue);
-	void SetBlockBuildingDestruction(int iNewValue);
-	int GetBlockBuildingDestruction() const;
-
-	void ChangeBlockWWDestruction(int iNewValue);
-	void SetBlockWWDestruction(int iNewValue);
-	int GetBlockWWDestruction() const;
-
-	void ChangeBlockUDestruction(int iNewValue);
-	void SetBlockUDestruction(int iNewValue);
-	int GetBlockUDestruction() const;
-
-	void ChangeBlockGPDestruction(int iNewValue);
-	void SetBlockGPDestruction(int iNewValue);
-	int GetBlockGPDestruction() const;
-
-	void ChangeBlockRebellion(int iNewValue);
-	void SetBlockRebellion(int iNewValue);
-	int GetBlockRebellion() const;
-
-	void ChangeBlockUnrest(int iNewValue);
-	void SetBlockUnrest(int iNewValue);
-	int GetBlockUnrest() const;
-
-	void ChangeBlockScience(int iNewValue);
-	void SetBlockScience(int iNewValue);
-	int GetBlockScience() const;
-
-	void ChangeBlockGold(int iNewValue);
-	void SetBlockGold(int iNewValue);
-	int GetBlockGold() const;
-
 
 	void changeNukeInterceptionChance(int iValue);
 	int getNukeInterceptionChance() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsPurchased(BuildingClassTypes eBuildingClass);
@@ -1558,6 +1528,10 @@ public:
 
 	void changeProjectCount(ProjectTypes eProject, int iValue);
 	int getProjectCount(ProjectTypes eProject) const;
+
+	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
+	int getUnitsBuiltCount(UnitTypes eUnitType) const;
+	
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
@@ -1925,6 +1899,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;
+	FAutoVariable<std::vector<int>, CvCity> m_aiNumUnitsBuilt;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
@@ -1974,14 +1949,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;
-	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
-	FAutoVariable<int, CvCity> m_iBlockWWDestruction;
-	FAutoVariable<int, CvCity> m_iBlockUDestruction;
-	FAutoVariable<int, CvCity> m_iBlockGPDestruction;
-	FAutoVariable<int, CvCity> m_iBlockRebellion;
-	FAutoVariable<int, CvCity> m_iBlockUnrest;
-	FAutoVariable<int, CvCity> m_iBlockScience;
-	FAutoVariable<int, CvCity> m_iBlockGold;
 	FAutoVariable<int, CvCity> m_iCitySpyRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;

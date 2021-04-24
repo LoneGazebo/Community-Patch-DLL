@@ -85,7 +85,6 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageTradingAllowed(false),
 #endif
-	m_bUnlocksEspionageAdvancedActions(false),
 	m_pabFreePromotion(NULL)
 {
 }
@@ -162,7 +161,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
 	}
-	m_bUnlocksEspionageAdvancedActions = kResults.GetBool("UnlocksEspionageAdvancedActions");
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
@@ -1443,19 +1441,6 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-			}
-		}
-
-		if (pkTechInfo->IsUnlocksEspionageAdvancedActions())
-		{
-			if (m_pPlayer->GetPlayerTraits()->GetExtraSpies() || m_pPlayer->GetPlayerTraits()->GetStartingSpyRank() > 0 || m_pPlayer->GetPlayerTraits()->GetStartingSpies() > 0)
-			{
-				m_piGSTechPriority[iTechLoop]++;
-			}
-
-			if (m_pPlayer->GetEspionage()->GetNumSpies() > 0)
-			{
-				m_piGSTechPriority[iTechLoop]++;
 			}
 		}
 	}
@@ -2765,8 +2750,3 @@ bool CvTechEntry::IsVassalageTradingAllowed() const
 	return m_bVassalageTradingAllowed;
 }
 #endif
-
-bool CvTechEntry::IsUnlocksEspionageAdvancedActions() const
-{
-	return m_bUnlocksEspionageAdvancedActions;
-}

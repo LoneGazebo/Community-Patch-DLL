@@ -827,6 +827,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 #endif
 
+	//---
+	if (getDomainType() == DOMAIN_SEA && plot()->isLake())
+		OutputDebugString("warning, ship spawning on lake\n");
+	//---
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
@@ -3153,9 +3157,9 @@ void CvUnit::doTurn()
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD); //this is after a skip mission
-	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && !IsHurt(); //done healing?
-	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY || eActivityType == ACTIVITY_HEAL) && SentryAlert(true); //on alert or healing
-	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn() && SentryAlert(true); //fortified but about to die
+	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (m_iDamageTakenLastTurn>0 || !IsHurt()); //done healing or under attack?
+	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true); //on alert
+	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn(); //fortified but about to die
 	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(); //AI interceptors reconsider each turn
 
 	if (bHoldCheck || bHealCheck || bSentryCheck || bFortifyCheck || bInterceptCheck)	
@@ -7888,7 +7892,9 @@ void CvUnit::doHeal()
 			if (IsHurt() && !hasMoved() && (plot()->getImprovementType() == eCamp || plot()->getOwner() == BARBARIAN_PLAYER))
 #endif
 			{
-				changeDamage(-GC.getBALANCE_BARBARIAN_HEAL_RATE());
+				//barbarians consider all territory as neutral
+				int iHealRate = GC.getBALANCE_BARBARIAN_HEAL_RATE() + getExtraNeutralHeal(); 
+				changeDamage(-iHealRate);
 			}
 		}
 	}
@@ -16282,6 +16288,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			{
 				iModifier += pFromPlot->GetEffectiveFlankingBonus(this, pDefender, pToPlot);
 			}
+
+			if (pFromPlot->IsFriendlyTerritory(getOwner()))
+				iModifier += getFriendlyLandsAttackModifier();
 		}
 	}
 
@@ -16694,6 +16703,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (pMyPlot->IsFriendlyTerritory(getOwner()))
 		{
 			iModifier += getFriendlyLandsModifier();
+			if (bAttacking)
+				iModifier += getFriendlyLandsAttackModifier();
 
 			// Founder Belief bonus
 			CvCity* pPlotCity = bQuickAndDirty ? NULL : pTargetPlot->getOwningCity();
@@ -21450,8 +21461,9 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chText
 		if (!pSplashPlot)
 			continue;
 
-		//splash damage only for range-attackable plots
-		if (!canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
+		//splash damage only for range-attackable plots around the target
+		//if the target is the current unit plot (for roman pilum) check is not needed
+		if (!at(pWhere->getX(),pWhere->getY()) && !canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
 			continue;
 
 		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)
@@ -23880,15 +23892,20 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		}
 	}
 }
+
+//finish improvements (mostly roads) at the beginning of the turn so we can use them immediately
 void CvUnit::DoFinishBuildIfSafe()
 {
-	int iBuildTimeLeft = -1;
-	BuildTypes eBuild = getBuildType();
-	if (eBuild != NO_BUILD && canMove())
-		iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+	if (isHuman())
+		return;
 
-	if (iBuildTimeLeft == 0 && GetDanger() == 0)
-		CvUnitMission::ContinueMission(this);
+	BuildTypes eBuild = getBuildType();
+	if (eBuild != NO_BUILD)
+	{
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
+		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+			CvUnitMission::ContinueMission(this);
+	}
 }
 #endif 
 
@@ -28271,7 +28288,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
 
-	return GetDanger() > iDangerLimit;
+	return GetDanger() > iDangerLimit || m_iDamageTakenLastTurn > iDangerLimit;
 }
 
 //	--------------------------------------------------------------------------------

@@ -5036,43 +5036,11 @@ CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString s
 {
 	CvString szRtnValue = "";
 
-	if (!bNoBasicHelp)
-	{
-		szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT", szName, szRank);
-	}
-	else
-	{
-		szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT_SHORT", szName, szRank);
-	}
-
 	CvPlayerEspionage* pkPlayerEspionage = m_pPlayer->GetEspionage();
 	if (pkPlayerEspionage)
 	{
-		CvString strIntrigue = "";
-		for (int i = pkPlayerEspionage->m_aIntrigueNotificationMessages.size(); i > 0; i--)
-		{
-			if (pkPlayerEspionage->m_aIntrigueNotificationMessages[i - 1].m_iTurnNum < (GC.getGame().getGameTurn() - 10))
-			{
-				continue;
-			}
-
-			if (pkPlayerEspionage->m_aIntrigueNotificationMessages[i - 1].iSpyID == iSpyID)
-			{
-				if (strIntrigue != "")
-				{
-					strIntrigue += "[NEWLINE]";
-				}
-				Localization::String strIntrigueMessage = pkPlayerEspionage->GetIntrigueMessage(i - 1);
-				strIntrigue += "[ICON_BULLET] ";
-				strIntrigue += GetLocalizedText(strIntrigueMessage.toUTF8());
-			}
-		}
-		if (strIntrigue != "")
-		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
-			szRtnValue += GetLocalizedText("TXT_KEY_SPY_INTRIGUE_DISCOVERED");
-			szRtnValue += strIntrigue.GetCString();
-		}
+		CvCity* pCity = pkPlayerEspionage->GetCityWithSpy(iSpyID);
+		szRtnValue += pkPlayerEspionage->GetSpyInfo(iSpyID, bNoBasicHelp, pCity);
 	}
 
 	if (ePlayer != NO_PLAYER)

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/21/2021 10:11:11 AM -->
+<GameData>
+	<Language_en_US>
+		
+		<!-- NOTIFICATION POPUP -->
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_AA_CHOICE">
+			<Text>Incoming Encrypted Message from {1_Rank} {2_Spy}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_AA_TT">
+			<Text>An encrypted message from {1_Rank} {2_Spy} in {3_City} has arrived.</Text>
+		</Row>
+		
+		<!-- FOCUS OPTIONS -->
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
+			<Text>SELECT SPY FOCUS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
+			<Text>Your newly established spy network requires a plan. What would you like them to focus on?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC">
+			<Text>Economic and industrial operations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC_HELP">
+			<Text>Your spies will look for opportunities to affect the City's economic output.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC">
+			<Text>Research and development</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC_HELP">
+			<Text>Your spies will look for ways to disrupt technological development.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY">
+			<Text>Military plans and operations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY_HELP">
+			<Text>Your spies will infilitrate the local military defenses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN">
+			<Text>Urban development</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN_HELP">
+			<Text>Your spies will embed themselves into the citizenry.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE">
+			<Text>No focus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE_HELP">
+			<Text>Your spies will look for any opportunity to affect the City.</Text>
+		</Row>
+		
+		<!-- ECONOMIC -->
+
+			<!-- PRODUCTION -->
+			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION">
+				<Text>Smash and Grab</Text>
+			</Row>
+			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION_HELP">
+				<Text>From: {1_SpyRank} {2_SpyName}[NEWLINE]Location: {3_CityName}.[NEWLINE][NEWLINE]Opportunity for industrial espionage uncovered. Please advise.[NEWLINE][NEWLINE]Security Details: Fatality Risk: [COLOR_NEGATIVE_TEXT]{4_ChanceToDie}%[ENDCOLOR]; Identification Risk: [COLOR_NEGATIVE_TEXT]{5_ChanceToBeIdentified}%[ENDCOLOR][NEWLINE][NEWLINE]Please choose from the following options:</Text>
+			</Row>
+				<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT">
+					<Text>Go in quiet, smash up a few construction sites, but avoid detection at all costs.</Text>
+				</Row>
+				<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_INSTANT_HELP">
+					<Text>-25% chance to be identified or killed. Target City: {2_InstantYield}.</Text>
+				</Row>
+				<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON">
+					<Text>Copy their blueprints and send them back to us.</Text>
+				</Row>
+				<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_SIPHON_HELP">
+					<Text>Your [ICON_CAPITAL] Capital gains: {2_InstantYield}.</Text>
+				</Row>
+
+			<!-- GOLD-->
+			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD">
+				<Text>A Matter of Money</Text>
+			</Row>
+			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD_HELP">
+				<Text>Construction Site Infiltration</Text>
+			</Row>
+	</Language_en_US>
+</GameData>

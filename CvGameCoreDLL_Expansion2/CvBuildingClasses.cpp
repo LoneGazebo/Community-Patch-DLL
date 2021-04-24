@@ -227,25 +227,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsGlobal(0),
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	 m_iCannotFailSpies(-1),
-	 m_iAdvancedActionGold(-1),
-	 m_iAdvancedActionScience(-1),
-	 m_iAdvancedActionUnrest(-1),
-	 m_iAdvancedActionRebellion(-1),
-	 m_iAdvancedActionGP(-1),
-	 m_iAdvancedActionUnit(-1),
-	 m_iAdvancedActionWonder(-1),
-	 m_iAdvancedActionBuilding(-1),
-	 m_iBlockBuildingDestruction(-1),
-	 m_iBlockWWDestruction(-1),
-	 m_iBlockUDestruction(-1),
-	 m_iBlockGPDestruction(-1),
-	 m_iBlockRebellion(-1),
-	 m_iBlockUnrest(-1),
-	 m_iBlockScience(-1),
-	 m_iBlockGold(-1),
-#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra(false),
@@ -388,6 +369,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiResourcePlotsToPlace(),
 	m_piYieldPerFriend(NULL),
 	m_piYieldPerAlly(NULL),
+	m_piYieldChangeWorldWonder(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -520,6 +502,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
 	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
 	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
+	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -590,25 +573,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
-	m_iAdvancedActionGold= kResults.GetInt("AdvancedActionGold");
-	m_iAdvancedActionScience= kResults.GetInt("AdvancedActionScience");
-	m_iAdvancedActionUnrest= kResults.GetInt("AdvancedActionUnrest");
-	m_iAdvancedActionRebellion= kResults.GetInt("AdvancedActionRebellion");
-	m_iAdvancedActionGP= kResults.GetInt("AdvancedActionGP");
-	m_iAdvancedActionUnit= kResults.GetInt("AdvancedActionUnit");
-	m_iAdvancedActionWonder= kResults.GetInt("AdvancedActionWonder");
-	m_iAdvancedActionBuilding= kResults.GetInt("AdvancedActionBuilding");
-	m_iBlockBuildingDestruction = kResults.GetInt("BlockBuildingDestructionSpies");
-	m_iBlockWWDestruction = kResults.GetInt("BlockWWDestructionSpies");
-	m_iBlockUDestruction = kResults.GetInt("BlockUDestructionSpies");
-	m_iBlockGPDestruction = kResults.GetInt("BlockGPDestructionSpies");
-	m_iBlockRebellion = kResults.GetInt("BlockRebellionSpies");
-	m_iBlockUnrest = kResults.GetInt("BlockUnrestSpies");
-	m_iBlockScience = kResults.GetInt("BlockScienceTheft");
-	m_iBlockGold = kResults.GetInt("BlockGoldTheft");
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
@@ -1026,6 +990,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+
+	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
@@ -3721,6 +3687,13 @@ int CvBuildingEntry::GetYieldPerAlly(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
 }
+
+int CvBuildingEntry::GetYieldChangeWorldWonder(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangeWorldWonder ? m_piYieldChangeWorldWonder[i] : 0;
+}
 #endif
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const
@@ -4114,85 +4087,7 @@ int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
 	return m_iNoUnhappfromXSpecialistsGlobal;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-/// Does this building prevent spies from failing?
-int CvBuildingEntry::GetCannotFailSpies() const
-{
-	return m_iCannotFailSpies;
-}
-/// Does this building  boost spy chance to steal gold?
-int CvBuildingEntry::GetAdvancedActionGold() const
-{
-	return m_iAdvancedActionGold;
-}
-/// Does this building  boost spy chance to steal science?
-int CvBuildingEntry::GetAdvancedActionScience() const
-{
-	return m_iAdvancedActionScience;
-}
-/// Does this building boost spy chance to cause unrest?
-int CvBuildingEntry::GetAdvancedActionUnrest() const
-{
-	return m_iAdvancedActionUnrest;
-}
-/// Does this building boost spy chance to cause rebellion?
-int CvBuildingEntry::GetAdvancedActionRebellion() const
-{
-	return m_iAdvancedActionRebellion;
-}
-/// Does this building boost spy chance to sabotage GP?
-int CvBuildingEntry::GetAdvancedActionGP() const
-{
-	return m_iAdvancedActionGP;
-}
-/// Does this building boost spy chance to sabotage unit?
-int CvBuildingEntry::GetAdvancedActionUnit() const
-{
-	return m_iAdvancedActionUnit;
-}
-/// Does this building boost spy chance to sabotage wonder?
-int CvBuildingEntry::GetAdvancedActionWonder() const
-{
-	return m_iAdvancedActionWonder;
-}
-/// Does this building boost spy chance to sabotage building?
-int CvBuildingEntry::GetAdvancedActionBuilding() const
-{
-	return m_iAdvancedActionBuilding;
-}
-int CvBuildingEntry::GetBlockBuildingDestruction() const
-{
-	return m_iBlockBuildingDestruction;
-}
-int CvBuildingEntry::GetBlockWWDestruction() const
-{
-	return m_iBlockWWDestruction ;
-}
-int CvBuildingEntry::GetBlockUDestruction() const
-{
-	return m_iBlockUDestruction;
-}
-int CvBuildingEntry::GetBlockGPDestruction() const
-{
-	return m_iBlockGPDestruction ;
-}
-int CvBuildingEntry::GetBlockRebellion() const
-{
-	return m_iBlockRebellion;
-}
-int CvBuildingEntry::GetBlockUnrest() const
-{
-	return m_iBlockUnrest;
-}
-int CvBuildingEntry::GetBlockScience() const
-{
-	return m_iBlockScience;
-}
-int CvBuildingEntry::GetBlockGold() const
-{
-	return m_iBlockGold;
-}
-#endif
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 bool CvBuildingEntry::IsVassalLevyEra() const
 {

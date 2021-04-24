@@ -762,14 +762,6 @@ function GetShortHelpTextForTech( iTechID )
 		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_D_PACT_STRING" );
 		numAbilities = numAbilities + 1;
 	end
-
-	if thisTech.UnlocksEspionageAdvancedActions then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_ADVANCED_ACTIONS_STRING" );
-		numAbilities = numAbilities + 1;
-	end
 	
 	if thisTech.BridgeBuilding then
 		if numAbilities > 0 then

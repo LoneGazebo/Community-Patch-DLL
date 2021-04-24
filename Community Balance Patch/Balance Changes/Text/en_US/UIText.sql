@@ -137,15 +137,15 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT' AND EXISTS (SELECT * FROM
 	
 -- Text Changes for Spies in Cities
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from, or perform Great Work Heists against {3_CityName}, however they can continue to disrupt the player through additional actions like sabotage.[NEWLINE][NEWLINE]The base Potential of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and culture output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station.'
+SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from, or perform Great Work Heists against {3_CityName}, however they can continue to disrupt the player through additional actions like sabotage.[NEWLINE][NEWLINE]The base Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the less vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity of the city. Security Level may be increased by defensive buildings in the city, such as the Constabulary and the Police Station.'
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_SpyName} is in your city, they will perform counter-espionage operations to capture and kill any enemy spies that try to steal your technology, perform Great Work Heists, or conduct Advanced Actions.'
+SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_SpyName} is in your city, they will perform counter-espionage operations to capture and kill any enemy spies that try to complete Spy Events.'
 WHERE Tag = 'TXT_KEY_CITY_SPY_YOUR_CITY_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_SpyName} is in the city, they establish surveillance, attempt to steal any technology from that civilization, perform Great Work Heists, and conduct Advanced Actions such as stealing Gold. {6_SpyRank} {7_SpyName} will also inform you of any intrigue that they discover during their operations.'
+SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_SpyName} is in the city, they establish surveillance and work towards completing Spy Events. {6_SpyRank} {7_SpyName} will also inform you of any intrigue that they discover during their operations.'
 WHERE Tag = 'TXT_KEY_CITY_SPY_OTHER_CIV_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -154,7 +154,7 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 
 UPDATE Language_en_US
-SET Text = '{1_SpyName} has achieved the rank of {2_RankName}.[NEWLINE][NEWLINE]There are three spy ranks: Recruit, Agent, and Special Agent. Each subsequent level makes the spy more effective. A higher ranking spy will steal technologies faster, discover and kill enemy spies that are trying to steal from you more frequently, rig elections in City-States more effectively, and have a greater chance of pulling off a coup in a City-State allied with another civilization.[NEWLINE][NEWLINE]Spies level up when they successfully steal technology or art from another civilization, kill an enemy spy, schmooze as as a diplomat, or if they uncover intrigue.'
+SET Text = '{1_SpyName} has achieved the rank of {2_RankName}.[NEWLINE][NEWLINE]There are three spy ranks: Recruit, Agent, and Special Agent. Each subsequent level makes the spy more effective. A higher ranking spy will operate faster and kill enemy spies that are trying to work against you more frequently, rig elections in City-States more effectively, and have a greater chance of pulling off a coup in a City-State allied with another civilization.[NEWLINE][NEWLINE]Spies level up when they successfully complete Spy Events, kill an enemy spy, schmooze as as a diplomat, or if they uncover intrigue.'
 WHERE Tag = 'TXT_KEY_EO_SPY_RANK_TT';
 
 -- Public Opinion

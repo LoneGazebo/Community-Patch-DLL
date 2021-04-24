@@ -11573,9 +11573,6 @@ void CvGame::DoGlobalAvgLogging()
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestSpyPotential()
 {
-	//no divide by zero ...
-	int iHighestEspionagePotential = 1;
-
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -11588,78 +11585,22 @@ void CvGame::SetHighestSpyPotential()
 			{
 				continue;
 			}
+			
+			int iNumSpies = kLoopPlayer.GetEspionage()->GetNumSpies();
+			//no espionage system = no risk!
+			if (iNumSpies <= 0)
+				continue;
 
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				int iPotential = 0;
-				int iRequired = kLoopPlayer.GetEspionage()->CalcRequired(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
-				if (iRequired <= 0)
-					continue;
+				int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
+				//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
+				if (iResistance > GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
+					pLoopCity->ChangeEspionageRanking(GC.getBALANCE_SPY_SABOTAGE_RATE(), iNumSpies > 0);
 				else
-					iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
-
-				iPotential *= 100;
-				iPotential /= max(1, iRequired);
-
-				iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
+					pLoopCity->ChangeEspionageRanking(-GC.getBALANCE_SPY_SABOTAGE_RATE(), iNumSpies > 0);
 			}
-		}
-	}
-
-	for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
-	{
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-
-		if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
-		{
-			continue;
-		}
-
-		//Check for spies - this determines if we need to do any updates or anything.
-		bool bNotify = false;
-		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-		{
-			PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-			if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
-			{
-				CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
-
-				if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
-				{
-					continue;
-				}
-				if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
-				{
-					if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
-					{
-						bNotify = true;
-						break;
-					}
-				}
-			}
-		}
-
-		int iLoop = 0;
-		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-		{				
-			int iPotential = 0;
-			int iRequired = kLoopPlayer.GetEspionage()->CalcRequired(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
-			if (iRequired <= 0)
-			{
-				pLoopCity->SetEspionageRanking(1, bNotify);
-				continue;
-			}
-			else
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1, true);
-
-			iPotential *= 100;
-			iPotential /= max(1, iRequired);
-
-			//We want a value between 1 and 10
-			int iRank = max(1, (iPotential * 10) / max(1,iHighestEspionagePotential));
-
-			pLoopCity->SetEspionageRanking(iRank, bNotify);
 		}
 	}
 }

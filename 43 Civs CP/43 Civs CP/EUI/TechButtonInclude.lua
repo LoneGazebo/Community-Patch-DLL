@@ -584,8 +584,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		addSmallGenericButtonIf( (tech.VassalageTradingAllowed and not g_bNoVassalage) and "TXT_KEY_ALLOWS_VASSALAGE" )
 		-- END
 
-		addSmallGenericButtonIf( tech.UnlocksEspionageAdvancedActions and "TXT_KEY_ALLOWS_ADVANCED_ACTIONS" )
-
 		if tech.BridgeBuilding then
 			addSmallActionButton( GameInfo.Missions.MISSION_ROUTE_TO, "", "TXT_KEY_ALLOWS_BRIDGES" )
 		end

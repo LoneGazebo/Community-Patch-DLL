@@ -701,16 +701,6 @@ CvPlayer::CvPlayer() :
 	, m_iCityStateCombatModifier("CvPlayer::m_iCityStateCombatModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_bAdvancedActionsEnabled("CvPlayer::m_bAdvancedActionsEnabled", m_syncArchive)
-	, m_iAdvancedActionGold("CvPlayer::m_iAdvancedActionGold", m_syncArchive)
-	, m_iAdvancedActionScience("CvPlayer::m_iAdvancedActionScience", m_syncArchive)
-	, m_iAdvancedActionUnrest("CvPlayer::m_iAdvancedActionUnrest", m_syncArchive)
-	, m_iAdvancedActionRebellion("CvPlayer::m_iAdvancedActionRebellion", m_syncArchive)
-	, m_iAdvancedActionGP("CvPlayer::m_iAdvancedActionGP", m_syncArchive)
-	, m_iAdvancedActionUnit("CvPlayer::m_iAdvancedActionUnit", m_syncArchive)
-	, m_iAdvancedActionWonder("CvPlayer::m_iAdvancedActionWonder", m_syncArchive)
-	, m_iAdvancedActionBuilding("CvPlayer::m_iAdvancedActionBuilding", m_syncArchive)
-	, m_iCannotFailSpies("CvPlayer::m_iCannotFailSpies", m_syncArchive)
 	, m_iMaxAirUnits("CvPlayer::m_iMaxAirUnits", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1084,17 +1074,6 @@ void CvPlayer::init(PlayerTypes eID)
 		SetGreatGeneralCombatBonus(GC.getGREAT_GENERAL_STRENGTH_MOD());
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		setAdvancedActionGold(16);
-		setAdvancedActionScience(14);
-		setAdvancedActionUnrest(6);
-		setAdvancedActionRebellion(4);
-		setAdvancedActionGP(8);
-		setAdvancedActionUnit(10);
-		setAdvancedActionWonder(2);
-		setAdvancedActionBuilding(12);
-	}
 	GET_TEAM(getTeam()).DoUpdateBestRoute();
 #endif
 
@@ -1593,16 +1572,6 @@ void CvPlayer::uninit()
 	m_iCityStateCombatModifier = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	m_bAdvancedActionsEnabled = false;
-	m_iAdvancedActionGold = 0;
-	m_iAdvancedActionScience = 0;
-	m_iAdvancedActionUnrest = 0;
-	m_iAdvancedActionRebellion = 0;
-	m_iAdvancedActionGP = 0;
-	m_iAdvancedActionUnit = 0;
-	m_iAdvancedActionWonder = 0;
-	m_iAdvancedActionBuilding = 0;
-	m_iCannotFailSpies = 0;
 	m_iMaxAirUnits = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -5779,18 +5748,19 @@ void CvPlayer::DoEvents()
 
 	//Event Choice Duration First - if we're in one, let's do the countdown now.
 	//We need to do this first so we can cancel the event(s).
-	for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+	
+	for (int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
 	{
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
-		if(eEventChoice != NO_EVENT_CHOICE)
+		if (eEventChoice != NO_EVENT_CHOICE)
 		{
-			if(GetEventChoiceDuration(eEventChoice) > 0)
+			if (GetEventChoiceDuration(eEventChoice) > 0)
 			{
 				ChangeEventChoiceDuration(eEventChoice, -1);
-				if(GC.getLogging())
+				if (GC.getLogging())
 				{
 					CvModEventChoiceInfo* pkEventInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventInfo != NULL)
+					if (pkEventInfo != NULL)
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5806,7 +5776,7 @@ void CvPlayer::DoEvents()
 						pLog->Msg(strBaseString);
 					}
 				}
-				if(GetEventChoiceDuration(eEventChoice) == 0)
+				if (GetEventChoiceDuration(eEventChoice) == 0)
 				{
 					DoCancelEventChoice(eEventChoice);
 				}
@@ -5904,7 +5874,7 @@ void CvPlayer::DoEvents()
 	if (veValidEvents.size() > 0)
 	{
 		//afw		veValidEvents.SortItems();
-		int iRandIndex = GC.getGame().getJonRandNum(2000, "Picking random event for player."); //afw
+		int iRandIndex = GC.getGame().getSmallFakeRandNum(2000, GetTreasury()->GetLifetimeGrossGold()); //afw
 		if (GC.getLogging())
 		{
 			CvString strBaseString;
@@ -6056,8 +6026,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				return false;
 		}
 	}
-		
-	//Let's narrow down all events here!
+
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
@@ -6515,16 +6484,16 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		return false;
 	}
 
-	if(!IsEventActive(eParentEvent))
+	if (!pkEventInfo->isParentEvent(eParentEvent))
+		return false;
+
+	if (IsEventActive(eParentEvent))
 		return false;
 
 	//Lua Hook
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventChoiceCanTake, GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) {
 		return false;
 	}
-
-	if(!pkEventInfo->isParentEvent(eParentEvent))
-		return false;
 
 	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
 		return false;
@@ -11417,6 +11386,9 @@ void CvPlayer::doTurn()
 			DoEvents();
 		}
 	}
+	if (GetEspionage() != NULL)
+		GetEspionage()->DoAdvancedActions();
+
 	updateYieldPerTurnHistory();
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -11832,7 +11804,7 @@ void CvPlayer::DoUnitReset()
 		if (pUnitPlot->isWater())
 		{
 			CvCity* pOwner = pUnitPlot->getOwningCity();
-			if (pOwner != NULL)
+			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
 				int iTempDamage = pUnitPlot->getOwningCity()->GetWorkedWaterTileDamage();
 				if (iTempDamage > 0)
@@ -17461,47 +17433,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	}
 
 	ChangeExtraLeagueVotes(pBuildingInfo->GetExtraLeagueVotes() * iChange);
-#if defined(MOD_BALANCE_CORE_SPIES)
-	if(MOD_BALANCE_CORE_SPIES)
-	{
-		if(pBuildingInfo->GetAdvancedActionGold() > 0)
-		{
-			changeAdvancedActionGold(pBuildingInfo->GetAdvancedActionGold() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionScience() > 0)
-		{
-			changeAdvancedActionScience(pBuildingInfo->GetAdvancedActionScience() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionUnrest() > 0)
-		{
-			changeAdvancedActionUnrest(pBuildingInfo->GetAdvancedActionUnrest() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionRebellion() > 0)
-		{
-			changeAdvancedActionRebellion(pBuildingInfo->GetAdvancedActionRebellion() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionGP() > 0)
-		{
-			changeAdvancedActionGP(pBuildingInfo->GetAdvancedActionGP() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionUnit() > 0)
-		{
-			changeAdvancedActionUnit(pBuildingInfo->GetAdvancedActionUnit() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionWonder() > 0)
-		{
-			changeAdvancedActionWonder(pBuildingInfo->GetAdvancedActionWonder() * iChange);
-		}
-		if(pBuildingInfo->GetAdvancedActionBuilding() > 0)
-		{
-			changeAdvancedActionBuilding(pBuildingInfo->GetAdvancedActionBuilding() * iChange);
-		}
-		if(pBuildingInfo->GetCannotFailSpies() > 0)
-		{
-			changeCannotFailSpies(pBuildingInfo->GetCannotFailSpies() * iChange);
-		}
-	}
-
 	changeMaxAirUnits(pBuildingInfo->GetAirModifierGlobal() * iChange);
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
@@ -17520,7 +17451,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
-#endif
 	// Loop through Cities
 	int iLoop;
 	CvCity* pLoopCity;
@@ -36160,151 +36090,6 @@ void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int i
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-bool CvPlayer::IsAdvancedActionsEnabled() const
-{
-	return m_bAdvancedActionsEnabled;
-}
-void CvPlayer::SetAdvancedActionsEnabled(bool bValue)
-{
-	if (m_bAdvancedActionsEnabled != bValue)
-		m_bAdvancedActionsEnabled = bValue;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionGold() const
-{
-	return m_iAdvancedActionGold;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionGold(int iChange)
-{
-	m_iAdvancedActionGold += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionGold(int iChange)
-{
-	m_iAdvancedActionGold = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionScience() const
-{
-	return m_iAdvancedActionScience;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionScience(int iChange)
-{
-	m_iAdvancedActionScience += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionScience(int iChange)
-{
-	m_iAdvancedActionScience = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionUnrest() const
-{
-	return m_iAdvancedActionUnrest;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionUnrest(int iChange)
-{
-	m_iAdvancedActionUnrest += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionUnrest(int iChange)
-{
-	m_iAdvancedActionUnrest = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionRebellion() const
-{
-	return m_iAdvancedActionRebellion;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionRebellion(int iChange)
-{
-	m_iAdvancedActionRebellion += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionRebellion(int iChange)
-{
-	m_iAdvancedActionRebellion = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionGP() const
-{
-	return m_iAdvancedActionGP;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionGP(int iChange)
-{
-	m_iAdvancedActionGP += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionGP(int iChange)
-{
-	m_iAdvancedActionGP = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionUnit() const
-{
-	return m_iAdvancedActionUnit;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionUnit(int iChange)
-{
-	m_iAdvancedActionUnit += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionUnit(int iChange)
-{
-	m_iAdvancedActionUnit = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionWonder() const
-{
-	return m_iAdvancedActionWonder;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionWonder(int iChange)
-{
-	m_iAdvancedActionWonder += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionWonder(int iChange)
-{
-	m_iAdvancedActionWonder = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetAdvancedActionBuilding() const
-{
-	return m_iAdvancedActionBuilding;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeAdvancedActionBuilding(int iChange)
-{
-	m_iAdvancedActionBuilding += iChange;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::setAdvancedActionBuilding(int iChange)
-{
-	m_iAdvancedActionBuilding = iChange;
-}
-//	--------------------------------------------------------------------------------
-bool CvPlayer::IsCannotFailSpies() const
-{
-	return GetCannotFailSpies() > 0;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCannotFailSpies() const
-{
-	return m_iCannotFailSpies;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeCannotFailSpies(int iChange)
-{
-	m_iCannotFailSpies += iChange;
-}
-
 void CvPlayer::changeMaxAirUnits(int iChange)
 {
 	if (iChange != 0)
