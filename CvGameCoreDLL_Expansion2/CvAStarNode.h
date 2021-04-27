@@ -214,20 +214,20 @@ struct SPath
 struct SMovePlot
 {
 	int iPlotIndex;
-	int iTurns;
+	int iPathLength; //turns or steps, depending on pathfinder
 	int iMovesLeft;
 	int iNormalizedDistanceRaw; //fixed point float
 
-	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistanceRaw(0) {}
-	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_, int iNormalizedDistance_) : 
-		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistanceRaw(iNormalizedDistance_) {}
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iPathLength(0), iMovesLeft(0), iNormalizedDistanceRaw(0) {}
+	SMovePlot(int iIndex, int iLength_, int iMovesLeft_, int iNormalizedDistance_) : 
+		iPlotIndex(iIndex), iPathLength(iLength_), iMovesLeft(iMovesLeft_), iNormalizedDistanceRaw(iNormalizedDistance_) {}
 
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 
 	//for the step finder normally turns==steps, but sometimes we want effective path length from cost
-	int turnsFromCost(int iMovesPerTurn) const;
+	int effectivePathLength(int iMovesPerTurn) const;
 };
 
 class ReachablePlots

@@ -78,9 +78,9 @@ void DumpNodeList(const std::vector<CvAStarNode*>& nodes)
 	}
 }
 
-int SMovePlot::turnsFromCost(int iMovesPerTurn) const
+int SMovePlot::effectivePathLength(int iMovesPerTurn) const
 { 
-	return iNormalizedDistanceRaw / (PATH_BASE_COST * max(1,iMovesPerTurn)); 
+	return iNormalizedDistanceRaw / (SPath::getNormalizedDistanceBase() * max(1,iMovesPerTurn)); 
 }
 
 //	--------------------------------------------------------------------------------

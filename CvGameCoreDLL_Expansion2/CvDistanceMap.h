@@ -7,7 +7,8 @@
 
 struct STiebreakGenerator
 {
-	virtual int operator()(int iOwner, int iFeatureID) const = 0;
+	//return 1 if B wins, -1 if A wins
+	virtual int operator()(int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const = 0;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -65,10 +66,10 @@ public:
 	PlayerTypes GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
 };
 
-class CvDistanceMapByTurns : public CvDistanceMapWrapper
+class CvDistanceMapByPathLength : public CvDistanceMapWrapper
 {
 public:
-	CvDistanceMapByTurns(DomainTypes eDomain) : m_domain(eDomain) {}
+	CvDistanceMapByPathLength(DomainTypes eDomain) : m_domain(eDomain) {}
 protected:
 	virtual void Update();
 	DomainTypes m_domain;

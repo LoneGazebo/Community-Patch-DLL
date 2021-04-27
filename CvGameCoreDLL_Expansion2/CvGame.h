@@ -925,7 +925,7 @@ protected:
 	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
-	CvDistanceMapByTurns m_cityDistancePathLength;
+	CvDistanceMapByPathLength m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
 
 	//----------------------------------------------------------------

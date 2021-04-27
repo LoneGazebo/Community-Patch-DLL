@@ -2124,7 +2124,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 					}
 
 					CvTacticalUnit unit(pUnit->GetID());
-					unit.SetMovesToTarget(it->iTurns);
+					unit.SetMovesToTarget(it->iPathLength);
 					m_CurrentMoveUnits.push_back(unit);
 
 					if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot()) == pTargetZone)
@@ -2372,6 +2372,13 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						if (iTurns > 0)
 							//escort seems to be faster than the civilian, slow down
 							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
+
+						//double check ... in ShouldAbort we check whether the civilian's path is safe, but the escort may take a different way
+						if (m_pPlayer->IsPlotUnsafe(pCommonPlot))
+						{
+							pOperation->SetToAbort(AI_ABORT_TOO_DANGEROUS);
+							return;
+						}
 
 						//we know they can stack
 						ExecuteMoveToPlot(pEscort, pCommonPlot);
@@ -5246,9 +5253,9 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaTarget(CvUnit* pUnit)
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
 		ReachablePlots::const_iterator itPlot = movePlots.find(pPlot->GetPlotIndex());
-		if (itPlot != movePlots.end() && itPlot->iTurns < iBestValue)
+		if (itPlot != movePlots.end() && itPlot->iPathLength < iBestValue)
 		{
-			iBestValue = itPlot->iTurns;
+			iBestValue = itPlot->iPathLength;
 			pBestMovePlot = pPlot;
 		}
 	}
@@ -5285,7 +5292,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaTarget(CvUnit* pUnit)
 					CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 					if (plotDistance(*pTestPlot, *pCamp) == 1)
 					{
-						int iValue = it->iTurns;
+						int iValue = it->iPathLength;
 						if (iValue < iBestValue)
 						{
 							iBestValue = iValue;

@@ -786,7 +786,7 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 		int iTurns = INT_MAX;
 		ReachablePlots::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 		if (itPlot != itUnit->second.end())
-			iTurns = itPlot->iTurns;
+			iTurns = itPlot->iPathLength;
 		else
 			continue;
 
@@ -826,7 +826,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 	for(ReachablePlots::const_iterator it=thisUnitPlots->second.begin(); it!=thisUnitPlots->second.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(it->iPlotIndex);
-		int iMoveTurnsAway = it->iTurns;
+		int iMoveTurnsAway = it->iPathLength;
 
 		if(!ShouldBuilderConsiderPlot(pUnit, pPlot))
 		{

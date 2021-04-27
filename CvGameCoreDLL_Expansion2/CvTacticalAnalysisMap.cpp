@@ -254,7 +254,7 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 	for (size_t i = 0; i < m_vNeighboringZones.size(); i++)
 	{
 		CvTacticalDominanceZone* pNeighbor = pTactMap->GetZoneByID(m_vNeighboringZones[i]);
-		if (!pNeighbor || pNeighbor->GetNumPlots() < 7) //ignore very small zones
+		if (!pNeighbor || pNeighbor->GetNumPlots() < 5) //ignore very small zones
 			continue;
 
 		if (eDomain != NO_DOMAIN && pNeighbor->GetDomain() != eDomain)
@@ -540,7 +540,20 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 
 bool CvTacticalAnalysisMap::IsUpToDate()
 {
-	return (m_iTurnSliceBuilt == GC.getGame().getTurnSlice() && m_vPlotZoneID.size()==GC.getMap().numPlots());
+	//not initialized
+	if (m_vPlotZoneID.size() != GC.getMap().numPlots())
+		return false;
+	
+	//explicitly invalidated
+	if (m_iTurnSliceBuilt == -1)
+		return false;
+
+	//otherwise consider it up to date if it's not our turn
+	if (m_ePlayer != GC.getGame().getActivePlayer())
+		return true;
+
+	//default check for age
+	return (m_iTurnSliceBuilt == GC.getGame().getTurnSlice());
 }
 
 void CvTacticalAnalysisMap::Invalidate()
@@ -549,32 +562,31 @@ void CvTacticalAnalysisMap::Invalidate()
 }
 
 /// Fill the map with data for this AI player's turn
-void CvTacticalAnalysisMap::Refresh(bool force)
+void CvTacticalAnalysisMap::RefreshIfOutdated()
 {
-	if(force || !IsUpToDate())
+	if (IsUpToDate())
+		return;
+
+	//this is where the sausage is made
+	CreateDominanceZones();
+
+	//barbarians don't care about tactical dominance
+	if(m_ePlayer!=BARBARIAN_PLAYER)
 	{
-		//this is where the sausage is made
-		CreateDominanceZones();
+		EstablishZoneNeighborhood();
+		CalculateMilitaryStrengths();
+		UpdatePostures();
+		PrioritizeZones();
 
-		//barbarians don't care about tactical dominance
-		if(m_ePlayer!=BARBARIAN_PLAYER)
-		{
-			EstablishZoneNeighborhood();
-			CalculateMilitaryStrengths();
-			UpdatePostures();
-			PrioritizeZones();
-
-			//only temporary measure, creates a huge amount of logs
-			if (g_bLogZones)
-				LogZones();
-		}
+		//only temporary measure, creates a huge amount of logs
+		if (g_bLogZones)
+			LogZones();
 	}
 }
 
 int CvTacticalAnalysisMap::GetNumZones() 
 { 
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	return m_vDominanceZones.size(); 
 };
@@ -584,8 +596,6 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 {
 	//important, set this first so that lookups don't get us into an infinite loop
 	m_iTurnSliceBuilt = GC.getGame().getTurnSlice();
-
-	//zero will be the "unknown zone"
 	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), 0 );
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
@@ -594,16 +604,13 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
 	m_vDominanceZones[0].SetZoneID(0);
 	m_IdLookup[0] = 0;
-	//then the default land zone (unowned)
-	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
-	m_vDominanceZones[1].SetZoneID(1);
-	m_IdLookup[+1] = 1;
-	//then the default water zone (unowned)
-	m_vDominanceZones.push_back( CvTacticalDominanceZone() );
-	m_vDominanceZones[2].SetZoneID(-1);
-	m_IdLookup[-1] = 2;
 
-	int iMaxRange = 5;
+	//not all plots belong to a city
+	std::tr1::unordered_set<CvPlot*> nonCityZonePlots;
+
+	//don't make our zones too large
+	int iMaxRange = 4;
+
 	TeamTypes eOurTeam = GET_PLAYER(m_ePlayer).getTeam();
 	CvTacticalDominanceZone* pCurrentZone = NULL;
 
@@ -611,39 +618,40 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		//some will be ignored
-		if (!pPlot || !pPlot->isRevealed(eOurTeam) || pPlot->isImpassable(eOurTeam))
+		//some plot will be part of the "unknown zone"
+		if (!pPlot || !pPlot->isRevealed(eOurTeam))
 		{
 			m_vPlotZoneID[iI] = 0;
 			continue;
 		}
 
-		//todo: split between water distance and land distance!
-
-		//treat as default zone if too far out
-		int iCityDistance = GC.getGame().GetClosestCityDistancePathLength(pPlot);
+		//is this plot close to a city?
+		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
 		if (iCityDistance > iMaxRange)
 		{
-			int iID = pPlot->isWater() ? -1 : 1;
-			int iIndex = pPlot->isWater() ? 2 : 1;
-			m_vPlotZoneID[iID] = iID;
-			m_vDominanceZones[iIndex].Extend(pPlot); //center will be useless but size may be interesting
+			//figure those out later
+			nonCityZonePlots.insert(pPlot);
 			continue;
 		}
 
-		//treat as default zone if too far out
-		CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pPlot);
-		if (!pClosestCity)
+		//which city should this belong to?
+		CvCity* pZoneCity = NULL;
+		if (iCityDistance < 3)
+			pZoneCity = GC.getGame().GetClosestCityByPlots(pPlot);
+		else if ( pPlot->isOwned() )
+			pZoneCity = pPlot->getOwningCity();
+		else
+			pZoneCity = GC.getGame().GetClosestCityByPathLength(pPlot);
+
+		//should not happen
+		if (!pZoneCity)
 		{
-			int iID = pPlot->isWater() ? -1 : 1;
-			int iIndex = pPlot->isWater() ? 2 : 1;
-			m_vPlotZoneID[iID] = iID;
-			m_vDominanceZones[iIndex].Extend(pPlot); //center will be useless but size may be interesting
+			nonCityZonePlots.insert(pPlot);
 			continue;
 		}
 
 		//now it gets interesting
-		int iZoneID = pClosestCity->GetID();
+		int iZoneID = pZoneCity->GetID();
 		if (pPlot->isWater())
 			iZoneID *= -1;
 
@@ -657,14 +665,14 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 			{
 				CvTacticalDominanceZone newZone;
 				newZone.SetZoneID(iZoneID);
-				newZone.SetZoneCity(pClosestCity);
+				newZone.SetZoneCity(pZoneCity);
 
 				//this is actually tricky with lakes and islands ...
 				newZone.SetAreaID(pPlot->getArea());
 
-				if (pClosestCity->getTeam() == eOurTeam)
+				if (pZoneCity->getTeam() == eOurTeam)
 					newZone.SetTerritoryType(TACTICAL_TERRITORY_FRIENDLY);
-				else if (GET_TEAM(eOurTeam).isAtWar(pClosestCity->getTeam()))
+				else if (GET_TEAM(eOurTeam).isAtWar(pZoneCity->getTeam()))
 					newZone.SetTerritoryType(TACTICAL_TERRITORY_ENEMY);
 				else
 					newZone.SetTerritoryType(TACTICAL_TERRITORY_NEUTRAL);
@@ -680,6 +688,55 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		//the main thing ...
 		m_vPlotZoneID[iI] = iZoneID;
 		pCurrentZone->Extend(pPlot);
+	}
+
+	//now assign unique ids to all the little scraps of non-city zones
+	int iNonCityBaseId = 100000; //should be safe
+	while (!nonCityZonePlots.empty())
+	{
+		vector<CvPlot*> stack;
+		stack.push_back(*nonCityZonePlots.begin());
+		nonCityZonePlots.erase(nonCityZonePlots.begin());
+
+		int newId = iNonCityBaseId++;
+		if (stack.front()->isWater())
+			newId *= -1;
+
+		CvTacticalDominanceZone newZone;
+		newZone.SetZoneID(newId);
+		newZone.SetZoneCity(NULL);
+		newZone.SetAreaID(stack.front()->getArea());
+		newZone.SetTerritoryType(TACTICAL_TERRITORY_NEUTRAL);
+
+		while (!stack.empty())
+		{
+			CvPlot* current = stack.back(); stack.pop_back();
+			newZone.Extend(current);
+			m_vPlotZoneID[current->GetPlotIndex()] = newId;
+
+			CvPlot** neighbors = GC.getMap().getNeighborsUnchecked(current);
+			for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+			{
+				CvPlot* neighbor = neighbors[i];
+				if (!neighbor)
+					continue;
+				
+				//must be same domain but do not create extra zones for small lakes or islands
+				if (neighbor->getDomain() == current->getDomain() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
+				{
+					std::tr1::unordered_set<CvPlot*>::iterator it = nonCityZonePlots.find(neighbor);
+					if (it != nonCityZonePlots.end())
+					{
+						nonCityZonePlots.erase(it);
+						stack.push_back(*it);
+					}
+				}
+			}
+		}
+
+		//make sure we can find it later
+		m_IdLookup[newZone.GetZoneID()] = m_vDominanceZones.size();
+		m_vDominanceZones.push_back(newZone);
 	}
 }
 
@@ -715,7 +772,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		}
 
 		// check all units in the world
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		// ignore the barbarians here! do not base tactical decisions on transients
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
@@ -1081,8 +1139,7 @@ void CvTacticalAnalysisMap::LogZones()
 /// Retrieve a dominance zone
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	if(iIndex < 0 || iIndex >= (int)m_vDominanceZones.size())
 		return NULL;
@@ -1092,8 +1149,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 /// Retrieve a dominance zone by closest city
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(const CvCity* pCity, bool bWater)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	if (!pCity)
 		return NULL;
@@ -1105,8 +1161,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(const CvCity* pCit
 /// Retrieve a dominance zone by ID
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByID(int iID)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	map<int, int>::iterator it = m_IdLookup.find(iID);
 	if (it != m_IdLookup.end())
@@ -1117,8 +1172,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByID(int iID)
 
 CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(const CvPlot * pPlot)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
 		return NULL;
@@ -1128,8 +1182,7 @@ CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(const CvPlot * pP
 
 int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	if (iPlotIndex<0 || iPlotIndex>=(int)m_vPlotZoneID.size())
 		return NULL;
@@ -1140,8 +1193,7 @@ int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 // Is this plot in dangerous territory?
 bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 {
-	if (!IsUpToDate())
-		Refresh();
+	RefreshIfOutdated();
 
 	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
 		return NULL;

@@ -9914,35 +9914,28 @@ void CvCity::SetResourceDemanded(ResourceTypes eResource)
 /// Picks a Resource for this City to want
 void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 {
-	ResourceTypes eCurrentResource = GetResourceDemanded(false);
+	ResourceTypes ePreviousResource = GetResourceDemanded(false);
+
 	SetResourceDemanded(NO_RESOURCE);
 
 	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
 		return;
 
-	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoPickResourceDemanded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Create the list of invalid Luxury Resources
-	vector<ResourceTypes> veInvalidLuxuryResources;
-	CvPlot* pLoopPlot;
-	ResourceTypes eResource;
+	set<ResourceTypes> localLuxuryResources;
 
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	// Loop through all Plots near this City to see if there's Luxuries we should invalidate
-
 	for(int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
-
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 		if(pLoopPlot != NULL)
 		{
-			eResource = pLoopPlot->getResourceType();
-
+			ResourceTypes eResource = pLoopPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
 			{
 				if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					veInvalidLuxuryResources.push_back(eResource);
+					localLuxuryResources.insert(eResource);
 				}
 			}
 		}
@@ -9950,9 +9943,10 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	// Create list of valid Luxuries
 	vector<ResourceTypes> veValidLuxuryResources;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 		// Is this a Luxury Resource?
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
@@ -9971,21 +9965,10 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 				continue;
 
-			if (bCurrentResourceInvalid && eCurrentResource == eResource)
+			if (bCurrentResourceInvalid && ePreviousResource == eResource)
 				continue;
 
-			bool bResourceValid = true;
-
-			// Look at all invalid Resources found to see if our randomly-picked Resource matches any
-			for (int iVectorLoop = 0; iVectorLoop < (int)veInvalidLuxuryResources.size(); iVectorLoop++)
-			{
-				if (eResource == veInvalidLuxuryResources[iVectorLoop])
-				{
-					bResourceValid = false;
-					break;
-				}
-			}
-			if (!bResourceValid)
+			if (localLuxuryResources.find(eResource) != localLuxuryResources.end())
 				continue;
 
 			veValidLuxuryResources.push_back(eResource);
@@ -9999,10 +9982,8 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	}
 
 	// Now pick a Luxury we can use
-	int iVectorIndex;
-
-	iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-	eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
+	int iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+	ResourceTypes eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 
 	//hurk! STOP.
 	if (eResource == NO_RESOURCE)
