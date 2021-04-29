@@ -52934,7 +52934,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		iWantVassalageScore += 5;
 		break;
 	case CIV_OPINION_FAVORABLE:
-		iWantVassalageScore += 0;
+		iWantVassalageScore -= 5;
 		break;
 	case CIV_OPINION_NEUTRAL:
 		iWantVassalageScore -= 25;
