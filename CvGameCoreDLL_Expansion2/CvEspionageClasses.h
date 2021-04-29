@@ -83,7 +83,7 @@ public:
 #if defined(MOD_API_ESPIONAGE)
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
 #endif
-	void SetSpyFocus(EventClassTypes eEventClass);
+	void SetSpyFocus(CityEventChoiceTypes m_eSpyFocus);
 
 	// Public data
 	int m_iName;
@@ -99,7 +99,8 @@ public:
 #if defined(MOD_API_ESPIONAGE)
 	bool m_bPassive;
 #endif
-	EventClassTypes m_eSpyFocus; // focus type for events- events are classified.
+	CityEventChoiceTypes m_eSpyFocus; // focus type for events- events are classified.
+	int m_iPotentialAtStart;
 };
 
 FDataStream& operator>>(FDataStream&, CvEspionageSpy&);
@@ -114,6 +115,27 @@ FDataStream& operator<<(FDataStream&, const CvEspionageSpy&);
 //!  - This object is created inside the CvPlayer object and accessed through CvPlayer
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #if defined(MOD_BALANCE_CORE)
+struct ScoreCityEntry
+{
+	CvCity* m_pCity;
+	int m_iScore;
+	bool m_bDiplomat;
+};
+struct ScoreCityEntryHighEval
+{
+	bool operator()(ScoreCityEntry const& a, ScoreCityEntry const& b) const
+	{
+		return a.m_iScore > b.m_iScore;
+	}
+};
+
+struct ScoreCityEntryLowEval
+{
+	bool operator()(ScoreCityEntry const& a, ScoreCityEntry const& b) const
+	{
+		return a.m_iScore < b.m_iScore;
+	}
+};
 struct SpyNotificationMessage
 {
 	int m_iCityX;
@@ -159,23 +181,27 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void DoAdvancedActions();
-	void TriggerAdvancedActionSetup(CvCity* pCity, int uiSpyIndex);
-	bool AttemptAdvancedActions(uint uiSpyIndex);
-	CvSpyResult ProcessAdvancedActionResult(PlayerTypes ePlayer, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eEventChoice);
-	void CreateAdvancedActionEvent(CityEventTypes eEvent, CvCity* pCity, int uiSpyIndex);
-	bool CanAdvancedAction();
-	void DoAdvancedActionLevelUp(uint uiSpyIndex);
+	void ProcessSpyFocus();
+	void TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
+	bool DoSpyFocusEvent(uint uiSpyIndex);
+
+	CvSpyResult ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eEventChoice, bool bDefer = false);
+
+	void CreateSpyChoiceEvent(CityEventTypes eEvent, CvCity* pCity, int uiSpyIndex);
+
+	void DoSpyFocusLevelUp(uint uiSpyIndex);
+
 	CvString GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex);
-	CvWeightedVector<int>GetAdvancedActionEventPool(int uiSpyIndex, CvCity* pCity);
+
+	CvWeightedVector<int>GetRandomActionEventPool(CvCity* pCity);
 
 	//Tooltips
 	CvString GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* pCity = NULL);
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
 
-	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, bool bPreview = false);
-	CvSpyResult GetSpyRollResult(CvCity* pCity, int iDeathMod = 0, int iIDMod = 0);
+	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, bool bPreview = false);
+	CvSpyResult GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE)
@@ -247,10 +273,6 @@ public:
 	bool HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer);
 	int MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, CvIntrigueType eIntrigueType);
 	bool HasSharedIntrigueAboutMe(PlayerTypes eFromPlayer);
-
-	void ChangeAdvancedActionsCooldown(int iValue);
-	void SetAdvancedActionsCooldown(int iValue);
-	int GetAdvancedActionsCooldown();
 
 	CvString GetLogFileName(void) const;
 	void LogEspionageMsg(CvString& strMsg);
@@ -368,11 +390,11 @@ public:
 	void StealTechnology(void);
 	void UpdateCivOutOfTechTurn(void);
 	void AttemptCoups(void);
-	void FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTargetDefensiveSpies, int* piTargetCityStateSpies, int* piTargetDiplomatSpies);
-	void BuildDiplomatCityList(EspionageCityList& aEspionageCityList);
-	void BuildOffenseCityList(EspionageCityList& aOffenseCityList);
-	void BuildDefenseCityList(EspionageCityList& aDefenseCityList);
-	void BuildMinorCityList(EspionageCityList& aMinorCityList);
+
+	std::vector<ScoreCityEntry> BuildDiplomatCityList();
+	std::vector<ScoreCityEntry> BuildOffenseCityList();
+	std::vector<ScoreCityEntry> BuildDefenseCityList();
+	std::vector<ScoreCityEntry> BuildMinorCityList();
 
 	int GetCityStatePlan(PlayerTypes* peThreatPlayer = NULL);
 

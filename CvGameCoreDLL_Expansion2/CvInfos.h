@@ -3217,8 +3217,7 @@ public:
 
 	bool isEspionage() const;
 	bool isEspionageSetup() const;
-	int getSpyLevelRequired() const;
-	bool isRequiresCounterSpy() const;
+	bool IsCounterSpy() const;
 
 	CvCityEventLinkingInfo *GetLinkerInfo(int i) const;
 	int GetNumLinkers() const {return m_iCityLinkerInfos;};
@@ -3288,9 +3287,7 @@ protected:
 
 	bool m_bEspionage;
 	bool m_bEspionageSetup;
-	int m_iSpyLevelRequired;
-	bool m_bRequiresCounterSpy;
-
+	bool m_bIsCounterSpy;
 	
 	CvCityEventLinkingInfo* m_paCityLinkerInfo;
 	int m_iCityLinkerInfos;
@@ -3417,13 +3414,21 @@ public:
 	int getEventPromotion() const;
 	int ConvertsCityToPlayerReligion() const;
 	int ConvertsCityToPlayerMajorityReligion() const;
+	
+	//espionage
 	bool IsEspionageEffect() const;
-	EventClassTypes GetSpyFocus() const;
 	bool IsApplyEffectToSpyOwner() const;
 	int GetIdentificationModifier() const;
 	int GetDeathModifier() const;
+	int GetSpyLevelRequired() const;
+	int getEspionageDifficultyModifier() const;
+	int getDamageCity() const;
+	int getDamageGarrison() const;
+	int getSapCityTurns() const;
+	bool isRequiresCounterSpy() const;
+	bool isSpyMissionSetup() const;
 	bool IsPotentialScaling() const;
-	int GetTriggerPlayerEventChoice() const;
+	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -3525,13 +3530,21 @@ protected:
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;
 	int m_iConvertsCityToPlayerMajorityReligion;
-	bool m_bEspionageEffect;
-	int m_iSpyFocus;
-	bool m_bApplyEffectToSpyOwner;
 	int m_iTriggerPlayerEventChoice;
+
+	//espionage
+	bool m_bEspionageEffect;
+	bool m_bApplyEffectToSpyOwner;
 	bool m_bPotentialScaling;
 	int m_iIdentificationModifier;
 	int m_iDeathModifier;
+	int m_iSpyLevelRequired;
+	int m_iDifficultyModEsp;
+	bool m_bIsMissionSetup;
+	bool m_bRequiresCounterSpy;
+	int m_iDamageCity;
+	int m_iDamageGarrison;
+	int m_iSapCityTurns;
 
 	//Filters
 	int m_iPrereqTech;

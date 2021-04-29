@@ -10,388 +10,415 @@
 			<CityEventArt>Focus.dds</CityEventArt>
 			<EspionageSetup>true</EspionageSetup>
 		</Row>
-	<!-- ECONOMIC -->
-		<!-- PRODUCTION -->
+		<!-- CounterSpy-->
 		<Row>
-			<Type>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION_HELP</Help>
-			<CityEventArt>Industrial.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- GOLD -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_ECONOMIC_GOLD</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD_HELP</Help>
-			<CityEventArt>Industrial.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- TILES -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_ECONOMIC_TILES</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_TILES</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_TILES_HELP</Help>
-			<CityEventArt>Industrial.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-
-	<!-- SCIENTIFIC -->
-		
-		<!-- SCIENCE -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_SCIENCE_HELP</Help>
-			<CityEventArt>Research.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- GOLDEN AGE -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_SCIENTIFIC_GAP</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GAP</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GAP_HELP</Help>
-			<CityEventArt>Research.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- GREAT PEOPLE -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_SCIENTIFIC_GREATPEOPLE_HELP</Help>
-			<CityEventArt>Research.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-	<!-- MILITARY -->
-		
-		<!-- SECURITY LEVEL -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_MILITARY_SECURITY</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_SECURITY</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_SECURITY_HELP</Help>
-			<CityEventArt>Military.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- DAMAGE CITY -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_MILITARY_CITY</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_CITY</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_CITY_HELP</Help>
-			<CityEventArt>Military.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- DAMAGE GARRISON -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_MILITARY_GARRISON</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_MILITARY_GARRISON</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_MILITARY_GARRISON_HELP</Help>
-			<CityEventArt>Military.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-	<!-- URBAN -->
-		
-		<!-- CULTURE -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_URBAN_CULTURE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_CULTURE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_CULTURE_HELP</Help>
-			<CityEventArt>Urban.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- UNREST -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_URBAN_UNREST</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNREST</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNREST_HELP</Help>
-			<CityEventArt>Urban.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
-		</Row>
-		<!-- UNHAPPINESS -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_URBAN_UNHAPPINESS</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNHAPPINESS</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_URBAN_UNHAPPINESS_HELP</Help>
-			<CityEventArt>Urban.dds</CityEventArt>
-			<IsEspionage>true</IsEspionage>
-			<RandomChance>10</RandomChance>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP</Help>
+			<CityEventArt>CounterSpy.dds</CityEventArt>
+			<IsCounterSpy>true</IsCounterSpy>
 		</Row>
 	</CityEvents>
 	<CityEventChoices>
-		<!-- Focus -->
+		<!-- GOLD -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC_HELP</Help>
-			<IsEspionageEffect>false</IsEspionageEffect>
-			<SpyFocus>EVENT_CLASS_ECONOMIC</SpyFocus>
-			<EventDuration>0</EventDuration>
+			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<IDModifier>10</IDModifier>
+			<DeathModifier>5</DeathModifier>
+			<EspionageDifficultyMod>10</EspionageDifficultyMod>
+			<SpyLevelRequired>0</SpyLevelRequired>
+			<IsSpyBenefit>true</IsSpyBenefit>
+		</Row>
+		<!-- POISON -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<IDModifier>10</IDModifier>
+			<EventDuration>15</EventDuration>
+			<Expires>true</Expires>
+			<DeathModifier>10</DeathModifier>
+			<SpyLevelRequired>0</SpyLevelRequired>
+		</Row>
+		<!-- PRODUCTION -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<IDModifier>15</IDModifier>
+			<DeathModifier>5</DeathModifier>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
+			<SpyLevelRequired>0</SpyLevelRequired>
+		</Row>
+		<!-- CULTURE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</TriggerPlayerEventChoice>
+			<IDModifier>5</IDModifier>
+			<DeathModifier>5</DeathModifier>
+			<SpyLevelRequired>1</SpyLevelRequired>
+		</Row>
+		<!-- SCIENCE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<IsSpyBenefit>true</IsSpyBenefit>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<IDModifier>10</IDModifier>
+			<DeathModifier>15</DeathModifier>
+			<SpyLevelRequired>1</SpyLevelRequired>
+		</Row>
+		<!-- GREAT PEOPLE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<PotentialScaling>true</PotentialScaling>
+			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
+			<IDModifier>5</IDModifier>
+			<DeathModifier>5</DeathModifier>
+			<SpyLevelRequired>1</SpyLevelRequired>
+		</Row>
+		<!-- DAMAGE CITY/GARRISON -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>45</IDModifier>
+			<DeathModifier>25</DeathModifier>
+			<DamageCity>25</DamageCity>
+			<DamageGarrison>25</DamageGarrison>
+			<SapCityTurns>5</SapCityTurns>
+			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
+		<!-- UNREST/UNHAPPY -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>45</IDModifier>
+			<IsUnhappy>true</IsUnhappy>
+			<ResistanceTurns>2</ResistanceTurns>
+			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
+			<DeathModifier>25</DeathModifier>
+			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
+		<!-- TILES -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>30</IDModifier>
+			<DeathModifier>30</DeathModifier>
+			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
+		<!--- CounterSpy -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>50</IDModifier>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC_HELP</Help>
-			<IsEspionageEffect>false</IsEspionageEffect>
-			<SpyFocus>EVENT_CLASS_SCIENTIFIC</SpyFocus>
-			<EventDuration>0</EventDuration>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<DeathModifier>50</DeathModifier>
+			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY_HELP</Help>
-			<IsEspionageEffect>false</IsEspionageEffect>
-			<SpyFocus>EVENT_CLASS_MILITARY</SpyFocus>
-			<EventDuration>0</EventDuration>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<DeathModifier>25</DeathModifier>
+			<IDModifier>25</IDModifier>
+			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN_HELP</Help>
-			<IsEspionageEffect>false</IsEspionageEffect>
-			<SpyFocus>EVENT_CLASS_URBAN</SpyFocus>
-			<EventDuration>0</EventDuration>
-		</Row>
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE_HELP</Help>
-			<IsEspionageEffect>false</IsEspionageEffect>
-			<SpyFocus>EVENT_CLASS_ALL</SpyFocus>
-			<EventDuration>0</EventDuration>
-		</Row>
-		<!-- ECONOMIC -->
-			<!-- PRODUCTION -->
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<EventDuration>0</EventDuration>
-				<IDModifier>-25</IDModifier>
-				<DeathModifier>-25</DeathModifier>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<IsSpyBenefit>true</IsSpyBenefit>
-				<EventDuration>0</EventDuration>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<EventDuration>10</EventDuration>
-				<Expires>true</Expires>
-				<IDModifier>25</IDModifier>
-				<DeathModifier>25</DeathModifier>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<CityWideBuildingDestructionChance>3</CityWideBuildingDestructionChance>
-				<IDModifier>50</IDModifier>
-				<DeathModifier>50</DeathModifier>
-				<EventDuration>0</EventDuration>
-			</Row>
-			<!-- GOLD -->
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<EventDuration>0</EventDuration>
-				<IDModifier>-25</IDModifier>
-				<DeathModifier>-25</DeathModifier>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_2_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<IsSpyBenefit>true</IsSpyBenefit>
-				<EventDuration>0</EventDuration>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_3_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<EventDuration>10</EventDuration>
-				<IDModifier>25</IDModifier>
-				<DeathModifier>25</DeathModifier>
-			</Row>
-			<Row>
-				<Type>ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4</Type>
-				<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4</Description>
-				<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_4_HELP</Help>
-				<IsEspionageEffect>true</IsEspionageEffect>
-				<PotentialScaling>true</PotentialScaling>
-				<CityWideBuildingDestructionChance>3</CityWideBuildingDestructionChance>
-				<IDModifier>50</IDModifier>
-				<DeathModifier>50</DeathModifier>
-				<EventDuration>0</EventDuration>
-			</Row>
-			<!-- TILES -->
 	</CityEventChoices>
 	<CityEventChoice_InstantYield>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-15</Yield>
+			<Yield>-25</Yield>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>25</Yield>
 		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>-25</Yield>
+		</Row>
 	</CityEventChoice_InstantYield>
-	<CityEventChoice_EventCostYield>
+	<CityEventChoice_CityYield>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+	</CityEventChoice_CityYield>
+	<CityEventChoice_ImprovementDestructionRandom>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+			<Number>2</Number>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>250</Yield>
-		</Row>
-	</CityEventChoice_EventCostYield>
-	<CityEventChoice_MinimumStartYield>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<Number>2</Number>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>250</Yield>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<Number>2</Number>
 		</Row>
-	</CityEventChoice_MinimumStartYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
+			<Number>2</Number>
+		</Row>
+	</CityEventChoice_ImprovementDestructionRandom>
+	<CityEventChoice_GreatPersonPoints>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<Points>-50</Points>
+		</Row>
+	</CityEventChoice_GreatPersonPoints>
 	<CityEvent_ParentEvents>
-		<!-- FOCUS-->
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
-		<!-- ECONOMIC -->
-			<!-- PRODUCTION-->
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
-				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
-				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
-				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
-				<CityEventType>ESPIONAGE_EVENT_ECONOMIC_PRODUCTION</CityEventType>
-			</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
+		</Row>
 	</CityEvent_ParentEvents>
 	<CityEventChoiceFlavors>
 		<!-- FOCUS -->
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY</CityEventChoiceType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
+			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE</CityEventChoiceType>
-			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>10</Flavor>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
-		<!-- ECONOMIC -->
-			<!-- PRODUCTION -->
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1</CityEventChoiceType>
-				<FlavorType>FLAVOR_DEFENSE</FlavorType>
-				<Flavor>10</Flavor>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2</CityEventChoiceType>
-				<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-				<Flavor>10</Flavor>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3</CityEventChoiceType>
-				<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-				<Flavor>10</Flavor>
-			</Row>
-			<Row>
-				<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4</CityEventChoiceType>
-				<FlavorType>FLAVOR_OFFENSE</FlavorType>
-				<Flavor>10</Flavor>
-			</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
 	</CityEventChoiceFlavors>
+	<EventChoices>
+		<Row>
+			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP</Help>
+			<CapitalEffectOnly>true</CapitalEffectOnly>
+			<EventDuration>10</EventDuration>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE_HELP</Help>
+			<CapitalEffectOnly>true</CapitalEffectOnly>
+			<EventDuration>15</EventDuration>
+		</Row>
+	</EventChoices>
+	<EventChoice_SpecialistYieldChange>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</EventChoiceType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+	</EventChoice_SpecialistYieldChange>
+
 </GameData>

@@ -1764,7 +1764,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	//this is to reduce rounding errors
-	int iValueScale = 10;
+	int iValueScale = 5;
 
 	//more or less arbitrary base value
 	int iItemValue = (GC.getGame().getCurrentEra()+2)*iValueScale;

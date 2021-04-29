@@ -7101,7 +7101,18 @@
 		<Row Tag="TXT_KEY_EO_SPY_RANK_TT_SHORT">
 			<Text>{1_SpyName} has achieved the rank of {2_RankName}.</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
+			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
+			<Text>Requires a Counterspy in the city.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">
+			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Identification Chance: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR].[NEWLINE]Chance to be killed: [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
 			<Text>The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
@@ -7110,18 +7121,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE]If your Spy Resistance is below the requirement, your city's Security Level will slowly decrease (and vice-versa).</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN">
-			<Text>Spy Resistance Factors:</Text>
+			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will slowly [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] to 1. If positive, it will slowly [COLOR_POSITIVE_TEXT]increase[ENDCOLOR] to 10.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Relative Economic Prosperity ({1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population ({2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num}%)</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_SPY] Espionage Policies and Wonders ({1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Local Espionage Modifiers ({2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage({3_Num}%)</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_SPY] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
@@ -7179,14 +7186,22 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_ESPIONAGE_RATIO">
-			<Text>Your current Spy Power: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR].[NEWLINE]Security Threshold for City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].[NEWLINE][NEWLINE]Your Spy earns [COLOR_POSITIVE_TEXT]+{2_Num}[ENDCOLOR] Spy Power each turn.[NEWLINE][NEWLINE]When it exceeds the Security Threshold, a Spy Event will occur.</Text>
+			<Text>Your current Spy Power: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR].[NEWLINE]Security Threshold for City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].[NEWLINE][NEWLINE]Your Spy earns [COLOR_POSITIVE_TEXT]+{2_Num}[ENDCOLOR] Spy Power each turn.[NEWLINE][NEWLINE]When it exceeds the Security Threshold, the [COLOR_POSITIVE_TEXT]Spy Event[ENDCOLOR] will occur.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
+			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR][NEWLINE]{1_Mission}</Text>
+		</Row>
+
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
 			<Text>Defensive Espionage Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
+			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES">
-			<Text>Total Espionage Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Spy Power Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
 			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>

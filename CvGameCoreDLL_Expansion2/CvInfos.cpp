@@ -9855,8 +9855,7 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bLacksPlayerMajority(false),
 	 m_bEspionage(false),
 	 m_bEspionageSetup(false),
-	 m_iSpyLevelRequired(0),
-	 m_bRequiresCounterSpy(false),
+	 m_bIsCounterSpy(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
 {
@@ -10172,13 +10171,9 @@ bool CvModCityEventInfo::isEspionageSetup() const
 {
 	return m_bEspionageSetup;
 }
-bool CvModCityEventInfo::isRequiresCounterSpy() const
+bool CvModCityEventInfo::IsCounterSpy() const
 {
-	return m_bRequiresCounterSpy;
-}
-int CvModCityEventInfo::getSpyLevelRequired() const
-{
-	return m_iSpyLevelRequired;
+	return m_bIsCounterSpy;
 }
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
@@ -10315,9 +10310,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	m_bEspionage = kResults.GetBool("IsEspionage");
 	m_bEspionageSetup = kResults.GetBool("EspionageSetup");
-
-	m_iSpyLevelRequired = kResults.GetBool("SpyLevelRequired");
-	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
+	m_bIsCounterSpy = kResults.GetBool("IsCounterSpy");
 
 	{
 		//Initialize Linker Table
@@ -10450,11 +10443,17 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iIdentificationModifier(0),
 	 m_iDeathModifier(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
-	 m_iSpyFocus(NO_EVENT_CLASS),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerMajority(false),
+	 m_iSpyLevelRequired(0),
+	 m_iDifficultyModEsp(0),
+	 m_iDamageCity(0),
+	 m_iDamageGarrison(0),
+	 m_iSapCityTurns(0),
+	 m_bRequiresCounterSpy(false),
+	 m_bIsMissionSetup(false),
 	 m_paCityLinkerInfo(NULL),
 	 m_iCityLinkerInfos(0)
 {
@@ -10528,10 +10527,6 @@ bool CvModEventCityChoiceInfo::IsEspionageEffect() const
 {
 	return m_bEspionageEffect;
 }
-EventClassTypes CvModEventCityChoiceInfo::GetSpyFocus() const
-{
-	return (EventClassTypes)m_iSpyFocus;
-}
 bool CvModEventCityChoiceInfo::IsApplyEffectToSpyOwner() const
 {
 	return m_bApplyEffectToSpyOwner;
@@ -10544,14 +10539,42 @@ int CvModEventCityChoiceInfo::GetDeathModifier() const
 {
 	return m_iDeathModifier;
 }
+int CvModEventCityChoiceInfo::GetSpyLevelRequired() const
+{
+	return m_iSpyLevelRequired;
+}
+bool CvModEventCityChoiceInfo::isRequiresCounterSpy() const
+{
+	return m_bRequiresCounterSpy;
+}
+bool CvModEventCityChoiceInfo::isSpyMissionSetup() const
+{
+	return m_bIsMissionSetup;
+}
+int CvModEventCityChoiceInfo::getEspionageDifficultyModifier() const
+{
+	return m_iDifficultyModEsp;
+}
+int CvModEventCityChoiceInfo::getDamageCity() const
+{
+	return m_iDamageCity;
+}
+int CvModEventCityChoiceInfo::getDamageGarrison() const
+{
+	return m_iDamageGarrison;
+}
+int CvModEventCityChoiceInfo::getSapCityTurns() const
+{
+	return m_iSapCityTurns;
+}
 
 bool CvModEventCityChoiceInfo::IsPotentialScaling() const
 {
 	return m_bPotentialScaling;
 }
-int CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
+EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
 {
-	return m_iTriggerPlayerEventChoice;
+	return (EventChoiceTypes)m_iTriggerPlayerEventChoice;
 }
 
 //------------------------------------------------------------------------------
@@ -11068,14 +11091,19 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	szTextVal = kResults.GetText("TriggerPlayerEventChoice");
 	m_iTriggerPlayerEventChoice = GC.getInfoTypeForString(szTextVal, true);
 
+	//espionage!
 	m_bEspionageEffect = kResults.GetBool("IsEspionageEffect");
 	m_bApplyEffectToSpyOwner = kResults.GetBool("IsSpyBenefit");
 	m_bPotentialScaling = kResults.GetBool("PotentialScaling");
-	m_iIdentificationModifier = kResults.GetBool("IDModifier");
-	m_iDeathModifier = kResults.GetBool("DeathModifier");
-
-	szTextVal = kResults.GetText("SpyFocus");
-	m_iSpyFocus = GC.getInfoTypeForString(szTextVal, true);
+	m_iIdentificationModifier = kResults.GetInt("IDModifier");
+	m_iDeathModifier = kResults.GetInt("DeathModifier");
+	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
+	m_iDifficultyModEsp = kResults.GetInt("EspionageDifficultyMod");
+	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
+	m_bIsMissionSetup = kResults.GetBool("MissionSetup");
+	m_iDamageCity = kResults.GetInt("DamageCity");
+	m_iDamageGarrison = kResults.GetInt("DamageGarrison");
+	m_iSapCityTurns = kResults.GetInt("SapCityTurns");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
@@ -11117,7 +11145,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
 	m_iFreeScaledUnits = kResults.GetInt("FreeUnitsTechAppropriate");
 	m_iCityWideDestructionChance = kResults.GetInt("CityWideBuildingDestructionChance");
-	
+
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 
 	szTextVal = kResults.GetText("FreePromotionCity");

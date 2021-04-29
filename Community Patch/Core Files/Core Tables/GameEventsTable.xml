@@ -73,6 +73,8 @@
 			{3_CityYield}
 			{4_GPChange}
 			{5_Turns}
+			{6_SpyEventDuration} USE ONLY IF AN ESPIONAGE EVENT!
+			{7_PlayerEventEffect}
 	
 		EventChoiceNotifications (see two tables below) also have access to this:
 			Player Choices:
@@ -709,10 +711,10 @@
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
 		<!-- Allows the event to fire as a random event for a spy. City Choice Effects AFFECT CITY SPY IS IN. Uses a special table for getting event data, see below -->
 		<Column name="IsEspionage" type="boolean" default="false"/>
-		<Column name="SpyLevelRequired" type="integer" default="0"/>
-		<Column name="RequiresCounterSpy" type="boolean" default="false"/>
 		<!-- Espionage Setup Event for Spy Event Filter. Only need one per database, please.-->
 		<Column name="EspionageSetup" type="boolean" default="false"/>
+		<!-- Espionage Setup Event for Counterspy Spy Event Filter. Only need one per database, please.-->
+		<Column name="IsCounterSpy" type="boolean" default="false"/>
 	</Table>
 	
 	<!-- Filter -->
@@ -774,8 +776,11 @@
 		
 		Attributes granted by City Event Choices 
 		
-		-->		
+		-->
 		
+		<!-- Appplies chosen player event - useful for espionage. Note: due to coding, if you use this AND IsSpyBenefit, the player-level event will apply to spy owner but not the city event. This lets you give the spy owner a bonus and penalize the city owner in the same event-->
+		<Column name="TriggerPlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+
 		<!-- Only affects local city. Destroys or adds a building type. -->
 		<Column name="EventBuildingClassDestruction" type="text" reference="BuildingClasses(Type)" default="NULL"/>
 		<Column name="EventBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
@@ -801,9 +806,9 @@
 
 		<!-- Associates a Choice with an espionage outcome. Only used with Espionage actions. False means spy stuff won't trigger in post-event figuring. -->
 		<Column name="IsEspionageEffect" type="boolean" default="false"/>
-		<!-- Filter Spy Events for Spy based on type -->
-		<Column name="SpyFocus" type="text" reference="EventClassTypes(Type)" default="NULL"/>
-		<!-- Effect applies to spy owner capital instead!! -->
+		<!-- Set to true for any mission that's part of the 'setup' phase for a Spy -->
+		<Column name="MissionSetup" type="boolean" default="false"/>
+		<!-- Effect applies to spy owner capital instead! Note: if you use  -->
 		<Column name="IsSpyBenefit" type="boolean" default="false"/>
 		<!-- Bonus and/or cost etc. scale based on the potential of the city - higher potential = slower, but more reward! -->
 		<Column name="PotentialScaling" type="boolean" default="false"/>
@@ -811,6 +816,17 @@
 		<Column name="IDModifier" type="integer" default="0"/>
 		<!-- Modifier to chance to be killed on a spy mission-->
 		<Column name="DeathModifier" type="integer" default="0"/>
+		<!-- Minimum Spy Level -->
+		<Column name="SpyLevelRequired" type="integer" default="0"/>
+		<Column name="RequiresCounterSpy" type="boolean" default="false"/>
+		<!-- Affects duration of mission -->
+		<Column name="EspionageDifficultyMod" type="integer" default="0"/>
+		<!-- Damages city -->
+		<Column name="DamageCity" type="integer" default="0"/>
+		<!-- Damages garrison unit -->
+		<Column name="DamageGarrison" type="integer" default="0"/>
+		<!-- Prevents city healing for x turns -->
+		<Column name="SapCityTurns" type="integer" default="0"/>
 		
 		<!-- FILTERS: 
 		
@@ -1097,21 +1113,6 @@
 		</Row>
 		<Row>
 			<Type>EVENT_CLASS_CIV_SPECIFIC</Type>
-		</Row>
-		<Row>
-			<Type>EVENT_CLASS_ECONOMIC</Type>
-		</Row>
-		<Row>
-			<Type>EVENT_CLASS_SCIENTIFIC</Type>
-		</Row>
-		<Row>
-			<Type>EVENT_CLASS_MILITARY</Type>
-		</Row>
-		<Row>
-			<Type>EVENT_CLASS_URBAN</Type>
-		</Row>
-		<Row>
-			<Type>EVENT_CLASS_ALL</Type>
 		</Row>
 	</EventClassTypes>
 </GameData>

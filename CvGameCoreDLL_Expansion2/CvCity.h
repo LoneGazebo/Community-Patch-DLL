@@ -144,8 +144,8 @@ public:
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
 	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, int ePassedResult = -1, CvCity* pOriginalCity = NULL);
-	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly);
-	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice);
+	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
+	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
 	bool IsEventActive(CityEventTypes eEvent) const;
@@ -1063,10 +1063,11 @@ public:
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetEspionageRanking() const;
-	int GetEspionageRankingForEspionage(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetEspionageRankingForEspionage(PlayerTypes ePlayer = NO_PLAYER, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY) const;
 	void ChangeEspionageRanking(int iRank, bool bNotify);
 	void ResetEspionageRanking();
 	void InitEspionageRanking();
+	void SetEspionageRanking(int iValue);
 
 	void SetTurnsSinceLastRankMessage(int iTurns);
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
@@ -1705,6 +1706,10 @@ public:
 	void ChangePlagueTurns(int iValue); //Set in city::doturn
 	void SetPlagueTurns(int iValue);
 
+	int GetSappedTurns() const;
+	void ChangeSappedTurns(int iValue);
+	void SetSappedTurns(int iValue);
+
 	int GetPlagueType() const;
 	void SetPlagueType(int iValue);
 	bool HasPlague();
@@ -2075,7 +2080,7 @@ protected:
 	vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
 #endif
 
-#if defined(MOD_BALANCE_CORE_JFD)
+#if defined(MOD_BALANCE_CORE)
 	FAutoVariable<bool, CvCity> m_bIsColony;
 	FAutoVariable<int, CvCity> m_iProvinceLevel;
 	FAutoVariable<int, CvCity> m_iOrganizedCrime;
@@ -2083,6 +2088,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iPlagueCounter;
 	FAutoVariable<int, CvCity> m_iPlagueTurns;
 	FAutoVariable<int, CvCity> m_iPlagueType;
+	FAutoVariable<int, CvCity> m_iSappedTurns;
 	FAutoVariable<int, CvCity> m_iLoyaltyCounter;
 	FAutoVariable<int, CvCity> m_iDisloyaltyCounter;
 	FAutoVariable<int, CvCity> m_iLoyaltyStateType;

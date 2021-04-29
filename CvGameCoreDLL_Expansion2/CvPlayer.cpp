@@ -11387,7 +11387,7 @@ void CvPlayer::doTurn()
 		}
 	}
 	if (GetEspionage() != NULL)
-		GetEspionage()->DoAdvancedActions();
+		GetEspionage()->ProcessSpyFocus();
 
 	updateYieldPerTurnHistory();
 #endif

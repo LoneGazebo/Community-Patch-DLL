@@ -6308,9 +6308,11 @@ int CvLuaCity::lGetDisabledTooltip(lua_State* L)
 	CvString DisabledTT = "";
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const int iSpyID = luaL_optint(L, 3, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 4, NO_PLAYER);
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice);
+		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice, iSpyID, eSpyOwner);
 	}
 
 	lua_pushstring(L, DisabledTT.c_str());
@@ -6322,9 +6324,11 @@ int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
 	const bool bYieldsOnly = lua_toboolean(L, 3);
+	const int iSpyID = luaL_optint(L, 4, -1);
+	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly);
+		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly, iSpyID, eSpyOwner);
 	}
 
 	lua_pushstring(L, CoreYieldTip.c_str());

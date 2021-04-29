@@ -14,94 +14,103 @@
 		<!-- FOCUS OPTIONS -->
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
-			<Text>SELECT SPY FOCUS</Text>
+			<Text>Select Spy Mission</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
-			<Text>Your newly established spy network requires a plan. What would you like them to focus on?</Text>
+			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC">
-			<Text>Economic and industrial operations</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION">
+			<Text>Distrupt local [ICON_PRODUCTION] Production</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_ECONOMIC_HELP">
-			<Text>Your spies will look for opportunities to affect the City's economic output.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
+			<Text>{6_Spy}Target City: {2_InstantYield}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC">
-			<Text>Research and development</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD">
+			<Text>Raid the local [ICON_GOLD] Gold treasury</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_SCIENTIFIC_HELP">
-			<Text>Your spies will look for ways to disrupt technological development.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP">
+			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY">
-			<Text>Military plans and operations</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
+			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_MILITARY_HELP">
-			<Text>Your spies will infilitrate the local military defenses.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
+			<Text>{6_Spy}(Up to) Two Farms, Mines, Plantations, and Trading Posts are pillaged around the City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN">
-			<Text>Urban development</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE">
+			<Text>Infiltrate local [ICON_RESEARCH] Science facilities</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_URBAN_HELP">
-			<Text>Your spies will embed themselves into the citizenry.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP">
+			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE">
-			<Text>No focus</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
+			<Text>Kindap [ICON_GREAT_PEOPLE] Specialists in the city</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_NONE_HELP">
-			<Text>Your spies will look for any opportunity to affect the City.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
+			<Text>{6_Spy}Target City: {4_GPChange}[NEWLINE]Your Benefit: {7_PlayerEventEffect}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
+			<Text>Target local city [ICON_STRENGTH] Defenses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
+			<Text>{6_Spy}City and Garrison (if present) take [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE">
+			<Text>Create forgeries of local [ICON_CULTURE] Cultural artifacts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE_HELP">
+			<Text>{6_Spy}Target City: {4_GPChange}[NEWLINE]Your Benefit: {7_PlayerEventEffect}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
+			<Text>[ICON_RESISTANCE] Arm the local populace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
+			<Text>{6_Spy}City enters [ICON_RESISTANCE] Resistance for 2 Turns. 5 Rebel Units spawn around the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON">
+			<Text>Poison water supplies and spoil local [ICON_FOOD] Food stores</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON_HELP">
+			<Text>{6_Spy}Target City: {2_InstantYield} and {3_CityYield} for {5_Turns}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
+			<Text>Repatriated Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE">
+			<Text>Copied Art</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE_HELP">
+			<Text>+1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
 		</Row>
 		
-		<!-- ECONOMIC -->
-
-			<!-- PRODUCTION -->
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION">
-				<Text>Smash and Grab</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_PRODUCTION_HELP">
-				<Text>From: {1_SpyRank} {2_SpyName}[NEWLINE]Location: {3_CityName}.[NEWLINE][NEWLINE]Opportunity for industrial espionage uncovered. Please advise.[NEWLINE][NEWLINE]Security Details: Fatality Risk: [COLOR_NEGATIVE_TEXT]{4_ChanceToDie}%[ENDCOLOR]; Identification Risk: [COLOR_NEGATIVE_TEXT]{5_ChanceToBeIdentified}%[ENDCOLOR][NEWLINE][NEWLINE]Please choose from the following options:</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1">
-				<Text>Go in quiet, smash up a few construction sites, but avoid detection at all costs.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_1_HELP">
-				<Text>-25% chance to be identified or killed. Target City: {2_InstantYield}.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2">
-				<Text>Copy their blueprints and send them back to us.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_2_HELP">
-				<Text>Your [ICON_CAPITAL] Capital gains: {2_InstantYield}.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3">
-				<Text>Target the City Center. Bribe some people if you have to.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_3_HELP">
-				<Text>+25% chance to be identified or killed. Target City: {3_CityYield} for {5_Turns}. {1_YieldCost}.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4">
-				<Text>Go big. Really big. We'll put our top scientists on it.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_PRODUCTION_4_HELP">
-				<Text>+50% chance to be identified or killed. 3% Chance to destroy each building in the City. {1_YieldCost}.</Text>
-			</Row>
-
-			<!-- GOLD-->
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD">
-				<Text>A Matter of Money</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ECONOMIC_GOLD_HELP">
-				<Text>From: {1_SpyRank} {2_SpyName}[NEWLINE]Location: {3_CityName}.[NEWLINE][NEWLINE]Opportunity to meddle in city financials uncovered. Please advise.[NEWLINE][NEWLINE]Security Details: Fatality Risk: [COLOR_NEGATIVE_TEXT]{4_ChanceToDie}%[ENDCOLOR]; Identification Risk: [COLOR_NEGATIVE_TEXT]{5_ChanceToBeIdentified}%[ENDCOLOR][NEWLINE][NEWLINE]Please choose from the following options:</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1">
-				<Text>Pickpocketing is safe and easy, right?</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1_HELP">
-				<Text>-25% chance to be identified or killed. Your [ICON_CAPITAL] Capital gains: {2_InstantYield}.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1">
-				<Text>Fund the local crime bosses.</Text>
-			</Row>
-			<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REDUCE_GOLD_1_HELP">
-				<Text>{1_YieldCost}. </Text>
-			</Row>
+		<!-- Counterspy -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY">
+			<Text>Moles, stooges, bagmen - make them talk.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify foreign [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL">
+			<Text>I'm authorizing a License to Kill.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Kill foreign [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH">
+			<Text>Cast a wide net, and don't be afraid to use a few hooks.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS">
+			<Text>Counterintelligence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
+			<Text>Your Spy has established their new counterintel operation. Give them orders:</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

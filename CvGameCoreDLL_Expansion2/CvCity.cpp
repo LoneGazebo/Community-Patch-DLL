@@ -491,13 +491,14 @@ CvCity::CvCity() :
 	, m_iDamageTakenThisTurn("CvCity::m_iDamageTakenThisTurn", m_syncArchive)
 	, m_iDamageTakenLastTurn("CvCity::m_iDamageTakenLastTurn", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE_JFD)
+#if defined(MOD_BALANCE_CORE)
 	, m_bIsColony("CvCity::m_bIsColony", m_syncArchive)
 	, m_iProvinceLevel("CvCity::m_iProvinceLevel", m_syncArchive)
 	, m_iOrganizedCrime("CvCity::m_iOrganizedCrime", m_syncArchive)
 	, m_iResistanceCounter("CvCity::m_iResistanceCounter", m_syncArchive)
 	, m_iPlagueCounter("CvCity::m_iPlagueCounter", m_syncArchive)
 	, m_iPlagueTurns("CvCity::m_iPlagueTurns", m_syncArchive)
+	, m_iSappedTurns("CvCity::m_iSappedTurns", m_syncArchive)
 	, m_iPlagueType("CvCity::m_iPlagueType", m_syncArchive)
 	, m_iLoyaltyCounter("CvCity::m_iLoyaltyCounter", m_syncArchive)
 	, m_iDisloyaltyCounter("CvCity::m_iDisloyaltyCounter", m_syncArchive)
@@ -1805,6 +1806,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResistanceCounter = 0;
 	m_iPlagueCounter = 0;
 	m_iPlagueTurns = -1;
+	m_iSappedTurns = -1;
 	m_iPlagueType = -1;
 	m_iLoyaltyCounter = 0;
 	m_iDisloyaltyCounter = 0;
@@ -2504,7 +2506,7 @@ void CvCity::doTurn()
 
 	ResetGreatWorkYieldCache();
 
-	if(getDamage() > 0 && !IsBlockadedWaterAndLand())
+	if(getDamage() > 0 && !IsBlockadedWaterAndLand() && GetSappedTurns() <= 0)
 	{
 		CvAssertMsg(m_iDamage <= GetMaxHitPoints(), "Somehow a city has more damage than hit points. Please show this to a gameplay programmer immediately.");
 
@@ -2519,7 +2521,7 @@ void CvCity::doTurn()
 #if defined(MOD_BALANCE_CORE)
 		if (!IsEnemyInRange(AVG_CITY_RADIUS,false))
 		{
-			iHitsHealed += 2 * GC.getCITY_HIT_POINTS_HEALED_PER_TURN();
+			iHitsHealed += 5 * GC.getCITY_HIT_POINTS_HEALED_PER_TURN();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -2549,6 +2551,9 @@ void CvCity::doTurn()
 			ChangePlagueTurns(-1);
 		}
 	}
+	if (GetSappedTurns() > 0)
+		ChangeSappedTurns(-1);
+
 #endif
 #if defined(MOD_BALANCE_CORE)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3944,9 +3949,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 	//Let's narrow down all events here!
 	if (!bEspionage && pkEventInfo->isEspionage())
 		return false;
-
-	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
-		return false;
 		
 	//Let's narrow down all events here!
 	if(pkEventInfo->isCapital() && !isCapital())
@@ -4728,6 +4730,12 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		return false;
 	}
 
+	if (pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
+		return false;
+
+	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
+		return false;
+
 	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
 		return false;
 
@@ -5012,7 +5020,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		}
 	}
 }
-CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly)
+CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex, PlayerTypes eSpyOwner)
 {
 	CvString CoreYieldTip = "";
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -5035,11 +5043,74 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	{
 		iEra = 1;
 	}
+
+	int iPotential = 0;
+	if (eSpyOwner != NO_PLAYER && iSpyIndex != -1)
+	{
+		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+		if (pSpy)
+		{
+			if (pSpy->m_iPotentialAtStart != -1)
+				iPotential = pSpy->m_iPotentialAtStart;
+			else
+				iPotential = GetEspionageRanking();
+		}
+	}
+
+	CvString spyTip = "";
+	CvString playerEventTip = "";
 	CvString yieldCostTip = "";
 	CvString yieldInstantTip = "";
 	CvString yieldCityTip = "";
 	CvString yieldSpecialistTip = "";
 	CvString turnsTip = "";
+
+	if (iSpyIndex != -1)
+	{
+		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+		if (pSpy)
+		{
+			int iSpyRate = GET_PLAYER(eSpyOwner).GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, this, iSpyIndex);
+			if (iSpyRate > 0)
+			{
+				int iSpyTurns = GetEspionageRankingForEspionage(eSpyOwner, eEventChoice);
+
+				int iTurnsLeft = iSpyTurns / iSpyRate;
+				if (iSpyTurns % iSpyRate > 0)
+				{
+					iTurnsLeft++;
+				}
+
+				int iKillChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_KILL, this, eEventChoice, true);
+				int iIdentifyChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, this, eEventChoice, true);
+
+				Localization::String localizedDurationText;
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DURATION_SCALED");
+				localizedDurationText << iTurnsLeft;
+				localizedDurationText << iKillChance;
+				localizedDurationText << iIdentifyChance;
+
+				const char* const localized = localizedDurationText.toUTF8();
+				if (localized)
+				{
+					spyTip += localized;
+				}
+			}
+		}
+
+	}
+	
+	if (pkEventChoiceInfo->GetTriggerPlayerEventChoice() != NO_EVENT_CHOICE)
+	{
+		CvModEventChoiceInfo* pPlayerEvent = GC.getEventChoiceInfo(pkEventChoiceInfo->GetTriggerPlayerEventChoice());
+		if (pPlayerEvent)
+		{
+			if (eSpyOwner != NO_PLAYER)
+				playerEventTip = GET_PLAYER(eSpyOwner).GetScaledHelpText(pkEventChoiceInfo->GetTriggerPlayerEventChoice(), false);
+			else
+				playerEventTip = GET_PLAYER(getOwner()).GetScaledHelpText(pkEventChoiceInfo->GetTriggerPlayerEventChoice(), false);
+		}
+	}
 				
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -5056,13 +5127,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iPreValue *= iEra;
 			}
-			if (pkEventChoiceInfo->IsPotentialScaling())
+			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 			{
-				int iPotential = (GetEspionageRanking() / 2);
-				if (iPotential <= 0)
-				{
-					iPotential = 1;
-				}
 				iPreValue *= iPotential;
 			}
 			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -5098,13 +5164,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iYieldValue *= iEra;
 			}
-			if (pkEventChoiceInfo->IsPotentialScaling())
+			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 			{
-				int iPotential = (GetEspionageRanking() / 2);
-				if (iPotential <= 0)
-				{
-					iPotential = 1;
-				}
 				iYieldValue *= iPotential;
 			}
 			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
@@ -5176,13 +5237,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 				iValue /= 100;
 			}
-			if (pkEventChoiceInfo->IsPotentialScaling())
+			if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 			{
-				int iPotential = (GetEspionageRanking() / 2);
-				if (iPotential <= 0)
-				{
-					iPotential = 1;
-				}
 				iValue *= iPotential;
 				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 				iValue /= 100;
@@ -5247,6 +5303,10 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	}
 	localizedCoreText << turnsTip;
 
+	localizedCoreText << spyTip;
+
+	localizedCoreText << playerEventTip;
+
 	const char* const finallocalized = localizedCoreText.toUTF8();
 	if(finallocalized)
 	{
@@ -5254,7 +5314,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	}
 	return CoreYieldTip.c_str();
 }
-CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
+CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int iSpyIndex, PlayerTypes eSpyOwner)
 {
 	CvString DisabledTT = Localization::Lookup("TXT_KEY_EVENT_DISABLED_REASONS_HEADER").toUTF8();
 	Localization::String localizedDurationText;
@@ -5280,6 +5340,23 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) 
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_DISABLED_LUA");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if (pkEventInfo->GetSpyLevelRequired() > 0 && iSpyIndex != -1 && eSpyOwner != NO_PLAYER)
+	{
+		CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iSpyIndex]);
+		if (pSpy && pSpy->GetSpyRank(eSpyOwner) < pkEventInfo->GetSpyLevelRequired())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_RANK");
+			DisabledTT += localizedDurationText.toUTF8();
+
+			return DisabledTT.c_str();
+		}
+	}
+	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_COUNTERSPY");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
@@ -6060,30 +6137,17 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			//Lua Hook
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventChoiceActivated, getOwner(), GetID(), eEventChoice);
 			
-			CvSpyResult eResult = NUM_SPY_RESULTS;
-			if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
-			{
-				eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessAdvancedActionResult(eSpyOwner, this, iEspionageValue, eEventChoice);
-
-				if (pkEventChoiceInfo->IsEspionageEffect())
-				{
-					if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
-					{
-						if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
-							GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), eResult, this);
-
-						return;
-					}
-				}
-			}
-
-			EventChoiceTypes eEventChoicePlayer = (EventChoiceTypes)pkEventChoiceInfo->GetTriggerPlayerEventChoice();
+			EventChoiceTypes eEventChoicePlayer = pkEventChoiceInfo->GetTriggerPlayerEventChoice();
+			bool bAlreadyApplied = false;
 			if (eEventChoicePlayer != NO_EVENT_CHOICE)
 			{
 				if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
 				{
 					if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
+					{
 						GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer);
+						bAlreadyApplied = true;
+					}
 				}
 				else
 				{
@@ -6091,6 +6155,36 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 			}
 
+			int iPotential = 0;
+			CvSpyResult eResult = NUM_SPY_RESULTS;
+			if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
+			{
+				CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+				if (pSpy)
+				{
+					iPotential = pSpy->m_iPotentialAtStart;
+					bool bDefer = false;
+					if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY)
+						bDefer = true;
+
+					eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyFocusResult(eSpyOwner, this, iEspionageValue, eEventChoice, bDefer);
+
+					//if setup, we don't actually fire the choice right now...we wait!
+					if (bDefer)
+						return;
+
+					if (pkEventChoiceInfo->IsEspionageEffect() && !bAlreadyApplied)
+					{
+						if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
+						{
+							if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
+								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner(), eResult, this);
+
+							return;
+						}
+					}
+				}
+			}
 
 			//Do the cost first, as that goes through whether or not the event succeeds!
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6102,13 +6196,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iPassYield = pkEventChoiceInfo->getPreCheckEventYield(eYield);
 				iPassYield *= -1;
 
-				if (pkEventChoiceInfo->IsPotentialScaling())
+				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 				{
-					int iPotential = (GetEspionageRanking() / 2);
-					if (iPotential <= 0)
-					{
-						iPotential = 1;
-					}
 					iPassYield *= iPotential;
 				}
 				if(iPassYield != 0)
@@ -6332,6 +6421,26 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			SetEventChoiceActive(eEventChoice, true);
 
 			//Now do the bonuses.
+
+			//respect the neg!
+			if (pkEventChoiceInfo->getDamageGarrison() != 0)
+			{
+				CvUnit* pUnit = GetGarrisonedUnit();
+				if (pUnit)
+					pUnit->changeDamage(-pkEventChoiceInfo->getDamageGarrison());
+			}
+
+			//respect the neg!
+			if (pkEventChoiceInfo->getDamageCity() != 0)
+			{
+				changeDamage(-pkEventChoiceInfo->getDamageCity());
+			}
+
+			if (pkEventChoiceInfo->getSapCityTurns() != 0)
+			{
+				ChangeSappedTurns(pkEventChoiceInfo->getSapCityTurns());
+			}
+
 			if(pkEventChoiceInfo->getEventPromotion() != -1)
 			{
 				PromotionTypes ePromotion = (PromotionTypes)pkEventChoiceInfo->getEventPromotion();
@@ -6569,13 +6678,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 
 				int iPassYield = pkEventChoiceInfo->getEventYield(eYield);
-				if (pkEventChoiceInfo->IsPotentialScaling())
+				if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 				{
-					int iPotential = (GetEspionageRanking() / 2);
-					if (iPotential <= 0)
-					{
-						iPotential = 1;
-					}
 					iPassYield *= iPotential;
 				}
 				if(iPassYield != 0)
@@ -6642,13 +6746,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						iBonus *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 						iBonus /= 100;
 					}
-					if (pkEventChoiceInfo->IsPotentialScaling())
+					if (pkEventChoiceInfo->IsPotentialScaling() && iPotential > 0)
 					{
-						int iPotential = (GetEspionageRanking() / 2);
-						if (iPotential <= 0)
-						{
-							iPotential = 1;
-						}
 						iBonus *= iPotential;
 						iBonus *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 						iBonus /= 100;
@@ -7459,6 +7558,12 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 
+void CvCity::SetEspionageRanking(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iCitySpyRank = iValue;
+	CvAssert(GetEspionageRanking() >= 0);
+}
 void CvCity::SetTurnsSinceLastRankMessage(int iTurns)
 {
 	VALIDATE_OBJECT
@@ -7478,11 +7583,14 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 int CvCity::GetEspionageRanking() const
 {
 	VALIDATE_OBJECT
-	return range((m_iCitySpyRank / 100), 1, 10);
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		return range((m_iCitySpyRank / 100), 1, 10);
+	else
+		return m_iCitySpyRank;
 }
-int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer) const
+int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const
 {
-	int iRanking = m_iCitySpyRank;
+	int iRanking = max(100, (int)m_iCitySpyRank);
 
 	if (ePlayer != NO_PLAYER)
 	{
@@ -7500,6 +7608,16 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer) const
 		iRanking /= 100;
 	}
 
+	if (eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if (pkEventInfo != NULL)
+		{
+			iRanking *= (100 + pkEventInfo->getEspionageDifficultyModifier());
+			iRanking /= 100;
+		}
+	}
+
 	return iRanking;
 }
 void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
@@ -7510,7 +7628,7 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	{
 		if (GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 5))
 		{
-			if (iNewRank < GetEspionageRankingForEspionage() && GetEspionageRanking() < 5)
+			if ((iNewRank / 100) < GetEspionageRanking() && GetEspionageRanking() < 6 && GetEspionageRanking() > 1)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
@@ -7548,8 +7666,8 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	m_iCitySpyRank = iNewRank;
 
 	//limiters
-	if (m_iCitySpyRank <= 0)
-		m_iCitySpyRank = 0;
+	if (m_iCitySpyRank <= 100)
+		m_iCitySpyRank = 100;
 	if (m_iCitySpyRank >= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
 		m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 }
@@ -7571,11 +7689,16 @@ void CvCity::ResetEspionageRanking()
 void CvCity::InitEspionageRanking()
 {
 	//ostensibly, 1000
-	m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
+
+	//we want minors to sort to bottom for espionage menu
+	if (!GET_PLAYER(getOwner()).isMinorCiv())
+		m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
+	else
+		m_iCitySpyRank = 1;
 	if (GC.getLogging())
 	{
 		CvString strMsg;
-		strMsg.Format("Advanced Action: Rank initialized to half max.");
+		strMsg.Format("Advanced Action: Rank initialized to max (or min for minors).");
 		strMsg += " , ";
 		strMsg += GET_PLAYER(getOwner()).getCivilizationShortDescription();
 		strMsg += " , ";
@@ -35413,6 +35536,25 @@ void CvCity::SetPlagueTurns(int iValue)
 	if (iValue != m_iPlagueTurns)
 	{
 		m_iPlagueTurns = iValue;
+	}
+}
+
+int CvCity::GetSappedTurns() const
+{
+	return m_iSappedTurns;
+}
+void CvCity::ChangeSappedTurns(int iValue) //Set in city::doturn
+{
+	if (iValue != 0)
+	{
+		m_iSappedTurns += iValue;
+	}
+}
+void CvCity::SetSappedTurns(int iValue)
+{
+	if (iValue != m_iSappedTurns)
+	{
+		m_iSappedTurns = iValue;
 	}
 }
 

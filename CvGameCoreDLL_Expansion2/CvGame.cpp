@@ -11572,34 +11572,86 @@ void CvGame::DoGlobalAvgLogging()
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestSpyPotential()
-{
-	// first pass to get the largest base potential available
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+{	
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
+		// first pass to get the largest base potential available
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
+			{
+				CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
-			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+				if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+				{
+					continue;
+				}
+
+				int iNumSpies = kLoopPlayer.GetEspionage()->GetNumSpies();
+				//no espionage system = no risk!
+				if (iNumSpies <= 0)
+					continue;
+
+				int iLoop = 0;
+				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+				{
+					int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
+					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
+					if (iResistance > GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
+						pLoopCity->ChangeEspionageRanking((iResistance / max(1, GC.getBALANCE_SPY_SABOTAGE_RATE())), iNumSpies > 0);
+					else
+						pLoopCity->ChangeEspionageRanking(-(iResistance / max(1, GC.getBALANCE_SPY_SABOTAGE_RATE())), iNumSpies > 0);
+				}
+			}
+		}
+	}
+	else
+	{
+		//no divide by zero ...
+		int iHighestEspionagePotential = 1;
+
+		// first pass to get the largest base potential available
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
+			{
+				CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+				if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+				{
+					continue;
+				}
+
+				int iLoop = 0;
+				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+				{
+					int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
+
+					iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
+				}
+			}
+		}
+
+		for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
+		{
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+			if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
 			{
 				continue;
 			}
-			
-			int iNumSpies = kLoopPlayer.GetEspionage()->GetNumSpies();
-			//no espionage system = no risk!
-			if (iNumSpies <= 0)
-				continue;
 
 			int iLoop = 0;
-			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-			{				
-				int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
-				//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
-				if (iResistance > GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
-					pLoopCity->ChangeEspionageRanking(GC.getBALANCE_SPY_SABOTAGE_RATE(), iNumSpies > 0);
-				else
-					pLoopCity->ChangeEspionageRanking(-GC.getBALANCE_SPY_SABOTAGE_RATE(), iNumSpies > 0);
+			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+			{
+				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
+
+				//We want a value between 1 and 10
+				int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
+
+				pLoopCity->SetEspionageRanking(iRank);
 			}
 		}
 	}

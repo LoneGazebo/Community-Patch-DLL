@@ -1269,8 +1269,12 @@ void CvNotifications::Activate(Notification& notification)
 		{
 			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
 			int iSpyID = notification.m_iExtraGameData;
-			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_12, m_ePlayer, eEvent, notification.m_iX, notification.m_iY, iSpyID);
-			GC.GetEngineUserInterface()->AddPopup(kPopup);
+			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
+			if (pPlot)
+			{
+				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_12, m_ePlayer, eEvent, pPlot->GetPlotIndex(), iSpyID);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
+			}
 		}
 		break;
 #endif

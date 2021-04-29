@@ -856,7 +856,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				CvString strFileName = "EventLogging.csv";
+				CvString strFileName = "EspionageLog.csv";
 				playerName = getCivilizationShortDescription();
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -883,12 +883,30 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 					{
 						if (pCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, GetID()))
 						{
+							int iRisk = pkEventChoiceInfo->GetIdentificationModifier() / 2;
+							int iDeath = pkEventChoiceInfo->GetDeathModifier() / 2;
 							for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 							{
 								if (pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
 								{
 									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
-									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
+									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor) * 10;
+
+									if (pCity->getOwner() == GetID())
+									{
+										iOurFlavor *= (100 + iRisk);
+										iOurFlavor /= 100;
+										iOurFlavor *= (100 + iDeath);
+										iOurFlavor /= 100;
+									}
+									else
+									{
+										iOurFlavor *= (100 - iRisk);
+										iOurFlavor /= 100;
+										iOurFlavor *= (100 - iDeath);
+										iOurFlavor /= 100;
+									}
+
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
 								}
 							}
@@ -913,7 +931,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 						FILogFile* pLog;
 						CvString strBaseString;
 						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
+						CvString strFileName = "EspionageLog.csv";
 						playerName = getCivilizationShortDescription();
 						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -969,7 +987,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 					FILogFile* pLog;
 					CvString strBaseString;
 					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
+					CvString strFileName = "EspionageLog.csv";
 					playerName = getCivilizationShortDescription();
 					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
