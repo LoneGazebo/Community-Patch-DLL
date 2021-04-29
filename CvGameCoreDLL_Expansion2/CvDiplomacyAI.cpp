@@ -51056,7 +51056,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		// The observing player is in a co-op war with the defender against the attacker, or has a Defensive Pact/is a teammate - his loss is our own!
 		else if (pDiplo->GetCoopWarState(eCityOwner, eConqueror) == COOP_WAR_STATE_ONGOING || pDiplo->IsHasDefensivePact(eCityOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eCityOwner).getTeam())
 		{
-			iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+			iWarmongerStatusModifier = max(100, /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT());
 			bHisLossIsOurOwn = true;
 		}
 		// Do we not know the defender?
@@ -51145,7 +51145,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 
 	int iWarmongerPoliticalModifier = 0;
 
-	if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eCityOwner).getTeam())
+	if (!bHisLossIsOurOwn)
 	{
 		// City-State
 		if (GET_PLAYER(eCityOwner).isMinorCiv())
@@ -51296,29 +51296,27 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 				}
 			}
 
-			if (!bHisLossIsOurOwn)
+			// Proximity should matter.
+			switch (GET_PLAYER(eConqueror).GetProximityToPlayer(eObserver))
 			{
-				// Proximity should matter.
-				switch (GET_PLAYER(eConqueror).GetProximityToPlayer(eObserver))
-				{
-				case PLAYER_PROXIMITY_DISTANT:
-					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					break;
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-					break;
-				}
+			case PLAYER_PROXIMITY_DISTANT:
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				break;
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+				break;
 			}
 		}
 	}
 
-	iWarmongerValue *= max(25, 100 + iWarmongerPoliticalModifier);
+	// Capped at 25% and SHARED_FATE_PERCENT
+	iWarmongerValue *= range((100 + iWarmongerPoliticalModifier), 25, max(100, /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT()));
 	iWarmongerValue /= 100;
 
 	if (iWarmongerValue <= 0)
@@ -51388,8 +51386,18 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		return 0;
 
 	// Is this a city we've previously owned, and they're giving it to someone else? No liberation bonuses!
-	if (GET_PLAYER(eNewOwner).getTeam() != GET_PLAYER(eObserver).getTeam() && pCity->GetNumTimesOwned(eObserver) > 0)
-		return 0;
+	if (GET_PLAYER(eNewOwner).getTeam() != GET_PLAYER(eObserver).getTeam())
+	{
+		if (pCity->getOriginalOwner() != NO_PLAYER && GET_PLAYER(pCity->getOriginalOwner()).getTeam() == GET_PLAYER(eObserver).getTeam())
+			return 0;
+
+		vector<PlayerTypes> vMyTeam = GET_TEAM(GET_PLAYER(eObserver).getTeam()).getPlayers();
+		for (size_t i=0; i<vMyTeam.size(); i++)
+		{
+			if (pCity->GetNumTimesOwned(vMyTeam[i]) > 0)
+				return 0;
+		}
+	}
 
 	// Cities are rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
 	int iHighestEconomicPower = GC.getGame().getHighestEconomicValue();
@@ -51432,13 +51440,13 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		// The observing player has a Defensive Pact/is a teammate - his gain is our own!
 		if (pDiplo->IsHasDefensivePact(eNewOwner) || GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
 		{
-			iWarmongerStatusModifier = /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT();
+			iWarmongerStatusModifier = max(100, /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT());
 			bHisGainIsOurOwn = true;
 
 			// A city? For me? Thanks!!
 			if (GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eNewOwner).getTeam())
 			{
-				iWarmongerStatusModifier += /*200*/ GC.getWARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT();
+				iWarmongerStatusModifier += max(0, /*200*/ GC.getWARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT());
 			}
 		}
 		// Do we not know the defender?
@@ -51525,7 +51533,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	int iWarmongerPoliticalModifier = 0;
 
-	if (GET_PLAYER(eObserver).getTeam() != GET_PLAYER(eNewOwner).getTeam())
+	if (!bHisGainIsOurOwn)
 	{
 		// City-State
 		if (GET_PLAYER(eNewOwner).isMinorCiv())
@@ -51672,29 +51680,27 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 				}
 			}
 
-			if (!bHisGainIsOurOwn)
+			// Proximity should matter.
+			switch (GET_PLAYER(eLiberator).GetProximityToPlayer(eObserver))
 			{
-				// Proximity should matter.
-				switch (GET_PLAYER(eLiberator).GetProximityToPlayer(eObserver))
-				{
-				case PLAYER_PROXIMITY_DISTANT:
-					iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
-					break;
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
-					break;
-				}
+			case PLAYER_PROXIMITY_DISTANT:
+				iWarmongerPoliticalModifier += /*-25*/ GC.getWARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL();
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iWarmongerPoliticalModifier += /*25*/ GC.getWARMONGER_THREAT_MODIFIER_SMALL();
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iWarmongerPoliticalModifier += /*50*/ GC.getWARMONGER_THREAT_MODIFIER_MEDIUM();
+				break;
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iWarmongerPoliticalModifier += /*75*/ GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+				break;
 			}
 		}
 	}
 
-	iLiberationValue *= max(25, 100 + iWarmongerPoliticalModifier);
+	// Capped at 25% and SHARED_FATE_PERCENT
+	iLiberationValue *= range((100 + iWarmongerPoliticalModifier), 25, max(100, /*200*/ GC.getWARMONGER_THREAT_SHARED_FATE_PERCENT()));
 	iLiberationValue /= 100;
 
 	if (iLiberationValue >= 0)
@@ -52858,7 +52864,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (GetPlayer()->getTotalPopulation() >= (GET_PLAYER(ePlayer).getTotalPopulation() * 1.25f))
+	if (GetPlayer()->getTotalPopulation() >= (GET_PLAYER(ePlayer).getTotalPopulation() * 0.75f))
 	{
 		return false;
 	}
@@ -52916,19 +52922,19 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// If we got down here, then vassalage is possible - let's evaluate
-	int iWantVassalageScore = -10;
+	int iWantVassalageScore = 0;
 
 	// What do we think about them?
 	switch (GetCivOpinion(ePlayer))
 	{
 	case CIV_OPINION_ALLY:
-		iWantVassalageScore += 25;
-		break;
-	case CIV_OPINION_FRIEND:
 		iWantVassalageScore += 15;
 		break;
-	case CIV_OPINION_FAVORABLE:
+	case CIV_OPINION_FRIEND:
 		iWantVassalageScore += 5;
+		break;
+	case CIV_OPINION_FAVORABLE:
+		iWantVassalageScore -= 5;
 		break;
 	case CIV_OPINION_NEUTRAL:
 		iWantVassalageScore -= 25;
@@ -52955,26 +52961,20 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantVassalageScore += 25;
-		break;
-	case STRENGTH_STRONG:
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 20;
 		break;
 	}
 
 	switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantVassalageScore += 25;
-		break;
-	case STRENGTH_STRONG:
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 20;
 		break;
 	}
 
