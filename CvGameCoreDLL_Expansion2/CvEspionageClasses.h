@@ -242,7 +242,9 @@ public:
 	bool IsAnySchmoozing (CvCity* pCity);
 
 	bool CanStageCoup(uint uiSpyIndex);
+	bool CanStageCoup(CvCity* pCity);
 	int GetCoupChanceOfSuccess(uint uiSpyIndex);
+	int GetTheoreticalChanceOfCoup(CvCity* pCity);
 	bool AttemptCoup(uint uiSpyIndex);
 
 	int GetTurnsUntilStateComplete(uint uiSpyIndex);

@@ -3391,6 +3391,42 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 	
 	return false;
 }
+bool CvPlayerEspionage::CanStageCoup(CvCity* pCity)
+{
+	PlayerTypes eCityOwner = pCity->getOwner();
+	if (!GET_PLAYER(eCityOwner).isMinorCiv())
+	{
+		return false;
+	}
+
+	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
+	PlayerTypes eMinorCivAlly = pMinorCivAI->GetAlly();
+#if defined(MOD_BALANCE_CORE)
+	if (pMinorCivAI->GetPermanentAlly() == eMinorCivAlly)
+	{
+		return false;
+	}
+	if (pMinorCivAI->GetCoupCooldown() > 0)
+	{
+		return false;
+	}
+#endif
+
+	if (eMinorCivAlly != NO_PLAYER && eMinorCivAlly != m_pPlayer->GetID())
+	{
+		return true;
+	}
+
+#if defined(MOD_EVENTS_ESPIONAGE)
+	if (MOD_EVENTS_ESPIONAGE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanStageCoup, m_pPlayer->GetID(), eCityOwner, pCity->GetID()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
+
+	return false;
+}
 
 /// GetCoupChangeOfSuccess - What is the % chance of success that a spy will be able to pull off a coup?
 int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
@@ -3457,6 +3493,72 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
 	iMySpyRank -= iAllySpyRank;
 	
+	iMaxChance *= 100 + (iMySpyRank * (int)GC.getESPIONAGE_COUP_MULTIPLY_CONSTANT());
+	iMaxChance /= 100;
+
+	iMaxChance *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
+	iMaxChance /= 100;
+
+	return range(iMaxChance, 10, 90);
+}
+
+int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
+{
+	// if you can't stage a coup, then the likelihood is zero!
+	if (!CanStageCoup(pCity))
+	{
+		return 0;
+	}
+
+	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+	CvAssertMsg(pCityEspionage, "No city espionage");
+	if (!pCityEspionage)
+	{
+		return 0;
+	}
+
+	PlayerTypes eCityOwner = pCity->getOwner();
+	CvAssertMsg(GET_PLAYER(eCityOwner).isMinorCiv(), "Owner is not a minor civ");
+	if (!GET_PLAYER(eCityOwner).isMinorCiv())
+	{
+		return 0;
+	}
+
+	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
+	CvAssertMsg(pMinorCivAI, "pMinorCivAI is null");
+	if (!pMinorCivAI)
+	{
+		return 0;
+	}
+
+	PlayerTypes eAllyPlayer = pMinorCivAI->GetAlly();
+	int iAllySpyRank = 0;
+	bool bNoAllySpy = true;
+	if (pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
+	{
+		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
+		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].GetSpyRank(eAllyPlayer);
+		bNoAllySpy = false;
+	}
+
+	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
+	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
+
+	int iMaxChance = 100;
+
+	iMaxChance -= iAllyInfluence / 10;
+
+	iMaxChance += iMyInfluence / 10;
+
+	if (iMaxChance <= 5)
+		iMaxChance = 5;
+	else if (iMaxChance >= 25)
+		iMaxChance = 25;
+
+	int iMySpyRank = 1;
+	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
+	iMySpyRank -= iAllySpyRank;
+
 	iMaxChance *= 100 + (iMySpyRank * (int)GC.getESPIONAGE_COUP_MULTIPLY_CONSTANT());
 	iMaxChance /= 100;
 
@@ -6183,10 +6285,13 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + uiSpy);
-		if (iRoll < iChanceOfSuccess)
+		if (iChanceOfSuccess >= 50)
 		{
-			pEspionage->AttemptCoup(uiSpy);
+			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + uiSpy);
+			if (iRoll < iChanceOfSuccess)
+			{
+				pEspionage->AttemptCoup(uiSpy);
+			}
 		}
 	}
 }
@@ -6382,7 +6487,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				// if we've denounced them or they've denounced us, spy bonus!
 				if (pDiploAI->IsDenouncedPlayer(eTargetPlayer) || pTargetDiploAI->IsDenouncedPlayer(ePlayer))
 				{
-					iDiploModifier += 25;
+					iDiploModifier += 33;
 				}
 				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
 				{
@@ -6401,16 +6506,16 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 
 				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
 				{
-					iDiploModifier += 15;
+					iDiploModifier += 25;
 				}
 
 				if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
 				{
-					iDiploModifier += 15;
+					iDiploModifier += 25;
 				}
 				if (pLoopCity->isCapital())
 				{
-					iDiploModifier += 10;
+					iDiploModifier += 25;
 				}
 				if (pDiploAI->GetCivApproach(eTargetPlayer) >= CIV_APPROACH_AFRAID)
 				{
@@ -6418,12 +6523,12 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				}
 				if (pDiploAI->GetCivApproach(eTargetPlayer) <= CIV_APPROACH_GUARDED)
 				{
-					iDiploModifier += 10;
+					iDiploModifier += 15;
 				}
 				int iCultureMod = m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eTargetPlayer);
 				if (iCultureMod > 0)
 				{
-					iDiploModifier += iCultureMod * 15;
+					iDiploModifier += iCultureMod * 25;
 				}
 				//Spread our spies out a bit.
 				for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
@@ -6620,20 +6725,20 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 
-			int iValue = 0;
+			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iValue = 80;
+				iValue += 40;
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				iValue = 70;
+				iValue += 30;
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				iValue = 60;
+				iValue += 20;
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				iValue = 50;
+				iValue += 10;
 				break;
 			}
 			switch (iCityStatePlan)
