@@ -6487,17 +6487,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 				{
 					iDiploModifier += 33;
 				}
-				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
-				{
-					iDiploModifier -= 100;
-				}
 
 				if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
-				{
-					iDiploModifier -= 100;
-				}
-
-				if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam))
 				{
 					iDiploModifier -= 100;
 				}
