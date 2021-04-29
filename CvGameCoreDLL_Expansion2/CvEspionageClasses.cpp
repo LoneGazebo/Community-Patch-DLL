@@ -6119,7 +6119,7 @@ void CvEspionageAI::DoTurn()
 
 	if (GC.getLogging())
 	{
-		for (uint i = 0; i < min(pEspionage->GetNumSpies(), (int)aCityScores.size()); i++)
+		for (uint i = 0; i < min((uint)pEspionage->GetNumSpies(), (uint)aCityScores.size()); i++)
 		{
 			CvString strScore = "";
 			strScore.Format("Score: %d,", aCityScores[i].m_iScore);
@@ -6370,7 +6370,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 		iDesired *= 2;
 
 	int iTotal = 0;
-	for (int i = 0; i < aCityScores.size(); i++)
+	for (uint i = 0; i < (uint)aCityScores.size(); i++)
 	{
 		if (iTotal >= iDesired)
 		{
@@ -6380,8 +6380,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 
 		iTotal++;
 	}
-	return aCityScores;
-
 	return aCityScores;
 } 
 
@@ -6626,7 +6624,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	int iDesired = max(1, m_pPlayer->getNumCities() / 4);
 	int iTotal = 0;
 
-	for (int i = 0; i < aCityScores.size(); i++)
+	for (uint i = 0; i < (uint)aCityScores.size(); i++)
 	{
 		if (iTotal >= iDesired)
 		{
@@ -6875,7 +6873,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 		iDesired *= 2;
 
 	int iTotal = 0;
-	for (int i = 0; i < aCityScores.size(); i++)
+	for (uint i = 0; i < (uint)aCityScores.size(); i++)
 	{
 		if (iTotal >= iDesired)
 		{
@@ -7109,7 +7107,7 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 // does not move the spies, only flags them to be moved
 void CvEspionageAI::EvaluateDiplomatSpies(void)
 {
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague();
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
 	for (uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
 	{
