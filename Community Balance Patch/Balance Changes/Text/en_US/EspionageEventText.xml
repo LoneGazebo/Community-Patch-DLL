@@ -20,7 +20,7 @@
 			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION">
-			<Text>Distrupt local [ICON_PRODUCTION] Production</Text>
+			<Text>Disrupt local [ICON_PRODUCTION] Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
 			<Text>{6_Spy}Target City: {2_InstantYield}</Text>
@@ -44,13 +44,13 @@
 			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
-			<Text>Kindap [ICON_GREAT_PEOPLE] Specialists in the city</Text>
+			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
 			<Text>{6_Spy}Target City: {4_GPChange}[NEWLINE]Your Benefit: {7_PlayerEventEffect}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
-			<Text>Target local city [ICON_STRENGTH] Defenses</Text>
+			<Text>Target local City [ICON_STRENGTH] Defenses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
 			<Text>{6_Spy}City and Garrison (if present) take [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.</Text>
