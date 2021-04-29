@@ -2888,7 +2888,7 @@ int CvPlayerEspionage::GetSpyPower(CvCity* pCity, int iSpyIndex)
 
 	return iBaseSpyPower;
 }
-int CvPlayerEspionage::GetSpyResistance(CvCity* pCity)
+int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy)
 {
 	int iBaseResistance = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 
@@ -2910,11 +2910,18 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity)
 	int iTheirPoliciesEspionageModifier = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
 
 	int iCounterSpy = 0;
-	if (pCity->GetCityEspionage()->HasCounterSpy())
+	if (pCity->GetCityEspionage()->HasCounterSpy() || bConsiderPotentialSpy)
 	{
-		int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-		int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
-		iCounterSpy = GC.getESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT() * iSpyRank;
+		if (bConsiderPotentialSpy)
+		{
+			iCounterSpy = GC.getESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT();
+		}
+		else
+		{
+			int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
+			int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
+			iCounterSpy = GC.getESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT() * iSpyRank;
+		}
 	}
 
 	int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
@@ -6577,6 +6584,15 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 		int iValue = (100 + GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT()) - pLoopCity->GetEspionageRankingForEspionage();
 		iValue /= 10;
+
+		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		{
+			//would adding a counterspy here help things? If not, reduce interest.
+			int iResistance = m_pPlayer->GetEspionage()->GetSpyResistance(pLoopCity, true);
+			if (iResistance < GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
+				iValue /= 2;
+		}
+
 		kEntry.m_iScore = iValue;
 		if(pLoopCity->isCapital())
 		{

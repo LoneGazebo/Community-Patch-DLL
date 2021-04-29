@@ -405,19 +405,19 @@
 			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<EventChoiceType>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</EventChoiceType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 	</EventChoice_SpecialistYieldChange>
 

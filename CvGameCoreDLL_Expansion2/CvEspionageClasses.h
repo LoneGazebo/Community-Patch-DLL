@@ -229,7 +229,7 @@ public:
 	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
 	int GetSpyPower(CvCity* pCity, int iSpyIndex);
-	int GetSpyResistance(CvCity* pCity);
+	int GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy = false);
 
 	const char* GetSpyRankName(int iRank) const;
 

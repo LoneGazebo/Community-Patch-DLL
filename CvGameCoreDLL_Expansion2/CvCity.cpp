@@ -7590,6 +7590,8 @@ int CvCity::GetEspionageRanking() const
 }
 int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const
 {
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
+		return m_iCitySpyRank;
 	int iRanking = max(100, (int)m_iCitySpyRank);
 
 	if (ePlayer != NO_PLAYER)
