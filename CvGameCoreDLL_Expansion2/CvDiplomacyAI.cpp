@@ -52864,7 +52864,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (GetPlayer()->getTotalPopulation() >= (GET_PLAYER(ePlayer).getTotalPopulation() * 1.25f))
+	if (GetPlayer()->getTotalPopulation() >= (GET_PLAYER(ePlayer).getTotalPopulation() * 0.75f))
 	{
 		return false;
 	}
@@ -52922,19 +52922,19 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// If we got down here, then vassalage is possible - let's evaluate
-	int iWantVassalageScore = -10;
+	int iWantVassalageScore = 0;
 
 	// What do we think about them?
 	switch (GetCivOpinion(ePlayer))
 	{
 	case CIV_OPINION_ALLY:
-		iWantVassalageScore += 25;
-		break;
-	case CIV_OPINION_FRIEND:
 		iWantVassalageScore += 15;
 		break;
-	case CIV_OPINION_FAVORABLE:
+	case CIV_OPINION_FRIEND:
 		iWantVassalageScore += 5;
+		break;
+	case CIV_OPINION_FAVORABLE:
+		iWantVassalageScore += 0;
 		break;
 	case CIV_OPINION_NEUTRAL:
 		iWantVassalageScore -= 25;
@@ -52961,26 +52961,20 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantVassalageScore += 25;
-		break;
-	case STRENGTH_STRONG:
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 20;
 		break;
 	}
 
 	switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
-		iWantVassalageScore += 25;
-		break;
-	case STRENGTH_STRONG:
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 20;
 		break;
 	}
 
