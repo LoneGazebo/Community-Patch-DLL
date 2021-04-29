@@ -6199,6 +6199,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
 
 	std::vector<ScoreCityEntry> aCityScores;
+	int iNumPlayers = 0;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes)ui;
@@ -6225,6 +6226,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 		{
 			continue;
 		}
+
+		iNumPlayers++;
 
 		ScoreCityEntry kEntry;
 
@@ -6254,6 +6257,26 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 		kEntry.m_bDiplomat = true;
 		aCityScores.push_back(kEntry);
 	}
+
+	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
+
+	int iDesired = max(1, iNumPlayers / 4);
+	if (pDiploAI->IsGoingForDiploVictory())
+		iDesired *= 2;
+
+	int iTotal = 0;
+	for (int i = 0; i < aCityScores.size(); i++)
+	{
+		if (iTotal >= iDesired)
+		{
+			aCityScores[i].m_iScore *= (90 - (iTotal * 10));
+			aCityScores[i].m_iScore /= 100;
+		}
+
+		iTotal++;
+	}
+	return aCityScores;
+
 	return aCityScores;
 } 
 
@@ -6452,6 +6475,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
+	
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		ScoreCityEntry kEntry;
@@ -6462,7 +6486,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 		kEntry.m_iScore = iValue;
 		if(pLoopCity->isCapital())
 		{
-			kEntry.m_iScore *= 125;
+			kEntry.m_iScore *= 150;
 			kEntry.m_iScore /= 100;
 		}
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
@@ -6491,6 +6515,22 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 		aCityScores.push_back(kEntry);
 	}
+
+	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
+
+	int iDesired = max(1, m_pPlayer->getNumCities() / 4);
+	int iTotal = 0;
+
+	for (int i = 0; i < aCityScores.size(); i++)
+	{
+		if (iTotal >= iDesired)
+		{
+			aCityScores[i].m_iScore *= (90 - (iTotal * 10));
+			aCityScores[i].m_iScore /= 100;
+		}
+
+		iTotal++;
+	}
 	return aCityScores;
 }
 
@@ -6506,7 +6546,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
-	bool bHasAtLeastOne = false;
 	for(uint ui = MAX_MAJOR_CIVS; ui < MAX_CIV_PLAYERS; ui++)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes)ui;
@@ -6582,43 +6621,20 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			kEntry.m_pCity = pLoopCity;
 
 			int iValue = 0;
-			// The closer we are the better
-			if (!bHasAtLeastOne)
+			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
-				switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iValue = 90;
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iValue = 80;
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iValue = 70;
-					break;
-				case PLAYER_PROXIMITY_DISTANT:
-					iValue = 60;
-					break;
-				}
-			}
-			else
-			{
-				switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					bHasAtLeastOne = true;
-					iValue = 80;
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iValue = 70;
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iValue = 60;
-					break;
-				case PLAYER_PROXIMITY_DISTANT:
-					iValue = 50;
-					break;
-				}
+			case PLAYER_PROXIMITY_NEIGHBORS:
+				iValue = 80;
+				break;
+			case PLAYER_PROXIMITY_CLOSE:
+				iValue = 70;
+				break;
+			case PLAYER_PROXIMITY_FAR:
+				iValue = 60;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iValue = 50;
+				break;
 			}
 			switch (iCityStatePlan)
 			{
@@ -6747,6 +6763,23 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 		}
 	}
 
+	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
+
+	int iDesired = max(1, GC.getGame().GetNumMinorCivsAlive() / 5);
+	if (pDiploAI->IsGoingForDiploVictory())
+		iDesired *= 2;
+
+	int iTotal = 0;
+	for (int i = 0; i < aCityScores.size(); i++)
+	{
+		if (iTotal >= iDesired)
+		{
+			aCityScores[i].m_iScore *= (90 - (iTotal * 10));
+			aCityScores[i].m_iScore /= 100;
+		}
+
+		iTotal++;
+	}
 	return aCityScores;
 }
 
@@ -6910,15 +6943,60 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 		CvCity* pCity = pEspionage->GetCityWithSpy(ui);
 		if (pCity && pCity->getOwner() == m_pPlayer->GetID())
 		{
-			pSpy->m_bEvaluateReassignment = true;
-			if(GC.getLogging())
+			//low, and increasing? Don't leave!
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
-				CvString strMsg;
-				strMsg.Format("Re-eval: defensive spy, %d,", ui);
-				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
-				pEspionage->LogEspionageMsg(strMsg);
+				int iResistance = pEspionage->GetSpyResistance(pCity);
+				if (pCity->GetEspionageRanking() <= 6)
+				{
+					//is our resistance better than average?
+					if (iResistance > GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
+					{
+						pSpy->m_bEvaluateReassignment = false;
+						if (GC.getLogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Re-eval: defensive spy keep them here, need improvement, %d,", ui);
+							strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+							pEspionage->LogEspionageMsg(strMsg);
+						}
+					}
+					else
+					{
+						pSpy->m_bEvaluateReassignment = true;
+						if (GC.getLogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Re-eval: defensive spy not helping enough, let's be aggressive instead, %d,", ui);
+							strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+							pEspionage->LogEspionageMsg(strMsg);
+						}
+					}
+				}
+				else
+				{
+					pSpy->m_bEvaluateReassignment = true;
+					if (GC.getLogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Re-eval: defensive spy, rank has improved, %d,", ui);
+						strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+						pEspionage->LogEspionageMsg(strMsg);
+					}
+				}
+				
 			}
-
+			else
+			{
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: defensive spy, %d,", ui);
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
 		}
 	}
 }
@@ -6926,6 +7004,7 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 // does not move the spies, only flags them to be moved
 void CvEspionageAI::EvaluateDiplomatSpies(void)
 {
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague();
 	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
 	for (uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
 	{
@@ -6938,15 +7017,28 @@ void CvEspionageAI::EvaluateDiplomatSpies(void)
 
 		if (pSpy->m_bIsDiplomat)
 		{
-			pSpy->m_bEvaluateReassignment = true;
-			if(GC.getLogging())
+			if (pLeague && pLeague->GetTurnsUntilSession() > 5)
 			{
-				CvString strMsg;
-				strMsg.Format("Re-eval: diplomat spy, %d,", ui);
-				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
-				pEspionage->LogEspionageMsg(strMsg);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: diplomat spy, %d,", ui);
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+					pEspionage->LogEspionageMsg(strMsg);
+				}
 			}
-
+			else
+			{
+				pSpy->m_bEvaluateReassignment = false;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: diplomat spy, let's wait until session is over, %d,", ui);
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
 		}
 	}
 }
