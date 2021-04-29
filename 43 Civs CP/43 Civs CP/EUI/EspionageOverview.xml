@@ -11,7 +11,6 @@
 					</Grid>
 					<Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_FramedIcons45_Expansion.dds" TextureOffset="0,45" ID="AgentIcon" ToolTip="Secret"/>
           <Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Diplomat_FramedIcon45.dds" ID="DiplomatIcon" ToolTip="Secret" Hidden="true"/>
-		 <Image Size="45,45" Anchor="L,T" Offset="10,20" Texture="Esp_Thief_FramedIcon45.dds" ID="ThiefIcon" ToolTip="Secret" Hidden="true"/>
 				</Box>
 				<Box Size="116,40" Color="0,0,0,0" ID="AgentLocationActionsPanel">
 					<Stack Size="116,20" StackGrowth="Right">

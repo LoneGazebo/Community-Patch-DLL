@@ -56,10 +56,6 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 0},
 		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
-	TXT_KEY_SPY_STATE_PREPARING_HEIST = {
-		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatEspionageGreen.dds",
-	},
 }
 	
 -- Agent text color based on agent activity.
@@ -71,7 +67,6 @@ local g_TextColors = {
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
-	TXT_KEY_SPY_STATE_PREPARING_HEIST	   = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 }
 
 g_Tabs = {
@@ -540,17 +535,10 @@ function RefreshAgents()
 			agentEntry.DiplomatIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.DiplomatIcon:SetHide(false);
 			agentEntry.AgentIcon:SetHide(true);
-			agentEntry.ThiefIcon:SetHide(true);
-		elseif(v.IsThief)then
-			agentEntry.ThiefIcon:SetToolTipString(szSpyRankTooltip);
-			agentEntry.ThiefIcon:SetHide(false);
-			agentEntry.AgentIcon:SetHide(true);
-			agentEntry.DiplomatIcon:SetHide(true);
 		else
 			agentEntry.AgentIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.AgentIcon:SetHide(false);
 			agentEntry.DiplomatIcon:SetHide(true);
-			agentEntry.ThiefIcon:SetHide(true);
 		end
 		
 		
@@ -1339,16 +1327,8 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				bCheckDiplomat = true;
 			end
 
-			--CBP
-			local bCheckThief = false;
-			if (pActivePlayer:ValidHeistLocation(selectedAgentIndex, city)) then
-				bCheckDiplomat = true;
-				bCheckThief = true;
-			end
-			--END
-
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-
+			
 			if (bCheckDiplomat) then
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 					g_ConfirmAction = function()
@@ -1360,18 +1340,13 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						Refresh();
 					end
 
-					if(bCheckThief)then			
-						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_THIEF");
-						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_THIEF");
-					else
-						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
-						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
-					end
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
+					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();
 					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
 					Controls.ChooseConfirm:SetHide(false);
+					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");
+					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 				end);
 			else
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()

@@ -1336,6 +1336,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
 						Refresh();
 					end
+
 					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();

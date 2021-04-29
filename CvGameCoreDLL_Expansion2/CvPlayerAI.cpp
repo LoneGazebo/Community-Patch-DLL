@@ -911,7 +911,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 									{
 										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
 										if (pCity && (pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
-											iOurFlavor * 10;
+											iOurFlavor *= 10;
 									}
 
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
@@ -1337,9 +1337,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 		{
 			if (pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
 			{
-				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR && GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR)
 				{
-					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+					if (GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100 || getGreatMusiciansCreated(true) > GC.getGame().getCurrentEra())
+						return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+
 				}
 			}
 		}

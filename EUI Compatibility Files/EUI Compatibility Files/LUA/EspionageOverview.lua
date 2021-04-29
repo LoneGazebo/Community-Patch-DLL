@@ -56,10 +56,6 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 0},
 		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
-	TXT_KEY_SPY_STATE_PREPARING_HEIST = {
-		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatEspionageGreen.dds",
-	},
 }
 	
 -- Agent text color based on agent activity.
@@ -71,7 +67,6 @@ local g_TextColors = {
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
-	TXT_KEY_SPY_STATE_PREPARING_HEIST	   = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 }
 
 g_Tabs = {
@@ -1333,7 +1328,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			end
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-
+			
 			if (bCheckDiplomat) then
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 					g_ConfirmAction = function()
@@ -1346,13 +1341,12 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 					end
 
 					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
-					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
-				
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();
 					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
 					Controls.ChooseConfirm:SetHide(false);
+					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");
+					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 				end);
 			else
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()

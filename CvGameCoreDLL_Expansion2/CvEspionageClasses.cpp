@@ -6140,7 +6140,7 @@ void CvEspionageAI::DoTurn()
 			strMsg += ",";
 			strMsg += aCityScores[i].m_bDiplomat ? "as diplomat" : "as spy";
 			strMsg += ",";
-			strMsg += aCityScores[i].m_pCity->IsOriginalMinorCapital() ? "minor civ" : "major civ";
+			strMsg += GET_PLAYER(aCityScores[i].m_pCity->getOwner()).isMinorCiv() ? "minor civ" : "major civ";
 			strMsg += ",";
 			strMsg += GET_PLAYER(aCityScores[i].m_pCity->getOwner()).getCivilizationShortDescription();
 			strMsg += ",";
