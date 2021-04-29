@@ -7584,7 +7584,10 @@ int CvCity::GetEspionageRanking() const
 {
 	VALIDATE_OBJECT
 	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-		return range((m_iCitySpyRank / 100), 1, 10);
+		if (GET_PLAYER(getOwner()).isMinorCiv())
+			return 0;
+		else
+			return range((m_iCitySpyRank / 100), 1, 10);
 	else
 		return m_iCitySpyRank;
 }
@@ -7592,6 +7595,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 {
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		return m_iCitySpyRank;
+
 	int iRanking = max(100, (int)m_iCitySpyRank);
 
 	if (ePlayer != NO_PLAYER)
@@ -7691,16 +7695,12 @@ void CvCity::ResetEspionageRanking()
 void CvCity::InitEspionageRanking()
 {
 	//ostensibly, 1000
+	m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 
-	//we want minors to sort to bottom for espionage menu
-	if (!GET_PLAYER(getOwner()).isMinorCiv())
-		m_iCitySpyRank = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
-	else
-		m_iCitySpyRank = 1;
 	if (GC.getLogging())
 	{
 		CvString strMsg;
-		strMsg.Format("Advanced Action: Rank initialized to max (or min for minors).");
+		strMsg.Format("Advanced Action: Rank initialized to max.");
 		strMsg += " , ";
 		strMsg += GET_PLAYER(getOwner()).getCivilizationShortDescription();
 		strMsg += " , ";

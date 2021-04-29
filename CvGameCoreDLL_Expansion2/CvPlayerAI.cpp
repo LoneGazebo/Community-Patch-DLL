@@ -907,6 +907,13 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 										iOurFlavor /= 100;
 									}
 
+									if (pkEventChoiceInfo->getDamageCity() != 0 || pkEventChoiceInfo->getDamageGarrison() != 0)
+									{
+										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
+										if (pCity && (pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
+											iOurFlavor * 10;
+									}
+
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
 								}
 							}

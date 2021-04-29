@@ -343,12 +343,12 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</CityEventChoiceType>

@@ -6590,7 +6590,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 			//would adding a counterspy here help things? If not, reduce interest.
 			int iResistance = m_pPlayer->GetEspionage()->GetSpyResistance(pLoopCity, true);
 			if (iResistance < GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT())
-				iValue /= 2;
+				iValue /= 3;
 		}
 
 		kEntry.m_iScore = iValue;
@@ -6734,16 +6734,16 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				iValue += 40;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
 				iValue += 30;
 				break;
-			case PLAYER_PROXIMITY_FAR:
+			case PLAYER_PROXIMITY_CLOSE:
 				iValue += 20;
 				break;
-			case PLAYER_PROXIMITY_DISTANT:
+			case PLAYER_PROXIMITY_FAR:
 				iValue += 10;
+				break;
+			case PLAYER_PROXIMITY_DISTANT:
+				iValue += 5;
 				break;
 			}
 			switch (iCityStatePlan)
