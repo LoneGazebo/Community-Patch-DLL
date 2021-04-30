@@ -1009,11 +1009,14 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 	if (eSetupEvent == NO_EVENT_CITY)
 		return;
 
+	pCity->SetEventActive(eSetupEvent, true);
+
 	if (!m_pPlayer->isHuman())
 	{
 		m_pPlayer->AI_DoEspionageEventChoice(eSetupEvent, uiSpyIndex, pCity);
 		return;
 	}
+
 
 	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
 	CvNotifications* pNotifications = m_pPlayer->GetNotifications();

@@ -63,9 +63,10 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 				szTypeString = str.Description or szTypeString
 				szHelpString = str.Help or szHelpString
 			end
+		
 			Controls.TitleLabel:SetText(szTypeString);
-				Controls.TitleLabel:SetToolTipString(szTypeString);
-				Controls.DescriptionLabel:SetText(szHelpString);
+			Controls.TitleLabel:SetToolTipString(szTypeString);
+			Controls.DescriptionLabel:SetText(szHelpString);
 			local buttonSizeY = 53
 			for row in GameInfo.Event_ParentEvents("EventType = '" .. pEventInfo.Type .. "'") do
 				--print("Cycling through event choices")
@@ -73,7 +74,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 
 				-- if(player:IsEventChoiceValid(info.ID, iEventType)) then
 					print("Found an event choice")
-			
+
 					local controlTable = {};
 					ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, stackControl );
 					local eventChoiceType = info.Type;
@@ -115,8 +116,6 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 						controlTable.Name:SetAlpha(1)
 						controlTable.Button:SetDisabled(false)
 					end
-
-					print("Added regular event choice")
 				
 					local selectionAnim = controlTable.SelectionAnim;
 
@@ -161,6 +160,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 					print("event choice added")
 			
 					count = count + 1;
+				-- end
 			end
 		end
 	end
