@@ -16449,7 +16449,7 @@ void CvMinorCivAI::DoElection()
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
 				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCapital->plot());
-				int iValueNeeded = 60;
+				int iValueNeeded = 90;
 
 				if (iNewResult > iValueNeeded)
 				{

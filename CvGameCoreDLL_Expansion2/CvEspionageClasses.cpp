@@ -1069,7 +1069,7 @@ void CvPlayerEspionage::CreateSpyChoiceEvent(CityEventTypes eEvent, CvCity* pCit
 }
 CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eEventChoice, bool bDefer)
 {
-	pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()]--;
+	pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] = 0;
 
 	//no choice = no effect
 	if (eEventChoice == NO_EVENT_CHOICE)
@@ -1112,18 +1112,8 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	if (eCityOwner == m_pPlayer->GetID())
 		return NUM_SPY_RESULTS;
 
-	//time to reset the spy
-	pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
-	pSpy->m_iPotentialAtStart = -1;
-
 	CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
 	CvDiplomacyAI* pDefendingPlayerDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
-	
-	m_aiNumSpyActionsDone[pCity->getOwner()]++;
-	pCityEspionage->m_aiNumTimesCityRobbed[ePlayer]++;
-
-	//reset ranking to 10.
-	pCity->ResetEspionageRanking();
 
 	CvSpyResult eResult = GetSpyRollResult(pCity, eEventChoice);
 	pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, eResult);
@@ -1209,7 +1199,8 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	}
 	else
 	{
-		DoSpyFocusLevelUp(uiSpyIndex);
+		int iChance = max(10, pSpy->m_iPotentialAtStart * 9);
+		DoSpyFocusLevelUp(uiSpyIndex, iChance);
 		ExtractSpyFromCity(uiSpyIndex);
 	}
 	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
@@ -1246,16 +1237,14 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 				Localization::String strMessage;
 				Localization::String strSummary;
 				strSummary = Localization::Lookup(pkEventChoiceInfo->GetNotificationInfo(iI)->GetShortDescription());
-				strSummary << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+				strSummary << GetSpyRankName(pSpy->m_eRank);
+				strSummary << pSpy->GetSpyName(m_pPlayer);
 				strSummary << pCity->getNameKey();
-				strSummary << GET_PLAYER(ePlayer).getCivilizationDescription();
-				strSummary << GET_PLAYER(ePlayer).getName();
 				strMessage = Localization::Lookup(pkEventChoiceInfo->GetNotificationInfo(iI)->GetDescription());
-				strMessage << GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+				strMessage << GetSpyRankName(pSpy->m_eRank);
+				strMessage << pSpy->GetSpyName(m_pPlayer);
 				strMessage << pCity->getNameKey();
-				strMessage << GET_PLAYER(ePlayer).getCivilizationDescription();
-				strMessage << GET_PLAYER(ePlayer).getName();
-				strMessage << pCity->GetScaledHelpText(eEventChoice, true, uiSpyIndex, m_pPlayer->GetID());
+				strMessage << pCity->GetScaledHelpText(eEventChoice, false, uiSpyIndex, m_pPlayer->GetID());
 				bool bGlobal = pkEventChoiceInfo->GetNotificationInfo(iI)->IsWorldEvent();
 				bool bEspionage = pkEventChoiceInfo->GetNotificationInfo(iI)->IsEspionageEvent();
 				int iX = -1;
@@ -1327,13 +1316,27 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		}
 	}
 
+	m_aiNumSpyActionsDone[pCity->getOwner()]++;
+	pCityEspionage->m_aiNumTimesCityRobbed[ePlayer]++;
+
+	//reset ranking to 10.
+	pCity->ResetEspionageRanking();
+
+	//time to reset the spy
+	pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
+	pSpy->m_iPotentialAtStart = -1;
+
 	return eResult;
 }
 
 
-void CvPlayerEspionage::DoSpyFocusLevelUp(uint uiSpyIndex)
+void CvPlayerEspionage::DoSpyFocusLevelUp(uint uiSpyIndex, int iChance)
 {
-	LevelUpSpy(uiSpyIndex);
+	int iNewResult = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
+	if (iNewResult >= iChance)
+	{
+		LevelUpSpy(uiSpyIndex);
+	}
 }
 
 // Helpers
@@ -1684,6 +1687,30 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB", iOpenBordersBonus);
 				if (iInfluenceBonus != 0)
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE", iInfluenceBonus);
+
+				int iPolicyDifference = m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, true) - GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+				iPolicyDifference *= 10;
+				iPolicyDifference = range(iPolicyDifference, -50, 50);
+
+				int iTechDifference = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(pCity->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+				iTechDifference *= 10;
+				iTechDifference = range(iTechDifference, -50, 50);
+
+				int iNumTimesStolenModifier = pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()] * pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()];
+
+				int iDefenseBonuses = iPolicyDifference + iTechDifference + iNumTimesStolenModifier;
+
+				strSpyAtCity += "[NEWLINE][NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE", iDefensePower);
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES", iDefenseBonuses);
+
+				if (iPolicyDifference != 0)
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY", iPolicyDifference);
+				if (iTechDifference != 0)
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH", iTechDifference);
+				if (iNumTimesStolenModifier != 0)
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT", iNumTimesStolenModifier);
 			}
 
 			if (pCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
@@ -1722,14 +1749,14 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		}
 
 		int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-		iYieldValue *= 8;
+		iYieldValue *= 5;
 		iYieldValue /= 10;
 
 		int iUnhappinessMod = 0;
 		int iPop = pCity->getPopulation();
 		if (iPop > 0)
 		{
-			iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 100) / iPop);
+			iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
 		}
 
 		//negative!
@@ -1999,7 +2026,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
 			int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-			if(iNewResult >= 80)
+			if(iNewResult >= 85)
 			{
 				LevelUpSpy(uiSpyIndex);
 			}
@@ -2526,6 +2553,15 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 /// CanMoveSpyTo - May a spy move into this city
 bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat)
 {
+	if (uiSpyIndex >= 0)
+	{
+		CvCity* pCurrentCity = GetCityWithSpy(uiSpyIndex);
+		if (pCurrentCity != NULL)
+		{
+			if (pCurrentCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0)
+				return false;
+		}
+	}
 	// This allows the player to move the spy off the board
 	if(!pCity)
 	{
@@ -2731,7 +2767,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
 
 	if (pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0)
-		pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()]--;
+		pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] = 0;
 
 	return true;
 }
@@ -2893,14 +2929,14 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	int iBaseResistance = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 
 	int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-	iYieldValue *= 8;
+	iYieldValue *= 5;
 	iYieldValue /= 10;
 
 	int iUnhappinessMod = 0;
 	int iPop = pCity->getPopulation();
 	if (iPop > 0)
 	{
-		iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 100) / iPop);
+		iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
 	}
 
 	//negative!

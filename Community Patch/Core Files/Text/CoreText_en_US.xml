@@ -7194,9 +7194,6 @@
 		</Row>
 
 
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
-			<Text>Defensive Espionage Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
 			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
@@ -7223,6 +7220,22 @@
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
 			<Text>[NEWLINE]  [ICON_BULLET] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE">
+			<Text>Base Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
+			<Text>Security Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY">
+			<Text>[NEWLINE]  [ICON_BULLET] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH">
+			<Text>[NEWLINE]  [ICON_BULLET] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
+			<Text>[NEWLINE]  [ICON_BULLET] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
 		</Row>
 		
 		<!-- Spy Focus -->

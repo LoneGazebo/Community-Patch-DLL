@@ -4288,7 +4288,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 
-	if(IsEventActive(eParentEvent))
+	if(!IsEventActive(eParentEvent))
 		return false;
 
 	//Lua Hook
@@ -6124,9 +6124,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
+			bool bAlreadyActive = false;
 			//Set the cooldown for the event choice.
 			if (pkEventChoiceInfo->getEventDuration() > 0)
 			{
+				//already active? Apply the extended duration, but don't duplicate the yield effect.
+				if (pkEventChoiceInfo->IsEspionageEffect() && GetEventChoiceDuration(eEventChoice) > 0)
+					bAlreadyActive = true;
+
 				//Gamespeed.
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
 				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6143,15 +6148,25 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
 				{
-					if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
+					if (eSpyOwner != NO_PLAYER && iEspionageValue != -1)
 					{
-						GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer);
-						bAlreadyApplied = true;
+						CvEspionageSpy* pSpy = &(GET_PLAYER(eSpyOwner).GetEspionage()->m_aSpyList[iEspionageValue]);
+						if (pSpy)
+						{
+							if (pSpy->m_eSpyFocus == eEventChoice)
+							{
+								if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
+								{
+									GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer);
+									bAlreadyApplied = true;
+								}
+							}
+						}
 					}
 				}
 				else
 				{
-					GET_PLAYER(getOwner()).DoEventChoice(eEventChoicePlayer);
+					GET_PLAYER(getOwner()).DoEventChoice(eEventChoicePlayer, NO_EVENT, true, pkEventChoiceInfo->IsEspionageEffect());
 				}
 			}
 
@@ -6616,62 +6631,67 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 				
-				int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
-				if(iYieldChange != 0)
+				//espionage tweak - if already active, simply increase duration
+				if (!bAlreadyActive)
 				{
-					ChangeEventCityYield(eYield, iYieldChange);
-				}
-				// Building modifiers
-				for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
-				{
-					BuildingClassTypes eBuildingClass = (BuildingClassTypes) iJ;
-
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
+					int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
+					if (iYieldChange != 0)
 					{
-						continue;
+						ChangeEventCityYield(eYield, iYieldChange);
 					}
-					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
-					{
-						BuildingTypes eBuilding = NO_BUILDING;
-						bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-						{
-							eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-						}
-						else
-						{
-							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						}
 
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+					// Building modifiers
+					for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+					{
+						BuildingClassTypes eBuildingClass = (BuildingClassTypes)iJ;
+
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if (!pkBuildingClassInfo)
 						{
-							ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-							if(eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+							continue;
+						}
+						if (pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
+						{
+							BuildingTypes eBuilding = NO_BUILDING;
+							bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 							{
-								ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+								eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+							}
+							else
+							{
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
+
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+								if (eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+								}
 							}
 						}
-					}
-					if(pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
-					{
-						BuildingTypes eBuilding = NO_BUILDING;
-						bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+						if (pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
 						{
-							eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-						}
-						else
-						{
-							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						}
-
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-						{
-							ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-							if(eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+							BuildingTypes eBuilding = NO_BUILDING;
+							bool bRome = GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
 							{
-								changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+								eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+							}
+							else
+							{
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
+
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+								if (eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+								}
 							}
 						}
 					}
@@ -6686,45 +6706,48 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				{
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
-				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				if (!bAlreadyActive)
 				{
-					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
-					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 					{
-						ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
+						ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+						if (eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+						{
+							ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
+						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
-				{
-					FeatureTypes eFeature = (FeatureTypes)iJ;
-					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 					{
-						ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
+						FeatureTypes eFeature = (FeatureTypes)iJ;
+						if (eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+						{
+							ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
+						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
-				{
-					TerrainTypes eTerrain = (TerrainTypes)iJ;
-					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 					{
-						ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
+						TerrainTypes eTerrain = (TerrainTypes)iJ;
+						if (eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+						{
+							ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
+						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
-				{
-					ResourceTypes eResource = (ResourceTypes)iJ;
-					if(eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 					{
-						ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
+						ResourceTypes eResource = (ResourceTypes)iJ;
+						if (eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+						{
+							ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
+						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
-				{
-					const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
-					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if(pkSpecialistInfo)
+					for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
 					{
-						ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getCitySpecialistYieldChange(eSpecialist, eYield));
+						const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
+						CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+						if (pkSpecialistInfo)
+						{
+							ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getCitySpecialistYieldChange(eSpecialist, eYield));
+						}
 					}
 				}
 			}

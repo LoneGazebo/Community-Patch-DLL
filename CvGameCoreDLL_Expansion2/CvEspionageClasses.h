@@ -189,7 +189,7 @@ public:
 
 	void CreateSpyChoiceEvent(CityEventTypes eEvent, CvCity* pCity, int uiSpyIndex);
 
-	void DoSpyFocusLevelUp(uint uiSpyIndex);
+	void DoSpyFocusLevelUp(uint uiSpyIndex, int iChance);
 
 	CvString GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex);
 

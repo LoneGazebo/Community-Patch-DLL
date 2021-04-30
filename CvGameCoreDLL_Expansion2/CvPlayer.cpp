@@ -6487,7 +6487,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if (!pkEventInfo->isParentEvent(eParentEvent))
 		return false;
 
-	if (IsEventActive(eParentEvent))
+	if (!IsEventActive(eParentEvent))
 		return false;
 
 	//Lua Hook
@@ -8824,7 +8824,7 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 		}
 	}
 }
-void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, bool bSendMsg)
+void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, bool bSendMsg, bool bEspionage)
 {
 	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && isHuman()) {
 		NetMessageExt::Send::DoEventChoice(GetID(), eEventChoice, eEvent);
@@ -8877,9 +8877,14 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
+			bool bAlreadyActive = false;
 			//Set the cooldown for all events.
 			if(pkEventChoiceInfo->getEventDuration() > 0)
 			{
+				//already active? Apply the extended duration, but don't duplicate the yield effect.
+				if (bEspionage && GetEventChoiceDuration(eEventChoice) > 0)
+					bAlreadyActive = true;
+
 				//Gamespeed.
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
 				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -9097,109 +9102,112 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					}
 				}
 
-				int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
-				if(iYieldChange != 0)
+				if (!bAlreadyActive)
 				{
-					if(pkEventChoiceInfo->IsEraScaling())
+					int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
+					if (iYieldChange != 0)
 					{
-						int iEra = GetCurrentEra();
-						if(iEra <= 0)
+						if (pkEventChoiceInfo->IsEraScaling())
 						{
-							iEra = 1;
-						}
-						iYieldChange *= iEra;
-					}
-					CvCity *pLoopCity;
-					int iLoop;
-					for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-						{
-							continue;
-						}
-						if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-						{
-							continue;
-						}
-						pLoopCity->ChangeEventCityYield(eYield, iYieldChange);
-					}
-				}
-				// Building modifiers
-				for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
-				{
-					BuildingClassTypes eBuildingClass = (BuildingClassTypes) iJ;
-
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
-					{
-						BuildingTypes eBuilding = NO_BUILDING;
-						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
-						{
-							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						}
-
-						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-						{
-							int iLoop;
-							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							int iEra = GetCurrentEra();
+							if (iEra <= 0)
 							{
-								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-								{
-									continue;
-								}
-								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-								{
-									continue;
-								}
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-								{
-									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-								}
+								iEra = 1;
+							}
+							iYieldChange *= iEra;
+						}
+						CvCity *pLoopCity;
+						int iLoop;
+						for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							{
+								continue;
+							}
+							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+							{
+								continue;
+							}
+							pLoopCity->ChangeEventCityYield(eYield, iYieldChange);
+						}
+					}
+					// Building modifiers
+					for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+					{
+						BuildingClassTypes eBuildingClass = (BuildingClassTypes)iJ;
 
-								pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
-								if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if (!pkBuildingClassInfo)
+						{
+							continue;
+						}
+						if (pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
+						{
+							BuildingTypes eBuilding = NO_BUILDING;
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
+							{
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
+
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								int iLoop;
+								for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+									if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+									{
+										continue;
+									}
+									if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+									{
+										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									}
+
+									pLoopCity->ChangeEventBuildingClassYield(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+									if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+									{
+										pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+									}
 								}
 							}
 						}
-					}
-					if(pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
-					{
-						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
-						if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
+						if (pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) != 0)
 						{
-							eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-						}
-
-						if(MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
-						{
-							int iLoop;
-							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							bool bRome = GetPlayerTraits()->IsKeepConqueredBuildings();
+							if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES && !bRome)
 							{
-								if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-								{
-									continue;
-								}
-								if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-								{
-									continue;
-								}
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
-								{
-									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-								}
+								eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+							}
 
-								pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
-								if(eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
+							{
+								int iLoop;
+								for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
-									pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+									if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+									{
+										continue;
+									}
+									if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+									{
+										continue;
+									}
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
+									{
+										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									}
+
+									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+									if (eBuilding != NO_BUILDING && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+									{
+										pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
+									}
 								}
 							}
 						}
@@ -9219,109 +9227,112 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pLoopCity, false, true, true, eYield);
 					}
 				}
-				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				if (!bAlreadyActive)
 				{
-					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
-					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 					{
-						CvCity *pLoopCity;
-						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+						if (eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
 						{
-							if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							CvCity *pLoopCity;
+							int iLoop;
+							for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								continue;
+								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								pLoopCity->ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
 							}
-							if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-							{
-								continue;
-							}
-							pLoopCity->ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
 						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
-				{
-					FeatureTypes eFeature = (FeatureTypes)iJ;
-					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 					{
-						CvCity *pLoopCity;
-						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						FeatureTypes eFeature = (FeatureTypes)iJ;
+						if (eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
 						{
-							if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							CvCity *pLoopCity;
+							int iLoop;
+							for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								continue;
+								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								pLoopCity->ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
 							}
-							if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-							{
-								continue;
-							}
-							pLoopCity->ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
 						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
-				{
-					TerrainTypes eTerrain = (TerrainTypes)iJ;
-					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 					{
-						CvCity *pLoopCity;
-						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						TerrainTypes eTerrain = (TerrainTypes)iJ;
+						if (eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
 						{
-							if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							CvCity *pLoopCity;
+							int iLoop;
+							for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								continue;
+								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								pLoopCity->ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
 							}
-							if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-							{
-								continue;
-							}
-							pLoopCity->ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
 						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
-				{
-					ResourceTypes eResource = (ResourceTypes)iJ;
-					if(eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+					for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 					{
-						CvCity *pLoopCity;
-						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						ResourceTypes eResource = (ResourceTypes)iJ;
+						if (eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
 						{
-							if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							CvCity *pLoopCity;
+							int iLoop;
+							for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								continue;
+								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								pLoopCity->ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
 							}
-							if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-							{
-								continue;
-							}
-							pLoopCity->ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
 						}
 					}
-				}
-				for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
-				{
-					const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
-					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if(pkSpecialistInfo)
+					for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
 					{
-						CvCity *pLoopCity;
-						int iLoop;
-						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
+						CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+						if (pkSpecialistInfo)
 						{
-							if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+							CvCity *pLoopCity;
+							int iLoop;
+							for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								continue;
+								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								{
+									continue;
+								}
+								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								{
+									continue;
+								}
+								pLoopCity->ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getGlobalSpecialistYieldChange(eSpecialist, eYield));
 							}
-							if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-							{
-								continue;
-							}
-							pLoopCity->ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getGlobalSpecialistYieldChange(eSpecialist, eYield));
 						}
 					}
 				}

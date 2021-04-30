@@ -43,6 +43,7 @@
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
 			<IDModifier>10</IDModifier>
+			<EraScaling>true</EraScaling>
 			<EventDuration>15</EventDuration>
 			<Expires>true</Expires>
 			<DeathModifier>10</DeathModifier>
@@ -56,6 +57,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
+			<EraScaling>true</EraScaling>
 			<IDModifier>15</IDModifier>
 			<DeathModifier>5</DeathModifier>
 			<EspionageDifficultyMod>25</EspionageDifficultyMod>
@@ -73,6 +75,7 @@
 			<IDModifier>5</IDModifier>
 			<DeathModifier>5</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
+			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
 		<!-- SCIENCE -->
 		<Row>
@@ -83,6 +86,7 @@
 			<IsSpyBenefit>true</IsSpyBenefit>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
+			<EraScaling>true</EraScaling>
 			<IDModifier>10</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
@@ -99,6 +103,7 @@
 			<IDModifier>5</IDModifier>
 			<DeathModifier>5</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
+			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
 		<!-- DAMAGE CITY/GARRISON -->
 		<Row>
@@ -107,9 +112,10 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>45</IDModifier>
-			<DeathModifier>25</DeathModifier>
+			<IDModifier>50</IDModifier>
+			<DeathModifier>50</DeathModifier>
 			<DamageCity>25</DamageCity>
+			<EspionageDifficultyMod>75</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
 			<SapCityTurns>5</SapCityTurns>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -121,11 +127,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>45</IDModifier>
+			<IDModifier>75</IDModifier>
+			<EspionageDifficultyMod>100</EspionageDifficultyMod>
 			<IsUnhappy>true</IsUnhappy>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
-			<DeathModifier>25</DeathModifier>
+			<DeathModifier>75</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- TILES -->
@@ -135,9 +142,9 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>30</IDModifier>
-			<DeathModifier>30</DeathModifier>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<IDModifier>25</IDModifier>
+			<DeathModifier>25</DeathModifier>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->
@@ -420,5 +427,96 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 	</EventChoice_SpecialistYieldChange>
-
+	<CityEventChoice_Notification>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_POISON</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_CULTURE</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
+			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
+			<EspionageEvent>false</EspionageEvent>
+			<NeedCityCoordinates>true</NeedCityCoordinates>
+			<NeedPlayerID>false</NeedPlayerID>
+			<ExtraVariable>-1</ExtraVariable>
+		</Row>
+	</CityEventChoice_Notification>
 </GameData>

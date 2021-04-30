@@ -84,7 +84,7 @@
 			<Text>Copied Art</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE_HELP">
-			<Text>+1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+			<Text>+2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
 		</Row>
 		
 		<!-- Counterspy -->
@@ -111,6 +111,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
 			<Text>Your Spy has established their new counterintel operation. Give them orders:</Text>
+		</Row>
+		
+		<!-- Notifications -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS">
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} completed their mission![NEWLINE][NEWLINE]{4_EventChoiceHelpText}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S">
+			<Text>{1_SpyRank} {2_SpyName} succeeded in {3_CityName}!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
