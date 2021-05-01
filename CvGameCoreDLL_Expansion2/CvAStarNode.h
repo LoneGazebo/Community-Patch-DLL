@@ -297,6 +297,9 @@ public:
 	}
 };
 
+FDataStream & operator >> (FDataStream & kStream, CvPathNode & node);
+FDataStream & operator << (FDataStream & kStream, const CvPathNode & node);
+
 class CvPathNodeArray : public std::deque<CvPathNode>
 {
 public:
@@ -304,6 +307,9 @@ public:
 	CvPlot* GetFinalPlot() const;
 	CvPlot* GetFirstPlot() const;
 	CvPlot* GetPlotByIndex(int iIndex) const;
+
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvPathNodeArray& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvPathNodeArray& writeTo);
 };
 
 struct PrNodeIsBetter

@@ -3456,6 +3456,34 @@ CvPlot * CvPathNodeArray::GetPlotByIndex(int iIndex) const
 	return NULL;
 }
 
+//cannot use templated serialziation because this is a derived class
+FDataStream& operator>>(FDataStream& kStream, CvPathNodeArray& writeTo)
+{
+	writeTo.clear();
+
+	size_t count = 0;
+	CvPathNode current;
+
+	kStream >> count;
+	for (size_t i = 0; i < count; i++)
+	{
+		kStream >> current;
+		writeTo.push_back(current);
+	}
+
+	return kStream;
+}
+
+//cannot use templated serialziation because this is a derived class
+FDataStream& operator<<(FDataStream& kStream, const CvPathNodeArray& readFrom)
+{
+	kStream << readFrom.size();
+	for (size_t i = 0; i < readFrom.size(); i++)
+		kStream << readFrom.at(i);
+
+	return kStream;
+}
+
 //	---------------------------------------------------------------------------
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bAllowHarbors, bool bAssumeOpenBorders, SPath* pPathOut)
 {
@@ -3580,4 +3608,22 @@ void ReachablePlots::insertWithIndex(const SMovePlot& plot)
 	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
 	storage.push_back(plot);
 	sort(lookup.begin(), lookup.end(), PairCompareFirst());
+}
+
+FDataStream & operator >> (FDataStream & kStream, CvPathNode & node)
+{
+	kStream >> node.m_iMoves;
+	kStream >> node.m_iTurns;
+	kStream >> node.m_iX;
+	kStream >> node.m_iY;
+	return kStream;
+}
+
+FDataStream & operator << (FDataStream & kStream, const CvPathNode & node)
+{
+	kStream << node.m_iMoves;
+	kStream << node.m_iTurns;
+	kStream << node.m_iX;
+	kStream << node.m_iY;
+	return kStream;
 }

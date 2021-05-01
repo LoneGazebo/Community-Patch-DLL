@@ -27,8 +27,6 @@
 #include "CvEnumSerialization.h"
 #include "CvNotifications.h"
 #include "FMemoryStream.h"
-#include <set>
-#include "FStlContainerSerialization.h"
 #include "CvUnitMission.h"
 #include "CvUnitCombat.h"
 #include "CvEconomicAI.h"
@@ -27113,7 +27111,6 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 	return NULL;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvUnit::read(FDataStream& kStream)
 {
@@ -27203,14 +27200,12 @@ void CvUnit::read(FDataStream& kStream)
 		m_missionQueue.insertAtEnd(&Node);
 	}
 
-	/*
 	// Read last path cache
 	kStream >> m_kLastPath;
 	kStream >> m_uiLastPathCacheOrigin;
 	kStream >> m_uiLastPathCacheDestination;
 	kStream >> m_uiLastPathFlags;
 	kStream >> m_uiLastPathTurnSlice;
-	*/
 
 	// Re-attach to the map layer.
 	if (m_iMapLayer != DEFAULT_UNIT_MAP_LAYER)
@@ -27289,14 +27284,12 @@ void CvUnit::write(FDataStream& kStream) const
 		kStream << pNode->iPushTurn;
 	}
 
-	/*
 	// Write last path cache
 	kStream << m_kLastPath;
 	kStream << m_uiLastPathCacheOrigin;
 	kStream << m_uiLastPathCacheDestination;
 	kStream << m_uiLastPathFlags;
 	kStream << m_uiLastPathTurnSlice;
-	*/
 }
 
 //	--------------------------------------------------------------------------------
