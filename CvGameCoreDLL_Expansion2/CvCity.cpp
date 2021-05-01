@@ -16948,8 +16948,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
-		iSpecialists += iExtra;
+		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount() + iExtra;
+
 		int iPopulation = max(0,(getPopulation() - iSpecialists)); //guard against stupidity
 
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
@@ -16960,33 +16960,7 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 #endif
 
 		int iNormalFood = iPopulation * iFoodPerPop;
-
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra() + 1;
-		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION() + 1)
-		{
-			iEra = GC.getFOOD_CONSUMPTION_PER_POPULATION() + 1;
-		}
-		if(iEra > 10)
-		{
-			iEra = 10;
-		}
-
-		iEra += GET_PLAYER(getOwner()).GetSpecialistFoodChange();
-
-		if (iEra <= 1)
-			iEra = 1;
-
-		int iSpecialistFood = (iEra * iSpecialists);	
-
-		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
-		{
-			iSpecialistFood /= 2;
-		}
-		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
-		{
-			iSpecialistFood /= 2;
-		}
-
+		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists) / 100;	
 		return iNormalFood + iSpecialistFood;
 	}
 	else

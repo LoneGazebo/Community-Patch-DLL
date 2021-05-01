@@ -90,6 +90,7 @@ public:
 	bool IsDirty();
 	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
 
+	void OptimizeWorkedPlots(std::map<SpecialistTypes, int>& specialistValueCache);
 	bool NeedReworkCitizens();
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
 
