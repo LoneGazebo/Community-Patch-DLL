@@ -303,7 +303,7 @@ public:
 	~CvTacticalAnalysisMap(void);
 
 	void Reset(PlayerTypes ePlayer);
-	void Refresh(bool force = false);
+	void RefreshIfOutdated();
 	bool IsUpToDate();
 	void Invalidate();
 

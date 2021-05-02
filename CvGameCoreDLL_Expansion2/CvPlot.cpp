@@ -13825,7 +13825,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 
 	//not really related but a good place to update this
 	//if we have any visibility limiting features here, consider the plot as rough
-	m_bRoughPlot = (seeThroughLevel()>1);
+	m_bRoughPlot = (seeThroughLevel()>2);
 
 	//only land is is passable by default
 	m_bIsImpassable = isMountain();

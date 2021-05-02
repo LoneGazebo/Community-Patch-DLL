@@ -27,8 +27,6 @@
 #include "CvEnumSerialization.h"
 #include "CvNotifications.h"
 #include "FMemoryStream.h"
-#include <set>
-#include "FStlContainerSerialization.h"
 #include "CvUnitMission.h"
 #include "CvUnitCombat.h"
 #include "CvEconomicAI.h"
@@ -44,10 +42,8 @@
 
 #if !defined(FINAL_RELEASE)
 #include <sstream>
-
 // If defined, various operations related to the movement of units will be logged.
 //#define LOG_UNIT_MOVES
-
 #endif
 
 #if defined(LOG_UNIT_MOVES)
@@ -5501,7 +5497,9 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
 				iValue += 3000;
 
-			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
+			//we allowed passage through enemy territory but we don't want to end up there
+			if (!isEnemy(getTeam(),pLoopPlot))
+				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
 	}
 
@@ -27113,7 +27111,6 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 	return NULL;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvUnit::read(FDataStream& kStream)
 {
@@ -27203,6 +27200,13 @@ void CvUnit::read(FDataStream& kStream)
 		m_missionQueue.insertAtEnd(&Node);
 	}
 
+	// Read last path cache
+	kStream >> m_kLastPath;
+	kStream >> m_uiLastPathCacheOrigin;
+	kStream >> m_uiLastPathCacheDestination;
+	kStream >> m_uiLastPathFlags;
+	kStream >> m_uiLastPathTurnSlice;
+
 	// Re-attach to the map layer.
 	if (m_iMapLayer != DEFAULT_UNIT_MAP_LAYER)
 	{
@@ -27279,6 +27283,13 @@ void CvUnit::write(FDataStream& kStream) const
 		kStream << pNode->iFlags;
 		kStream << pNode->iPushTurn;
 	}
+
+	// Write last path cache
+	kStream << m_kLastPath;
+	kStream << m_uiLastPathCacheOrigin;
+	kStream << m_uiLastPathCacheDestination;
+	kStream << m_uiLastPathFlags;
+	kStream << m_uiLastPathTurnSlice;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28384,10 +28395,10 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			{
 				CvPathNode nextNode( newPath.vPlots[i] );
 
-			//skip the first node (if it's not a stop node), it's the current unit plot
-			//important: this means that an empty m_kLastPath is valid!
-			if (i == 0 && nextNode.m_iMoves > 0)
-				continue;
+				//skip the first node (if it's not a stop node), it's the current unit plot
+				//important: this means that an empty m_kLastPath is valid!
+				if (i == 0 && nextNode.m_iMoves > 0)
+					continue;
 
 				m_kLastPath.push_back(nextNode);
 			}
@@ -29601,6 +29612,26 @@ CvPlot * CvUnit::GetLastValidDestinationPlotInCachedPath() const
 const CvPathNodeArray& CvUnit::GetLastPath() const
 {
 	return m_kLastPath;
+}
+
+bool CvUnit::IsCurrentPathUnsafe() const
+{
+	//no info ...
+	if (!IsCachedPathValid() || m_kLastPath.empty())
+		return false;
+
+	for (size_t i = m_kLastPath.size() - 1; i > 0; i--)
+	{
+		//check all plots where we would end the turn
+		if (m_kLastPath[i].m_iMoves == 0)
+		{
+			CvPlot* pPlot = m_kLastPath.GetPlotByIndex(i);
+			if ( GET_PLAYER(getOwner()).IsPlotUnsafe(pPlot) )
+				return true;
+		}
+	}
+	
+	return false;
 }
 
 

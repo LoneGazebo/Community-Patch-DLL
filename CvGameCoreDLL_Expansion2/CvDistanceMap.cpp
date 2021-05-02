@@ -14,14 +14,34 @@
 
 struct SCityTiebreak : public STiebreakGenerator
 {
-	int operator()(int iOwner, int iFeatureID) const
+	//return 1 if B wins, -1 if A wins
+	int operator()(int iOwnerA, int iFeatureA, int iOwnerB, int iFeatureB) const
 	{
-		CvCity* pCurrentCity = GET_PLAYER((PlayerTypes)iOwner).getCity(iFeatureID);
+		CvPlayer& kPlayerA = GET_PLAYER((PlayerTypes)iOwnerA);
+		CvPlayer& kPlayerB = GET_PLAYER((PlayerTypes)iOwnerB);
+
+		//major players always have precedence over minors
+		if (kPlayerA.isMinorCiv() && !kPlayerB.isMinorCiv())
+			return 1;
+		else if (!kPlayerA.isMinorCiv() && kPlayerB.isMinorCiv())
+			return -1;
+
 		//it can happen that there is no current city if the plot has never been updated because it's very remote
-		if (pCurrentCity)
-			return pCurrentCity->getGameTurnFounded();
-		else
-			return INT_MAX;
+		CvCity* pA = kPlayerA.getCity(iFeatureA);
+		CvCity* pB = kPlayerB.getCity(iFeatureB);
+		if (!pA)
+			return 1;
+		else if (!pB)
+			return -1;
+
+		//now look at the founding dates
+		if (pA->getGameTurnFounded() < pB->getGameTurnFounded())
+			return -1;
+		if (pA->getGameTurnFounded() > pB->getGameTurnFounded())
+			return 1;
+
+		//still tied, don't care
+		return 0;
 	}
 };
 
@@ -81,10 +101,8 @@ bool CvDistanceMap::UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, i
 		}
 		else if (iDistance == m_vData[iPlotIndex].distance)
 		{
-			int iOldTiebreak = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature);
-			int iNewTiebreak = tiebreak(iOwner, iID);
-
-			if (iNewTiebreak < iOldTiebreak)
+			int result = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature, iOwner, iID);
+			if (result > 0)
 			{
 				m_vData[iPlotIndex] = SContent(iDistance,iOwner,iID);
 				return true;
@@ -151,7 +169,7 @@ PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajo
 }
 
 /// Updates the lookup table
-void CvDistanceMapByTurns::Update()
+void CvDistanceMapByPathLength::Update()
 {
 	int iMaxTurns = 36;
 	int iVeryFar = iMaxTurns * 2;
@@ -190,12 +208,11 @@ void CvDistanceMapByTurns::Update()
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
-				//important, compute the estimated turns from the normalized path cost!
-				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
+				allPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iPathLength, SCityTiebreak());
 				if (thisPlayer.isMajorCiv())
 				{
-					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
-					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iTurns, SCityTiebreak());
+					majorPlayers[i].UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iPathLength, SCityTiebreak());
+					allMajorPlayers.UpdateDistanceIfLower(it->iPlotIndex, i, pLoopCity->GetID(), it->iPathLength, SCityTiebreak());
 				}
 			}
 		}

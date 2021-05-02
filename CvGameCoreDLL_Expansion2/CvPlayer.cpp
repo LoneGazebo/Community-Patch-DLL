@@ -11466,7 +11466,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
 			UpdateDangerPlots(false);
-			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
+			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 			UpdateMilitaryStats();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
@@ -34222,7 +34222,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
 				if (isHuman())
-					GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
+					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 
 				if(kGame.isFinalInitialized())
 				{
@@ -47680,7 +47680,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 {
 	//cache the wars we have going - ignore barbarians
 	m_playersWeAreAtWarWith.clear();
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS-1; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
@@ -47734,6 +47734,18 @@ bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 	}
 
 	return false;
+}
+
+bool CvPlayer::IsPlotUnsafe(CvPlot * pPlot)
+{
+	CvTacticalDominanceZone* pZone = GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+	if (!pZone)
+		return false;
+	
+	if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY || pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+		return pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY;
+	else //neutral zone, even dominance is ok (few units)
+		return pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY;
 }
 #endif
 
@@ -47980,18 +47992,25 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 			continue;
 		}
 
+		CvTacticalDominanceZone* pZone = GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+		if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+			//--------------
+			continue;
+		}
+
 		for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
 		{
-			if(!GET_PLAYER(*it).isBarbarian())
+			if(pPlot->IsCloseToBorder(*it))
 			{
-				if(pPlot->IsCloseToBorder(*it))
-				{
-					//--------------
-					if (bLogging) 
-					dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
-					//--------------
-					continue;
-				}
+				//--------------
+				if (bLogging) 
+				dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+				//--------------
+				continue;
 			}
 		}
 

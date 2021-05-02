@@ -2538,8 +2538,10 @@ public:
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
 	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
+
 	//to check whether peace is a good idea
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
+	bool IsPlotUnsafe(CvPlot* pPlot);
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);

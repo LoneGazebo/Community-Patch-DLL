@@ -1998,12 +1998,23 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 			return AI_ABORT_NO_TARGET;
 		}
 
-		// swtich if we have a better target
+		// switch if we have a better target
 		if (pBetterTarget != GetTargetPlot())
 		{
 			SetTargetPlot(pBetterTarget);
 			pArmy->SetGoalPlot(pBetterTarget);
+
+			//refresh the path
+			pSettler->GeneratePath(pBetterTarget,iFlags);
 		}
+
+		// make sure we're not heading for disaster
+		CvPlot* pWaypoint = pSettler->GetPathEndFirstTurnPlot();
+		if (!pWaypoint)
+			return AI_ABORT_LOST_PATH;
+
+		if (pSettler->IsCurrentPathUnsafe())
+			return AI_ABORT_TOO_DANGEROUS;
 
 		return NO_ABORT_REASON;
 	}

@@ -293,7 +293,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			continue;
 
 		//turns is actually path length
-		int iPlotScore = (1000 * iRating) / max(1,it->iTurns);
+		int iPlotScore = (1000 * iRating) / max(1,it->iPathLength);
 
 		iValidCandidates++;
 		if (iPlotScore>iBestPlotScore)
@@ -2588,7 +2588,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	
 			// add offset for fair comparison
 			for (ReachablePlots::iterator it2 = plots.begin(); it2 != plots.end(); ++it2)
-				it2->iTurns += iBuildTimeLeft;
+				it2->iPathLength += iBuildTimeLeft;
 			
 			allWorkersReachablePlots[pUnit] = plots;
 		}
