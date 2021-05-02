@@ -824,9 +824,6 @@ end
 local function OnBannerMouseEnter( ... )
 	local plot = Map_GetPlotByIndex( (...) )
 	local city = plot and plot:GetPlotCity()
-	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
-		Network_SendUpdateCityCitizens( city:GetID() )
-	end
 	g_cityHexHighlight = ( ... )
 	return RefreshCityBanner( ... )
 end

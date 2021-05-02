@@ -545,14 +545,28 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cac
 
 	bool bCityFoodProduction = m_pCity->isFoodProduction(); //settler!
 	bool bCityWonderProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->IsBuildingWorldWonder();
+	bool bSmallCity = m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS();
 	ProcessTypes eProcess = m_pCity->getProductionProcess();
 	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 	CityAIFocusTypes eFocus = GetFocusType();
 	bool bIsWorking = IsWorkingPlot(pPlot);
 	bool bAvoidGrowth = IsAvoidGrowth();
 
+	//if we focus food, we will use all the food we can get anyway
+	//if have no focus we will try and make sure the city grows at a steady pace
+	//otherwise slow growth is ok
+	int iFoodThreshold = (eFocus == NO_CITY_AI_FOCUS_TYPE && !bAvoidGrowth) ? m_pCity->getPopulation()*100 : 200;
+	if (bAvoidGrowth && m_pCity->getFood() == m_pCity->growthThreshold())
+		iFoodThreshold = 0;
+
+	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
+	bool bNeedFood = (cache.iExcessFoodTimes100 < iFoodThreshold);
+	if (bIsWorking)
+		//we might fall under the threshold if we no longer work it
+		bNeedFood = (cache.iExcessFoodTimes100 - pPlot->getYield(YIELD_FOOD)) < iFoodThreshold;
+
 	//we always want to be growing a little bit
-	bool bEmphasizeFood = (bCityFoodProduction || cache.iExcessFoodTimes100 < 200 || m_pCity->getPopulation() < GC.getCITY_MIN_SIZE_FOR_SETTLERS());
+	bool bEmphasizeFood = (bCityFoodProduction || bNeedFood || bSmallCity);
 	bool bEmphasizeProduction = (bCityFoodProduction || bCityWonderProduction);
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -579,24 +593,16 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cac
 			//how much do we value certain yields
 			if (eYield == YIELD_FOOD)
 			{
-				// if we have enough food we care little about extra food
-				if (cache.iExcessFoodTimes100 > 0)
-				{
-					if (bAvoidGrowth)
-						// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
-						iYield100 /= 20;
-					else
-						// if we have growth penalties, pretend the yield is lower
-						iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
-				}
+				if (cache.iExcessFoodTimes100>0)
+					// if we have growth penalties, pretend the yield is lower
+					iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
+
+				// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
+				if (!bNeedFood && bAvoidGrowth)
+					iYield100 /= 20;
 			}
 
 			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
-
-			//grubs first, morals later ... while starving or if not working this plot would starve us
-			int iFoodImpact = pPlot->getYield(YIELD_FOOD) * (bIsWorking ? -1 : +1);
-			if (eYield != YIELD_FOOD && (cache.iExcessFoodTimes100+iFoodImpact*100) <= 0)
-				iYieldMod = 1;
 
 			iValue += iYield100*max(1,iYieldMod);
 		}
@@ -1080,21 +1086,19 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging)
 {
-	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = -1;
+	BuildingTypes eBestBuilding = NO_BUILDING;
 	CvBuildingEntry* pBestBuildingInfo = NULL;
 
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
 
-	//don't starve
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if (iExcessFoodTimes100 < m_pCity->foodConsumptionSpecialistTimes100())
-		return NO_BUILDING;
-
 	SPrecomputedExpensiveNumbers store(m_pCity);
+
+	//many buildings have the same specialist yields ...
+	std::map<SpecialistTypes, int> specialistValueCache;
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1145,10 +1149,8 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		CvString strBaseString;
 		CvString strOutBuf;
 		CvString strFileName = "CityTileScorer.csv";
-		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
 		FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
 		strOutBuf.Format("%s, focus %d, idle citizens %d, specialist building: %s, score %d", 
 			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestBuildingInfo->GetDescription(), iSpecialistValue);
 		strBaseString += strOutBuf;
@@ -1159,13 +1161,16 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 }
 
 /// What is the Building Type the AI likes the Specialist of most right now?
-BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache)
+BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue)
 {
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iBestSpecialistValue = -1;
 	int iBestUnmodifiedSpecialistValue = -1;
 
 	SPrecomputedExpensiveNumbers store(m_pCity);
+
+	//many buildings have the same specialist yields ...
+	std::map<SpecialistTypes, int> specialistValueCache;
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1626,85 +1631,89 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 	m_iNumCitizensWorkingPlots += iChange;
 }
 
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
+void CvCityCitizens::UpdateAllYields(bool bIncludePlayerHappiness)
 {
-	std::map<SpecialistTypes, int> specialistValueCache;
-	return DoAddBestCitizenFromUnassignedEx(specialistValueCache, false, false, true);
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if (eYield == NO_YIELD)
+			continue;
+
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
+		m_pCity->UpdateCityYields(eYield);
+		m_pCity->UpdateSpecialReligionYields(eYield);
+	}
+
+	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	m_pCity->GetCityCulture()->CalculateBaseTourism();
+
+	//do not always update player happiness here, it's too expensive to update
+	if (bIncludePlayerHappiness)
+		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
+
+	m_pCity->updateNetHappiness();
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassignedEx(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging, bool bNoSpecialists, bool bUpdateNow)
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(bool bLogging, bool bUpdateNow)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
 		return false;
 
-	//FOUR STAGE SETUP:
-	bool bAvoidGrowth = IsAvoidGrowth();
-	//FIRST, WE FEED OURSELVES!
-	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if ((!bAvoidGrowth && iPotentialExcessTimes100 <= 300) || (bAvoidGrowth && iPotentialExcessTimes100 <= 0))
+	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
+	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+
+	int iSpecialistValue = 0;
+	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+
+	if (bCanAffordSpecialist && !bSpecialistForbidden)
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, bLogging);
+
+	int iBestPlotValue = 0;
+	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
+
+	if (iBestPlotValue > iSpecialistValue)
 	{
-		int iBestPlotValue = 0;
-		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-		if (pBestPlot != NULL)
+		// Plot is best
+		SetWorkingPlot(pBestPlot, true, true, bUpdateNow);
+
+		if (pLog)
 		{
-			// Now assign the guy to the best possible Plot
-			SetWorkingPlot(pBestPlot, true);
-			return true;
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+			CvString strOutBuf;
+			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
+			pLog->Msg(strOutBuf);
 		}
+
+		return true;
 	}
-	//SECOND, WE CHECK SPECIALISTS!
+	else if (iSpecialistValue > iBestPlotValue)
+	{
+		// Specialist is best
+		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, bUpdateNow);
+
+		if (pLog)
+		{
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+			CvString strOutBuf;
+			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
+			pLog->Msg(strOutBuf);
+		}
+
+		return true;
+	}
 	else
 	{
-		int iSpecialistValue = 0;
-		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-		if (!bNoSpecialists && (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists()))
-		{
-			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, specialistValueCache, bLogging);
-		}
-
-		int iBestPlotValue = 0;
-		//GOOD PLOT? BAD PLOT? NYEH!
-		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-		if (pBestPlot != NULL)
-		{
-			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING) && ((iSpecialistValue >= iBestPlotValue) && ((iPotentialExcessTimes100 > 0) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0)));
-			if (bSpecialistBetterThanPlot)
-			{
-				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, bUpdateNow);
-				return true;
-			}
-			else
-			{
-				SetWorkingPlot(pBestPlot, true);
-				return true;
-			}
-		}
-		//THIRD, IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD STARVE US
-		else if (eBestSpecialistBuilding != NO_BUILDING && iPotentialExcessTimes100 >= 0)
-		{
-			DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, bUpdateNow);
-			return true;
-		}
-		//FOURTH, MANUAL LABOR FOREVER
-		else
-		{
-			CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
-			if (pBestPlot != NULL)
-			{
-				SetWorkingPlot(pBestPlot, true);
-				return true;
-			}
-			else
-			{
-				// Default Specialist if we can't do anything else
-				ChangeNumDefaultSpecialists(1);
-			}
-		}
+		// Laborer if we can't do anything else
+		ChangeNumDefaultSpecialists(1);
+		return false;
 	}
-
-	return false;
 }
 
 /// Pick the worst Plot to stop working
@@ -1827,11 +1836,12 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 								}
 							}
 
-							if (pLog)
+							if (0) // (pLog)
 							{
 								CvString strOutBuf;
-								strOutBuf.Format("--> index %d, plot %d:%d, terrain %d, feature %d, score %d", 
-									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getTerrainType(), pLoopPlot->getFeatureType(), iCurrent);
+								strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d. current net food %d", 
+									iPlotLoop, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->getYield(YIELD_FOOD), pLoopPlot->getYield(YIELD_PRODUCTION), 
+									pLoopPlot->getYield(YIELD_GOLD), pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iCurrent, store.iExcessFoodTimes100);
 								pLog->Msg(strOutBuf);
 							}
 
@@ -1859,8 +1869,10 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 		CvString strBaseString;
 		CvString strOutBuf;
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strOutBuf.Format("%s, focus %d, idle citizens %d, plot %d:%d, terrain %d, feature %d, score %d", 
-			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->getTerrainType(), pBestPlot->getFeatureType(), iValue);
+		strOutBuf.Format("%s, focus %d%s, idle citizens %d, plot %d:%d (%df%dp%dg%do), score %d", 
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth()?" no growth":"", GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), 
+			pBestPlot->getYield(YIELD_FOOD), pBestPlot->getYield(YIELD_PRODUCTION), pBestPlot->getYield(YIELD_GOLD), 
+			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iValue);
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
@@ -1869,12 +1881,14 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 }
 
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
-void CvCityCitizens::OptimizeWorkedPlots(std::map<SpecialistTypes, int>& specialistValueCache)
+void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
-	//make sure we have an approximately correct idea how much food we need
-	m_pCity->updateNetHappiness();
-
 	int iCount = 0;
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+
+	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumption() * 100;
+	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
 
 	//failsafe against switching back and forth, don't try this too often
 	while (iCount < m_pCity->getPopulation()/3)
@@ -1883,33 +1897,69 @@ void CvCityCitizens::OptimizeWorkedPlots(std::map<SpecialistTypes, int>& special
 		int iBestFreePlotValue = 0;
 		int iBestSpecialistValue = 0;
 
-		//remove the citizen from a plot (at least temporarily) so that combo bonuses can be considered correctly
+		//where do we have potential for improvement?
 		CvPlot* pWorstWorkedPlot = GetBestCityPlotWithValue(iWorstWorkedPlotValue, /*bBest*/ false, /*bWorked*/ true);
-		SetWorkingPlot(pWorstWorkedPlot, false, true, false);
+		if (!pWorstWorkedPlot)
+			break;
+
+		//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
+		SetWorkingPlot(pWorstWorkedPlot, false, true, true);
 
 		//consider alternatives
 		CvPlot* pBestFreePlot = GetBestCityPlotWithValue(iBestFreePlotValue, /*bBest*/ true, /*bWorked*/ false);
-		BuildingTypes eBestSpecialistBuilding = IsNoAutoAssignSpecialists() ? NO_BUILDING : GetAIBestSpecialistBuilding(iBestSpecialistValue, specialistValueCache);
-		//TODO: what about default specialists (laborers)
+		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+		if (bCanAffordSpecialist && !bSpecialistForbidden) 
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iBestSpecialistValue);
 
 		//better work a plot or a specialist?
 		if (iBestFreePlotValue > iBestSpecialistValue)
 		{
-			SetWorkingPlot(pBestFreePlot, true, true, false);
+			SetWorkingPlot(pBestFreePlot, true, true, true);
 
 			//new plot is same as old plot, we're done
 			if (pBestFreePlot == pWorstWorkedPlot)
+			{
+				if (pLog)
+				{
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+					CvString strOutBuf;
+					strOutBuf.Format("nothing to optimize, current net food %d", iExcessFoodTimes100);
+					pLog->Msg(strOutBuf);
+				}
 				break;
+			}
+
+			if (pLog)
+			{
+				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+				CvString strOutBuf;
+				strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d", 
+					pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
+				pLog->Msg(strOutBuf);
+			}
 		}
 		else
 		{
 			//is a specialist better?
 			if (iBestSpecialistValue > iWorstWorkedPlotValue && eBestSpecialistBuilding != NO_BUILDING)
-				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, false);
+			{
+				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, true);
+
+				if (pLog)
+				{
+					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+
+					CvString strOutBuf;
+					strOutBuf.Format("switched plot %d:%d (score %d) to specialist in %s (score %d), current net food %d", 
+						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding->GetType(), iBestSpecialistValue, iExcessFoodTimes100);
+					pLog->Msg(strOutBuf);
+				}
+			}
 			else
 			{
 				//add the citizen back to the original plot
-				SetWorkingPlot(pWorstWorkedPlot, true, true, false);
+				SetWorkingPlot(pWorstWorkedPlot, true, true, true);
 				break;
 			}
 		}
@@ -1943,14 +1993,11 @@ bool CvCityCitizens::NeedReworkCitizens()
 	//Second let's look at specialists - if there is a better specialist not being worked, we need to reallocate.
 	int iSpecialistValue = 0;
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-
-	// don't calculate specialist value over and over ...
-	std::map<SpecialistTypes, int> specialistValueCache;
-
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, specialistValueCache);
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
 	}
+
 	if (eBestSpecialistBuilding == NO_BUILDING)
 	{
 		return false;
@@ -1966,7 +2013,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
 	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
 	{
-		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue, specialistValueCache);
+		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue);
 	}
 
 	bool bSpecialistBetterThanExistingSpecialist = (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
@@ -2009,11 +2056,15 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	if (!bForce && !NeedReworkCitizens())
 		return;
 
+	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
+	if (pLog)
+		pLog->Msg("==== starting reallocation");
+
 	// Remove all of the allocated guys
-	int iNumCitizensToRemove = GetNumCitizensWorkingPlots();
-	for (int iWorkerLoop = 0; iWorkerLoop < iNumCitizensToRemove; iWorkerLoop++)
+	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
-		DoRemoveWorstCitizen(false, NO_SPECIALIST, -1, false);
+		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop))
+			SetWorkingPlot(GetCityPlotFromIndex(iPlotLoop), false, true, false);
 	}
 
 	// Remove Non-Forced Specialists in Buildings
@@ -2029,7 +2080,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 			// Loop through guys to remove (if there are any)
 			for (int iSpecialistLoop = 0; iSpecialistLoop < iNumSpecialistsToRemove; iSpecialistLoop++)
 			{
-				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false, false);
+				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false, false, false);
 			}
 		}
 	}
@@ -2041,58 +2092,34 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 		ChangeNumDefaultSpecialists(-1, false);
 	}
 
-	//We deferred all recalculations to this spot for optimization purposes (doesn't matter if we're just nuking the entire city's population above).
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
-
-		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
-
-		m_pCity->UpdateCityYields(eYield);
-		m_pCity->UpdateSpecialReligionYields(eYield);
-	}
-	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	m_pCity->GetCityCulture()->CalculateBaseTourism();
-
-	// don't calculate specialist value over and over ...
-	std::map<SpecialistTypes, int> specialistValueCache;
+	// do a single update, but treat player happiness as constant
+	UpdateAllYields(false);
 
 	// Now put all of the unallocated guys back
 	int iNumToAllocate = GetNumUnassignedCitizens();
 	for (int iUnallocatedLoop = 0; iUnallocatedLoop < iNumToAllocate; iUnallocatedLoop++)
 	{
-		DoAddBestCitizenFromUnassignedEx(specialistValueCache, bLogging);
+		if (pLog)
+			pLog->Msg("--- next allocation");
+
+		//here we need to make sure to update after each assignment so we correctly track our needs
+		DoAddBestCitizenFromUnassigned(bLogging, true);
 	}
+
+	if (pLog)
+		pLog->Msg("==== starting optimization");
 
 	//maybe we can reassign some citizens to work low food plots
 	//(the default algorithm is greedy, so picks high food plots first without knowing where we land)
-	OptimizeWorkedPlots(specialistValueCache);
+	OptimizeWorkedPlots(bLogging);
 
-	//And then we do it again after everyone is allocated.
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
-
-		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
-
-		GetCity()->UpdateCityYields(eYield);
-		GetCity()->UpdateSpecialReligionYields(eYield);
-	}
-
-	GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	GetCity()->GetCityCulture()->CalculateBaseTourism();
-	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-	GetCity()->updateNetHappiness();
+	//final update, this time include player happiness
+	UpdateAllYields(true);
 
 	SetDirty(false);
+
+	if (pLog)
+		pLog->Msg("==== finished reallocation");
 }
 
 
@@ -2250,29 +2277,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 		//Let's only worry about yield changes if we need to update, or we're human (humans want instant feedback, whereas the AI doesn't always need that).
 		if (bUpdateNow)
-		{
-			if (iIndex != CITY_HOME_PLOT)
-			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-						break;
-
-					YieldTypes eYield = (YieldTypes)iI;
-					if (eYield == NO_YIELD)
-						continue;
-
-					GetCity()->UpdateCityYields(eYield);
-					GetCity()->UpdateSpecialReligionYields(eYield);
-				}
-				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				GetCity()->GetCityCulture()->CalculateBaseTourism();
-
-				GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-				GetCity()->updateNetHappiness();
-			}
-		}
+			UpdateAllYields(true);
 
 		if (GetCity()->isCitySelected())
 		{
@@ -2893,9 +2898,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		m_aiNumSpecialistsInBuilding[eBuilding]++;
 
 		if (bForced)
-		{
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
-		}
 
 		GetCity()->processSpecialist(eSpecialist, 1, bUpdateNow);
 		ChangeNumUnassignedCitizens(-1);
@@ -2905,28 +2908,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
 
 		if (bUpdateNow)
-		{
-			//we probably just removed a citizen from a plot, need to update the yields if this a manual change
-			if (bForced)
-			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-						break;
-
-					YieldTypes eYield = (YieldTypes)iI;
-					GetCity()->UpdateCityYields(eYield);
-					GetCity()->UpdateSpecialReligionYields(eYield);
-				}
-
-				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				GetCity()->GetCityCulture()->CalculateBaseTourism();
-			}
-
-			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-			GetCity()->updateNetHappiness();
-		}
+			UpdateAllYields(true);
 
 		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		pkIFace->setDirty(GameData_DIRTY_BIT, true);
