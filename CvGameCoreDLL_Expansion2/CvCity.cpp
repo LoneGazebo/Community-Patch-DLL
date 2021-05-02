@@ -2767,7 +2767,8 @@ void CvCity::doTurn()
 			}
 		}
 	}
-	setHappinessDelta(getHappinessDelta());
+
+	updateNetHappiness();
 #endif
 
 	bool bRazed = DoRazingTurn();
@@ -5008,9 +5009,11 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					UpdateCityYields(eYield);
 				}
 				UpdateReligion(GetCityReligions()->GetReligiousMajority());
-				GET_PLAYER(getOwner()).CalculateNetHappiness();
 				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 				GetCityCulture()->CalculateBaseTourism();
+
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
+				updateNetHappiness();
 			}
 		}
 		if (!pkEventChoiceInfo->isOneShot())
@@ -7068,9 +7071,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				UpdateCityYields(eYield);
 			}
 			UpdateReligion(GetCityReligions()->GetReligiousMajority());
-			GET_PLAYER(getOwner()).CalculateNetHappiness();
 			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			GetCityCulture()->CalculateBaseTourism();
+
+			GET_PLAYER(getOwner()).CalculateNetHappiness();
+			updateNetHappiness();
 		}
 	}
 }
@@ -11631,7 +11636,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -11982,7 +11987,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -12814,7 +12819,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		if (pUnitEntry->IsFound() || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1)
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta(!toolTipSink) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+			int iTempMod = getHappinessDelta() * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -15835,6 +15840,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 	UpdateReligion(GetCityReligions()->GetReligiousMajority());
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
+	updateNetHappiness();
+
 #if defined(MOD_BALANCE_CORE)
 	GetCityCitizens()->SetDirty(true);
 #endif
@@ -17152,23 +17159,10 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			// Do we get increased yields from a resource monopoly?
-			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
-			if(iTempMod != 0)
-			{
-				iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
-				// this one is applied to the base yield, so showing a tooltip here is very confusing!
-				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
-			}
-		}
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if (MOD_BALANCE_CORE_HAPPINESS)
 		{
-			int iHappiness = getHappinessDelta(!toolTipSink);
+			int iHappiness = getHappinessDelta();
 				
 			if(iHappiness > 0)
 				iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
@@ -17362,7 +17356,7 @@ int CvCity::getGrowthMods() const
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		int iHappiness = getHappinessDelta(true);
+		int iHappiness = getHappinessDelta();
 
 		if (iHappiness > 0)
 			iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
@@ -17960,6 +17954,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	updateStrengthValue();
 
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
+	updateNetHappiness();
 }
 
 bool CvCity::HasGarrison() const
@@ -18256,6 +18251,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		// Update Unit Maintenance for the player
 		GET_PLAYER(getOwner()).UpdateUnitProductionMaintenanceMod();
 		GET_PLAYER(getOwner()).CalculateNetHappiness();
+		updateNetHappiness();
 
 		//updateGenericBuildings();
 		updateStrengthValue();
@@ -21428,6 +21424,7 @@ void CvCity::DoCreatePuppet()
 	}
 #endif
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
+	updateNetHappiness();
 
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
@@ -21505,6 +21502,7 @@ void CvCity::DoAnnex()
 	}
 #endif
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
+	updateNetHappiness();
 
 #if !defined(NO_ACHIEVEMENTS)
 	if(getOriginalOwner() != GetID())
@@ -21905,6 +21903,48 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) con
 	}
 }
 
+int CvCity::updateNetHappiness()
+{
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	if (kPlayer.isMinorCiv())
+	{
+		m_iHappinessDelta = 0;
+		return 0;
+	}
+
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
+	{
+		if (IsRazing() || IsResistance())
+		{
+			m_iHappinessDelta = int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION()) * -1;
+			return m_iHappinessDelta;
+		}
+		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+		{
+			m_iHappinessDelta = int(getPopulation() * -1 * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
+			return m_iHappinessDelta;
+		}
+	}
+
+	int iPositiveHappiness = GetLocalHappiness();
+	int iNegativeHappiness = getUnhappinessAggregated();
+	
+	if (!MOD_BALANCE_CORE_PUPPET_CHANGES)
+	{
+		if (IsRazing() || IsResistance())
+		{
+			iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
+		}
+		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+		{
+			iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
+		}
+	}
+
+	m_iHappinessDelta = (iPositiveHappiness - iNegativeHappiness);
+	return m_iHappinessDelta;
+}
+
 int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -22154,50 +22194,11 @@ void CvCity::UpdateGrowthFromTourism()
 	}
 	SetGrowthFromTourism(iTotalGrowth);
 }
-int CvCity::getHappinessDelta(bool bStatic) const
+int CvCity::getHappinessDelta() const
 {
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
-	if (kPlayer.isMinorCiv())
-		return 0;
-
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
-	{
-		if (IsRazing() || IsResistance())
-		{
-			return int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION()) * -1;
-		}
-		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-		{
-			return int(getPopulation() * -1 * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
-		}
-	}
-
-	if (bStatic)
-		return m_iHappinessDelta;
-
-	int iPositiveHappiness = GetLocalHappiness();
-	int iNegativeHappiness = getUnhappinessAggregated();
-	
-	if (!MOD_BALANCE_CORE_PUPPET_CHANGES)
-	{
-		if (IsRazing() || IsResistance())
-		{
-			iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
-		}
-		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-		{
-			iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
-		}
-	}
-
-	return (iPositiveHappiness - iNegativeHappiness);
+	return m_iHappinessDelta;
 }
 
-void CvCity::setHappinessDelta(int iValue)
-{
-	m_iHappinessDelta = iValue;
-}
 //	--------------------------------------------------------------------------------
 int CvCity::getThresholdAdditions(/*YieldTypes eYield*/) const
 {

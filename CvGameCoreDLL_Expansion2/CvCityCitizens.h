@@ -51,7 +51,7 @@ public:
 	void DoTurn();
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers store);
+	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers cache);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -65,14 +65,13 @@ public:
 	bool SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
 	bool SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
+	int GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, SPrecomputedExpensiveNumbers cache);
 
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
-	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100); //precompute some expensive values
-	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
-	bool CanCreateSpecialist();
+	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers cache);
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;
