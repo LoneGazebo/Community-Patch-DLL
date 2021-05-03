@@ -30,7 +30,7 @@
 			<PotentialScaling>true</PotentialScaling>
 			<IDModifier>10</IDModifier>
 			<DeathModifier>5</DeathModifier>
-			<EspionageDifficultyMod>10</EspionageDifficultyMod>
+			<EspionageDifficultyMod>200</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -40,14 +40,15 @@
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON</Description>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_POISON_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
+			<EventDuration>15</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
-			<IDModifier>10</IDModifier>
+			<IDModifier>50</IDModifier>
 			<EraScaling>true</EraScaling>
-			<EventDuration>15</EventDuration>
 			<Expires>true</Expires>
 			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
+			<EspionageDifficultyMod>350</EspionageDifficultyMod>
 		</Row>
 		<!-- PRODUCTION -->
 		<Row>
@@ -58,9 +59,9 @@
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
-			<IDModifier>15</IDModifier>
+			<IDModifier>35</IDModifier>
 			<DeathModifier>5</DeathModifier>
-			<EspionageDifficultyMod>25</EspionageDifficultyMod>
+			<EspionageDifficultyMod>350</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- CULTURE -->
@@ -73,7 +74,8 @@
 			<PotentialScaling>true</PotentialScaling>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_CULTURE</TriggerPlayerEventChoice>
 			<IDModifier>5</IDModifier>
-			<DeathModifier>5</DeathModifier>
+			<EspionageDifficultyMod>300</EspionageDifficultyMod>
+			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -86,8 +88,9 @@
 			<IsSpyBenefit>true</IsSpyBenefit>
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
+			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<EraScaling>true</EraScaling>
-			<IDModifier>10</IDModifier>
+			<IDModifier>25</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
@@ -100,8 +103,9 @@
 			<MissionSetup>true</MissionSetup>
 			<PotentialScaling>true</PotentialScaling>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
-			<IDModifier>5</IDModifier>
-			<DeathModifier>5</DeathModifier>
+			<IDModifier>15</IDModifier>
+			<EspionageDifficultyMod>350</EspionageDifficultyMod>
+			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -112,10 +116,10 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>50</IDModifier>
-			<DeathModifier>50</DeathModifier>
+			<IDModifier>75</IDModifier>
+			<DeathModifier>75</DeathModifier>
 			<DamageCity>25</DamageCity>
-			<EspionageDifficultyMod>75</EspionageDifficultyMod>
+			<EspionageDifficultyMod>500</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
 			<SapCityTurns>5</SapCityTurns>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -127,12 +131,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>75</IDModifier>
-			<EspionageDifficultyMod>100</EspionageDifficultyMod>
+			<IDModifier>80</IDModifier>
 			<IsUnhappy>true</IsUnhappy>
+			<EspionageDifficultyMod>600</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
-			<DeathModifier>75</DeathModifier>
+			<DeathModifier>80</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- TILES -->
@@ -144,7 +148,7 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>25</IDModifier>
 			<DeathModifier>25</DeathModifier>
-			<EspionageDifficultyMod>25</EspionageDifficultyMod>
+			<EspionageDifficultyMod>250</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->

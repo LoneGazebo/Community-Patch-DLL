@@ -7619,7 +7619,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		return m_iCitySpyRank;
 
-	int iRanking = max(100, (int)m_iCitySpyRank);
+	int iRankingMod = max(100, (int)m_iCitySpyRank);
 
 	if (ePlayer != NO_PLAYER)
 	{
@@ -7633,21 +7633,25 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 
 		int iNumTimesStolenModifier = GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer] * GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer];
 
-		iRanking *= (100 + iPolicyDifference + iTechDifference + iNumTimesStolenModifier);
-		iRanking /= 100;
+		iRankingMod += iPolicyDifference + iTechDifference + iNumTimesStolenModifier;
 	}
 
+	//default to 150.
+	int iRank = 150;
+	CvModEventCityChoiceInfo* pkEventInfo = NULL;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventInfo != NULL)
 		{
-			iRanking *= (100 + pkEventInfo->getEspionageDifficultyModifier());
-			iRanking /= 100;
+			iRank = pkEventInfo->getEspionageDifficultyModifier();
 		}
 	}
 
-	return iRanking;
+	iRank *= (iRankingMod + 100);
+	iRank /= 100;
+
+	return iRank;
 }
 void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 {

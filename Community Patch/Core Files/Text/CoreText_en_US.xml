@@ -7198,13 +7198,7 @@
 			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES">
-			<Text>Spy Power Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] Their Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Spy Power Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD">
 			<Text>[NEWLINE]  [ICON_BULLET] Our Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
@@ -7216,26 +7210,32 @@
 			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB">
-			<Text>[NEWLINE]  [ICON_BULLET] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
-			<Text>[NEWLINE]  [ICON_BULLET] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE">
-			<Text>Base Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
-			<Text>Security Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Security Modifiers: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] Their Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY">
-			<Text>[NEWLINE]  [ICON_BULLET] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH">
-			<Text>[NEWLINE]  [ICON_BULLET] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
-			<Text>[NEWLINE]  [ICON_BULLET] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]).</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		
 		<!-- Spy Focus -->

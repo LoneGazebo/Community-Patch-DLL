@@ -1083,7 +1083,7 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 }
 
 /// Returns the number of valid major civs
-int CvDiplomacyAI::GetNumValidMajorCivs() const
+int CvDiplomacyAI::GetNumValidMajorCivs(bool bHasMet) const
 {
 	int iCount = 0;
 
@@ -1093,6 +1093,8 @@ int CvDiplomacyAI::GetNumValidMajorCivs() const
 		if (IsPlayerValid(ePlayer) && GET_PLAYER(ePlayer).isMajorCiv())
 		{
 			iCount++;
+			if (bHasMet && !IsHasMet(ePlayer))
+				iCount--;
 		}
 	}
 

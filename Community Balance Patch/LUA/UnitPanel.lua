@@ -686,14 +686,14 @@ function UpdateUnitStats(unit)
         Controls.UnitStatStrength:SetText(strength);    
         local strengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_TOURISM_STRENGTH_TT" );
         Controls.UnitStatStrength:SetToolTipString(strengthTT);
-        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);    
+        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);
 	elseif (unit:GetTourismBlastLength() > 0) then
         strength = unit:GetTourismBlastLength() .. " [ICON_TURNS_REMAINING]";
         Controls.UnitStrengthBox:SetHide(false);
         Controls.UnitStatStrength:SetText(strength);    
-        local strengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_TOURISM_LENGTH_TT" );
+        local strengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_TOURISM_TURNS_TT" );
         Controls.UnitStatStrength:SetToolTipString(strengthTT);
-        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);  
+        Controls.UnitStatNameStrength:SetToolTipString(strengthTT);
     else
         Controls.UnitStrengthBox:SetHide(true);
     end        
@@ -1348,7 +1348,7 @@ function TipHandler( control )
 		
 		if (not bDisabled) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
-			if(unit:GetBlastTourism() > 0)then
+			if(unit:GetBlastTourism() > 0) then
 				strToolTip = strToolTip .. "+" .. unit:GetBlastTourism() .. "[ICON_TOURISM]";
 			elseif(unit:GetTourismBlastLength() > 0) then
 				strToolTip = strToolTip .. "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]";
