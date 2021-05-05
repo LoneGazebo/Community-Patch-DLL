@@ -793,96 +793,46 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	pCity2->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass2, iSwapIndex2, iWork1);
 	
 	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
-#if defined(MOD_BALANCE_CORE)
-	if(pCity1 != NULL)
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
 
-			pCity1->UpdateCityYields(eYield);
-		}
-		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity1->GetCityCulture()->CalculateBaseTourism();
-	}
-	if(pCity2 != NULL)
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
+	pCity1->UpdateAllNonPlotYields(true);
+	pCity2->UpdateAllNonPlotYields(true);
 
-			pCity2->UpdateCityYields(eYield);
-		}
-		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity2->GetCityCulture()->CalculateBaseTourism();
-	}
-#endif
 	return true;
 }
 
-void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
-																												int iCity2, int iBuildingClass2, int iWorkIndex2)
+void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
-	if(ePlayer == NO_PLAYER){
+	if(ePlayer == NO_PLAYER)
 		return;
-	}
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if (!kPlayer.isAlive()){
+	if (!kPlayer.isAlive())
 		return;
-	}
 
 	CvCity* pCity1 = kPlayer.getCity(iCity1);
 	CvCity* pCity2 = kPlayer.getCity(iCity2);
-	if(!pCity1 || !pCity2){
+	if(!pCity1 || !pCity2)
 		return;
-	}
 
 	int workType1 = pCity1->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1);
 	int workType2 = pCity2->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2);
 	pCity1->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1, workType2);
 	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
+
 #if defined(MOD_BALANCE_CORE)
-	if(pCity1 != NULL)
+	if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
 	{
-		if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
-		{
-			pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
-		}
-		pCity1->ResetGreatWorkYieldCache();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pCity1->UpdateCityYields(eYield);
-		}
-		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity1->GetCityCulture()->CalculateBaseTourism();
+		pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
 	}
-	if(pCity2 != NULL)
+	pCity1->ResetGreatWorkYieldCache();
+	pCity1->UpdateAllNonPlotYields(true);
+
+	if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
 	{
-		if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
-		{
-			pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
-		}
-		pCity2->ResetGreatWorkYieldCache();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pCity2->UpdateCityYields(eYield);
-		}
-		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity2->GetCityCulture()->CalculateBaseTourism();
+		pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
 	}
+	pCity2->ResetGreatWorkYieldCache();
+	pCity2->UpdateAllNonPlotYields(true);
 #endif
 }
 
@@ -1778,16 +1728,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 				if (bAlreadyChecked)
 					continue;
 
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					pCity->UpdateCityYields(eYield);
-				}
-				pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pCity->GetCityCulture()->CalculateBaseTourism();
+				pCity->UpdateAllNonPlotYields(false);
 				CityList.push_back(pCity);
 			}
 		}
@@ -3604,18 +3545,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
+		pHousingCity->UpdateAllNonPlotYields(true);
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -3669,18 +3600,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
+		pHousingCity->UpdateAllNonPlotYields(true);
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -3737,18 +3658,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
+		pHousingCity->UpdateAllNonPlotYields(true);
 
-			pHousingCity->UpdateCityYields(eYield);
-		}
-		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
 		if (pUnit)
 			pUnit->kill(true);
 	}

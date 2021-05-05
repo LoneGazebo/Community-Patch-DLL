@@ -78,7 +78,6 @@ public:
 	void ChangeNumUnassignedCitizens(int iChange);
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
-	void UpdateAllYields(bool bIncludePlayerHappiness);
 
 	bool DoAddBestCitizenFromUnassigned(bool bLogging = false, bool bUpdateNow = true);
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
@@ -100,6 +99,7 @@ public:
 	void DoAlterWorkingPlot(int iIndex);
 
 	// Forced Working Plots (human override)
+	bool IsForcedWorkingPlot(int iRelativeIndex) const;
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 

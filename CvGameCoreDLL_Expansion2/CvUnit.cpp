@@ -9386,16 +9386,7 @@ bool CvUnit::createGreatWork()
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 #if defined(MOD_BALANCE_CORE)
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			pCity->UpdateCityYields(eYield);
-		}
-		pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pCity->GetCityCulture()->CalculateBaseTourism();
+		pCity->UpdateAllNonPlotYields(false);
 #endif
 		if(IsGreatPerson())
 		{
@@ -29373,6 +29364,7 @@ CvUnit* CvUnit::GetMissionAIUnit()
 /// Is this unit able to ground attack?
 bool CvUnit::IsCanAttackWithMove() const
 {
+	//ranged units may have melee strength but only for defending
 	return IsCombatUnit() && !IsCanAttackRanged() && !isOnlyDefensive();
 }
 
@@ -29390,7 +29382,7 @@ bool CvUnit::IsCanAttackRanged() const
 bool CvUnit::IsCanAttack() const
 {
 	VALIDATE_OBJECT
-	return IsCanAttackWithMove() || IsCanAttackRanged();
+	return IsCanAttackRanged() || (IsCombatUnit() && !isOnlyDefensive());
 }
 
 //	--------------------------------------------------------------------------------

@@ -1633,7 +1633,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pGarrison->GetID());
 		}
-		else if ( !pCity->isInDangerOfFalling() )
+
+		//prefer land garrisons ...
+		if ( !pCity->isInDangerOfFalling() && (pGarrison==NULL || pGarrison->getDomainType()!=DOMAIN_LAND) )
 		{
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
@@ -4694,14 +4696,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
-			// Make sure domain matches
-			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
-		        pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
-			{
-				continue;
-			}
-
-			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack())
+			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
 			{
 				continue;
 			}
@@ -4724,6 +4719,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
 				if (pLoopUnit->IsCanAttackRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
 					iExtraScore += 30;
+
+				//naval garrisons cannot attack inside cities ...
+				if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+					iExtraScore += 50;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();

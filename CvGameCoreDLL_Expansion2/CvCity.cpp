@@ -1912,14 +1912,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiUnitCombatProductionModifier.setAt(iI, 0);
 		}
 
-		int iNumPromotionInfos = GC.getNumPromotionInfos();
-		CvAssertMsg((0 < iNumPromotionInfos),  "GC.getNumPromotionInfos() is not greater than zero but an array is being allocated in CvCity::reset");
-		m_paiFreePromotionCount.clear();
-		m_paiFreePromotionCount.resize(iNumPromotionInfos);
-		for(iI = 0; iI < iNumPromotionInfos; iI++)
-		{
-			m_paiFreePromotionCount.setAt(iI, 0);
-		}
+		m_paiFreePromotionCount.dirtyGet().clear();
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 		CvAssertMsg((0 < iNumBuildingClassInfos),  "GC.getNumBuildingClassInfos() is not greater than zero but an array is being allocated in CvCity::reset");
@@ -2482,11 +2476,7 @@ void CvCity::kill()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 CvPlayer* CvCity::GetPlayer() const
-#else
-CvPlayer* CvCity::GetPlayer()
-#endif
 {
 	VALIDATE_OBJECT
 	return &GET_PLAYER(getOwner());
@@ -2931,8 +2921,6 @@ void CvCity::doTurn()
 			UpdateSpecialReligionYields(eYield);
 			UpdateCityYields(eYield);
 		}
-		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		GetCityCulture()->CalculateBaseTourism();
 #endif
 		// XXX
 #ifdef _DEBUG
@@ -3002,21 +2990,16 @@ bool CvCity::isCitySelected()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvCity::updateYield(bool bRecalcPlotYields)
-#else
-void CvCity::updateYield()
-#endif
 {
 	VALIDATE_OBJECT
-
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-	const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
-	const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-
 	if (bRecalcPlotYields)
 	{
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
+		const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
+
 		//note: since cities' workable areas can overlap, we may process some plots multiple times
 		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
@@ -3033,17 +3016,34 @@ void CvCity::updateYield()
 				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		const YieldTypes eYield = static_cast<YieldTypes>(iI);
-		UpdateCityYields(eYield);
-	}
-	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	GetCityCulture()->CalculateBaseTourism();
-#endif
+
+	UpdateAllNonPlotYields(false);
 }
+
 #if defined(MOD_BALANCE_CORE)
+void CvCity::UpdateAllNonPlotYields(bool bIncludePlayerHappiness)
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if (eYield == NO_YIELD)
+			continue;
+
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
+		UpdateCityYields(eYield);
+		UpdateSpecialReligionYields(eYield);
+	}
+
+	//do not always update player happiness here, it's too expensive to update
+	if (bIncludePlayerHappiness)
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
+
+	updateNetHappiness();
+}
+
 void CvCity::UpdateCityYields(YieldTypes eYield)
 {
 	if(eYield == YIELD_CULTURE)
@@ -3058,13 +3058,23 @@ void CvCity::UpdateCityYields(YieldTypes eYield)
 	{
 		SetStaticYield(eYield, getYieldRateTimes100(eYield, false, false));
 	}
+
+	//don't forget tourism
+	if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+	{
+		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		GetCityCulture()->CalculateBaseTourism();
+	}
 }
+
+
 void CvCity::SetStaticYield(YieldTypes eYield, int iValue)
 {
 	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	m_aiStaticCityYield.setAt(eYield, iValue);
 }
+
 int CvCity::GetStaticYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
@@ -3470,7 +3480,7 @@ void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes 
 
 	SCityEventYields& y = m_eventYields[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forSpecialist,eSpecialist,iChange,true))
-		updateYield();
+		updateYield(false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -5012,8 +5022,6 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					UpdateCityYields(eYield);
 				}
 				UpdateReligion(GetCityReligions()->GetReligiousMajority());
-				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				GetCityCulture()->CalculateBaseTourism();
 
 				GET_PLAYER(getOwner()).CalculateNetHappiness();
 				updateNetHappiness();
@@ -7063,6 +7071,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
+
+			UpdateReligion(GetCityReligions()->GetReligiousMajority());
+
 			//Some yield cleanup and refresh here - note that not all of this has to do with religion, however any time religion is updated, that's a good time to update the city's yields.
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -7073,9 +7084,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				UpdateSpecialReligionYields(eYield);
 				UpdateCityYields(eYield);
 			}
-			UpdateReligion(GetCityReligions()->GetReligiousMajority());
-			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			GetCityCulture()->CalculateBaseTourism();
 
 			GET_PLAYER(getOwner()).CalculateNetHappiness();
 			updateNetHappiness();
@@ -7206,11 +7214,7 @@ void CvCity::SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate)
 
 	if(bUpdateReligion)
 	{
-#if defined(MOD_BALANCE_CORE)
 		UpdateReligion(GetCityReligions()->GetReligiousMajority());
-#else
-		UpdateReligion(GetCityReligions()->GetReligiousMajority());
-#endif
 	}
 }
 
@@ -10460,22 +10464,16 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 #endif
 	}
 
-	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	vector<PromotionTypes> freePromotions = getFreePromotions();
+	for(size_t iI = 0; iI < freePromotions.size(); iI++)
 	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(freePromotions[iI]);
 		if(pkPromotionInfo)
 		{
-			if(isFreePromotion(ePromotion))
+			if ((pUnit->getUnitCombatType() != NO_UNITCOMBAT && pkPromotionInfo->GetUnitCombatClass(pUnit->getUnitCombatType())) 
+				|| (::IsPromotionValidForCivilianUnitType(freePromotions[iI], pUnit->getUnitType())))
 			{
-#if defined(MOD_BALANCE_CORE)
-				if((pUnit->getUnitCombatType() != NO_UNITCOMBAT && pkPromotionInfo->GetUnitCombatClass(pUnit->getUnitCombatType())) || (::IsPromotionValidForCivilianUnitType(ePromotion, pUnit->getUnitType())))
-#else
-				if((pUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pUnit->getUnitCombatType()))
-#endif
-				{
-					pUnit->setHasPromotion(ePromotion, true);
-				}
+				pUnit->setHasPromotion(freePromotions[iI], true);
 			}
 		}
 	}
@@ -11927,11 +11925,10 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	// Modify by any beliefs
 	if(bIncludeBeliefDiscounts && !pkUnitInfo->IsFoundReligion())
 	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if(eMajority > RELIGION_PANTHEON)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if(pReligion)
 			{
 				int iReligionCostMod = 0;
@@ -12915,7 +12912,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if (eMajority != NO_RELIGION && (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0))
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if (pReligion)
 			{
 				iTempMod = pReligion->m_Beliefs.GetUnitProductionModifier();
@@ -13010,7 +13007,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if(pReligion)
 			{
 				// Depends on era of wonder
@@ -13145,7 +13142,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if(pReligion)
 			{
 				// Depends on era of wonder
@@ -13823,11 +13820,6 @@ void CvCity::processResource(ResourceTypes eResource, int iChange)
 		changeResourceYieldRateModifier(eYield, (getResourceYieldRateModifier(eYield, eResource) * iChange));
 #if defined(MOD_BALANCE_CORE)
 		UpdateCityYields(eYield);
-		if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
-		{
-			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			GetCityCulture()->CalculateBaseTourism();
-		}
 #endif
 	}
 }
@@ -14970,7 +14962,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 				if (eMajority > RELIGION_PANTHEON)
 				{
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 					if (pReligion != NULL)
 					{
 						if (pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), getOwner(), this))
@@ -15891,14 +15883,8 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 				continue;
 
 			changeProductionToYieldModifier(((YieldTypes)iI), ((pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI)) * iChange));
-#if defined(MOD_BALANCE_CORE)
+
 			UpdateCityYields((YieldTypes)iI);
-			if((YieldTypes)iI == YIELD_CULTURE || (YieldTypes)iI == YIELD_TOURISM)
-			{
-				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				GetCityCulture()->CalculateBaseTourism();
-			}
-#endif
 		}
 	}
 }
@@ -15933,6 +15919,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	// Culture
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
+
 #if defined(MOD_BALANCE_CORE)
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -15949,18 +15936,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	}
 
 	if(!bSkipUpdate)
-	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
-
-			UpdateCityYields(eYield);
-		}
-		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		GetCityCulture()->CalculateBaseTourism();
-	}
+		UpdateAllNonPlotYields(false);
 #endif
 }
 
@@ -16227,6 +16203,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
+
 		//Also mountains, because they aren't called anywhere else!
 		UpdateYieldPerXTerrainFromReligion(eYield);
 		UpdateYieldPerXFeature(eYield);
@@ -16234,9 +16211,8 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 		UpdateYieldPerXFeature(eYield);
 		updateExtraSpecialistYield(eYield);
 	}
-	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	GetCityCulture()->CalculateBaseTourism();
 #endif
+
 #if defined(MOD_RELIGION_EXTENSIONS)
 	if (MOD_RELIGION_EXTENSIONS && MOD_BALANCE_RETROACTIVE_PROMOS)
 	{
@@ -17140,7 +17116,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if(pReligion)
 			{
 				bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
@@ -17322,7 +17298,7 @@ int CvCity::getGrowthMods() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION)
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
@@ -18735,7 +18711,7 @@ int CvCity::GetJONSCultureThreshold() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(eMajority != NO_RELIGION)
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if(pReligion)
 		{
 			iReligionMod = pReligion->m_Beliefs.GetPlotCultureCostModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -19643,7 +19619,7 @@ void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int i
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forXTerrain,eTerrain,iValue,false))
-		updateYield();
+		updateYield(false);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
@@ -19654,7 +19630,7 @@ void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes e
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forTerrainFromReligion,eTerrain,iValue,false))
-		updateYield();
+		updateYield(false);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
@@ -19696,7 +19672,7 @@ void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, 
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forTerrainFromBuildings,eTerrain,iChange,true))
-		updateYield();
+		updateYield(false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19720,7 +19696,7 @@ void CvCity::ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureFromBuildings, eFeature, iChange, true))
 	{
-		updateYield();
+		updateYield(false);
 		UpdateYieldPerXFeature(eYield, eFeature);
 	}
 }
@@ -19764,7 +19740,7 @@ void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int i
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forXFeature, eFeature, iValue, false))
-		updateYield();
+		updateYield(false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19776,7 +19752,7 @@ void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes e
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureFromReligion, eFeature, iValue, false))
-		updateYield();
+		updateYield(false);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
@@ -19787,7 +19763,7 @@ void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYi
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureUnimproved, eFeature, iValue, false))
-		updateYield();
+		updateYield(false);
 }
 
 void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature)
@@ -19796,8 +19772,7 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 	int iYield = 0;
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	const CvReligion* pReligion = (eMajority == NO_RELIGION) ? NULL : GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+	const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
 	//Passed in a feature? Use that.
@@ -19944,20 +19919,16 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 	int iBaseYield = 0;
 	int iBaseYieldReligion = 0;
 
-	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 	
 	//If we passed in a feature, let's only refresh that.
 	if(eFeature != NO_FEATURE)
 	{
 		iYieldBase = 0;
 		iYieldReligion = 0;
-		if (eReligionFounded != NO_RELIGION)
+		if (pReligion)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-			if (pReligion)
-			{
-				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, getOwner(), this);
-			}
+			iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, getOwner(), this);
 		}
 		
 		iBaseYield = GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
@@ -20015,13 +19986,9 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 			}
 			iYieldBase = 0;
 			iYieldReligion = 0;
-			if (eReligionFounded != NO_RELIGION)
+			if (pReligion)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-				if (pReligion)
-				{
-					iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, getOwner(), this);
-				}
+				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, getOwner(), this);
 			}
 
 			iBaseYield = GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
@@ -21415,18 +21382,8 @@ void CvCity::DoCreatePuppet()
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes) iI;
-		if(eYield == NO_YIELD)
-			continue;
 
-		UpdateCityYields(eYield);
-	}
-#endif
-	GET_PLAYER(getOwner()).CalculateNetHappiness();
-	updateNetHappiness();
+	UpdateAllNonPlotYields(true);
 
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
@@ -21493,18 +21450,7 @@ void CvCity::DoAnnex()
 	DoUpdateCheapestPlotInfluenceDistance();  // fix for extremly high cost of the first tile
 
 	setProductionAutomated(false, true);
-#if defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes) iI;
-		if(eYield == NO_YIELD)
-			continue;
-
-		UpdateCityYields(eYield);
-	}
-#endif
-	GET_PLAYER(getOwner()).CalculateNetHappiness();
-	updateNetHappiness();
+	UpdateAllNonPlotYields(true);
 
 #if !defined(NO_ACHIEVEMENTS)
 	if(getOriginalOwner() != GetID())
@@ -21638,12 +21584,8 @@ int CvCity::GetHappinessFromReligion() const
 }
 void CvCity::UpdateHappinessFromReligion()
 {
-	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-
 	// Follower beliefs
 	int iHappinessFromReligion = 0;
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION)
 	{
@@ -21652,7 +21594,7 @@ void CvCity::UpdateHappinessFromReligion()
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 		int iBuildingHappiness = 0;
 
-		const CvReligion* pReligion = pReligions->GetReligion(eMajority, kPlayer.GetID());
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
 			iHappinessFromReligion += pReligion->m_Beliefs.GetHappinessPerCity(getPopulation(), getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -24276,8 +24218,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 	if(eReligion != NO_RELIGION)
 	{
 		CvPlayer &kPlayer = GET_PLAYER(getOwner());
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if(pReligion)
 		{
 			if (GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
@@ -24342,9 +24283,9 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				if (iGoldPerXFollowers > 0)
 				{
 					if (eReligion == RELIGION_PANTHEON)
-						iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
+						iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
 					else
-						iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+						iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
 
@@ -24357,7 +24298,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner(), this, true);
 			if (iYieldPerXFollowers > 0)
 			{
-				iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
+				iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
 
 			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
@@ -24630,7 +24571,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 
 	// Religion Yield Rate Modifier
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+	const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 	if(pReligion)
 	{
 		int iMaxVal = 0;
@@ -27176,7 +27117,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(eMajority >= RELIGION_PANTHEON)
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if(pReligion)
 		{
 			iYieldMultiplier += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -27845,47 +27786,39 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
-	return m_paiFreePromotionCount[eIndex];
+	if (m_paiFreePromotionCount.get().find(eIndex) != m_paiFreePromotionCount.get().end())
+		return m_paiFreePromotionCount.get().find(eIndex)->second;
+
+	return 0;
 }
 
-
 //	--------------------------------------------------------------------------------
-bool CvCity::isFreePromotion(PromotionTypes eIndex) const
+vector<PromotionTypes> CvCity::getFreePromotions() const
 {
-	VALIDATE_OBJECT
+	vector<PromotionTypes> result; 
+	for (map<PromotionTypes, int>::const_iterator it = m_paiFreePromotionCount.get().begin(); it != m_paiFreePromotionCount.get().end(); ++it)
+		if (it->second > 0)
+			result.push_back(it->first);
 
 #if defined(MOD_RELIGION_EXTENSIONS)
-	if (getFreePromotionCount(eIndex) > 0)
-	{
-		return true;
-	}
-
 	if (MOD_RELIGION_EXTENSIONS)
 	{
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 		if (eMajority != NO_RELIGION)
 		{
-			const CvReligion* pMajority = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			const CvReligion* pMajority = GetCityReligions()->GetMajorityReligion();
 			if (pMajority)
 			{
 				std::vector<int> aFreePromotions = pMajority->m_Beliefs.GetFreePromotions(getOwner(), this, false);
 				for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
-				{
-					if ((PromotionTypes)*it == eIndex)
-					{
-						return true;
-					}
-				}
+					result.push_back((PromotionTypes)*it);
 			}
 		}
 	}
-
-	return false;
-#else
-	return (getFreePromotionCount(eIndex) > 0);
 #endif
-}
 
+	return result;
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
@@ -27893,8 +27826,10 @@ void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
-	m_paiFreePromotionCount.setAt(eIndex, m_paiFreePromotionCount[eIndex] + iChange);
-	CvAssert(getFreePromotionCount(eIndex) >= 0);
+	m_paiFreePromotionCount.dirtyGet()[eIndex] += iChange;
+
+	if (m_paiFreePromotionCount.dirtyGet()[eIndex] == 0)
+		m_paiFreePromotionCount.dirtyGet().erase(eIndex);
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -28124,7 +28059,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 			if (eMajority != NO_RELIGION)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 				if (pReligion)
 				{
 					iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -28217,7 +28152,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 			if (eMajority != NO_RELIGION)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 				if (pReligion)
 				{
 					iReligionCityStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -31316,7 +31251,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					return false;
 				}
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 				if (pReligion == NULL)
 					return false;
 

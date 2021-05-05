@@ -3384,7 +3384,11 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if (pPlayer->GetNumCitiesFounded() < 3 && GC.getGame().getElapsedGameTurns()<54)
 		return true;
 
-	//do this check last, it can be expensive
+	//some rate limiting - don't need to check this every turn in the lategame
+	if (GC.getGame().getSmallFakeRandNum(3, pPlayer->GetPseudoRandomSeed()) != 0)
+		return false;
+
+	//do this check as late as possible, it can be expensive
 	CvPlot* pSettlePlot = pPlayer->GetBestSettlePlot(NULL);
 	if (!pSettlePlot)
 		return false;

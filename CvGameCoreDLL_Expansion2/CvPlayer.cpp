@@ -5464,19 +5464,17 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					iCombatClassValue += max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
 				}
+
 				//Promotion Bonus
-				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				vector<PromotionTypes> freePromotions = pLoopCity->getFreePromotions();
+				for (size_t iI = 0; iI < freePromotions.size(); iI++)
 				{
-					const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(freePromotions[iI]);
 					if(pkPromotionInfo)
 					{
-						if(pLoopCity->isFreePromotion(ePromotion))
+						if(pkPromotionInfo->GetUnitCombatClass(eUnitCombatClass))
 						{
-							if(pkPromotionInfo->GetUnitCombatClass(eUnitCombatClass))
-							{
-								iCombatClassValue += 50;
-							}
+							iCombatClassValue += 50;
 						}
 					}
 				}
@@ -7518,6 +7516,8 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					{
 						continue;
 					}
+
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
 						YieldTypes eYield = (YieldTypes) iI;
@@ -7527,10 +7527,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 						pLoopCity->UpdateSpecialReligionYields(eYield);
 						pLoopCity->UpdateCityYields(eYield);
 					}
-					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					CalculateNetHappiness();
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 		}
@@ -8805,6 +8802,8 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 						{
 							continue;
 						}
+
+						pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
 							YieldTypes eYield = (YieldTypes) iI;
@@ -8814,10 +8813,7 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 							pLoopCity->UpdateSpecialReligionYields(eYield);
 							pLoopCity->UpdateCityYields(eYield);
 						}
-						pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 						CalculateNetHappiness();
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
 					}
 				}
 			}
@@ -9684,6 +9680,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					{
 						continue;
 					}
+
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
 						YieldTypes eYield = (YieldTypes) iI;
@@ -9693,10 +9691,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						pLoopCity->UpdateSpecialReligionYields(eYield);
 						pLoopCity->UpdateCityYields(eYield);
 					}
-					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
 					CalculateNetHappiness();
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 		}
@@ -25440,15 +25435,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				CvCity* pLoopCity;
 				int iLoop;
-				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					if(pLoopCity != NULL)
-					{
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					}
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 				ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * -1);
 #endif
@@ -25566,15 +25557,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			CvCity* pLoopCity;
 			int iLoop;
-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				if (pLoopCity != NULL)
-				{
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
-				}
+				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				pLoopCity->GetCityCulture()->CalculateBaseTourism();
 			}
 #endif
 		}
@@ -31712,15 +31699,11 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	}
 	m_iNumHistoricEvent += iChange;
 
-	CvCity* pLoopCity;
 	int iLoop;
-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			pLoopCity->GetCityCulture()->CalculateBaseTourism();
-		}
+		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pLoopCity->GetCityCulture()->CalculateBaseTourism();
 	}
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();

@@ -8063,20 +8063,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			CvCity* pLoopCity2;
 			int iLoop2;
-			for(pLoopCity2 = kPlayer.firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = kPlayer.nextCity(&iLoop2))
-			{
-				if(pLoopCity2 != NULL)
-				{
-					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-					{
-						pLoopCity2->UpdateCityYields((YieldTypes)iJ);
-					}
-					pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity2->GetCityCulture()->CalculateBaseTourism();
-				}
-			}
+			for(CvCity* pLoopCity2 = kPlayer.firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = kPlayer.nextCity(&iLoop2))
+				pLoopCity2->UpdateAllNonPlotYields(false);
 #endif
 		}
 	}

@@ -273,7 +273,6 @@ void CvCityCitizens::DoFoundCity()
 /// Processed every turn
 void CvCityCitizens::DoTurn()
 {
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityCitizens::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()));
 	DoVerifyWorkingPlots();
 
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
@@ -496,17 +495,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 
 	if (eFeature != NO_FEATURE)
 	{
-		ReligionTypes eReligionFounded = m_pCity->GetCityReligions()->GetReligiousMajority();
-		if (eReligionFounded != NO_RELIGION)
+		const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+		if (pReligion)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
-			if (pReligion)
-			{
-				int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
-				int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
-				if (iTempBonus != iTempBonusPlusOne)
-					iBonus += iTempBonusPlusOne;
-			}
+			int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
+			int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
+			if (iTempBonus != iTempBonusPlusOne)
+				iBonus += iTempBonusPlusOne;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
@@ -516,17 +511,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
-		ReligionTypes eReligionFounded = m_pCity->GetCityReligions()->GetReligiousMajority();
-		if (eReligionFounded != NO_RELIGION)
+		const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+		if (pReligion)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
-			if (pReligion)
-			{
-				int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
-				int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
-				if (iTempBonus != iTempBonusPlusOne)
-					iBonus += iTempBonusPlusOne;
-			}
+			int iTempBonus = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
+			int iTempBonusPlusOne = (pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
+			if (iTempBonus != iTempBonusPlusOne)
+				iBonus += iTempBonusPlusOne;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
@@ -1281,7 +1272,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 			ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 			if (eMajority >= RELIGION_PANTHEON)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
 				if (pReligion)
 				{
 					iYield100 += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity)*100;
@@ -1461,18 +1452,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputed
 			iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
-			ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+			if (pReligion)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-				if (pReligion)
+				iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
+				BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
-					BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-					}
+					iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 				}
 			}
 		}
@@ -1629,32 +1616,6 @@ int CvCityCitizens::GetNumCitizensWorkingPlots() const
 void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 {
 	m_iNumCitizensWorkingPlots += iChange;
-}
-
-void CvCityCitizens::UpdateAllYields(bool bIncludePlayerHappiness)
-{
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
-
-		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
-
-		m_pCity->UpdateCityYields(eYield);
-		m_pCity->UpdateSpecialReligionYields(eYield);
-	}
-
-	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	m_pCity->GetCityCulture()->CalculateBaseTourism();
-
-	//do not always update player happiness here, it's too expensive to update
-	if (bIncludePlayerHappiness)
-		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-
-	m_pCity->updateNetHappiness();
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
@@ -2060,10 +2021,10 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	if (pLog)
 		pLog->Msg("==== starting reallocation");
 
-	// Remove all of the allocated guys
+	// Remove all of the allocated guys (except forced)
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
-		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop))
+		if (iPlotLoop != CITY_HOME_PLOT && IsWorkingPlot(iPlotLoop) && !IsForcedWorkingPlot(iPlotLoop))
 			SetWorkingPlot(GetCityPlotFromIndex(iPlotLoop), false, true, false);
 	}
 
@@ -2075,7 +2036,8 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 		// Have this Building in the City?
 		if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 		{
-			int iNumSpecialistsToRemove = GetNumSpecialistsInBuilding(eBuilding) - GetNumForcedSpecialistsInBuilding(eBuilding);	// Don't include Forced guys
+			// Don't include Forced guys
+			int iNumSpecialistsToRemove = GetNumSpecialistsInBuilding(eBuilding) - GetNumForcedSpecialistsInBuilding(eBuilding);
 
 			// Loop through guys to remove (if there are any)
 			for (int iSpecialistLoop = 0; iSpecialistLoop < iNumSpecialistsToRemove; iSpecialistLoop++)
@@ -2093,7 +2055,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	}
 
 	// do a single update, but treat player happiness as constant
-	UpdateAllYields(false);
+	m_pCity->UpdateAllNonPlotYields(false);
 
 	// Now put all of the unallocated guys back
 	int iNumToAllocate = GetNumUnassignedCitizens();
@@ -2114,7 +2076,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	OptimizeWorkedPlots(bLogging);
 
 	//final update, this time include player happiness
-	UpdateAllYields(true);
+	m_pCity->UpdateAllNonPlotYields(true);
 
 	SetDirty(false);
 
@@ -2277,7 +2239,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 		//Let's only worry about yield changes if we need to update, or we're human (humans want instant feedback, whereas the AI doesn't always need that).
 		if (bUpdateNow)
-			UpdateAllYields(true);
+			m_pCity->UpdateAllNonPlotYields(true);
 
 		if (GetCity()->isCitySelected())
 		{
@@ -2387,6 +2349,14 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 }
 
 
+
+bool CvCityCitizens::IsForcedWorkingPlot(int iRelativeIndex) const
+{
+	if (iRelativeIndex>=0 && iRelativeIndex<MAX_CITY_PLOTS)
+		return m_pabForcedWorkingPlot[iRelativeIndex];
+
+	return false;
+}
 
 /// Has our City been told it MUST a particular CvPlot?
 bool CvCityCitizens::IsForcedWorkingPlot(const CvPlot* pPlot) const
@@ -2625,14 +2595,10 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 			// GPP from Buildings
 			iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
 
-			ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
+			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+			if (pReligion)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-				if (pReligion)
-				{
-					iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
-				}
+				iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
 			}
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
@@ -2712,18 +2678,14 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 
-						ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-						if (eMajority != NO_RELIGION)
+						const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
+						if (pReligion)
 						{
-							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
-							if (pReligion)
+							iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
+							BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
 							{
-								iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
-								BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-								if (eSecondaryPantheon != NO_BELIEF)
-								{
-									iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-								}
+								iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 							}
 						}
 					}
@@ -2908,7 +2870,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
 
 		if (bUpdateNow)
-			UpdateAllYields(true);
+			GetCity()->UpdateAllNonPlotYields(true);
 
 		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		pkIFace->setDirty(GameData_DIRTY_BIT, true);
