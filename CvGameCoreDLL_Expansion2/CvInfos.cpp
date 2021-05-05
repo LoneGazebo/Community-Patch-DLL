@@ -10440,6 +10440,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_strDisabledTooltip(""),
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
+	 m_iCityDefenseModifier(0),
 	 m_bEspionageEffect(false),
 	 m_bApplyEffectToSpyOwner(false),
 	 m_bPotentialScaling(false),
@@ -10525,6 +10526,11 @@ int CvModEventCityChoiceInfo::ConvertsCityToPlayerReligion() const
 int CvModEventCityChoiceInfo::ConvertsCityToPlayerMajorityReligion() const
 {
 	return m_iConvertsCityToPlayerMajorityReligion;
+}
+
+int CvModEventCityChoiceInfo::getCityDefenseModifier() const
+{
+	return m_iCityDefenseModifier;
 }
 
 bool CvModEventCityChoiceInfo::IsEspionageEffect() const
@@ -11127,6 +11133,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iDamageCity = kResults.GetInt("DamageCity");
 	m_iDamageGarrison = kResults.GetInt("DamageGarrison");
 	m_iSapCityTurns = kResults.GetInt("SapCityTurns");
+	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");

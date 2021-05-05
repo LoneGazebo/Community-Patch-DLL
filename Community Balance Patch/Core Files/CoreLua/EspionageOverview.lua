@@ -48,6 +48,10 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 0},
 		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
 	},
+	TXT_KEY_SPY_STATE_BUILDING_NETWORK = {
+		IconOffset = {x = 45,y = 0},
+		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
+	},
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION = {
 		IconOffset = {x = 45, y = 90},
 		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
@@ -64,6 +68,7 @@ local g_TextColors = {
 	TXT_KEY_SPY_STATE_SURVEILLANCE         = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_GATHERING_INTEL      = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_COUNTER_INTEL		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
+	TXT_KEY_SPY_STATE_BUILDING_NETWORK	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
@@ -1126,18 +1131,18 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						entry.RigElectionEnabled:SetHide(true);
 						entry.RigElectionDisabled:SetHide(true);
 						entry.RigElectionCooldown:SetHide(false);
+						entry.RigElectionCooldown:SetToolTipString(strCityStateTT);
 					end
 				end
 			end
 			--END
 			entry.RigElectionDisabled:SetToolTipString(strCityStateTT);
 			entry.RigElectionEnabled:SetToolTipString(strCityStateTT);
-			--CBP
-			entry.RigElectionCooldown:SetToolTipString(strCityStateTT);
-			--END
 		else
 			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 			if(cityInfo.BasePotential > 0) then
+				local pPlayer = Players[cityInfo.PlayerID];
+				local pCity = pPlayer:GetCityByID(cityInfo.CityID);	
 				strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
 				entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
 				entry.PotentialMeterGhost:SetToolTipString(strPotentialToolTip);

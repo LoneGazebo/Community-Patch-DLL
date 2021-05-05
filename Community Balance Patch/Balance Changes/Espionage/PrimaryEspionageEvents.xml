@@ -154,31 +154,46 @@
 		</Row>
 		<!--- CounterSpy -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY_HELP</Help>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>50</IDModifier>
+			<DeathModifier>50</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL_HELP</Help>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<DeathModifier>50</DeathModifier>
+			<IDModifier>25</IDModifier>
+			<DeathModifier>25</DeathModifier>
+			<IsUnhappy>true</IsUnhappy>
+			<CityHappiness>2</CityHappiness>
+			<SpyLevelRequired>0</SpyLevelRequired>
+		</Row>
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<CityDefenseModifier>50</CityDefenseModifier>
+			<IDModifier>10</IDModifier>
+			<DeathModifier>10</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH_HELP</Help>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<DeathModifier>25</DeathModifier>
-			<IDModifier>25</IDModifier>
+			<IDModifier>15</IDModifier>
+			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 	</CityEventChoices>
@@ -199,6 +214,33 @@
 			<Yield>50</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
+	<CityEventChoice_CityUnhappinessNeedMod>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>-25</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>-25</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>-25</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>-25</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>-25</Yield>
+		</Row>
+	</CityEventChoice_CityUnhappinessNeedMod>
 	<CityEventChoice_ImprovementDestructionRandom>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
@@ -258,6 +300,42 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>-1</YieldChange>
 		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
 	</CityEventChoice_SpecialistYieldChange>
 	<CityEvent_ParentEvents>
 		<Row>
@@ -297,15 +375,19 @@
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS</CityEventType>
 		</Row>
 	</CityEvent_ParentEvents>
@@ -357,19 +439,24 @@
 			<Flavor>15</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 			<Flavor>15</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH</CityEventChoiceType>
-			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>15</Flavor>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</CityEventChoiceType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>25</Flavor>
 		</Row>
 	</CityEventChoiceFlavors>
 	<EventChoices>

@@ -88,23 +88,29 @@
 		</Row>
 		
 		<!-- Counterspy -->
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY">
-			<Text>Moles, stooges, bagmen - make them talk.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC">
+			<Text>Establish a counter-espionage network.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_IDENTIFY_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify foreign [ICON_SPY] Spies.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL">
-			<Text>I'm authorizing a License to Kill.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
+			<Text>Inspect the local garrison and fine-tune our city defenses.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_KILL_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Kill foreign [ICON_SPY] Spies.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+10%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. City [ICON_RANGE] Ranged Attacks are 50% stronger while Spy is active in this City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH">
-			<Text>Cast a wide net, and don't be afraid to use a few hooks.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL">
+			<Text>Turn your network on the local population. Bring them in line.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BOTH_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness in the City, and all sources of Needs Unhappiness are reduced by 25%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST">
+			<Text>Make sure local Specialists are giving their best.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+15%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. Merchants, Engineers, Scientists, Artists, Writers, and Musicians all produce +1 of their basic Yield.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS">
 			<Text>Counterintelligence</Text>

@@ -914,6 +914,15 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 											iOurFlavor *= 10;
 									}
 
+									//counterspy filter selection
+									if (pCity->getOwner() == GetID())
+									{
+										if (pCity->getHappinessDelta() < 0 && pkEventChoiceInfo->getCityHappiness() > 0)
+											iOurFlavor *= 2;
+
+										if (pCity->isBorderCity() && IsAtWarAnyMajor() && pkEventChoiceInfo->getCityDefenseModifier() > 0)
+											iOurFlavor *= 2;
+									}
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
 								}
 							}

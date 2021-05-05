@@ -5334,6 +5334,10 @@
 			<Text>Security Level update for {1_CityName}.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK">
+			<Text>Building Network</Text>
+		</Row>
+
 		<!-- Trade Route for Land Modifiers -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
 			<Text>Land route: {1_Num}x</Text>

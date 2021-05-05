@@ -3416,6 +3416,8 @@ public:
 	int getEventPromotion() const;
 	int ConvertsCityToPlayerReligion() const;
 	int ConvertsCityToPlayerMajorityReligion() const;
+	int getCityDefenseModifier() const;
+
 	
 	//espionage
 	bool IsEspionageEffect() const;
@@ -3536,6 +3538,7 @@ protected:
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;
 	int m_iConvertsCityToPlayerMajorityReligion;
+	int m_iCityDefenseModifier;
 	int m_iTriggerPlayerEventChoice;
 
 	//espionage

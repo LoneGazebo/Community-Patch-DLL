@@ -4546,7 +4546,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
 		return false;
 
-	if(pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
+	if(pkEventInfo->isUnhappy() && getHappinessDelta() > 0)
 		return false;
 
 	if(pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
@@ -5876,7 +5876,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
+	if (pkEventInfo->isUnhappy() && getHappinessDelta() > 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -28320,6 +28320,20 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			if (HasGarrison())
 			{
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
+			}
+
+			if (GetCityEspionage()->HasCounterSpy())
+			{
+				//ugh const...
+				CvCity* pCity = GET_PLAYER(getOwner()).getCity(GetID());
+				int iSpyID = GET_PLAYER(getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
+				CvEspionageSpy* pSpy = &GET_PLAYER(getOwner()).GetEspionage()->m_aSpyList[iSpyID];
+				if (pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
+					if (pkEventChoiceInfo != NULL  && pkEventChoiceInfo->getCityDefenseModifier() != 0)
+						iModifier += pkEventChoiceInfo->getCityDefenseModifier();
+				}
 			}
 
 			// Religion city strike mod
