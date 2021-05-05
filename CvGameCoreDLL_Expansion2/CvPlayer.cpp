@@ -21649,9 +21649,7 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 				continue;
 
 			// mind the sign change
-			int iUnhappiness = -1 * pLoopCity->getHappinessDelta(true);
-			pLoopCity->setHappinessDelta(iUnhappiness * -1);
-
+			int iUnhappiness = -1 * pLoopCity->getHappinessDelta();
 			if (iUnhappiness <= 0)
 				continue;
 
