@@ -867,8 +867,8 @@ public:
 
 	int GetLocalHappiness(int iPopMod = 0, bool bExcludeEmpireContributions = false) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	void setHappinessDelta(int iValue);	
-	int getHappinessDelta(bool bStatic = false) const;
+	int updateNetHappiness();	
+	int getHappinessDelta() const;
 	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
 	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(/*YieldTypes eYield = NO_YIELD*/) const;

@@ -2010,7 +2010,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 
 		// make sure we're not heading for disaster
 		CvPlot* pWaypoint = pSettler->GetPathEndFirstTurnPlot();
-		if (!pWaypoint)
+		if (!pWaypoint && pSettler->plot()!=pBetterTarget)
 			return AI_ABORT_LOST_PATH;
 
 		if (pSettler->IsCurrentPathUnsafe())
