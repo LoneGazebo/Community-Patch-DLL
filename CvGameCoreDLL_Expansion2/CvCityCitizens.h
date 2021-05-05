@@ -69,8 +69,8 @@ public:
 
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
-	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
-	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
+	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, bool bLogging = false);
+	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue);
 	int GetSpecialistValue(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers cache);
 
 	// Citizen Assignment
@@ -78,9 +78,9 @@ public:
 	void ChangeNumUnassignedCitizens(int iChange);
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
+	void UpdateAllYields(bool bIncludePlayerHappiness);
 
-	bool DoAddBestCitizenFromUnassigned();
-	bool DoAddBestCitizenFromUnassignedEx(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false, bool bNoSpecialists = false, bool bUpdateNow = true);
+	bool DoAddBestCitizenFromUnassigned(bool bLogging = false, bool bUpdateNow = true);
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
 
 	void SetBlockade(bool bValue);
@@ -89,7 +89,7 @@ public:
 	bool IsDirty();
 	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
 
-	void OptimizeWorkedPlots(std::map<SpecialistTypes, int>& specialistValueCache);
+	void OptimizeWorkedPlots(bool bLogging);
 	bool NeedReworkCitizens();
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
 

@@ -2770,6 +2770,9 @@ void CvCity::doTurn()
 		}
 	}
 
+	//not a full re-allocation but see if we can shift some citizens around
+	//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
+	GetCityCitizens()->OptimizeWorkedPlots(false);
 	updateNetHappiness();
 #endif
 
@@ -17620,10 +17623,9 @@ int CvCity::getGrowthMods() const
 int CvCity::growthThreshold() const
 {
 	VALIDATE_OBJECT
-	int iNumFoodNeeded = GET_PLAYER(getOwner()).getGrowthThreshold(getPopulation());
-
-	return (iNumFoodNeeded);
+	return GET_PLAYER(getOwner()).getGrowthThreshold(getPopulation());
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnhappinessFromCitySpecialists()
